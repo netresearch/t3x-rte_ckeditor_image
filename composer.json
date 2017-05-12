@@ -1,0 +1,16 @@
+{
+	"name": "netresearch/rte-ckeditor-image",
+	"type": "typo3-cms-extension",
+	"description": "Image support in CKEditor for the TYPO3 ecosystem",
+	"homepage": "https://www.netresearch.de",
+	"license": ["GPL-2.0+"],
+
+	"require": {
+		"typo3/cms-rte-ckeditor": "^8.7.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"Netresearch\\RteCKEditorImage\\": "Classes/"
+		}
+	}
+}
