@@ -1,0 +1,4 @@
+# Register image plugin for ckeditor
+editor:
+  externalPlugins:
+    typo3image: { resource: "EXT:rte_ckeditor_image/Resources/Public/JavaScript/Plugins/typo3image.js", route: "rteckeditorimage_wizard_select_image" }
