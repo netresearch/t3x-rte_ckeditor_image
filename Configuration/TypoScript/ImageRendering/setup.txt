@@ -1,0 +1,18 @@
+## TS setup for TYPO3 image rendering
+
+#******************************************************
+# Including library for processing of magic images and file abstraction attributes on img tag
+#******************************************************
+
+lib.parseFunc {
+	tags.img = TEXT
+	tags.img {
+		current = 1
+		preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+	}
+	nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
+		allparams.unset = 1
+		data-htmlarea-file-uid.unset = 1
+		data-htmlarea-file-table.unset = 1
+	}
+}
