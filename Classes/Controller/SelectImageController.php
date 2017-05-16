@@ -46,6 +46,11 @@ class SelectImageController extends ElementBrowserController
     {
         $this->isInfoAction = GeneralUtility::_GP('action') === 'info';
         if (!$this->isInfoAction) {
+            $bparams = explode('|', GeneralUtility::_GET('bparams'));
+            if (!$bparams[3]) {
+                $bparams[3] = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
+                GeneralUtility::_GETset(implode('|', $bparams), 'bparams');
+            }
             parent::__construct();
         }
         $this->mode = 'file';
@@ -90,7 +95,7 @@ class SelectImageController extends ElementBrowserController
             'alt' => $file->getProperty('alternative'),
             'title' => $file->getProperty('title'),
             'width' => $file->getProperty('width'),
-            'height' => $file->getProperty('height'),
+            'height' =>$file->getProperty('height'),
             'url' => $file->getPublicUrl(),
             'processed' => [
                 'width' => $processedFile->getProperty('width'),
@@ -154,6 +159,9 @@ class SelectImageController extends ElementBrowserController
         $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
         $magicImageService->setMagicImageMaximumDimensions($tsConfig);
 
-        return $magicImageService->createMagicImage($file, []);
+        return $magicImageService->createMagicImage($file, [
+            'width' => $file->getProperty('width'),
+            'height' => $file->getProperty('height'),
+        ]);
     }
 }

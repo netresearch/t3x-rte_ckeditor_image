@@ -100,14 +100,14 @@
         var dialog = getImageDialog(editor);
         dialog.set(img, attributes || {});
         require(['TYPO3/CMS/Backend/Modal'], function(Modal) {
-            Modal.advanced({
+            var $modal = Modal.advanced({
                 title: editor.lang.image.title,
                 content: dialog.$el,
                 buttons: [
                     {
                         text: editor.lang.common.ok,
                         trigger: function () {
-                            Modal.dismiss();
+                            $modal.modal('hide');
                             deferred.resolve(img, dialog.get());
                         }
                     }
@@ -149,7 +149,7 @@
             editor.name, // $fieldRef
             'ckeditor', // $rteParams
             'typo3image', // $rteConfig
-            'gif,jpg,jpeg,bmp,png,pdf,svg,ai', // allowedFileExtensions
+            editor.config.typo3image.allowedExtensions || '', // allowedFileExtensions -> Defaults set in controller
             editor.name, // $irreObjectId
             '', // $irreCheckUniqueAction
             '', // $irreAddAction
@@ -165,15 +165,12 @@
         var deferred = $.Deferred();
 
         require(['TYPO3/CMS/Backend/Modal'], function (Modal) {
-            Modal.advanced({
+            var $modal = Modal.advanced({
                 type: Modal.types.iframe,
                 title: editor.lang.common.image,
                 content: url,
                 size: Modal.sizes.large,
                 callback: function(currentModal) {
-                    currentModal.find('.t3js-modal-body')
-                      .addClass('rte-ckeditor-window')
-                      .attr('id', editor.id);
                     currentModal.find('iframe').on('load', function (e) {
                         e.currentTarget.contentWindow.opener = {
                             focus: function () {
@@ -181,10 +178,10 @@
                             },
                             top: window.top,
                             onSelected: function(editorName, table, uid, type) {
-                                if (editorName !== editor.name) {
+                                if (editorName === editor.name) {
+                                    $modal.modal('hide');
+                                    deferred.resolve(table, uid);
                                 }
-                                Modal.dismiss();
-                                deferred.resolve(table, uid);
                             }
                         };
                     });
@@ -233,7 +230,7 @@
             $.each(elements, function () {
                 var $row = $('<div class="row">').appendTo(d.$el);
                 $.each(this, function(key, config) {
-                    var $group = $('<div class="form-group">').appendTo($('<div class="col-sm-12 col-md-6">').appendTo($row));
+                    var $group = $('<div class="form-group">').appendTo($('<div class="col-xs-12 col-sm-6">').appendTo($row));
                     var id = 'rteckeditorimage-' + key;
                     var $el = $('<input type="' + config.type + '" id ="' + id + '" name="' + key + '" class="form-control">');
                     $('<label for="' + id + '">' + config.label + '</label>').appendTo($group);
@@ -253,15 +250,13 @@
                         })
                     } else if (config.type === 'number') {
                         $el.on('input', function() {
-                            var value = $el.val().replace(/[^0-9]/g, '');
-                            if (value !== '') {
-                                var max = parseInt($el.attr('max'));
-                                value = Math.max(parseInt($el.attr('min')), Math.min(parseInt(value), max));
-                                var $opposite = d.elements[key === 'width' ? 'height' : 'width'];
-                                var oppositeMax = parseInt($opposite.attr('max'));
-                                var ratio = oppositeMax / max;
-                                $opposite.val(value === max ? oppositeMax : Math.ceil(value * ratio));
-                            }
+                            var max = parseInt($el.attr('max'));
+                            var value = $el.val().replace(/[^0-9]/g, '') || max;
+                            value = Math.max(parseInt($el.attr('min')), Math.min(parseInt(value), max));
+                            var $opposite = d.elements[key === 'width' ? 'height' : 'width'];
+                            var oppositeMax = parseInt($opposite.attr('max'));
+                            var ratio = oppositeMax / max;
+                            $opposite.val(value === max ? oppositeMax : Math.ceil(value * ratio));
                             $el.val(value);
                         });
                     }
@@ -270,10 +265,11 @@
                 });
             });
             d.set = function (img, attributes) {
+                attributes = Object.assign({}, img.processed, attributes);
                 $.each(elements, function () {
                     $.each(this, function(key, config) {
-                        var placeholder = config.type === 'text' ? (img[key] || '') : img.processed[key];
-                        var value = (attributes[key] || '').trim();
+                        var placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
+                        var value = ((attributes[key] || '') + '').trim();
                         d.elements[key].attr('placeholder', placeholder);
                         d.elements[key].val(value);
                         if (config.type === 'text') {
