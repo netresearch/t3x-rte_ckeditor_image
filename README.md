@@ -10,8 +10,24 @@ This extension adds the TYPO3 image browser to CKEditor.
 
 ## Installation
 
-1. Install + activate the extension
-2. Add a preset for rte_ckeditor or override the default one (as below):
+1. Install the extension
+
+    1. with composer from packagist
+    
+        ```shell
+        composer require netresearch/rte-ckeditor-image
+        ```
+        
+    2. with composer from [TYPO3 TER composer repository](https://composer.typo3.org/)
+        
+        ```shell
+        composer require typo3-ter/rte-ckeditor-image
+        ```
+        
+    3. download from [TYPO3 TER](https://typo3.org/extensions/repository/view/rte_ckeditor_image)
+    
+2. Activate it in Extension Manager or via command line
+3. Add a preset for rte_ckeditor or override the default one (as below):
 
     ```php
     <?php
