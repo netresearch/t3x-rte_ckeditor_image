@@ -2,9 +2,11 @@
 
 This extension adds the TYPO3 image browser to CKEditor.
 
-- Same image handling as rtehtmlarea (magic images)
-- Dialog for changing width, height, alt and title
-- Usual RTE TSConfig supported
+<kbd>![](Resources/Public/Images/demo.gif?raw=true)</kbd>
+
+- Same image handling as rtehtmlarea (magic images, usual RTE TSConfig supported)
+- Image browser as usual in e.g. FAL file selector
+- Dialog for changing width, height, alt and title (aspect ratio automatically maintained)
 
 ## Installation
 
@@ -37,21 +39,21 @@ This extension adds the TYPO3 image browser to CKEditor.
 
 The maximum dimensions relate to the configuration for magic images which have to be set in Page TSConfig:
 
-    ```
-    # Page TSConfig
-    RTE.default.buttons.image.options.magic {
-        maxWidth = 1020  # Default: 300
-        maxHeight = 800  # Default: 1000
-    }
-    ```
+```
+# Page TSConfig
+RTE.default.buttons.image.options.magic {
+    maxWidth = 1020  # Default: 300
+    maxHeight = 800  # Default: 1000
+}
+```
 
 ### Allowed extensions
 
 By default the extensions from `$TYPO3_CONF_VARS['GFX']['imagefile_ext']` are allowed. However you can override this for CKEditor by adding the following to your YAML configuration:
 
-    ```yaml
-    editor:
-      externalPlugins:
-          typo3image:
-            allowedExtensions: "jpg,jpeg,png"
-    ```
+```yaml
+editor:
+  externalPlugins:
+      typo3image:
+        allowedExtensions: "jpg,jpeg,png"
+```
