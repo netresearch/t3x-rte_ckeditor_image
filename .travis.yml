@@ -1,0 +1,23 @@
+language: php
+sudo: false
+
+php:
+  - 7.1
+
+script:
+  - >
+    if [ -n "$TRAVIS_TAG" ] && [ -n "$TYPO3_ORG_USERNAME" ] && [ -n "$TYPO3_ORG_PASSWORD" ]; then
+      echo -e "Preparing upload of release ${TRAVIS_TAG} to TER\n"
+
+      # Dirname is important for extension upload
+      cd ..; mv t3x-rte_ckeditor_image rte_ckeditor_image; cd rte_ckeditor_image
+      composer install
+
+      # Cleanup before we upload
+      git reset --hard HEAD && git clean -fx
+
+      # Upload
+      TAG_MESSAGE=`git tag -n10 -l $TRAVIS_TAG | sed 's/^[0-9.]*[ ]*//g'`
+      echo "Uploading release ${TRAVIS_TAG} to TER"
+      .Build/bin/upload . "$TYPO3_ORG_USERNAME" "$TYPO3_ORG_PASSWORD" "$TAG_MESSAGE"
+    fi;

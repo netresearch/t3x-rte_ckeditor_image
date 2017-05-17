@@ -8,6 +8,9 @@
 	"require": {
 		"typo3/cms-rte-ckeditor": "^8.7.0"
 	},
+	"require-dev": {
+		"namelesscoder/typo3-repository-client": "^1.2"
+	},
 	"autoload": {
 		"psr-4": {
 			"Netresearch\\RteCKEditorImage\\": "Classes/"
