@@ -97,8 +97,7 @@
      */
     function askImageAttributes(editor, img, attributes) {
         var deferred = $.Deferred();
-        var dialog = getImageDialog(editor);
-        dialog.set(img, attributes || {});
+        var dialog = getImageDialog(editor, img, Object.assign({}, img.processed, attributes));
         require(['TYPO3/CMS/Backend/Modal'], function(Modal) {
             var $modal = Modal.advanced({
                 title: editor.lang.image.title,
@@ -209,105 +208,113 @@
     /**
      * Get the image attributes dialog
      *
-     * @param editor
-     * @return {getImageDialog}
+     * @param {Object} editor
+     * @param {Object} img
+     * @param {Object} attributes
+     * @return {{$el: {jquery}, get: {function}}}
      */
-    function getImageDialog(editor) {
-        var d = getImageDialog;
-        if (!d.$el) {
-            d.$el = $('<div class="rteckeditorimage">');
-            d.elements = {};
-            const elements = [
-                {
-                    width: { label: editor.lang.common.width, type: 'number' },
-                    height: { label: editor.lang.common.height, type: 'number' },
-                },
-                {
-                    title: { label: editor.lang.common.advisoryTitle, type: 'text' },
-                    alt: { label: editor.lang.image.alt, type: 'text' }
-                }
-            ];
-            $.each(elements, function () {
-                var $row = $('<div class="row">').appendTo(d.$el);
-                $.each(this, function(key, config) {
-                    var $group = $('<div class="form-group">').appendTo($('<div class="col-xs-12 col-sm-6">').appendTo($row));
-                    var id = 'rteckeditorimage-' + key;
-                    var $el = $('<input type="' + config.type + '" id ="' + id + '" name="' + key + '" class="form-control">');
-                    $('<label for="' + id + '">' + config.label + '</label>').appendTo($group);
-                    if (config.type === 'text') {
-                        var cbox = $('<input type="checkbox">');
-                        var cboxLabel = $('<label><span></span></label>');
-                        cbox.prependTo(
-                            cboxLabel.appendTo($('<div class="checkbox" style="margin: 0 0 6px;">').appendTo($group))
-                        );
-                        cboxLabel.click(function () {
-                            $el.prop('disabled', !cbox.prop('checked'));
-                            if (!cbox.prop('checked')) {
-                                $el.val('');
-                            } else {
-                                $el.focus();
-                            }
-                        })
-                    } else if (config.type === 'number') {
-                        $el.on('input', function() {
-                            var max = parseInt($el.attr('max'));
-                            var value = $el.val().replace(/[^0-9]/g, '') || max;
-                            value = Math.max(parseInt($el.attr('min')), Math.min(parseInt(value), max));
-                            var $opposite = d.elements[key === 'width' ? 'height' : 'width'];
-                            var oppositeMax = parseInt($opposite.attr('max'));
-                            var ratio = oppositeMax / max;
-                            $opposite.val(value === max ? oppositeMax : Math.ceil(value * ratio));
-                            $el.val(value);
-                        });
+    function getImageDialog(editor, img, attributes) {
+        var d = {};
+        d.$el = $('<div class="rteckeditorimage">');
+        const fields = [
+            {
+                width: { label: editor.lang.common.width, type: 'number' },
+                height: { label: editor.lang.common.height, type: 'number' },
+            },
+            {
+                title: { label: editor.lang.common.advisoryTitle, type: 'text' },
+                alt: { label: editor.lang.image.alt, type: 'text' }
+            }
+        ];
+        var elements = {};
+        $.each(fields, function () {
+            var $row = $('<div class="row">').appendTo(d.$el);
+            $.each(this, function(key, config) {
+                var $group = $('<div class="form-group">').appendTo($('<div class="col-xs-12 col-sm-6">').appendTo($row));
+                var id = 'rteckeditorimage-' + key;
+                $('<label for="' + id + '">' + config.label + '</label>').appendTo($group);
+                var $el = $('<input type="' + config.type + '" id ="' + id + '" name="' + key + '" class="form-control">');
+
+                var placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
+                var value = ((attributes[key] || '') + '').trim();
+                $el.attr('placeholder', placeholder);
+                $el.val(value);
+
+                if (config.type === 'text') {
+                    var hasDefault = img[key] && img[key].trim();
+                    $el.prop('disabled', hasDefault && !value);
+
+                    var cbox = $('<input type="checkbox">')
+                        .prop('checked', !!value || !hasDefault)
+                        .prop('disabled', !hasDefault);
+                    var cboxLabel = $('<label></label>').text(
+                        hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault
+                    );
+                    cbox.prependTo(
+                        cboxLabel.appendTo($('<div class="checkbox" style="margin: 0 0 6px;">').appendTo($group))
+                    );
+                    cboxLabel.click(function () {
+                        $el.prop('disabled', !cbox.prop('checked'));
+                        if (!cbox.prop('checked')) {
+                            $el.val('');
+                        } else {
+                            $el.focus();
+                        }
+                    })
+                } else if (config.type === 'number') {
+                    var ratio = img.processed.width / img.processed.height;
+                    if (key === 'height') {
+                        ratio = 1 / ratio;
                     }
-                    d.elements[key] = $el;
-                    $group.append(d.elements[key]);
+                    var opposite = 1;
+                    var max = img.processed[key];
+                    var min = Math.ceil(opposite * ratio);
+                    $el.attr('max', max);
+                    $el.attr('min', min);
+                    
+                    var constrainDimensions = function (currentMin, delta) {
+                        value = parseInt($el.val().replace(/[^0-9]/g, '') || max);
+                        if (delta) {
+                            value += delta;
+                        }
+                        value = Math.max(currentMin, Math.min(value, max));
+                        var $opposite = elements[key === 'width' ? 'height' : 'width'];
+                        var oppositeMax = parseInt($opposite.attr('max'));
+                        var ratio = oppositeMax / max;
+                        $opposite.val(value === max ? oppositeMax : Math.ceil(value * ratio));
+                        $el.val(value);
+                    };
+
+                    $el.on('input', function() {
+                        constrainDimensions(1);
+                    });
+                    $el.on('change', function() {
+                        constrainDimensions(min);
+                    });
+                    $el.on('mousewheel', function(e) {
+                        constrainDimensions(min, e.originalEvent.wheelDelta > 0 ? 1 : -1);
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                    });
+                }
+                $group.append($el);
+                elements[key] = $el;
+            });
+        });
+        d.get = function () {
+            var attributes = [];
+            $.each(fields, function () {
+                $.each(this, function(key) {
+                    var value = elements[key].val();
+                    if (value) {
+                        attributes[key] = value;
+                    }
                 });
             });
-            d.set = function (img, attributes) {
-                attributes = Object.assign({}, img.processed, attributes);
-                $.each(elements, function () {
-                    $.each(this, function(key, config) {
-                        var placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
-                        var value = ((attributes[key] || '') + '').trim();
-                        d.elements[key].attr('placeholder', placeholder);
-                        d.elements[key].val(value);
-                        if (config.type === 'text') {
-                            var hasDefault = img[key] && img[key].trim();
-                            d.elements[key].prop('disabled', hasDefault && !value);
-                            d.elements[key].parent().find('input[type="checkbox"]')
-                                .prop('checked', !!value || !hasDefault)
-                                .prop('disabled', !hasDefault);
-                            d.elements[key].parent().find('span').text(
-                                hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault
-                            );
-                        } else {
-                            d.elements[key].attr('max', img.processed[key]);
-                            var ratio = img.processed.width / img.processed.height;
-                            if (key === 'height') {
-                                ratio = 1 / ratio;
-                            }
-                            var opposite = 1;
-                            var min = opposite * ratio;
-                            d.elements[key].attr('min', Math.ceil(min));
-                        }
-                    });
-                });
-            };
-            d.get = function () {
-                var attributes = [];
-                $.each(elements, function () {
-                    $.each(this, function(key) {
-                        var value = d.elements[key].val();
-                        if (value) {
-                            attributes[key] = value;
-                        }
-                    });
-                });
-                return attributes;
-            };
-        }
-        return getImageDialog;
+            return attributes;
+        };
+        return d;
     }
 
 })();
