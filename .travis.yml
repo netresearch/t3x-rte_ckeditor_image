@@ -4,9 +4,16 @@ sudo: false
 php:
   - 7.1
 
+branches:
+  only:
+    - /^v[0-9]+\.[0-9]+\.[0-9]+$/
+
+env:
+  - UNIT_TESTS="no"
+
 script:
   - >
-    if [ -n "$TRAVIS_TAG" ] && [ -n "$TYPO3_ORG_USERNAME" ] && [ -n "$TYPO3_ORG_PASSWORD" ]; then
+    if [ -n "$TYPO3_ORG_USERNAME" ] && [ -n "$TYPO3_ORG_PASSWORD" ]; then
       echo -e "Preparing upload of release ${TRAVIS_TAG} to TER\n"
 
       # Dirname is important for extension upload
