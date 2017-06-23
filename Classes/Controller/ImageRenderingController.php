@@ -17,6 +17,7 @@ namespace Netresearch\RteCKEditorImage\Controller;
 
 use \TYPO3\CMS\Core\Resource;
 use \TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 
 /**
  * Controller to render the image tag in frontend
@@ -111,7 +112,14 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
                 }
             }
         }
-        return '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, true) . ' />';
+        $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, true) . ' />';
+        if ($imageAttributes['data-htmlarea-zoom'] && isset($file) && $file) {
+            return $this->cObj->imageLinkWrap(
+                $img, $file,
+                $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.']
+            );
+        }
+        return $img;
     }
 
     /**
@@ -132,11 +140,14 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     protected function getMagicImageService()
     {
         /** @var $magicImageService Resource\Service\MagicImageService */
-        $magicImageService = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Resource\Service\MagicImageService::class);
-        // Get RTE configuration
-        $pageTSConfig = $this->frontendController->getPagesTSconfig();
-        if (is_array($pageTSConfig) && is_array($pageTSConfig['RTE.']['default.'])) {
-            $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
+        static $magicImageService;
+        if (!$magicImageService) {
+            $magicImageService = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Resource\Service\MagicImageService::class);
+            // Get RTE configuration
+            $pageTSConfig = $this->frontendController->getPagesTSconfig();
+            if (is_array($pageTSConfig) && is_array($pageTSConfig['RTE.']['default.'])) {
+                $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
+            }
         }
         return $magicImageService;
     }

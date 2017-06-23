@@ -231,6 +231,7 @@
      */
     function getImageDialog(editor, img, attributes) {
         var d = {};
+        var $rows = [];
         d.$el = $('<div class="rteckeditorimage">');
         const fields = [
             {
@@ -245,6 +246,7 @@
         var elements = {};
         $.each(fields, function () {
             var $row = $('<div class="row">').appendTo(d.$el);
+            $rows.push($row);
             $.each(this, function(key, config) {
                 var $group = $('<div class="form-group">').appendTo($('<div class="col-xs-12 col-sm-6">').appendTo($row));
                 var id = 'rteckeditorimage-' + key;
@@ -318,8 +320,19 @@
                 elements[key] = $el;
             });
         });
+
+        var $zoom = $('<input type="checkbox">');
+        if (attributes['data-htmlarea-zoom']) {
+            $zoom.prop('checked', true);
+        }
+        $zoom.prependTo(
+            $('<label>').text(img.lang.zoom).appendTo(
+                $('<div class="checkbox" style="margin: -5px 0 15px;">').insertAfter($rows[0])
+            )
+        );
+
         d.get = function () {
-            var attributes = [];
+            var attributes = {};
             $.each(fields, function () {
                 $.each(this, function(key) {
                     var value = elements[key].val();
@@ -328,6 +341,9 @@
                     }
                 });
             });
+            if ($zoom.prop('checked')) {
+                attributes['data-htmlarea-zoom'] = true;
+            }
             return attributes;
         };
         return d;

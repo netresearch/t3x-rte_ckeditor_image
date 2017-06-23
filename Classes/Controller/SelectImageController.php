@@ -89,6 +89,7 @@ class SelectImageController extends ElementBrowserController
 
         $lang = $this->getLanguageService();
         $this->getLanguageService()->includeLLFile('EXT:lang/Resources/Private/Language/locallang_core.xlf');
+        $this->getLanguageService()->includeLLFile('EXT:frontend/Resources/Private/Language/locallang_ttc.xlf');
 
         echo json_encode([
             'uid' => $file->getUid(),
@@ -104,7 +105,8 @@ class SelectImageController extends ElementBrowserController
             ],
             'lang' => [
                 'override' => $lang->getLL('labels.placeholder.override'),
-                'overrideNoDefault' => $lang->getLL('labels.placeholder.override_not_available')
+                'overrideNoDefault' => $lang->getLL('labels.placeholder.override_not_available'),
+                'zoom' => $lang->getLL('image_zoom_formlabel')
             ]
         ]);
 
