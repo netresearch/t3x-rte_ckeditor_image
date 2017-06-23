@@ -24,34 +24,35 @@
         elementBrowser: null,
         init: function (editor) {
             var allowedAttributes = ['!src', 'alt', 'title', 'class', 'rel', 'width', 'height'],
-              required = 'img[src]';
+                required = 'img[src]';
 
             var additionalAttributes = getAdditionalAttributes(editor);
             if (additionalAttributes.length) {
                 allowedAttributes.push.apply(allowedAttributes, additionalAttributes);
             }
 
+            var edit = function (table, uid, attributes) {
+                getImageInfo(editor, table, uid)
+                    .then(function(img) {
+                        return askImageAttributes(editor, img, attributes);
+                    })
+                    .then(function (img, attributes) {
+                        Object.assign(attributes, {
+                            src: '../' + img.processed.url,
+                            'data-htmlarea-file-uid': uid,
+                            'data-htmlarea-file-table': table
+                        });
+                        editor.insertElement(
+                            editor.document.createElement('img', { attributes: attributes })
+                        );
+                    });
+            };
+
             // Override link command
             editor.addCommand('image', {
                 exec: function () {
-                    var edit = function (table, uid, attributes) {
-                        getImageInfo(editor, table, uid)
-                            .then(function(img) {
-                                return askImageAttributes(editor, img, attributes);
-                            })
-                            .then(function (img, attributes) {
-                                Object.assign(attributes, {
-                                    src: '../' + img.processed.url,
-                                    'data-htmlarea-file-uid': uid,
-                                    'data-htmlarea-file-table': table
-                                });
-                                editor.insertElement(
-                                    editor.document.createElement('img', { attributes: attributes })
-                                );
-                            });
-                    };
                     var current = editor.getSelection().getSelectedElement();
-                    if (current && current.getName() === 'img' && current.getAttribute('data-htmlarea-file-uid')) {
+                    if (current && current.is('img') && current.getAttribute('data-htmlarea-file-uid')) {
                         edit(
                             current.getAttribute('data-htmlarea-file-table') || 'sys_file',
                             current.getAttribute('data-htmlarea-file-uid'),
@@ -63,6 +64,21 @@
                 },
                 allowedContent: 'img[' + allowedAttributes.join(',') + ']',
                 requiredContent: 'img[src]'
+            });
+
+            // Open our and not the CKEditor image dialog on double click:
+            editor.on('doubleclick', function(evt) {
+                if (evt.data.dialog === 'image') {
+                    delete evt.data.dialog;
+                }
+                var current = evt.data.element;
+                if (!evt.data.dialog && current && current.is('img') && current.getAttribute('data-htmlarea-file-uid')) {
+                    edit(
+                        current.getAttribute('data-htmlarea-file-table') || 'sys_file',
+                        current.getAttribute('data-htmlarea-file-uid'),
+                        current.getAttributes()
+                    );
+                }
             });
 
             // Fix images being removed when linked
@@ -127,10 +143,10 @@
     function getImageInfo(editor, table, uid) {
         var routeUrl = editor.config.typo3image.routeUrl;
         var url = routeUrl
-          + (routeUrl.indexOf('?') === -1 ? '?' : '&')
-          + 'action=info'
-          + '&id=' + encodeURIComponent(uid)
-          + '&table=' + encodeURIComponent(table);
+            + (routeUrl.indexOf('?') === -1 ? '?' : '&')
+            + 'action=info'
+            + '&id=' + encodeURIComponent(uid)
+            + '&table=' + encodeURIComponent(table);
 
         return $.getJSON(url);
     }
@@ -156,10 +172,10 @@
         ];
         var routeUrl = editor.config.typo3image.routeUrl;
         var url = routeUrl
-          + (routeUrl.indexOf('?') === -1 ? '?' : '&')
-          + 'contentsLanguage=' + editor.config.contentsLanguage
-          + '&editorId=' + editor.id
-          + '&bparams=' + bparams.join('|');
+            + (routeUrl.indexOf('?') === -1 ? '?' : '&')
+            + 'contentsLanguage=' + editor.config.contentsLanguage
+            + '&editorId=' + editor.id
+            + '&bparams=' + bparams.join('|');
 
         var deferred = $.Deferred();
 
@@ -271,7 +287,7 @@
                     var min = Math.ceil(opposite * ratio);
                     $el.attr('max', max);
                     $el.attr('min', min);
-                    
+
                     var constrainDimensions = function (currentMin, delta) {
                         value = parseInt($el.val().replace(/[^0-9]/g, '') || max);
                         if (delta) {
