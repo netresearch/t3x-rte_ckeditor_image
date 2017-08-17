@@ -37,7 +37,7 @@
                         return askImageAttributes(editor, img, attributes);
                     })
                     .then(function (img, attributes) {
-                        Object.assign(attributes, {
+                        $.extend(attributes, {
                             src: '../' + img.processed.url,
                             'data-htmlarea-file-uid': uid,
                             'data-htmlarea-file-table': table
@@ -113,7 +113,7 @@
      */
     function askImageAttributes(editor, img, attributes) {
         var deferred = $.Deferred();
-        var dialog = getImageDialog(editor, img, Object.assign({}, img.processed, attributes));
+        var dialog = getImageDialog(editor, img, $.extend({}, img.processed, attributes));
         require(['TYPO3/CMS/Backend/Modal'], function(Modal) {
             var $modal = Modal.advanced({
                 title: editor.lang.image.title,
