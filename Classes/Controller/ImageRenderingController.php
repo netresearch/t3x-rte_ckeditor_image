@@ -114,6 +114,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         }
         $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, true) . ' />';
         if ($imageAttributes['data-htmlarea-zoom'] && isset($file) && $file) {
+            $GLOBALS['TSFE']->cObj->setCurrentFile($file);
             return $this->cObj->imageLinkWrap(
                 $img, $file,
                 $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.']
