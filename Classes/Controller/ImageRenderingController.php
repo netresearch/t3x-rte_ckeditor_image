@@ -123,7 +123,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         
         $subtitle = !empty($imageAttributes['subtitle']) ? $imageAttributes['subtitle'] : '' ;
         
-        $credits = !empty($imageAttributes['credits']) ?  'Crédito: '.$imageAttributes['credits']: '' ; 
+        $credits = !empty($imageAttributes['credits']) ?  $imageAttributes['credits']: '' ; 
 
         
         if($subtitle && $credits){
