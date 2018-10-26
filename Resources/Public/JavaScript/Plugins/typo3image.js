@@ -241,6 +241,10 @@
             {
                 title: { label: editor.lang.common.advisoryTitle, type: 'text' },
                 alt: { label: editor.lang.image.alt, type: 'text' }
+            },
+            {
+                subtitle: { label: "Subtitle", type: 'text' },
+                credits: { label: "Credits", type: 'text' }
             }
         ];
         var elements = {};

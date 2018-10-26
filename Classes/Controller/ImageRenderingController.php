@@ -120,7 +120,21 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
                 $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.']
             );
         }
-        return $img;
+        
+        $subtitle = !empty($imageAttributes['subtitle']) ? $imageAttributes['subtitle'] : '' ;
+        
+        $credits = !empty($imageAttributes['credits']) ?  'Crédito: '.$imageAttributes['credits']: '' ; 
+
+        
+        if($subtitle && $credits){
+            $figCaption = '<figcaption>' . $subtitle . ' ('. $credits . ')' .'</figcaption>'; 
+        }else{
+            $figCaption = '<figcaption>' . $subtitle . $credits .'</figcaption>'; 
+        }
+        
+        $imgContainer = '<figure class="article-ifigure">'. $img . $figCaption . '</figure>';
+
+        return $imgContainer;
     }
 
     /**
