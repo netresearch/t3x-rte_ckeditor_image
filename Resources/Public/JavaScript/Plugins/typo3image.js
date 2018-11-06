@@ -53,6 +53,7 @@
                 exec: function () {
                     var current = editor.getSelection().getSelectedElement();
                     if (current && current.is('img') && current.getAttribute('data-htmlarea-file-uid')) {
+                        // If the button is clicked with a selected image
                         edit(
                             current.getAttribute('data-htmlarea-file-table') || 'sys_file',
                             current.getAttribute('data-htmlarea-file-uid'),
@@ -64,6 +65,37 @@
                 },
                 allowedContent: 'img[' + allowedAttributes.join(',') + ']',
                 requiredContent: 'img[src]'
+            });
+
+            // Use a separate command for editing from the context menu
+            editor.addCommand('imageProperties', {
+                exec: function() {
+                    var current = editor.getSelection().getSelectedElement();
+                    var img;
+                    if (current) {
+                        if (!current.is('img')) {
+                            img = new CKEDITOR.dom.element(current.$.querySelector('img'));
+                        } else {
+                            img = current;
+                        }
+                    }
+                    if (img && img.getAttribute('data-htmlarea-file-uid')) {
+                        edit(
+                            img.getAttribute('data-htmlarea-file-table') || 'sys_file',
+                            img.getAttribute('data-htmlarea-file-uid'),
+                            img.getAttributes()
+                        );
+                    }
+                }
+            });
+
+            // Override the existing `image` content menu item to use the separate editing command
+            editor.addMenuItems({
+                image: {
+                    label: editor.lang.image.menu,
+                    command: 'imageProperties',
+                    group: 'image'
+                }
             });
 
             // Open our and not the CKEditor image dialog on double click:
@@ -145,7 +177,7 @@
         var url = routeUrl
             + (routeUrl.indexOf('?') === -1 ? '?' : '&')
             + 'action=info'
-            + '&id=' + encodeURIComponent(uid)
+            + '&fileId=' + encodeURIComponent(uid)
             + '&table=' + encodeURIComponent(table);
 
         return $.getJSON(url);
@@ -187,18 +219,22 @@
                 size: Modal.sizes.large,
                 callback: function(currentModal) {
                     currentModal.find('iframe').on('load', function (e) {
-                        e.currentTarget.contentWindow.opener = {
-                            focus: function () {
-                                editor.focus();
-                            },
-                            top: window.top,
-                            onSelected: function(editorName, table, uid, type) {
-                                if (editorName === editor.name) {
-                                    $modal.modal('hide');
-                                    deferred.resolve(table, uid);
-                                }
+                        var onSelected = function(editorName, table, uid, type) {
+                            if (editorName === editor.name) {
+                                $modal.modal('hide');
+                                deferred.resolve(table, uid);
                             }
                         };
+                        // Assign the onSelected function to the correct window, dependent on the current context
+                        if (typeof e.currentTarget.contentWindow.parent !== 'undefined' && typeof e.currentTarget.contentWindow.parent.document.list_frame !== 'undefined' && e.currentTarget.contentWindow.parent.document.list_frame.parent.document.querySelector('.t3js-modal-iframe') !== null) {
+                            e.currentTarget.contentWindow.parent.document.list_frame.onSelected = onSelected
+                        } else if (typeof e.currentTarget.contentWindow.parent !== 'undefined' && typeof e.currentTarget.contentWindow.parent.frames.list_frame !== 'undefined' && e.currentTarget.contentWindow.parent.frames.list_frame.parent.document.querySelector('.t3js-modal-iframe') !== null) {
+                            e.currentTarget.contentWindow.parent.frames.list_frame.onSelected = onSelected
+                        } else if (typeof e.currentTarget.contentWindow.frames !== 'undefined' && typeof e.currentTarget.contentWindow.frames.frameElement !== 'undefined' && e.currentTarget.contentWindow.frames.frameElement !== null && e.currentTarget.contentWindow.frames.frameElement.classList.contains('t3js-modal-iframe')) {
+                            e.currentTarget.contentWindow.frames.frameElement.contentWindow.parent.onSelected = onSelected;
+                        } else if (e.currentTarget.contentWindow.opener) {
+                            e.currentTarget.contentWindow.opener.onSelected = onSelected;
+                        }
                     });
                 }
             });
