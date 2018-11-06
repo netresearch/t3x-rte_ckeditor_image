@@ -18,6 +18,7 @@ namespace Netresearch\RteCKEditorImage\Controller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Configuration\Richtext;
+use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -60,26 +61,24 @@ class SelectImageController extends ElementBrowserController
      * Forward to infoAction if wanted
      *
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @return NULL|ResponseInterface
+     * @return ResponseInterface
      */
-    public function mainAction(ServerRequestInterface $request, ResponseInterface $response)
+    public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->isInfoAction
-            ? $this->infoAction($request, $response)
-            : parent::mainAction($request, $response);
+            ? $this->infoAction($request)
+            : parent::mainAction($request);
     }
 
     /**
      * Retrieve image info
      *
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @return NULL|ResponseInterface
+     * @return ResponseInterface
      */
-    public function infoAction(ServerRequestInterface $request, ResponseInterface $response)
+    public function infoAction(ServerRequestInterface $request): ResponseInterface
     {
-        $id = $request->getQueryParams()['id'];
+        $id = $request->getQueryParams()['fileId'];
         $params = $request->getQueryParams()['P'] ?: [];
         if (!$id || !is_numeric($id)) {
             HttpUtility::setResponseCodeAndExit(HttpUtility::HTTP_STATUS_412);
@@ -91,7 +90,7 @@ class SelectImageController extends ElementBrowserController
         $this->getLanguageService()->includeLLFile('EXT:lang/Resources/Private/Language/locallang_core.xlf');
         $this->getLanguageService()->includeLLFile('EXT:frontend/Resources/Private/Language/locallang_ttc.xlf');
 
-        echo json_encode([
+        return new JsonResponse([
             'uid' => $file->getUid(),
             'alt' => $file->getProperty('alternative'),
             'title' => $file->getProperty('title'),
@@ -109,8 +108,6 @@ class SelectImageController extends ElementBrowserController
                 'zoom' => $lang->getLL('image_zoom_formlabel')
             ]
         ]);
-
-        return null;
     }
 
     /**
