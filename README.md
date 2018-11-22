@@ -17,16 +17,25 @@ This extension adds the TYPO3 image browser to CKEditor.
         ```shell
         composer require netresearch/rte-ckeditor-image
         ```
-        
+
     2. with composer from [TYPO3 TER composer repository](https://composer.typo3.org/)
-        
+
         ```shell
         composer require typo3-ter/rte-ckeditor-image
         ```
-        
+
     3. download from [TYPO3 TER](https://extensions.typo3.org/extension/rte_ckeditor_image/)
-    
-2. Activate it in Extension Manager or via command line
+
+2. Activate the extension
+
+    1. in Extension Manager
+
+    2. via command line
+
+        ```shell
+        ./typo3/cli_dispatch.phpsh extbase extension:install rte_ckeditor_image
+        ```
+
 3. Add a preset for rte_ckeditor or override the default one (as below):
 
     ```php
@@ -42,7 +51,7 @@ This extension adds the TYPO3 image browser to CKEditor.
       - { resource: "EXT:rte_ckeditor/Configuration/RTE/Default.yaml" }
       # Import the image plugin configuration
       - { resource: "EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml" }
-    
+
     editor:
       config:
         # RTE default config removes image plugin - restore it:
@@ -50,6 +59,15 @@ This extension adds the TYPO3 image browser to CKEditor.
     ```
 
 ## Configuration
+
+### Enable popup
+
+Enable TYPO3 popup function (Enlarge on Click checkbox) via Template TS:
+
+```
+# Template TS
+lib.contentElement.settings.media.popup.enable = 1
+```
 
 ### Maximum width/height
 
