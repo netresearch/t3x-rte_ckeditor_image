@@ -98,10 +98,10 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
                         $processedFile = $this->getMagicImageService()->createMagicImage($file, $imageConfiguration);
                         $additionalAttributes = [
                             'src' => $processedFile->getPublicUrl(),
-                            'title' => $imageAttributes['title'] ?: $file->getProperty('title'),
-                            'alt' => $imageAttributes['alt'] ?: $file->getProperty('alternative'),
-                            'width' => $processedFile->getProperty('width'),
-                            'height' => $processedFile->getProperty('height'),
+                            'title' => ($imageAttributes['title']) ? $imageAttributes['title'] : $file->getProperty('title'),
+                            'alt' => ($imageAttributes['alt']) ? $imageAttributes['alt'] : $file->getProperty('alternative'),
+                            'width' => ($processedFile->getProperty('width')) ? $processedFile->getProperty('width') : $imageConfiguration['width'],
+                            'height' => ($processedFile->getProperty('height')) ? $processedFile->getProperty('height') : $imageConfiguration['height'],
                         ];
                         $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
                     }
