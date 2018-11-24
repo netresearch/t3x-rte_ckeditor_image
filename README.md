@@ -1,7 +1,7 @@
 # Image support for CKEditor for TYPO3
 
 This extension adds the TYPO3 image browser to CKEditor.
-Explore the project on [github](https://github.com/netresearch/t3x-rte_ckeditor_image). 
+Explore the project on [github](https://github.com/netresearch/t3x-rte_ckeditor_image).
 
 <kbd>![](Resources/Public/Images/demo.gif?raw=true)</kbd>
 
