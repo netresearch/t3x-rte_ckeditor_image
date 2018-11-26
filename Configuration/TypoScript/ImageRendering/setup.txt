@@ -5,15 +5,15 @@
 #******************************************************
 
 lib.parseFunc {
-	tags.img = TEXT
-	tags.img {
-		current = 1
-		preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
-	}
-	nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
-		allparams.unset = 1
-		data-htmlarea-file-uid.unset = 1
-		data-htmlarea-file-table.unset = 1
-		data-htmlarea-zoom.unset = 1
-	}
+    tags.img = TEXT
+    tags.img {
+        current = 1
+        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+    }
+    nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
+        allparams.unset = 1
+        data-htmlarea-file-uid.unset = 1
+        data-htmlarea-file-table.unset = 1
+        data-htmlarea-zoom.unset = 1
+    }
 }
