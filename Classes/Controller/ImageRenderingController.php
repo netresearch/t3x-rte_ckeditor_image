@@ -104,19 +104,28 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
                             'height' => ($processedFile->getProperty('height')) ? $processedFile->getProperty('height') : $imageConfiguration['height'],
                         ];
                         $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
+                        // Remove empty style attr
+                        if ($processedFile->getProperty('style') == null) {
+                            unset($imageAttributes['style']);
+                        }
                     }
                 } catch (Resource\Exception\FileDoesNotExistException $fileDoesNotExistException) {
-                    // Log the fact the file could not be retrieved.
+                    // Log in fact the file could not be retrieved.
                     $message = sprintf('I could not find file with uid "%s"', $fileUid);
                     $this->getLogger()->error($message);
                 }
             }
         }
+
+        // Image template
         $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, true) . ' />';
+
+        // Popup rendering
         if ($imageAttributes['data-htmlarea-zoom'] && isset($file) && $file) {
             $GLOBALS['TSFE']->cObj->setCurrentFile($file);
             return $this->cObj->imageLinkWrap(
-                $img, $file,
+                $img,
+                $file,
                 $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.']
             );
         }
