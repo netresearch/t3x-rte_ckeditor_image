@@ -25,7 +25,7 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
  * Copied from
  * @link https://github.com/FriendsOfTYPO3/rtehtmlarea/blob/master/Classes/Controller/ImageRenderingController.php
  *
- * PHP version 5
+ * PHP version 7
  *
  * @category   Netresearch
  * @package    RteCKEditor
@@ -81,6 +81,8 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     public function renderImageAttributes($content = '', $conf)
     {
         $imageAttributes = $this->getImageAttributes();
+        $currentRecord = (int)str_replace("tt_content:", "", $GLOBALS['TSFE']->currentRecord);
+
         // It is pretty rare to be in presence of an external image as the default behaviour
         // of the RTE is to download the external image and create a local image.
         // However, it may happen if the RTE has the flag "disable"
@@ -122,11 +124,13 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
 
         // Popup rendering
         if ($imageAttributes['data-htmlarea-zoom'] && isset($file) && $file) {
+            $config = $this->renderPopupConfig($imageAttributes, $currentRecord);
             $GLOBALS['TSFE']->cObj->setCurrentFile($file);
+
             return $this->cObj->imageLinkWrap(
                 $img,
                 $file,
-                $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.']
+                $config
             );
         }
         return $img;
@@ -171,6 +175,39 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     {
         $srcAbsoluteUrl = $this->cObj->parameters['src'];
         return strtolower(substr($srcAbsoluteUrl, 0, 4)) === 'http' || substr($srcAbsoluteUrl, 0, 2) === '//';
+    }
+
+    /**
+     * Returns typoscript popup setting after replacing attributes of the popup link.
+     *
+     * @param array $imageAttributes
+     * @param int $contentUid
+     * @return array
+     */
+    protected function renderPopupConfig(array $imageAttributes, int $contentUid)
+    {
+        $search = array(
+            '{file-title}',
+            '{file:current:title}',
+            '{content-uid}',
+            '{register:content_uid}',
+            '{file:current:uid_foreign}'
+        );
+        $replace = array(
+            $imageAttributes['title'],
+            $imageAttributes['title'],
+            'imgroup-' . $contentUid,
+            'imgroup-' . $contentUid,
+            'imgroup-' . $contentUid
+        );
+
+        $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'];
+        $config['linkParams.']['ATagParams.']['dataWrap'] = str_replace (
+            $search,
+            $replace,
+            $config['linkParams.']['ATagParams.']['dataWrap']
+        );
+        return $config;
     }
 
     /**

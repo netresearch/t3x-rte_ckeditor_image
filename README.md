@@ -61,15 +61,6 @@ Add issues or explore the project on [github](https://github.com/netresearch/t3x
 
 ## Configuration
 
-### Enable popup
-
-Enable TYPO3 popup function (Enlarge on Click checkbox) via Template TS:
-
-```
-# Template TS
-lib.contentElement.settings.media.popup.enable = 1
-```
-
 ### Maximum width/height
 
 The maximum dimensions relate to the configuration for magic images which have to be set in Page TSConfig:
@@ -80,6 +71,26 @@ RTE.default.buttons.image.options.magic {
     maxWidth = 1020  # Default: 300
     maxHeight = 800  # Default: 1000
 }
+```
+
+### Enable popup
+
+Enable TYPO3 popup function (Enlarge on Click checkbox) via Template TS:
+
+```
+# Template TS
+lib.contentElement.settings.media.popup.enable = 1
+```
+
+### Use custom popup
+
+You can define custom attributes for the popup.
+
+```
+# Template TS
+lib.contentElement.settings.media.popup.enable = 1
+lib.contentElement.settings.media.popup.JSwindow = 0
+lib.contentElement.settings.media.popup.linkParams.ATagParams.dataWrap = class="lightbox" title="{file:current:title}" rel="lightbox[{file:current:uid_foreign}]"
 ```
 
 ### Allowed extensions
