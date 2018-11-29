@@ -73,24 +73,11 @@ RTE.default.buttons.image.options.magic {
 }
 ```
 
-### Enable popup
-
-Enable TYPO3 popup function (Enlarge on Click checkbox) via Template TS:
+### Usage as lightbox with fluid_styled_content
 
 ```
-# Template TS
-lib.contentElement.settings.media.popup.enable = 1
-```
-
-### Use custom popup
-
-You can define custom attributes for the popup.
-
-```
-# Template TS
-lib.contentElement.settings.media.popup.enable = 1
-lib.contentElement.settings.media.popup.JSwindow = 0
-lib.contentElement.settings.media.popup.linkParams.ATagParams.dataWrap = class="lightbox" title="{file:current:title}" rel="lightbox[{file:current:uid_foreign}]"
+# Template Constants
+styles.content.textmedia.linkWrap.lightboxEnabled = 1
 ```
 
 ### Allowed extensions

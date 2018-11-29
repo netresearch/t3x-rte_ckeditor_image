@@ -64,7 +64,6 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     {
         // Get link inner HTML
         $linkContent = $this->cObj->getCurrentVal();
-
         $document = new \DomDocument;
         // Transform content to DOM elements without html and body tags
         $document->loadHTML($linkContent, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
