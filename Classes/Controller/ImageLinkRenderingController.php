@@ -70,7 +70,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
         // Get all images
         $parsedImages = $document->getElementsByTagName('img');
 
-        if ($parsedImages->count() === 0) {
+        if ($parsedImages->length === 0) {
             return $linkContent;
         }
 
