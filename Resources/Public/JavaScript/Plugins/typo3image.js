@@ -53,6 +53,7 @@
                 exec: function () {
                     var current = editor.getSelection().getSelectedElement();
                     if (current && current.is('img') && current.getAttribute('data-htmlarea-file-uid')) {
+                        // If the button is clicked with a selected image
                         edit(
                             current.getAttribute('data-htmlarea-file-table') || 'sys_file',
                             current.getAttribute('data-htmlarea-file-uid'),
@@ -64,6 +65,36 @@
                 },
                 allowedContent: 'img[' + allowedAttributes.join(',') + ']',
                 requiredContent: 'img[src]'
+            });
+
+            // Use a separate command for editing from the context menu
+            editor.addCommand('imageProperties', {
+                exec: function() {
+                    var current = editor.getSelection().getSelectedElement();
+                    var img;
+                    if (current) {
+                        if (!current.is('img')) {
+                            img = new CKEDITOR.dom.element(current.$.querySelector('img'));
+                        } else {
+                            img = current;
+                        }
+                    }
+                    if (img && img.getAttribute('data-htmlarea-file-uid')) {
+                        edit(
+                            img.getAttribute('data-htmlarea-file-table') || 'sys_file',
+                            img.getAttribute('data-htmlarea-file-uid'),
+                            img.getAttributes()
+                        );
+                    }
+                }
+            });
+            // Override the existing `image` content menu item to use the separate editing command
+            editor.addMenuItems({
+                image: {
+                    label: editor.lang.image.menu,
+                    command: 'imageProperties',
+                    group: 'image'
+                }
             });
 
             // Open our and not the CKEditor image dialog on double click:
