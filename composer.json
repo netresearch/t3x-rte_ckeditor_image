@@ -5,7 +5,7 @@
 	"homepage": "https://www.netresearch.de",
 	"license": ["GPL-2.0+"],
 	"require": {
-		"typo3/cms-core": "^8.7.0"
+		"typo3/cms-core": "^9.5.0"
 	},
 	"require-dev": {
 		"namelesscoder/typo3-repository-client": "^1.2"
@@ -25,7 +25,7 @@
 	},
 	"extra": {
 		"branch-alias": {
-			"dev-master": "8.x-dev"
+			"dev-master": "9.0.x-dev"
 		},
 		"typo3/cms": {
 			"cms-package-dir": "{$vendor-dir}/typo3/cms",
