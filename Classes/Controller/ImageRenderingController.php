@@ -105,10 +105,6 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
                             'height' => ($processedFile->getProperty('height')) ? $processedFile->getProperty('height') : $imageConfiguration['height'],
                         ];
                         $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
-                        // Remove empty style attr
-                        if ($processedFile->getProperty('style') == null) {
-                            unset($imageAttributes['style']);
-                        }
                     }
                 } catch (Resource\Exception\FileDoesNotExistException $fileDoesNotExistException) {
                     // Log in fact the file could not be retrieved.
@@ -117,6 +113,16 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
                 }
             }
         }
+
+        // Cleanup attributes
+        $unsetParams = array(
+            'allParams',
+            'data-htmlarea-file-uid',
+            'data-htmlarea-file-table'
+        );
+        $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
+        // Remove empty values
+        $imageAttributes = array_diff( $imageAttributes, array(''));
 
         // Image template
         $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, true) . ' />';
