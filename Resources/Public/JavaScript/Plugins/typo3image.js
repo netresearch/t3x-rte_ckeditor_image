@@ -70,8 +70,8 @@
             // Use a separate command for editing from the context menu
             editor.addCommand('imageProperties', {
                 exec: function() {
-                    var current = editor.getSelection().getSelectedElement();
-                    var img;
+                    var current = editor.getSelection().getSelectedElement(),
+                        img;
                     if (current) {
                         if (!current.is('img')) {
                             img = new CKEDITOR.dom.element(current.$.querySelector('img'));
@@ -88,7 +88,7 @@
                     }
                 }
             });
-            // Override the existing `image` content menu item to use the separate editing command
+            // Override the existing `image` context menu item to use the separate editing command
             editor.addMenuItems({
                 image: {
                     label: editor.lang.image.menu,
