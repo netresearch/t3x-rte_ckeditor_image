@@ -59,6 +59,14 @@ Add issues or explore the project on [github](https://github.com/netresearch/t3x
         removePlugins: null
     ```
 
+4. Enable RTE config preset (e.g. `default`)
+
+    ```
+    # Page TSConfig
+    RTE.default.preset = default
+    ```
+
+
 ## Configuration
 
 ### Maximum width/height
