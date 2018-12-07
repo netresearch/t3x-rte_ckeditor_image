@@ -1,4 +1,7 @@
-/*
+/*jslint browser: true, this: true, multivar: true, white: true, devel: true*/
+/*global $, $$, jquery, window, document, require, CKEDITOR*/
+
+/**
  * This file is part of the TYPO3 CMS project.
  *
  * It is free software; you can redistribute it and/or modify it under
@@ -11,10 +14,9 @@
  * The TYPO3 project - inspiring people to share!
  */
 
-'use strict';
-
-
 (function() {
+    'use strict';
+
     var $;
     require(['jquery'], function (jquery) {
         $ = jquery;
@@ -24,9 +26,7 @@
         elementBrowser: null,
         init: function (editor) {
             var allowedAttributes = ['!src', 'alt', 'title', 'class', 'rel', 'width', 'height'],
-                required = 'img[src]';
-
-            var additionalAttributes = getAdditionalAttributes(editor);
+                additionalAttributes = getAdditionalAttributes(editor);
             if (additionalAttributes.length) {
                 allowedAttributes.push.apply(allowedAttributes, additionalAttributes);
             }
@@ -271,7 +271,7 @@
         const fields = [
             {
                 width: { label: editor.lang.common.width, type: 'number' },
-                height: { label: editor.lang.common.height, type: 'number' },
+                height: { label: editor.lang.common.height, type: 'number' }
             },
             {
                 title: { label: editor.lang.common.advisoryTitle, type: 'text' },
@@ -383,5 +383,4 @@
         };
         return d;
     }
-
-})();
+}());

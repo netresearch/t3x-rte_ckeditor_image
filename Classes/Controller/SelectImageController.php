@@ -30,7 +30,7 @@ use TYPO3\CMS\Core\Utility\HttpUtility;
 /**
  * Controller for the image select wizard
  *
- * PHP version 5
+ * PHP version 7
  *
  * @category   Netresearch
  * @package    RteCKEditor
@@ -65,9 +65,7 @@ class SelectImageController extends ElementBrowserController
      */
     public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->isInfoAction
-            ? $this->infoAction($request)
-            : parent::mainAction($request);
+        return $this->isInfoAction ? $this->infoAction($request) : parent::mainAction($request);
     }
 
     /**
