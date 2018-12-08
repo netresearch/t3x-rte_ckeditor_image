@@ -116,13 +116,15 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         }
 
         // Cleanup attributes
-        $unsetParams = [
-            'allParams',
-            'data-htmlarea-file-uid',
-            'data-htmlarea-file-table',
-            'data-htmlarea-zoom'
-        ];
-        $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
+        if (!isset($imageAttributes['data-htmlarea-zoom'])) {
+            $unsetParams = [
+                'allParams',
+                'data-htmlarea-file-uid',
+                'data-htmlarea-file-table',
+                'data-htmlarea-zoom'
+            ];
+            $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
+        }
         // Remove empty values
         $imageAttributes = array_diff( $imageAttributes, array(''));
 
