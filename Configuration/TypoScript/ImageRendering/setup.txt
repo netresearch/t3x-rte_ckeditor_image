@@ -15,7 +15,6 @@ lib.parseFunc {
         current = 1
         preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController->renderImages
     }
-
     nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
         allparams.unset = 1
         data-htmlarea-file-uid.unset = 1

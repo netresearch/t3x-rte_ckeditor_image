@@ -125,7 +125,6 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
             ];
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
         }
-
         // Remove empty values
         $imageAttributes = array_diff( $imageAttributes, array(''));
 
