@@ -69,30 +69,40 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
         $document->loadHTML(mb_convert_encoding($linkContent, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         // Get all images
         $parsedImages = $document->getElementsByTagName('img');
-
         if ($parsedImages->length === 0) {
             return $linkContent;
         }
-
         foreach ($parsedImages as $parsedImage) {
             $parsedImageId = $parsedImage->getAttribute('data-htmlarea-file-uid');
-            if ($parsedImageId) {
+            $imgSearchPattern = '/<img(?=.*data-htmlarea-file-uid="' . $parsedImageId . '")(.*?)\/>/';
+
+            if ($parsedImageId && preg_match($imgSearchPattern, $linkContent)) {
                 try {
                     $systemImage = Resource\ResourceFactory::getInstance()->getFileObject($parsedImageId);
                     $parsedTitle = $parsedImage->getAttribute('title');
                     $parsedAlt = $parsedImage->getAttribute('alt');
-                    $parsedStyle = $parsedImage->getAttribute('style');
-
-                    // Get parsed attributes or fallback
-                    $finalTitle = ($parsedTitle) ? $parsedTitle : $systemImage->getProperty('title');
-                    $finalAlttext = ($parsedAlt) ? $parsedAlt : $systemImage->getProperty('alternative');
-                    // Set final attributes
-                    $parsedImage->setAttribute('title', $finalTitle);
-                    $parsedImage->setAttribute('alt', $finalAlttext);
-                    // Remove empty style attr
-                    if (!$parsedStyle) {
-                        $parsedImage->removeAttribute('style');
-                    }
+                    $imageAttributes = [
+                        'src' => $parsedImage->getAttribute('src'),
+                        'title' => ($parsedTitle) ? $parsedTitle : $systemImage->getProperty('title'),
+                        'alt' => ($parsedAlt) ? $parsedAlt : $systemImage->getProperty('alternative'),
+                        'width' => $parsedImage->getAttribute('width'),
+                        'height' => $parsedImage->getAttribute('height'),
+                        'style' => $parsedImage->getAttribute('style')
+                    ];
+                    // Cleanup attributes
+                    $unsetParams = [
+                        'allParams',
+                        'data-htmlarea-file-uid',
+                        'data-htmlarea-file-table',
+                        'data-htmlarea-zoom'
+                    ];
+                    $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
+                    // Remove empty values
+                    $imageAttributes = array_diff( $imageAttributes, array(''));
+                    // Image template
+                    $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, true) . ' />';
+                    // Replace image
+                    $linkContent = preg_replace($imgSearchPattern, $img, $linkContent);
 
                 } catch (Resource\Exception\FileDoesNotExistException $fileDoesNotExistException) {
                     // Log in fact the file could not be retrieved.
@@ -101,7 +111,6 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
                 }
             }
         }
-        $linkContent = $document->saveHTML();
         return $linkContent;
     }
 

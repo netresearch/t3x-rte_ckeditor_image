@@ -86,6 +86,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         // of the RTE is to download the external image and create a local image.
         // However, it may happen if the RTE has the flag "disable"
         if (!$this->isExternalImage()) {
+
             $fileUid = (int)$imageAttributes['data-htmlarea-file-uid'];
             if ($fileUid) {
                 try {
@@ -124,6 +125,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
             ];
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
         }
+
         // Remove empty values
         $imageAttributes = array_diff( $imageAttributes, array(''));
 
