@@ -64,30 +64,37 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     {
         // Get link inner HTML
         $linkContent = $this->cObj->getCurrentVal();
-        $document = new \DomDocument;
-        // Transform content to DOM elements without html and body tags
-        $document->loadHTML(mb_convert_encoding($linkContent, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        // Get all images
-        $parsedImages = $document->getElementsByTagName('img');
-        if ($parsedImages->length === 0) {
+        $imgSearchPattern = '/<img(?=.*data-htmlarea-file-uid=)(.*?)\/>/'; // Images with data-uid
+        //$imgSearchPattern = '(</?img[^>]*\>)i';  // All images
+        $attrPattern = '/(\w+)=[\'"]([^\'"]*)/';
+        $passedImages = array();
+        $parsedImages = array();
+
+        // Extract all images from link content
+        preg_match_all($imgSearchPattern, $linkContent, $passedImages);
+        $passedImages = $passedImages[0];
+
+        if (count($passedImages) === 0) {
             return $linkContent;
         }
-        foreach ($parsedImages as $parsedImage) {
-            $parsedImageId = $parsedImage->getAttribute('data-htmlarea-file-uid');
-            $imgSearchPattern = '/<img(?=.*data-htmlarea-file-uid="' . $parsedImageId . '")(.*?)\/>/';
 
-            if ($parsedImageId && preg_match($imgSearchPattern, $linkContent)) {
+        foreach ($passedImages as $passedImage) {
+            // Get image attributes
+            preg_match_all($attrPattern, $passedImage, $passedAttributes);
+            $passedAttributes = array_combine($passedAttributes[1], $passedAttributes[2]);
+            // Remove empty values
+            $passedAttributes = array_diff( $passedAttributes, array(''));
+
+            if ($passedAttributes['uid']) {
                 try {
-                    $systemImage = Resource\ResourceFactory::getInstance()->getFileObject($parsedImageId);
-                    $parsedTitle = $parsedImage->getAttribute('title');
-                    $parsedAlt = $parsedImage->getAttribute('alt');
+                    $systemImage = Resource\ResourceFactory::getInstance()->getFileObject($passedAttributes['uid']);
                     $imageAttributes = [
-                        'src' => $parsedImage->getAttribute('src'),
-                        'title' => ($parsedTitle) ? $parsedTitle : $systemImage->getProperty('title'),
-                        'alt' => ($parsedAlt) ? $parsedAlt : $systemImage->getProperty('alternative'),
-                        'width' => $parsedImage->getAttribute('width'),
-                        'height' => $parsedImage->getAttribute('height'),
-                        'style' => $parsedImage->getAttribute('style')
+                        'src' => $passedAttributes['src'],
+                        'title' => ($passedAttributes['title']) ? $passedAttributes['title'] : $systemImage->getProperty('title'),
+                        'alt' => ($passedAttributes['alt']) ? $passedAttributes['alt'] : $systemImage->getProperty('alternative'),
+                        'width' => ($passedAttributes['width']) ? $passedAttributes['width'] : $systemImage->getProperty('width'),
+                        'height' => ($passedAttributes['height']) ? $passedAttributes['height'] : $systemImage->getProperty('height'),
+                        'style' => ($passedAttributes['style']) ? $passedAttributes['style'] : $systemImage->getProperty('style'),
                     ];
                     // Cleanup attributes
                     $unsetParams = [
@@ -100,17 +107,20 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
                     // Remove empty values
                     $imageAttributes = array_diff( $imageAttributes, array(''));
                     // Image template
-                    $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, true) . ' />';
-                    // Replace image
-                    $linkContent = preg_replace($imgSearchPattern, $img, $linkContent);
+                    $parsedImage = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, true) . ' />';
+                    $parsedImages[] = $parsedImage;
 
                 } catch (Resource\Exception\FileDoesNotExistException $fileDoesNotExistException) {
+                    $parsedImages[] = '';
                     // Log in fact the file could not be retrieved.
-                    $message = sprintf('I could not find file with uid "%s"', $parsedImageId);
+                    $message = sprintf('I could not find file with uid "%s"', $passedAttributes['uid']);
                     $this->getLogger()->error($message);
                 }
             }
         }
+        // Replace original images with parsed
+        $linkContent = str_replace($passedImages, $parsedImages, $linkContent);
+
         return $linkContent;
     }
 
