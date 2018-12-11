@@ -37,16 +37,29 @@ Add issues or explore the project on [github](https://github.com/netresearch/t3x
         ./typo3/cli_dispatch.phpsh extbase extension:install rte_ckeditor_image
         ```
 
-3. Add a preset for rte_ckeditor or override the default one (as below):
+3. Add a preset for rte_ckeditor or override the default one
 
-    ```php
-    <?php
-    // EXT:my_ext/ext_localconf.php`
-    $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'EXT:my_ext/Configuration/RTE/Default.yaml';
-    ```
+    1. via custom extension
+
+        ```php
+        <?php
+        // EXT:my_ext/ext_localconf.php
+        $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'EXT:my_ext/Configuration/RTE/Default.yaml';
+        ```
+
+    2. via AdditionalConfiguration.php
+
+        ```php
+        // /typo3conf/AdditionalConfiguration.php
+        $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'fileadmin/Template/Configuration/RTE/Default.yaml';
+        ```
+
+4. Add custom RTE config
 
     ```yaml
     # EXT:my_ext/Configuration/RTE/Default.yaml
+    # or:
+    # fileadmin/Template/Configuration/RTE/Default.yaml
     imports:
       # Import default RTE config (for example)
       - { resource: "EXT:rte_ckeditor/Configuration/RTE/Default.yaml" }
