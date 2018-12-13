@@ -64,13 +64,13 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     {
         // Get link inner HTML
         $linkContent = $this->cObj->getCurrentVal();
-        $imgSearchPattern = '/<img(?=.*data-htmlarea-file-uid=)(.*?)\/>/'; // Images with data-uid
-        //$imgSearchPattern = '(</?img[^>]*\>)i';  // All images
-        $attrPattern = '/(\w+)=[\'"]([^\'"]*)/';
-        $passedImages = array();
-        $parsedImages = array();
+        // Find all images with file-uid attribute
+        $imgSearchPattern = '/<img(?=.*data-htmlarea-file-uid).*?\/>/';
+        $attrSearchPattern = '/([a-zA-Z0-9-]+)=[\'"]([^\'"]*)/';
+        $passedImages = [];
+        $parsedImages = [];
 
-        // Extract all images from link content
+        // Extract all TYPO3 images from link content
         preg_match_all($imgSearchPattern, $linkContent, $passedImages);
         $passedImages = $passedImages[0];
 
@@ -80,42 +80,41 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
 
         foreach ($passedImages as $passedImage) {
             // Get image attributes
-            preg_match_all($attrPattern, $passedImage, $passedAttributes);
+            preg_match_all($attrSearchPattern, $passedImage, $passedAttributes);
             $passedAttributes = array_combine($passedAttributes[1], $passedAttributes[2]);
             // Remove empty values
-            $passedAttributes = array_diff( $passedAttributes, array(''));
+            $passedAttributes = array_filter($passedAttributes);
 
-            if ($passedAttributes['uid']) {
+            if (!empty($passedAttributes['data-htmlarea-file-uid'])) {
                 try {
-                    $systemImage = Resource\ResourceFactory::getInstance()->getFileObject($passedAttributes['uid']);
+                    $systemImage = Resource\ResourceFactory::getInstance()->getFileObject($passedAttributes['data-htmlarea-file-uid']);
                     $imageAttributes = [
                         'src' => $passedAttributes['src'],
                         'title' => ($passedAttributes['title']) ? $passedAttributes['title'] : $systemImage->getProperty('title'),
                         'alt' => ($passedAttributes['alt']) ? $passedAttributes['alt'] : $systemImage->getProperty('alternative'),
                         'width' => ($passedAttributes['width']) ? $passedAttributes['width'] : $systemImage->getProperty('width'),
                         'height' => ($passedAttributes['height']) ? $passedAttributes['height'] : $systemImage->getProperty('height'),
-                        'style' => ($passedAttributes['style']) ? $passedAttributes['style'] : $systemImage->getProperty('style'),
+                        'style' => ($passedAttributes['style']) ? $passedAttributes['style'] : $systemImage->getProperty('style')
                     ];
-                    // Cleanup attributes
+                    // Add original attributes, if not already parsed
+                    $imageAttributes = $imageAttributes + $passedAttributes;
+                    // Cleanup attributes; disable zoom images within links
                     $unsetParams = [
-                        'allParams',
                         'data-htmlarea-file-uid',
                         'data-htmlarea-file-table',
                         'data-htmlarea-zoom'
                     ];
                     $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
-                    // Remove empty values
-                    $imageAttributes = array_diff( $imageAttributes, array(''));
-                    // Image template
-                    $parsedImage = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, true) . ' />';
-                    $parsedImages[] = $parsedImage;
-
+                    // Image template; empty attributes are removed by 3nd param 'false'
+                    $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, false) . ' />';
                 } catch (Resource\Exception\FileDoesNotExistException $fileDoesNotExistException) {
-                    $parsedImages[] = '';
+                    $parsedImages[] = $passedImage;
                     // Log in fact the file could not be retrieved.
-                    $message = sprintf('I could not find file with uid "%s"', $passedAttributes['uid']);
+                    $message = sprintf('I could not find file with uid "%s"', $passedAttributes['data-htmlarea-file-uid']);
                     $this->getLogger()->error($message);
                 }
+            } else {
+                $parsedImages[] = $passedImage;
             }
         }
         // Replace original images with parsed
