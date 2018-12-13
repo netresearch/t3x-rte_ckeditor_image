@@ -125,11 +125,9 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
             ];
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
         }
-        // Remove empty values
-        $imageAttributes = array_diff( $imageAttributes, array(''));
 
-        // Image template
-        $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, true) . ' />';
+        // Image template; empty attributes are removed by 3nd param 'false'
+        $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, false) . ' />';
 
         // Popup rendering
         if ($imageAttributes['data-htmlarea-zoom'] && isset($file) && $file) {
