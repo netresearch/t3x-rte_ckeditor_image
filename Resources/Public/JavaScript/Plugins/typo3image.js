@@ -38,7 +38,7 @@
                     })
                     .then(function (img, attributes) {
                         $.extend(attributes, {
-                            src: '../' + img.processed.url,
+                            src: img.processed.url,
                             'data-htmlarea-file-uid': uid,
                             'data-htmlarea-file-table': table
                         });

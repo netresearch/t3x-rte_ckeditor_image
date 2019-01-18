@@ -101,7 +101,7 @@ class SelectImageController extends ElementBrowserController
             'processed' => [
                 'width' => $processedFile->getProperty('width'),
                 'height' => $processedFile->getProperty('height'),
-                'url' => $processedFile->getPublicUrl()
+                'url' => $this->getUrl($processedFile)
             ],
             'lang' => [
                 'override' => $lang->getLL('labels.placeholder.override'),
@@ -111,6 +111,27 @@ class SelectImageController extends ElementBrowserController
         ]);
 
         return null;
+    }
+
+    /**
+     * Get the image url
+     *
+     * @param File $processedFile
+     *
+     * @return string image url
+     */
+    protected function getUrl($processedFile)
+    {
+        $imgUrl = $processedFile->getPublicUrl();
+        $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
+        $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
+        $absoluteUrl = trim($imgUrl);
+        if (strtolower(substr($absoluteUrl, 0, 4)) !== 'http') {
+            $imgUrl = preg_replace('#^' . preg_quote($sitePath, '#') . '#', '', $imgUrl);
+            $imgUrl = $siteUrl . $imgUrl;
+        }
+
+        return $imgUrl;
     }
 
     /**
