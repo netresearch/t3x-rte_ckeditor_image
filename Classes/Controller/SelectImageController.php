@@ -94,7 +94,7 @@ class SelectImageController extends ElementBrowserController
             'title' => $file->getProperty('title'),
             'width' => $file->getProperty('width'),
             'height' =>$file->getProperty('height'),
-            'url' => $file->getPublicUrl(),
+            'url' => $this->getUrl($processedFile),
             'processed' => [
                 'width' => $processedFile->getProperty('width'),
                 'height' => $processedFile->getProperty('height'),
@@ -106,6 +106,27 @@ class SelectImageController extends ElementBrowserController
                 'zoom' => $lang->getLL('image_zoom_formlabel')
             ]
         ]);
+    }
+
+    /**
+     * Get the image url
+     *
+     * @param File $processedFile
+     *
+     * @return string image url
+     */
+    protected function getUrl($processedFile)
+    {
+        $imgUrl = $processedFile->getPublicUrl();
+        $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
+        $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
+        $absoluteUrl = trim($imgUrl);
+        if (strtolower(substr($absoluteUrl, 0, 4)) !== 'http') {
+            $imgUrl = preg_replace('#^' . preg_quote($sitePath, '#') . '#', '', $imgUrl);
+            $imgUrl = $siteUrl . $imgUrl;
+        }
+
+        return $imgUrl;
     }
 
     /**
