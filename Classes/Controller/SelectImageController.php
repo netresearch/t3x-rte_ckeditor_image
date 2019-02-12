@@ -94,11 +94,11 @@ class SelectImageController extends ElementBrowserController
             'title' => $file->getProperty('title'),
             'width' => $file->getProperty('width'),
             'height' =>$file->getProperty('height'),
-            'url' => $this->getUrl($processedFile),
+            'url' => $this->prettifyImgUrl($processedFile->getPublicUrl()),
             'processed' => [
                 'width' => $processedFile->getProperty('width'),
                 'height' => $processedFile->getProperty('height'),
-                'url' => $processedFile->getPublicUrl()
+                'url' => $this->prettifyImgUrl($processedFile->getPublicUrl())
             ],
             'lang' => [
                 'override' => $lang->getLL('labels.placeholder.override'),
@@ -111,13 +111,12 @@ class SelectImageController extends ElementBrowserController
     /**
      * Get the image url
      *
-     * @param File $processedFile
+     * @param string $imgUrl
      *
      * @return string image url
      */
-    protected function getUrl($processedFile)
+    protected function prettifyImgUrl($imgUrl)
     {
-        $imgUrl = $processedFile->getPublicUrl();
         $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
         $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
         $absoluteUrl = trim($imgUrl);
