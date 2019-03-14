@@ -3,7 +3,7 @@
 	"type": "typo3-cms-extension",
 	"description": "Image support in CKEditor for the TYPO3 ecosystem",
 	"homepage": "https://www.netresearch.de",
-	"license": ["GPL-2.0+"],
+	"license": ["GPL-2.0-or-later"],
 	"require": {
 		"typo3/cms-core": "^9.5.0"
 	},
@@ -25,7 +25,7 @@
 	},
 	"extra": {
 		"branch-alias": {
-			"dev-master": "dev-TYPO3_9.x"
+			"dev-master": "9.x-dev"
 		},
 		"typo3/cms": {
 			"cms-package-dir": "{$vendor-dir}/typo3/cms",
