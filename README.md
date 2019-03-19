@@ -98,3 +98,9 @@ editor:
       typo3image:
         allowedExtensions: "jpg,jpeg,png"
 ```
+
+## Deployment
+
+- developed on [github](https://github.com/netresearch/t3x-rte_ckeditor_image)
+- [composer repository](https://packagist.org/packages/netresearch/rte-ckeditor-image)
+- automatically tested and released to TER via [travis](https://travis-ci.org/netresearch/t3x-rte_ckeditor_image)
