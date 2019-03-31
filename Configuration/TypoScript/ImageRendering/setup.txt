@@ -20,5 +20,6 @@ lib.parseFunc {
         data-htmlarea-file-uid.unset = 1
         data-htmlarea-file-table.unset = 1
         data-htmlarea-zoom.unset = 1
+        data-htmlarea-clickenlarge.unset = 1
     }
 }

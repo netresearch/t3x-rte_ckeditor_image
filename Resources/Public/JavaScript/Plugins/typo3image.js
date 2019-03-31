@@ -357,7 +357,8 @@
         });
 
         var $zoom = $('<input type="checkbox">');
-        if (attributes['data-htmlarea-zoom']) {
+        // Support new `zoom` and legacy `clickenlarge` attributes
+        if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
             $zoom.prop('checked', true);
         }
         $zoom.prependTo(
@@ -377,6 +378,7 @@
                 });
             });
             if ($zoom.prop('checked')) {
+                // When saving the zoom property is saved as the new `zoom` attribute
                 attributes['data-htmlarea-zoom'] = true;
             }
             return attributes;

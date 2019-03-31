@@ -116,12 +116,13 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         }
 
         // Cleanup attributes
-        if (!isset($imageAttributes['data-htmlarea-zoom'])) {
+        if (!isset($imageAttributes['data-htmlarea-zoom']) && !isset($imageAttributes['data-htmlarea-clickenlarge'])) {
             $unsetParams = [
                 'allParams',
                 'data-htmlarea-file-uid',
                 'data-htmlarea-file-table',
-                'data-htmlarea-zoom'
+                'data-htmlarea-zoom',
+                'data-htmlarea-clickenlarge' // Legacy zoom property
             ];
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
         }
@@ -129,14 +130,15 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         // Image template; empty attributes are removed by 3nd param 'false'
         $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, false) . ' />';
 
-        // Popup rendering
-        if ($imageAttributes['data-htmlarea-zoom'] && isset($file) && $file) {
+        // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
+        if (($imageAttributes['data-htmlarea-zoom'] || $imageAttributes['data-htmlarea-clickenlarge']) && isset($file) && $file) {
             $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'];
             $config['enable'] = 1;
             $file->_updateMetaDataProperties(array('title'=>($imageAttributes['title']) ? $imageAttributes['title'] : $file->getProperty('title')));
-            $GLOBALS['TSFE']->cObj->setCurrentFile($file);
+            $this->cObj->setCurrentFile($file);
 
-            return $GLOBALS['TSFE']->cObj->imageLinkWrap(
+            // Use $this->cObject to have access to all parameters from the image tag
+            return $this->cObj->imageLinkWrap(
                 $img,
                 $file,
                 $config

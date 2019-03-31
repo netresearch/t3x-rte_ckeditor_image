@@ -102,7 +102,8 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
                     $unsetParams = [
                         'data-htmlarea-file-uid',
                         'data-htmlarea-file-table',
-                        'data-htmlarea-zoom'
+                        'data-htmlarea-zoom',
+                        'data-htmlarea-clickenlarge' // Legacy zoom property
                     ];
                     $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
                     // Image template; empty attributes are removed by 3nd param 'false'
