@@ -368,7 +368,6 @@
         );
 
         d.get = function () {
-            var attributes = {};
             $.each(fields, function () {
                 $.each(this, function(key) {
                     var value = elements[key].val();
