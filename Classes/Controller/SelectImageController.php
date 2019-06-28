@@ -177,8 +177,8 @@ class SelectImageController extends ElementBrowserController
         $magicImageService->setMagicImageMaximumDimensions($tsConfig);
 
         return $magicImageService->createMagicImage($file, [
-            'width' => $file->getProperty('width'),
-            'height' => $file->getProperty('height'),
+            'width' => isset($params['width']) ? $params['width'] : $file->getProperty('width'),
+            'height' => isset($params['height']) ? $params['height'] : $file->getProperty('height')
         ]);
     }
 }
