@@ -32,9 +32,9 @@
             }
 
             var edit = function (table, uid, attributes) {
-                getImageInfo(editor, table, uid)
+                getImageInfo(editor, table, uid, {})
                     .then(function(img) {
-                        return askImageAttributes(editor, img, attributes);
+                        return askImageAttributes(editor, img, attributes, table);
                     })
                     .then(function (img, attributes) {
                         $.extend(attributes, {
@@ -140,9 +140,10 @@
      * @param editor
      * @param img
      * @param attributes
+     * @param table
      * @return {$.Deferred}
      */
-    function askImageAttributes(editor, img, attributes) {
+    function askImageAttributes(editor, img, attributes, table) {
         var deferred = $.Deferred();
         var dialog = getImageDialog(editor, img, $.extend({}, img.processed, attributes));
         require(['TYPO3/CMS/Backend/Modal'], function(Modal) {
@@ -153,8 +154,40 @@
                     {
                         text: editor.lang.common.ok,
                         trigger: function () {
+
+                            var allowedAttributes = ['!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom'],
+                                additionalAttributes = getAdditionalAttributes(editor);
+                            if (additionalAttributes.length) {
+                                allowedAttributes.push.apply(allowedAttributes, additionalAttributes);
+                            }
+                            var dialogInfo = dialog.get(),
+                                attributes = $.extend({}, img, dialogInfo),
+                                filteredAttr = {};
+
+                            filteredAttr = Object.keys(attributes)
+                                .filter(key => allowedAttributes.includes(key))
+                                .reduce((obj, key) => {
+                                    obj[key] = attributes[key];
+                                    return obj;
+                                }, {});
+
+                            getImageInfo(editor, table, img.uid, filteredAttr)
+                                .then(function (getImg) {
+
+                                    $.extend(filteredAttr, {
+                                        src: getImg.processed.url,
+                                        width: getImg.processed.width,
+                                        height: getImg.processed.height,
+                                        'data-htmlarea-file-uid': img.uid,
+                                        'data-htmlarea-file-table': table
+                                    });
+
+                                    editor.insertElement(
+                                        editor.document.createElement('img', { attributes: filteredAttr })
+                                    );
+                                });
                             $modal.modal('hide');
-                            deferred.resolve(img, dialog.get());
+                            return deferred;
                         }
                     }
                 ]
@@ -169,15 +202,25 @@
      * @param editor
      * @param table
      * @param uid
+     * @param params
      * @return {$.Deferred}
      */
-    function getImageInfo(editor, table, uid) {
-        var routeUrl = editor.config.typo3image.routeUrl;
-        var url = routeUrl
-            + (routeUrl.indexOf('?') === -1 ? '?' : '&')
-            + 'action=info'
-            + '&fileId=' + encodeURIComponent(uid)
-            + '&table=' + encodeURIComponent(table);
+    function getImageInfo(editor, table, uid, params) {
+
+        var routeUrl = editor.config.typo3image.routeUrl,
+            url = routeUrl
+                + (routeUrl.indexOf('?') === -1 ? '?' : '&')
+                + 'action=info'
+                + '&fileId=' + encodeURIComponent(uid)
+                + '&table=' + encodeURIComponent(table);
+
+        if (typeof params.width !== 'undefined' && params.width.length) {
+            url += '&P[width]=' + params.width;
+        }
+
+        if (typeof params.height !== 'undefined' && params.height.length) {
+            url += '&P[height]=' + params.height;
+        }
 
         return $.getJSON(url);
     }
@@ -192,23 +235,22 @@
         // @see \TYPO3\CMS\Recordlist\Browser\AbstractElementBrowser::getBParamDataAttributes
         // @see \TYPO3\CMS\Recordlist\Browser\FileBrowser::render
         var bparams = [
-            editor.name, // $fieldRef
-            'ckeditor', // $rteParams
-            'typo3image', // $rteConfig
-            editor.config.typo3image.allowedExtensions || '', // allowedFileExtensions -> Defaults set in controller
-            editor.name, // $irreObjectId
-            '', // $irreCheckUniqueAction
-            '', // $irreAddAction
-            'onSelected' // $irreInsertAction
-        ];
-        var routeUrl = editor.config.typo3image.routeUrl;
-        var url = routeUrl
-            + (routeUrl.indexOf('?') === -1 ? '?' : '&')
-            + 'contentsLanguage=' + editor.config.contentsLanguage
-            + '&editorId=' + editor.id
-            + '&bparams=' + bparams.join('|');
-
-        var deferred = $.Deferred();
+                editor.name, // $fieldRef
+                'ckeditor', // $rteParams
+                'typo3image', // $rteConfig
+                editor.config.typo3image.allowedExtensions || '', // allowedFileExtensions -> Defaults set in controller
+                editor.name, // $irreObjectId
+                '', // $irreCheckUniqueAction
+                '', // $irreAddAction
+                'onSelected' // $irreInsertAction
+            ],
+            routeUrl = editor.config.typo3image.routeUrl,
+                url = routeUrl
+                + (routeUrl.indexOf('?') === -1 ? '?' : '&')
+                + 'contentsLanguage=' + editor.config.contentsLanguage
+                + '&editorId=' + editor.id
+                + '&bparams=' + bparams.join('|'),
+            deferred = $.Deferred();
 
         require(['TYPO3/CMS/Backend/Modal'], function (Modal) {
             var $modal = Modal.advanced({
