@@ -88,13 +88,17 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
             if (!empty($passedAttributes['data-htmlarea-file-uid'])) {
                 try {
                     $systemImage = Resource\ResourceFactory::getInstance()->getFileObject($passedAttributes['data-htmlarea-file-uid']);
+                    $imageConfiguration = [
+                        'width' => ($passedAttributes['width']) ? $passedAttributes['width'] : $systemImage->getProperty('width'),
+                        'height' => ($passedAttributes['height']) ? $passedAttributes['height'] : $systemImage->getProperty('height')
+                    ];
+                    $processedFile = $this->getMagicImageService()->createMagicImage($systemImage, $imageConfiguration);
                     $imageAttributes = [
-                        'src' => $passedAttributes['src'],
+                    'src' => $processedFile->getPublicUrl(),
                         'title' => ($passedAttributes['title']) ? $passedAttributes['title'] : $systemImage->getProperty('title'),
                         'alt' => ($passedAttributes['alt']) ? $passedAttributes['alt'] : $systemImage->getProperty('alternative'),
                         'width' => ($passedAttributes['width']) ? $passedAttributes['width'] : $systemImage->getProperty('width'),
-                        'height' => ($passedAttributes['height']) ? $passedAttributes['height'] : $systemImage->getProperty('height'),
-                        'style' => ($passedAttributes['style']) ? $passedAttributes['style'] : $systemImage->getProperty('style')
+                        'height' => ($passedAttributes['height']) ? $passedAttributes['height'] : $systemImage->getProperty('height')
                     ];
                     // Add original attributes, if not already parsed
                     $imageAttributes = $imageAttributes + $passedAttributes;
@@ -122,6 +126,26 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
         $linkContent = str_replace($passedImages, $parsedImages, $linkContent);
 
         return $linkContent;
+    }
+
+    /**
+     * Instantiates and prepares the Magic Image service.
+     *
+     * @return \TYPO3\CMS\Core\Resource\Service\MagicImageService
+     */
+    protected function getMagicImageService()
+    {
+        /** @var $magicImageService Resource\Service\MagicImageService */
+        static $magicImageService;
+        if (!$magicImageService) {
+            $magicImageService = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Resource\Service\MagicImageService::class);
+            // Get RTE configuration
+            $pageTSConfig = $this->frontendController->getPagesTSconfig();
+            if (is_array($pageTSConfig) && is_array($pageTSConfig['RTE.']['default.'])) {
+                $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
+            }
+        }
+        return $magicImageService;
     }
 
     /**
