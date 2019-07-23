@@ -94,7 +94,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
                     ];
                     $processedFile = $this->getMagicImageService()->createMagicImage($systemImage, $imageConfiguration);
                     $imageAttributes = [
-                    'src' => $processedFile->getPublicUrl(),
+                        'src' => $processedFile->getPublicUrl(),
                         'title' => ($passedAttributes['title']) ? $passedAttributes['title'] : $systemImage->getProperty('title'),
                         'alt' => ($passedAttributes['alt']) ? $passedAttributes['alt'] : $systemImage->getProperty('alternative'),
                         'width' => ($passedAttributes['width']) ? $passedAttributes['width'] : $systemImage->getProperty('width'),
