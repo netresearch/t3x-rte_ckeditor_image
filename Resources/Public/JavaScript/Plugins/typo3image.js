@@ -176,8 +176,6 @@
 
                                     $.extend(filteredAttr, {
                                         src: getImg.processed.url,
-                                        width: getImg.processed.width,
-                                        height: getImg.processed.height,
                                         'data-htmlarea-file-uid': img.uid,
                                         'data-htmlarea-file-table': table
                                     });
