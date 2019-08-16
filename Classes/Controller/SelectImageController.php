@@ -90,8 +90,8 @@ class SelectImageController extends ElementBrowserController
 
         return new JsonResponse([
             'uid' => $file->getUid(),
-            'alt' => $file->getProperty('alternative'),
-            'title' => $file->getProperty('title'),
+            'alt' => empty($file->getProperty('alternative')) ? "" : $file->getProperty('alternative'),
+            'title' => empty($file->getProperty('title')) ? "" : $file->getProperty('title'),
             'width' => $file->getProperty('width'),
             'height' =>$file->getProperty('height'),
             'url' => $this->prettifyImgUrl($processedFile->getPublicUrl()),
