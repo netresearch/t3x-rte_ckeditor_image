@@ -165,8 +165,10 @@
                                 filteredAttr = {};
 
                             filteredAttr = Object.keys(attributes)
-                                .filter(key => allowedAttributes.includes(key))
-                                .reduce((obj, key) => {
+                                .filter(function(key) {
+                                    return allowedAttributes.includes(key)
+                                })
+                                .reduce(function(obj, key) {
                                     obj[key] = attributes[key];
                                     return obj;
                                 }, {});
