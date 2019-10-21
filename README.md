@@ -80,6 +80,9 @@ RTE.default.buttons.image.options.magic {
     maxHeight = 800  # Default: 1000
 }
 ```
+Current versions of TYPO3 won't render TSConfig settings correctly out of custom template extensions (see the corresponding T3 bug: https://forge.typo3.org/issues/87068).
+In this case just add the settings to root page config.
+
 
 ### Usage as lightbox with fluid_styled_content
 
