@@ -94,7 +94,7 @@ class SelectImageController extends ElementBrowserController
             'title' => empty($file->getProperty('title')) ? "" : $file->getProperty('title'),
             'width' => $file->getProperty('width'),
             'height' =>$file->getProperty('height'),
-            'url' => $this->prettifyImgUrl($processedFile->getPublicUrl()),
+            'url' => $this->prettifyImgUrl($file->getPublicUrl()),
             'processed' => [
                 'width' => $processedFile->getProperty('width'),
                 'height' => $processedFile->getProperty('height'),

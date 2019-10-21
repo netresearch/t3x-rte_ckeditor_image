@@ -177,7 +177,8 @@
                                 .then(function (getImg) {
 
                                     $.extend(filteredAttr, {
-                                        src: getImg.processed.url,
+                                        src: getImg.url,
+                                        'data-cke-saved-src': getImg.processed.url,
                                         'data-htmlarea-file-uid': img.uid,
                                         'data-htmlarea-file-table': table
                                     });
