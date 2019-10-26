@@ -358,12 +358,12 @@
                         }
                     })
                 } else if (config.type === 'number') {
-                    var ratio = img.processed.width / img.processed.height;
+                    var ratio = img.width / img.height;
                     if (key === 'height') {
                         ratio = 1 / ratio;
                     }
                     var opposite = 1;
-                    var max = img.processed[key];
+                    var max = img[key];
                     var min = Math.ceil(opposite * ratio);
                     $el.attr('max', max);
                     $el.attr('min', min);
