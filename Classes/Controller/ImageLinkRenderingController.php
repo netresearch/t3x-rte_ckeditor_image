@@ -66,7 +66,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
         $linkContent = $this->cObj->getCurrentVal();
         // Find all images with file-uid attribute
         $imgSearchPattern = '/<img(?=.*data-htmlarea-file-uid).*?\/>/';
-        $attrSearchPattern = '/([a-zA-Z0-9-]+)=[\'"]([^\'"]*)/';
+        $attrSearchPattern = '/([a-zA-Z0-9-]+)=["]([^"]*)"|([a-zA-Z0-9-]+)=[\']([^\']*)\'/';
         $passedImages = [];
         $parsedImages = [];
 
