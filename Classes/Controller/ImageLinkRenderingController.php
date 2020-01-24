@@ -2,6 +2,7 @@
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use TYPO3\CMS\Core\Log\LogLevel;
 use \TYPO3\CMS\Core\Resource;
 use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -116,7 +117,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
                     $parsedImages[] = $passedImage;
                     // Log in fact the file could not be retrieved.
                     $message = sprintf('I could not find file with uid "%s"', $passedAttributes['data-htmlarea-file-uid']);
-                    $this->getLogger()->error($message);
+                    $this->getLogger()->log(LogLevel::ERROR,$message);
                 }
             } else {
                 $parsedImages[] = $passedImage;
@@ -151,7 +152,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     /**
      * @return \TYPO3\CMS\Core\Log\Logger
      */
-    protected function getLogger()
+    private function getLogger()
     {
         /** @var $logManager \TYPO3\CMS\Core\Log\LogManager */
         $logManager = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class);

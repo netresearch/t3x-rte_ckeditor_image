@@ -15,6 +15,7 @@
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use TYPO3\CMS\Core\Log\LogLevel;
 use \TYPO3\CMS\Core\Resource;
 use \TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
@@ -110,7 +111,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
                 } catch (Resource\Exception\FileDoesNotExistException $fileDoesNotExistException) {
                     // Log in fact the file could not be retrieved.
                     $message = sprintf('I could not find file with uid "%s"', $fileUid);
-                    $this->getLogger()->error($message);
+                    $this->getLogger()->log(LogLevel::ERROR, $message);
                 }
             }
         }
@@ -191,7 +192,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * @return \TYPO3\CMS\Core\Log\Logger
      */
-    protected function getLogger()
+    private function getLogger()
     {
         /** @var $logManager \TYPO3\CMS\Core\Log\LogManager */
         $logManager = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class);
