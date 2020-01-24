@@ -16,7 +16,6 @@
 		}
 	},
 	"replace": {
-		"rte_ckeditor_image": "self.version",
 		"typo3-ter/rte-ckeditor-image": "self.version"
 	},
 	"config": {
