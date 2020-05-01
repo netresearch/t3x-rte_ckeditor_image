@@ -135,7 +135,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         if (($imageAttributes['data-htmlarea-zoom'] || $imageAttributes['data-htmlarea-clickenlarge']) && isset($file) && $file) {
             $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'];
             $config['enable'] = 1;
-            $file->_updateMetaDataProperties(array('title'=>($imageAttributes['title']) ? $imageAttributes['title'] : $file->getProperty('title')));
+            $file->updateProperties(array('title'=>($imageAttributes['title']) ? $imageAttributes['title'] : $file->getProperty('title')));
             $this->cObj->setCurrentFile($file);
 
             // Use $this->cObject to have access to all parameters from the image tag
