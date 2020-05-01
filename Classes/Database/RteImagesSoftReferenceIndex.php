@@ -34,7 +34,7 @@ class RteImagesSoftReferenceIndex extends SoftReferenceIndex
     /**
      * TYPO3 HTML Parser
      */
-    public $htmlParser; 
+    public $htmlParser;
     
     /**
      * @var EventDispatcherInterface
