@@ -14,9 +14,10 @@
  * The TYPO3 project - inspiring people to share!
  */
 
-(function() {
-    'use strict';
+'use strict';
 
+(function() {
+	
     var $;
     require(['jquery'], function (jquery) {
         $ = jquery;
@@ -241,9 +242,6 @@
                 'typo3image', // $rteConfig
                 editor.config.typo3image.allowedExtensions || '', // allowedFileExtensions -> Defaults set in controller
                 editor.name, // $irreObjectId
-                '', // $irreCheckUniqueAction
-                '', // $irreAddAction
-                'onSelected' // $irreInsertAction
             ],
             routeUrl = editor.config.typo3image.routeUrl,
                 url = routeUrl
@@ -261,22 +259,50 @@
                 size: Modal.sizes.large,
                 callback: function(currentModal) {
                     currentModal.find('iframe').on('load', function (e) {
-                        var onSelected = function(editorName, table, uid, type) {
-                            if (editorName === editor.name) {
-                                $modal.modal('hide');
-                                deferred.resolve(table, uid);
-                            }
-                        };
-                        // Assign the onSelected function to the correct window, dependent on the current context
-                        if (typeof e.currentTarget.contentWindow.parent !== 'undefined' && typeof e.currentTarget.contentWindow.parent.document.list_frame !== 'undefined' && e.currentTarget.contentWindow.parent.document.list_frame.parent.document.querySelector('.t3js-modal-iframe') !== null) {
-                            e.currentTarget.contentWindow.parent.document.list_frame.onSelected = onSelected
-                        } else if (typeof e.currentTarget.contentWindow.parent !== 'undefined' && typeof e.currentTarget.contentWindow.parent.frames.list_frame !== 'undefined' && e.currentTarget.contentWindow.parent.frames.list_frame.parent.document.querySelector('.t3js-modal-iframe') !== null) {
-                            e.currentTarget.contentWindow.parent.frames.list_frame.onSelected = onSelected
-                        } else if (typeof e.currentTarget.contentWindow.frames !== 'undefined' && typeof e.currentTarget.contentWindow.frames.frameElement !== 'undefined' && e.currentTarget.contentWindow.frames.frameElement !== null && e.currentTarget.contentWindow.frames.frameElement.classList.contains('t3js-modal-iframe')) {
-                            e.currentTarget.contentWindow.frames.frameElement.contentWindow.parent.onSelected = onSelected;
-                        } else if (e.currentTarget.contentWindow.opener) {
-                            e.currentTarget.contentWindow.opener.onSelected = onSelected;
-                        }
+						
+						var AddImage = {
+							elements: {},
+
+							handle: function(e) {
+								var items = $(e).closest('#typo3-filelist').find('.typo3-bulk-item');
+								var selectedItems = [];
+								if (items.length) {
+									items.each(function(position, item) {
+										if (item.checked && item.name) {
+											selectedItems.push({uid: AddImage.elements[item.name].uid, table: AddImage.elements[item.name].table});
+										}
+									});
+									if(selectedItems.length > 0){
+										AddImage.addedImage(selectedItems);
+									}
+								}
+							},
+							
+							addedImage: function(selectedItems){
+								$modal.modal('hide');
+								//for (var i = 0; i < selectedItems.length; i++) {
+									//return true;
+									//alert(selectedItems[i].uid);
+								//}
+								deferred.resolve(selectedItems[0].table, selectedItems[0].uid);
+							},
+							
+						};
+
+						$.extend(AddImage.elements, $(this).contents().find('body').data('elements'));
+						
+
+						$(this).contents().find('[data-close]').on('click', function (e) {
+							e.stopImmediatePropagation();
+							var selectedItems = [];
+							selectedItems.push({uid: AddImage.elements['file_' + $(this).data('fileIndex')].uid, table: AddImage.elements['file_' + $(this).data('fileIndex')].table});
+							AddImage.addedImage(selectedItems);
+						});
+						$(this).contents().find('#t3js-importSelection').on('click',  function (e) {
+							e.stopImmediatePropagation();
+
+							AddImage.handle($(this));
+						});
                     });
                 }
             });
@@ -427,4 +453,5 @@
         };
         return d;
     }
+		
 }());
