@@ -40,7 +40,7 @@ class RteImagesSoftReferenceIndex extends SoftReferenceIndex
     /**
      * @var EventDispatcherInterface
      */
-    public $eventDispatcher;
+    protected $eventDispatcher;
 
     /**
      * Main function through which all processing happens
