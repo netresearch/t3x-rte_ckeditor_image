@@ -1,6 +1,7 @@
 <?php
 namespace Netresearch\RteCKEditorImage\Database;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Database\SoftReferenceIndex;
 use TYPO3\CMS\Core\Html\HtmlParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
