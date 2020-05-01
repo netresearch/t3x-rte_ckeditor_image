@@ -6,3 +6,6 @@ services:
 
   Netresearch\RteCKEditorImage\Database\RteImagesSoftReferenceIndex:
     public: true
+
+  Netresearch\RteCKEditorImage\Database\RteImagesDbHook:
+    public: true
