@@ -241,7 +241,7 @@
                 'ckeditor', // $rteParams
                 'typo3image', // $rteConfig
                 editor.config.typo3image.allowedExtensions || '', // allowedFileExtensions -> Defaults set in controller
-                editor.name, // $irreObjectId
+                editor.name // $irreObjectId
             ],
             routeUrl = editor.config.typo3image.routeUrl,
                 url = routeUrl
