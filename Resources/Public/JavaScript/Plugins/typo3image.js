@@ -17,7 +17,7 @@
 'use strict';
 
 (function() {
-	
+
     var $;
     require(['jquery'], function (jquery) {
         $ = jquery;
@@ -259,50 +259,46 @@
                 size: Modal.sizes.large,
                 callback: function(currentModal) {
                     currentModal.find('iframe').on('load', function (e) {
-						
-						var AddImage = {
-							elements: {},
 
-							handle: function(e) {
-								var items = $(e).closest('#typo3-filelist').find('.typo3-bulk-item');
-								var selectedItems = [];
-								if (items.length) {
-									items.each(function(position, item) {
-										if (item.checked && item.name) {
-											selectedItems.push({uid: AddImage.elements[item.name].uid, table: AddImage.elements[item.name].table});
-										}
-									});
-									if(selectedItems.length > 0){
-										AddImage.addedImage(selectedItems);
-									}
-								}
-							},
-							
-							addedImage: function(selectedItems){
-								$modal.modal('hide');
-								//for (var i = 0; i < selectedItems.length; i++) {
-									//return true;
-									//alert(selectedItems[i].uid);
-								//}
-								deferred.resolve(selectedItems[0].table, selectedItems[0].uid);
-							},
-							
-						};
+                        var AddImage = {
+                            elements: {},
 
-						$.extend(AddImage.elements, $(this).contents().find('body').data('elements'));
-						
+                            handle: function(e) {
+                                var items = $(e).closest('#typo3-filelist').find('.typo3-bulk-item');
+                                var selectedItems = [];
+                                if (items.length) {
+                                    items.each(function(position, item) {
+                                        if (item.checked && item.name) {
+                                            selectedItems.push({uid: AddImage.elements[item.name].uid, table: AddImage.elements[item.name].table});
+                                        }
+                                    });
+                                    if(selectedItems.length > 0){
+                                        AddImage.addedImage(selectedItems);
+                                    }
+                                }
+                            },
 
-						$(this).contents().find('[data-close]').on('click', function (e) {
-							e.stopImmediatePropagation();
-							var selectedItems = [];
-							selectedItems.push({uid: AddImage.elements['file_' + $(this).data('fileIndex')].uid, table: AddImage.elements['file_' + $(this).data('fileIndex')].table});
-							AddImage.addedImage(selectedItems);
-						});
-						$(this).contents().find('#t3js-importSelection').on('click',  function (e) {
-							e.stopImmediatePropagation();
+                            addedImage: function(selectedItems){
+                                $modal.modal('hide');
+                                deferred.resolve(selectedItems[0].table, selectedItems[0].uid);
+                            },
 
-							AddImage.handle($(this));
-						});
+                        };
+
+                        $.extend(AddImage.elements, $(this).contents().find('body').data('elements'));
+
+
+                        $(this).contents().find('[data-close]').on('click', function (e) {
+                            e.stopImmediatePropagation();
+                            var selectedItems = [];
+                            selectedItems.push({uid: AddImage.elements['file_' + $(this).data('fileIndex')].uid, table: AddImage.elements['file_' + $(this).data('fileIndex')].table});
+                            AddImage.addedImage(selectedItems);
+                        });
+                        $(this).contents().find('#t3js-importSelection').on('click',  function (e) {
+                            e.stopImmediatePropagation();
+
+                            AddImage.handle($(this));
+                        });
                     });
                 }
             });
@@ -453,5 +449,5 @@
         };
         return d;
     }
-		
+
 }());
