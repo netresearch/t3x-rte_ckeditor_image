@@ -51,7 +51,6 @@ class SelectImageController extends ElementBrowserController
             if (!$bparams[3]) {
                 $bparams[3] = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
                 $_GET['bparams'] = implode('|', $bparams);
-                //GeneralUtility::_GETset(implode('|', $bparams), 'bparams');
             }
             parent::__construct();
         }
@@ -138,7 +137,7 @@ class SelectImageController extends ElementBrowserController
     protected function getImage($id)
     {
         try {
-            $file = ResourceFactory::getInstance()->getFileObject($id);
+            $file = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($id);
             if ($file->isDeleted() || $file->isMissing()) {
                 $file = null;
             }
