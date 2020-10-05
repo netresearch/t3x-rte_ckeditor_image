@@ -26,7 +26,10 @@
         elementBrowser: null,
         init: function (editor) {
             var allowedAttributes = ['!src', 'alt', 'title', 'class', 'rel', 'width', 'height'],
-                additionalAttributes = getAdditionalAttributes(editor);
+                additionalAttributes = getAdditionalAttributes(editor),
+                $shadowEditor = $(editor.element.$.innerText),
+                existingImages = $shadowEditor.find('img');
+
             if (additionalAttributes.length) {
                 allowedAttributes.push.apply(allowedAttributes, additionalAttributes);
             }
@@ -47,6 +50,39 @@
                         );
                     });
             };
+
+            // Update image when editor loads
+            if (existingImages.length) {
+                $.each(existingImages, function(i,curImg) {
+                    var $curImg = $(curImg),
+                        uid = $curImg.attr('data-htmlarea-file-uid'),
+                        table = $curImg.attr('data-htmlarea-file-table'),
+                        routeUrl = editor.config.typo3image.routeUrl,
+                        url = routeUrl
+                            + (routeUrl.indexOf('?') === -1 ? '?' : '&')
+                            + 'action=info'
+                            + '&fileId=' + encodeURIComponent(uid)
+                            + '&table=' + encodeURIComponent(table);
+
+                    if (typeof $curImg.attr('width') !== 'undefined' && $curImg.attr('width').length) {
+                        url += '&P[width]=' + $curImg.attr('width');
+                    }
+
+                    if (typeof $curImg.attr('height') !== 'undefined' && $curImg.attr('height').length) {
+                        url += '&P[height]=' + $curImg.attr('height');
+                    }
+
+                    $.getJSON(url, function(newImg) {
+                        var realEditor = $('#cke_' + editor.element.$.id).find('iframe').contents().find('body'),
+                            newImgUrl = newImg.processed.url || newImg.url;
+
+                        // Replace current url with updated one
+                        if ($curImg.attr('src') && newImgUrl) {
+                            realEditor.html(realEditor.html().replaceAll($curImg.attr('src'), newImgUrl));
+                        }
+                    });
+                });
+            }
 
             // Override link command
             editor.addCommand('image', {
