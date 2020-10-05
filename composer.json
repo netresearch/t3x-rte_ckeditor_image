@@ -1,5 +1,5 @@
 {
-	"name": "netresearch/rte-ckeditor-image",
+	"name": "netresearch/rte_ckeditor_image",
 	"type": "typo3-cms-extension",
 	"description": "Image support in CKEditor for the TYPO3 ecosystem",
 	"homepage": "https://www.netresearch.de",
@@ -16,7 +16,7 @@
 		}
 	},
 	"replace": {
-		"netresearch/rte_ckeditor_image": "self.version",
+		"netresearch/rte-ckeditor-image": "self.version",
 		"typo3-ter/rte-ckeditor-image": "self.version"
 	},
 	"config": {
