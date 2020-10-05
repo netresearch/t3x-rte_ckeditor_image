@@ -419,9 +419,13 @@
                     }
                 });
             });
+
+            // When saving, the zoom property is saved as the new `zoom` attribute
             if ($zoom.prop('checked')) {
-                // When saving the zoom property is saved as the new `zoom` attribute
                 attributes['data-htmlarea-zoom'] = true;
+            } else if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
+                delete attributes['data-htmlarea-zoom'];
+                delete attributes['data-htmlarea-clickenlarge'];
             }
             return attributes;
         };
