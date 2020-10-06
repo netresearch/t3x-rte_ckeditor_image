@@ -178,6 +178,8 @@
 
                                     $.extend(filteredAttr, {
                                         src: getImg.url,
+                                        width: getImg.processed.width || getImg.width,
+                                        height: getImg.processed.height || getImg.height,
                                         'data-cke-saved-src': getImg.processed.url,
                                         'data-htmlarea-file-uid': img.uid,
                                         'data-htmlarea-file-table': table
