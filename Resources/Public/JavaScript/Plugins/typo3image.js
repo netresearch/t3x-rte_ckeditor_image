@@ -379,6 +379,7 @@
                     $el.prop('disabled', hasDefault && !value);
 
                     var cbox = $('<input type="checkbox">')
+                        .attr('id', 'checkbox-' + key)
                         .prop('checked', !!value || !hasDefault)
                         .prop('disabled', !hasDefault);
                     var cboxLabel = $('<label></label>').text(
@@ -394,7 +395,7 @@
                         } else {
                             $el.focus();
                         }
-                    })
+                    });
                 } else if (config.type === 'number') {
                     var ratio = img.width / img.height;
                     if (key === 'height') {
@@ -437,7 +438,9 @@
             });
         });
 
-        var $zoom = $('<input type="checkbox">');
+        var $checkboxTitle = d.$el.find('#checkbox-title'),
+            $checkboxAlt = d.$el.find('#checkbox-alt'),
+            $zoom = $('<input type="checkbox">');
         // Support new `zoom` and legacy `clickenlarge` attributes
         if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
             $zoom.prop('checked', true);
@@ -452,15 +455,28 @@
             $.each(fields, function () {
                 $.each(this, function(key) {
                     var value = elements[key].val();
-                    if (value) {
+                    if (typeof value !== 'undefined') {
                         attributes[key] = value;
                     }
                 });
             });
+
+            // When saving, the zoom property is saved as the new `zoom` attribute
             if ($zoom.prop('checked')) {
-                // When saving the zoom property is saved as the new `zoom` attribute
                 attributes['data-htmlarea-zoom'] = true;
+            } else if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
+                delete attributes['data-htmlarea-zoom'];
+                delete attributes['data-htmlarea-clickenlarge'];
             }
+
+            if ($checkboxTitle.length && !$checkboxTitle.is(":checked")) {
+                delete attributes.title;
+            }
+
+            if ($checkboxAlt.length && !$checkboxAlt.is(":checked")) {
+                delete attributes.alt;
+            }
+
             return attributes;
         };
         return d;
