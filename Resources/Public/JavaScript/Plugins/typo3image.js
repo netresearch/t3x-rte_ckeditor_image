@@ -15,7 +15,7 @@
  */
 
 (function() {
-'use strict';
+    'use strict';
 
     var $;
     require(['jquery'], function (jquery) {
@@ -337,6 +337,46 @@
 
 							AddImage.handle($(this));
 						});
+
+                        var AddImage = {
+                            elements: {},
+
+                            handle: function(e) {
+                                var items = $(e).closest('#typo3-filelist').find('.typo3-bulk-item');
+                                var selectedItems = [];
+                                if (items.length) {
+                                    items.each(function(position, item) {
+                                        if (item.checked && item.name) {
+                                            selectedItems.push({uid: AddImage.elements[item.name].uid, table: AddImage.elements[item.name].table});
+                                        }
+                                    });
+                                    if(selectedItems.length > 0){
+                                        AddImage.addedImage(selectedItems);
+                                    }
+                                }
+                            },
+
+                            addedImage: function(selectedItems){
+                                $modal.modal('hide');
+                                deferred.resolve(selectedItems[0].table, selectedItems[0].uid);
+                            },
+
+                        };
+
+                        $.extend(AddImage.elements, $(this).contents().find('body').data('elements'));
+
+
+                        $(this).contents().find('[data-close]').on('click', function (e) {
+                            e.stopImmediatePropagation();
+                            var selectedItems = [];
+                            selectedItems.push({uid: AddImage.elements['file_' + $(this).data('fileIndex')].uid, table: AddImage.elements['file_' + $(this).data('fileIndex')].table});
+                            AddImage.addedImage(selectedItems);
+                        });
+                        $(this).contents().find('#t3js-importSelection').on('click',  function (e) {
+                            e.stopImmediatePropagation();
+
+                            AddImage.handle($(this));
+                        });
                     });
                 }
             });

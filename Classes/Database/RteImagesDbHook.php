@@ -4,13 +4,21 @@ namespace Netresearch\RteCKEditorImage\Database;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Html\RteHtmlParser;
+use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
+use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
+use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\Service\MagicImageService;
+use TYPO3\CMS\Core\Type\File\ImageInfo;
 use TYPO3\CMS\Backend\Configuration\TypoScript\ConditionMatching\ConditionMatcher;
 use TYPO3\CMS\Core\Configuration\Loader\PageTsConfigLoader;
 use TYPO3\CMS\Core\Configuration\Parser\PageTsConfigParser;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Extbase\Configuration\BackendConfigurationManager;
+
 
 /**
  * Class for processing of the FAL soft references on img tags inserted in RTE content
@@ -87,11 +95,8 @@ class RteImagesDbHook extends RteHtmlParser
         if (count($imgSplit) > 1) {
             $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
             $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
-            /** @var \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory */
-            $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
-            /** @var \TYPO3\CMS\Core\Resource\Service\MagicImageService $magicImageService */
-            $magicImageService = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Resource\Service\MagicImageService::class);
-
+            $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+            $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
             $pageId = GeneralUtility::makeInstance(BackendConfigurationManager::class)->getDefaultBackendStoragePid();
             $rootLine = BackendUtility::BEgetRootLine($pageId);
             $loader = GeneralUtility::makeInstance(PageTsConfigLoader::class);
@@ -133,15 +138,14 @@ class RteImagesDbHook extends RteHtmlParser
                     if ($attribArray['data-htmlarea-file-uid']) {
                         // An original image file uid is available
                         try {
-                            /** @var Resource\File $originalImageFile */
                             $originalImageFile = $resourceFactory->getFileObject((int)$attribArray['data-htmlarea-file-uid']);
-                        } catch (Resource\Exception\FileDoesNotExistException $fileDoesNotExistException) {
+                        } catch (FileDoesNotExistException $fileDoesNotExistException) {
                             // Log the fact the file could not be retrieved.
                             $message = sprintf('Could not find file with uid "%s"', $attribArray['data-htmlarea-file-uid']);
                             $this->logger->error($message);
                         }
                     }
-                    if ($originalImageFile instanceof Resource\File) {
+                    if ($originalImageFile instanceof File) {
                         // Public url of local file is relative to the site url, absolute otherwise
                         if ($absoluteUrl == $originalImageFile->getPublicUrl() || $absoluteUrl == $siteUrl . $originalImageFile->getPublicUrl()) {
                             // This is a plain image, i.e. reference to the original image
@@ -185,9 +189,7 @@ class RteImagesDbHook extends RteHtmlParser
                                 $fileName = GeneralUtility::shortMD5($absoluteUrl) . '.' . $pI['extension'];
                                 // We insert this image into the user default upload folder
                                 list($table, $field) = explode(':', $this->elRef);
-                                /** @var Resource\Folder $folder */
                                 $folder = $GLOBALS['BE_USER']->getDefaultUploadFolder($this->recPid, $table, $field);
-                                /** @var Resource\File $fileObject */
                                 $fileObject = $folder->createFile($fileName)->setContents($externalFile);
                                 $imageConfiguration = [
                                     'width' => $attribArray['width'],
@@ -223,14 +225,13 @@ class RteImagesDbHook extends RteHtmlParser
                             // Let's try to find a file uid for this image
                             try {
                                 $fileOrFolderObject = $resourceFactory->retrieveFileOrFolderObject($path);
-                                if ($fileOrFolderObject instanceof Resource\FileInterface) {
+                                if ($fileOrFolderObject instanceof FileInterface) {
                                     $fileIdentifier = $fileOrFolderObject->getIdentifier();
-                                    /** @var Resource\AbstractFile $fileObject */
                                     $fileObject = $fileOrFolderObject->getStorage()->getFile($fileIdentifier);
                                     // @todo if the retrieved file is a processed file, get the original file...
                                     $attribArray['data-htmlarea-file-uid'] = $fileObject->getUid();
                                 }
-                            } catch (Resource\Exception\ResourceDoesNotExistException $resourceDoesNotExistException) {
+                            } catch (ResourceDoesNotExistException $resourceDoesNotExistException) {
                                 // Nothing to be done if file/folder not found
                             }
                         }
@@ -283,4 +284,3 @@ class RteImagesDbHook extends RteHtmlParser
         return [(int)$w, (int)$h];
     }
 }
-?>
