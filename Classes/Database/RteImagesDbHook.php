@@ -1,7 +1,10 @@
 <?php
 namespace Netresearch\RteCKEditorImage\Database;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
@@ -10,7 +13,11 @@ use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Type\File\ImageInfo;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Backend\Configuration\TypoScript\ConditionMatching\ConditionMatcher;
+use TYPO3\CMS\Core\Configuration\Loader\PageTsConfigLoader;
+use TYPO3\CMS\Core\Configuration\Parser\PageTsConfigParser;
+use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
+use TYPO3\CMS\Extbase\Configuration\BackendConfigurationManager;
 
 /**
  * Class for processing of the FAL soft references on img tags inserted in RTE content
@@ -34,9 +41,9 @@ class RteImagesDbHook extends RteHtmlParser
      * @var EventDispatcherInterface
      */
     protected $eventDispatcher;
-    
+
     /**
-     * 
+     *
      *
      * @param array $parameters
      * @param RteHtmlParser $parserObject
@@ -72,9 +79,9 @@ class RteImagesDbHook extends RteHtmlParser
         // Return processed content:
         return implode('', $imgSplit);
     }
-    
+
     /**
-     * 
+     *
      *
      * @param array $parameters
      * @param RteHtmlParser $parserObject
@@ -89,12 +96,21 @@ class RteImagesDbHook extends RteHtmlParser
             $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
             $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
             $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
-            #$magicImageService->setMagicImageMaximumDimensions($this->tsConfig);
-            ##!!!!!!!!!!! added ##########
-            ##!!!!!!!!!!! added ##########
-            ##!!!!!!!!!!! todo!!!! ##########
-            ##!!!!!!!!!!! added ##########
-            ##!!!!!!!!!!! added ##########
+            $pageId = GeneralUtility::makeInstance(BackendConfigurationManager::class)->getDefaultBackendStoragePid();
+            $rootLine = BackendUtility::BEgetRootLine($pageId);
+            $loader = GeneralUtility::makeInstance(PageTsConfigLoader::class);
+            $tsConfigString = $loader->load($rootLine);
+
+            // Parse the PageTS into an array, also applying conditions
+            $parser = GeneralUtility::makeInstance(
+                PageTsConfigParser::class,
+                GeneralUtility::makeInstance(TypoScriptParser::class),
+                GeneralUtility::makeInstance(CacheManager::class)->getCache('hash')
+            );
+            $matcher = GeneralUtility::makeInstance(ConditionMatcher::class, null, $pageId, $rootLine);
+            $tsConfig = $parser->parse($tsConfigString, $matcher);
+            $magicImageService->setMagicImageMaximumDimensions($tsConfig['RTE.']['default.']);
+
             foreach ($imgSplit as $k => $v) {
                 // Image found, do processing:
                 if ($k % 2) {
@@ -235,7 +251,7 @@ class RteImagesDbHook extends RteHtmlParser
         }
         return implode('', $imgSplit);
     }
-    
+
     /**
      * Finds width and height from attrib-array
      * If the width and height is found in the style-attribute, use that!
