@@ -14,10 +14,9 @@
  * The TYPO3 project - inspiring people to share!
  */
 
+(function() {
 'use strict';
 
-(function() {
-	
     var $;
     require(['jquery'], function (jquery) {
         $ = jquery;
@@ -297,25 +296,24 @@
                 size: Modal.sizes.large,
                 callback: function(currentModal) {
                     currentModal.find('iframe').on('load', function (e) {
-						
 						var AddImage = {
 							elements: {},
-
 							handle: function(e) {
-								var items = $(e).closest('#typo3-filelist').find('.typo3-bulk-item');
-								var selectedItems = [];
+							    var items = $(e).closest('#typo3-filelist').find('.typo3-bulk-item'),
+                                    selectedItems = [];
+
 								if (items.length) {
 									items.each(function(position, item) {
 										if (item.checked && item.name) {
 											selectedItems.push({uid: AddImage.elements[item.name].uid, table: AddImage.elements[item.name].table});
 										}
 									});
+
 									if(selectedItems.length > 0){
 										AddImage.addedImage(selectedItems);
 									}
 								}
 							},
-							
 							addedImage: function(selectedItems){
 								$modal.modal('hide');
 								//for (var i = 0; i < selectedItems.length; i++) {
@@ -324,11 +322,9 @@
 								//}
 								deferred.resolve(selectedItems[0].table, selectedItems[0].uid);
 							},
-							
 						};
 
 						$.extend(AddImage.elements, $(this).contents().find('body').data('elements'));
-						
 
 						$(this).contents().find('[data-close]').on('click', function (e) {
 							e.stopImmediatePropagation();
@@ -438,9 +434,10 @@
                             value += delta;
                         }
                         value = Math.max(currentMin, Math.min(value, max));
-                        var $opposite = elements[key === 'width' ? 'height' : 'width'];
-                        var oppositeMax = parseInt($opposite.attr('max'));
-                        var ratio = oppositeMax / max;
+                        var $opposite = elements[key === 'width' ? 'height' : 'width'],
+                            oppositeMax = parseInt($opposite.attr('max')),
+                            ratio = oppositeMax / max;
+
                         $opposite.val(value === max ? oppositeMax : Math.ceil(value * ratio));
                         $el.val(value);
                     };
@@ -463,11 +460,15 @@
             });
         });
 
-        var $zoom = $('<input type="checkbox">');
+        var $checkboxTitle = d.$el.find('#checkbox-title'),
+            $checkboxAlt = d.$el.find('#checkbox-alt'),
+            $zoom = $('<input type="checkbox">');
+
         // Support new `zoom` and legacy `clickenlarge` attributes
         if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
             $zoom.prop('checked', true);
         }
+
         $zoom.prependTo(
             $('<label>').text(img.lang.zoom).appendTo(
                 $('<div class="checkbox" style="margin: -5px 0 15px;">').insertAfter($rows[0])
@@ -478,18 +479,31 @@
             $.each(fields, function () {
                 $.each(this, function(key) {
                     var value = elements[key].val();
-                    if (value) {
+
+                    if (typeof value !== 'undefined') {
                         attributes[key] = value;
                     }
                 });
             });
+
+            // When saving, the zoom property is saved as the new `zoom` attribute
             if ($zoom.prop('checked')) {
-                // When saving the zoom property is saved as the new `zoom` attribute
                 attributes['data-htmlarea-zoom'] = true;
+            } else if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
+                delete attributes['data-htmlarea-zoom'];
+                delete attributes['data-htmlarea-clickenlarge'];
             }
+
+            if ($checkboxTitle.length && !$checkboxTitle.is(":checked")) {
+                delete attributes.title;
+            }
+
+            if ($checkboxAlt.length && !$checkboxAlt.is(":checked")) {
+                delete attributes.alt;
+            }
+
             return attributes;
         };
         return d;
     }
-		
 }());
