@@ -15,7 +15,7 @@
  */
 
 (function() {
-    'use strict';
+'use strict';
 
     var $;
     require(['jquery'], function (jquery) {
