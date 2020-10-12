@@ -1,11 +1,11 @@
 {
-	"name": "netresearch/rte-ckeditor-image",
+	"name": "netresearch/rte_ckeditor_image",
 	"type": "typo3-cms-extension",
 	"description": "Image support in CKEditor for the TYPO3 ecosystem",
 	"homepage": "https://www.netresearch.de",
 	"license": ["GPL-2.0-or-later"],
 	"require": {
-		"typo3/cms-core": "^10"
+		"typo3/cms-core": "^10.4"
 	},
 	"require-dev": {
 		"namelesscoder/typo3-repository-client": "^1.2"
@@ -16,6 +16,7 @@
 		}
 	},
 	"replace": {
+		"netresearch/rte-ckeditor-image": "self.version",
 		"typo3-ter/rte-ckeditor-image": "self.version"
 	},
 	"config": {
