@@ -286,13 +286,14 @@
                 + 'contentsLanguage=' + editor.config.contentsLanguage
                 + '&editorId=' + editor.id
                 + '&bparams=' + bparams.join('|'),
-            deferred = $.Deferred();
+            deferred = $.Deferred(),
+            $modal;
 
-        require(['TYPO3/CMS/Backend/Modal'], function (Modal) {
-            var $modal = Modal.advanced({
-                type: Modal.types.iframe,
-                title: editor.lang.common.image,
-                content: url,
+    require(['TYPO3/CMS/Backend/Modal'], function (Modal) {
+        $modal = Modal.advanced({
+            type: Modal.types.iframe,
+            title: editor.lang.common.image,
+            content: url,
                 size: Modal.sizes.large,
                 callback: function(currentModal) {
                     currentModal.find('iframe').on('load', function (e) {
