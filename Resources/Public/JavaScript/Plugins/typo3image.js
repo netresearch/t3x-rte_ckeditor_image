@@ -442,6 +442,7 @@
                     $el.prop('disabled', hasDefault && !value);
 
                     var cbox = $('<input type="checkbox">')
+                        .attr('id', 'checkbox-' + key)
                         .prop('checked', !!value || !hasDefault)
                         .prop('disabled', !hasDefault);
                     var cboxLabel = $('<label></label>').text(
@@ -457,7 +458,7 @@
                         } else {
                             $el.focus();
                         }
-                    })
+                    });
                 } else if (config.type === 'number') {
                     var ratio = img.width / img.height;
                     if (key === 'height') {
@@ -475,10 +476,9 @@
                             value += delta;
                         }
                         value = Math.max(currentMin, Math.min(value, max));
-                        var $opposite = elements[key === 'width' ? 'height' : 'width'],
-                            oppositeMax = parseInt($opposite.attr('max')),
-                            ratio = oppositeMax / max;
-
+                        var $opposite = elements[key === 'width' ? 'height' : 'width'];
+                        var oppositeMax = parseInt($opposite.attr('max'));
+                        var ratio = oppositeMax / max;
                         $opposite.val(value === max ? oppositeMax : Math.ceil(value * ratio));
                         $el.val(value);
                     };
@@ -504,12 +504,10 @@
         var $checkboxTitle = d.$el.find('#checkbox-title'),
             $checkboxAlt = d.$el.find('#checkbox-alt'),
             $zoom = $('<input type="checkbox">');
-
         // Support new `zoom` and legacy `clickenlarge` attributes
         if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
             $zoom.prop('checked', true);
         }
-
         $zoom.prependTo(
             $('<label>').text(img.lang.zoom).appendTo(
                 $('<div class="checkbox" style="margin: -5px 0 15px;">').insertAfter($rows[0])
@@ -520,7 +518,6 @@
             $.each(fields, function () {
                 $.each(this, function(key) {
                     var value = elements[key].val();
-
                     if (typeof value !== 'undefined') {
                         attributes[key] = value;
                     }

@@ -85,7 +85,7 @@ class SelectImageController extends ElementBrowserController
         $processedFile = $this->processImage($file, $params);
 
         $lang = $this->getLanguageService();
-        $this->getLanguageService()->includeLLFile('EXT:lang/Resources/Private/Language/locallang_core.xlf');
+        $this->getLanguageService()->includeLLFile('EXT:core/Resources/Private/Language/locallang_core.xlf');
         $this->getLanguageService()->includeLLFile('EXT:frontend/Resources/Private/Language/locallang_ttc.xlf');
 
         return new JsonResponse([
