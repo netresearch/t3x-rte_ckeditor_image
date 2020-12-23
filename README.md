@@ -16,7 +16,7 @@ Add issues or explore the project on [github](https://github.com/netresearch/t3x
     1. with composer from [packagist](https://packagist.org/packages/netresearch/rte-ckeditor-image)
     
         ```shell
-        composer req netresearch/rte-ckeditor-image:dev-TYPO3_10.x
+        composer req netresearch/rte-ckeditor-image:dev-dev-TYPO3_10.x
         ```
 
     2. with composer from [TYPO3 TER composer repository](https://composer.typo3.org/)
