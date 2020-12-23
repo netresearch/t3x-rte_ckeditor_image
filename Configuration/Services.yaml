@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Netresearch\RteCKEditorImage\Database\RteImagesSoftReferenceIndex:
+    public: true
+
+  Netresearch\RteCKEditorImage\Database\RteImagesDbHook:
+    public: true

@@ -1,6 +1,7 @@
 <?php
 namespace Netresearch\RteCKEditorImage\Database;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Database\SoftReferenceIndex;
 use TYPO3\CMS\Core\Html\HtmlParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -29,12 +30,17 @@ class RteImagesSoftReferenceIndex extends SoftReferenceIndex
     /**
      * Content splitted into images and other elements
      */
-    public $splittedContentTags = array();
+    public $splittedContentTags = [];
 
     /**
      * TYPO3 HTML Parser
      */
     public $htmlParser;
+    
+    /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
 
     /**
      * Main function through which all processing happens
@@ -84,10 +90,10 @@ class RteImagesSoftReferenceIndex extends SoftReferenceIndex
 
         // Assemble result array
         if (!empty($images)) {
-            $retVal = array(
+            $retVal = [
                 'content' => implode('', $this->splittedContentTags),
                 'elements' => $images
-            );
+            ];
         }
 
         return $retVal;
@@ -113,7 +119,7 @@ class RteImagesSoftReferenceIndex extends SoftReferenceIndex
      */
     private function findImagesWithDataUid()
     {
-        $images = array();
+        $images = [];
 
         // Traverse splitted parts
         foreach ($this->splittedContentTags as $k => $v) {
@@ -128,16 +134,16 @@ class RteImagesSoftReferenceIndex extends SoftReferenceIndex
                 if ($fileUid) {
                     // Initialize the element entry with info text here
                     $tokenID = $this->makeTokenID($k);
-                    $images[$k] = array();
+                    $images[$k] = [];
                     $images[$k]['matchString'] = $v;
                     // Token and substitute value
                     $this->splittedContentTags[$k] = str_replace('data-htmlarea-file-uid="' . $fileUid . '"', 'data-htmlarea-file-uid="{softref:' . $tokenID . '}"', $this->splittedContentTags[$k]);
-                    $images[$k]['subst'] = array(
+                    $images[$k]['subst'] = [
                         'type' => 'db',
                         'recordRef' => 'sys_file:' . $fileUid,
                         'tokenID' => $tokenID,
                         'tokenValue' => $fileUid
-                    );
+                    ];
                 }
             }
         }

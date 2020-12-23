@@ -15,9 +15,12 @@
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
-use \TYPO3\CMS\Core\Resource;
+use TYPO3\CMS\Core\Log\LogLevel;
+use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
+use \TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use \TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 
 /**
  * Controller to render the image tag in frontend
@@ -90,7 +93,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
             $fileUid = (int)$imageAttributes['data-htmlarea-file-uid'];
             if ($fileUid) {
                 try {
-                    $file = Resource\ResourceFactory::getInstance()->getFileObject($fileUid);
+                    $file = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($fileUid);
                     if ($imageAttributes['src'] !== $file->getPublicUrl()) {
                         // Source file is a processed image
                         $imageConfiguration = [
@@ -107,10 +110,10 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
                         ];
                         $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
                     }
-                } catch (Resource\Exception\FileDoesNotExistException $fileDoesNotExistException) {
+                } catch (FileDoesNotExistException $fileDoesNotExistException) {
                     // Log in fact the file could not be retrieved.
                     $message = sprintf('I could not find file with uid "%s"', $fileUid);
-                    $this->getLogger()->error($message);
+                    $this->getLogger()->log(LogLevel::ERROR, $message);
                 }
             }
         }
@@ -134,7 +137,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         if (($imageAttributes['data-htmlarea-zoom'] || $imageAttributes['data-htmlarea-clickenlarge']) && isset($file) && $file) {
             $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'];
             $config['enable'] = 1;
-            $file->_updateMetaDataProperties(array('title'=>($imageAttributes['title']) ? $imageAttributes['title'] : $file->getProperty('title')));
+            $file->updateProperties(array('title'=>($imageAttributes['title']) ? $imageAttributes['title'] : $file->getProperty('title')));
             $this->cObj->setCurrentFile($file);
 
             // Use $this->cObject to have access to all parameters from the image tag
@@ -164,10 +167,10 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      */
     protected function getMagicImageService()
     {
-        /** @var $magicImageService Resource\Service\MagicImageService */
+        /** @var $magicImageService MagicImageService */
         static $magicImageService;
         if (!$magicImageService) {
-            $magicImageService = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Resource\Service\MagicImageService::class);
+            $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
             // Get RTE configuration
             $pageTSConfig = $this->frontendController->getPagesTSconfig();
             if (is_array($pageTSConfig) && is_array($pageTSConfig['RTE.']['default.'])) {
@@ -191,10 +194,10 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * @return \TYPO3\CMS\Core\Log\Logger
      */
-    protected function getLogger()
+    private function getLogger()
     {
-        /** @var $logManager \TYPO3\CMS\Core\Log\LogManager */
-        $logManager = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class);
+        /** @var $logManager LogManager */
+        $logManager = GeneralUtility::makeInstance(LogManager::class);
         return $logManager->getLogger(get_class($this));
     }
 }

@@ -2,7 +2,11 @@
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
-use \TYPO3\CMS\Core\Resource;
+use \TYPO3\CMS\Core\Log\LogLevel;
+use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use \TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -87,7 +91,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
 
             if (!empty($passedAttributes['data-htmlarea-file-uid'])) {
                 try {
-                    $systemImage = Resource\ResourceFactory::getInstance()->getFileObject($passedAttributes['data-htmlarea-file-uid']);
+                    $systemImage = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($passedAttributes['data-htmlarea-file-uid']);
                     $imageConfiguration = [
                         'width' => ($passedAttributes['width']) ? $passedAttributes['width'] : $systemImage->getProperty('width'),
                         'height' => ($passedAttributes['height']) ? $passedAttributes['height'] : $systemImage->getProperty('height')
@@ -112,11 +116,11 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
                     $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
                     // Image template; empty attributes are removed by 3nd param 'false'
                     $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, false) . ' />';
-                } catch (Resource\Exception\FileDoesNotExistException $fileDoesNotExistException) {
+                } catch (FileDoesNotExistException $fileDoesNotExistException) {
                     $parsedImages[] = $passedImage;
                     // Log in fact the file could not be retrieved.
                     $message = sprintf('I could not find file with uid "%s"', $passedAttributes['data-htmlarea-file-uid']);
-                    $this->getLogger()->error($message);
+                    $this->getLogger()->log(LogLevel::ERROR,$message);
                 }
             } else {
                 $parsedImages[] = $passedImage;
@@ -135,10 +139,10 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
      */
     protected function getMagicImageService()
     {
-        /** @var $magicImageService Resource\Service\MagicImageService */
+        /** @var $magicImageService MagicImageService */
         static $magicImageService;
         if (!$magicImageService) {
-            $magicImageService = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Resource\Service\MagicImageService::class);
+            $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
             // Get RTE configuration
             $pageTSConfig = $this->frontendController->getPagesTSconfig();
             if (is_array($pageTSConfig) && is_array($pageTSConfig['RTE.']['default.'])) {
@@ -151,10 +155,10 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     /**
      * @return \TYPO3\CMS\Core\Log\Logger
      */
-    protected function getLogger()
+    private function getLogger()
     {
         /** @var $logManager \TYPO3\CMS\Core\Log\LogManager */
-        $logManager = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class);
+        $logManager = GeneralUtility::makeInstance(LogManager::class);
         return $logManager->getLogger(get_class($this));
     }
 }
