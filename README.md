@@ -16,16 +16,10 @@ Add issues or explore the project on [github](https://github.com/netresearch/t3x
     1. with composer from [packagist](https://packagist.org/packages/netresearch/rte-ckeditor-image)
     
         ```shell
-        composer req netresearch/rte-ckeditor-image:dev-dev-TYPO3_10.x
+        composer req netresearch/rte-ckeditor-image:^10.1
         ```
 
-    2. with composer from [TYPO3 TER composer repository](https://composer.typo3.org/)
-
-        ```shell
-        composer require typo3-ter/rte-ckeditor-image
-        ```
-
-    3. download from [TYPO3 TER](https://extensions.typo3.org/extension/rte_ckeditor_image/)
+    2. download from [TYPO3 TER](https://extensions.typo3.org/extension/rte_ckeditor_image/)
 
 2. Activate the extension
 
