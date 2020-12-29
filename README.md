@@ -74,6 +74,7 @@ RTE.default.buttons.image.options.magic {
     maxHeight = 800  # Default: 1000
 }
 ```
+
 Current versions of TYPO3 won't render TSConfig settings correctly out of custom template extensions (see the corresponding T3 bug: https://forge.typo3.org/issues/87068).
 In this case just add the settings to root page config.
 
@@ -83,6 +84,19 @@ In this case just add the settings to root page config.
 ```
 # Template Constants
 styles.content.textmedia.linkWrap.lightboxEnabled = 1
+```
+
+### Configure a default css class for every image
+
+```
+# TS Setup
+
+lib.parseFunc_RTE {
+    // default class for images in bodytext:
+    nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib.class {
+      default = my-custom-class
+    }
+}
 ```
 
 ### Allowed extensions
