@@ -87,6 +87,7 @@ class SelectImageController extends ElementBrowserController
         $lang = $this->getLanguageService();
         $this->getLanguageService()->includeLLFile('EXT:core/Resources/Private/Language/locallang_core.xlf');
         $this->getLanguageService()->includeLLFile('EXT:frontend/Resources/Private/Language/locallang_ttc.xlf');
+        $this->getLanguageService()->includeLLFile('EXT:rte_ckeditor_image/Resources/Private/Language/locallang_be.xlf');
 
         return new JsonResponse([
             'uid' => $file->getUid(),
@@ -103,6 +104,7 @@ class SelectImageController extends ElementBrowserController
             'lang' => [
                 'override' => $lang->getLL('labels.placeholder.override'),
                 'overrideNoDefault' => $lang->getLL('labels.placeholder.override_not_available'),
+                'cssClass' => $lang->getLL('labels.ckeditor.cssclass'),
                 'zoom' => $lang->getLL('image_zoom_formlabel')
             ]
         ]);

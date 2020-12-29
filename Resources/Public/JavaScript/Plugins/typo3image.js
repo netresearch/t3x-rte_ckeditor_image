@@ -191,21 +191,24 @@
                         text: editor.lang.common.ok,
                         trigger: function () {
 
-                            var allowedAttributes = ['!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom'],
-                                additionalAttributes = getAdditionalAttributes(editor);
+                            var dialogInfo = dialog.get(),
+                                filteredAttr = {},
+                                allowedAttributes = [
+                                    '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom'
+                                ],
+                                additionalAttributes = getAdditionalAttributes(editor),
+                                attributesNew = $.extend({}, img, dialogInfo);
+
                             if (additionalAttributes.length) {
                                 allowedAttributes.push.apply(allowedAttributes, additionalAttributes);
                             }
-                            var dialogInfo = dialog.get(),
-                                attributes = $.extend({}, img, dialogInfo),
-                                filteredAttr = {};
 
-                            filteredAttr = Object.keys(attributes)
+                            filteredAttr = Object.keys(attributesNew)
                                 .filter(function(key) {
                                     return allowedAttributes.includes(key)
                                 })
                                 .reduce(function(obj, key) {
-                                    obj[key] = attributes[key];
+                                    obj[key] = attributesNew[key];
                                     return obj;
                                 }, {});
 
@@ -330,7 +333,10 @@
                         $(this).contents().find('[data-close]').on('click', function (e) {
                             e.stopImmediatePropagation();
                             var selectedItems = [];
-                            selectedItems.push({uid: AddImage.elements['file_' + $(this).data('fileIndex')].uid, table: AddImage.elements['file_' + $(this).data('fileIndex')].table});
+                            selectedItems.push({
+                                uid: AddImage.elements['file_' + $(this).data('fileIndex')].uid,
+                                table: AddImage.elements['file_' + $(this).data('fileIndex')].table
+                            });
                             AddImage.addedImage(selectedItems);
                         });
                         $(this).contents().find('#t3js-importSelection').on('click',  function (e) {
@@ -369,9 +375,9 @@
      * @return {{$el: {jquery}, get: {function}}}
      */
     function getImageDialog(editor, img, attributes) {
-        var d = {};
-        var $rows = [];
-        d.$el = $('<div class="rteckeditorimage">');
+        var d = {},
+            $rows = [],
+            elements = {};
         const fields = [
             {
                 width: { label: editor.lang.common.width, type: 'number' },
@@ -382,7 +388,9 @@
                 alt: { label: editor.lang.image.alt, type: 'text' }
             }
         ];
-        var elements = {};
+
+        d.$el = $('<div class="rteckeditorimage">');
+
         $.each(fields, function () {
             var $row = $('<div class="row">').appendTo(d.$el);
             $rows.push($row);
@@ -411,7 +419,7 @@
                     cbox.prependTo(
                         cboxLabel.appendTo($('<div class="checkbox" style="margin: 0 0 6px;">').appendTo($group))
                     );
-                    cboxLabel.click(function () {
+                    cboxLabel.on('click', function () {
                         $el.prop('disabled', !cbox.prop('checked'));
                         if (!cbox.prop('checked')) {
                             $el.val('');
@@ -464,18 +472,40 @@
 
         var $checkboxTitle = d.$el.find('#checkbox-title'),
             $checkboxAlt = d.$el.find('#checkbox-alt'),
-            $zoom = $('<input type="checkbox">');
+            $inputWidth = d.$el.find('#rteckeditorimage-width'),
+            $inputHeight = d.$el.find('#rteckeditorimage-height'),
+            $zoom = $('<input id="checkbox-zoom" type="checkbox">'),
+            cssClass = attributes.class || '',
+            $inputCssClass = $('<input id="input-cssclass" type="text" class="form-control">').val(cssClass),
+            $customRow = $('<div class="row">').insertAfter($rows[0]),
+            $customRowCol1 = $('<div class="col-xs-12 col-sm-6">'),
+            $customRowCol2 = $('<div class="col-xs-12 col-sm-6">');
+
+        $zoom.prependTo(
+            $('<label>').text(img.lang.zoom).appendTo(
+                $('<div class="checkbox" style="margin: -5px 0 15px;">').prependTo($customRowCol1)
+            )
+        );
+
+        $inputCssClass
+            .prependTo(
+                $('<div class="form-group">').prependTo($customRowCol2)
+            )
+            .before($('<label for="input-cssclass">').text(img.lang.cssClass));
+
+        $customRow.append($customRowCol1, $customRowCol2);
+
+        // Check for existing noresize attribute
+        if (attributes['data-htmlarea-noresize']) {
+            $checkboxNoResize.prop('checked', true);
+            $inputWidth.prop('disabled', true);
+            $inputHeight.prop('disabled', true);
+        }
 
         // Support new `zoom` and legacy `clickenlarge` attributes
         if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
             $zoom.prop('checked', true);
         }
-
-        $zoom.prependTo(
-            $('<label>').text(img.lang.zoom).appendTo(
-                $('<div class="checkbox" style="margin: -5px 0 15px;">').insertAfter($rows[0])
-            )
-        );
 
         d.get = function () {
             $.each(fields, function () {
@@ -495,6 +525,9 @@
                 delete attributes['data-htmlarea-zoom'];
                 delete attributes['data-htmlarea-clickenlarge'];
             }
+
+            // Set and escape cssClass value
+            attributes.class = $inputCssClass.val() ? $('<div/>').html($inputCssClass.val().trim()).text() : '';
 
             if ($checkboxTitle.length && !$checkboxTitle.is(":checked")) {
                 delete attributes.title;
