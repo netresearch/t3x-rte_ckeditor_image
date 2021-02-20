@@ -27,7 +27,7 @@
         init: function (editor) {
             var allowedAttributes = ['!src', 'alt', 'title', 'class', 'rel', 'width', 'height'],
                 additionalAttributes = getAdditionalAttributes(editor),
-                $shadowEditor = $("<div>").append(editor.element.$.innerText),
+                $shadowEditor = $('<div>').append(editor.element.$.innerText),
                 existingImages = $shadowEditor.find('img');
 
             if (additionalAttributes.length) {
