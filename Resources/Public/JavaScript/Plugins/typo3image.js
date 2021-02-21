@@ -25,8 +25,8 @@
     CKEDITOR.plugins.add('typo3image', {
         elementBrowser: null,
         init: function (editor) {
-            if(typeof $ == 'undefined')
-                return;
+
+            if (typeof $ == 'undefined') { return; }
             var allowedAttributes = ['!src', 'alt', 'title', 'class', 'rel', 'width', 'height'],
                 additionalAttributes = getAdditionalAttributes(editor),
                 $shadowEditor = $('<div>').append(editor.element.$.innerText),
