@@ -90,21 +90,29 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
             $fileUid = (int)$imageAttributes['data-htmlarea-file-uid'];
             if ($fileUid) {
                 try {
-                    $file = Resource\ResourceFactory::getInstance()->getFileObject($fileUid);
-                    if ($imageAttributes['src'] !== $file->getPublicUrl()) {
+                    $systemImage = Resource\ResourceFactory::getInstance()->getFileObject($fileUid);
+
+                    if ($imageAttributes['src'] !== $systemImage->getPublicUrl()) {
                         // Source file is a processed image
                         $imageConfiguration = [
                             'width' => (int)$imageAttributes['width'],
                             'height' => (int)$imageAttributes['height']
                         ];
-                        $processedFile = $this->getMagicImageService()->createMagicImage($file, $imageConfiguration);
+
+                        $processedFile = $this->getMagicImageService()->createMagicImage($systemImage, $imageConfiguration);
+
                         $additionalAttributes = [
                             'src' => $processedFile->getPublicUrl(),
-                            'title' => ($imageAttributes['title']) ? $imageAttributes['title'] : $file->getProperty('title'),
-                            'alt' => ($imageAttributes['alt']) ? $imageAttributes['alt'] : $file->getProperty('alternative'),
+                            'title' => self::getAttributeValue('title', $imageAttributes, $systemImage),
+                            'alt' => self::getAttributeValue('alt', $imageAttributes, $systemImage),
                             'width' => ($processedFile->getProperty('width')) ? $processedFile->getProperty('width') : $imageConfiguration['width'],
                             'height' => ($processedFile->getProperty('height')) ? $processedFile->getProperty('height') : $imageConfiguration['height'],
                         ];
+
+                        // Remove internal attributes
+                        unset($imageAttributes['data-title-override']);
+                        unset($imageAttributes['data-alt-override']);
+
                         $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
                     }
                 } catch (Resource\Exception\FileDoesNotExistException $fileDoesNotExistException) {
@@ -127,20 +135,20 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
         }
 
-        // Image template; empty attributes are removed by 3nd param 'false'
+        // Image template; empty attributes are removed by 3rd param 'false'
         $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, false) . ' />';
 
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
-        if (($imageAttributes['data-htmlarea-zoom'] || $imageAttributes['data-htmlarea-clickenlarge']) && isset($file) && $file) {
+        if (($imageAttributes['data-htmlarea-zoom'] || $imageAttributes['data-htmlarea-clickenlarge']) && isset($systemImage) && $systemImage) {
             $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'];
             $config['enable'] = 1;
-            $file->_updateMetaDataProperties(array('title'=>($imageAttributes['title']) ? $imageAttributes['title'] : $file->getProperty('title')));
-            $this->cObj->setCurrentFile($file);
+            $systemImage->_updateMetaDataProperties(array('title'=>($imageAttributes['title']) ? $imageAttributes['title'] : $systemImage->getProperty('title')));
+            $this->cObj->setCurrentFile($systemImage);
 
             // Use $this->cObject to have access to all parameters from the image tag
             return $this->cObj->imageLinkWrap(
                 $img,
-                $file,
+                $systemImage,
                 $config
             );
         }
@@ -196,5 +204,26 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         /** @var $logManager \TYPO3\CMS\Core\Log\LogManager */
         $logManager = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Log\LogManager::class);
         return $logManager->getLogger(get_class($this));
+    }
+
+    /**
+     * Returns attributes value or even empty string when override mode is enabled
+     *
+     * @param string $attributeName
+     * @param array $attributes
+     * @param \TYPO3\CMS\Core\Resource\File $image
+     * @return string
+     */
+    protected static function getAttributeValue($attributeName, $attributes, $image)
+    {
+        if ($attributes['data-' . $attributeName . '-override']) {
+            $attributeValue = isset($attributes[$attributeName]) ? $attributes[$attributeName] : '';
+        } elseif (!empty($attributes[$attributeName])) {
+            $attributeValue = $attributes[$attributeName];
+        } else {
+            $attributeValue = $image->getProperty($attributeName);
+        }
+
+        return (string) $attributeValue;
     }
 }

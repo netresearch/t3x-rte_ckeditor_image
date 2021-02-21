@@ -182,6 +182,8 @@
     function askImageAttributes(editor, img, attributes, table) {
         var deferred = $.Deferred();
         var dialog = getImageDialog(editor, img, $.extend({}, img.processed, attributes));
+
+        // Init image editing popup
         require(['TYPO3/CMS/Backend/Modal'], function(Modal) {
             var $modal = Modal.advanced({
                 title: editor.lang.image.title,
@@ -190,22 +192,24 @@
                     {
                         text: editor.lang.common.ok,
                         trigger: function () {
-
-                            var allowedAttributes = ['!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom'],
+                            var allowedAttributes = [
+                                '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-title-override', 'data-alt-override'
+                                ],
+                                dialogInfo = dialog.get(),
+                                attributesNew = $.extend({}, img, dialogInfo),
+                                filteredAttr = {},
                                 additionalAttributes = getAdditionalAttributes(editor);
+
                             if (additionalAttributes.length) {
                                 allowedAttributes.push.apply(allowedAttributes, additionalAttributes);
                             }
-                            var dialogInfo = dialog.get(),
-                                attributes = $.extend({}, img, dialogInfo),
-                                filteredAttr = {};
 
-                            filteredAttr = Object.keys(attributes)
+                            filteredAttr = Object.keys(attributesNew)
                                 .filter(function(key) {
                                     return allowedAttributes.includes(key)
                                 })
                                 .reduce(function(obj, key) {
-                                    obj[key] = attributes[key];
+                                    obj[key] = attributesNew[key];
                                     return obj;
                                 }, {});
 
@@ -273,6 +277,7 @@
     function selectImage(editor) {
         // @see \TYPO3\CMS\Recordlist\Browser\AbstractElementBrowser::getBParamDataAttributes
         // @see \TYPO3\CMS\Recordlist\Browser\FileBrowser::render
+
         var bparams = [
                 editor.name, // $fieldRef
                 'ckeditor', // $rteParams
@@ -305,6 +310,7 @@
                                 deferred.resolve(table, uid);
                             }
                         };
+
                         // Assign the onSelected function to the correct window, dependent on the current context
                         if (typeof e.currentTarget.contentWindow.parent !== 'undefined' && typeof e.currentTarget.contentWindow.parent.document.list_frame !== 'undefined' && e.currentTarget.contentWindow.parent.document.list_frame.parent.document.querySelector('.t3js-modal-iframe') !== null) {
                             e.currentTarget.contentWindow.parent.document.list_frame.onSelected = onSelected
@@ -346,9 +352,9 @@
      * @return {{$el: {jquery}, get: {function}}}
      */
     function getImageDialog(editor, img, attributes) {
-        var d = {};
-        var $rows = [];
-        d.$el = $('<div class="rteckeditorimage">');
+        var d = {},
+            $rows = [],
+            elements = {};
         const fields = [
             {
                 width: { label: editor.lang.common.width, type: 'number' },
@@ -359,9 +365,12 @@
                 alt: { label: editor.lang.image.alt, type: 'text' }
             }
         ];
-        var elements = {};
+
+        d.$el = $('<div class="rteckeditorimage">');
+
         $.each(fields, function () {
             var $row = $('<div class="row">').appendTo(d.$el);
+
             $rows.push($row);
             $.each(this, function(key, config) {
                 var $group = $('<div class="form-group">').appendTo($('<div class="col-xs-12 col-sm-6">').appendTo($row));
@@ -375,27 +384,47 @@
                 $el.val(value);
 
                 if (config.type === 'text') {
-                    var hasDefault = img[key] && img[key].trim();
-                    $el.prop('disabled', hasDefault && !value);
+                    var startVal = value,
+                        hasDefault = img[key] && img[key].trim(),
+                        cbox = $('<input type="checkbox">')
+                            .attr('id', 'checkbox-' + key)
+                            .prop('checked', !!value || !hasDefault)
+                            .prop('disabled', !hasDefault),
+                        cboxLabel = $('<label></label>').text(
+                            hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault
+                        );
 
-                    var cbox = $('<input type="checkbox">')
-                        .attr('id', 'checkbox-' + key)
-                        .prop('checked', !!value || !hasDefault)
-                        .prop('disabled', !hasDefault);
-                    var cboxLabel = $('<label></label>').text(
-                        hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault
-                    );
+                    $el.prop('disabled', hasDefault && !value);
                     cbox.prependTo(
                         cboxLabel.appendTo($('<div class="checkbox" style="margin: 0 0 6px;">').appendTo($group))
                     );
+
                     cboxLabel.click(function () {
                         $el.prop('disabled', !cbox.prop('checked'));
+                        startVal = $el.val() || startVal;
+
+                        // Clear value or set to startvalue when clicking checkbox
                         if (!cbox.prop('checked')) {
                             $el.val('');
                         } else {
+                            $el.val(startVal);
                             $el.focus();
                         }
                     });
+
+                    // Initally read/set title/alt attributes and check if override is enabled
+                    if (key === 'title' || key === 'alt') {
+                        if (attributes['data-' + key + '-override'] === 'false') {
+                            cbox.prop('checked', false);
+                            $el.prop('disabled', true);
+                            $el.val('');
+                            attributes['data-' + key + '-override'] = false;
+                            delete attributes[key];
+                        } else {
+                            cbox.prop('checked', true);
+                            $el.prop('disabled', false);
+                        }
+                    }
                 } else if (config.type === 'number') {
                     var ratio = img.width / img.height;
                     if (key === 'height') {
@@ -433,14 +462,14 @@
                         e.stopImmediatePropagation();
                     });
                 }
+
                 $group.append($el);
                 elements[key] = $el;
             });
         });
 
-        var $checkboxTitle = d.$el.find('#checkbox-title'),
-            $checkboxAlt = d.$el.find('#checkbox-alt'),
-            $zoom = $('<input type="checkbox">');
+        var $zoom = $('<input type="checkbox">');
+
         // Support new `zoom` and legacy `clickenlarge` attributes
         if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
             $zoom.prop('checked', true);
@@ -469,13 +498,19 @@
                 delete attributes['data-htmlarea-clickenlarge'];
             }
 
-            if ($checkboxTitle.length && !$checkboxTitle.is(":checked")) {
-                delete attributes.title;
-            }
+            // When saving, check title/alt for override mode
+            ['title', 'alt'].forEach(function (item) {
+                var $curCheckbox = d.$el.find('#checkbox-' + item);
 
-            if ($checkboxAlt.length && !$checkboxAlt.is(":checked")) {
-                delete attributes.alt;
-            }
+                // When saving, check title for override mode
+                attributes['data-' + item + '-override'] = $curCheckbox.prop('checked');
+                if ($curCheckbox.prop('checked')) {
+                    // Allow empty title/alt values
+                    attributes[item] = attributes[item] || '';
+                } else {
+                    delete attributes[item];
+                }
+            });
 
             return attributes;
         };
