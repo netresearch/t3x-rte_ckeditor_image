@@ -86,21 +86,21 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
             // Get image attributes
             preg_match_all($attrSearchPattern, $passedImage, $passedAttributes);
             $passedAttributes = array_combine($passedAttributes[1], $passedAttributes[2]);
-            // Remove empty values
-            $passedAttributes = array_filter($passedAttributes);
 
             if (!empty($passedAttributes['data-htmlarea-file-uid'])) {
                 try {
                     $systemImage = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($passedAttributes['data-htmlarea-file-uid']);
+
                     $imageConfiguration = [
                         'width' => ($passedAttributes['width']) ? $passedAttributes['width'] : $systemImage->getProperty('width'),
                         'height' => ($passedAttributes['height']) ? $passedAttributes['height'] : $systemImage->getProperty('height')
                     ];
+
                     $processedFile = $this->getMagicImageService()->createMagicImage($systemImage, $imageConfiguration);
                     $imageAttributes = [
                         'src' => $processedFile->getPublicUrl(),
-                        'title' => ($passedAttributes['title']) ? $passedAttributes['title'] : $systemImage->getProperty('title'),
-                        'alt' => ($passedAttributes['alt']) ? $passedAttributes['alt'] : $systemImage->getProperty('alternative'),
+                        'title' => self::getAttributeValue('title', $passedAttributes, $systemImage),
+                        'alt' => self::getAttributeValue('alt', $passedAttributes, $systemImage),
                         'width' => ($passedAttributes['width']) ? $passedAttributes['width'] : $systemImage->getProperty('width'),
                         'height' => ($passedAttributes['height']) ? $passedAttributes['height'] : $systemImage->getProperty('height')
                     ];
@@ -109,8 +109,13 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
                         $additionalAttributes['loading'] = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'];
                     }
 
+                    // Remove internal attributes
+                    unset($passedAttributes['data-title-override']);
+                    unset($passedAttributes['data-alt-override']);
+
                     // Add original attributes, if not already parsed
-                    $imageAttributes = $imageAttributes + $passedAttributes;
+                    $imageAttributes = array_merge($imageAttributes, $passedAttributes);
+
                     // Cleanup attributes; disable zoom images within links
                     $unsetParams = [
                         'data-htmlarea-file-uid',
@@ -119,7 +124,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
                         'data-htmlarea-clickenlarge' // Legacy zoom property
                     ];
                     $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
-                    // Image template; empty attributes are removed by 3nd param 'false'
+                    // Image template; empty attributes are removed by 3rd param 'false'
                     $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, false) . ' />';
                 } catch (FileDoesNotExistException $fileDoesNotExistException) {
                     $parsedImages[] = $passedImage;
@@ -160,10 +165,31 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     /**
      * @return \TYPO3\CMS\Core\Log\Logger
      */
-    private function getLogger()
+    protected function getLogger()
     {
         /** @var $logManager \TYPO3\CMS\Core\Log\LogManager */
         $logManager = GeneralUtility::makeInstance(LogManager::class);
         return $logManager->getLogger(get_class($this));
+    }
+
+    /**
+     * Returns attributes value or even empty string when override mode is enabled
+     *
+     * @param string $attributeName
+     * @param array $attributes
+     * @param \TYPO3\CMS\Core\Resource\File $image
+     * @return string
+     */
+    protected static function getAttributeValue($attributeName, $attributes, $image)
+    {
+        if ($attributes['data-' . $attributeName . '-override']) {
+            $attributeValue = isset($attributes[$attributeName]) ? $attributes[$attributeName] : '';
+        } elseif (!empty($attributes[$attributeName])) {
+            $attributeValue = $attributes[$attributeName];
+        } else {
+            $attributeValue = $image->getProperty($attributeName);
+        }
+
+        return (string) $attributeValue;
     }
 }

@@ -15,9 +15,11 @@
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
+use TYPO3\CMS\Core\Resource\File;
 use \TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use \TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -93,18 +95,21 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
             $fileUid = (int)$imageAttributes['data-htmlarea-file-uid'];
             if ($fileUid) {
                 try {
-                    $file = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($fileUid);
-                    if ($imageAttributes['src'] !== $file->getPublicUrl()) {
+                    $systemImage = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($fileUid);
+
+                    if ($imageAttributes['src'] !== $systemImage->getPublicUrl()) {
                         // Source file is a processed image
                         $imageConfiguration = [
                             'width' => (int)$imageAttributes['width'],
                             'height' => (int)$imageAttributes['height']
                         ];
-                        $processedFile = $this->getMagicImageService()->createMagicImage($file, $imageConfiguration);
+
+                        $processedFile = $this->getMagicImageService()->createMagicImage($systemImage, $imageConfiguration);
+
                         $additionalAttributes = [
                             'src' => $processedFile->getPublicUrl(),
-                            'title' => ($imageAttributes['title']) ? $imageAttributes['title'] : $file->getProperty('title'),
-                            'alt' => ($imageAttributes['alt']) ? $imageAttributes['alt'] : $file->getProperty('alternative'),
+                            'title' => self::getAttributeValue('title', $imageAttributes, $systemImage),
+                            'alt' => self::getAttributeValue('alt', $imageAttributes, $systemImage),
                             'width' => ($processedFile->getProperty('width')) ? $processedFile->getProperty('width') : $imageConfiguration['width'],
                             'height' => ($processedFile->getProperty('height')) ? $processedFile->getProperty('height') : $imageConfiguration['height'],
                         ];
@@ -112,6 +117,10 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
                         if (!empty($GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'])) {
                             $additionalAttributes['loading'] = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'];
                         }
+
+                        // Remove internal attributes
+                        unset($imageAttributes['data-title-override']);
+                        unset($imageAttributes['data-alt-override']);
 
                         $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
                     }
@@ -135,20 +144,20 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
         }
 
-        // Image template; empty attributes are removed by 3nd param 'false'
+        // Image template; empty attributes are removed by 3rd param 'false'
         $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, false) . ' />';
 
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
-        if (($imageAttributes['data-htmlarea-zoom'] || $imageAttributes['data-htmlarea-clickenlarge']) && isset($file) && $file) {
+        if (($imageAttributes['data-htmlarea-zoom'] || $imageAttributes['data-htmlarea-clickenlarge']) && isset($systemImage) && $systemImage) {
             $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'];
             $config['enable'] = 1;
-            $file->updateProperties(array('title'=>($imageAttributes['title']) ? $imageAttributes['title'] : $file->getProperty('title')));
-            $this->cObj->setCurrentFile($file);
+            $systemImage->updateProperties(array('title'=>($imageAttributes['title']) ? $imageAttributes['title'] : $systemImage->getProperty('title')));
+            $this->cObj->setCurrentFile($systemImage);
 
             // Use $this->cObject to have access to all parameters from the image tag
             return $this->cObj->imageLinkWrap(
                 $img,
-                $file,
+                $systemImage,
                 $config
             );
         }
@@ -168,7 +177,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * Instantiates and prepares the Magic Image service.
      *
-     * @return \TYPO3\CMS\Core\Resource\Service\MagicImageService
+     * @return MagicImageService
      */
     protected function getMagicImageService()
     {
@@ -197,12 +206,33 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     }
 
     /**
-     * @return \TYPO3\CMS\Core\Log\Logger
+     * @return Logger
      */
-    private function getLogger()
+    protected function getLogger()
     {
         /** @var $logManager LogManager */
         $logManager = GeneralUtility::makeInstance(LogManager::class);
         return $logManager->getLogger(get_class($this));
+    }
+
+    /**
+     * Returns attributes value or even empty string when override mode is enabled
+     *
+     * @param string $attributeName
+     * @param array $attributes
+     * @param File $image
+     * @return string
+     */
+    protected static function getAttributeValue($attributeName, $attributes, $image)
+    {
+        if ($attributes['data-' . $attributeName . '-override']) {
+            $attributeValue = isset($attributes[$attributeName]) ? $attributes[$attributeName] : '';
+        } elseif (!empty($attributes[$attributeName])) {
+            $attributeValue = $attributes[$attributeName];
+        } else {
+            $attributeValue = $image->getProperty($attributeName);
+        }
+
+        return (string) $attributeValue;
     }
 }
