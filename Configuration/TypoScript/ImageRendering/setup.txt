@@ -21,5 +21,7 @@ lib.parseFunc {
         data-htmlarea-file-table.unset = 1
         data-htmlarea-zoom.unset = 1
         data-htmlarea-clickenlarge.unset = 1
+        data-title-override.unset = 1
+        data-alt-override.unset = 1
     }
 }
