@@ -29,6 +29,7 @@
 		},
 		"typo3/cms": {
 			"cms-package-dir": "{$vendor-dir}/typo3/cms",
+			"extension-key": "rte_ckeditor_image",
 			"web-dir": ".Build/Web"
 		}
 	}
