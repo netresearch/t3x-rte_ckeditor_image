@@ -30,13 +30,14 @@
             var allowedAttributes = ['!src', 'alt', 'title', 'class', 'rel', 'width', 'height'],
                 additionalAttributes = getAdditionalAttributes(editor),
                 $shadowEditor = $('<div>').append(editor.element.$.innerText),
-                existingImages = $shadowEditor.find('img');
+                existingImages = $shadowEditor.find('img'),
+                edit;
 
             if (additionalAttributes.length) {
                 allowedAttributes.push.apply(allowedAttributes, additionalAttributes);
             }
 
-            var edit = function (table, uid, attributes) {
+            edit = function (table, uid, attributes) {
                 getImageInfo(editor, table, uid, {})
                     .then(function(img) {
                         return askImageAttributes(editor, img, attributes, table);
@@ -55,33 +56,37 @@
 
             // Update image when editor loads
             if (existingImages.length) {
-                $.each(existingImages, function(i,curImg) {
-                    var $curImg = $(curImg),
-                        uid = $curImg.attr('data-htmlarea-file-uid'),
-                        table = $curImg.attr('data-htmlarea-file-table'),
-                        routeUrl = editor.config.typo3image.routeUrl,
-                        url = routeUrl
-                            + (routeUrl.indexOf('?') === -1 ? '?' : '&')
-                            + 'action=info'
-                            + '&fileId=' + encodeURIComponent(uid)
-                            + '&table=' + encodeURIComponent(table);
 
-                    if (typeof $curImg.attr('width') !== 'undefined' && $curImg.attr('width').length) {
-                        url += '&P[width]=' + $curImg.attr('width');
-                    }
+                editor.on( 'contentDom', function() {
+                    var realEditor = $('#cke_' + editor.element.$.id).find('iframe').contents().find('body');
 
-                    if (typeof $curImg.attr('height') !== 'undefined' && $curImg.attr('height').length) {
-                        url += '&P[height]=' + $curImg.attr('height');
-                    }
+                    $.each(existingImages, function(i,curImg) {
+                        var $curImg = $(curImg),
+                            uid = $curImg.attr('data-htmlarea-file-uid'),
+                            table = $curImg.attr('data-htmlarea-file-table'),
+                            routeUrl = editor.config.typo3image.routeUrl,
+                            url = routeUrl
+                                + (routeUrl.indexOf('?') === -1 ? '?' : '&')
+                                + 'action=info'
+                                + '&fileId=' + encodeURIComponent(uid)
+                                + '&table=' + encodeURIComponent(table);
 
-                    $.getJSON(url, function(newImg) {
-                        var realEditor = $('#cke_' + editor.element.$.id).find('iframe').contents().find('body'),
-                            newImgUrl = newImg.processed.url || newImg.url;
-
-                        // Replace current url with updated one
-                        if ($curImg.attr('src') && newImgUrl) {
-                            realEditor.html(realEditor.html().replaceAll($curImg.attr('src'), newImgUrl));
+                        if (typeof $curImg.attr('width') !== 'undefined' && $curImg.attr('width').length) {
+                            url += '&P[width]=' + $curImg.attr('width');
                         }
+
+                        if (typeof $curImg.attr('height') !== 'undefined' && $curImg.attr('height').length) {
+                            url += '&P[height]=' + $curImg.attr('height');
+                        }
+
+                        $.getJSON(url, function(newImg) {
+                            var newImgUrl = newImg.processed.url || newImg.url;
+
+                            // Replace current url with updated one
+                            if ($curImg.attr('src') && newImgUrl) {
+                                realEditor.html(realEditor.html().replaceAll($curImg.attr('src'), newImgUrl));
+                            }
+                        });
                     });
                 });
             }
