@@ -18,156 +18,155 @@
     'use strict';
 
     var $;
-    require(['jquery'], function (jquery) {
-        $ = jquery;
-    });
 
     CKEDITOR.plugins.add('typo3image', {
         elementBrowser: null,
         init: function (editor) {
+            require(['jquery'], function (jquery) {
+                $ = jquery;
 
-            if (typeof $ == 'undefined') { return; }
-            var allowedAttributes = ['!src', 'alt', 'title', 'class', 'rel', 'width', 'height'],
-                additionalAttributes = getAdditionalAttributes(editor),
-                $shadowEditor = $('<div>').append(editor.element.$.innerText),
-                existingImages = $shadowEditor.find('img');
+                var allowedAttributes = ['!src', 'alt', 'title', 'class', 'rel', 'width', 'height'],
+                    additionalAttributes = getAdditionalAttributes(editor),
+                    $shadowEditor = $('<div>').append(editor.element.$.innerText),
+                    existingImages = $shadowEditor.find('img');
 
-            if (additionalAttributes.length) {
-                allowedAttributes.push.apply(allowedAttributes, additionalAttributes);
-            }
+                if (additionalAttributes.length) {
+                    allowedAttributes.push.apply(allowedAttributes, additionalAttributes);
+                }
 
-            var edit = function (table, uid, attributes) {
-                getImageInfo(editor, table, uid, {})
-                    .then(function(img) {
-                        return askImageAttributes(editor, img, attributes, table);
-                    })
-                    .then(function (img, attributes) {
-                        $.extend(attributes, {
-                            src: img.processed.url,
-                            'data-htmlarea-file-uid': uid,
-                            'data-htmlarea-file-table': table
+                var edit = function (table, uid, attributes) {
+                    getImageInfo(editor, table, uid, {})
+                        .then(function(img) {
+                            return askImageAttributes(editor, img, attributes, table);
+                        })
+                        .then(function (img, attributes) {
+                            $.extend(attributes, {
+                                src: img.processed.url,
+                                'data-htmlarea-file-uid': uid,
+                                'data-htmlarea-file-table': table
+                            });
+                            editor.insertElement(
+                                editor.document.createElement('img', { attributes: attributes })
+                            );
                         });
-                        editor.insertElement(
-                            editor.document.createElement('img', { attributes: attributes })
-                        );
-                    });
-            };
+                    };
 
-            // Update image when editor loads
-            if (existingImages.length) {
-                $.each(existingImages, function(i,curImg) {
-                    var $curImg = $(curImg),
-                        uid = $curImg.attr('data-htmlarea-file-uid'),
-                        table = $curImg.attr('data-htmlarea-file-table'),
-                        routeUrl = editor.config.typo3image.routeUrl,
-                        url = routeUrl
-                            + (routeUrl.indexOf('?') === -1 ? '?' : '&')
-                            + 'action=info'
-                            + '&fileId=' + encodeURIComponent(uid)
-                            + '&table=' + encodeURIComponent(table);
+                // Update image when editor loads
+                if (existingImages.length) {
+                    $.each(existingImages, function(i,curImg) {
+                        var $curImg = $(curImg),
+                            uid = $curImg.attr('data-htmlarea-file-uid'),
+                            table = $curImg.attr('data-htmlarea-file-table'),
+                            routeUrl = editor.config.typo3image.routeUrl,
+                            url = routeUrl
+                                + (routeUrl.indexOf('?') === -1 ? '?' : '&')
+                                + 'action=info'
+                                + '&fileId=' + encodeURIComponent(uid)
+                                + '&table=' + encodeURIComponent(table);
 
-                    if (typeof $curImg.attr('width') !== 'undefined' && $curImg.attr('width').length) {
-                        url += '&P[width]=' + $curImg.attr('width');
-                    }
-
-                    if (typeof $curImg.attr('height') !== 'undefined' && $curImg.attr('height').length) {
-                        url += '&P[height]=' + $curImg.attr('height');
-                    }
-
-                    $.getJSON(url, function(newImg) {
-                        var realEditor = $('#cke_' + editor.element.$.id).find('iframe').contents().find('body'),
-                            newImgUrl = newImg.processed.url || newImg.url;
-
-                        // Replace current url with updated one
-                        if ($curImg.attr('src') && newImgUrl) {
-                            realEditor.html(realEditor.html().replaceAll($curImg.attr('src'), newImgUrl));
+                        if (typeof $curImg.attr('width') !== 'undefined' && $curImg.attr('width').length) {
+                            url += '&P[width]=' + $curImg.attr('width');
                         }
-                    });
-                });
-            }
 
-            // Override link command
-            editor.addCommand('image', {
-                exec: function () {
-                    var current = editor.getSelection().getSelectedElement();
-                    if (current && current.is('img') && current.getAttribute('data-htmlarea-file-uid')) {
-                        // If the button is clicked with a selected image
+                        if (typeof $curImg.attr('height') !== 'undefined' && $curImg.attr('height').length) {
+                            url += '&P[height]=' + $curImg.attr('height');
+                        }
+
+                        $.getJSON(url, function(newImg) {
+                            var realEditor = $('#cke_' + editor.element.$.id).find('iframe').contents().find('body'),
+                                newImgUrl = newImg.processed.url || newImg.url;
+
+                            // Replace current url with updated one
+                            if ($curImg.attr('src') && newImgUrl) {
+                                realEditor.html(realEditor.html().replaceAll($curImg.attr('src'), newImgUrl));
+                            }
+                        });
+                    });
+                }
+
+                // Override link command
+                editor.addCommand('image', {
+                    exec: function () {
+                        var current = editor.getSelection().getSelectedElement();
+                        if (current && current.is('img') && current.getAttribute('data-htmlarea-file-uid')) {
+                            // If the button is clicked with a selected image
+                            edit(
+                                current.getAttribute('data-htmlarea-file-table') || 'sys_file',
+                                current.getAttribute('data-htmlarea-file-uid'),
+                                current.getAttributes()
+                            );
+                        } else {
+                            selectImage(editor).then(edit);
+                        }
+                    },
+                    allowedContent: 'img[' + allowedAttributes.join(',') + ']',
+                    requiredContent: 'img[src]'
+                });
+
+                // Use a separate command for editing from the context menu
+                editor.addCommand('imageProperties', {
+                    exec: function() {
+                        var current = editor.getSelection().getSelectedElement(),
+                            img;
+                        if (current) {
+                            if (!current.is('img')) {
+                                img = new CKEDITOR.dom.element(current.$.querySelector('img'));
+                            } else {
+                                img = current;
+                            }
+                        }
+                        if (img && img.getAttribute('data-htmlarea-file-uid')) {
+                            edit(
+                                img.getAttribute('data-htmlarea-file-table') || 'sys_file',
+                                img.getAttribute('data-htmlarea-file-uid'),
+                                img.getAttributes()
+                            );
+                        }
+                    }
+                });
+                // Override the existing `image` context menu item to use the separate editing command
+                editor.addMenuItems({
+                    image: {
+                        label: editor.lang.image.menu,
+                        command: 'imageProperties',
+                        group: 'image'
+                    }
+                });
+
+                // Open our and not the CKEditor image dialog on double click:
+                editor.on('doubleclick', function(evt) {
+                    if (evt.data.dialog === 'image') {
+                        delete evt.data.dialog;
+                    }
+                    var current = evt.data.element;
+                    if (!evt.data.dialog && current && current.is('img') && current.getAttribute('data-htmlarea-file-uid')) {
                         edit(
                             current.getAttribute('data-htmlarea-file-table') || 'sys_file',
                             current.getAttribute('data-htmlarea-file-uid'),
                             current.getAttributes()
                         );
-                    } else {
-                        selectImage(editor).then(edit);
                     }
-                },
-                allowedContent: 'img[' + allowedAttributes.join(',') + ']',
-                requiredContent: 'img[src]'
-            });
+                });
 
-            // Use a separate command for editing from the context menu
-            editor.addCommand('imageProperties', {
-                exec: function() {
-                    var current = editor.getSelection().getSelectedElement(),
-                        img;
-                    if (current) {
-                        if (!current.is('img')) {
-                            img = new CKEDITOR.dom.element(current.$.querySelector('img'));
-                        } else {
-                            img = current;
+                // Fix images being removed when linked
+                // @see typo3/sysext/rte_ckeditor/Resources/Public/JavaScript/RteLinkBrowser.js
+                editor.on('insertElement', function (e) {
+                    var element = e.data;
+                    if (element.getName() === 'a') {
+                        var selection = editor.getSelection();
+                        const selectedElement = selection.getSelectedElement();
+                        if (selection.getSelectedText().trim() !== '' || selectedElement) {
+                            element.setHtml(editor.getSelectedHtml(true));
+                            var a = null;
+                            if (selectedElement && selectedElement.getParent().getName() === 'a') {
+                                selectedElement.getParent().remove();
+                            }
+                            while (a = element.findOne('a')) {
+                                a.remove(true);
+                            }
                         }
                     }
-                    if (img && img.getAttribute('data-htmlarea-file-uid')) {
-                        edit(
-                            img.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                            img.getAttribute('data-htmlarea-file-uid'),
-                            img.getAttributes()
-                        );
-                    }
-                }
-            });
-            // Override the existing `image` context menu item to use the separate editing command
-            editor.addMenuItems({
-                image: {
-                    label: editor.lang.image.menu,
-                    command: 'imageProperties',
-                    group: 'image'
-                }
-            });
-
-            // Open our and not the CKEditor image dialog on double click:
-            editor.on('doubleclick', function(evt) {
-                if (evt.data.dialog === 'image') {
-                    delete evt.data.dialog;
-                }
-                var current = evt.data.element;
-                if (!evt.data.dialog && current && current.is('img') && current.getAttribute('data-htmlarea-file-uid')) {
-                    edit(
-                        current.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        current.getAttribute('data-htmlarea-file-uid'),
-                        current.getAttributes()
-                    );
-                }
-            });
-
-            // Fix images being removed when linked
-            // @see typo3/sysext/rte_ckeditor/Resources/Public/JavaScript/RteLinkBrowser.js
-            editor.on('insertElement', function (e) {
-                var element = e.data;
-                if (element.getName() === 'a') {
-                    var selection = editor.getSelection();
-                    const selectedElement = selection.getSelectedElement();
-                    if (selection.getSelectedText().trim() !== '' || selectedElement) {
-                        element.setHtml(editor.getSelectedHtml(true));
-                        var a = null;
-                        if (selectedElement && selectedElement.getParent().getName() === 'a') {
-                            selectedElement.getParent().remove();
-                        }
-                        while (a = element.findOne('a')) {
-                            a.remove(true);
-                        }
-                    }
-                }
+                });
             });
         }
     });
