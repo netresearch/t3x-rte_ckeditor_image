@@ -6,6 +6,9 @@ services:
 
   Netresearch\RteCKEditorImage\Database\RteImagesSoftReferenceIndex:
     public: true
+    tags:
+      - name: softreference.parser
+        parserKey: rtehtmlarea_images
 
   Netresearch\RteCKEditorImage\Database\RteImagesDbHook:
     public: true
