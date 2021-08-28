@@ -3,6 +3,10 @@ namespace Netresearch\RteCKEditorImage\Database;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Database\SoftReferenceIndex;
+use TYPO3\CMS\Core\DataHandling\SoftReference\AbstractSoftReferenceParser;
+use TYPO3\CMS\Core\DataHandling\SoftReference\SoftReferenceParserInterface;
+use TYPO3\CMS\Core\DataHandling\SoftReference\SoftReferenceParserResult;
+use TYPO3\CMS\Core\DataHandling\SoftReference\TypolinkSoftReferenceParser;
 use TYPO3\CMS\Core\Html\HtmlParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -20,27 +24,29 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @license    http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
  * @link       http://www.netresearch.de
  */
-class RteImagesSoftReferenceIndex extends SoftReferenceIndex
+class RteImagesSoftReferenceIndex implements SoftReferenceParserInterface
 {
     /**
      * Token prefix
      */
-    public $tokenID_basePrefix = '';
+    protected string $tokenID_basePrefix = '';
 
     /**
      * Content splitted into images and other elements
      */
-    public $splittedContentTags = [];
+    protected array $splittedContentTags = [];
 
     /**
      * TYPO3 HTML Parser
      */
-    public $htmlParser;
-    
+    protected $htmlParser;
+
+    protected string $parserKey = '';
+
     /**
      * @var EventDispatcherInterface
      */
-    protected $eventDispatcher;
+    protected EventDispatcherInterface $eventDispatcher;
 
     /**
      * Main function through which all processing happens
@@ -68,6 +74,22 @@ class RteImagesSoftReferenceIndex extends SoftReferenceIndex
         }
 
         return $retVal;
+    }
+
+    public function parse(string $table, string $field, int $uid, string $content, string $structurePath = ''): SoftReferenceParserResult
+    {
+        // does nothing
+        return SoftReferenceParserResult::createWithoutMatches();
+    }
+
+    public function setParserKey(string $parserKey, array $parameters): void
+    {
+        // does nothing
+    }
+
+    public function getParserKey(): string
+    {
+        return $this->parserKey;
     }
 
     /**
