@@ -227,8 +227,12 @@ class RteImagesDbHook extends RteHtmlParser
                                 if ($fileOrFolderObject instanceof FileInterface) {
                                     $fileIdentifier = $fileOrFolderObject->getIdentifier();
                                     $fileObject = $fileOrFolderObject->getStorage()->getFile($fileIdentifier);
-                                    // @todo if the retrieved file is a processed file, get the original file...
-                                    $attribArray['data-htmlarea-file-uid'] = $fileObject->getUid();
+                                    $fileUid = $fileObject->getUid();
+                                    // if the retrieved file is a processed file, get the original file...
+                                    if($fileObject->hasProperty('original')){
+                                        $fileUid = $fileObject->getProperty('original');
+                                    }
+                                    $attribArray['data-htmlarea-file-uid'] = $fileUid;
                                 }
                             } catch (ResourceDoesNotExistException $resourceDoesNotExistException) {
                                 // Nothing to be done if file/folder not found
