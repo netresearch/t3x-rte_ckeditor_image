@@ -158,8 +158,10 @@
                     var selection = editor.getSelection();
                     const selectedElement = selection.getSelectedElement();
                     if (selection.getSelectedText().trim() !== '' || selectedElement) {
-                        if (selectedElement && selectedElement.getName() === 'td'){
-                            return;
+                        if (selectedElement){
+                            if (selectedElement.getName() === 'td'){
+                                return;
+                            }
                         }
                         element.setHtml(editor.getSelectedHtml(true));
                         var a = null;
