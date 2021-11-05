@@ -173,6 +173,41 @@
     });
 
     /**
+     * 
+     * @returns value
+     */
+    function getTitleText() {
+        var field = $('input[data-formengine-input-name^="data[tx_news_domain_model_news]"][data-formengine-input-name$="title]"]').first();
+        var value = "";
+        if (field.length) {
+            value = field.first().val();
+        }
+        return value;
+    }
+
+    /**
+     * 
+     * @param url
+     * @return relativeUrl
+     */
+    function urlToRelative(url) {
+
+        // check for absolute URL first
+
+        if (!url) {
+            return;
+        }
+
+        if (url.indexOf("http://") !== -1 || url.indexOf("https://") !== -1) {
+            return new URL(url).pathname;
+        } else {
+            if (url[0] !== "/") {
+                return "/" + url;
+            }
+        }
+    }
+
+    /**
      * Show image attributes dialog
      *
      * @param editor
@@ -220,7 +255,7 @@
                                 .then(function (getImg) {
 
                                     $.extend(filteredAttr, {
-                                        src: getImg.url,
+                                        src: urlToRelative(getImg.url),
                                         width: getImg.processed.width || getImg.width,
                                         height: getImg.processed.height || getImg.height,
                                         'data-cke-saved-src': getImg.processed.url,
@@ -271,6 +306,19 @@
         return $.getJSON(url);
     }
 
+    function _getElementsList(currentModal) {
+        var list = {};
+        currentModal.contents().find('#typo3-filelist input').each(function (i, o) {
+            list[$(o).attr("name")] = {
+                "type": "file",
+                "table": "sys_file",
+                "uid": $(o).data("file-uid"),
+                "fileName": $(o).data("file-name")
+            };
+        });
+        return list;
+    }
+
     /**
      * Open a window with container iframe
      *
@@ -310,7 +358,7 @@
                             elements: {},
                             handle: function(e) {
 
-                                var items = $(e).closest('#typo3-filelist').find('.typo3-bulk-item'),
+                                var items = $(e).parents('div').last().find('#typo3-filelist input'),
                                     selectedItems = [];
 
                                 if (items.length) {
@@ -332,19 +380,19 @@
 
                         };
 
-                        $.extend(AddImage.elements, $(this).contents().find('body').data('elements'));
+                        $.extend(AddImage.elements, _getElementsList($(this)));
 
 
                         $(this).contents().find('[data-close]').on('click', function (e) {
                             e.stopImmediatePropagation();
                             var selectedItems = [];
                             selectedItems.push({
-                                uid: AddImage.elements['file_' + $(this).data('fileIndex')].uid,
-                                table: AddImage.elements['file_' + $(this).data('fileIndex')].table
+                                uid: AddImage.elements['file_' + $(this).data('file-uid')].uid,
+                                table: AddImage.elements['file_' + $(this).data('file-uid')].table
                             });
                             AddImage.addedImage(selectedItems);
                         });
-                        $(this).contents().find('#t3js-importSelection').on('click',  function (e) {
+                        $(this).contents().find('button[data-multi-record-selection-action=import]').on('click',  function (e) {
                             e.stopImmediatePropagation();
 
                             AddImage.handle($(this));
