@@ -69,7 +69,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
         // Get link inner HTML
         $linkContent = $this->cObj->getCurrentVal();
         // Find all images with file-uid attribute
-        $imgSearchPattern = '/<img(?=.*data-htmlarea-file-uid).*?\/>/';
+        $imgSearchPattern = '/<p\><img(?=.*src).*?\/><\/p>/';
         $attrSearchPattern = '/([a-zA-Z0-9-]+)=["]([^"]*)"|([a-zA-Z0-9-]+)=[\']([^\']*)\'/';
         $passedImages = [];
         $parsedImages = [];
@@ -87,6 +87,8 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
             preg_match_all($attrSearchPattern, $passedImage, $passedAttributes);
             $passedAttributes = array_combine($passedAttributes[1], $passedAttributes[2]);
 
+            // The image is already parsed by netresearch linkrenderer, which removes custom attributes, so it will never match this condition.
+            // But we leave this as fallback for older render versions.
             if (!empty($passedAttributes['data-htmlarea-file-uid'])) {
                 try {
                     $systemImage = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($passedAttributes['data-htmlarea-file-uid']);
@@ -127,13 +129,13 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
                     // Image template; empty attributes are removed by 3rd param 'false'
                     $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, false) . ' />';
                 } catch (FileDoesNotExistException $fileDoesNotExistException) {
-                    $parsedImages[] = $passedImage;
+                    $parsedImages[] = strip_tags($passedImage , '<img>');
                     // Log in fact the file could not be retrieved.
                     $message = sprintf('I could not find file with uid "%s"', $passedAttributes['data-htmlarea-file-uid']);
                     $this->getLogger()->log(LogLevel::ERROR,$message);
                 }
             } else {
-                $parsedImages[] = $passedImage;
+                $parsedImages[] = strip_tags($passedImage , '<img>');
             }
         }
         // Replace original images with parsed
