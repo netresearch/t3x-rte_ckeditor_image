@@ -60,6 +60,10 @@ Add issues or explore the project on [github](https://github.com/netresearch/t3x
     RTE.default.preset = default
     ```
 
+5. Include extension Static Template file
+
+    1. go to Template » Info/Modify » Edit whole template record » Includes
+    2. choose `CKEditor Image Support` for `Include static (from extensions)`
 
 ## Configuration
 

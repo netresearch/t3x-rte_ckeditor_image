@@ -25,3 +25,5 @@ lib.parseFunc {
         data-alt-override.unset = 1
     }
 }
+
+lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img)

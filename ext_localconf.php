@@ -7,9 +7,3 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_parsehtml_proc.php'
 
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('RTE.default.proc.overruleMode := addToList(default)');
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('RTE.default.proc.overruleMode := addToList(rtehtmlarea_images_db)');
-
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScript(
-    'rte_ckeditor_image',
-    'setup',
-    '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.txt">'
-);
