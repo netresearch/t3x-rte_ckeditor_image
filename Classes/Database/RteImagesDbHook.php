@@ -174,7 +174,19 @@ class RteImagesDbHook extends RteHtmlParser
                             $magicImage = $magicImageService->createMagicImage($originalImageFile, $imageConfiguration);
                             $attribArray['width'] = $magicImage->getProperty('width');
                             $attribArray['height'] = $magicImage->getProperty('height');
-                            $attribArray['src'] = $magicImage->getPublicUrl();
+
+                            $imgSrc = $magicImage->getPublicUrl();
+
+                            // publicUrl like 'https://www.domain.xy/typo3/image/process?token=...'?
+                            // -> generate img source from storage basepath and identifier instead
+                            if (strpos($imgSrc, 'process?token=') !== false) {
+                                $storageBasePath = $magicImage->getStorage()->getConfiguration()['basePath'];
+                                $imgUrlPre = (substr($storageBasePath, -1, 1) === '/') ? substr($storageBasePath, 0, -1) : $storageBasePath;
+
+                                $imgSrc = '/' . $imgUrlPre . $magicImage->getIdentifier();
+                            }
+
+                            $attribArray['src'] = $imgSrc;
                         }
                     } elseif (!GeneralUtility::isFirstPartOfStr($absoluteUrl, $siteUrl) && !$this->procOptions['dontFetchExtPictures'] && TYPO3_MODE === 'BE') {
                         // External image from another URL: in that case, fetch image, unless the feature is disabled or we are not in backend mode
