@@ -30,6 +30,16 @@
                     $shadowEditor = $('<div>').append(editor.element.$.innerText),
                     existingImages = $shadowEditor.find('img');
 
+                editor.toolbar.forEach(function(toolbar){
+                    if(toolbar.items){
+                        toolbar.items.forEach(function(item){
+                            if(item.command == 'image'){
+                                item.setState(CKEDITOR.TRISTATE_OFF)
+                            }
+                        });
+                    }
+                });
+
                 if (additionalAttributes.length) {
                     allowedAttributes.push.apply(allowedAttributes, additionalAttributes);
                 }
