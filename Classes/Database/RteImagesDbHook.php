@@ -120,7 +120,7 @@ class RteImagesDbHook extends RteHtmlParser
                     $absoluteUrl = trim($attribArray['src']);
                     // Make path absolute if it is relative and we have a site path which is not '/'
                     $pI = pathinfo($absoluteUrl);
-                    if ($sitePath && !$pI['scheme'] && GeneralUtility::isFirstPartOfStr($absoluteUrl, $sitePath)) {
+                    if ($sitePath && !($pI['scheme'] ?? null) && GeneralUtility::isFirstPartOfStr($absoluteUrl, $sitePath)) {
                         // If site is in a subpath (eg. /~user_jim/) this path needs to be removed because it will be added with $siteUrl
                         $absoluteUrl = substr($absoluteUrl, strlen($sitePath));
                         $absoluteUrl = $siteUrl . $absoluteUrl;
@@ -134,7 +134,7 @@ class RteImagesDbHook extends RteHtmlParser
                         $attribArray['height'] = $imgTagDimensions[1];
                     }
                     $originalImageFile = null;
-                    if ($attribArray['data-htmlarea-file-uid']) {
+                    if ($attribArray['data-htmlarea-file-uid'] ?? false) {
                         // An original image file uid is available
                         try {
                             $originalImageFile = $resourceFactory->getFileObject((int)$attribArray['data-htmlarea-file-uid']);
@@ -188,7 +188,7 @@ class RteImagesDbHook extends RteHtmlParser
 
                             $attribArray['src'] = $imgSrc;
                         }
-                    } elseif (!GeneralUtility::isFirstPartOfStr($absoluteUrl, $siteUrl) && !$this->procOptions['dontFetchExtPictures'] && TYPO3_MODE === 'BE') {
+                    } elseif (!GeneralUtility::isFirstPartOfStr($absoluteUrl, $siteUrl) && !($this->procOptions['dontFetchExtPictures'] ?? false) && TYPO3_MODE === 'BE') {
                         // External image from another URL: in that case, fetch image, unless the feature is disabled or we are not in backend mode
                         // Fetch the external image
                         $externalFile = GeneralUtility::getUrl($absoluteUrl);
@@ -199,8 +199,7 @@ class RteImagesDbHook extends RteHtmlParser
                             if ($extension === 'jpg' || $extension === 'jpeg' || $extension === 'gif' || $extension === 'png') {
                                 $fileName = GeneralUtility::shortMD5($absoluteUrl) . '.' . $pI['extension'];
                                 // We insert this image into the user default upload folder
-                                list($table, $field) = explode(':', $this->elRef);
-                                $folder = $GLOBALS['BE_USER']->getDefaultUploadFolder($this->recPid, $table, $field);
+                                $folder = $GLOBALS['BE_USER']->getDefaultUploadFolder();
                                 $fileObject = $folder->createFile($fileName)->setContents($externalFile);
                                 $imageConfiguration = [
                                     'width' => $attribArray['width'],
