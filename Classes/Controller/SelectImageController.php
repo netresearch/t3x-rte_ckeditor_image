@@ -41,7 +41,7 @@ use TYPO3\CMS\Core\Utility\HttpUtility;
  */
 class SelectImageController extends ElementBrowserController
 {
-    protected $isInfoAction;
+    protected bool $isInfoAction;
 
     public function __construct()
     {
@@ -157,7 +157,7 @@ class SelectImageController extends ElementBrowserController
      * Get the processed image
      *
      * @param File $file
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return ProcessedFile
      */

@@ -45,13 +45,6 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     public $extKey = 'rte_ckeditor_image';
 
     /**
-     * Configuration
-     *
-     * @var array
-     */
-    public $conf = [];
-
-    /**
      * cObj object
      *
      * @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
@@ -61,10 +54,10 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     /**
      * Returns a processed image to be displayed on the Frontend.
      *
-     * @param array $conf TypoScript configuration
+     * @param array<mixed> $conf TypoScript configuration
      * @return string HTML output
      */
-    public function renderImages($conf)
+    public function renderImages($conf = [])
     {
         // Get link inner HTML
         $linkContent = $this->cObj->getCurrentVal();
@@ -178,7 +171,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
      * Returns attributes value or even empty string when override mode is enabled
      *
      * @param string $attributeName
-     * @param array $attributes
+     * @param array<string, string> $attributes
      * @param \TYPO3\CMS\Core\Resource\File $image
      * @return string
      */
