@@ -138,9 +138,11 @@ class RteImagesDbHook extends RteHtmlParser
                         try {
                             $originalImageFile = $resourceFactory->getFileObject((int)$attribArray['data-htmlarea-file-uid']);
                         } catch (FileDoesNotExistException $fileDoesNotExistException) {
-                            // Log the fact the file could not be retrieved.
-                            $message = sprintf('Could not find file with uid "%s"', $attribArray['data-htmlarea-file-uid']);
-                            $this->logger->error($message);
+                            if ($this->logger !== null) {
+                                // Log the fact the file could not be retrieved.
+                                $message = sprintf('Could not find file with uid "%s"', $attribArray['data-htmlarea-file-uid']);
+                                $this->logger->error($message);
+                            }
                         }
                     }
                     if ($originalImageFile instanceof File) {
@@ -178,7 +180,7 @@ class RteImagesDbHook extends RteHtmlParser
 
                             // publicUrl like 'https://www.domain.xy/typo3/image/process?token=...'?
                             // -> generate img source from storage basepath and identifier instead
-                            if (strpos($imgSrc, 'process?token=') !== false) {
+                            if ($imgSrc !== null && strpos($imgSrc, 'process?token=') !== false) {
                                 $storageBasePath = $magicImage->getStorage()->getConfiguration()['basePath'];
                                 $imgUrlPre = (substr($storageBasePath, -1, 1) === '/') ? substr($storageBasePath, 0, -1) : $storageBasePath;
 

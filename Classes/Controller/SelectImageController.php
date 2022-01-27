@@ -112,12 +112,16 @@ class SelectImageController extends ElementBrowserController
     /**
      * Get the image url
      *
-     * @param string $imgUrl
+     * @param string|null $imgUrl
      *
-     * @return string image url
+     * @return string|null image url
      */
     protected function prettifyImgUrl($imgUrl)
     {
+        if ($imgUrl === null) {
+            return null;
+        }
+
         $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
         $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
         $absoluteUrl = trim($imgUrl);
