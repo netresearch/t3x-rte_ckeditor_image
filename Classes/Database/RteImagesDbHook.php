@@ -47,7 +47,7 @@ class RteImagesDbHook extends RteHtmlParser
      *
      *
      * @param string $value
-     * @return array
+     * @return string
      */
     public function transform_rte($value)
     {
@@ -84,7 +84,7 @@ class RteImagesDbHook extends RteHtmlParser
      *
      *
      * @param string $value
-     * @return array
+     * @return string
      */
     public function transform_db($value)
     {
