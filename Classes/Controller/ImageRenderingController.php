@@ -63,13 +63,6 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     public $extKey = 'rte_ckeditor_image';
 
     /**
-     * Configuration
-     *
-     * @var array
-     */
-    public $conf = [];
-
-    /**
      * cObj object
      *
      * @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
@@ -80,7 +73,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      * Returns a processed image to be displayed on the Frontend.
      *
      * @param string $content Content input (not used).
-     * @param array $conf TypoScript configuration
+     * @param array<mixed> $conf TypoScript configuration
      * @return string HTML output
      */
     public function renderImageAttributes($content = '', $conf = [])
@@ -167,7 +160,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * Returns a sanitizes array of attributes out of $this->cObj
      *
-     * @return array
+     * @return array<mixed>
      */
     protected function getImageAttributes()
     {
@@ -219,7 +212,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      * Returns attributes value or even empty string when override mode is enabled
      *
      * @param string $attributeName
-     * @param array $attributes
+     * @param array<string, string> $attributes
      * @param File $image
      * @return string
      */

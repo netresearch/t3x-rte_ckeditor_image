@@ -271,10 +271,10 @@ class RteImagesDbHook extends RteHtmlParser
     /**
      * Apply plain image settings to the dimensions of the image
      *
-     * @param array $imageInfo: info array of the image
-     * @param array $attribArray: array of attributes of an image tag
+     * @param array<int, mixed> $imageInfo: info array of the image
+     * @param array<string, mixed> $attribArray: array of attributes of an image tag
      *
-     * @return array a modified attributes array
+     * @return array<string, mixed> a modified attributes array
      */
     protected function applyPlainImageModeSettings($imageInfo, $attribArray)
     {
@@ -307,8 +307,8 @@ class RteImagesDbHook extends RteHtmlParser
      * Finds width and height from attrib-array
      * If the width and height is found in the style-attribute, use that!
      *
-     * @param array $attribArray Array of attributes from tag in which to search. More specifically the content of the key "style" is used to extract "width:xxx / height:xxx" information
-     * @return array Integer w/h in key 0/1. Zero is returned if not found.
+     * @param array<string,mixed> $attribArray Array of attributes from tag in which to search. More specifically the content of the key "style" is used to extract "width:xxx / height:xxx" information
+     * @return array{0: int, 1: int} Integer w/h in key 0/1. Zero is returned if not found.
      */
     protected function getWHFromAttribs($attribArray)
     {

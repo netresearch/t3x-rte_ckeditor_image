@@ -30,13 +30,15 @@ class RteImagesSoftReferenceIndex extends TypolinkSoftReferenceParser implements
 
     /**
      * Content splitted into images and other elements
+     *
+     * @var array<string, string>
      */
     public $splittedContentTags = [];
 
     /**
      * TYPO3 HTML Parser
      */
-    public $htmlParser;
+    public HtmlParser $htmlParser;
     
     /**
      * @var EventDispatcherInterface
@@ -51,10 +53,10 @@ class RteImagesSoftReferenceIndex extends TypolinkSoftReferenceParser implements
      * @param int    $uid           UID of the record
      * @param string $content       The content/value of the field
      * @param string $spKey         The softlink parser key. This is only interesting if more than one parser is grouped in the same class. That is the case with this parser.
-     * @param array  $spParams      Parameters of the softlink parser. Basically this is the content inside optional []-brackets after the softref keys. Parameters are exploded by ";
+     * @param array<mixed>  $spParams      Parameters of the softlink parser. Basically this is the content inside optional []-brackets after the softref keys. Parameters are exploded by ";
      * @param string $structurePath If running from inside a FlexForm structure, this is the path of the tag.
      *
-     * @return array|boolean Result array on positive matches. Otherwise FALSE
+     * @return array{content: string, elements: array<string, array{matchString: string, subst: array{type: string, recordRef: string, tokenID: string, tokenValue: mixed}}>}|boolean Result array on positive matches. Otherwise FALSE
      */
     public function findRef($table, $field, $uid, $content, $spKey, $spParams, $structurePath = '')
     {
@@ -78,7 +80,7 @@ class RteImagesSoftReferenceIndex extends TypolinkSoftReferenceParser implements
      *
      * @param string $content  The input content to analyse
      *
-     * @return array|boolean  Result array on positive matches, see description above. Otherwise FALSE
+     * @return array{content: string, elements: array<string, array{matchString: string, subst: array{type: string, recordRef: string, tokenID: string, tokenValue: mixed}}>}|boolean  Result array on positive matches, see description above. Otherwise FALSE
      */
     public function findRef_rtehtmlarea_images($content)
     {
@@ -116,7 +118,7 @@ class RteImagesSoftReferenceIndex extends TypolinkSoftReferenceParser implements
      * Finding image tags with data-htmlarea-file-uid attribute in the content.
      * All images that have an data-htmlarea-file-uid attribute will be returned with an info text
      *
-     * @return array
+     * @return array<string, array{matchString: string, subst: array{type: string, recordRef: string, tokenID: string, tokenValue: mixed}}>
      */
     private function findImagesWithDataUid()
     {
