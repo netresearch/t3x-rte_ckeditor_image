@@ -148,7 +148,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
         $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, false) . ' />';
 
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
-        if (($imageAttributes['data-htmlarea-zoom'] || $imageAttributes['data-htmlarea-clickenlarge']) && isset($systemImage) && $systemImage) {
+        if (($imageAttributes['data-htmlarea-zoom'] || $imageAttributes['data-htmlarea-clickenlarge']) && isset($systemImage)) {
             $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'];
             $config['enable'] = 1;
             $systemImage->updateProperties(array('title'=>($imageAttributes['title']) ? $imageAttributes['title'] : $systemImage->getProperty('title')));

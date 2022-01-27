@@ -1,5 +1,5 @@
 parameters:
-  level: 3
+  level: 4
   reportUnmatchedIgnoredErrors: true
   ignoreErrors:
 
@@ -7,3 +7,10 @@ parameters:
   -
     path: ext_emconf.php
     message: '#Variable \$_EXTKEY might not be defined\.#'
+
+  # ignored errors for level 4
+  -
+    message: '#Right side of \\|\\| is always false#'
+    paths:
+      - ext_localconf.php
+      - Configuration/TCA/Overrides/*

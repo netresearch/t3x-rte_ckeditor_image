@@ -119,7 +119,7 @@ class RteImagesDbHook extends RteHtmlParser
                     $absoluteUrl = trim($attribArray['src']);
                     // Make path absolute if it is relative and we have a site path which is not '/'
                     $pI = pathinfo($absoluteUrl);
-                    if ($sitePath && !isset($pI['scheme']) && GeneralUtility::isFirstPartOfStr($absoluteUrl, $sitePath)) {
+                    if ($sitePath && GeneralUtility::isFirstPartOfStr($absoluteUrl, $sitePath)) {
                         // If site is in a subpath (eg. /~user_jim/) this path needs to be removed because it will be added with $siteUrl
                         $absoluteUrl = substr($absoluteUrl, strlen($sitePath));
                         $absoluteUrl = $siteUrl . $absoluteUrl;
