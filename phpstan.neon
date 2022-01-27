@@ -1,3 +1,9 @@
 parameters:
-  level: 0
+  level: 1
   reportUnmatchedIgnoredErrors: true
+  ignoreErrors:
+
+  # ignored errors for level 1
+  -
+    path: ext_emconf.php
+    message: '#Variable \$_EXTKEY might not be defined\.#'
