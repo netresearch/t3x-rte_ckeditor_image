@@ -103,7 +103,7 @@ class RteImagesSoftReferenceIndex extends TypolinkSoftReferenceParser implements
     /**
      * Checks for image tags
      *
-     * @param $element
+     * @param string $element
      * @return int
      */
     private function hasImageTag($element)

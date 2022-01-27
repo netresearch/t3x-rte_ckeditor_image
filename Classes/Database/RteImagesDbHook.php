@@ -1,6 +1,7 @@
 <?php
 namespace Netresearch\RteCKEditorImage\Database;
 
+use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -45,8 +46,7 @@ class RteImagesDbHook extends RteHtmlParser
     /**
      *
      *
-     * @param array $parameters
-     * @param RteHtmlParser $parserObject
+     * @param string $value
      * @return array
      */
     public function transform_rte($value)
@@ -60,7 +60,7 @@ class RteImagesDbHook extends RteHtmlParser
                 // Image found
                 if ($k % 2) {
                     // Get the attributes of the img tag
-                    list($attribArray) = $this->get_tag_attributes($v, true);
+                    [$attribArray] = $this->get_tag_attributes($v, true);
                     $absoluteUrl = trim($attribArray['src']);
                     // Transform the src attribute into an absolute url, if it not already
                     if (stripos($absoluteUrl, 'http') !== 0) {
@@ -83,8 +83,7 @@ class RteImagesDbHook extends RteHtmlParser
     /**
      *
      *
-     * @param array $parameters
-     * @param RteHtmlParser $parserObject
+     * @param string $value
      * @return array
      */
     public function transform_db($value)
@@ -115,7 +114,7 @@ class RteImagesDbHook extends RteHtmlParser
                 // Image found, do processing:
                 if ($k % 2) {
                     // Get attributes
-                    list($attribArray) = $this->get_tag_attributes($v, true);
+                    [$attribArray] = $this->get_tag_attributes($v, true);
                     // It's always an absolute URL coming from the RTE into the Database.
                     $absoluteUrl = trim($attribArray['src']);
                     // Make path absolute if it is relative and we have a site path which is not '/'
@@ -238,12 +237,14 @@ class RteImagesDbHook extends RteHtmlParser
                                 if ($fileOrFolderObject instanceof FileInterface) {
                                     $fileIdentifier = $fileOrFolderObject->getIdentifier();
                                     $fileObject = $fileOrFolderObject->getStorage()->getFile($fileIdentifier);
-                                    $fileUid = $fileObject->getUid();
-                                    // if the retrieved file is a processed file, get the original file...
-                                    if($fileObject->hasProperty('original')){
-                                        $fileUid = $fileObject->getProperty('original');
+                                    if ($fileObject instanceof AbstractFile) {
+                                        $fileUid = $fileObject->getUid();
+                                        // if the retrieved file is a processed file, get the original file...
+                                        if($fileObject->hasProperty('original')){
+                                            $fileUid = $fileObject->getProperty('original');
+                                        }
+                                        $attribArray['data-htmlarea-file-uid'] = $fileUid;
                                     }
-                                    $attribArray['data-htmlarea-file-uid'] = $fileUid;
                                 }
                             } catch (ResourceDoesNotExistException $resourceDoesNotExistException) {
                                 // Nothing to be done if file/folder not found

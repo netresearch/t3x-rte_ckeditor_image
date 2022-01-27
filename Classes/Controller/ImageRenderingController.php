@@ -210,7 +210,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      */
     protected function getLogger()
     {
-        /** @var $logManager LogManager */
+        /** @var LogManager $logManager */
         $logManager = GeneralUtility::makeInstance(LogManager::class);
         return $logManager->getLogger(get_class($this));
     }
