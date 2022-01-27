@@ -52,9 +52,6 @@ class SelectImageController extends ElementBrowserController
                 $bparams[3] = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
                 $_GET['bparams'] = implode('|', $bparams);
             }
-            if (in_array('__construct', get_class_methods(get_parent_class($this)))) {
-                parent::__construct();
-            }
         }
         $this->mode = 'file';
     }
