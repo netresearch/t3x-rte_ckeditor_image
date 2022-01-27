@@ -83,7 +83,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      * @param array $conf TypoScript configuration
      * @return string HTML output
      */
-    public function renderImageAttributes($content = '', $conf)
+    public function renderImageAttributes($content = '', $conf = [])
     {
         $imageAttributes = $this->getImageAttributes();
 
