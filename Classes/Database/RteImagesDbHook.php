@@ -193,10 +193,11 @@ class RteImagesDbHook extends RteHtmlParser
                         $externalFile = GeneralUtility::getUrl($absoluteUrl);
                         if ($externalFile) {
                             $pU = parse_url($absoluteUrl);
-                            $pI = pathinfo($pU['path']);
-                            $extension = strtolower($pI['extension']);
+                            $path = is_array($pU) ? ($pU['path'] ?? '') : '';
+                            $pI = pathinfo($path);
+                            $extension = strtolower($pI['extension'] ?? '');
                             if ($extension === 'jpg' || $extension === 'jpeg' || $extension === 'gif' || $extension === 'png') {
-                                $fileName = GeneralUtility::shortMD5($absoluteUrl) . '.' . $pI['extension'];
+                                $fileName = GeneralUtility::shortMD5($absoluteUrl) . '.' . ($pI['extension'] ?? '');
                                 // We insert this image into the user default upload folder
                                 $folder = $GLOBALS['BE_USER']->getDefaultUploadFolder();
                                 $fileObject = $folder->createFile($fileName)->setContents($externalFile);

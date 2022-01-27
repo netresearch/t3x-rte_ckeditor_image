@@ -106,12 +106,12 @@ class RteImagesSoftReferenceIndex extends TypolinkSoftReferenceParser implements
      * Checks for image tags
      *
      * @param string $element
-     * @return int
+     * @return bool
      */
     private function hasImageTag($element)
     {
         $pattern = "/^<img/";
-        return preg_match($pattern, $element);
+        return (bool)preg_match($pattern, $element);
     }
 
     /**

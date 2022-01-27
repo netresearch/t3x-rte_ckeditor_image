@@ -80,7 +80,7 @@ class SelectImageController extends ElementBrowserController
         if (!$id || !is_numeric($id)) {
             HttpUtility::setResponseCodeAndExit(HttpUtility::HTTP_STATUS_412);
         }
-        $file = $this->getImage($id);
+        $file = $this->getImage((int)$id);
         $processedFile = $this->processImage($file, $params);
 
         $lang = $this->getLanguageService();
