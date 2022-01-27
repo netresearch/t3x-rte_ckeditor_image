@@ -169,7 +169,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
      */
     protected function getLogger()
     {
-        /** @var $logManager \TYPO3\CMS\Core\Log\LogManager */
+        /** @var \TYPO3\CMS\Core\Log\LogManager $logManager */
         $logManager = GeneralUtility::makeInstance(LogManager::class);
         return $logManager->getLogger(get_class($this));
     }
