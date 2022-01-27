@@ -268,6 +268,41 @@ class RteImagesDbHook extends RteHtmlParser
     }
 
     /**
+     * Apply plain image settings to the dimensions of the image
+     *
+     * @param array $imageInfo: info array of the image
+     * @param array $attribArray: array of attributes of an image tag
+     *
+     * @return array a modified attributes array
+     */
+    protected function applyPlainImageModeSettings($imageInfo, $attribArray)
+    {
+        if (isset($this->procOptions['plainImageMode'])) {
+            // Perform corrections to aspect ratio based on configuration
+            switch ((string)$this->procOptions['plainImageMode']) {
+                case 'lockDimensions':
+                    $attribArray['width'] = $imageInfo[0];
+                    $attribArray['height'] = $imageInfo[1];
+                    break;
+                case 'lockRatioWhenSmaller':
+                    if ($attribArray['width'] > $imageInfo[0]) {
+                        $attribArray['width'] = $imageInfo[0];
+                    }
+                    if ($imageInfo[0] > 0) {
+                        $attribArray['height'] = round($attribArray['width'] * ($imageInfo[1] / $imageInfo[0]));
+                    }
+                    break;
+                case 'lockRatio':
+                    if ($imageInfo[0] > 0) {
+                        $attribArray['height'] = round($attribArray['width'] * ($imageInfo[1] / $imageInfo[0]));
+                    }
+                    break;
+            }
+        }
+        return $attribArray;
+    }
+
+    /**
      * Finds width and height from attrib-array
      * If the width and height is found in the style-attribute, use that!
      *
