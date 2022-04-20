@@ -1,0 +1,6 @@
+# IntelliJ project folder
+.idea
+
+# Composer-related files
+.Build
+composer.lock
