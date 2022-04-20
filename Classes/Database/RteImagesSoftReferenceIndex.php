@@ -2,9 +2,7 @@
 namespace Netresearch\RteCKEditorImage\Database;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
-use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\DataHandling\SoftReference\AbstractSoftReferenceParser;
-use TYPO3\CMS\Core\DataHandling\SoftReference\SoftReferenceParserInterface;
 use TYPO3\CMS\Core\DataHandling\SoftReference\SoftReferenceParserResult;
 use TYPO3\CMS\Core\Html\HtmlParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -12,7 +10,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class for processing of the FAL soft references on img tags inserted in RTE content
  *
- * Copied from
+ * Based on
  * @link https://gitlab.sgalinski.de/typo3/tinymce4_rte/blob/513eeadf8c3c7ffba0936ad63b24e1e9c2eccba7/Classes/Hook/SoftReferenceHook.php
  *
  *
@@ -23,13 +21,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @license    http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
  * @link       http://www.netresearch.de
  */
-class RteImagesSoftReferenceIndex implements SoftReferenceParserInterface
+class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
 {
-    /**
-     * Token prefix
-     */
-    protected string $tokenID_basePrefix = '';
-
     /**
      * Content splitted into images and other elements
      *
@@ -41,8 +34,6 @@ class RteImagesSoftReferenceIndex implements SoftReferenceParserInterface
      * TYPO3 HTML Parser
      */
     protected HtmlParser $htmlParser;
-
-    protected string $parserKey = '';
 
     /**
      * @var EventDispatcherInterface
@@ -56,41 +47,26 @@ class RteImagesSoftReferenceIndex implements SoftReferenceParserInterface
      * @param string $field         Field name for which processing occurs
      * @param int    $uid           UID of the record
      * @param string $content       The content/value of the field
-     * @param string $spKey         The softlink parser key. This is only interesting if more than one parser is grouped in the same class. That is the case with this parser.
-     * @param array<mixed>  $spParams      Parameters of the softlink parser. Basically this is the content inside optional []-brackets after the softref keys. Parameters are exploded by ";
      * @param string $structurePath If running from inside a FlexForm structure, this is the path of the tag.
      *
-     * @return array{content: string, elements: array<string, array{matchString: string, subst: array{type: string, recordRef: string, tokenID: string, tokenValue: mixed}}>}|boolean Result array on positive matches. Otherwise FALSE
+     * @return SoftReferenceParserResult Result array on positive matches. Otherwise FALSE
      */
-    public function findRef($table, $field, $uid, $content, $spKey, $spParams, $structurePath = '')
+    public function parse(string $table, string $field, int $uid, string $content, string $structurePath = ''): SoftReferenceParserResult
     {
-        $this->tokenID_basePrefix = $table . ':' . $uid . ':' . $field . ':' . $structurePath . ':' . $spKey;
+        $this->setTokenIdBasePrefix($table, (string)$uid, $field, $structurePath);
 
-        switch ($spKey) {
+        switch ($this->parserKey) {
             case 'rtehtmlarea_images':
                 $retVal = $this->findRef_rtehtmlarea_images($content);
                 break;
             default:
-                $retVal = false;
+                $retVal = [];
         }
 
-        return $retVal;
-    }
-
-    public function parse(string $table, string $field, int $uid, string $content, string $structurePath = ''): SoftReferenceParserResult
-    {
-        // does nothing
-        return SoftReferenceParserResult::createWithoutMatches();
-    }
-
-    public function setParserKey(string $parserKey, array $parameters): void
-    {
-        // does nothing
-    }
-
-    public function getParserKey(): string
-    {
-        return $this->parserKey;
+        return SoftReferenceParserResult::create(
+          $content,
+          $retVal ?: []
+        );
     }
 
     /**
