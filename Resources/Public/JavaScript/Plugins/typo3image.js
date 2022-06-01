@@ -83,7 +83,10 @@
                         }
 
                         $.getJSON(url, function(newImg) {
-                            var realEditor = $('#cke_' + editor.element.$.id).find('iframe').contents().find('body'),
+                            // RTEs in flexforms might contain dots in their ID, so we need to escape them
+                            var escapedEditorId = editor.element.$.id.replace('.', '\\.');
+
+                            var realEditor = $('#cke_' + escapedEditorId).find('iframe').contents().find('body'),
                                 newImgUrl = newImg.processed.url || newImg.url;
 
                             // Replace current url with updated one
