@@ -20,7 +20,7 @@
 		}
 	},
 	"replace": {
-		"netresearch/rte-ckeditor-image": "self.version",
+		"netresearch/rte_ckeditor_image": "self.version",
 		"typo3-ter/rte-ckeditor-image": "self.version"
 	},
 	"config": {
