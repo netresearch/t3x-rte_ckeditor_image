@@ -9,7 +9,7 @@
 		"typo3/cms-core": "^11.5"
 	},
 	"require-dev": {
-		"namelesscoder/typo3-repository-client": "^1.2",
+		"namelesscoder/typo3-repository-client": "^2.1",
 		"phpstan/phpstan": "^1.4",
 		"phpstan/extension-installer": "^1.1",
 		"saschaegerer/phpstan-typo3": "^1.0"
