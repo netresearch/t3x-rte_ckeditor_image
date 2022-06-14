@@ -87,7 +87,31 @@
                             var escapedEditorId = editor.element.$.id.replace('.', '\\.');
 
                             var realEditor = $('#cke_' + escapedEditorId).find('iframe').contents().find('body'),
-                                newImgUrl = newImg.processed.url || newImg.url;
+                                newImgUrl = newImg.processed.url || newImg.url,
+                                imTag = realEditor.contents().find('img[data-htmlarea-file-uid='+uid+']');
+
+                            // Sets the title attribute if any
+                            if (typeof $curImg.attr('title') !== 'undefined' && $curImg.attr('title').length) {
+                                imTag.attr('title', $curImg.attr('title'));
+                            }
+
+                            // Sets the width attribute if any
+                            if (typeof $curImg.attr('width') !== 'undefined' && $curImg.attr('width').length) {
+                                imTag.attr('width', $curImg.attr('width'));
+                            }
+
+                            // Sets the height attribute if any
+                            if (typeof $curImg.attr('height') !== 'undefined' && $curImg.attr('height').length) {
+                                imTag.attr('height', $curImg.attr('height'));
+                            }
+
+                            // Sets the style attribute if any
+                            if (typeof $curImg.attr('style') !== 'undefined' && $curImg.attr('style').length) {
+                                imTag.attr('style', $curImg.attr('style'));
+                            }
+
+                            // Replaces the current html with the updated one
+                            realEditor.html(realEditor.html());
 
                             // Replace current url with updated one
                             if ($curImg.attr('src') && newImgUrl) {
