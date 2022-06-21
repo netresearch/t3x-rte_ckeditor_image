@@ -294,7 +294,7 @@
                             var dialogInfo = dialog.get(),
                                 filteredAttr = {},
                                 allowedAttributes = [
-                                    '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-title-override', 'data-alt-override'
+                                    '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'style', 'data-htmlarea-zoom', 'data-title-override', 'data-alt-override'
                                 ],
                                 additionalAttributes = getAdditionalAttributes(editor),
                                 attributesNew = $.extend({}, img, dialogInfo);
