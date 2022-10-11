@@ -14,7 +14,7 @@ Add issues or explore the project on [github](https://github.com/netresearch/t3x
 1. Install the extension
 
     1. with composer from [packagist](https://packagist.org/packages/netresearch/rte-ckeditor-image)
-    
+
         ```shell
         composer req netresearch/rte-ckeditor-image
         ```
@@ -66,6 +66,11 @@ Add issues or explore the project on [github](https://github.com/netresearch/t3x
     2. choose `CKEditor Image Support` for `Include static (from extensions)`
 
 ## Configuration
+
+(optional) Configure the Extension Configuration for this extension:
+
+**fetchExternalImages**: By default, if an img source is an external URL, this image will be fetched and uploaded
+to the current BE users uploads folder. The default behaviour can be turned off with this option.
 
 ### Maximum width/height
 
