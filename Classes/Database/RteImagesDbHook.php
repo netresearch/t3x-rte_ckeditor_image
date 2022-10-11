@@ -192,7 +192,12 @@ class RteImagesDbHook extends RteHtmlParser
                     } elseif (!GeneralUtility::isFirstPartOfStr($absoluteUrl, $siteUrl) && !($this->procOptions['dontFetchExtPictures'] ?? false) && TYPO3_MODE === 'BE') {
                         // External image from another URL: in that case, fetch image, unless the feature is disabled or we are not in backend mode
                         // Fetch the external image
-                        $externalFile = GeneralUtility::getUrl($absoluteUrl);
+                        $externalFile = null;
+                        try {
+                            $externalFile = GeneralUtility::getUrl($absoluteUrl);
+                        } catch (\Throwable $e) {
+                            // do nothing, further image processing will be skipped
+                        }
                         if ($externalFile) {
                             $pU = parse_url($absoluteUrl);
                             $path = is_array($pU) ? ($pU['path'] ?? '') : '';
