@@ -1,6 +1,7 @@
 <?php
 namespace Netresearch\RteCKEditorImage\Database;
 
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -42,6 +43,14 @@ class RteImagesDbHook extends RteHtmlParser
      * @var EventDispatcherInterface
      */
     protected $eventDispatcher;
+
+    /** @var bool */
+    protected $fetchExternalImages;
+
+    public function __construct(ExtensionConfiguration $extensionConfiguration)
+    {
+        $this->fetchExternalImages = (bool) $extensionConfiguration->get('rte_ckeditor_image', 'fetchExternalImages');
+    }
 
     /**
      *
@@ -189,7 +198,11 @@ class RteImagesDbHook extends RteHtmlParser
 
                             $attribArray['src'] = $imgSrc;
                         }
-                    } elseif (!GeneralUtility::isFirstPartOfStr($absoluteUrl, $siteUrl) && !($this->procOptions['dontFetchExtPictures'] ?? false) && TYPO3_MODE === 'BE') {
+                    } elseif (!GeneralUtility::isFirstPartOfStr($absoluteUrl, $siteUrl)
+                        && !($this->procOptions['dontFetchExtPictures'] ?? false)
+                        && TYPO3_MODE === 'BE'
+                        && $this->fetchExternalImages
+                    ) {
                         // External image from another URL: in that case, fetch image, unless the feature is disabled or we are not in backend mode
                         // Fetch the external image
                         $externalFile = GeneralUtility::getUrl($absoluteUrl);
@@ -253,6 +266,10 @@ class RteImagesDbHook extends RteHtmlParser
                                 // Nothing to be done if file/folder not found
                             }
                         }
+                    }
+                    if (!$attribArray) {
+                        // some error occurred, leave the img tag as is
+                        continue;
                     }
                     // Remove width and height from style attribute
                     $attribArray['style'] = preg_replace('/(?:^|[^-])(\\s*(?:width|height)\\s*:[^;]*(?:$|;))/si', '', $attribArray['style']);
