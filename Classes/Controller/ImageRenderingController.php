@@ -195,6 +195,10 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     protected function isExternalImage()
     {
         $srcAbsoluteUrl = $this->cObj->parameters['src'];
+        if (strpos($srcAbsoluteUrl, '/typo3/image/process?token') !== false) {
+            // is a 11LTS backend processing url only valid for BE users, thus reprocessing needed
+            return false;
+        }
         return strtolower(substr($srcAbsoluteUrl, 0, 4)) === 'http' || substr($srcAbsoluteUrl, 0, 2) === '//';
     }
 
