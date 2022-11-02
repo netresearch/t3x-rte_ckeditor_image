@@ -150,7 +150,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
 
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
         if ((($imageAttributes['data-htmlarea-zoom'] ?? false) || ($imageAttributes['data-htmlarea-clickenlarge'] ?? false)) && isset($systemImage)) {
-            $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'];
+            $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
             $config['enable'] = 1;
             $systemImage->updateProperties(array('title'=>($imageAttributes['title']) ? $imageAttributes['title'] : $systemImage->getProperty('title')));
             $this->cObj->setCurrentFile($systemImage);
@@ -230,7 +230,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      */
     protected static function getAttributeValue($attributeName, $attributes, $image)
     {
-        if ($attributes['data-' . $attributeName . '-override']) {
+        if ($attributes['data-' . $attributeName . '-override'] ?? false) {
             $attributeValue = isset($attributes[$attributeName]) ? $attributes[$attributeName] : '';
         } elseif (!empty($attributes[$attributeName])) {
             $attributeValue = $attributes[$attributeName];
