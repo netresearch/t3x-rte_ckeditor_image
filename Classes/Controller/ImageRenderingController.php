@@ -137,6 +137,14 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
         }
 
+        if (
+            $imageAttributes['src']
+            && stripos($imageAttributes['src'], 'http') !== 0
+            && strpos($imageAttributes['src'], '/') !== 0
+        ) {
+            $imageAttributes['src'] = '/' . $imageAttributes['src'];
+        }
+
         // Image template; empty attributes are removed by 3rd param 'false'
         $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, false) . ' />';
 

@@ -122,12 +122,9 @@ class SelectImageController extends ElementBrowserController
             return null;
         }
 
-        $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
-        $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
         $absoluteUrl = trim($imgUrl);
-        if (strtolower(substr($absoluteUrl, 0, 4)) !== 'http') {
-            $imgUrl = preg_replace('#^' . preg_quote($sitePath, '#') . '#', '', $imgUrl);
-            $imgUrl = $siteUrl . $imgUrl;
+        if ((stripos($absoluteUrl, 'http') !== 0) && strpos($absoluteUrl, '/') !== 0) {
+            $absoluteUrl = '/' .$absoluteUrl;
         }
 
         return $imgUrl;
