@@ -277,7 +277,7 @@ class RteImagesDbHook extends RteHtmlParser
                         continue;
                     }
                     // Remove width and height from style attribute
-                    $attribArray['style'] = preg_replace('/(?:^|[^-])(\\s*(?:width|height)\\s*:[^;]*(?:$|;))/si', '', $attribArray['style']);
+                    $attribArray['style'] = preg_replace('/(?:^|[^-])(\\s*(?:width|height)\\s*:[^;]*(?:$|;))/si', '', $attribArray['style'] ?? "");
                     // Must have alt attribute
                     if (!isset($attribArray['alt'])) {
                         $attribArray['alt'] = '';
@@ -337,7 +337,7 @@ class RteImagesDbHook extends RteHtmlParser
      */
     protected function getWHFromAttribs($attribArray)
     {
-        $style = trim($attribArray['style']);
+        $style = trim($attribArray['style'] ?? "");
         $w = 0;
         $h = 0;
         if ($style) {
