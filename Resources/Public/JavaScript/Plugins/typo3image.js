@@ -238,7 +238,8 @@
         }
 
         if (url.indexOf("http://") !== -1 || url.indexOf("https://") !== -1) {
-            return new URL(url).pathname;
+            var u = new URL(url);
+            return u.pathname + u.search;
         } else {
             if (url[0] !== "/") {
                 return "/" + url;
