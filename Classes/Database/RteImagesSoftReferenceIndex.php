@@ -34,7 +34,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
 {
     /**
-     * Content splitted into images and other elements
+     * Content split into images and other elements
      *
      * @var array<string, string>
      */
@@ -82,7 +82,7 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
     /**
      * Parses Content
      * Finds image tags with data-htmlarea-file-uid attribute in the content.
-     * All images that have an data-htmlarea-file-uid attribute will be returned with an info text
+     * All images that have a data-htmlarea-file-uid attribute will be returned with an info text
      *
      * @param string $content  The input content to analyse
      *
@@ -122,7 +122,7 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
 
     /**
      * Finding image tags with data-htmlarea-file-uid attribute in the content.
-     * All images that have an data-htmlarea-file-uid attribute will be returned with an info text
+     * All images that have a data-htmlarea-file-uid attribute will be returned with an info text
      *
      * @return array<string, array{matchString: string, subst: array{type: string, recordRef: string, tokenID: string, tokenValue: mixed}}>
      */
@@ -130,7 +130,7 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
     {
         $images = [];
 
-        // Traverse splitted parts
+        // Traverse split parts
         foreach ($this->splittedContentTags as $k => $v) {
 
             if ($this->hasImageTag($v)) {
@@ -139,7 +139,7 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
                 $attribs = $this->htmlParser->get_tag_attributes($v);
                 $fileUid = isset($attribs[0]['data-htmlarea-file-uid']) ? $attribs[0]['data-htmlarea-file-uid'] : false;
 
-                // If there is a file uid, continue. Otherwise ignore this img tag.
+                // If there is a file uid, continue. Otherwise, ignore this img tag.
                 if ($fileUid) {
                     // Initialize the element entry with info text here
                     $tokenID = $this->makeTokenID($k);
