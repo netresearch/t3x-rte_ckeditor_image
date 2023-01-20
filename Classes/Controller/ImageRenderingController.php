@@ -112,8 +112,7 @@ class ImageRenderingController extends AbstractPlugin
                         }
 
                         // Remove internal attributes
-                        unset($imageAttributes['data-title-override']);
-                        unset($imageAttributes['data-alt-override']);
+                        unset($imageAttributes['data-title-override'], $imageAttributes['data-alt-override']);
 
                         $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
                     }
