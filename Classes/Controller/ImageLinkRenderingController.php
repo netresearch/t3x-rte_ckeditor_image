@@ -11,14 +11,14 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use Psr\Log\LogLevel as PsrLogLevel;
 use TYPO3\CMS\Core\Log\Logger;
-use \TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
-use \TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
@@ -138,7 +138,7 @@ class ImageLinkRenderingController extends AbstractPlugin
                     $parsedImages[] = strip_tags($passedImage , '<img>');
                     // Log in fact the file could not be retrieved.
                     $message = sprintf('I could not find file with uid "%s"', $passedAttributes['data-htmlarea-file-uid']);
-                    $this->getLogger()->log(LogLevel::ERROR,$message);
+                    $this->getLogger()->log(PsrLogLevel::ERROR,$message);
                 }
             } else {
                 $parsedImages[] = strip_tags($passedImage , '<img>');
