@@ -158,7 +158,7 @@ class RteImagesDbHook extends RteHtmlParser
                         // Public url of local file is relative to the site url, absolute otherwise
                         if ($absoluteUrl == $originalImageFile->getPublicUrl() || $absoluteUrl == $siteUrl . $originalImageFile->getPublicUrl()) {
                             // This is a plain image, i.e. reference to the original image
-                            if ($this->procOptions['plainImageMode']) {
+                            if (isset($this->procOptions['plainImageMode'])) {
                                 // "plain image mode" is configured
                                 // Find the dimensions of the original image
                                 $imageInfo = [
@@ -242,7 +242,7 @@ class RteImagesDbHook extends RteHtmlParser
                         // Check file existence (in relative directory to this installation!)
                         if ($filepath && @is_file($filepath)) {
                             // Treat it as a plain image
-                            if ($this->procOptions['plainImageMode']) {
+                            if (isset($this->procOptions['plainImageMode'])) {
                                 // If "plain image mode" has been configured
                                 // Find the original dimensions of the image
                                 $imageInfoObject = GeneralUtility::makeInstance(ImageInfo::class, $filepath);
