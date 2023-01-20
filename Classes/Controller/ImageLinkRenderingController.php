@@ -119,8 +119,7 @@ class ImageLinkRenderingController extends AbstractPlugin
                     }
 
                     // Remove internal attributes
-                    unset($passedAttributes['data-title-override']);
-                    unset($passedAttributes['data-alt-override']);
+                    unset($passedAttributes['data-title-override'], $passedAttributes['data-alt-override']);
 
                     // Add original attributes, if not already parsed
                     $imageAttributes = array_merge($imageAttributes, $passedAttributes);
