@@ -11,27 +11,27 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Database;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Throwable;
+use TYPO3\CMS\Backend\Configuration\TypoScript\ConditionMatching\ConditionMatcher;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Resource\AbstractFile;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use Psr\EventDispatcher\EventDispatcherInterface;
-use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Configuration\Loader\PageTsConfigLoader;
+use TYPO3\CMS\Core\Configuration\Parser\PageTsConfigParser;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
+use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
-use TYPO3\CMS\Backend\Configuration\TypoScript\ConditionMatching\ConditionMatcher;
-use TYPO3\CMS\Core\Configuration\Loader\PageTsConfigLoader;
-use TYPO3\CMS\Core\Configuration\Parser\PageTsConfigParser;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\BackendConfigurationManager;
 
 /**

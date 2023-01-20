@@ -31,12 +31,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\Service\MagicImageService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Recordlist\Controller\ElementBrowserController;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\Service\MagicImageService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
+use TYPO3\CMS\Recordlist\Controller\ElementBrowserController;
 
 /**
  * Controller for the image select wizard
