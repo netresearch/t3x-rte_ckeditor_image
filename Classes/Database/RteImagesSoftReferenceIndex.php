@@ -36,7 +36,7 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
     /**
      * Content split into images and other elements
      *
-     * @var array<string, string>
+     * @var array<int, string>
      */
     protected array $splittedContentTags = [];
 
@@ -141,7 +141,7 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
                 // If there is a file uid, continue. Otherwise, ignore this img tag.
                 if ($fileUid) {
                     // Initialize the element entry with info text here
-                    $tokenID = $this->makeTokenID($k);
+                    $tokenID = $this->makeTokenID((string) $k);
                     $images[$k] = [];
                     $images[$k]['matchString'] = $v;
                     // Token and substitute value
