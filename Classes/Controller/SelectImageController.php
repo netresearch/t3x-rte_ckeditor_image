@@ -89,7 +89,8 @@ class SelectImageController extends ElementBrowserController
         $id = $request->getQueryParams()['fileId'];
         $params = $request->getQueryParams()['P'] ?: [];
         if (!$id || !is_numeric($id)) {
-            HttpUtility::setResponseCodeAndExit(HttpUtility::HTTP_STATUS_412);
+            header(HttpUtility::HTTP_STATUS_412);
+            die;
         }
         $file = $this->getImage((int)$id);
         $processedFile = $this->processImage($file, $params);
@@ -160,7 +161,8 @@ class SelectImageController extends ElementBrowserController
         }
 
         if (!$file) {
-            HttpUtility::setResponseCodeAndExit(HttpUtility::HTTP_STATUS_404);
+            header(HttpUtility::HTTP_STATUS_404);
+            die;
         }
 
         return $file;
