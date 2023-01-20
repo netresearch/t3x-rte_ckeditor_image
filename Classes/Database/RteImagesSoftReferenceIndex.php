@@ -158,5 +158,4 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
 
         return $images;
     }
-
 }

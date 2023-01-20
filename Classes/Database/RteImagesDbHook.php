@@ -13,6 +13,8 @@ namespace Netresearch\RteCKEditorImage\Database;
 
 use Throwable;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -60,6 +62,15 @@ class RteImagesDbHook extends RteHtmlParser
     /** @var bool */
     protected bool $fetchExternalImages;
 
+    /**
+     * Constructor.
+     *
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param ExtensionConfiguration   $extensionConfiguration
+     *
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         ExtensionConfiguration $extensionConfiguration
