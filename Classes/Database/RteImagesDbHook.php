@@ -59,8 +59,12 @@ class RteImagesDbHook extends RteHtmlParser
     /** @var bool */
     protected bool $fetchExternalImages;
 
-    public function __construct(ExtensionConfiguration $extensionConfiguration)
-    {
+    public function __construct(
+        EventDispatcherInterface $eventDispatcher,
+        ExtensionConfiguration $extensionConfiguration
+    ) {
+        parent::__construct($eventDispatcher);
+
         $this->fetchExternalImages = (bool) $extensionConfiguration->get('rte_ckeditor_image', 'fetchExternalImages');
     }
 
