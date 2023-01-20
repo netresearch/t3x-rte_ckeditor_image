@@ -8,7 +8,7 @@
 # Image support for CKEditor for TYPO3
 
 This extension adds the TYPO3 image browser to CKEditor.\
-Add issues or explore the project on [github](https://github.com/netresearch/t3x-rte_ckeditor_image).
+Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image).
 
 <kbd>![](Resources/Public/Images/demo.gif?raw=true)</kbd>
 
@@ -126,7 +126,7 @@ styles.content.image.lazyLoading = lazy
 
 ### Allowed extensions
 
-By default the extensions from `$TYPO3_CONF_VARS['GFX']['imagefile_ext']` are allowed. However you can override this for CKEditor by adding the following to your YAML configuration:
+By default, the extensions from `$TYPO3_CONF_VARS['GFX']['imagefile_ext']` are allowed. However, you can override this for CKEditor by adding the following to your YAML configuration:
 
 ```yaml
 editor:
@@ -137,6 +137,6 @@ editor:
 
 ## Deployment
 
-- developed on [github](https://github.com/netresearch/t3x-rte_ckeditor_image)
+- developed on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image)
 - [composer repository](https://packagist.org/packages/netresearch/rte-ckeditor-image)
 - automatically tested and released to TER via [travis](https://travis-ci.org/netresearch/t3x-rte_ckeditor_image)

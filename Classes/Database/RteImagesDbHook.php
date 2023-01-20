@@ -84,7 +84,7 @@ class RteImagesDbHook extends RteHtmlParser
                     $absoluteUrl = trim($attribArray['src']);
                     // Transform the src attribute into an absolute url, if it not already
                     if (stripos($absoluteUrl, 'http') !== 0) {
-                        // If site is in a subpath (eg. /~user_jim/) this path needs to be removed because it will be added with $siteUrl
+                        // If site is in a sub path (e.g. /~user_jim/) this path needs to be removed because it will be added with $siteUrl
                         $attribArray['src'] = preg_replace('#^' . preg_quote($sitePath, '#') . '#', '', $attribArray['src']);
                         $attribArray['src'] = $siteUrl . $attribArray['src'];
                     }
@@ -137,10 +137,10 @@ class RteImagesDbHook extends RteHtmlParser
                     [$attribArray] = $this->get_tag_attributes($v, true);
                     // It's always an absolute URL coming from the RTE into the Database.
                     $absoluteUrl = trim($attribArray['src']);
-                    // Make path absolute if it is relative and we have a site path which is not '/'
+                    // Make path absolute if it is relative, and we have a site path which is not '/'
                     $pI = pathinfo($absoluteUrl);
                     if ($sitePath && GeneralUtility::isFirstPartOfStr($absoluteUrl, $sitePath)) {
-                        // If site is in a subpath (eg. /~user_jim/) this path needs to be removed because it will be added with $siteUrl
+                        // If site is in a subpath (e.g. /~user_jim/) this path needs to be removed because it will be added with $siteUrl
                         $absoluteUrl = substr($absoluteUrl, strlen($sitePath));
                         $absoluteUrl = $siteUrl . $absoluteUrl;
                     }
@@ -198,7 +198,7 @@ class RteImagesDbHook extends RteHtmlParser
                         && TYPO3_MODE === 'BE'
                         && $this->fetchExternalImages
                     ) {
-                        // External image from another URL: in that case, fetch image, unless the feature is disabled or we are not in backend mode
+                        // External image from another URL: in that case, fetch image, unless the feature is disabled, or we are not in backend mode
                         // Fetch the external image
                         $externalFile = null;
                         try {
