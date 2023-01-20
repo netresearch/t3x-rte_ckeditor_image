@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * This file is part of the package netresearch/rte-ckeditor-image.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
 // Set up soft reference index parsing for RTE images
 $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref'] = implode(',', [
     'rtehtmlarea_images',
