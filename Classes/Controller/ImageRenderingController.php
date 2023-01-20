@@ -210,7 +210,8 @@ class ImageRenderingController extends AbstractPlugin
             // is a 11LTS backend processing url only valid for BE users, thus reprocessing needed
             return false;
         }
-        return strtolower(substr($srcAbsoluteUrl, 0, 4)) === 'http' || substr($srcAbsoluteUrl, 0, 2) === '//';
+        return (stripos($srcAbsoluteUrl, 'http') === 0)
+            || (strpos($srcAbsoluteUrl, '//') === 0);
     }
 
     /**
