@@ -67,11 +67,12 @@ class ImageLinkRenderingController extends AbstractPlugin
     /**
      * Returns a processed image to be displayed on the Frontend.
      *
-     * @param array<mixed> $conf TypoScript configuration
+     * @param null|string $content Content input (not used)
+     * @param mixed[]     $conf    TypoScript configuration
      *
      * @return string HTML output
      */
-    public function renderImages(array $conf = []): string
+    public function renderImages(?string $content, array $conf = []): string
     {
         // Get link inner HTML
         $linkContent = $this->cObj->getCurrentVal();
