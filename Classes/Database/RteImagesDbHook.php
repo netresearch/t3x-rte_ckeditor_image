@@ -56,7 +56,7 @@ class RteImagesDbHook extends RteHtmlParser
     protected $eventDispatcher;
 
     /** @var bool */
-    protected $fetchExternalImages;
+    protected bool $fetchExternalImages;
 
     public function __construct(ExtensionConfiguration $extensionConfiguration)
     {
@@ -67,9 +67,10 @@ class RteImagesDbHook extends RteHtmlParser
      *
      *
      * @param string $value
+     *
      * @return string
      */
-    public function transform_rte($value)
+    public function transform_rte(string $value): string
     {
         // Split content by <img> tags and traverse the resulting array for processing:
         $imgSplit = $this->splitTags('img', $value);
@@ -104,9 +105,10 @@ class RteImagesDbHook extends RteHtmlParser
      *
      *
      * @param string $value
+     *
      * @return string
      */
-    public function transform_db($value)
+    public function transform_db(string $value): string
     {
         // Split content by <img> tags and traverse the resulting array for processing:
         $imgSplit = $this->splitTags('img', $value);
@@ -282,9 +284,10 @@ class RteImagesDbHook extends RteHtmlParser
      * If the width and height is found in the style-attribute, use that!
      *
      * @param array<string,mixed> $attribArray Array of attributes from tag in which to search. More specifically the content of the key "style" is used to extract "width:xxx / height:xxx" information
+     *
      * @return array{0: int, 1: int} Integer w/h in key 0/1. Zero is returned if not found.
      */
-    protected function getWHFromAttribs($attribArray)
+    protected function getWHFromAttribs(array $attribArray): array
     {
         $style = trim($attribArray['style'] ?? "");
         $w = 0;

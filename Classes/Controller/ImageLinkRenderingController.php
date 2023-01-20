@@ -64,9 +64,10 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
      * Returns a processed image to be displayed on the Frontend.
      *
      * @param array<mixed> $conf TypoScript configuration
+     *
      * @return string HTML output
      */
-    public function renderImages($conf = [])
+    public function renderImages(array $conf = []): string
     {
         // Get link inner HTML
         $linkContent = $this->cObj->getCurrentVal();
@@ -151,7 +152,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
      *
      * @return \TYPO3\CMS\Core\Resource\Service\MagicImageService
      */
-    protected function getMagicImageService()
+    protected function getMagicImageService(): MagicImageService
     {
         /** @var $magicImageService MagicImageService */
         static $magicImageService;
@@ -169,7 +170,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     /**
      * @return \TYPO3\CMS\Core\Log\Logger
      */
-    protected function getLogger()
+    protected function getLogger(): \TYPO3\CMS\Core\Log\Logger
     {
         /** @var \TYPO3\CMS\Core\Log\LogManager $logManager */
         $logManager = GeneralUtility::makeInstance(LogManager::class);
@@ -179,12 +180,13 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     /**
      * Returns attributes value or even empty string when override mode is enabled
      *
-     * @param string $attributeName
-     * @param array<string, string> $attributes
+     * @param string                        $attributeName
+     * @param array<string, string>         $attributes
      * @param \TYPO3\CMS\Core\Resource\File $image
+     *
      * @return string
      */
-    protected static function getAttributeValue($attributeName, $attributes, $image)
+    protected static function getAttributeValue(string $attributeName, array $attributes, \TYPO3\CMS\Core\Resource\File $image): string
     {
         if ($attributes['data-' . $attributeName . '-override']) {
             $attributeValue = $attributes[$attributeName] ?? '';

@@ -122,11 +122,11 @@ class SelectImageController extends ElementBrowserController
     /**
      * Get the image url
      *
-     * @param string|null $imgUrl
+     * @param null|string $imgUrl
      *
      * @return string|null image url
      */
-    protected function prettifyImgUrl($imgUrl)
+    protected function prettifyImgUrl(?string $imgUrl): ?string
     {
         if ($imgUrl === null) {
             return null;
@@ -144,9 +144,10 @@ class SelectImageController extends ElementBrowserController
      * Get the image
      *
      * @param integer $id
+     *
      * @return File
      */
-    protected function getImage($id)
+    protected function getImage(int $id): ?File
     {
         try {
             $file = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($id);
@@ -167,12 +168,12 @@ class SelectImageController extends ElementBrowserController
     /**
      * Get the processed image
      *
-     * @param File $file
+     * @param File                 $file
      * @param array<string, mixed> $params
      *
      * @return ProcessedFile
      */
-    protected function processImage($file, $params)
+    protected function processImage(File $file, array $params): ProcessedFile
     {
         /** @var Richtext $richtextConfigurationProvider */
         $richtextConfigurationProvider = GeneralUtility::makeInstance(Richtext::class);

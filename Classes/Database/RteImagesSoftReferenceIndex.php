@@ -84,11 +84,11 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
      * Finds image tags with data-htmlarea-file-uid attribute in the content.
      * All images that have a data-htmlarea-file-uid attribute will be returned with an info text
      *
-     * @param string $content  The input content to analyse
+     * @param string $content The input content to analyse
      *
      * @return array{content: string, elements: array<string, array{matchString: string, subst: array{type: string, recordRef: string, tokenID: string, tokenValue: mixed}}>}|boolean  Result array on positive matches, see description above. Otherwise FALSE
      */
-    public function findRef_rtehtmlarea_images($content)
+    public function findRef_rtehtmlarea_images(string $content)
     {
         $retVal = false;
         // Start HTML parser and split content by image tag
@@ -112,9 +112,10 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
      * Checks for image tags
      *
      * @param string $element
+     *
      * @return bool
      */
-    private function hasImageTag($element)
+    private function hasImageTag(string $element): bool
     {
         $pattern = "/^<img/";
         return (bool)preg_match($pattern, $element);
@@ -126,7 +127,7 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
      *
      * @return array<string, array{matchString: string, subst: array{type: string, recordRef: string, tokenID: string, tokenValue: mixed}}>
      */
-    private function findImagesWithDataUid()
+    private function findImagesWithDataUid(): array
     {
         $images = [];
 

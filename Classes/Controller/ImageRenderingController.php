@@ -69,11 +69,12 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * Returns a processed image to be displayed on the Frontend.
      *
-     * @param string $content Content input (not used).
-     * @param array<mixed> $conf TypoScript configuration
+     * @param string       $content Content input (not used).
+     * @param array<mixed> $conf    TypoScript configuration
+     *
      * @return string HTML output
      */
-    public function renderImageAttributes($content = '', $conf = [])
+    public function renderImageAttributes(string $content = '', array $conf = []): string
     {
         $imageAttributes = $this->getImageAttributes();
 
@@ -167,7 +168,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      *
      * @return array<mixed>
      */
-    protected function getImageAttributes()
+    protected function getImageAttributes(): array
     {
         return $this->cObj->parameters;
     }
@@ -177,7 +178,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      *
      * @return MagicImageService
      */
-    protected function getMagicImageService()
+    protected function getMagicImageService(): MagicImageService
     {
         /** @var $magicImageService MagicImageService */
         static $magicImageService;
@@ -197,7 +198,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
      *
      * @return bool
      */
-    protected function isExternalImage()
+    protected function isExternalImage(): bool
     {
         $srcAbsoluteUrl = $this->cObj->parameters['src'];
         if (strpos($srcAbsoluteUrl, '/typo3/image/process?token') !== false) {
@@ -210,7 +211,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * @return Logger
      */
-    protected function getLogger()
+    protected function getLogger(): Logger
     {
         /** @var LogManager $logManager */
         $logManager = GeneralUtility::makeInstance(LogManager::class);
@@ -220,12 +221,13 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     /**
      * Returns attributes value or even empty string when override mode is enabled
      *
-     * @param string $attributeName
+     * @param string                $attributeName
      * @param array<string, string> $attributes
-     * @param File $image
+     * @param File                  $image
+     *
      * @return string
      */
-    protected static function getAttributeValue($attributeName, $attributes, $image)
+    protected static function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
         if ($attributes['data-' . $attributeName . '-override'] ?? false) {
             $attributeValue = $attributes[$attributeName] ?? '';
