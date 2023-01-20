@@ -54,6 +54,9 @@ class SelectImageController extends ElementBrowserController
 {
     protected bool $isInfoAction;
 
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->isInfoAction = GeneralUtility::_GP('action') === 'info';
