@@ -1,16 +1,13 @@
 <?php
+
 /**
- * See class comment
+ * This file is part of the package netresearch/rte-ckeditor-image.
  *
- * PHP version 7
- *
- * @category   Netresearch
- * @package    RteCKEditor
- * @subpackage Controller
- * @author     Christian Opitz <christian.opitz@netresearch.de>
- * @license    http://www.netresearch.de Netresearch Copyright
- * @link       http://www.netresearch.de
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 
 namespace Netresearch\RteCKEditorImage\Controller;
