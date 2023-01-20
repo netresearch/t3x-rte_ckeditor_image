@@ -133,7 +133,7 @@ class ImageLinkRenderingController extends AbstractPlugin
                     ];
                     $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
                     // Image template; empty attributes are removed by 3rd param 'false'
-                    $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, false) . ' />';
+                    $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
                 } catch (FileDoesNotExistException $fileDoesNotExistException) {
                     $parsedImages[] = strip_tags($passedImage , '<img>');
                     // Log in fact the file could not be retrieved.
