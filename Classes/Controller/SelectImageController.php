@@ -52,6 +52,9 @@ use TYPO3\CMS\Core\Utility\HttpUtility;
  */
 class SelectImageController extends ElementBrowserController
 {
+    /**
+     * @var bool
+     */
     protected bool $isInfoAction;
 
     /**

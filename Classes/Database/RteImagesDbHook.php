@@ -55,11 +55,8 @@ use TYPO3\CMS\Extbase\Configuration\BackendConfigurationManager;
 class RteImagesDbHook extends RteHtmlParser
 {
     /**
-     * @var EventDispatcherInterface
+     * @var bool
      */
-    protected $eventDispatcher;
-
-    /** @var bool */
     protected bool $fetchExternalImages;
 
     /**
