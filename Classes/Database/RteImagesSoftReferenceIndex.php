@@ -65,12 +65,10 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
     {
         $this->setTokenIdBasePrefix($table, (string)$uid, $field, $structurePath);
 
-        switch ($this->parserKey) {
-            case 'rtehtmlarea_images':
-                $retVal = $this->findRef_rtehtmlarea_images($content);
-                break;
-            default:
-                $retVal = [];
+        if ($this->parserKey === 'rtehtmlarea_images') {
+            $retVal = $this->findRef_rtehtmlarea_images($content);
+        } else {
+            $retVal = [];
         }
 
         return SoftReferenceParserResult::create(
