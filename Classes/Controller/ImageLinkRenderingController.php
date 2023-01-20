@@ -145,9 +145,7 @@ class ImageLinkRenderingController extends AbstractPlugin
             }
         }
         // Replace original images with parsed
-        $linkContent = str_replace($passedImages, $parsedImages, $linkContent);
-
-        return $linkContent;
+        return str_replace($passedImages, $parsedImages, $linkContent);
     }
 
     /**
