@@ -137,7 +137,7 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
 
                 // Get FAL uid reference
                 $attribs = $this->htmlParser->get_tag_attributes($v);
-                $fileUid = isset($attribs[0]['data-htmlarea-file-uid']) ? $attribs[0]['data-htmlarea-file-uid'] : false;
+                $fileUid = $attribs[0]['data-htmlarea-file-uid'] ?? false;
 
                 // If there is a file uid, continue. Otherwise, ignore this img tag.
                 if ($fileUid) {

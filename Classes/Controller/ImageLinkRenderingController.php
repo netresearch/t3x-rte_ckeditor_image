@@ -96,8 +96,8 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
                     $systemImage = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($passedAttributes['data-htmlarea-file-uid']);
 
                     $imageConfiguration = [
-                        'width' => ($passedAttributes['width']) ? $passedAttributes['width'] : $systemImage->getProperty('width'),
-                        'height' => ($passedAttributes['height']) ? $passedAttributes['height'] : $systemImage->getProperty('height')
+                        'width' => $passedAttributes['width'] ?? $systemImage->getProperty('width'),
+                        'height' => $passedAttributes['height'] ?? $systemImage->getProperty('height')
                     ];
 
                     $processedFile = $this->getMagicImageService()->createMagicImage($systemImage, $imageConfiguration);
@@ -105,8 +105,8 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
                         'src' => $processedFile->getPublicUrl(),
                         'title' => self::getAttributeValue('title', $passedAttributes, $systemImage),
                         'alt' => self::getAttributeValue('alt', $passedAttributes, $systemImage),
-                        'width' => ($passedAttributes['width']) ? $passedAttributes['width'] : $systemImage->getProperty('width'),
-                        'height' => ($passedAttributes['height']) ? $passedAttributes['height'] : $systemImage->getProperty('height')
+                        'width' => $passedAttributes['width'] ?? $systemImage->getProperty('width'),
+                        'height' => $passedAttributes['height'] ?? $systemImage->getProperty('height')
                     ];
 
                     if (!empty($GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'])) {
@@ -187,7 +187,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     protected static function getAttributeValue($attributeName, $attributes, $image)
     {
         if ($attributes['data-' . $attributeName . '-override']) {
-            $attributeValue = isset($attributes[$attributeName]) ? $attributes[$attributeName] : '';
+            $attributeValue = $attributes[$attributeName] ?? '';
         } elseif (!empty($attributes[$attributeName])) {
             $attributeValue = $attributes[$attributeName];
         } else {

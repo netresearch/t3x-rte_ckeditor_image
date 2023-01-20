@@ -228,7 +228,7 @@ class ImageRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
     protected static function getAttributeValue($attributeName, $attributes, $image)
     {
         if ($attributes['data-' . $attributeName . '-override'] ?? false) {
-            $attributeValue = isset($attributes[$attributeName]) ? $attributes[$attributeName] : '';
+            $attributeValue = $attributes[$attributeName] ?? '';
         } elseif (!empty($attributes[$attributeName])) {
             $attributeValue = $attributes[$attributeName];
         } else {
