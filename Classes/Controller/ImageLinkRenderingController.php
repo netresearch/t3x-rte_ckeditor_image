@@ -151,7 +151,7 @@ class ImageLinkRenderingController extends AbstractPlugin
     /**
      * Instantiates and prepares the Magic Image service.
      *
-     * @return \TYPO3\CMS\Core\Resource\Service\MagicImageService
+     * @return MagicImageService
      */
     protected function getMagicImageService(): MagicImageService
     {
@@ -173,7 +173,7 @@ class ImageLinkRenderingController extends AbstractPlugin
      */
     protected function getLogger(): Logger
     {
-        /** @var \TYPO3\CMS\Core\Log\LogManager $logManager */
+        /** @var LogManager $logManager */
         $logManager = GeneralUtility::makeInstance(LogManager::class);
         return $logManager->getLogger(get_class($this));
     }
