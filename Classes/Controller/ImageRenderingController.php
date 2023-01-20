@@ -71,12 +71,12 @@ class ImageRenderingController extends AbstractPlugin
     /**
      * Returns a processed image to be displayed on the Frontend.
      *
-     * @param string       $content Content input (not used).
-     * @param array<mixed> $conf    TypoScript configuration
+     * @param null|string  $content Content input (not used)
+     * @param mixed[]      $conf    TypoScript configuration
      *
      * @return string HTML output
      */
-    public function renderImageAttributes(string $content = '', array $conf = []): string
+    public function renderImageAttributes(?string $content, array $conf = []): string
     {
         $imageAttributes = $this->getImageAttributes();
 
