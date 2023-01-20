@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Configuration\Richtext;
@@ -154,7 +155,7 @@ class SelectImageController extends ElementBrowserController
             if ($file->isDeleted() || $file->isMissing()) {
                 $file = null;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $file = null;
         }
 

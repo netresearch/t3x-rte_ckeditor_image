@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Database;
 
+use Throwable;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -205,7 +206,7 @@ class RteImagesDbHook extends RteHtmlParser
                         $externalFile = null;
                         try {
                             $externalFile = GeneralUtility::getUrl($absoluteUrl);
-                        } catch (\Throwable $e) {
+                        } catch (Throwable $e) {
                             // do nothing, further image processing will be skipped
                         }
                         if ($externalFile) {
