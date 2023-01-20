@@ -11,12 +11,16 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use TYPO3\CMS\Core\Log\Logger;
 use \TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
+use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use \TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
 /**
  * Controller to render the linked images in frontend
@@ -30,7 +34,7 @@ use \TYPO3\CMS\Core\Utility\GeneralUtility;
  * @license    http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
  * @link       http://www.netresearch.de
  */
-class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
+class ImageLinkRenderingController extends AbstractPlugin
 {
     /**
      * Same as class name
@@ -56,7 +60,7 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     /**
      * cObj object
      *
-     * @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
+     * @var ContentObjectRenderer
      */
     public $cObj;
 
@@ -168,9 +172,9 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     }
 
     /**
-     * @return \TYPO3\CMS\Core\Log\Logger
+     * @return Logger
      */
-    protected function getLogger(): \TYPO3\CMS\Core\Log\Logger
+    protected function getLogger(): Logger
     {
         /** @var \TYPO3\CMS\Core\Log\LogManager $logManager */
         $logManager = GeneralUtility::makeInstance(LogManager::class);
@@ -182,11 +186,11 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
      *
      * @param string                        $attributeName
      * @param array<string, string>         $attributes
-     * @param \TYPO3\CMS\Core\Resource\File $image
+     * @param File $image
      *
      * @return string
      */
-    protected static function getAttributeValue(string $attributeName, array $attributes, \TYPO3\CMS\Core\Resource\File $image): string
+    protected static function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
         if ($attributes['data-' . $attributeName . '-override']) {
             $attributeValue = $attributes[$attributeName] ?? '';
