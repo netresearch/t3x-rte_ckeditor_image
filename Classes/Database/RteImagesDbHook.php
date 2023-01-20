@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Database;
 
 use Throwable;
+use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -112,6 +113,8 @@ class RteImagesDbHook extends RteHtmlParser
      * @param string $value
      *
      * @return string
+     *
+     * @throws NoSuchCacheException
      */
     public function transform_db(string $value): string
     {
