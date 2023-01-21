@@ -62,13 +62,6 @@ class ImageRenderingController extends AbstractPlugin
     public $extKey = 'rte_ckeditor_image';
 
     /**
-     * cObj object
-     *
-     * @var ContentObjectRenderer
-     */
-    public $cObj;
-
-    /**
      * Returns a processed image to be displayed on the Frontend.
      *
      * @param null|string  $content Content input (not used)

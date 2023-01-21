@@ -51,18 +51,11 @@ class ImageLinkRenderingController extends AbstractPlugin
     public $scriptRelPath = 'Classes/Controller/ImageLinkRenderingController.php';
 
     /**
-     * The extension key
+     * The extension key.
      *
      * @var string
      */
     public $extKey = 'rte_ckeditor_image';
-
-    /**
-     * cObj object
-     *
-     * @var ContentObjectRenderer
-     */
-    public $cObj;
 
     /**
      * Returns a processed image to be displayed on the Frontend.
