@@ -102,10 +102,6 @@ class SelectImageController extends ElementBrowserController
         }
         $file = $this->getImage((int)$id);
 
-        if ($file === null) {
-            return new NullResponse();
-        }
-
         $processedFile = $this->processImage($file, $params);
 
         $lang = $this->getLanguageService();
