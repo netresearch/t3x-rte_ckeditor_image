@@ -189,9 +189,11 @@ class ImageRenderingController extends AbstractPlugin
             $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
             // Get RTE configuration
+
+            /** @var array<string, mixed[]> $pageTSConfig */
             $pageTSConfig = $this->frontendController->getPagesTSconfig();
 
-            if (is_array($pageTSConfig) && is_array($pageTSConfig['RTE.']['default.'])) {
+            if (is_array($pageTSConfig['RTE.']['default.'])) {
                 $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
             }
         }
