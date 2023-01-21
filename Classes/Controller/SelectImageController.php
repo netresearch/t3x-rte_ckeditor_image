@@ -95,7 +95,7 @@ class SelectImageController extends ElementBrowserController
     public function infoAction(ServerRequestInterface $request): ResponseInterface
     {
         $id = $request->getQueryParams()['fileId'];
-        $params = $request->getQueryParams()['P'] ?: [];
+        $params = $request->getQueryParams()['P'] ?? [];
         if (!$id || !is_numeric($id)) {
             header(HttpUtility::HTTP_STATUS_412);
             die;
