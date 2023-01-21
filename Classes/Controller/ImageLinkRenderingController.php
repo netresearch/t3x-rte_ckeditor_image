@@ -19,7 +19,6 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
 /**
@@ -68,7 +67,7 @@ class ImageLinkRenderingController extends AbstractPlugin
     public function renderImages(?string $content, array $conf = []): string
     {
         // Get link inner HTML
-        $linkContent = $this->cObj ? $this->cObj->getCurrentVal() : null;
+        $linkContent = $this->cObj !== null ? $this->cObj->getCurrentVal() : null;
         // Find all images with file-uid attribute
         $imgSearchPattern = '/<p\><img(?=.*src).*?\/><\/p>/';
         $attrSearchPattern = '/([a-zA-Z0-9-]+)=["]([^"]*)"|([a-zA-Z0-9-]+)=[\']([^\']*)\'/';
@@ -183,7 +182,7 @@ class ImageLinkRenderingController extends AbstractPlugin
      */
     protected static function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
-        if ($attributes['data-' . $attributeName . '-override']) {
+        if (isset($attributes['data-' . $attributeName . '-override'])) {
             $attributeValue = $attributes[$attributeName] ?? '';
         } elseif (isset($attributes[$attributeName])) {
             $attributeValue = $attributes[$attributeName];

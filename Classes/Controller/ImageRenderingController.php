@@ -20,7 +20,6 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
 /**
@@ -79,7 +78,8 @@ class ImageRenderingController extends AbstractPlugin
         if (!$this->isExternalImage()) {
 
             $fileUid = (int)$imageAttributes['data-htmlarea-file-uid'];
-            if ($fileUid) {
+
+            if ($fileUid > 0) {
                 try {
                     $systemImage = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($fileUid);
 
@@ -167,7 +167,7 @@ class ImageRenderingController extends AbstractPlugin
     /**
      * Returns a sanitizes array of attributes out of $this->cObj
      *
-     * @return array<mixed>
+     * @return array
      */
     protected function getImageAttributes(): array
     {
@@ -231,8 +231,10 @@ class ImageRenderingController extends AbstractPlugin
      */
     protected static function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
-        if ($attributes['data-' . $attributeName . '-override'] ?? false) {
-            $attributeValue = $attributes[$attributeName] ?? '';
+        $attributeNameOverride = 'data-' . $attributeName . '-override';
+
+        if (isset($attributes[$attributeNameOverride])) {
+            $attributeValue = $attributes[$attributeNameOverride] ?? '';
         } elseif (isset($attributes[$attributeName])) {
             $attributeValue = $attributes[$attributeName];
         } else {
