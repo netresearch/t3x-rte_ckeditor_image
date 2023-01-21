@@ -96,7 +96,7 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
         $images = $this->findImagesWithDataUid();
 
         // Assemble result array
-        if (!empty($images)) {
+        if (count($images) > 0) {
             $retVal = [
                 'content' => implode('', $this->splittedContentTags),
                 'elements' => $images

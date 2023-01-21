@@ -107,7 +107,7 @@ class ImageRenderingController extends AbstractPlugin
                             'height' => ($processedFile->getProperty('height')) ?: $imageConfiguration['height'],
                         ];
 
-                        if (!empty($GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'])) {
+                        if (isset($GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'])) {
                             $additionalAttributes['loading'] = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'];
                         }
 
@@ -236,7 +236,7 @@ class ImageRenderingController extends AbstractPlugin
     {
         if ($attributes['data-' . $attributeName . '-override'] ?? false) {
             $attributeValue = $attributes[$attributeName] ?? '';
-        } elseif (!empty($attributes[$attributeName])) {
+        } elseif (isset($attributes[$attributeName])) {
             $attributeValue = $attributes[$attributeName];
         } else {
             $attributeValue = $image->getProperty($attributeName);
