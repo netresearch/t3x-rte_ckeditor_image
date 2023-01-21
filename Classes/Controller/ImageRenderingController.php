@@ -148,15 +148,19 @@ class ImageRenderingController extends AbstractPlugin
                 'title'
             )
             ));
-            $this->cObj->setCurrentFile($systemImage);
 
-            // Use $this->cObject to have access to all parameters from the image tag
-            return $this->cObj->imageLinkWrap(
-                $img,
-                $systemImage,
-                $config
-            );
+            if ($this->cObj !== null) {
+                $this->cObj->setCurrentFile($systemImage);
+
+                // Use $this->cObject to have access to all parameters from the image tag
+                return $this->cObj->imageLinkWrap(
+                    $img,
+                    $systemImage,
+                    $config
+                );
+            }
         }
+
         return $img;
     }
 
@@ -167,7 +171,7 @@ class ImageRenderingController extends AbstractPlugin
      */
     protected function getImageAttributes(): array
     {
-        return $this->cObj->parameters;
+        return $this->cObj->parameters ?? [];
     }
 
     /**
@@ -197,7 +201,7 @@ class ImageRenderingController extends AbstractPlugin
      */
     protected function isExternalImage(): bool
     {
-        $srcAbsoluteUrl = $this->cObj->parameters['src'];
+        $srcAbsoluteUrl = $this->cObj->parameters['src'] ?? '';
         if (strpos($srcAbsoluteUrl, '/typo3/image/process?token') !== false) {
             // is a 11LTS backend processing url only valid for BE users, thus reprocessing needed
             return false;
