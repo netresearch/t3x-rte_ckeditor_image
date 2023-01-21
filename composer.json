@@ -10,7 +10,8 @@
         "typo3/cms-frontend": "^11.5",
         "typo3/cms-recordlist": "^11.5",
         "typo3/cms-extbase": "^11.5",
-        "typo3/cms-rte-ckeditor": "^11.5"
+        "typo3/cms-rte-ckeditor": "^11.5",
+        "psr/log": "^3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
