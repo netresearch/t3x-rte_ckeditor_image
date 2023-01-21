@@ -68,7 +68,7 @@ class ImageLinkRenderingController extends AbstractPlugin
     public function renderImages(?string $content, array $conf = []): string
     {
         // Get link inner HTML
-        $linkContent = $this->cObj->getCurrentVal();
+        $linkContent = $this->cObj ? $this->cObj->getCurrentVal() : null;
         // Find all images with file-uid attribute
         $imgSearchPattern = '/<p\><img(?=.*src).*?\/><\/p>/';
         $attrSearchPattern = '/([a-zA-Z0-9-]+)=["]([^"]*)"|([a-zA-Z0-9-]+)=[\']([^\']*)\'/';

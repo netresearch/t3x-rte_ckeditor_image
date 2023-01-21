@@ -30,6 +30,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Http\JsonResponse;
+use TYPO3\CMS\Core\Http\NullResponse;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -99,6 +100,11 @@ class SelectImageController extends ElementBrowserController
             die;
         }
         $file = $this->getImage((int)$id);
+
+        if ($file === null) {
+            return new NullResponse();
+        }
+
         $processedFile = $this->processImage($file, $params);
 
         $lang = $this->getLanguageService();
