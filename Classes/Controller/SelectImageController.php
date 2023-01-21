@@ -162,7 +162,7 @@ class SelectImageController extends ElementBrowserController
      *
      * @return File
      */
-    protected function getImage(int $id): ?File
+    protected function getImage(int $id): File
     {
         try {
             /** @var ResourceFactory $resourceFactory */
@@ -176,7 +176,7 @@ class SelectImageController extends ElementBrowserController
             $file = null;
         }
 
-        if (!$file) {
+        if ($file === null) {
             header(HttpUtility::HTTP_STATUS_404);
             die;
         }
