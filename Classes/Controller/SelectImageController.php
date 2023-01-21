@@ -66,7 +66,8 @@ class SelectImageController extends ElementBrowserController
         $this->isInfoAction = GeneralUtility::_GP('action') === 'info';
         if (!$this->isInfoAction) {
             $bparams = explode('|', GeneralUtility::_GET('bparams'));
-            if (!$bparams[3]) {
+
+            if (isset($bparams[3]) && ($bparams[3] === '')) {
                 $bparams[3] = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
                 $_GET['bparams'] = implode('|', $bparams);
             }

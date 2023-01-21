@@ -87,13 +87,17 @@ class RteImagesDbHook extends RteHtmlParser
     public function transform_rte(string $value): string
     {
         // Split content by <img> tags and traverse the resulting array for processing:
+
+        /** @var array<int, string> $imgSplit */
         $imgSplit = $this->splitTags('img', $value);
+
         if (count($imgSplit) > 1) {
             $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
             $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
-            foreach ($imgSplit as $k => $v) {
+
+            foreach ($imgSplit as $key => $v) {
                 // Image found
-                if ($k % 2) {
+                if (($key % 2) === 1) {
                     // Get the attributes of the img tag
                     [$attribArray] = $this->get_tag_attributes($v, true);
                     $absoluteUrl = trim($attribArray['src']);
@@ -107,7 +111,7 @@ class RteImagesDbHook extends RteHtmlParser
                     if (!isset($attribArray['alt'])) {
                         $attribArray['alt'] = '';
                     }
-                    $imgSplit[$k] = '<img ' . GeneralUtility::implodeAttributes($attribArray, true, true) . ' />';
+                    $imgSplit[$key] = '<img ' . GeneralUtility::implodeAttributes($attribArray, true, true) . ' />';
                 }
             }
         }
@@ -130,6 +134,8 @@ class RteImagesDbHook extends RteHtmlParser
         $imgSplit = $this->splitTags('img', $value);
         if (count($imgSplit) > 1) {
             $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
+
+            /** @var string $sitePath */
             $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
             $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
             $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
@@ -148,26 +154,28 @@ class RteImagesDbHook extends RteHtmlParser
             $tsConfig = $parser->parse($tsConfigString, $matcher);
             $magicImageService->setMagicImageMaximumDimensions($tsConfig['RTE.']['default.']);
 
-            foreach ($imgSplit as $k => $v) {
+            foreach ($imgSplit as $key => $v) {
                 // Image found, do processing:
-                if ($k % 2) {
+                if (($key % 2) === 1) {
                     // Get attributes
                     [$attribArray] = $this->get_tag_attributes($v, true);
                     // It's always an absolute URL coming from the RTE into the Database.
                     $absoluteUrl = trim($attribArray['src']);
                     // Make path absolute if it is relative, and we have a site path which is not '/'
                     $pI = pathinfo($absoluteUrl);
-                    if ($sitePath && GeneralUtility::isFirstPartOfStr($absoluteUrl, $sitePath)) {
+
+                    if (($sitePath !== '') && GeneralUtility::isFirstPartOfStr($absoluteUrl, $sitePath)) {
                         // If site is in a subpath (e.g. /~user_jim/) this path needs to be removed because it will be added with $siteUrl
                         $absoluteUrl = substr($absoluteUrl, strlen($sitePath));
                         $absoluteUrl = $siteUrl . $absoluteUrl;
                     }
+
                     // Image dimensions set in the img tag, if any
                     $imgTagDimensions = $this->getWHFromAttribs($attribArray);
-                    if ($imgTagDimensions[0]) {
+                    if ($imgTagDimensions[0] > 0) {
                         $attribArray['width'] = $imgTagDimensions[0];
                     }
-                    if ($imgTagDimensions[1]) {
+                    if ($imgTagDimensions[1] > 0) {
                         $attribArray['height'] = $imgTagDimensions[1];
                     }
                     $originalImageFile = null;
@@ -224,7 +232,7 @@ class RteImagesDbHook extends RteHtmlParser
                         } catch (Throwable $e) {
                             // do nothing, further image processing will be skipped
                         }
-                        if ($externalFile) {
+                        if ($externalFile !== null) {
                             $pU = parse_url($absoluteUrl);
                             $path = is_array($pU) ? ($pU['path'] ?? '') : '';
                             $pI = pathinfo($path);
@@ -288,7 +296,7 @@ class RteImagesDbHook extends RteHtmlParser
                     if (GeneralUtility::isFirstPartOfStr($attribArray['src'], $siteUrl)) {
                         $attribArray['src'] = substr($attribArray['src'], strlen($siteUrl));
                     }
-                    $imgSplit[$k] = '<img ' . GeneralUtility::implodeAttributes($attribArray, true, true) . ' />';
+                    $imgSplit[$key] = '<img ' . GeneralUtility::implodeAttributes($attribArray, true, true) . ' />';
                 }
             }
         }
@@ -305,10 +313,11 @@ class RteImagesDbHook extends RteHtmlParser
      */
     protected function getWHFromAttribs(array $attribArray): array
     {
-        $style = trim($attribArray['style'] ?? "");
+        $style = trim($attribArray['style'] ?? '');
         $w = 0;
         $h = 0;
-        if ($style) {
+
+        if ($style !== '') {
             $regex = '[[:space:]]*:[[:space:]]*([0-9]*)[[:space:]]*px';
             // Width
             $reg = [];
@@ -318,12 +327,14 @@ class RteImagesDbHook extends RteHtmlParser
             preg_match('/height' . $regex . '/i', $style, $reg);
             $h = (int)$reg[1];
         }
-        if (!$w) {
+        if ($w === 0) {
             $w = $attribArray['width'];
         }
-        if (!$h) {
+
+        if ($h === 0) {
             $h = $attribArray['height'];
         }
+
         return [(int)$w, (int)$h];
     }
 }
