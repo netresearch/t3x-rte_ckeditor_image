@@ -75,7 +75,7 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
 
         return SoftReferenceParserResult::create(
           $content,
-          $retVal ?: []
+          is_array($retVal) ? $retVal : []
         );
     }
 

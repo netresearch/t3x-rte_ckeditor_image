@@ -98,8 +98,8 @@ class ImageRenderingController extends AbstractPlugin
                             'src' => $processedFile->getPublicUrl(),
                             'title' => self::getAttributeValue('title', $imageAttributes, $systemImage),
                             'alt' => self::getAttributeValue('alt', $imageAttributes, $systemImage),
-                            'width' => ($processedFile->getProperty('width')) ?: $imageConfiguration['width'],
-                            'height' => ($processedFile->getProperty('height')) ?: $imageConfiguration['height'],
+                            'width' => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
+                            'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
                         ];
 
                         if (isset($GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'])) {
@@ -146,10 +146,9 @@ class ImageRenderingController extends AbstractPlugin
         if ((($imageAttributes['data-htmlarea-zoom'] ?? false) || ($imageAttributes['data-htmlarea-clickenlarge'] ?? false)) && isset($systemImage)) {
             $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
             $config['enable'] = 1;
-            $systemImage->updateProperties(array('title'=> ($imageAttributes['title']) ?: $systemImage->getProperty(
-                'title'
-            )
-            ));
+            $systemImage->updateProperties([
+                'title' => $imageAttributes['title'] ?? $systemImage->getProperty('title'),
+            ]);
 
             if ($this->cObj !== null) {
                 $this->cObj->setCurrentFile($systemImage);
