@@ -101,7 +101,7 @@ class ImageLinkRenderingController extends AbstractPlugin
                     ];
 
                     $processedFile = $this->getMagicImageService()->createMagicImage($systemImage, $imageConfiguration);
-                    $imageAttributes = [
+                    $additionalAttributes = [
                         'src' => $processedFile->getPublicUrl(),
                         'title' => self::getAttributeValue('title', $passedAttributes, $systemImage),
                         'alt' => self::getAttributeValue('alt', $passedAttributes, $systemImage),
@@ -117,7 +117,7 @@ class ImageLinkRenderingController extends AbstractPlugin
                     unset($passedAttributes['data-title-override'], $passedAttributes['data-alt-override']);
 
                     // Add original attributes, if not already parsed
-                    $imageAttributes = array_merge($imageAttributes, $passedAttributes);
+                    $imageAttributes = array_merge($additionalAttributes, $passedAttributes);
 
                     // Cleanup attributes; disable zoom images within links
                     $unsetParams = [
