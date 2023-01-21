@@ -42,6 +42,8 @@ class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
 
     /**
      * TYPO3 HTML Parser
+     *
+     * @var HtmlParser
      */
     protected HtmlParser $htmlParser;
 

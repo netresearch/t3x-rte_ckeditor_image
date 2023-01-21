@@ -137,20 +137,42 @@ class RteImagesDbHook extends RteHtmlParser
 
             /** @var string $sitePath */
             $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
+
+            /** @var ResourceFactory $resourceFactory */
             $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+
+            /** @var MagicImageService $magicImageService */
             $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
-            $pageId = GeneralUtility::makeInstance(BackendConfigurationManager::class)->getDefaultBackendStoragePid();
+
+            /** @var BackendConfigurationManager $backendConfigurationManager */
+            $backendConfigurationManager = GeneralUtility::makeInstance(BackendConfigurationManager::class);
+
+            $pageId = $backendConfigurationManager->getDefaultBackendStoragePid();
             $rootLine = BackendUtility::BEgetRootLine($pageId);
+
+            /** @var PageTsConfigLoader $loader */
             $loader = GeneralUtility::makeInstance(PageTsConfigLoader::class);
+
+            /** @var CacheManager $cacheManager */
+            $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
+
+            /** @var TypoScriptParser $typoScriptParser */
+            $typoScriptParser = GeneralUtility::makeInstance(TypoScriptParser::class);
+
             $tsConfigString = $loader->load($rootLine);
 
             // Parse the PageTS into an array, also applying conditions
+
+            /** @var PageTsConfigParser $parser */
             $parser = GeneralUtility::makeInstance(
                 PageTsConfigParser::class,
-                GeneralUtility::makeInstance(TypoScriptParser::class),
-                GeneralUtility::makeInstance(CacheManager::class)->getCache('hash')
+                $typoScriptParser,
+                $cacheManager->getCache('hash')
             );
+
+            /** @var ConditionMatcher $matcher */
             $matcher = GeneralUtility::makeInstance(ConditionMatcher::class, null, $pageId, $rootLine);
+
             $tsConfig = $parser->parse($tsConfigString, $matcher);
             $magicImageService->setMagicImageMaximumDimensions($tsConfig['RTE.']['default.']);
 
@@ -261,7 +283,7 @@ class RteImagesDbHook extends RteHtmlParser
                         // Absolute filepath, locked to relative path of this project
                         $filepath = GeneralUtility::getFileAbsFileName($path);
                         // Check file existence (in relative directory to this installation!)
-                        if ($filepath && @is_file($filepath)) {
+                        if (($filepath !== '') && @is_file($filepath)) {
                             // Let's try to find a file uid for this image
                             try {
                                 $fileOrFolderObject = $resourceFactory->retrieveFileOrFolderObject($path);

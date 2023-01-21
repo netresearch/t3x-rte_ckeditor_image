@@ -165,7 +165,10 @@ class SelectImageController extends ElementBrowserController
     protected function getImage(int $id): ?File
     {
         try {
-            $file = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($id);
+            /** @var ResourceFactory $resourceFactory */
+            $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+
+            $file = $resourceFactory->getFileObject($id);
             if ($file->isDeleted() || $file->isMissing()) {
                 $file = null;
             }
