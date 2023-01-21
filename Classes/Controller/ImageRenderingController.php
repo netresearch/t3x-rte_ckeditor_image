@@ -168,7 +168,7 @@ class ImageRenderingController extends AbstractPlugin
     /**
      * Returns a sanitizes array of attributes out of $this->cObj
      *
-     * @return array
+     * @return array<string, string>
      */
     protected function getImageAttributes(): array
     {
@@ -241,7 +241,7 @@ class ImageRenderingController extends AbstractPlugin
         $attributeNameOverride = 'data-' . $attributeName . '-override';
 
         if (isset($attributes[$attributeNameOverride])) {
-            $attributeValue = $attributes[$attributeNameOverride] ?? '';
+            $attributeValue = $attributes[$attributeNameOverride];
         } elseif (isset($attributes[$attributeName])) {
             $attributeValue = $attributes[$attributeName];
         } else {
