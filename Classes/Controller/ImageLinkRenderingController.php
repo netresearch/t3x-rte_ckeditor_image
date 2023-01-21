@@ -91,7 +91,9 @@ class ImageLinkRenderingController extends AbstractPlugin
             // But we leave this as fallback for older render versions.
             if (isset($passedAttributes['data-htmlarea-file-uid'])) {
                 try {
-                    $systemImage = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($passedAttributes['data-htmlarea-file-uid']);
+                    /** @var ResourceFactory $resourceFactory */
+                    $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+                    $systemImage = $resourceFactory->getFileObject($passedAttributes['data-htmlarea-file-uid']);
 
                     $imageConfiguration = [
                         'width' => $passedAttributes['width'] ?? $systemImage->getProperty('width'),
@@ -148,16 +150,20 @@ class ImageLinkRenderingController extends AbstractPlugin
      */
     protected function getMagicImageService(): MagicImageService
     {
-        /** @var $magicImageService MagicImageService */
         static $magicImageService;
-        if (!$magicImageService) {
+
+        if ($magicImageService === null) {
+            /** @var MagicImageService $magicImageService */
             $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
+
             // Get RTE configuration
             $pageTSConfig = $this->frontendController->getPagesTSconfig();
+
             if (is_array($pageTSConfig) && is_array($pageTSConfig['RTE.']['default.'])) {
                 $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
             }
         }
+
         return $magicImageService;
     }
 

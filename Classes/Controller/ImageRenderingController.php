@@ -81,7 +81,9 @@ class ImageRenderingController extends AbstractPlugin
 
             if ($fileUid > 0) {
                 try {
-                    $systemImage = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($fileUid);
+                    /** @var ResourceFactory $resourceFactory */
+                    $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+                    $systemImage = $resourceFactory->getFileObject($fileUid);
 
                     if ($imageAttributes['src'] !== $systemImage->getPublicUrl()) {
                         // Source file is a processed image
@@ -181,16 +183,20 @@ class ImageRenderingController extends AbstractPlugin
      */
     protected function getMagicImageService(): MagicImageService
     {
-        /** @var $magicImageService MagicImageService */
         static $magicImageService;
-        if (!$magicImageService) {
+
+        if ($magicImageService === null) {
+            /** @var MagicImageService $magicImageService */
             $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
+
             // Get RTE configuration
             $pageTSConfig = $this->frontendController->getPagesTSconfig();
+
             if (is_array($pageTSConfig) && is_array($pageTSConfig['RTE.']['default.'])) {
                 $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
             }
         }
+
         return $magicImageService;
     }
 
