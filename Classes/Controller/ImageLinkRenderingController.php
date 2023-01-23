@@ -190,8 +190,10 @@ class ImageLinkRenderingController extends AbstractPlugin
      */
     protected static function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
-        if (isset($attributes['data-' . $attributeName . '-override'])) {
-            $attributeValue = $attributes[$attributeName] ?? '';
+        $attributeNameOverride = 'data-' . $attributeName . '-override';
+
+        if (isset($attributes[$attributeNameOverride])) {
+            $attributeValue = $attributes[$attributeNameOverride];
         } elseif (isset($attributes[$attributeName])) {
             $attributeValue = $attributes[$attributeName];
         } else {
