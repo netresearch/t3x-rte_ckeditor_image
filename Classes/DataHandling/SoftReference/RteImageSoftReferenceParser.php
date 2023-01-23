@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace Netresearch\RteCKEditorImage\Database;
+namespace Netresearch\RteCKEditorImage\DataHandling\SoftReference;
 
 use TYPO3\CMS\Core\DataHandling\SoftReference\AbstractSoftReferenceParser;
 use TYPO3\CMS\Core\DataHandling\SoftReference\SoftReferenceParserResult;
@@ -22,7 +22,7 @@ use TYPO3\CMS\Core\Html\HtmlParser;
  * @license http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
  * @link    http://www.netresearch.de
  */
-class RteImagesSoftReferenceIndex extends AbstractSoftReferenceParser
+class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
 {
     /**
      * TYPO3 HTML parser.
