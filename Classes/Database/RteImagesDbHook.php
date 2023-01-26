@@ -155,8 +155,11 @@ class RteImagesDbHook extends RteHtmlParser
                         }
                     }
                     if ($originalImageFile instanceof File) {
+                        // Build public URL to image, remove trailing slash from site URL
+                        $imageFileUrl = $siteUrl . $originalImageFile->getPublicUrl();
+
                         // Public url of local file is relative to the site url, absolute otherwise
-                        if ($absoluteUrl !== $originalImageFile->getPublicUrl() && $absoluteUrl !== $siteUrl . $originalImageFile->getPublicUrl()) {
+                        if (($absoluteUrl !== $originalImageFile->getPublicUrl()) && ($absoluteUrl !== $imageFileUrl)) {
                             // Magic image case: get a processed file with the requested configuration
                             $imageConfiguration = [
                                 'width' => $imgTagDimensions[0],
