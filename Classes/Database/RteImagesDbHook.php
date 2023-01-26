@@ -156,7 +156,7 @@ class RteImagesDbHook extends RteHtmlParser
                     }
                     if ($originalImageFile instanceof File) {
                         // Build public URL to image, remove trailing slash from site URL
-                        $imageFileUrl = $siteUrl . $originalImageFile->getPublicUrl();
+                        $imageFileUrl = rtrim($siteUrl, '/') . $originalImageFile->getPublicUrl();
 
                         // Public url of local file is relative to the site url, absolute otherwise
                         if (($absoluteUrl !== $imageFileUrl) && ($absoluteUrl !== $originalImageFile->getPublicUrl())) {
