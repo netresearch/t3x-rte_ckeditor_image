@@ -157,24 +157,6 @@ class RteImagesDbHook extends RteHtmlParser
                     if ($originalImageFile instanceof File) {
                         // Public url of local file is relative to the site url, absolute otherwise
                         if ($absoluteUrl == $originalImageFile->getPublicUrl() || $absoluteUrl == $siteUrl . $originalImageFile->getPublicUrl()) {
-                            // This is a plain image, i.e. reference to the original image
-                            if (isset($this->procOptions['plainImageMode'])) {
-                                // "plain image mode" is configured
-                                // Find the dimensions of the original image
-                                $imageInfo = [
-                                    $originalImageFile->getProperty('width'),
-                                    $originalImageFile->getProperty('height')
-                                ];
-                                if (!$imageInfo[0] || !$imageInfo[1]) {
-                                    $filePath = $originalImageFile->getForLocalProcessing(false);
-                                    $imageInfoObject = GeneralUtility::makeInstance(ImageInfo::class, $filePath);
-                                    $imageInfo = [
-                                        $imageInfoObject->getWidth(),
-                                        $imageInfoObject->getHeight()
-                                    ];
-                                }
-                                $attribArray = $this->applyPlainImageModeSettings($imageInfo, $attribArray);
-                            }
                         } else {
                             // Magic image case: get a processed file with the requested configuration
                             $imageConfiguration = [
@@ -241,17 +223,6 @@ class RteImagesDbHook extends RteHtmlParser
                         $filepath = GeneralUtility::getFileAbsFileName($path);
                         // Check file existence (in relative directory to this installation!)
                         if ($filepath && @is_file($filepath)) {
-                            // Treat it as a plain image
-                            if (isset($this->procOptions['plainImageMode'])) {
-                                // If "plain image mode" has been configured
-                                // Find the original dimensions of the image
-                                $imageInfoObject = GeneralUtility::makeInstance(ImageInfo::class, $filepath);
-                                $imageInfo = [
-                                    $imageInfoObject->getWidth(),
-                                    $imageInfoObject->getHeight()
-                                ];
-                                $attribArray = $this->applyPlainImageModeSettings($imageInfo, $attribArray);
-                            }
                             // Let's try to find a file uid for this image
                             try {
                                 $fileOrFolderObject = $resourceFactory->retrieveFileOrFolderObject($path);
@@ -291,41 +262,6 @@ class RteImagesDbHook extends RteHtmlParser
             }
         }
         return implode('', $imgSplit);
-    }
-
-    /**
-     * Apply plain image settings to the dimensions of the image
-     *
-     * @param array<int, mixed> $imageInfo: info array of the image
-     * @param array<string, mixed> $attribArray: array of attributes of an image tag
-     *
-     * @return array<string, mixed> a modified attributes array
-     */
-    protected function applyPlainImageModeSettings($imageInfo, $attribArray)
-    {
-        if (isset($this->procOptions['plainImageMode'])) {
-            // Perform corrections to aspect ratio based on configuration
-            switch ((string)$this->procOptions['plainImageMode']) {
-                case 'lockDimensions':
-                    $attribArray['width'] = $imageInfo[0];
-                    $attribArray['height'] = $imageInfo[1];
-                    break;
-                case 'lockRatioWhenSmaller':
-                    if ($attribArray['width'] > $imageInfo[0]) {
-                        $attribArray['width'] = $imageInfo[0];
-                    }
-                    if ($imageInfo[0] > 0) {
-                        $attribArray['height'] = round($attribArray['width'] * ($imageInfo[1] / $imageInfo[0]));
-                    }
-                    break;
-                case 'lockRatio':
-                    if ($imageInfo[0] > 0) {
-                        $attribArray['height'] = round($attribArray['width'] * ($imageInfo[1] / $imageInfo[0]));
-                    }
-                    break;
-            }
-        }
-        return $attribArray;
     }
 
     /**
