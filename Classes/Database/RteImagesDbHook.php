@@ -156,8 +156,7 @@ class RteImagesDbHook extends RteHtmlParser
                     }
                     if ($originalImageFile instanceof File) {
                         // Public url of local file is relative to the site url, absolute otherwise
-                        if ($absoluteUrl == $originalImageFile->getPublicUrl() || $absoluteUrl == $siteUrl . $originalImageFile->getPublicUrl()) {
-                        } else {
+                        if ($absoluteUrl != $originalImageFile->getPublicUrl() && $absoluteUrl != $siteUrl . $originalImageFile->getPublicUrl()) {
                             // Magic image case: get a processed file with the requested configuration
                             $imageConfiguration = [
                                 'width' => $imgTagDimensions[0],
