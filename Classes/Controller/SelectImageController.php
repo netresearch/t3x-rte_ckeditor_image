@@ -95,11 +95,11 @@ class SelectImageController extends ElementBrowserController
             'title' => $file->getProperty('title') ?? '',
             'width' => $file->getProperty('width'),
             'height' =>$file->getProperty('height'),
-            'url' => $this->prettifyImgUrl($file->getPublicUrl()),
+            'url' => $file->getPublicUrl(),
             'processed' => [
                 'width' => $processedFile->getProperty('width'),
                 'height' => $processedFile->getProperty('height'),
-                'url' => $this->prettifyImgUrl($processedFile->getPublicUrl())
+                'url' => $processedFile->getPublicUrl(),
             ],
             'lang' => [
                 'override' => $lang->getLL('labels.placeholder.override'),
@@ -108,27 +108,6 @@ class SelectImageController extends ElementBrowserController
                 'zoom' => $lang->getLL('image_zoom_formlabel')
             ]
         ]);
-    }
-
-    /**
-     * Get the image url
-     *
-     * @param null|string $imgUrl
-     *
-     * @return string|null image url
-     */
-    protected function prettifyImgUrl(?string $imgUrl): ?string
-    {
-        if ($imgUrl === null) {
-            return null;
-        }
-
-        $absoluteUrl = trim($imgUrl);
-        if ((stripos($absoluteUrl, 'http') !== 0) && strpos($absoluteUrl, '/') !== 0) {
-            $absoluteUrl = '/' .$absoluteUrl;
-        }
-
-        return $imgUrl;
     }
 
     /**
