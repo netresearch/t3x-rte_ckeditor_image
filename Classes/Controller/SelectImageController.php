@@ -25,7 +25,7 @@ use TYPO3\CMS\Core\Utility\HttpUtility;
 use TYPO3\CMS\Recordlist\Controller\ElementBrowserController;
 
 /**
- * Controller for the image select wizard
+ * Controller for the image select wizard.
  *
  * @author  Christian Opitz <christian.opitz@netresearch.de>
  * @license http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
@@ -39,11 +39,32 @@ class SelectImageController extends ElementBrowserController
     protected bool $isInfoAction;
 
     /**
-     * Constructor
+     * @var ResourceFactory
+     */
+    private ResourceFactory $resourceFactory;
+
+    /**
+     * @var Richtext
+     */
+    private Richtext $richText;
+
+    /**
+     * @var MagicImageService
+     */
+    private MagicImageService $magicImageService;
+
+    /**
+     * Constructor.
      */
     public function __construct()
     {
+        // No dependency injection available here. :(
+        $this->resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+        $this->richText = GeneralUtility::makeInstance(Richtext::class);
+        $this->magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
+
         $this->isInfoAction = GeneralUtility::_GP('action') === 'info';
+
         if (!$this->isInfoAction) {
             $bparams = explode('|', GeneralUtility::_GET('bparams'));
 
@@ -52,13 +73,15 @@ class SelectImageController extends ElementBrowserController
                 $_GET['bparams'] = implode('|', $bparams);
             }
         }
-        $this->mode = 'file';
+
+        $this->mode = GeneralUtility::_GET('mode') ?: 'file';
     }
 
     /**
      * Forward to infoAction if wanted
      *
      * @param ServerRequestInterface $request
+     *
      * @return ResponseInterface
      */
     public function mainAction(ServerRequestInterface $request): ResponseInterface
@@ -70,18 +93,20 @@ class SelectImageController extends ElementBrowserController
      * Retrieve image info
      *
      * @param ServerRequestInterface $request
+     *
      * @return ResponseInterface
      */
     public function infoAction(ServerRequestInterface $request): ResponseInterface
     {
-        $id = $request->getQueryParams()['fileId'];
+        $id     = $request->getQueryParams()['fileId'];
         $params = $request->getQueryParams()['P'] ?? [];
+
         if (!$id || !is_numeric($id)) {
             header(HttpUtility::HTTP_STATUS_412);
             die;
         }
-        $file = $this->getImage((int)$id);
 
+        $file          = $this->getImage((int) $id);
         $processedFile = $this->processImage($file, $params);
 
         $lang = $this->getLanguageService();
@@ -90,40 +115,38 @@ class SelectImageController extends ElementBrowserController
         $this->getLanguageService()->includeLLFile('EXT:rte_ckeditor_image/Resources/Private/Language/locallang_be.xlf');
 
         return new JsonResponse([
-            'uid' => $file->getUid(),
-            'alt' => $file->getProperty('alternative') ?? '',
-            'title' => $file->getProperty('title') ?? '',
-            'width' => $file->getProperty('width'),
-            'height' =>$file->getProperty('height'),
-            'url' => $file->getPublicUrl(),
+            'uid'       => $file->getUid(),
+            'alt'       => $file->getProperty('alternative') ?? '',
+            'title'     => $file->getProperty('title') ?? '',
+            'width'     => $file->getProperty('width'),
+            'height'    => $file->getProperty('height'),
+            'url'       => $file->getPublicUrl(),
             'processed' => [
-                'width' => $processedFile->getProperty('width'),
+                'width'  => $processedFile->getProperty('width'),
                 'height' => $processedFile->getProperty('height'),
-                'url' => $processedFile->getPublicUrl(),
+                'url'    => $processedFile->getPublicUrl(),
             ],
-            'lang' => [
-                'override' => $lang->getLL('labels.placeholder.override'),
+            'lang'      => [
+                'override'          => $lang->getLL('labels.placeholder.override'),
                 'overrideNoDefault' => $lang->getLL('labels.placeholder.override_not_available'),
-                'cssClass' => $lang->getLL('labels.ckeditor.cssclass'),
-                'zoom' => $lang->getLL('image_zoom_formlabel')
-            ]
+                'cssClass'          => $lang->getLL('labels.ckeditor.cssclass'),
+                'zoom'              => $lang->getLL('image_zoom_formlabel'),
+            ],
         ]);
     }
 
     /**
-     * Get the image
+     * Get the original image.
      *
-     * @param integer $id
+     * @param int $id The uid of the file to instantiate
      *
      * @return File
      */
     protected function getImage(int $id): File
     {
         try {
-            /** @var ResourceFactory $resourceFactory */
-            $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+            $file = $this->resourceFactory->getFileObject($id);
 
-            $file = $resourceFactory->getFileObject($id);
             if ($file->isDeleted() || $file->isMissing()) {
                 $file = null;
             }
@@ -140,32 +163,37 @@ class SelectImageController extends ElementBrowserController
     }
 
     /**
-     * Get the processed image
+     * Get the processed image.
      *
-     * @param File                 $file
-     * @param array<string, mixed> $params
+     * @param File     $file   The original image file
+     * @param string[] $params The parameters used to process the image
      *
      * @return ProcessedFile
      */
     protected function processImage(File $file, array $params): ProcessedFile
     {
-        /** @var Richtext $richtextConfigurationProvider */
-        $richtextConfigurationProvider = GeneralUtility::makeInstance(Richtext::class);
-        $tsConfig = $richtextConfigurationProvider->getConfiguration(
-            $params['table'],
-            $params['fieldName'],
-            (int)$params['pid'],
-            $params['recordType'],
-            ['richtext' => true]
-        );
+        $rteConfiguration = $this->richText
+            ->getConfiguration(
+                $params['table'],
+                $params['fieldName'],
+                (int) $params['pid'],
+                $params['recordType'],
+                [
+                    'richtext' => true,
+                ]
+            );
 
-        /** @var MagicImageService $magicImageService */
-        $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
-        $magicImageService->setMagicImageMaximumDimensions($tsConfig);
+        // Use the page tsConfig to set he maximum dimensions
+        $this->magicImageService
+            ->setMagicImageMaximumDimensions($rteConfiguration);
 
-        return $magicImageService->createMagicImage($file, [
-            'width' => $params['width'] ?? $file->getProperty('width'),
-            'height' => $params['height'] ?? $file->getProperty('height')
-        ]);
+        return $this->magicImageService
+            ->createMagicImage(
+                $file,
+                [
+                    'width'  => (int) ($params['width'] ?? $file->getProperty('width')),
+                    'height' => (int) ($params['height'] ?? $file->getProperty('height')),
+                ]
+            );
     }
 }
