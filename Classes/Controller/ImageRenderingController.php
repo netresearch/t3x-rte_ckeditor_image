@@ -62,11 +62,12 @@ class ImageRenderingController extends AbstractPlugin
     public function renderImageAttributes(?string $content, array $conf = []): string
     {
         $imageAttributes = $this->getImageAttributes();
+        $imageSource     = $imageAttributes['src'] ?? '';
 
         // It is pretty rare to be in presence of an external image as the default behaviour
         // of the RTE is to download the external image and create a local image.
         // However, it may happen if the RTE has the flag "disable"
-        if (!$this->isExternalImage()) {
+        if (!$this->isExternalImage($imageSource)) {
             $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
 
             if ($fileUid > 0) {
@@ -75,20 +76,21 @@ class ImageRenderingController extends AbstractPlugin
                     $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
                     $systemImage = $resourceFactory->getFileObject($fileUid);
 
-                    if ($imageAttributes['src'] !== $systemImage->getPublicUrl()) {
+                    if ($imageSource !== $systemImage->getPublicUrl()) {
                         // Source file is a processed image
                         $imageConfiguration = [
-                            'width' => (int)$imageAttributes['width'],
-                            'height' => (int)$imageAttributes['height']
+                            'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width') ?? 0),
+                            'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
                         ];
 
-                        $processedFile = $this->getMagicImageService()->createMagicImage($systemImage, $imageConfiguration);
+                        $processedFile = $this->getMagicImageService()
+                            ->createMagicImage($systemImage, $imageConfiguration);
 
                         $additionalAttributes = [
-                            'src' => $processedFile->getPublicUrl(),
-                            'title' => self::getAttributeValue('title', $imageAttributes, $systemImage),
-                            'alt' => self::getAttributeValue('alt', $imageAttributes, $systemImage),
-                            'width' => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
+                            'src'    => $processedFile->getPublicUrl(),
+                            'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
+                            'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
+                            'width'  => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
                             'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
                         ];
 
@@ -97,20 +99,27 @@ class ImageRenderingController extends AbstractPlugin
                         }
 
                         // Remove internal attributes
-                        unset($imageAttributes['data-title-override'], $imageAttributes['data-alt-override']);
+                        unset(
+                            $imageAttributes['data-title-override'],
+                            $imageAttributes['data-alt-override']
+                        );
 
                         $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
                     }
                 } catch (FileDoesNotExistException $fileDoesNotExistException) {
-                    // Log in fact the file could not be retrieved.
-                    $message = sprintf('I could not find file with uid "%s"', $fileUid);
-                    $this->getLogger()->log(PsrLogLevel::ERROR, $message);
+                    // Log in fact the file could not be retrieved
+                    $this->getLogger()->log(
+                        PsrLogLevel::ERROR,
+                        sprintf('Unable to find file with uid "%s"', $fileUid)
+                    );
                 }
             }
         }
 
         // Cleanup attributes
-        if (!isset($imageAttributes['data-htmlarea-zoom']) && !isset($imageAttributes['data-htmlarea-clickenlarge'])) {
+        if (!isset($imageAttributes['data-htmlarea-zoom'])
+            && !isset($imageAttributes['data-htmlarea-clickenlarge'])
+        ) {
             $unsetParams = [
                 'allParams',
                 'data-htmlarea-file-uid',
@@ -121,23 +130,28 @@ class ImageRenderingController extends AbstractPlugin
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
         }
 
+        // Add a leading slash if only a path is given
         if (
-            $imageAttributes['src']
-            && stripos($imageAttributes['src'], 'http') !== 0
-            && strpos($imageAttributes['src'], '/') !== 0
+            $imageSource
+            && stripos($imageSource, 'http') !== 0
+            && strpos($imageSource, '/') !== 0
         ) {
-            $imageAttributes['src'] = '/' . $imageAttributes['src'];
+            $imageAttributes['src'] = '/' . $imageSource;
         }
 
         // Image template; empty attributes are removed by 3rd param 'false'
         $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
 
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
-        if ((($imageAttributes['data-htmlarea-zoom'] ?? false) || ($imageAttributes['data-htmlarea-clickenlarge'] ?? false)) && isset($systemImage)) {
+        if ((isset($imageAttributes['data-htmlarea-zoom'])
+            || isset($imageAttributes['data-htmlarea-clickenlarge']))
+            && isset($systemImage)
+        ) {
             $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
             $config['enable'] = 1;
+
             $systemImage->updateProperties([
-                'title' => $imageAttributes['title'] ?? $systemImage->getProperty('title'),
+                'title' => $imageAttributes['title'] ?? $systemImage->getProperty('title') ?? '',
             ]);
 
             if ($this->cObj !== null) {
@@ -194,17 +208,21 @@ class ImageRenderingController extends AbstractPlugin
     /**
      * Tells whether the image URL is found to be "external".
      *
+     * @param string $imageSource The image source
+     *
      * @return bool
      */
-    protected function isExternalImage(): bool
+    protected function isExternalImage(string $imageSource): bool
     {
-        $srcAbsoluteUrl = $this->cObj->parameters['src'] ?? '';
-        if (strpos($srcAbsoluteUrl, '/typo3/image/process?token') !== false) {
+        // https://github.com/netresearch/t3x-rte_ckeditor_image/issues/187
+        if (strpos($imageSource, '/typo3/image/process?token') !== false) {
             // is a 11LTS backend processing url only valid for BE users, thus reprocessing needed
             return false;
         }
-        return (stripos($srcAbsoluteUrl, 'http') === 0)
-            || (strpos($srcAbsoluteUrl, '//') === 0);
+
+        // Source starts with "http(s)" or a double slash
+        return (stripos($imageSource, 'http') === 0)
+            || (strpos($imageSource, '//') === 0);
     }
 
     /**
@@ -226,7 +244,7 @@ class ImageRenderingController extends AbstractPlugin
      *
      * @return string
      */
-    protected static function getAttributeValue(string $attributeName, array $attributes, File $image): string
+    protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
         $attributeNameOverride = 'data-' . $attributeName . '-override';
 
