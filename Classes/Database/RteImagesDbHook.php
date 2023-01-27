@@ -192,14 +192,18 @@ class RteImagesDbHook extends RteHtmlParser
                         $absoluteUrl = $siteUrl . $absoluteUrl;
                     }
 
-                    // Image dimensions set in the img tag, if any
-                    $imgTagDimensions = $this->getWHFromAttribs($attribArray);
-                    if ($imgTagDimensions[0] > 0) {
-                        $attribArray['width'] = $imgTagDimensions[0];
+                    // Get image dimensions set in the image tag, if any
+                    $imageWidth  = $this->getImageWidthFromAttributes($attribArray);
+                    $imageHeight = $this->getImageHeightFromAttributes($attribArray);
+
+                    if ($imageWidth > 0) {
+                        $attribArray['width'] = $imageWidth;
                     }
-                    if ($imgTagDimensions[1] > 0) {
-                        $attribArray['height'] = $imgTagDimensions[1];
+
+                    if ($imageHeight > 0) {
+                        $attribArray['height'] = $imageHeight;
                     }
+
                     $originalImageFile = null;
                     if ($attribArray['data-htmlarea-file-uid'] ?? false) {
                         // An original image file uid is available
@@ -221,8 +225,8 @@ class RteImagesDbHook extends RteHtmlParser
                         if (($absoluteUrl !== $imageFileUrl) && ($absoluteUrl !== $originalImageFile->getPublicUrl())) {
                             // Magic image case: get a processed file with the requested configuration
                             $imageConfiguration = [
-                                'width' => $imgTagDimensions[0],
-                                'height' => $imgTagDimensions[1]
+                                'width' => $imageWidth,
+                                'height' => $imageHeight,
                             ];
                             $magicImage = $magicImageService->createMagicImage($originalImageFile, $imageConfiguration);
                             $attribArray['width'] = $magicImage->getProperty('width');
@@ -329,34 +333,72 @@ class RteImagesDbHook extends RteHtmlParser
      * Finds width and height from attrib-array
      * If the width and height is found in the style-attribute, use that!
      *
-     * @param array<string,mixed> $attribArray Array of attributes from tag in which to search. More specifically the content of the key "style" is used to extract "width:xxx / height:xxx" information
+     * @param string $styleAttribute The image style attribute
+     * @param string $imageAttribute The image attribute to match in the style attribute (e.g. width, height)
      *
-     * @return array{0: int, 1: int} Integer w/h in key 0/1. Zero is returned if not found.
+     * @return null|mixed
      */
-    protected function getWHFromAttribs(array $attribArray): array
+    private function matchStyleAttribute(string $styleAttribute, string $imageAttribute)
     {
-        $style = trim($attribArray['style'] ?? '');
-        $w = 0;
-        $h = 0;
+        $regex   = '[[:space:]]*:[[:space:]]*([0-9]*)[[:space:]]*px';
+        $matches = [];
+
+        if (preg_match('/' . $imageAttribute . $regex . '/i', $styleAttribute, $matches) === 1) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * Extracts the given image attribute value from the image tag attributes. If a style attribute
+     * exists the information is extracted from this one.
+     *
+     * @param string[] $attributes     The attributes of the image tag
+     * @param string   $imageAttribute The image attribute to extract (e.g. width, height)
+     *
+     * @return null|mixed
+     */
+    private function extractFromAttributeValueOrStyle(array $attributes, string $imageAttribute)
+    {
+        $style = trim($attributes['style'] ?? '');
 
         if ($style !== '') {
-            $regex = '[[:space:]]*:[[:space:]]*([0-9]*)[[:space:]]*px';
-            // Width
-            $reg = [];
-            preg_match('/width' . $regex . '/i', $style, $reg);
-            $w = (int)$reg[1];
-            // Height
-            preg_match('/height' . $regex . '/i', $style, $reg);
-            $h = (int)$reg[1];
-        }
-        if ($w === 0) {
-            $w = $attribArray['width'];
+            $value = $this->matchStyleAttribute($style, $imageAttribute);
+
+            // Return value from style attribute
+            if ($value !== null) {
+                return $value;
+            }
         }
 
-        if ($h === 0) {
-            $h = $attribArray['height'];
-        }
+        // Returns value from tag attributes
+        return $attributes[$imageAttribute] ?? null;
+    }
 
-        return [(int)$w, (int)$h];
+    /**
+     * Returns the width of the image from the image tag attributes. If a style attribute exists
+     * the information is extracted from this one.
+     *
+     * @param string[] $attributes The attributes of the image tag
+     *
+     * @return int
+     */
+    private function getImageWidthFromAttributes(array $attributes): int
+    {
+        return (int) $this->extractFromAttributeValueOrStyle($attributes, 'width');
+    }
+
+    /**
+     * Returns the height of the image from the image tag attributes. If a style attribute exists
+     * the information is extracted from this one.
+     *
+     * @param string[] $attributes The attributes of the image tag
+     *
+     * @return int
+     */
+    private function getImageHeightFromAttributes(array $attributes): int
+    {
+        return (int) $this->extractFromAttributeValueOrStyle($attributes, 'height');
     }
 }
