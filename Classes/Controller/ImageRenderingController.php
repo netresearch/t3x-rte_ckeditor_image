@@ -67,8 +67,7 @@ class ImageRenderingController extends AbstractPlugin
         // of the RTE is to download the external image and create a local image.
         // However, it may happen if the RTE has the flag "disable"
         if (!$this->isExternalImage()) {
-
-            $fileUid = (int)$imageAttributes['data-htmlarea-file-uid'];
+            $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
 
             if ($fileUid > 0) {
                 try {
