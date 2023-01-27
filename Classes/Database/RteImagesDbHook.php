@@ -37,16 +37,9 @@ use TYPO3\CMS\Extbase\Configuration\BackendConfigurationManager;
 /**
  * Class for processing of the FAL soft references on img tags inserted in RTE content
  *
- * Copied from
- * @link https://gitlab.sgalinski.de/typo3/tinymce4_rte/blob/513eeadf8c3c7ffba0936ad63b24e1e9c2eccba7/Classes/Hook/SoftReferenceHook.php
- *
- *
- * @category   Netresearch
- * @package    RteCKEditor
- * @subpackage Database
- * @author     Stefan Galinski <stefan@sgalinski.de>
- * @license    http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
- * @link       http://www.netresearch.de
+ * @author  Stefan Galinski <stefan@sgalinski.de>
+ * @license http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
+ * @link    http://www.netresearch.de
  *
  * @deprecated in TYPO3 v12
  * @see https://docs.typo3.org/m/typo3/reference-coreapi/10.4/en-us/ApiOverview/Rte/Transformations/CustomApi.html

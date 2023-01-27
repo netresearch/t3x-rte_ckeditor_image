@@ -9,20 +9,6 @@
 
 declare(strict_types=1);
 
-/**
- * See class comment
- *
- * PHP version 7
- *
- * @category   Netresearch
- * @package    RteCKEditor
- * @subpackage Controller
- * @author     Christian Opitz <christian.opitz@netresearch.de>
- * @license    http://www.netresearch.de Netresearch Copyright
- * @link       http://www.netresearch.de
- */
-
-
 namespace Netresearch\RteCKEditorImage\Controller;
 
 use Exception;
@@ -41,14 +27,9 @@ use TYPO3\CMS\Recordlist\Controller\ElementBrowserController;
 /**
  * Controller for the image select wizard
  *
- * PHP version 7
- *
- * @category   Netresearch
- * @package    RteCKEditor
- * @subpackage Controller
- * @author     Christian Opitz <christian.opitz@netresearch.de>
- * @license    http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
- * @link       http://www.netresearch.de
+ * @author  Christian Opitz <christian.opitz@netresearch.de>
+ * @license http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
+ * @link    http://www.netresearch.de
  */
 class SelectImageController extends ElementBrowserController
 {
