@@ -24,14 +24,9 @@ use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 /**
  * Controller to render the linked images in frontend
  *
- * PHP version 7
- *
- * @category   Netresearch
- * @package    RteCKEditor
- * @subpackage Controller
- * @author     Mathias Uhlmann <mathias.uhlmann@netresearch.de>
- * @license    http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
- * @link       http://www.netresearch.de
+ * @author  Mathias Uhlmann <mathias.uhlmann@netresearch.de>
+ * @license http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
+ * @link    http://www.netresearch.de
  */
 class ImageLinkRenderingController extends AbstractPlugin
 {

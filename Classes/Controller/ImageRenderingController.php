@@ -9,7 +9,6 @@
 
 declare(strict_types=1);
 
-
 namespace Netresearch\RteCKEditorImage\Controller;
 
 use Psr\Log\LogLevel as PsrLogLevel;
@@ -23,19 +22,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
 /**
- * Controller to render the image tag in frontend
+ * Controller to render the image tag in frontend.
  *
- * Copied from
- * @link https://github.com/FriendsOfTYPO3/rtehtmlarea/blob/master/Classes/Controller/ImageRenderingController.php
- *
- * PHP version 7
- *
- * @category   Netresearch
- * @package    RteCKEditor
- * @subpackage Controller
- * @author     Christian Opitz <christian.opitz@netresearch.de>
- * @license    http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
- * @link       http://www.netresearch.de
+ * @author  Christian Opitz <christian.opitz@netresearch.de>
+ * @license http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
+ * @link    http://www.netresearch.de
  */
 class ImageRenderingController extends AbstractPlugin
 {
