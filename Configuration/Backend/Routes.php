@@ -14,6 +14,8 @@ return [
     'rteckeditorimage_wizard_select_image' => [
         'path' => '/rte/wizard/selectimage',
         'target' => \Netresearch\RteCKEditorImage\Controller\SelectImageController::class . '::mainAction',
-        'parameters' => ['mode' => 'file']
-    ]
+        'parameters' => [
+            'mode' => 'file',
+        ],
+    ],
 ];

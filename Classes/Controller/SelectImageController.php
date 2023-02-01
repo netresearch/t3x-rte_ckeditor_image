@@ -73,8 +73,6 @@ class SelectImageController extends ElementBrowserController
                 $_GET['bparams'] = implode('|', $bparams);
             }
         }
-
-        $this->mode = GeneralUtility::_GET('mode') ?: 'file';
     }
 
     /**
