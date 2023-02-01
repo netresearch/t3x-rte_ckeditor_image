@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Database;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 use TYPO3\CMS\Backend\Configuration\TypoScript\ConditionMatching\ConditionMatcher;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -23,6 +24,7 @@ use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Configuration\Loader\PageTsConfigLoader;
 use TYPO3\CMS\Core\Configuration\Parser\PageTsConfigParser;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
+use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
@@ -210,6 +212,14 @@ class RteImagesDbHook extends RteHtmlParser
                             }
                         }
                     }
+
+                    $isBackend = false;
+
+                    // Determine application type
+                    if (($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface) {
+                        $isBackend = ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend();
+                    }
+
                     if ($originalImageFile instanceof File) {
                         // Build public URL to image, remove trailing slash from site URL
                         $imageFileUrl = rtrim($siteUrl, '/') . $originalImageFile->getPublicUrl();
@@ -238,10 +248,11 @@ class RteImagesDbHook extends RteHtmlParser
 
                             $attribArray['src'] = $imgSrc;
                         }
-                    } elseif (!GeneralUtility::isFirstPartOfStr($absoluteUrl, $siteUrl)
+                    } elseif (
+                        !GeneralUtility::isFirstPartOfStr($absoluteUrl, $siteUrl)
                         && !($this->procOptions['dontFetchExtPictures'] ?? false)
-                        && TYPO3_MODE === 'BE'
                         && $this->fetchExternalImages
+                        && $isBackend
                     ) {
                         // External image from another URL: in that case, fetch image, unless the feature is disabled, or we are not in backend mode
                         // Fetch the external image
