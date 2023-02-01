@@ -1,16 +1,25 @@
+
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+
 parameters:
-  level: 8
-  reportUnmatchedIgnoredErrors: true
-  ignoreErrors:
+    # You can currently choose from 10 levels (0 is the loosest and 9 is the strictest).
+    level: 8
 
-  # ignored errors for level 1
-  -
-    path: ext_emconf.php
-    message: '#Variable \$_EXTKEY might not be defined\.#'
-
-  # ignored errors for level 4
-  -
-    message: '#Right side of \\|\\| is always false#'
     paths:
-      - ext_localconf.php
-      - Configuration/TCA/Overrides/*
+        - Classes/
+        - Configuration/
+        - Resources/
+        - ext_localconf.php
+
+    excludePaths:
+        - vendor/*
+        - ext_emconf.php
+
+    checkMissingIterableValueType: false
+
+    # Ignore error, mainly due invalid PHP in TYPO3
+    ignoreErrors:
+        # https://review.typo3.org/c/Packages/TYPO3.CMS/+/74340
+        - '#^Call to an undefined method object\:\:(.*).$#'
+        - '#^Property (.*) \(TYPO3\\CMS\\(.*)\) does not accept object.$#'
