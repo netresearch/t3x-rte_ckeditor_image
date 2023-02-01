@@ -72,9 +72,8 @@ class ImageRenderingController extends AbstractPlugin
 
             if ($fileUid > 0) {
                 try {
-                    /** @var ResourceFactory $resourceFactory */
                     $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-                    $systemImage = $resourceFactory->getFileObject($fileUid);
+                    $systemImage     = $resourceFactory->getFileObject($fileUid);
 
                     if ($imageSource !== $systemImage->getPublicUrl()) {
                         // Source file is a processed image
@@ -132,9 +131,9 @@ class ImageRenderingController extends AbstractPlugin
 
         // Add a leading slash if only a path is given
         if (
-            $imageSource
-            && stripos($imageSource, 'http') !== 0
-            && strpos($imageSource, '/') !== 0
+            ($imageSource !== '')
+            && strncasecmp($imageSource, 'http', 4) !== 0
+            && strncmp($imageSource, '/', 1) !== 0
         ) {
             $imageAttributes['src'] = '/' . $imageSource;
         }
@@ -189,7 +188,6 @@ class ImageRenderingController extends AbstractPlugin
         static $magicImageService;
 
         if ($magicImageService === null) {
-            /** @var MagicImageService $magicImageService */
             $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
             // Get RTE configuration
@@ -230,9 +228,8 @@ class ImageRenderingController extends AbstractPlugin
      */
     protected function getLogger(): Logger
     {
-        /** @var LogManager $logManager */
-        $logManager = GeneralUtility::makeInstance(LogManager::class);
-        return $logManager->getLogger(get_class($this));
+        return GeneralUtility::makeInstance(LogManager::class)
+            ->getLogger(get_class($this));
     }
 
     /**

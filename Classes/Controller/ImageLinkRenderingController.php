@@ -63,6 +63,7 @@ class ImageLinkRenderingController extends AbstractPlugin
     {
         // Get link inner HTML
         $linkContent = $this->cObj !== null ? $this->cObj->getCurrentVal() : null;
+
         // Find all images with file-uid attribute
         $imgSearchPattern = '/<p\><img(?=.*src).*?\/><\/p>/';
         $attrSearchPattern = '/([a-zA-Z0-9-]+)=["]([^"]*)"|([a-zA-Z0-9-]+)=[\']([^\']*)\'/';
@@ -71,6 +72,7 @@ class ImageLinkRenderingController extends AbstractPlugin
 
         // Extract all TYPO3 images from link content
         preg_match_all($imgSearchPattern, $linkContent, $passedImages);
+
         $passedImages = $passedImages[0];
 
         if (count($passedImages) === 0) {
@@ -86,7 +88,6 @@ class ImageLinkRenderingController extends AbstractPlugin
             // But we leave this as fallback for older render versions.
             if (isset($passedAttributes['data-htmlarea-file-uid'])) {
                 try {
-                    /** @var ResourceFactory $resourceFactory */
                     $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
                     $systemImage = $resourceFactory->getFileObject($passedAttributes['data-htmlarea-file-uid']);
 
@@ -148,7 +149,6 @@ class ImageLinkRenderingController extends AbstractPlugin
         static $magicImageService;
 
         if ($magicImageService === null) {
-            /** @var MagicImageService $magicImageService */
             $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
             // Get RTE configuration
@@ -169,9 +169,8 @@ class ImageLinkRenderingController extends AbstractPlugin
      */
     protected function getLogger(): Logger
     {
-        /** @var LogManager $logManager */
-        $logManager = GeneralUtility::makeInstance(LogManager::class);
-        return $logManager->getLogger(get_class($this));
+        return GeneralUtility::makeInstance(LogManager::class)
+            ->getLogger(get_class($this));
     }
 
     /**

@@ -87,8 +87,21 @@ class RteImagesDbHook extends RteHtmlParser
         $imgSplit = $this->splitTags('img', $value);
 
         if (count($imgSplit) > 1) {
-            $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
-            $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
+            $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
+            $siteHost = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
+            $sitePath = '';
+
+            if (!is_string($siteUrl)) {
+                $siteUrl = '';
+            }
+
+            if (is_string($siteHost)) {
+                $sitePath = str_replace(
+                    $siteHost,
+                    '',
+                    $siteUrl
+                );
+            }
 
             foreach ($imgSplit as $key => $v) {
                 // Image found
@@ -96,16 +109,19 @@ class RteImagesDbHook extends RteHtmlParser
                     // Get the attributes of the img tag
                     [$attribArray] = $this->get_tag_attributes($v, true);
                     $absoluteUrl = trim($attribArray['src']);
+
                     // Transform the src attribute into an absolute url, if it not already
-                    if (stripos($absoluteUrl, 'http') !== 0) {
+                    if (strncasecmp($absoluteUrl, 'http', 4) !== 0) {
                         // If site is in a sub path (e.g. /~user_jim/) this path needs to be removed because it will be added with $siteUrl
                         $attribArray['src'] = preg_replace('#^' . preg_quote($sitePath, '#') . '#', '', $attribArray['src']);
                         $attribArray['src'] = $siteUrl . $attribArray['src'];
                     }
+
                     // Must have alt attribute
                     if (!isset($attribArray['alt'])) {
                         $attribArray['alt'] = '';
                     }
+
                     $imgSplit[$key] = '<img ' . GeneralUtility::implodeAttributes($attribArray, true, true) . ' />';
                 }
             }
@@ -128,44 +144,43 @@ class RteImagesDbHook extends RteHtmlParser
         // Split content by <img> tags and traverse the resulting array for processing:
         $imgSplit = $this->splitTags('img', $value);
         if (count($imgSplit) > 1) {
-            $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
+            $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
+            $siteHost = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
+            $sitePath = '';
 
-            /** @var string $sitePath */
-            $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
+            if (!is_string($siteUrl)) {
+                $siteUrl = '';
+            }
 
-            /** @var ResourceFactory $resourceFactory */
+            if (is_string($siteHost)) {
+                $sitePath = str_replace(
+                    $siteHost,
+                    '',
+                    $siteUrl
+                );
+            }
+
             $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-
-            /** @var MagicImageService $magicImageService */
             $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
-
-            /** @var BackendConfigurationManager $backendConfigurationManager */
             $backendConfigurationManager = GeneralUtility::makeInstance(BackendConfigurationManager::class);
 
             $pageId = $backendConfigurationManager->getDefaultBackendStoragePid();
             $rootLine = BackendUtility::BEgetRootLine($pageId);
 
-            /** @var PageTsConfigLoader $loader */
-            $loader = GeneralUtility::makeInstance(PageTsConfigLoader::class);
-
-            /** @var CacheManager $cacheManager */
-            $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
-
-            /** @var TypoScriptParser $typoScriptParser */
+            $loader           = GeneralUtility::makeInstance(PageTsConfigLoader::class);
+            $cacheManager     = GeneralUtility::makeInstance(CacheManager::class);
             $typoScriptParser = GeneralUtility::makeInstance(TypoScriptParser::class);
 
             $tsConfigString = $loader->load($rootLine);
 
             // Parse the PageTS into an array, also applying conditions
 
-            /** @var PageTsConfigParser $parser */
             $parser = GeneralUtility::makeInstance(
                 PageTsConfigParser::class,
                 $typoScriptParser,
                 $cacheManager->getCache('hash')
             );
 
-            /** @var ConditionMatcher $matcher */
             $matcher = GeneralUtility::makeInstance(ConditionMatcher::class, null, $pageId, $rootLine);
 
             $tsConfig = $parser->parse($tsConfigString, $matcher);
