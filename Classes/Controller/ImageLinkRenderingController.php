@@ -21,6 +21,10 @@ use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
+use function count;
+use function get_class;
+use function is_array;
+
 /**
  * Controller to render the linked images in frontend
  *
@@ -66,7 +70,6 @@ class ImageLinkRenderingController extends AbstractPlugin
 
         // Find all images with file-uid attribute
         $imgSearchPattern = '/<p\><img(?=.*src).*?\/><\/p>/';
-        $attrSearchPattern = '/([a-zA-Z0-9-]+)=["]([^"]*)"|([a-zA-Z0-9-]+)=[\']([^\']*)\'/';
         $passedImages = [];
         $parsedImages = [];
 
@@ -80,15 +83,13 @@ class ImageLinkRenderingController extends AbstractPlugin
         }
 
         foreach ($passedImages as $passedImage) {
-            // Get image attributes
-            preg_match_all($attrSearchPattern, $passedImage, $passedAttributes);
-            $passedAttributes = array_combine($passedAttributes[1], $passedAttributes[2]);
+            $passedAttributes = $this->getImageAttributes($passedImage);
 
             // The image is already parsed by netresearch linkrenderer, which removes custom attributes,
             // so it will never match this condition.
             //
             // But we leave this as fallback for older render versions.
-            if (isset($passedAttributes['data-htmlarea-file-uid'])) {
+            if ((count($passedAttributes) > 0) && isset($passedAttributes['data-htmlarea-file-uid'])) {
                 try {
                     $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
                     $systemImage = $resourceFactory->getFileObject($passedAttributes['data-htmlarea-file-uid']);
@@ -116,7 +117,10 @@ class ImageLinkRenderingController extends AbstractPlugin
                     }
 
                     // Remove internal attributes
-                    unset($passedAttributes['data-title-override'], $passedAttributes['data-alt-override']);
+                    unset(
+                        $passedAttributes['data-title-override'],
+                        $passedAttributes['data-alt-override']
+                    );
 
                     // Add original attributes, if not already parsed
                     $imageAttributes = array_merge($additionalAttributes, $passedAttributes);
@@ -147,6 +151,28 @@ class ImageLinkRenderingController extends AbstractPlugin
         }
         // Replace original images with parsed
         return str_replace($passedImages, $parsedImages, $linkContent);
+    }
+
+    /**
+     * Returns a sanitizes array of attributes out $passedImage
+     *
+     * @param string $passedImage
+     *
+     * @return array<string, string>
+     */
+    protected function getImageAttributes(string $passedImage): array
+    {
+        // Get image attributes
+        preg_match_all(
+            '/([a-zA-Z0-9-]+)=["]([^"]*)"|([a-zA-Z0-9-]+)=[\']([^\']*)\'/',
+            $passedImage,
+            $imageAttributes
+        );
+
+        /** @var false|array $result */
+        $result = array_combine($imageAttributes[1], $imageAttributes[2]);
+
+        return is_array($result) ? $result : [];
     }
 
     /**

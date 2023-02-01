@@ -21,6 +21,9 @@ use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
+use function get_class;
+use function is_array;
+
 /**
  * Controller to render the image tag in frontend.
  *
@@ -233,8 +236,8 @@ class ImageRenderingController extends AbstractPlugin
         }
 
         // Source starts with "http(s)" or a double slash
-        return (stripos($imageSource, 'http') === 0)
-            || (strpos($imageSource, '//') === 0);
+        return (strncasecmp($imageSource, 'http', 4) === 0)
+            || (strncmp($imageSource, '//', 2) === 0);
     }
 
     /**

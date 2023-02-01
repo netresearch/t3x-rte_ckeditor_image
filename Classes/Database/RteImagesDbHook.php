@@ -36,6 +36,11 @@ use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\BackendConfigurationManager;
 
+use function count;
+use function is_array;
+use function is_string;
+use function strlen;
+
 /**
  * Class for processing of the FAL soft references on img tags inserted in RTE content
  *
@@ -277,11 +282,17 @@ class RteImagesDbHook extends RteHtmlParser
                             // publicUrl like 'https://www.domain.xy/typo3/image/process?token=...'?
                             // -> generate img source from storage basepath and identifier instead
                             if ($imgSrc !== null && strpos($imgSrc, 'process?token=') !== false) {
-                                $storageBasePath = $magicImage->getStorage()->getConfiguration()['basePath'];
+                                $storageBasePath = $magicImage->getStorage() !== null
+                                    ? $magicImage->getStorage()->getConfiguration()['basePath']
+                                    : '';
 
-                                $imgUrlPre = (substr($storageBasePath, -1, 1) === '/')
-                                    ? substr($storageBasePath, 0, -1)
-                                    : $storageBasePath;
+                                if ($storageBasePath !== '') {
+                                    $imgUrlPre = ($storageBasePath[strlen($storageBasePath) - 1] === '/')
+                                        ? substr($storageBasePath, 0, -1)
+                                        : $storageBasePath;
+                                } else {
+                                    $imgUrlPre = '';
+                                }
 
                                 $imgSrc = '/' . $imgUrlPre . $magicImage->getIdentifier();
                             }
@@ -289,10 +300,10 @@ class RteImagesDbHook extends RteHtmlParser
                             $attribArray['src'] = $imgSrc;
                         }
                     } elseif (
-                        !GeneralUtility::isFirstPartOfStr($absoluteUrl, $siteUrl)
-                        && !($this->procOptions['dontFetchExtPictures'] ?? false)
+                        !($this->procOptions['dontFetchExtPictures'] ?? false)
                         && $this->fetchExternalImages
                         && $isBackend
+                        && !GeneralUtility::isFirstPartOfStr($absoluteUrl, $siteUrl)
                     ) {
                         // External image from another URL: in that case, fetch image, unless
                         // the feature is disabled, or we are not in backend mode.
@@ -371,7 +382,7 @@ class RteImagesDbHook extends RteHtmlParser
                     $attribArray['style'] = preg_replace(
                         '/(?:^|[^-])(\\s*(?:width|height)\\s*:[^;]*(?:$|;))/si',
                         '',
-                        $attribArray['style'] ?? ""
+                        $attribArray['style'] ?? ''
                     );
                     // Must have alt attribute
                     if (!isset($attribArray['alt'])) {

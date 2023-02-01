@@ -15,6 +15,8 @@ use TYPO3\CMS\Core\DataHandling\SoftReference\AbstractSoftReferenceParser;
 use TYPO3\CMS\Core\DataHandling\SoftReference\SoftReferenceParserResult;
 use TYPO3\CMS\Core\Html\HtmlParser;
 
+use function count;
+
 /**
  * Class for processing of the FAL soft references on img tags inserted in RTE content.
  *

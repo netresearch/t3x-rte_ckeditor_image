@@ -7,6 +7,8 @@
  * LICENSE file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 // Set up soft reference index parsing for RTE images
 $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref'] = implode(',', [
     'rtehtmlarea_images',
