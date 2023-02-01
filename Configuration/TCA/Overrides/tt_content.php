@@ -9,12 +9,28 @@
 
 declare(strict_types=1);
 
-// Set up soft reference index parsing for RTE images
-$GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref'] = implode(',', [
-    'rtehtmlarea_images',
-    // Remove obsolete soft reference key 'images', the references from RTE content to the original images are handled with the key 'rtehtmlarea_images'
-    \TYPO3\CMS\Core\Utility\GeneralUtility::rmFromList(
-        'images',
-        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref']
-    )
-]);
+defined('TYPO3_MODE') or die();
+
+/**
+ * TCA override for tt_content table.
+ */
+call_user_func(
+    static function () {
+        /** @var string[] $cleanSoftReferences */
+        $cleanSoftReferences = explode(
+            ',',
+            $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref']
+        );
+
+        // Remove obsolete soft reference key 'images', the references from RTE content to the original
+        // images are handled with the key 'rtehtmlarea_images'
+        $cleanSoftReferences   = array_diff($cleanSoftReferences, ['images']);
+        $cleanSoftReferences[] = 'rtehtmlarea_images';
+
+        // Set up soft reference index parsing for RTE images
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref'] = implode(
+            ',',
+            $cleanSoftReferences
+        );
+    }
+);
