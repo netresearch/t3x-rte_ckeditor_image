@@ -93,8 +93,10 @@ class ImageRenderingController extends AbstractPlugin
                             'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
                         ];
 
-                        if (isset($GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'])) {
-                            $additionalAttributes['loading'] = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'];
+                        $lazyLoading = $this->getLazyLoadingConfiguration();
+
+                        if ($lazyLoading !== null) {
+                            $additionalAttributes['loading'] = $lazyLoading;
                         }
 
                         // Remove internal attributes
@@ -116,7 +118,8 @@ class ImageRenderingController extends AbstractPlugin
         }
 
         // Cleanup attributes
-        if (!isset($imageAttributes['data-htmlarea-zoom'])
+        if (
+            !isset($imageAttributes['data-htmlarea-zoom'])
             && !isset($imageAttributes['data-htmlarea-clickenlarge'])
         ) {
             $unsetParams = [
@@ -142,7 +145,8 @@ class ImageRenderingController extends AbstractPlugin
         $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
 
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
-        if ((isset($imageAttributes['data-htmlarea-zoom'])
+        if (
+            (isset($imageAttributes['data-htmlarea-zoom'])
             || isset($imageAttributes['data-htmlarea-clickenlarge']))
             && isset($systemImage)
         ) {
@@ -166,6 +170,16 @@ class ImageRenderingController extends AbstractPlugin
         }
 
         return $img;
+    }
+
+    /**
+     * Returns the lazy loading configuration.
+     *
+     * @return null|array
+     */
+    private function getLazyLoadingConfiguration(): ?array
+    {
+        return $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
     }
 
     /**
