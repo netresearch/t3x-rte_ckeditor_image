@@ -1,8 +1,8 @@
-![Latest version](https://img.shields.io/github/v/release/netresearch/rte-ckeditor-image?sort=semver)
-![License](https://img.shields.io/github/license/netresearch/rte-ckeditor-image)
-![PHPStan](https://github.com/netresearch/rte-ckeditor-image/actions/workflows/phpstan.yml/badge.svg)
-![PHPCodeSniffer](https://github.com/netresearch/rte-ckeditor-image/actions/workflows/phpcs.yml/badge.svg)
-![CodeQL](https://github.com/netresearch/rte-ckeditor-image/actions/workflows/codeql-analysis.yml/badge.svg)
+![Latest version](https://img.shields.io/github/v/release/netresearch/t3x-rte_ckeditor_image?sort=semver)
+![License](https://img.shields.io/github/license/netresearch/t3x-rte_ckeditor_image)
+![PHPStan](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/phpstan.yml/badge.svg)
+![PHPCodeSniffer](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/phpcs.yml/badge.svg)
+![CodeQL](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/codeql-analysis.yml/badge.svg)
 
 
 # Image support for CKEditor for TYPO3
