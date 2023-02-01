@@ -79,11 +79,12 @@ class RteImagesDbHook extends RteHtmlParser
      *
      * @return string
      */
-    public function transform_rte(string $value): string
-    {
+// @codingStandardsIgnoreStart
+    public function transform_rte(
+// @codingStandardsIgnoreEnd
+        string $value
+    ): string {
         // Split content by <img> tags and traverse the resulting array for processing:
-
-        /** @var array<int, string> $imgSplit */
         $imgSplit = $this->splitTags('img', $value);
 
         if (count($imgSplit) > 1) {
@@ -112,8 +113,14 @@ class RteImagesDbHook extends RteHtmlParser
 
                     // Transform the src attribute into an absolute url, if it not already
                     if (strncasecmp($absoluteUrl, 'http', 4) !== 0) {
-                        // If site is in a sub path (e.g. /~user_jim/) this path needs to be removed because it will be added with $siteUrl
-                        $attribArray['src'] = preg_replace('#^' . preg_quote($sitePath, '#') . '#', '', $attribArray['src']);
+                        // If site is in a sub path (e.g. /~user_jim/) this path needs to be
+                        // removed because it will be added with $siteUrl
+                        $attribArray['src'] = preg_replace(
+                            '#^' . preg_quote($sitePath, '#') . '#',
+                            '',
+                            $attribArray['src']
+                        );
+
                         $attribArray['src'] = $siteUrl . $attribArray['src'];
                     }
 
@@ -122,7 +129,9 @@ class RteImagesDbHook extends RteHtmlParser
                         $attribArray['alt'] = '';
                     }
 
-                    $imgSplit[$key] = '<img ' . GeneralUtility::implodeAttributes($attribArray, true, true) . ' />';
+                    $imgSplit[$key] = '<img '
+                        . GeneralUtility::implodeAttributes($attribArray, true, true)
+                        . ' />';
                 }
             }
         }
@@ -139,10 +148,14 @@ class RteImagesDbHook extends RteHtmlParser
      *
      * @throws NoSuchCacheException
      */
-    public function transform_db(string $value): string
-    {
+// @codingStandardsIgnoreStart
+    public function transform_db(
+// @codingStandardsIgnoreEnd
+        string $value
+    ): string {
         // Split content by <img> tags and traverse the resulting array for processing:
         $imgSplit = $this->splitTags('img', $value);
+
         if (count($imgSplit) > 1) {
             $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
             $siteHost = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
@@ -197,7 +210,8 @@ class RteImagesDbHook extends RteHtmlParser
                     $pI = pathinfo($absoluteUrl);
 
                     if (($sitePath !== '') && GeneralUtility::isFirstPartOfStr($absoluteUrl, $sitePath)) {
-                        // If site is in a subpath (e.g. /~user_jim/) this path needs to be removed because it will be added with $siteUrl
+                        // If site is in a subpath (e.g. /~user_jim/) this path needs to be removed
+                        // because it will be added with $siteUrl
                         $absoluteUrl = substr($absoluteUrl, strlen($sitePath));
                         $absoluteUrl = $siteUrl . $absoluteUrl;
                     }
@@ -218,11 +232,16 @@ class RteImagesDbHook extends RteHtmlParser
                     if ($attribArray['data-htmlarea-file-uid'] ?? false) {
                         // An original image file uid is available
                         try {
-                            $originalImageFile = $resourceFactory->getFileObject((int)$attribArray['data-htmlarea-file-uid']);
+                            $originalImageFile = $resourceFactory
+                                ->getFileObject((int) $attribArray['data-htmlarea-file-uid']);
                         } catch (FileDoesNotExistException $fileDoesNotExistException) {
                             if ($this->logger !== null) {
                                 // Log the fact the file could not be retrieved.
-                                $message = sprintf('Could not find file with uid "%s"', $attribArray['data-htmlarea-file-uid']);
+                                $message = sprintf(
+                                    'Could not find file with uid "%s"',
+                                    $attribArray['data-htmlarea-file-uid']
+                                );
+
                                 $this->logger->error($message);
                             }
                         }
@@ -246,7 +265,10 @@ class RteImagesDbHook extends RteHtmlParser
                                 'width' => $imageWidth,
                                 'height' => $imageHeight,
                             ];
-                            $magicImage = $magicImageService->createMagicImage($originalImageFile, $imageConfiguration);
+
+                            $magicImage = $magicImageService
+                                ->createMagicImage($originalImageFile, $imageConfiguration);
+
                             $attribArray['width'] = $magicImage->getProperty('width');
                             $attribArray['height'] = $magicImage->getProperty('height');
 
@@ -256,7 +278,10 @@ class RteImagesDbHook extends RteHtmlParser
                             // -> generate img source from storage basepath and identifier instead
                             if ($imgSrc !== null && strpos($imgSrc, 'process?token=') !== false) {
                                 $storageBasePath = $magicImage->getStorage()->getConfiguration()['basePath'];
-                                $imgUrlPre = (substr($storageBasePath, -1, 1) === '/') ? substr($storageBasePath, 0, -1) : $storageBasePath;
+
+                                $imgUrlPre = (substr($storageBasePath, -1, 1) === '/')
+                                    ? substr($storageBasePath, 0, -1)
+                                    : $storageBasePath;
 
                                 $imgSrc = '/' . $imgUrlPre . $magicImage->getIdentifier();
                             }
@@ -269,7 +294,9 @@ class RteImagesDbHook extends RteHtmlParser
                         && $this->fetchExternalImages
                         && $isBackend
                     ) {
-                        // External image from another URL: in that case, fetch image, unless the feature is disabled, or we are not in backend mode
+                        // External image from another URL: in that case, fetch image, unless
+                        // the feature is disabled, or we are not in backend mode.
+                        //
                         // Fetch the external image
                         $externalFile = null;
                         try {
@@ -282,7 +309,13 @@ class RteImagesDbHook extends RteHtmlParser
                             $path = is_array($pU) ? ($pU['path'] ?? '') : '';
                             $pI = pathinfo($path);
                             $extension = strtolower($pI['extension'] ?? '');
-                            if ($extension === 'jpg' || $extension === 'jpeg' || $extension === 'gif' || $extension === 'png') {
+
+                            if (
+                                $extension === 'jpg'
+                                || $extension === 'jpeg'
+                                || $extension === 'gif'
+                                || $extension === 'png'
+                            ) {
                                 $fileName = GeneralUtility::shortMD5($absoluteUrl) . '.' . ($pI['extension'] ?? '');
                                 // We insert this image into the user default upload folder
                                 $folder = $GLOBALS['BE_USER']->getDefaultUploadFolder();
@@ -291,7 +324,10 @@ class RteImagesDbHook extends RteHtmlParser
                                     'width' => $attribArray['width'],
                                     'height' => $attribArray['height']
                                 ];
-                                $magicImage = $magicImageService->createMagicImage($fileObject, $imageConfiguration);
+
+                                $magicImage = $magicImageService
+                                    ->createMagicImage($fileObject, $imageConfiguration);
+
                                 $attribArray['width'] = $magicImage->getProperty('width');
                                 $attribArray['height'] = $magicImage->getProperty('height');
                                 $attribArray['data-htmlarea-file-uid'] = $fileObject->getUid();
@@ -316,7 +352,7 @@ class RteImagesDbHook extends RteHtmlParser
                                     if ($fileObject instanceof AbstractFile) {
                                         $fileUid = $fileObject->getUid();
                                         // if the retrieved file is a processed file, get the original file...
-                                        if($fileObject->hasProperty('original')){
+                                        if ($fileObject->hasProperty('original')) {
                                             $fileUid = $fileObject->getProperty('original');
                                         }
                                         $attribArray['data-htmlarea-file-uid'] = $fileUid;
@@ -332,7 +368,11 @@ class RteImagesDbHook extends RteHtmlParser
                         continue;
                     }
                     // Remove width and height from style attribute
-                    $attribArray['style'] = preg_replace('/(?:^|[^-])(\\s*(?:width|height)\\s*:[^;]*(?:$|;))/si', '', $attribArray['style'] ?? "");
+                    $attribArray['style'] = preg_replace(
+                        '/(?:^|[^-])(\\s*(?:width|height)\\s*:[^;]*(?:$|;))/si',
+                        '',
+                        $attribArray['style'] ?? ""
+                    );
                     // Must have alt attribute
                     if (!isset($attribArray['alt'])) {
                         $attribArray['alt'] = '';

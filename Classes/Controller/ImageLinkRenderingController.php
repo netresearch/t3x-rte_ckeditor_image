@@ -84,7 +84,9 @@ class ImageLinkRenderingController extends AbstractPlugin
             preg_match_all($attrSearchPattern, $passedImage, $passedAttributes);
             $passedAttributes = array_combine($passedAttributes[1], $passedAttributes[2]);
 
-            // The image is already parsed by netresearch linkrenderer, which removes custom attributes, so it will never match this condition.
+            // The image is already parsed by netresearch linkrenderer, which removes custom attributes,
+            // so it will never match this condition.
+            //
             // But we leave this as fallback for older render versions.
             if (isset($passedAttributes['data-htmlarea-file-uid'])) {
                 try {
@@ -96,7 +98,9 @@ class ImageLinkRenderingController extends AbstractPlugin
                         'height' => $passedAttributes['height'] ?? $systemImage->getProperty('height')
                     ];
 
-                    $processedFile = $this->getMagicImageService()->createMagicImage($systemImage, $imageConfiguration);
+                    $processedFile = $this->getMagicImageService()
+                        ->createMagicImage($systemImage, $imageConfiguration);
+
                     $additionalAttributes = [
                         'src' => $processedFile->getPublicUrl(),
                         'title' => self::getAttributeValue('title', $passedAttributes, $systemImage),
@@ -105,8 +109,10 @@ class ImageLinkRenderingController extends AbstractPlugin
                         'height' => $passedAttributes['height'] ?? $systemImage->getProperty('height')
                     ];
 
-                    if (isset($GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'])) {
-                        $additionalAttributes['loading'] = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'];
+                    $lazyLoading = $this->getLazyLoadingConfiguration();
+
+                    if ($lazyLoading !== null) {
+                        $additionalAttributes['loading'] = $lazyLoading;
                     }
 
                     // Remove internal attributes
@@ -126,17 +132,31 @@ class ImageLinkRenderingController extends AbstractPlugin
                     // Image template; empty attributes are removed by 3rd param 'false'
                     $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
                 } catch (FileDoesNotExistException $fileDoesNotExistException) {
-                    $parsedImages[] = strip_tags($passedImage , '<img>');
+                    $parsedImages[] = strip_tags($passedImage, '<img>');
                     // Log in fact the file could not be retrieved.
-                    $message = sprintf('I could not find file with uid "%s"', $passedAttributes['data-htmlarea-file-uid']);
-                    $this->getLogger()->log(PsrLogLevel::ERROR,$message);
+                    $message = sprintf(
+                        'I could not find file with uid "%s"',
+                        $passedAttributes['data-htmlarea-file-uid']
+                    );
+
+                    $this->getLogger()->log(PsrLogLevel::ERROR, $message);
                 }
             } else {
-                $parsedImages[] = strip_tags($passedImage , '<img>');
+                $parsedImages[] = strip_tags($passedImage, '<img>');
             }
         }
         // Replace original images with parsed
         return str_replace($passedImages, $parsedImages, $linkContent);
+    }
+
+    /**
+     * Returns the lazy loading configuration.
+     *
+     * @return null|array
+     */
+    private function getLazyLoadingConfiguration(): ?array
+    {
+        return $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
     }
 
     /**

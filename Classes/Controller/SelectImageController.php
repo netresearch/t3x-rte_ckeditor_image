@@ -108,9 +108,14 @@ class SelectImageController extends ElementBrowserController
         $processedFile = $this->processImage($file, $params);
 
         $lang = $this->getLanguageService();
-        $this->getLanguageService()->includeLLFile('EXT:core/Resources/Private/Language/locallang_core.xlf');
-        $this->getLanguageService()->includeLLFile('EXT:frontend/Resources/Private/Language/locallang_ttc.xlf');
-        $this->getLanguageService()->includeLLFile('EXT:rte_ckeditor_image/Resources/Private/Language/locallang_be.xlf');
+
+        // Include language files
+        $this->getLanguageService()
+            ->includeLLFile('EXT:core/Resources/Private/Language/locallang_core.xlf');
+        $this->getLanguageService()
+            ->includeLLFile('EXT:frontend/Resources/Private/Language/locallang_ttc.xlf');
+        $this->getLanguageService()
+            ->includeLLFile('EXT:rte_ckeditor_image/Resources/Private/Language/locallang_be.xlf');
 
         return new JsonResponse([
             'uid'       => $file->getUid(),
