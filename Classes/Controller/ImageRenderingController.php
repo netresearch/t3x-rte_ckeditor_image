@@ -178,9 +178,9 @@ class ImageRenderingController extends AbstractPlugin
     /**
      * Returns the lazy loading configuration.
      *
-     * @return null|array
+     * @return null|string
      */
-    private function getLazyLoadingConfiguration(): ?array
+    private function getLazyLoadingConfiguration(): ?string
     {
         return $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
     }
