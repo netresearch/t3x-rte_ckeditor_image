@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Database;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerAwareTrait;
 use Throwable;
 use TYPO3\CMS\Backend\Configuration\TypoScript\ConditionMatching\ConditionMatcher;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -25,6 +25,7 @@ use TYPO3\CMS\Core\Configuration\Loader\PageTsConfigLoader;
 use TYPO3\CMS\Core\Configuration\Parser\PageTsConfigParser;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Http\ApplicationType;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
@@ -52,8 +53,10 @@ use function strlen;
  * @see https://docs.typo3.org/m/typo3/reference-coreapi/10.4/en-us/ApiOverview/Rte/Transformations/CustomApi.html
  * @see https://docs.typo3.org/m/typo3/reference-tsconfig/10.4/en-us/PageTsconfig/Rte.html#pagetsrte
  */
-class RteImagesDbHook extends RteHtmlParser
+class RteImagesDbHook
 {
+    use LoggerAwareTrait;
+
     /**
      * @var bool
      */
@@ -62,35 +65,39 @@ class RteImagesDbHook extends RteHtmlParser
     /**
      * Constructor.
      *
-     * @param EventDispatcherInterface $eventDispatcher
-     * @param ExtensionConfiguration   $extensionConfiguration
+     * @param ExtensionConfiguration $extensionConfiguration
+     * @param LogManager             $logManager
      *
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
     public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        ExtensionConfiguration $extensionConfiguration
+        ExtensionConfiguration $extensionConfiguration,
+        LogManager $logManager
     ) {
-        parent::__construct($eventDispatcher);
+        $this->fetchExternalImages = (bool) $extensionConfiguration
+            ->get('rte_ckeditor_image', 'fetchExternalImages');
 
-        $this->fetchExternalImages = (bool) $extensionConfiguration->get('rte_ckeditor_image', 'fetchExternalImages');
+        $this->logger = $logManager->getLogger(__CLASS__);
     }
 
     /**
+     * This method is called to transform RTE content in the database so the Rich Text Editor
+     * can deal with, e.g. links.
      *
-     *
-     * @param string $value
+     * @param string        $value
+     * @param RteHtmlParser $rteHtmlParser
      *
      * @return string
      */
 // @codingStandardsIgnoreStart
     public function transform_rte(
 // @codingStandardsIgnoreEnd
-        string $value
+        string $value,
+        RteHtmlParser $rteHtmlParser
     ): string {
         // Split content by <img> tags and traverse the resulting array for processing:
-        $imgSplit = $this->splitTags('img', $value);
+        $imgSplit = $rteHtmlParser->splitTags('img', $value);
 
         if (count($imgSplit) > 1) {
             $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
@@ -113,7 +120,7 @@ class RteImagesDbHook extends RteHtmlParser
                 // Image found
                 if (($key % 2) === 1) {
                     // Get the attributes of the img tag
-                    [$attribArray] = $this->get_tag_attributes($v, true);
+                    [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
                     $absoluteUrl = trim($attribArray['src']);
 
                     // Transform the src attribute into an absolute url, if it not already
@@ -145,9 +152,10 @@ class RteImagesDbHook extends RteHtmlParser
     }
 
     /**
+     * This method is called to process HTML content before it is stored in the database.
      *
-     *
-     * @param string $value
+     * @param string        $value
+     * @param RteHtmlParser $rteHtmlParser
      *
      * @return string
      *
@@ -156,10 +164,11 @@ class RteImagesDbHook extends RteHtmlParser
 // @codingStandardsIgnoreStart
     public function transform_db(
 // @codingStandardsIgnoreEnd
-        string $value
+        string $value,
+        RteHtmlParser $rteHtmlParser
     ): string {
         // Split content by <img> tags and traverse the resulting array for processing:
-        $imgSplit = $this->splitTags('img', $value);
+        $imgSplit = $rteHtmlParser->splitTags('img', $value);
 
         if (count($imgSplit) > 1) {
             $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
@@ -208,7 +217,7 @@ class RteImagesDbHook extends RteHtmlParser
                 // Image found, do processing:
                 if (($key % 2) === 1) {
                     // Get attributes
-                    [$attribArray] = $this->get_tag_attributes($v, true);
+                    [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
                     // It's always an absolute URL coming from the RTE into the Database.
                     $absoluteUrl = trim($attribArray['src']);
                     // Make path absolute if it is relative, and we have a site path which is not '/'
@@ -234,12 +243,12 @@ class RteImagesDbHook extends RteHtmlParser
                     }
 
                     $originalImageFile = null;
-                    if ($attribArray['data-htmlarea-file-uid'] ?? false) {
+                    if (isset($attribArray['data-htmlarea-file-uid'])) {
                         // An original image file uid is available
                         try {
                             $originalImageFile = $resourceFactory
-                                ->getFileObject((int) $attribArray['data-htmlarea-file-uid']);
-                        } catch (FileDoesNotExistException $fileDoesNotExistException) {
+                                ->getFileObject((int) $attribArray['data-htmlarea-file-uid'] . '0');
+                        } catch (FileDoesNotExistException $exception) {
                             if ($this->logger !== null) {
                                 // Log the fact the file could not be retrieved.
                                 $message = sprintf(
@@ -247,7 +256,7 @@ class RteImagesDbHook extends RteHtmlParser
                                     $attribArray['data-htmlarea-file-uid']
                                 );
 
-                                $this->logger->error($message);
+                                $this->logger->error($message, ['exception' => $exception]);
                             }
                         }
                     }
