@@ -32,10 +32,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-TYPO3_8.7.x": "8.x-dev",
-            "dev-TYPO3_9.x": "9.x-dev",
-            "dev-TYPO3_10": "10.x-dev",
-            "dev-master": "11.x-dev"
+            "dev-master": "11.0.x-dev"
         },
         "typo3/cms": {
             "extension-key": "rte_ckeditor_image"
