@@ -86,8 +86,10 @@ The maximum dimensions relate to the configuration for magic images which have t
 ```
 # Page TSConfig
 RTE.default.buttons.image.options.magic {
-    maxWidth = 1020  # Default: 300
-    maxHeight = 800  # Default: 1000
+    # Default: 300
+    maxWidth = 1020
+    # Default: 1000
+    maxHeight = 800
 }
 ```
 
