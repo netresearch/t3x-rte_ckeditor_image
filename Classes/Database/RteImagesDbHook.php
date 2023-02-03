@@ -1,78 +1,149 @@
 <?php
+
+/**
+ * This file is part of the package netresearch/rte-ckeditor-image.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
 namespace Netresearch\RteCKEditorImage\Database;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerAwareTrait;
+use Throwable;
+use TYPO3\CMS\Backend\Configuration\TypoScript\ConditionMatching\ConditionMatcher;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Configuration\Loader\PageTsConfigLoader;
+use TYPO3\CMS\Core\Configuration\Parser\PageTsConfigParser;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
+use TYPO3\CMS\Core\Http\ApplicationType;
+use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
-use TYPO3\CMS\Core\Type\File\ImageInfo;
-use TYPO3\CMS\Backend\Configuration\TypoScript\ConditionMatching\ConditionMatcher;
-use TYPO3\CMS\Core\Configuration\Loader\PageTsConfigLoader;
-use TYPO3\CMS\Core\Configuration\Parser\PageTsConfigParser;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\BackendConfigurationManager;
+
+use function count;
+use function is_array;
+use function is_string;
+use function strlen;
 
 /**
  * Class for processing of the FAL soft references on img tags inserted in RTE content
  *
- * Copied from
- * @link https://gitlab.sgalinski.de/typo3/tinymce4_rte/blob/513eeadf8c3c7ffba0936ad63b24e1e9c2eccba7/Classes/Hook/SoftReferenceHook.php
+ * @author  Stefan Galinski <stefan@sgalinski.de>
+ * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @link    https://www.netresearch.de
  *
- *
- * @category   Netresearch
- * @package    RteCKEditor
- * @subpackage Database
- * @author     Stefan Galinski <stefan@sgalinski.de>
- * @license    http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
- * @link       http://www.netresearch.de
+ * @deprecated in TYPO3 v12
+ * @see https://docs.typo3.org/m/typo3/reference-coreapi/10.4/en-us/ApiOverview/Rte/Transformations/CustomApi.html
+ * @see https://docs.typo3.org/m/typo3/reference-tsconfig/10.4/en-us/PageTsconfig/Rte.html#pagetsrte
  */
-
-
-class RteImagesDbHook extends RteHtmlParser
+class RteImagesDbHook
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    protected $eventDispatcher;
+    use LoggerAwareTrait;
 
     /**
-     *
-     *
-     * @param array $parameters
-     * @param RteHtmlParser $parserObject
-     * @return array
+     * @var bool
      */
-    public function transform_rte($value)
-    {
+    protected bool $fetchExternalImages;
+
+    /**
+     * Constructor.
+     *
+     * @param ExtensionConfiguration $extensionConfiguration
+     * @param LogManager             $logManager
+     *
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     */
+    public function __construct(
+        ExtensionConfiguration $extensionConfiguration,
+        LogManager $logManager
+    ) {
+        $this->fetchExternalImages = (bool) $extensionConfiguration
+            ->get('rte_ckeditor_image', 'fetchExternalImages');
+
+        $this->logger = $logManager->getLogger(__CLASS__);
+    }
+
+    /**
+     * This method is called to transform RTE content in the database so the Rich Text Editor
+     * can deal with, e.g. links.
+     *
+     * @param string        $value
+     * @param RteHtmlParser $rteHtmlParser
+     *
+     * @return string
+     */
+// @codingStandardsIgnoreStart
+    public function transform_rte(
+// @codingStandardsIgnoreEnd
+        string $value,
+        RteHtmlParser $rteHtmlParser
+    ): string {
         // Split content by <img> tags and traverse the resulting array for processing:
-        $imgSplit = $this->splitTags('img', $value);
+        $imgSplit = $rteHtmlParser->splitTags('img', $value);
+
         if (count($imgSplit) > 1) {
-            $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
-            $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
-            foreach ($imgSplit as $k => $v) {
+            $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
+            $siteHost = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
+            $sitePath = '';
+
+            if (!is_string($siteUrl)) {
+                $siteUrl = '';
+            }
+
+            if (is_string($siteHost)) {
+                $sitePath = str_replace(
+                    $siteHost,
+                    '',
+                    $siteUrl
+                );
+            }
+
+            foreach ($imgSplit as $key => $v) {
                 // Image found
-                if ($k % 2) {
+                if (($key % 2) === 1) {
                     // Get the attributes of the img tag
-                    list($attribArray) = $this->get_tag_attributes($v, true);
+                    [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
                     $absoluteUrl = trim($attribArray['src']);
+
                     // Transform the src attribute into an absolute url, if it not already
-                    if (stripos($absoluteUrl, 'http') !== 0) {
-                        // If site is in a subpath (eg. /~user_jim/) this path needs to be removed because it will be added with $siteUrl
-                        $attribArray['src'] = preg_replace('#^' . preg_quote($sitePath, '#') . '#', '', $attribArray['src']);
+                    if (strncasecmp($absoluteUrl, 'http', 4) !== 0) {
+                        // If site is in a sub path (e.g. /~user_jim/) this path needs to be
+                        // removed because it will be added with $siteUrl
+                        $attribArray['src'] = preg_replace(
+                            '#^' . preg_quote($sitePath, '#') . '#',
+                            '',
+                            $attribArray['src']
+                        );
+
                         $attribArray['src'] = $siteUrl . $attribArray['src'];
                     }
+
                     // Must have alt attribute
                     if (!isset($attribArray['alt'])) {
                         $attribArray['alt'] = '';
                     }
-                    $imgSplit[$k] = '<img ' . GeneralUtility::implodeAttributes($attribArray, true, true) . ' />';
+
+                    $imgSplit[$key] = '<img '
+                        . GeneralUtility::implodeAttributes($attribArray, true, true)
+                        . ' />';
                 }
             }
         }
@@ -81,120 +152,202 @@ class RteImagesDbHook extends RteHtmlParser
     }
 
     /**
+     * This method is called to process HTML content before it is stored in the database.
      *
+     * @param string        $value
+     * @param RteHtmlParser $rteHtmlParser
      *
-     * @param array $parameters
-     * @param RteHtmlParser $parserObject
-     * @return array
+     * @return string
+     *
+     * @throws NoSuchCacheException
      */
-    public function transform_db($value)
-    {
+// @codingStandardsIgnoreStart
+    public function transform_db(
+// @codingStandardsIgnoreEnd
+        string $value,
+        RteHtmlParser $rteHtmlParser
+    ): string {
         // Split content by <img> tags and traverse the resulting array for processing:
-        $imgSplit = $this->splitTags('img', $value);
+        $imgSplit = $rteHtmlParser->splitTags('img', $value);
+
         if (count($imgSplit) > 1) {
-            $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
-            $sitePath = str_replace(GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST'), '', $siteUrl);
+            $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
+            $siteHost = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
+            $sitePath = '';
+
+            if (!is_string($siteUrl)) {
+                $siteUrl = '';
+            }
+
+            if (is_string($siteHost)) {
+                $sitePath = str_replace(
+                    $siteHost,
+                    '',
+                    $siteUrl
+                );
+            }
+
             $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
             $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
-            $pageId = GeneralUtility::makeInstance(BackendConfigurationManager::class)->getDefaultBackendStoragePid();
+            $backendConfigurationManager = GeneralUtility::makeInstance(BackendConfigurationManager::class);
+
+            $pageId = $backendConfigurationManager->getDefaultBackendStoragePid();
             $rootLine = BackendUtility::BEgetRootLine($pageId);
-            $loader = GeneralUtility::makeInstance(PageTsConfigLoader::class);
+
+            $loader           = GeneralUtility::makeInstance(PageTsConfigLoader::class);
+            $cacheManager     = GeneralUtility::makeInstance(CacheManager::class);
+            $typoScriptParser = GeneralUtility::makeInstance(TypoScriptParser::class);
+
             $tsConfigString = $loader->load($rootLine);
 
             // Parse the PageTS into an array, also applying conditions
+
             $parser = GeneralUtility::makeInstance(
                 PageTsConfigParser::class,
-                GeneralUtility::makeInstance(TypoScriptParser::class),
-                GeneralUtility::makeInstance(CacheManager::class)->getCache('hash')
+                $typoScriptParser,
+                $cacheManager->getCache('hash')
             );
+
             $matcher = GeneralUtility::makeInstance(ConditionMatcher::class, null, $pageId, $rootLine);
+
             $tsConfig = $parser->parse($tsConfigString, $matcher);
             $magicImageService->setMagicImageMaximumDimensions($tsConfig['RTE.']['default.']);
 
-            foreach ($imgSplit as $k => $v) {
+            foreach ($imgSplit as $key => $v) {
                 // Image found, do processing:
-                if ($k % 2) {
+                if (($key % 2) === 1) {
                     // Get attributes
-                    list($attribArray) = $this->get_tag_attributes($v, true);
+                    [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
                     // It's always an absolute URL coming from the RTE into the Database.
                     $absoluteUrl = trim($attribArray['src']);
-                    // Make path absolute if it is relative and we have a site path which is not '/'
+                    // Make path absolute if it is relative, and we have a site path which is not '/'
                     $pI = pathinfo($absoluteUrl);
-                    if ($sitePath && !$pI['scheme'] && GeneralUtility::isFirstPartOfStr($absoluteUrl, $sitePath)) {
-                        // If site is in a subpath (eg. /~user_jim/) this path needs to be removed because it will be added with $siteUrl
+
+                    if (($sitePath !== '') && GeneralUtility::isFirstPartOfStr($absoluteUrl, $sitePath)) {
+                        // If site is in a subpath (e.g. /~user_jim/) this path needs to be removed
+                        // because it will be added with $siteUrl
                         $absoluteUrl = substr($absoluteUrl, strlen($sitePath));
                         $absoluteUrl = $siteUrl . $absoluteUrl;
                     }
-                    // Image dimensions set in the img tag, if any
-                    $imgTagDimensions = $this->getWHFromAttribs($attribArray);
-                    if ($imgTagDimensions[0]) {
-                        $attribArray['width'] = $imgTagDimensions[0];
+
+                    // Get image dimensions set in the image tag, if any
+                    $imageWidth  = $this->getImageWidthFromAttributes($attribArray);
+                    $imageHeight = $this->getImageHeightFromAttributes($attribArray);
+
+                    if ($imageWidth > 0) {
+                        $attribArray['width'] = $imageWidth;
                     }
-                    if ($imgTagDimensions[1]) {
-                        $attribArray['height'] = $imgTagDimensions[1];
+
+                    if ($imageHeight > 0) {
+                        $attribArray['height'] = $imageHeight;
                     }
+
                     $originalImageFile = null;
-                    if ($attribArray['data-htmlarea-file-uid']) {
+                    if (isset($attribArray['data-htmlarea-file-uid'])) {
                         // An original image file uid is available
                         try {
-                            $originalImageFile = $resourceFactory->getFileObject((int)$attribArray['data-htmlarea-file-uid']);
-                        } catch (FileDoesNotExistException $fileDoesNotExistException) {
-                            // Log the fact the file could not be retrieved.
-                            $message = sprintf('Could not find file with uid "%s"', $attribArray['data-htmlarea-file-uid']);
-                            $this->logger->error($message);
+                            $originalImageFile = $resourceFactory
+                                ->getFileObject((int) $attribArray['data-htmlarea-file-uid'] . '0');
+                        } catch (FileDoesNotExistException $exception) {
+                            if ($this->logger !== null) {
+                                // Log the fact the file could not be retrieved.
+                                $message = sprintf(
+                                    'Could not find file with uid "%s"',
+                                    $attribArray['data-htmlarea-file-uid']
+                                );
+
+                                $this->logger->error($message, ['exception' => $exception]);
+                            }
                         }
                     }
+
+                    $isBackend = false;
+
+                    // Determine application type
+                    if (($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface) {
+                        $isBackend = ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend();
+                    }
+
                     if ($originalImageFile instanceof File) {
+                        // Build public URL to image, remove trailing slash from site URL
+                        $imageFileUrl = rtrim($siteUrl, '/') . $originalImageFile->getPublicUrl();
+
                         // Public url of local file is relative to the site url, absolute otherwise
-                        if ($absoluteUrl == $originalImageFile->getPublicUrl() || $absoluteUrl == $siteUrl . $originalImageFile->getPublicUrl()) {
-                            // This is a plain image, i.e. reference to the original image
-                            if ($this->procOptions['plainImageMode']) {
-                                // "plain image mode" is configured
-                                // Find the dimensions of the original image
-                                $imageInfo = [
-                                    $originalImageFile->getProperty('width'),
-                                    $originalImageFile->getProperty('height')
-                                ];
-                                if (!$imageInfo[0] || !$imageInfo[1]) {
-                                    $filePath = $originalImageFile->getForLocalProcessing(false);
-                                    $imageInfoObject = GeneralUtility::makeInstance(ImageInfo::class, $filePath);
-                                    $imageInfo = [
-                                        $imageInfoObject->getWidth(),
-                                        $imageInfoObject->getHeight()
-                                    ];
-                                }
-                                $attribArray = $this->applyPlainImageModeSettings($imageInfo, $attribArray);
-                            }
-                        } else {
+                        if (($absoluteUrl !== $imageFileUrl) && ($absoluteUrl !== $originalImageFile->getPublicUrl())) {
                             // Magic image case: get a processed file with the requested configuration
                             $imageConfiguration = [
-                                'width' => $imgTagDimensions[0],
-                                'height' => $imgTagDimensions[1]
+                                'width' => $imageWidth,
+                                'height' => $imageHeight,
                             ];
-                            $magicImage = $magicImageService->createMagicImage($originalImageFile, $imageConfiguration);
+
+                            $magicImage = $magicImageService
+                                ->createMagicImage($originalImageFile, $imageConfiguration);
+
                             $attribArray['width'] = $magicImage->getProperty('width');
                             $attribArray['height'] = $magicImage->getProperty('height');
-                            $attribArray['src'] = $magicImage->getPublicUrl();
+
+                            $imgSrc = $magicImage->getPublicUrl();
+
+                            // publicUrl like 'https://www.domain.xy/typo3/image/process?token=...'?
+                            // -> generate img source from storage basepath and identifier instead
+                            if ($imgSrc !== null && strpos($imgSrc, 'process?token=') !== false) {
+                                $storageBasePath = $magicImage->getStorage() !== null
+                                    ? $magicImage->getStorage()->getConfiguration()['basePath']
+                                    : '';
+
+                                if ($storageBasePath !== '') {
+                                    $imgUrlPre = ($storageBasePath[strlen($storageBasePath) - 1] === '/')
+                                        ? substr($storageBasePath, 0, -1)
+                                        : $storageBasePath;
+                                } else {
+                                    $imgUrlPre = '';
+                                }
+
+                                $imgSrc = '/' . $imgUrlPre . $magicImage->getIdentifier();
+                            }
+
+                            $attribArray['src'] = $imgSrc;
                         }
-                    } elseif (!GeneralUtility::isFirstPartOfStr($absoluteUrl, $siteUrl) && !$this->procOptions['dontFetchExtPictures'] && TYPO3_MODE === 'BE') {
-                        // External image from another URL: in that case, fetch image, unless the feature is disabled or we are not in backend mode
+                    } elseif (
+                        !($this->procOptions['dontFetchExtPictures'] ?? false)
+                        && $this->fetchExternalImages
+                        && $isBackend
+                        && !GeneralUtility::isFirstPartOfStr($absoluteUrl, $siteUrl)
+                    ) {
+                        // External image from another URL: in that case, fetch image, unless
+                        // the feature is disabled, or we are not in backend mode.
+                        //
                         // Fetch the external image
-                        $externalFile = GeneralUtility::getUrl($absoluteUrl);
-                        if ($externalFile) {
+                        $externalFile = null;
+                        try {
+                            $externalFile = GeneralUtility::getUrl($absoluteUrl);
+                        } catch (Throwable $e) {
+                            // do nothing, further image processing will be skipped
+                        }
+                        if ($externalFile !== null) {
                             $pU = parse_url($absoluteUrl);
-                            $pI = pathinfo($pU['path']);
-                            $extension = strtolower($pI['extension']);
-                            if ($extension === 'jpg' || $extension === 'jpeg' || $extension === 'gif' || $extension === 'png') {
-                                $fileName = GeneralUtility::shortMD5($absoluteUrl) . '.' . $pI['extension'];
+                            $path = is_array($pU) ? ($pU['path'] ?? '') : '';
+                            $pI = pathinfo($path);
+                            $extension = strtolower($pI['extension'] ?? '');
+
+                            if (
+                                $extension === 'jpg'
+                                || $extension === 'jpeg'
+                                || $extension === 'gif'
+                                || $extension === 'png'
+                            ) {
+                                $fileName = GeneralUtility::shortMD5($absoluteUrl) . '.' . ($pI['extension'] ?? '');
                                 // We insert this image into the user default upload folder
-                                list($table, $field) = explode(':', $this->elRef);
-                                $folder = $GLOBALS['BE_USER']->getDefaultUploadFolder($this->recPid, $table, $field);
+                                $folder = $GLOBALS['BE_USER']->getDefaultUploadFolder();
                                 $fileObject = $folder->createFile($fileName)->setContents($externalFile);
                                 $imageConfiguration = [
                                     'width' => $attribArray['width'],
                                     'height' => $attribArray['height']
                                 ];
-                                $magicImage = $magicImageService->createMagicImage($fileObject, $imageConfiguration);
+
+                                $magicImage = $magicImageService
+                                    ->createMagicImage($fileObject, $imageConfiguration);
+
                                 $attribArray['width'] = $magicImage->getProperty('width');
                                 $attribArray['height'] = $magicImage->getProperty('height');
                                 $attribArray['data-htmlarea-file-uid'] = $fileObject->getUid();
@@ -209,34 +362,37 @@ class RteImagesDbHook extends RteHtmlParser
                         // Absolute filepath, locked to relative path of this project
                         $filepath = GeneralUtility::getFileAbsFileName($path);
                         // Check file existence (in relative directory to this installation!)
-                        if ($filepath && @is_file($filepath)) {
-                            // Treat it as a plain image
-                            if ($this->procOptions['plainImageMode']) {
-                                // If "plain image mode" has been configured
-                                // Find the original dimensions of the image
-                                $imageInfoObject = GeneralUtility::makeInstance(ImageInfo::class, $filepath);
-                                $imageInfo = [
-                                    $imageInfoObject->getWidth(),
-                                    $imageInfoObject->getHeight()
-                                ];
-                                $attribArray = $this->applyPlainImageModeSettings($imageInfo, $attribArray);
-                            }
+                        if (($filepath !== '') && @is_file($filepath)) {
                             // Let's try to find a file uid for this image
                             try {
                                 $fileOrFolderObject = $resourceFactory->retrieveFileOrFolderObject($path);
                                 if ($fileOrFolderObject instanceof FileInterface) {
                                     $fileIdentifier = $fileOrFolderObject->getIdentifier();
                                     $fileObject = $fileOrFolderObject->getStorage()->getFile($fileIdentifier);
-                                    // @todo if the retrieved file is a processed file, get the original file...
-                                    $attribArray['data-htmlarea-file-uid'] = $fileObject->getUid();
+                                    if ($fileObject instanceof AbstractFile) {
+                                        $fileUid = $fileObject->getUid();
+                                        // if the retrieved file is a processed file, get the original file...
+                                        if ($fileObject->hasProperty('original')) {
+                                            $fileUid = $fileObject->getProperty('original');
+                                        }
+                                        $attribArray['data-htmlarea-file-uid'] = $fileUid;
+                                    }
                                 }
                             } catch (ResourceDoesNotExistException $resourceDoesNotExistException) {
                                 // Nothing to be done if file/folder not found
                             }
                         }
                     }
+                    if (!$attribArray) {
+                        // some error occurred, leave the img tag as is
+                        continue;
+                    }
                     // Remove width and height from style attribute
-                    $attribArray['style'] = preg_replace('/(?:^|[^-])(\\s*(?:width|height)\\s*:[^;]*(?:$|;))/si', '', $attribArray['style']);
+                    $attribArray['style'] = preg_replace(
+                        '/(?:^|[^-])(\\s*(?:width|height)\\s*:[^;]*(?:$|;))/si',
+                        '',
+                        $attribArray['style'] ?? ''
+                    );
                     // Must have alt attribute
                     if (!isset($attribArray['alt'])) {
                         $attribArray['alt'] = '';
@@ -245,7 +401,7 @@ class RteImagesDbHook extends RteHtmlParser
                     if (GeneralUtility::isFirstPartOfStr($attribArray['src'], $siteUrl)) {
                         $attribArray['src'] = substr($attribArray['src'], strlen($siteUrl));
                     }
-                    $imgSplit[$k] = '<img ' . GeneralUtility::implodeAttributes($attribArray, true, true) . ' />';
+                    $imgSplit[$key] = '<img ' . GeneralUtility::implodeAttributes($attribArray, true, true) . ' />';
                 }
             }
         }
@@ -256,30 +412,72 @@ class RteImagesDbHook extends RteHtmlParser
      * Finds width and height from attrib-array
      * If the width and height is found in the style-attribute, use that!
      *
-     * @param array $attribArray Array of attributes from tag in which to search. More specifically the content of the key "style" is used to extract "width:xxx / height:xxx" information
-     * @return array Integer w/h in key 0/1. Zero is returned if not found.
+     * @param string $styleAttribute The image style attribute
+     * @param string $imageAttribute The image attribute to match in the style attribute (e.g. width, height)
+     *
+     * @return null|mixed
      */
-    protected function getWHFromAttribs($attribArray)
+    private function matchStyleAttribute(string $styleAttribute, string $imageAttribute)
     {
-        $style = trim($attribArray['style']);
-        $w = 0;
-        $h = 0;
-        if ($style) {
-            $regex = '[[:space:]]*:[[:space:]]*([0-9]*)[[:space:]]*px';
-            // Width
-            $reg = [];
-            preg_match('/width' . $regex . '/i', $style, $reg);
-            $w = (int)$reg[1];
-            // Height
-            preg_match('/height' . $regex . '/i', $style, $reg);
-            $h = (int)$reg[1];
+        $regex   = '[[:space:]]*:[[:space:]]*([0-9]*)[[:space:]]*px';
+        $matches = [];
+
+        if (preg_match('/' . $imageAttribute . $regex . '/i', $styleAttribute, $matches) === 1) {
+            return $matches[1];
         }
-        if (!$w) {
-            $w = $attribArray['width'];
+
+        return null;
+    }
+
+    /**
+     * Extracts the given image attribute value from the image tag attributes. If a style attribute
+     * exists the information is extracted from this one.
+     *
+     * @param string[] $attributes     The attributes of the image tag
+     * @param string   $imageAttribute The image attribute to extract (e.g. width, height)
+     *
+     * @return null|mixed
+     */
+    private function extractFromAttributeValueOrStyle(array $attributes, string $imageAttribute)
+    {
+        $style = trim($attributes['style'] ?? '');
+
+        if ($style !== '') {
+            $value = $this->matchStyleAttribute($style, $imageAttribute);
+
+            // Return value from style attribute
+            if ($value !== null) {
+                return $value;
+            }
         }
-        if (!$h) {
-            $h = $attribArray['height'];
-        }
-        return [(int)$w, (int)$h];
+
+        // Returns value from tag attributes
+        return $attributes[$imageAttribute] ?? null;
+    }
+
+    /**
+     * Returns the width of the image from the image tag attributes. If a style attribute exists
+     * the information is extracted from this one.
+     *
+     * @param string[] $attributes The attributes of the image tag
+     *
+     * @return int
+     */
+    private function getImageWidthFromAttributes(array $attributes): int
+    {
+        return (int) $this->extractFromAttributeValueOrStyle($attributes, 'width');
+    }
+
+    /**
+     * Returns the height of the image from the image tag attributes. If a style attribute exists
+     * the information is extracted from this one.
+     *
+     * @param string[] $attributes The attributes of the image tag
+     *
+     * @return int
+     */
+    private function getImageHeightFromAttributes(array $attributes): int
+    {
+        return (int) $this->extractFromAttributeValueOrStyle($attributes, 'height');
     }
 }

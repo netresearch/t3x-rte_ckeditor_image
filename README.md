@@ -1,7 +1,14 @@
+![Latest version](https://img.shields.io/github/v/release/netresearch/t3x-rte_ckeditor_image?sort=semver)
+![License](https://img.shields.io/github/license/netresearch/t3x-rte_ckeditor_image)
+![PHPStan](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/phpstan.yml/badge.svg)
+![PHPCodeSniffer](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/phpcs.yml/badge.svg)
+![CodeQL](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/codeql-analysis.yml/badge.svg)
+
+
 # Image support for CKEditor for TYPO3
 
 This extension adds the TYPO3 image browser to CKEditor.\
-Add issues or explore the project on [github](https://github.com/netresearch/t3x-rte_ckeditor_image).
+Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image).
 
 <kbd>![](Resources/Public/Images/demo.gif?raw=true)</kbd>
 
@@ -14,9 +21,9 @@ Add issues or explore the project on [github](https://github.com/netresearch/t3x
 1. Install the extension
 
     1. with composer from [packagist](https://packagist.org/packages/netresearch/rte-ckeditor-image)
-    
+
         ```shell
-        composer req netresearch/rte-ckeditor-image:^10.1
+        composer req netresearch/rte-ckeditor-image
         ```
 
     2. download from [TYPO3 TER](https://extensions.typo3.org/extension/rte_ckeditor_image/)
@@ -60,8 +67,17 @@ Add issues or explore the project on [github](https://github.com/netresearch/t3x
     RTE.default.preset = default
     ```
 
+5. Include extension Static Template file
+
+    1. go to Template » Info/Modify » Edit whole template record » Includes
+    2. choose `CKEditor Image Support` for `Include static (from extensions)` before the Fluid Styled content 
 
 ## Configuration
+
+(optional) Configure the Extension Configuration for this extension:
+
+**fetchExternalImages**: By default, if an img source is an external URL, this image will be fetched and uploaded
+to the current BE users uploads folder. The default behaviour can be turned off with this option.
 
 ### Maximum width/height
 
@@ -70,8 +86,10 @@ The maximum dimensions relate to the configuration for magic images which have t
 ```
 # Page TSConfig
 RTE.default.buttons.image.options.magic {
-    maxWidth = 1020  # Default: 300
-    maxHeight = 800  # Default: 1000
+    # Default: 300
+    maxWidth = 1020
+    # Default: 1000
+    maxHeight = 800
 }
 ```
 
@@ -110,7 +128,7 @@ styles.content.image.lazyLoading = lazy
 
 ### Allowed extensions
 
-By default the extensions from `$TYPO3_CONF_VARS['GFX']['imagefile_ext']` are allowed. However you can override this for CKEditor by adding the following to your YAML configuration:
+By default, the extensions from `$TYPO3_CONF_VARS['GFX']['imagefile_ext']` are allowed. However, you can override this for CKEditor by adding the following to your YAML configuration:
 
 ```yaml
 editor:
@@ -121,6 +139,6 @@ editor:
 
 ## Deployment
 
-- developed on [github](https://github.com/netresearch/t3x-rte_ckeditor_image)
+- developed on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image)
 - [composer repository](https://packagist.org/packages/netresearch/rte-ckeditor-image)
 - automatically tested and released to TER via [travis](https://travis-ci.org/netresearch/t3x-rte_ckeditor_image)

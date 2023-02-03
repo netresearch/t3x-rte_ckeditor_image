@@ -1,0 +1,2 @@
+# cat=basic; type=boolean; label=Fetch external images and load them into the user default upload folder (default is on)
+fetchExternalImages = 1

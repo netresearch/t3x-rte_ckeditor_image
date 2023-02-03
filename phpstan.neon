@@ -1,0 +1,25 @@
+
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+
+parameters:
+    # You can currently choose from 10 levels (0 is the loosest and 9 is the strictest).
+    level: 8
+
+    paths:
+        - Classes/
+        - Configuration/
+        - Resources/
+        - ext_localconf.php
+
+    excludePaths:
+        - vendor/*
+        - ext_emconf.php
+
+    checkMissingIterableValueType: false
+
+    # Ignore error, mainly due invalid PHP in TYPO3
+    ignoreErrors:
+        # https://review.typo3.org/c/Packages/TYPO3.CMS/+/74340
+        - '#^Call to an undefined method object\:\:(.*).$#'
+        - '#^Property (.*) \(TYPO3\\CMS\\(.*)\) does not accept object.$#'

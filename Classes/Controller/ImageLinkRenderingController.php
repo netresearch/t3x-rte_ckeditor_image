@@ -1,27 +1,38 @@
 <?php
 
+/**
+ * This file is part of the package netresearch/rte-ckeditor-image.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
 namespace Netresearch\RteCKEditorImage\Controller;
 
-use \TYPO3\CMS\Core\Log\LogLevel;
+use Psr\Log\LogLevel as PsrLogLevel;
+use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
+use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
-use \TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
+
+use function count;
+use function get_class;
+use function is_array;
 
 /**
  * Controller to render the linked images in frontend
  *
- * PHP version 7
- *
- * @category   Netresearch
- * @package    RteCKEditor
- * @subpackage Controller
- * @author     Mathias Uhlmann <mathias.uhlmann@netresearch.de>
- * @license    http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
- * @link       http://www.netresearch.de
+ * @author  Mathias Uhlmann <mathias.uhlmann@netresearch.de>
+ * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @link    https://www.netresearch.de
  */
-class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
+class ImageLinkRenderingController extends AbstractPlugin
 {
     /**
      * Same as class name
@@ -38,44 +49,33 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
     public $scriptRelPath = 'Classes/Controller/ImageLinkRenderingController.php';
 
     /**
-     * The extension key
+     * The extension key.
      *
      * @var string
      */
     public $extKey = 'rte_ckeditor_image';
 
     /**
-     * Configuration
-     *
-     * @var array
-     */
-    public $conf = [];
-
-    /**
-     * cObj object
-     *
-     * @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
-     */
-    public $cObj;
-
-    /**
      * Returns a processed image to be displayed on the Frontend.
      *
-     * @param array $conf TypoScript configuration
+     * @param null|string $content Content input (not used)
+     * @param mixed[]     $conf    TypoScript configuration
+     *
      * @return string HTML output
      */
-    public function renderImages($conf)
+    public function renderImages(?string $content, array $conf = []): string
     {
         // Get link inner HTML
-        $linkContent = $this->cObj->getCurrentVal();
+        $linkContent = $this->cObj !== null ? $this->cObj->getCurrentVal() : null;
+
         // Find all images with file-uid attribute
-        $imgSearchPattern = '/<img(?=.*data-htmlarea-file-uid).*?\/>/';
-        $attrSearchPattern = '/([a-zA-Z0-9-]+)=["]([^"]*)"|([a-zA-Z0-9-]+)=[\']([^\']*)\'/';
+        $imgSearchPattern = '/<p\><img(?=.*src).*?\/><\/p>/';
         $passedImages = [];
         $parsedImages = [];
 
         // Extract all TYPO3 images from link content
         preg_match_all($imgSearchPattern, $linkContent, $passedImages);
+
         $passedImages = $passedImages[0];
 
         if (count($passedImages) === 0) {
@@ -83,38 +83,47 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
         }
 
         foreach ($passedImages as $passedImage) {
-            // Get image attributes
-            preg_match_all($attrSearchPattern, $passedImage, $passedAttributes);
-            $passedAttributes = array_combine($passedAttributes[1], $passedAttributes[2]);
+            $passedAttributes = $this->getImageAttributes($passedImage);
 
-            if (!empty($passedAttributes['data-htmlarea-file-uid'])) {
+            // The image is already parsed by netresearch linkrenderer, which removes custom attributes,
+            // so it will never match this condition.
+            //
+            // But we leave this as fallback for older render versions.
+            if ((count($passedAttributes) > 0) && isset($passedAttributes['data-htmlarea-file-uid'])) {
                 try {
-                    $systemImage = GeneralUtility::makeInstance(ResourceFactory::class)->getFileObject($passedAttributes['data-htmlarea-file-uid']);
+                    $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+                    $systemImage = $resourceFactory->getFileObject($passedAttributes['data-htmlarea-file-uid']);
 
                     $imageConfiguration = [
-                        'width' => ($passedAttributes['width']) ? $passedAttributes['width'] : $systemImage->getProperty('width'),
-                        'height' => ($passedAttributes['height']) ? $passedAttributes['height'] : $systemImage->getProperty('height')
+                        'width' => $passedAttributes['width'] ?? $systemImage->getProperty('width'),
+                        'height' => $passedAttributes['height'] ?? $systemImage->getProperty('height')
                     ];
 
-                    $processedFile = $this->getMagicImageService()->createMagicImage($systemImage, $imageConfiguration);
-                    $imageAttributes = [
+                    $processedFile = $this->getMagicImageService()
+                        ->createMagicImage($systemImage, $imageConfiguration);
+
+                    $additionalAttributes = [
                         'src' => $processedFile->getPublicUrl(),
                         'title' => self::getAttributeValue('title', $passedAttributes, $systemImage),
                         'alt' => self::getAttributeValue('alt', $passedAttributes, $systemImage),
-                        'width' => ($passedAttributes['width']) ? $passedAttributes['width'] : $systemImage->getProperty('width'),
-                        'height' => ($passedAttributes['height']) ? $passedAttributes['height'] : $systemImage->getProperty('height')
+                        'width' => $passedAttributes['width'] ?? $systemImage->getProperty('width'),
+                        'height' => $passedAttributes['height'] ?? $systemImage->getProperty('height')
                     ];
 
-                    if (!empty($GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'])) {
-                        $additionalAttributes['loading'] = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'];
+                    $lazyLoading = $this->getLazyLoadingConfiguration();
+
+                    if ($lazyLoading !== null) {
+                        $additionalAttributes['loading'] = $lazyLoading;
                     }
 
                     // Remove internal attributes
-                    unset($passedAttributes['data-title-override']);
-                    unset($passedAttributes['data-alt-override']);
+                    unset(
+                        $passedAttributes['data-title-override'],
+                        $passedAttributes['data-alt-override']
+                    );
 
                     // Add original attributes, if not already parsed
-                    $imageAttributes = array_merge($imageAttributes, $passedAttributes);
+                    $imageAttributes = array_merge($additionalAttributes, $passedAttributes);
 
                     // Cleanup attributes; disable zoom images within links
                     $unsetParams = [
@@ -125,66 +134,107 @@ class ImageLinkRenderingController extends \TYPO3\CMS\Frontend\Plugin\AbstractPl
                     ];
                     $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
                     // Image template; empty attributes are removed by 3rd param 'false'
-                    $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true, false) . ' />';
+                    $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
                 } catch (FileDoesNotExistException $fileDoesNotExistException) {
-                    $parsedImages[] = $passedImage;
+                    $parsedImages[] = strip_tags($passedImage, '<img>');
                     // Log in fact the file could not be retrieved.
-                    $message = sprintf('I could not find file with uid "%s"', $passedAttributes['data-htmlarea-file-uid']);
-                    $this->getLogger()->log(LogLevel::ERROR,$message);
+                    $message = sprintf(
+                        'I could not find file with uid "%s"',
+                        $passedAttributes['data-htmlarea-file-uid']
+                    );
+
+                    $this->getLogger()->log(PsrLogLevel::ERROR, $message);
                 }
             } else {
-                $parsedImages[] = $passedImage;
+                $parsedImages[] = strip_tags($passedImage, '<img>');
             }
         }
         // Replace original images with parsed
-        $linkContent = str_replace($passedImages, $parsedImages, $linkContent);
+        return str_replace($passedImages, $parsedImages, $linkContent);
+    }
 
-        return $linkContent;
+    /**
+     * Returns a sanitizes array of attributes out $passedImage
+     *
+     * @param string $passedImage
+     *
+     * @return array<string, string>
+     */
+    protected function getImageAttributes(string $passedImage): array
+    {
+        // Get image attributes
+        preg_match_all(
+            '/([a-zA-Z0-9-]+)=["]([^"]*)"|([a-zA-Z0-9-]+)=[\']([^\']*)\'/',
+            $passedImage,
+            $imageAttributes
+        );
+
+        /** @var false|array $result */
+        $result = array_combine($imageAttributes[1], $imageAttributes[2]);
+
+        return is_array($result) ? $result : [];
+    }
+
+    /**
+     * Returns the lazy loading configuration.
+     *
+     * @return null|string
+     */
+    private function getLazyLoadingConfiguration(): ?string
+    {
+        return $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
     }
 
     /**
      * Instantiates and prepares the Magic Image service.
      *
-     * @return \TYPO3\CMS\Core\Resource\Service\MagicImageService
+     * @return MagicImageService
      */
-    protected function getMagicImageService()
+    protected function getMagicImageService(): MagicImageService
     {
-        /** @var $magicImageService MagicImageService */
         static $magicImageService;
-        if (!$magicImageService) {
+
+        if ($magicImageService === null) {
             $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
+
             // Get RTE configuration
+
+            /** @var array<string, mixed[]> $pageTSConfig */
             $pageTSConfig = $this->frontendController->getPagesTSconfig();
-            if (is_array($pageTSConfig) && is_array($pageTSConfig['RTE.']['default.'])) {
+
+            if (is_array($pageTSConfig['RTE.']['default.'])) {
                 $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
             }
         }
+
         return $magicImageService;
     }
 
     /**
-     * @return \TYPO3\CMS\Core\Log\Logger
+     * @return Logger
      */
-    protected function getLogger()
+    protected function getLogger(): Logger
     {
-        /** @var $logManager \TYPO3\CMS\Core\Log\LogManager */
-        $logManager = GeneralUtility::makeInstance(LogManager::class);
-        return $logManager->getLogger(get_class($this));
+        return GeneralUtility::makeInstance(LogManager::class)
+            ->getLogger(get_class($this));
     }
 
     /**
      * Returns attributes value or even empty string when override mode is enabled
      *
-     * @param string $attributeName
-     * @param array $attributes
-     * @param \TYPO3\CMS\Core\Resource\File $image
+     * @param string                        $attributeName
+     * @param array<string, string>         $attributes
+     * @param File $image
+     *
      * @return string
      */
-    protected static function getAttributeValue($attributeName, $attributes, $image)
+    protected static function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
-        if ($attributes['data-' . $attributeName . '-override']) {
-            $attributeValue = isset($attributes[$attributeName]) ? $attributes[$attributeName] : '';
-        } elseif (!empty($attributes[$attributeName])) {
+        $attributeNameOverride = 'data-' . $attributeName . '-override';
+
+        if (isset($attributes[$attributeNameOverride])) {
+            $attributeValue = $attributes[$attributeNameOverride];
+        } elseif (isset($attributes[$attributeName])) {
             $attributeValue = $attributes[$attributeName];
         } else {
             $attributeValue = $image->getProperty($attributeName);

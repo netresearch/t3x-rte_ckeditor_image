@@ -1,4 +1,5 @@
 <?php
+
 $EM_CONF[$_EXTKEY] = [
     'title' => 'CKEditor Rich Text Editor Image Support',
     'description' => 'Adds FAL image support to CKEditor for TYPO3.',
@@ -7,11 +8,12 @@ $EM_CONF[$_EXTKEY] = [
     'clearCacheOnLoad' => 0,
     'author' => 'Christian Opitz, Mathias Uhlmann',
     'author_email' => 'christian.opitz@netresearch.de',
-    'version' => '10.1.0',
+    'version' => '11.0.7',
     'constraints' => [
         'depends' => [
-            'typo3' => '10.2.0-10.4.99',
-            'rte_ckeditor' => '10.2.0-10.4.99',
+            'php' => '7.4.0-8.9.99',
+            'typo3' => '11.0.0-11.5.99',
+            'rte_ckeditor' => '11.0.0-11.5.99',
         ],
         'conflicts' => [],
         'suggests' => [
