@@ -46,8 +46,8 @@ use function strlen;
  * Class for processing of the FAL soft references on img tags inserted in RTE content
  *
  * @author  Stefan Galinski <stefan@sgalinski.de>
- * @license http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
- * @link    http://www.netresearch.de
+ * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @link    https://www.netresearch.de
  *
  * @deprecated in TYPO3 v12
  * @see https://docs.typo3.org/m/typo3/reference-coreapi/10.4/en-us/ApiOverview/Rte/Transformations/CustomApi.html

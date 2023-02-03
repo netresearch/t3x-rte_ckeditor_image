@@ -28,8 +28,8 @@ use TYPO3\CMS\Recordlist\Controller\ElementBrowserController;
  * Controller for the image select wizard.
  *
  * @author  Christian Opitz <christian.opitz@netresearch.de>
- * @license http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
- * @link    http://www.netresearch.de
+ * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @link    https://www.netresearch.de
  */
 class SelectImageController extends ElementBrowserController
 {

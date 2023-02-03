@@ -21,8 +21,8 @@ use function count;
  * Class for processing of the FAL soft references on img tags inserted in RTE content.
  *
  * @author  Stefan Galinski <stefan@sgalinski.de>
- * @license http://www.gnu.de/documents/gpl-2.0.de.html GPL 2.0+
- * @link    http://www.netresearch.de
+ * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @link    https://www.netresearch.de
  */
 class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
 {
