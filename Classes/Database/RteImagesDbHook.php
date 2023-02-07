@@ -291,19 +291,7 @@ class RteImagesDbHook
                             // publicUrl like 'https://www.domain.xy/typo3/image/process?token=...'?
                             // -> generate img source from storage basepath and identifier instead
                             if ($imgSrc !== null && strpos($imgSrc, 'process?token=') !== false) {
-                                $storageBasePath = $magicImage->getStorage() !== null
-                                    ? $magicImage->getStorage()->getConfiguration()['basePath']
-                                    : '';
-
-                                if ($storageBasePath !== '') {
-                                    $imgUrlPre = ($storageBasePath[strlen($storageBasePath) - 1] === '/')
-                                        ? substr($storageBasePath, 0, -1)
-                                        : $storageBasePath;
-                                } else {
-                                    $imgUrlPre = '';
-                                }
-
-                                $imgSrc = '/' . $imgUrlPre . $magicImage->getIdentifier();
+                                $imgSrc = $originalImageFile->getStorage()->getPublicUrl($magicImage);
                             }
 
                             $attribArray['src'] = $imgSrc;
