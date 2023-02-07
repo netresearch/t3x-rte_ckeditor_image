@@ -247,7 +247,7 @@ class RteImagesDbHook
                         // An original image file uid is available
                         try {
                             $originalImageFile = $resourceFactory
-                                ->getFileObject((int) $attribArray['data-htmlarea-file-uid'] . '0');
+                                ->getFileObject((int) $attribArray['data-htmlarea-file-uid']);
                         } catch (FileDoesNotExistException $exception) {
                             if ($this->logger !== null) {
                                 // Log the fact the file could not be retrieved.
