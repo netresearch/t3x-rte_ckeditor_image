@@ -23,6 +23,8 @@ use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExis
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Configuration\Loader\PageTsConfigLoader;
 use TYPO3\CMS\Core\Configuration\Parser\PageTsConfigParser;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\FileProcessingAspect;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -279,6 +281,11 @@ class RteImagesDbHook
                                 'width' => $imageWidth,
                                 'height' => $imageHeight,
                             ];
+
+
+                            // ensure we do get a processed file
+                            GeneralUtility::makeInstance(Context::class)
+                                ->setAspect('fileProcessing', new FileProcessingAspect(false));
 
                             $magicImage = $magicImageService
                                 ->createMagicImage($originalImageFile, $imageConfiguration);
