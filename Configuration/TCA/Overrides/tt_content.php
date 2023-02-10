@@ -32,5 +32,9 @@ call_user_func(
             ',',
             $cleanSoftReferences
         );
+
+        // Register preview renderer
+        $GLOBALS['TCA']['tt_content']['types']['text']['previewRenderer']
+            = \Netresearch\RteCKEditorImage\Backend\Preview\RteImagePreviewRenderer::class;
     }
 );
