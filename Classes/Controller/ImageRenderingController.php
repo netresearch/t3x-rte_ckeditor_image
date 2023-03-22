@@ -140,6 +140,7 @@ class ImageRenderingController extends AbstractPlugin
             ($imageSource !== '')
             && strncasecmp($imageSource, 'http', 4) !== 0
             && strncmp($imageSource, '/', 1) !== 0
+            && strpos($imageSource, 'data:image') !== 0
         ) {
             $imageAttributes['src'] = '/' . $imageSource;
         }
