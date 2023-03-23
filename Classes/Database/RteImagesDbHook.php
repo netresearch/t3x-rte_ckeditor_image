@@ -126,7 +126,8 @@ class RteImagesDbHook
                     $imageSource = trim($attribArray['src']);
 
                     // Transform the src attribute into an absolute url, if it not already
-                    if (strncasecmp($imageSource, 'http', 4) !== 0
+                    if (
+                        strncasecmp($imageSource, 'http', 4) !== 0
                         && strpos($imageSource, 'data:image') !== 0
                     ) {
                         // If site is in a sub path (e.g. /~user_jim/) this path needs to be
