@@ -127,7 +127,7 @@ class RteImagesDbHook
 
                     // Transform the src attribute into an absolute url, if it not already
                     if (
-                        $imageSource
+                        $imageSource !== ''
                         && strncasecmp($imageSource, 'http', 4) !== 0
                         && strpos($imageSource, 'data:image') !== 0
                     ) {
