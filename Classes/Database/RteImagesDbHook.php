@@ -123,10 +123,12 @@ class RteImagesDbHook
                 if (($key % 2) === 1) {
                     // Get the attributes of the img tag
                     [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
-                    $absoluteUrl = trim($attribArray['src']);
+                    $imageSource = trim($attribArray['src']);
 
                     // Transform the src attribute into an absolute url, if it not already
-                    if (strncasecmp($absoluteUrl, 'http', 4) !== 0) {
+                    if (strncasecmp($imageSource, 'http', 4) !== 0
+                        && strpos($imageSource, 'data:image') !== 0
+                    ) {
                         // If site is in a sub path (e.g. /~user_jim/) this path needs to be
                         // removed because it will be added with $siteUrl
                         $attribArray['src'] = preg_replace(
