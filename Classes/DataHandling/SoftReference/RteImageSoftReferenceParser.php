@@ -99,11 +99,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
             return [];
         }
 
-        // Assemble result array
-        return [
-            'content'  => implode('', $this->splitContentTags),
-            'elements' => $images,
-        ];
+        return $images;
     }
 
     /**
