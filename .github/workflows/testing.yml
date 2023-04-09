@@ -1,4 +1,4 @@
-name: PHPStan
+name: FunctionalTests
 
 on: [push, pull_request]
 
