@@ -17,8 +17,7 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
     public function updateReferenceIndexAddsIndexEntryForImage(): void
     {
         $this->importCSVDataSet(__DIR__ . '/Fixtures/ReferenceIndex/UpdateReferenceIndexImport.csv');
-        $result = (new ReferenceIndex())->updateIndex(false);
-        //self::assertSame( 'Record tt_content:1 had 1 added indexes and 0 deleted indexes', $result['errors'][0]);
+        (new ReferenceIndex())->updateIndex(false);
         $this->assertCSVDataSet(__DIR__ . '/Fixtures/ReferenceIndex/UpdateReferenceIndexResult.csv');
     }
 }
