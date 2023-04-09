@@ -1,6 +1,6 @@
 
 includes:
-    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - .Build/vendor/phpstan/phpstan-strict-rules/rules.neon
 
 parameters:
     # You can currently choose from 10 levels (0 is the loosest and 9 is the strictest).
@@ -13,8 +13,8 @@ parameters:
         - ext_localconf.php
 
     excludePaths:
-        - vendor/*
         - ext_emconf.php
+        - vendor
 
     checkMissingIterableValueType: false
 

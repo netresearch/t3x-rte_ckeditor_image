@@ -1,4 +1,4 @@
-name: PHP_CodeSniffer
+name: PHPStan
 
 on: [push, pull_request]
 
@@ -9,7 +9,8 @@ jobs:
     strategy:
       matrix:
         operating-system: [ubuntu-22.04]
-        php-version: ['7.4', '8.0', '8.1', '8.2']
+        php-version: ['7.4', '8.0', '8.1']
+        db: ['mariadb', 'postgres']
 
     name: Testing PHP ${{ matrix.php-version }} on ${{ matrix.operating-system }}
 
@@ -22,6 +23,5 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - run: composer validate
-      - run: composer install --no-progress
-      - run: .Build/bin/phpcs Classes/ --standard=PSR12
+      - run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -s composerInstall
+      - run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -s functional -d ${{matrix.db}}

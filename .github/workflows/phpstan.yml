@@ -24,4 +24,4 @@ jobs:
 
       - run: composer validate
       - run: composer install --no-progress
-      - run: vendor/bin/phpstan analyse -c phpstan.neon
+      - run: .Build/bin/phpstan analyse -c phpstan.neon
