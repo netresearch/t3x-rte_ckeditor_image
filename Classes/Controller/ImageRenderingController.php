@@ -88,8 +88,9 @@ class ImageRenderingController extends AbstractPlugin
                         $processedFile = $this->getMagicImageService()
                             ->createMagicImage($systemImage, $imageConfiguration);
 
+                        $imageSource = $processedFile->getPublicUrl();
                         $additionalAttributes = [
-                            'src'    => $processedFile->getPublicUrl(),
+                            'src'    => $imageSource,
                             'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
                             'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
                             'width'  => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
