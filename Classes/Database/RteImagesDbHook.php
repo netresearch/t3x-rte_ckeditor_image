@@ -120,7 +120,7 @@ class RteImagesDbHook
 
             foreach ($imgSplit as $key => $v) {
                 // Image found
-                if (($key % 2) === 1) {
+                if (($key % 2) !== 0) {
                     // Get the attributes of the img tag
                     [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
                     $imageSource = trim($attribArray['src'] ?? '');
