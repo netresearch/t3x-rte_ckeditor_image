@@ -141,4 +141,4 @@ editor:
 
 - developed on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image)
 - [composer repository](https://packagist.org/packages/netresearch/rte-ckeditor-image)
-- automatically tested and released to TER via [travis](https://travis-ci.org/netresearch/t3x-rte_ckeditor_image)
+- new version will automatically be uploaded to TER via Github Action when creating a new Github release
