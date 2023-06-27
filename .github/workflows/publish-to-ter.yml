@@ -1,9 +1,9 @@
 name: Publish new extension version to TER
 
 on:
-  push:
-    tags:
-      - '*'
+  release:
+    types: [published]
+
 jobs:
   publish:
     name: Publish new version to TER
@@ -32,9 +32,9 @@ jobs:
           readonly local comment=$(git tag -n10 -l v${{ env.version }} | sed "s/^v[0-9.]*[ ]*//g")
 
           if [[ -z "${comment// }" ]]; then
-            echo "comment=Released version ${{ env.version }} of ${{ env.TYPO3_EXTENSION_KEY }}" >> $GITHUB_ENV
+            echo "comment=Released version ${{ env.version }} of ${{ env.TYPO3_EXTENSION_KEY }} -- for details see $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases" >> $GITHUB_ENV
           else
-            echo "comment=$comment" >> $GITHUB_ENV
+            echo "comment=$comment -- for details see $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases" >> $GITHUB_ENV
           fi
 
       - name: Setup PHP
