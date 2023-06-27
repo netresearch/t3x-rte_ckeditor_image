@@ -1,6 +1,4 @@
-# 11.0.10
-
-# 11.0.9
+# 11.0.11
 
 ## TASK
 
@@ -34,6 +32,9 @@
 
 ## MISC
 
+- OPS-461: Update TER release info 58389ac
+- NRS-2875: Update var name 85f9fea
+- OPS-461: Change trigger and add infos to TER upload comment 02386b2
 - OPS-461: Adapt action to our version syntax f0fe8ee
 - OPS-461: Create Github action for publishing to TER 586aaa5
 - Fix phpstan warnings 3c54089
