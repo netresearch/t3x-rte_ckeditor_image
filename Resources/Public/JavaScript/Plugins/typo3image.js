@@ -422,18 +422,32 @@
 
                         };
 
-                        $.extend(AddImage.elements, _getElementsList($(this)));
-
-
-                        $(this).contents().find('[data-close]').on('click', function (e) {
-                            e.stopImmediatePropagation();
-                            var selectedItems = [];
-                            selectedItems.push({
-                                uid: AddImage.elements['file_' + $(this).data('file-uid')].uid,
-                                table: AddImage.elements['file_' + $(this).data('file-uid')].table
+                        function handleImageItemsOnClose(openmodal) {
+                            $.extend(AddImage.elements, _getElementsList(openmodal));
+                            openmodal.contents().find('[data-close]').on('click', function (e) {
+                                e.stopImmediatePropagation();
+                                var selectedItems = [];
+                                selectedItems.push({
+                                    uid: AddImage.elements['file_' + $(this).data('file-uid')].uid,
+                                    table: AddImage.elements['file_' + $(this).data('file-uid')].table
+                                });
+                                AddImage.addedImage(selectedItems);
                             });
-                            AddImage.addedImage(selectedItems);
+                        }
+                        const modal = $(this);
+
+                        handleImageItemsOnClose(modal);
+
+                        const fileadminTree = modal.contents().find('.element-browser-main-content');
+                        const config = {attributes: false, childList: true, subtree: true};
+                        const observer = new MutationObserver((mutationList) => {
+                            for (const mutation of mutationList) {
+                                if (mutation.type === "childList") {
+                                    handleImageItemsOnClose(modal);
+                                }
+                            }
                         });
+                        observer.observe(fileadminTree.get(0), config);
                         $(this).contents().find('button[data-multi-record-selection-action=import]').on('click',  function (e) {
                             e.stopImmediatePropagation();
 
