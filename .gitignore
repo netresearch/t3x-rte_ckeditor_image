@@ -1,3 +1,5 @@
+.Build/
+Build/testing-docker/.env
 composer.lock
 .idea/
 vendor/
