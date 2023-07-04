@@ -59,6 +59,8 @@ class RteImagesDbHook
 {
     use LoggerAwareTrait;
 
+    public RteHtmlParser $pObj;
+
     /**
      * @var bool
      */
