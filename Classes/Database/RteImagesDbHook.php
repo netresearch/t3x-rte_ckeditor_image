@@ -60,6 +60,7 @@ class RteImagesDbHook
     use LoggerAwareTrait;
 
     public RteHtmlParser $pObj;
+    public string transformationKey;
 
     /**
      * @var bool
