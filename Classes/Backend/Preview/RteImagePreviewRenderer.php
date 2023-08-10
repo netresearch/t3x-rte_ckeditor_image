@@ -110,7 +110,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
         if ($this->reachedLimit) {
             $this->toRemove[] = $node;
         } else {
-            // Only text nodes should have text, so do the splitting here
+            // Only text nodes should have a text, so do the splitting here
             if (($node instanceof DOMText) && ($node->nodeValue !== null)) {
                 $this->totalLength += $nodeLen = mb_strlen($node->nodeValue);
 
@@ -126,7 +126,10 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
             }
 
             // If node has children, walk its child elements
-            if ($node->childNodes->count() > 0) {
+            if (
+                ($node->childNodes !== null)
+                && ($node->childNodes->count() > 0)
+            ) {
                 foreach ($node->childNodes as $child) {
                     $this->walk($child, $maxLength);
                 }
