@@ -65,6 +65,16 @@ class RteImagesDbHook
     protected bool $fetchExternalImages;
 
     /**
+     * @var RteHtmlParser
+     */
+    public RteHtmlParser $pObj;
+
+    /**
+     * @var string
+     */
+    public string $transformationKey;
+
+    /**
      * Constructor.
      *
      * @param ExtensionConfiguration $extensionConfiguration
