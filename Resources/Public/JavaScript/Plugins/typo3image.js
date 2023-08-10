@@ -24,7 +24,6 @@
         init: function (editor) {
             require(['jquery'], function (jquery) {
                 $ = jquery;
-
                 var allowedAttributes = ['!src', 'alt', 'title', 'class', 'rel', 'width', 'height'],
                     additionalAttributes = getAdditionalAttributes(editor),
                     $shadowEditor = $('<div>').append(editor.element.$.innerText),
@@ -33,7 +32,7 @@
                 editor.toolbar.forEach(function(toolbar){
                     if(toolbar.items){
                         toolbar.items.forEach(function(item){
-                            if(item.command == 'image'){
+                            if(item.command === 'image'){
                                 item.setState(CKEDITOR.TRISTATE_OFF)
                             }
                         });
@@ -173,10 +172,17 @@
                 // Open our and not the CKEditor image dialog on double click:
                 editor.on('doubleclick', function(evt) {
                     if (evt.data.dialog === 'image') {
+                        evt.stop();
                         delete evt.data.dialog;
                     }
+
                     var current = evt.data.element;
-                    if (!evt.data.dialog && current && current.is('img') && current.getAttribute('data-htmlarea-file-uid')) {
+
+                    if (!evt.data.dialog
+                        && current
+                        && current.is('img')
+                        && current.getAttribute('data-htmlarea-file-uid')
+                    ) {
                         edit(
                             current.getAttribute('data-htmlarea-file-table') || 'sys_file',
                             current.getAttribute('data-htmlarea-file-uid'),
@@ -212,7 +218,7 @@
     });
 
     /**
-     * 
+     *
      * @returns value
      */
     function getTitleText() {
@@ -225,7 +231,7 @@
     }
 
     /**
-     * 
+     *
      * @param url
      * @return relativeUrl
      */
@@ -245,7 +251,7 @@
                 return "/" + url;
             }
         }
-        
+
         return url;
     }
 
