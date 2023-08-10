@@ -47,7 +47,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
 
         return $this
             ->linkEditContent(
-                $this->renderTextWithHtml($row['bodytext'] ?? ''),
+                $this->renderTextWithHtml(htmlentities($row['bodytext']) ?? ''),
                 $row
             )
             . '<br />';
