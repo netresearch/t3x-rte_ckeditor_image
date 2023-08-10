@@ -59,13 +59,20 @@ class RteImagesDbHook
 {
     use LoggerAwareTrait;
 
-    public RteHtmlParser $pObj;
-    public string transformationKey;
-
     /**
      * @var bool
      */
     protected bool $fetchExternalImages;
+
+    /**
+     * @var RteHtmlParser
+     */
+    public RteHtmlParser $pObj;
+
+    /**
+     * @var string
+     */
+    public string $transformationKey;
 
     /**
      * Constructor.
