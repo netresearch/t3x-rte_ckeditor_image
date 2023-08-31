@@ -90,11 +90,15 @@ class ImageRenderingController extends AbstractPlugin
 
                         $additionalAttributes = [
                             'src'    => $processedFile->getPublicUrl(),
-                            'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
                             'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
                             'width'  => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
                             'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
                         ];
+
+                        if ($this->getAttributeValue('title', $imageAttributes, $systemImage) !== '') {
+                            $additionalAttributes['title'] = $this->getAttributeValue('title', $imageAttributes, $systemImage);
+                        }
+
 
                         $lazyLoading = $this->getLazyLoadingConfiguration();
 
@@ -144,9 +148,13 @@ class ImageRenderingController extends AbstractPlugin
         ) {
             $imageAttributes['src'] = '/' . $imageSource;
         }
-
-        // Image template; empty attributes are removed by 3rd param 'false'
-        $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
+        // empty attributes are removed by 3rd param 'false'
+        $implodedAttr = GeneralUtility::implodeAttributes($imageAttributes, true);
+        if ($imageAttributes['alt'] === '') {
+            $implodedAttr .= ' alt=""';
+        }
+        // Image template;
+        $img = '<img ' . $implodedAttr . ' />';
 
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
         if (
