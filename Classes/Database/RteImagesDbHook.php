@@ -135,6 +135,12 @@ class RteImagesDbHook
                     [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
                     $imageSource = trim($attribArray['src'] ?? '');
 
+                    if ($attribArray['data-htmlarea-file-uid'] ?? false) {
+                        if ($imageSource === '' || !is_file($imageSource) ) {
+                            $imageSource = $this->getProcessedFile($attribArray);
+                        }
+                    }
+
                     // Transform the src attribute into an absolute url, if it not already
                     if (
                         $imageSource !== ''
@@ -167,6 +173,47 @@ class RteImagesDbHook
         }
         // Return processed content:
         return implode('', $imgSplit);
+    }
+
+    protected function getProcessedFile(array $attribArray): string
+    {
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+        $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
+
+        $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
+
+        $originalImageFile = $resourceFactory
+            ->getFileObject((int)$attribArray['data-htmlarea-file-uid']);
+
+        if ($originalImageFile instanceof File) {
+            // Magic image case: get a processed file with the requested configuration
+            $imageConfiguration = [
+                'width' => $this->getImageWidthFromAttributes($attribArray),
+                'height' => $this->getImageHeightFromAttributes($attribArray),
+            ];
+
+            // ensure we do get a processed file
+            GeneralUtility::makeInstance(Context::class)
+                ->setAspect('fileProcessing', new FileProcessingAspect(false));
+
+            $magicImage = $magicImageService
+                ->createMagicImage($originalImageFile, $imageConfiguration);
+
+            $attribArray['width'] = $magicImage->getProperty('width');
+            $attribArray['height'] = $magicImage->getProperty('height');
+
+            $imgSrc = $magicImage->getPublicUrl();
+
+            // publicUrl like 'https://www.domain.xy/typo3/image/process?token=...'?
+            // -> generate img source from storage basepath and identifier instead
+            if ($imgSrc !== null && strpos($imgSrc, 'process?token=') !== false) {
+                $imgSrc = $originalImageFile->getStorage()->getPublicUrl($magicImage);
+            }
+
+            return $imgSrc;
+        }
+
+        return '';
     }
 
     /**
