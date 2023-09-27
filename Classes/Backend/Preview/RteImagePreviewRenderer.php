@@ -43,11 +43,22 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
      */
     public function renderPageModulePreviewContent(GridColumnItem $item): string
     {
-        $row = $item->getRecord();
+        $row  = $item->getRecord();
+        $html = $row['bodytext'] ?? '';
+
+        // Sanitize HTML (replaces invalid chars with U+FFFD)<.
+        // - Invalid control chars: [\x00-\x08\x0B\x0C\x0E-\x1F]
+        // - UTF-16 surrogates: \xED[\xA0-\xBF].
+        // - Non-characters U+FFFE and U+FFFF: \xEF\xBF[\xBE\xBF]
+        $html = preg_replace(
+            '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF].|\xEF\xBF[\xBE\xBF]/',
+            "\xEF\xBF\xBD",
+            $html
+        );
 
         return $this
             ->linkEditContent(
-                $this->renderTextWithHtml(htmlentities($row['bodytext']) ?? ''),
+                $this->renderTextWithHtml($html),
                 $row
             )
             . '<br />';
@@ -79,11 +90,17 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
      */
     private function truncate(string $html, int $length): string
     {
+        // Set error level
+        $internalErrors = libxml_use_internal_errors(true);
+
         $dom = new DOMDocument();
         $dom->loadHTML(
             '<?xml encoding="UTF-8">' . $html,
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
+
+        // Restore error level
+        libxml_use_internal_errors($internalErrors);
 
         $toRemove = $this->walk($dom, $length);
 
