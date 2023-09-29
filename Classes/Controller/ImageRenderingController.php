@@ -132,6 +132,7 @@ class ImageRenderingController extends AbstractPlugin
                 'data-htmlarea-zoom',
                 'data-htmlarea-clickenlarge' // Legacy zoom property
             ];
+
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
         }
 
@@ -263,7 +264,7 @@ class ImageRenderingController extends AbstractPlugin
     {
         $attributeNameOverride = 'data-' . $attributeName . '-override';
 
-        if (isset($attributes[$attributeNameOverride]) && isset($attributes[$attributeName])) {
+        if (isset($attributes[$attributeNameOverride], $attributes[$attributeName])) {
             $attributeValue = $attributes[$attributeName];
         } else {
             $attributeValue = $image->getProperty($attributeName);

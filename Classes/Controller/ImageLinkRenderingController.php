@@ -83,72 +83,77 @@ class ImageLinkRenderingController extends AbstractPlugin
         }
 
         foreach ($passedImages as $passedImage) {
-            $passedAttributes = $this->getImageAttributes($passedImage);
+            $imageAttributes = $this->getImageAttributes($passedImage);
 
             // The image is already parsed by netresearch linkrenderer, which removes custom attributes,
             // so it will never match this condition.
             //
             // But we leave this as fallback for older render versions.
-            if ((count($passedAttributes) > 0) && isset($passedAttributes['data-htmlarea-file-uid'])) {
-                try {
-                    $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-                    $systemImage = $resourceFactory->getFileObject($passedAttributes['data-htmlarea-file-uid']);
+            if ((count($imageAttributes) > 0) && isset($imageAttributes['data-htmlarea-file-uid'])) {
+                $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
 
-                    $imageConfiguration = [
-                        'width' => $passedAttributes['width'] ?? $systemImage->getProperty('width'),
-                        'height' => $passedAttributes['height'] ?? $systemImage->getProperty('height')
-                    ];
+                if ($fileUid > 0) {
+                    try {
+                        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+                        $systemImage = $resourceFactory->getFileObject($fileUid);
 
-                    $processedFile = $this->getMagicImageService()
-                        ->createMagicImage($systemImage, $imageConfiguration);
+                        $imageConfiguration = [
+                            'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width')  ?? 0),
+                            'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
+                        ];
 
-                    $additionalAttributes = [
-                        'src' => $processedFile->getPublicUrl(),
-                        'title' => self::getAttributeValue('title', $passedAttributes, $systemImage),
-                        'alt' => self::getAttributeValue('alt', $passedAttributes, $systemImage),
-                        'width' => $passedAttributes['width'] ?? $systemImage->getProperty('width'),
-                        'height' => $passedAttributes['height'] ?? $systemImage->getProperty('height')
-                    ];
+                        $processedFile = $this->getMagicImageService()
+                            ->createMagicImage($systemImage, $imageConfiguration);
 
-                    $lazyLoading = $this->getLazyLoadingConfiguration();
+                        $additionalAttributes = [
+                            'src'    => $processedFile->getPublicUrl(),
+                            'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
+                            'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
+                            'width'  => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
+                            'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
+                        ];
 
-                    if ($lazyLoading !== null) {
-                        $additionalAttributes['loading'] = $lazyLoading;
+                        $lazyLoading = $this->getLazyLoadingConfiguration();
+
+                        if ($lazyLoading !== null) {
+                            $additionalAttributes['loading'] = $lazyLoading;
+                        }
+
+                        // Remove internal attributes
+                        unset(
+                            $imageAttributes['data-title-override'],
+                            $imageAttributes['data-alt-override']
+                        );
+
+                        $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
+
+                        // Cleanup attributes; disable zoom images within links
+                        $unsetParams = [
+                            'data-htmlarea-file-uid',
+                            'data-htmlarea-file-table',
+                            'data-htmlarea-zoom',
+                            'data-htmlarea-clickenlarge' // Legacy zoom property
+                        ];
+
+                        $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
+
+                        // Image template; empty attributes are removed by 3rd param 'false'
+                        $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
+                    } catch (FileDoesNotExistException $fileDoesNotExistException) {
+                        $parsedImages[] = strip_tags($passedImage, '<img>');
+
+                        // Log in fact the file could not be retrieved
+                        $this->getLogger()->log(
+                            PsrLogLevel::ERROR,
+                            sprintf('Unable to find file with uid "%s"', $fileUid)
+                        );
                     }
-
-                    // Remove internal attributes
-                    unset(
-                        $passedAttributes['data-title-override'],
-                        $passedAttributes['data-alt-override']
-                    );
-
-                    // Add original attributes, if not already parsed
-                    $imageAttributes = array_merge($additionalAttributes, $passedAttributes);
-
-                    // Cleanup attributes; disable zoom images within links
-                    $unsetParams = [
-                        'data-htmlarea-file-uid',
-                        'data-htmlarea-file-table',
-                        'data-htmlarea-zoom',
-                        'data-htmlarea-clickenlarge' // Legacy zoom property
-                    ];
-                    $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
-                    // Image template; empty attributes are removed by 3rd param 'false'
-                    $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
-                } catch (FileDoesNotExistException $fileDoesNotExistException) {
-                    $parsedImages[] = strip_tags($passedImage, '<img>');
-                    // Log in fact the file could not be retrieved.
-                    $message = sprintf(
-                        'I could not find file with uid "%s"',
-                        $passedAttributes['data-htmlarea-file-uid']
-                    );
-
-                    $this->getLogger()->log(PsrLogLevel::ERROR, $message);
                 }
             } else {
                 $parsedImages[] = strip_tags($passedImage, '<img>');
             }
         }
+
         // Replace original images with parsed
         return str_replace($passedImages, $parsedImages, $linkContent);
     }
@@ -222,19 +227,17 @@ class ImageLinkRenderingController extends AbstractPlugin
     /**
      * Returns attributes value or even empty string when override mode is enabled
      *
-     * @param string                        $attributeName
-     * @param array<string, string>         $attributes
-     * @param File $image
+     * @param string                $attributeName
+     * @param array<string, string> $attributes
+     * @param File                  $image
      *
      * @return string
      */
-    protected static function getAttributeValue(string $attributeName, array $attributes, File $image): string
+    protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
         $attributeNameOverride = 'data-' . $attributeName . '-override';
 
-        if (isset($attributes[$attributeNameOverride])) {
-            $attributeValue = $attributes[$attributeNameOverride];
-        } elseif (isset($attributes[$attributeName])) {
+        if (isset($attributes[$attributeNameOverride], $attributes[$attributeName])) {
             $attributeValue = $attributes[$attributeName];
         } else {
             $attributeValue = $image->getProperty($attributeName);
