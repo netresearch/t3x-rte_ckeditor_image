@@ -69,7 +69,7 @@ class ImageLinkRenderingController extends AbstractPlugin
         $linkContent = $this->cObj !== null ? $this->cObj->getCurrentVal() : null;
 
         // Find all images with file-uid attribute
-        $imgSearchPattern = '/<p\><img(?=.*src).*?\/><\/p>/';
+        $imgSearchPattern = '/<p[^>]*>\s*<img(?=.*src).*?\/>\s*<\/p>/';
         $passedImages = [];
         $parsedImages = [];
 
