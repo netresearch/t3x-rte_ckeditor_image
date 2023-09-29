@@ -262,14 +262,6 @@ class ImageRenderingController extends AbstractPlugin
      */
     protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
-        $attributeNameOverride = 'data-' . $attributeName . '-override';
-
-        if (isset($attributes[$attributeNameOverride], $attributes[$attributeName])) {
-            $attributeValue = $attributes[$attributeName];
-        } else {
-            $attributeValue = $image->getProperty($attributeName);
-        }
-
-        return (string) $attributeValue;
+        return (string) ($attributes[$attributeName] ?? $image->getProperty($attributeName));
     }
 }
