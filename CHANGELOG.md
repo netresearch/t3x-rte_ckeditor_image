@@ -1,3 +1,40 @@
+# 11.0.14
+
+## BUGFIX
+
+- [BUGFIX] Fixes #186: Add timestamp to force the javascript change d6b0e6c
+- [BUGFIX] Fixes #186: Inline image with link sometimes causes incorrect ordering of double 3efd3d5
+- [BUGFIX] Regenerate images in backend view 56e64f8
+- [BUGFIX] Fixes #244: RteImagePreviewRenderer throws warning with invalid HTML 9fb0b0e
+- [BUGFIX] Fixes #242: Call to a member function count() on null 5aaef60
+- [BUGFIX] Add missing property transformationKey to RteImagesDbHook 7074226
+- [BUGFIX] Fix onclick event for select image modal 838610a
+- [BUGFIX] Loading RTE throws PHP Runtime Deprecation Notice 4d3be6a
+
+## MISC
+
+- GH-247: Unnecessary check for "data-*-override" removed, as these are only used within Javascript to document the checkbox state. 60b55a4
+- GH-112: Fix regex to find images 65663ac
+- Rework ImageLinkRenderingController to match ImageRenderingController 601e732
+- GH-244: Sanitize HTML 908d149
+- Fix class member variable name 720933a
+- Update typo3/testing-framework requirement from ^6.16.7 to ^7.0.2 f78ae0e
+- bugfix: incorrect parse indexes leading to dynamic image URL not to be resolved 7307574
+- OPS-461: Update TER release info 913bed4
+- NRS-2875: Update var name 5153eb4
+- OPS-461: Change trigger and add infos to TER upload comment d12e7fc
+- OPS-461: Adapt action to our version syntax 14b96f4
+- OPS-461: Create Github action for publishing to TER 8a17e56
+- Fix phpstan warnings ca9d0e2
+- Optimize code 721f9e4
+- Fix CGL 7136225
+- Do not prepend site URL to embedded image in RTE 4761fe2
+- Do not prepend slash for data:image 4fb6205
+- Cleanup: remove commented out code f4136ef
+- Fix name of testing.yml 6c9c5c3
+- Fix RteImageSoftReferenceParser 67d86b3
+- Add functional tests 24321b7
+
 # 11.0.11
 
 ## TASK
