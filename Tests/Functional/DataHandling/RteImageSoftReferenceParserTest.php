@@ -7,7 +7,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 class RteImageSoftReferenceParserTest extends FunctionalTestCase
 {
-    protected $testExtensionsToLoad = [
+    protected array $testExtensionsToLoad = [
         'typo3conf/ext/rte_ckeditor_image',
     ];
 
