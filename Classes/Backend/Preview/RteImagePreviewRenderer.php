@@ -143,10 +143,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
             }
 
             // If node has children, walk its child elements
-            if (
-                ($node->childNodes !== null)
-                && ($node->childNodes->count() > 0)
-            ) {
+            if ($node->childNodes->count() > 0) {
                 foreach ($node->childNodes as $child) {
                     $this->walk($child, $maxLength);
                 }
