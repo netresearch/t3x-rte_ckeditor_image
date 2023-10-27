@@ -90,7 +90,7 @@ class ImageLinkRenderingController extends AbstractPlugin
             //
             // But we leave this as fallback for older render versions.
             if ((count($imageAttributes) > 0) && isset($imageAttributes['data-htmlarea-file-uid'])) {
-                $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
+                $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid']);
 
                 if ($fileUid > 0) {
                     try {
