@@ -136,7 +136,7 @@ class RteImagesDbHook
                     $imageSource = trim($attribArray['src'] ?? '');
 
                     if ($attribArray['data-htmlarea-file-uid'] ?? false) {
-                        if ($imageSource === '' || !is_file($imageSource) ) {
+                        if ($imageSource === '' || !is_file($imageSource)) {
                             $imageSource = $this->getProcessedFile($attribArray);
                         }
                     }
