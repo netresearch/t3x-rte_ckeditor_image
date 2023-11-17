@@ -182,8 +182,12 @@ class RteImagesDbHook
 
         $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
 
-        $originalImageFile = $resourceFactory
-            ->getFileObject((int)$attribArray['data-htmlarea-file-uid']);
+        try {
+            $originalImageFile = $resourceFactory
+                ->getFileObject((int)$attribArray['data-htmlarea-file-uid']);
+        } catch (\Exception $e) {
+            return '';
+        }
 
         if ($originalImageFile instanceof File) {
             // Magic image case: get a processed file with the requested configuration
