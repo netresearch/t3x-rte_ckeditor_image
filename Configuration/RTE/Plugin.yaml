@@ -1,4 +1,12 @@
 # Register image plugin for ckeditor
 editor:
+  config:
+    importModules:
+      -  '@netresearch/rte-ckeditor-image/Plugins/typo3image.js'
+
   externalPlugins:
-    typo3image: { resource: "EXT:rte_ckeditor_image/Resources/Public/JavaScript/Plugins/typo3image.js?v1698317279", route: "rteckeditorimage_wizard_select_image" }
+    typo3image: { route: "rteckeditorimage_wizard_select_image" }
+
+processing:
+  allowTagsOutside:
+    - img
