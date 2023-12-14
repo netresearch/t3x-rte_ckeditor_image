@@ -1,4 +1,8 @@
-# 11.0.14
+# 12.0.0
+
+## TASK
+
+- [TASK]  Update ext_emconf.php for TYPO3 v12 686083f
 
 ## BUGFIX
 
@@ -13,6 +17,15 @@
 
 ## MISC
 
+- TYPO3 v12 Support 1cfe7a7
+- Update testing.yml 8211115
+- Update phpstan.yml 2d971f8
+- Update phpcs.yml dde6fdd
+- add TYPO3 badges to README 9a578b5
+- style: remove superfluous null check 34bd1ae
+- style: fix superfluous space before closing parenthesis 000703e
+- tests: fix PHP Fatal error:  Type of  testExtensionsToLoad must be array bc30427
+- chore: remove superfluous is null check 9dee49b
 - GH-247: Unnecessary check for "data-*-override" removed, as these are only used within Javascript to document the checkbox state. 60b55a4
 - GH-112: Fix regex to find images 65663ac
 - Rework ImageLinkRenderingController to match ImageRenderingController 601e732
