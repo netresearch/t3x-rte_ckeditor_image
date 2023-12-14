@@ -23,3 +23,5 @@
 - Tobias Gaertner
 - mabocke
 - mcmulman
+- Christian Opitz
+- Mathias Uhlmann
