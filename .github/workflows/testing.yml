@@ -10,6 +10,7 @@ jobs:
       matrix:
         operating-system: [ubuntu-22.04]
         php-version: ['8.1', '8.2']
+        core-version: ['12']
         db: ['mariadb', 'postgres']
 
     name: Testing PHP ${{ matrix.php-version }} on ${{ matrix.operating-system }}
@@ -23,5 +24,5 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -s composerInstall
-      - run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -s functional -d ${{matrix.db}}
+      - run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -t ${{ matrix.core-version }} -s composerUpdate
+      - run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -t ${{ matrix.core-version }} -s functional -d ${{matrix.db}}

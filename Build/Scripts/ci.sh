@@ -10,7 +10,8 @@ set -x
 # --------
 # defaults
 # --------
-PHP_VERSION="8.1"
+PHP_VERSION="8.2"
+CORE_VERSION="12"
 
 # -------------------
 # automatic variables
@@ -20,28 +21,25 @@ cd $thisdir
 thisdir=$(pwd)
 progname=$(basename $0)
 
-echo "Running with PHP version${PHP_VERSION}"
+echo "Running with PHP version ${PHP_VERSION} and TYPO3 Core ${CORE_VERSION}"
 
-echo "composer install"
-${thisdir}/runTests.sh -p ${PHP_VERSION} -s composerInstall
-
-echo "composer validate"
-${thisdir}/runTests.sh -p ${PHP_VERSION} -s composerValidate
+echo "composer update"
+${thisdir}/runTests.sh -p ${PHP_VERSION} -t ${CORE_VERSION} -s composerUpdate
 
 #echo "cgl"
-#Build/Scripts/runTests.sh -p ${PHP_VERSION} -s cgl -n
+#Build/Scripts/runTests.sh -p ${PHP_VERSION} -t ${CORE_VERSION} -s cgl -n
 
 #echo "lint"
-#Build/Scripts/runTests.sh -p ${PHP_VERSION} -s lint
+#Build/Scripts/runTests.sh -p ${PHP_VERSION} -t ${CORE_VERSION} -s lint
 
 #echo "phpstan"
-#Build/Scripts/runTests.sh -p ${PHP_VERSION} -s phpstan
+#Build/Scripts/runTests.sh -p ${PHP_VERSION} -t ${CORE_VERSION} -s phpstan
 
 #echo "Unit tests"
-#Build/Scripts/runTests.sh -p ${PHP_VERSION} -s unit
+#Build/Scripts/runTests.sh -p ${PHP_VERSION} -t ${CORE_VERSION} -s unit
 
 echo "functional tests"
-${thisdir}/runTests.sh -p ${PHP_VERSION} -d mariadb -s functional
+${thisdir}/runTests.sh -p ${PHP_VERSION} -t ${CORE_VERSION} -d mariadb -s functional
 
 # -------
 # cleanup
