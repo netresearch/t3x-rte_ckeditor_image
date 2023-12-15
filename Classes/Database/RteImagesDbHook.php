@@ -222,8 +222,13 @@ class RteImagesDbHook
     /**
      * Process the modified text from TCA text field before its stored in the database.
      */
-    public function processDatamap_postProcessFieldArray(string $status, string $table, string $id, array &$fieldArray, \TYPO3\CMS\Core\DataHandling\DataHandler &$dataHandler): void
-    {
+    public function processDatamap_postProcessFieldArray(
+        string $status,
+        string $table,
+        string $id,
+        array &$fieldArray,
+        \TYPO3\CMS\Core\DataHandling\DataHandler &$dataHandler
+    ): void {
         foreach ($fieldArray as $field => $fieldValue) {
             // Ignore not existing fields in TCA definition
             if (!isset($GLOBALS['TCA'][$table]['columns'][$field])) {
@@ -480,7 +485,8 @@ class RteImagesDbHook
         $tcaFieldConf = $GLOBALS['TCA'][$table]['columns'][$field]['config'];
         $recordType   = BackendUtility::getTCAtypeValue($table, $dataHandler->checkValue_currentRecord);
 
-        $columnsOverridesConfigOfField = $GLOBALS['TCA'][$table]['types'][$recordType]['columnsOverrides'][$field]['config'] ?? null;
+        $columnsOverridesConfigOfField = 
+            $GLOBALS['TCA'][$table]['types'][$recordType]['columnsOverrides'][$field]['config'] ?? null;
 
         if ($columnsOverridesConfigOfField) {
             ArrayUtility::mergeRecursiveWithOverrule($tcaFieldConf, $columnsOverridesConfigOfField);

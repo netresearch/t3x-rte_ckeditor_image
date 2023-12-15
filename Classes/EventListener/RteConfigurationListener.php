@@ -8,7 +8,7 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
 
 class RteConfigurationListener
 {
-    public function __invoke(AfterPrepareConfigurationForEditorEvent  $event): void
+    public function __invoke(AfterPrepareConfigurationForEditorEvent $event): void
     {
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 

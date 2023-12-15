@@ -119,10 +119,18 @@ class SelectImageController extends ElementBrowserController
                 'url'    => $processedFile->getPublicUrl(),
             ],
             'lang'      => [
-                'override'          => LocalizationUtility::translate('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override'),
-                'overrideNoDefault' => LocalizationUtility::translate('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override_not_available'),
-                'cssClass'          => LocalizationUtility::translate('LLL:EXT:rte_ckeditor_image/Resources/Private/Language/locallang_be.xlf:labels.ckeditor.cssclass'),
-                'zoom'              => LocalizationUtility::translate('LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:image_zoom_formlabel'),
+                'override'          => LocalizationUtility::translate(
+                    'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override'
+                ),
+                'overrideNoDefault' => LocalizationUtility::translate(
+                    'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override_not_available'
+                ),
+                'cssClass'          => LocalizationUtility::translate(
+                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/locallang_be.xlf:labels.ckeditor.cssclass'
+                ),
+                'zoom'              => LocalizationUtility::translate(
+                    'LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:image_zoom_formlabel'
+                ),
             ],
         ]);
     }
