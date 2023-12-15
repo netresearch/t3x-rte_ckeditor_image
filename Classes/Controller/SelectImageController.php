@@ -120,16 +120,20 @@ class SelectImageController extends ElementBrowserController
             ],
             'lang'      => [
                 'override'          => LocalizationUtility::translate(
-                    'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override'
+                    'LLL:EXT:core/Resources/Private/Language/'
+                    . 'locallang_core.xlf:labels.placeholder.override'
                 ),
                 'overrideNoDefault' => LocalizationUtility::translate(
-                    'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override_not_available'
+                    'LLL:EXT:core/Resources/Private/Language/'
+                    . 'locallang_core.xlf:labels.placeholder.override_not_available'
                 ),
                 'cssClass'          => LocalizationUtility::translate(
-                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/locallang_be.xlf:labels.ckeditor.cssclass'
+                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                    . 'locallang_be.xlf:labels.ckeditor.cssclass'
                 ),
                 'zoom'              => LocalizationUtility::translate(
-                    'LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:image_zoom_formlabel'
+                    'LLL:EXT:frontend/Resources/Private/Language/'
+                    . 'locallang_ttc.xlf:image_zoom_formlabel'
                 ),
             ],
         ]);
