@@ -222,6 +222,7 @@ class RteImagesDbHook
     /**
      * Process the modified text from TCA text field before its stored in the database.
      */
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function processDatamap_postProcessFieldArray(
         string $status,
         string $table,
