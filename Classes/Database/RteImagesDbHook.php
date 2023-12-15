@@ -486,7 +486,7 @@ class RteImagesDbHook
         $tcaFieldConf = $GLOBALS['TCA'][$table]['columns'][$field]['config'];
         $recordType   = BackendUtility::getTCAtypeValue($table, $dataHandler->checkValue_currentRecord);
 
-        $columnsOverridesConfigOfField = 
+        $columnsOverridesConfigOfField =
             $GLOBALS['TCA'][$table]['types'][$recordType]['columnsOverrides'][$field]['config'] ?? null;
 
         if ($columnsOverridesConfigOfField) {
