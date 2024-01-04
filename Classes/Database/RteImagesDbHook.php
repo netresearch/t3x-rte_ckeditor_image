@@ -186,6 +186,7 @@ class RteImagesDbHook
             $originalImageFile = $resourceFactory
                 ->getFileObject((int)$attribArray['data-htmlarea-file-uid']);
         } catch (\Exception $e) {
+            $this->logger->error($message, ['exception' => $e]);
             return '';
         }
 
