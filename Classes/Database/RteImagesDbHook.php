@@ -186,9 +186,8 @@ class RteImagesDbHook
             $originalImageFile = $resourceFactory
                 ->getFileObject((int)$attribArray['data-htmlarea-file-uid']);
         } catch (\Exception $e) {
-
             $message = sprintf(
-                'Could not find original file with uid "%s"',
+                'Could not find original file with uid "%s"', $attribArray['data-htmlarea-file-uid']
             );
 
             $this->logger->error($message, ['exception' => $e]);
