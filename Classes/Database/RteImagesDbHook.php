@@ -136,7 +136,8 @@ class RteImagesDbHook
                     $imageSource = trim($attribArray['src'] ?? '');
 
                     if ($attribArray['data-htmlarea-file-uid'] ?? false) {
-                        if ($imageSource === '' || !is_file($imageSource)) {
+                        // Prevent querying the root directory, this causes open_basedir warnings
+                        if ($imageSource === '' || (!(str_starts_with($imageSource, '/')) && !is_file($imageSource)) ) {
                             $imageSource = $this->getProcessedFile($attribArray);
                         }
                     }
@@ -182,17 +183,8 @@ class RteImagesDbHook
 
         $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
 
-        try {
-            $originalImageFile = $resourceFactory
-                ->getFileObject((int)$attribArray['data-htmlarea-file-uid']);
-        } catch (\Exception $e) {
-            $message = sprintf(
-                'Could not find original file with uid "%s"', $attribArray['data-htmlarea-file-uid']
-            );
-
-            $this->logger->error($message, ['exception' => $e]);
-            return '';
-        }
+        $originalImageFile = $resourceFactory
+            ->getFileObject((int)$attribArray['data-htmlarea-file-uid']);
 
         if ($originalImageFile instanceof File) {
             // Magic image case: get a processed file with the requested configuration
