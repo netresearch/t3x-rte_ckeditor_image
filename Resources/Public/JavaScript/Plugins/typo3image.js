@@ -404,6 +404,7 @@ function edit(selectedImage, editor, imageAttributes) {
                     src: attributes.src,
                     height: attributes.height,
                     width: attributes.width,
+                    class: attributes.class,
                     title: attributes.title,
                     titleOverride: attributes['data-title-override'],
                     alt: attributes.alt,
@@ -460,6 +461,7 @@ export default class Typo3Image extends Core.Plugin {
                         src: viewElement.getAttribute('src'),
                         width: viewElement.getAttribute('width') || '',
                         height: viewElement.getAttribute('height') || '',
+                        class: viewElement.getAttribute('class') || '',
                         alt: viewElement.getAttribute('alt') || '',
                         altOverride: viewElement.getAttribute('data-alt-override') || false,
                         title: viewElement.getAttribute('title') || '',
@@ -487,6 +489,7 @@ export default class Typo3Image extends Core.Plugin {
                         'data-htmlarea-file-table': modelElement.getAttribute('fileTable'),
                         'width': modelElement.getAttribute('width'),
                         'height': modelElement.getAttribute('height'),
+                        'class': modelElement.getAttribute('class') || '',
                         'title': modelElement.getAttribute('title') || '',
                         'alt': modelElement.getAttribute('alt') || '',
                     }
@@ -542,6 +545,7 @@ export default class Typo3Image extends Core.Plugin {
                         {
                             width: selectedElement.getAttribute('width'),
                             height: selectedElement.getAttribute('height'),
+                            class: selectedElement.getAttribute('class'),
                             alt: selectedElement.getAttribute('alt'),
                             title: selectedElement.getAttribute('title'),
                             'data-htmlarea-zoom': selectedElement.getAttribute('enableZoom'),
@@ -576,6 +580,7 @@ export default class Typo3Image extends Core.Plugin {
                     {
                         width: modelElement.getAttribute('width'),
                         height: modelElement.getAttribute('height'),
+                        class: selectedElement.getAttribute('class'),
                         alt: modelElement.getAttribute('alt'),
                         title: modelElement.getAttribute('title'),
                         'data-htmlarea-zoom': modelElement.getAttribute('enableZoom'),
