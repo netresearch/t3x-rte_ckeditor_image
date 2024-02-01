@@ -1,7 +1,18 @@
-# 11.0.14
+# 11.0.15
+
+# 11.0.15
+
+## TASK
+
+- [TASK] Fix PHP style 22c2d95
+- [TASK] Add logger for deleted images 2e6af32
 
 ## BUGFIX
 
+- [BUGFIX] prevent open_basedir warnings 5d28177
+- [BUGFIX] Fix coding styles 67b5088
+- [BUGFIX] Fix error messages 3f824e7
+- [BUGFIX] handle deleted files 6990dcb
 - [BUGFIX] Fixes #186: Add timestamp to force the javascript change d6b0e6c
 - [BUGFIX] Fixes #186: Inline image with link sometimes causes incorrect ordering of double 3efd3d5
 - [BUGFIX] Regenerate images in backend view 56e64f8
@@ -13,6 +24,12 @@
 
 ## MISC
 
+- chore: update branch aliases ebe4824
+- add TYPO3 badges to README 9a578b5
+- style: remove superfluous null check 34bd1ae
+- style: fix superfluous space before closing parenthesis 000703e
+- tests: fix PHP Fatal error:  Type of  testExtensionsToLoad must be array bc30427
+- chore: remove superfluous is null check 9dee49b
 - GH-247: Unnecessary check for "data-*-override" removed, as these are only used within Javascript to document the checkbox state. 60b55a4
 - GH-112: Fix regex to find images 65663ac
 - Rework ImageLinkRenderingController to match ImageRenderingController 601e732
