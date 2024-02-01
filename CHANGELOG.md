@@ -1,7 +1,10 @@
-# 12.0.0
+# 12.0.1
 
 ## TASK
 
+- [TASK] Update author in ext_emconf.php c474bbc
+- [TASK] Update Contributors.md 97ac62c
+- [TASK] Remove PHP 8.3 in testing.yml 2277e12
 - [TASK]  Update ext_emconf.php for TYPO3 v12 686083f
 
 ## BUGFIX
@@ -17,6 +20,15 @@
 
 ## MISC
 
+- Apply class to  bacbd45
+- chore: coding style 962dd48
+- chore: fix coding style 9f8628a
+- chore: ignore camelCaps rule for hook method name 7bb3554
+- chore: also update test container setup for updated runtests.sh fa54fe0
+- chore: update runtests.sh from https://github.com/lolli42/enetcache/blob/main/Build/Scripts/runTests.sh 6577644
+- chore: fix coding style 9e40429
+- chore: update branch aliases fe9bb80
+- Update typo3/testing-framework requirement from ^7.0.2 to ^8.0.7 21567a5
 - TYPO3 v12 Support 1cfe7a7
 - Update testing.yml 8211115
 - Update phpstan.yml 2d971f8
