@@ -137,7 +137,7 @@ class RteImagesDbHook
 
                     if ($attribArray['data-htmlarea-file-uid'] ?? false) {
                         // Prevent querying the root directory, this causes open_basedir warnings
-                        if ($imageSource === '' || (!(str_starts_with($imageSource, '/')) && !is_file($imageSource)) ) {
+                        if ($imageSource === '' || (!(str_starts_with($imageSource, '/')) && !is_file($imageSource))) {
                             $imageSource = $this->getProcessedFile($attribArray);
                         }
                     }
