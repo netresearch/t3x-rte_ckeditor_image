@@ -379,8 +379,7 @@ class RteImagesDbHook
                         $attribArray['src'] = $imgSrc;
                     }
                 } elseif (
-                    !($this->procOptions['dontFetchExtPictures'] ?? false)
-                    && $this->fetchExternalImages
+                    $this->fetchExternalImages
                     && $isBackend
                     && !str_starts_with($absoluteUrl, $siteUrl)
                 ) {
