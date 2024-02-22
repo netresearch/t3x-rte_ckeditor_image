@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
     Boilerplate for a functional test suite setup.
 
@@ -13,39 +14,35 @@
     file is located next to this .xml as FunctionalTestsBootstrap.php
 
 -->
-<phpunit
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
-    backupGlobals="true"
-    bootstrap="FunctionalTestsBootstrap.php"
-    cacheResult="false"
-    colors="true"
-    convertErrorsToExceptions="true"
-    convertWarningsToExceptions="true"
-    convertDeprecationsToExceptions="true"
-    convertNoticesToExceptions="true"
-    forceCoversAnnotation="false"
-    processIsolation="false"
-    stopOnError="false"
-    stopOnFailure="false"
-    stopOnIncomplete="false"
-    stopOnSkipped="false"
-    verbose="false"
-    beStrictAboutTestsThatDoNotTestAnything="false"
-    failOnWarning="true"
-    failOnRisky="true"
+<phpunit 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+  backupGlobals="true"
+  bootstrap="FunctionalTestsBootstrap.php"
+  cacheResult="false"
+  colors="true"
+  processIsolation="false"
+  stopOnError="false"
+  stopOnFailure="false"
+  stopOnIncomplete="false"
+  stopOnSkipped="false"
+  beStrictAboutTestsThatDoNotTestAnything="false"
+  failOnWarning="true"
+  failOnRisky="true"
+  cacheDirectory=".phpunit.cache"
+  requireCoverageMetadata="false"
 >
-    <testsuites>
-        <testsuite name="Functional tests">
-            <!--
+  <testsuites>
+    <testsuite name="Functional tests">
+      <!--
                 This path either needs an adaption in extensions, or an extension's
                 test location path needs to be given to phpunit.
             -->
-            <directory>../Tests/Functional/</directory>
-        </testsuite>
-    </testsuites>
-    <php>
-        <!--
+      <directory>../Tests/Functional/</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <!--
             @deprecated: Set this to not suppress warnings, notices and deprecations in functional tests
                          with TYPO3 core v11 and up.
                          Will always be done with next major version.
@@ -55,8 +52,8 @@
                   fixed and are silenced through error handler usage.
             <const name="TYPO3_TESTING_FUNCTIONAL_REMOVE_ERROR_HANDLER" value="true" />
          -->
-        <ini name="display_errors" value="1" />
-        <ini name="error_reporting" value="E_ALL" />
-        <env name="TYPO3_CONTEXT" value="Testing" />
-    </php>
+    <ini name="display_errors" value="1"/>
+    <ini name="error_reporting" value="E_ALL"/>
+    <env name="TYPO3_CONTEXT" value="Testing"/>
+  </php>
 </phpunit>
