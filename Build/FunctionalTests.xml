@@ -41,7 +41,7 @@
                 This path either needs an adaption in extensions, or an extension's
                 test location path needs to be given to phpunit.
             -->
-            <directory>../../Tests/Functional/</directory>
+            <directory>../Tests/Functional/</directory>
         </testsuite>
     </testsuites>
     <php>

@@ -41,7 +41,7 @@
                 This path either needs an adaption in extensions, or an extension's
                 test location path needs to be given to phpunit.
             -->
-            <directory>../../Tests/Unit/</directory>
+            <directory>../Tests/Unit/</directory>
         </testsuite>
     </testsuites>
     <coverage>
@@ -49,7 +49,7 @@
             <!--
                 This path needs an adaption in extensions, when coverage statistics are wanted.
             -->
-            <directory>../../Classes/</directory>
+            <directory>../Classes/</directory>
         </include>
     </coverage>
     <php>
