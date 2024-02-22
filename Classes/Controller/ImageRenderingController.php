@@ -89,6 +89,11 @@ class ImageRenderingController extends AbstractPlugin
                             ->createMagicImage($systemImage, $imageConfiguration);
 
                         $imageSource = $processedFile->getPublicUrl();
+
+                        if (null === $imageSource) {
+                            throw new FileDoesNotExistException;
+                        }
+
                         $additionalAttributes = [
                             'src'    => $imageSource,
                             'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
