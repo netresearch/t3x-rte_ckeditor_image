@@ -405,7 +405,7 @@ class RteImagesDbHook
                             || $extension === 'gif'
                             || $extension === 'png'
                         ) {
-                            $fileName = GeneralUtility::shortMD5($absoluteUrl) . '.' . ($pI['extension'] ?? '');
+                            $fileName = substr(md5($absoluteUrl), 0, 10) . '.' . ($pI['extension'] ?? '');
                             // We insert this image into the user default upload folder
                             $folder = $GLOBALS['BE_USER']->getDefaultUploadFolder();
                             $fileObject = $folder->createFile($fileName)->setContents($externalFile);
