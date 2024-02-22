@@ -45,11 +45,6 @@ class SelectImageController extends ElementBrowserController
     private ResourceFactory $resourceFactory;
 
     /**
-     * @var Richtext
-     */
-    private Richtext $richText;
-
-    /**
      * @var MagicImageService
      */
     private MagicImageService $magicImageService;
@@ -64,7 +59,6 @@ class SelectImageController extends ElementBrowserController
     public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-        $this->richText = GeneralUtility::makeInstance(Richtext::class);
         $this->magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
         $isInfoAction = GeneralUtility::_GP('action') === 'info';
