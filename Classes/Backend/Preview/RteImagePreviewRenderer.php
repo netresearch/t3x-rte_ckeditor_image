@@ -142,8 +142,9 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
                 }
             }
 
-            // If node has children, walk its child elements
-            if ($node->childNodes->count() > 0) {
+            // We need to explizitly check hasChildNodes() to circumvent a bug in PHP < 7.4.4
+            // which results in childNodes being NULL https://bugs.php.net/bug.php?id=79271
+            if ($node->hasChildNodes()) {
                 foreach ($node->childNodes as $child) {
                     $this->walk($child, $maxLength);
                 }
