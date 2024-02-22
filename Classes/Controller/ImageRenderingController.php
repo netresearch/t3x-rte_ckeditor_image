@@ -91,7 +91,7 @@ class ImageRenderingController extends AbstractPlugin
                         $imageSource = $processedFile->getPublicUrl();
 
                         if (null === $imageSource) {
-                            throw new FileDoesNotExistException;
+                            throw new FileDoesNotExistException();
                         }
 
                         $additionalAttributes = [
