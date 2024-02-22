@@ -266,12 +266,9 @@ class RteImagesDbHook
             return $value;
         }
 
-
-
         $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
         $siteHost = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
         $sitePath = '';
-        $siteUrl = '';
 
         if (!is_string($siteUrl)) {
             $siteUrl = '';
