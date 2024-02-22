@@ -288,7 +288,7 @@ class RteImagesDbHook
         $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
         $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
-        $pageTsConfig = BackendUtility::getPagesTsConfig(0);
+        $pageTsConfig = BackendUtility::getPagesTSconfig(0);
         $magicImageService->setMagicImageMaximumDimensions($pageTsConfig['TCEFORM.']['RTE.']['default.'] ?? []);
 
         foreach ($imgSplit as $key => $v) {
