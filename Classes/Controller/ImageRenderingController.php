@@ -144,7 +144,8 @@ class ImageRenderingController extends AbstractPlugin
 
         // Add a leading slash if only a path is given
         if (
-            ($imageSource !== '')
+            is_string($imageSource)
+            && strlen($imageSource) > 0
             && strncasecmp($imageSource, 'http', 4) !== 0
             && strncmp($imageSource, '/', 1) !== 0
             && strpos($imageSource, 'data:image') !== 0
