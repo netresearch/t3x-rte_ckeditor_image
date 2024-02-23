@@ -31,6 +31,10 @@
   failOnRisky="true"
   cacheDirectory=".phpunit.cache"
   requireCoverageMetadata="false"
+  displayDetailsOnTestsThatTriggerDeprecations="true"
+  displayDetailsOnTestsThatTriggerErrors="true"
+  displayDetailsOnTestsThatTriggerNotices="true"
+  displayDetailsOnTestsThatTriggerWarnings="true"
 >
   <testsuites>
     <testsuite name="Functional tests">
@@ -42,16 +46,6 @@
     </testsuite>
   </testsuites>
   <php>
-    <!--
-            @deprecated: Set this to not suppress warnings, notices and deprecations in functional tests
-                         with TYPO3 core v11 and up.
-                         Will always be done with next major version.
-                         To still suppress warnings, notices and deprecations, do NOT define the constant at all.
-            @todo Upgrade BrokenLinkRepository to incorporate core v11 changes and avoid deprecation messages, which
-                  are silenced away. Afterwards define following constant to find out which other places needs to be
-                  fixed and are silenced through error handler usage.
-            <const name="TYPO3_TESTING_FUNCTIONAL_REMOVE_ERROR_HANDLER" value="true" />
-         -->
     <ini name="display_errors" value="1"/>
     <ini name="error_reporting" value="E_ALL"/>
     <env name="TYPO3_CONTEXT" value="Testing"/>
