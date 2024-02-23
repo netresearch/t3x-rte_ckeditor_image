@@ -8,9 +8,9 @@ jobs:
 
     strategy:
       matrix:
-        operating-system: [ubuntu-22.04]
-        php-version: ['8.1', '8.2']
-        core-version: ['12']
+        operating-system: [ubuntu-latest]
+        php-version: ['8.1', '8.2', '8.3']
+        core-version: ['12', '13']
         db: ['mariadb', 'postgres']
 
     name: Testing PHP ${{ matrix.php-version }} on ${{ matrix.operating-system }}
