@@ -3,7 +3,7 @@ name: FunctionalTests
 on: [push, pull_request]
 
 jobs:
-  run:
+  testsuite:
     runs-on: ${{ matrix.operating-system }}
 
     strategy:
