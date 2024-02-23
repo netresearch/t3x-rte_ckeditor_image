@@ -1,6 +1,8 @@
 # copied from EXT:enetcache
 #  https://github.com/lolli42/enetcache/blob/main/Build/testing-docker/docker-compose.yml
----
+
+version: "3"
+
 services:
   mariadb10:
     image: mariadb:10
