@@ -1,8 +1,6 @@
 # copied from EXT:enetcache
 #  https://github.com/lolli42/enetcache/blob/main/Build/testing-docker/docker-compose.yml
-
-
-version: '2.3'
+---
 services:
   mariadb10:
     image: mariadb:10
@@ -33,20 +31,22 @@ services:
           set -x
         fi
         php -v | grep '^PHP';
-        if [ ${TYPO3_VERSION} -eq 11 ]; then
-              composer req --dev --no-update \
-                typo3/cms-composer-installers:^3.0
-              composer req typo3/cms-core:^11.5 --no-update
-        fi
         if [ ${TYPO3_VERSION} -eq 12 ]; then
-            composer req --dev --no-update \
-               "typo3/cms-composer-installers:^5.0" \
-                typo3/cms-backend:^12.4 \
-                typo3/cms-frontend:^12.4 \
-                typo3/cms-extbase:^12.4 \
-                typo3/cms-fluid:^12.4 \
-                typo3/cms-install:^12.4
+            composer req -W --dev --no-update \\
+               "typo3/cms-composer-installers:^5.0"
             composer req typo3/cms-core:^12.4 -W --no-update
+        fi
+        if [ ${TYPO3_VERSION} -eq 13 ]; then
+            composer req -W --dev --no-update \\
+               "typo3/cms-composer-installers:^5.0" \\
+                typo3/cms-backend:^13.0.1 \\
+                typo3/cms-frontend:^13.0.1 \\
+                typo3/cms-extbase:^13.0.1 \\
+                typo3/cms-fluid:^13.0.1 \\
+                typo3/cms-install:^13.0.1 \\
+                typo3/cms-recordlist:^13.0.1 \\
+                typo3/cms-rte-ckeditor:^13.0.1
+            composer req typo3/cms-core:^13.0.1 -W --no-update
         fi
         composer update --no-progress --no-interaction;
       "
