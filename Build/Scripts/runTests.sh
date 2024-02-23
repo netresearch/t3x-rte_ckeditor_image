@@ -56,8 +56,8 @@ Options:
     -d <mariadb|postgres|sqlite>
         Only with -s functional
         Specifies on which DBMS tests are performed
-            - mariadb (default): use mariadb
-            - postgres: use postgres
+            - mariadb: use mariadb
+            - postgres (default): use postgres
             - sqlite: use sqlite
 
     -p <8.3|8.2|8.1>
@@ -120,7 +120,7 @@ cd ../testing-docker || exit 1
 # Option defaults
 ROOT_DIR=`realpath ${PWD}/../../`
 TEST_SUITE="unit"
-DBMS="mariadb"
+DBMS="postgres"
 PHP_VERSION="8.3"
 TYPO3_VERSION="12"
 PHP_XDEBUG_ON=0
