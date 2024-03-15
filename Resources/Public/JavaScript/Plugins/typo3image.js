@@ -427,7 +427,7 @@ export default class Typo3Image extends Core.Plugin {
 
         editor.model.schema.register('typo3image', {
             inheritAllFrom: '$blockObject',
-            allowIn: '$text',
+            allowIn: ['$text', '$block'],
             allowAttributes: [
                 'src',
                 'fileUid',
