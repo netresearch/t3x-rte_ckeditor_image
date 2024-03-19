@@ -3,6 +3,8 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Functional\DataHandling;
 
 use TYPO3\CMS\Core\Database\ReferenceIndex;
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 class RteImageSoftReferenceParserTest extends FunctionalTestCase
