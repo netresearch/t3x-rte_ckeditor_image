@@ -20,7 +20,7 @@ jobs:
           extensions: json,intl,mbstring
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - run: composer validate
       - run: composer install --no-progress

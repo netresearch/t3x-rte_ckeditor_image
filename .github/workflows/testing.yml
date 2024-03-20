@@ -25,7 +25,7 @@ jobs:
           extensions: json,intl,mbstring
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -t ${{ matrix.core-version }} -s composerUpdate
       - run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -t ${{ matrix.core-version }} -s functional -d ${{matrix.db}}
