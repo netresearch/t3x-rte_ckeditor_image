@@ -3,17 +3,20 @@ name: FunctionalTests
 on: [push, pull_request]
 
 jobs:
-  run:
+  testsuite:
     runs-on: ${{ matrix.operating-system }}
 
     strategy:
       matrix:
-        operating-system: [ubuntu-22.04]
-        php-version: ['8.1', '8.2']
-        core-version: ['12']
+        operating-system: [ubuntu-latest]
+        php-version: ['8.1', '8.2', '8.3']
+        core-version: ['12', '13']
         db: ['mariadb', 'postgres']
+        exclude:
+          - php-version: '8.1'
+            core-version: '13'
 
-    name: Testing PHP ${{ matrix.php-version }} on ${{ matrix.operating-system }}
+    name: TYPO3 v${{ matrix.core-version }} with PHP ${{ matrix.php-version }}
 
     steps:
       - uses: shivammathur/setup-php@master
@@ -22,7 +25,7 @@ jobs:
           extensions: json,intl,mbstring
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -t ${{ matrix.core-version }} -s composerUpdate
       - run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -t ${{ matrix.core-version }} -s functional -d ${{matrix.db}}

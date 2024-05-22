@@ -42,7 +42,7 @@ Also used by github actions for test execution.
 
 Usage: $0 [options] [file]
 
-No arguments: Run all unit tests with PHP 7.4
+No arguments: Run all unit tests with PHP 8.3
 
 Options:
     -s <...>
@@ -56,22 +56,21 @@ Options:
     -d <mariadb|postgres|sqlite>
         Only with -s functional
         Specifies on which DBMS tests are performed
-            - mariadb (default): use mariadb
-            - postgres: use postgres
+            - mariadb: use mariadb
+            - postgres (default): use postgres
             - sqlite: use sqlite
 
-    -p <7.4|8.0|8.1|8.2>
+    -p <8.3|8.2|8.1>
         Specifies the PHP minor version to be used
-            - 7.4: (default) use PHP 7.4
-            - 8.0: use PHP 8.0
-            - 8.1: use PHP 8.1
+            - 8.3: (default) use PHP 8.3
             - 8.2: use PHP 8.2
+            - 8.1: use PHP 8.1
 
-    -t <11|12>
+    -t <12|13>
         Only with -s composerUpdate
         Specifies the TYPO3 core major version to be used
-            - 11: (default) use TYPO3 core v11
-            - 12: use TYPO3 core v12
+            - 12: (default) use TYPO3 core v12
+            - 13: use TYPO3 core v13
 
     -e "<phpunit options>"
         Only with -s functional|unit
@@ -121,9 +120,9 @@ cd ../testing-docker || exit 1
 # Option defaults
 ROOT_DIR=`realpath ${PWD}/../../`
 TEST_SUITE="unit"
-DBMS="mariadb"
-PHP_VERSION="7.4"
-TYPO3_VERSION="11"
+DBMS="postgres"
+PHP_VERSION="8.3"
+TYPO3_VERSION="12"
 PHP_XDEBUG_ON=0
 PHP_XDEBUG_PORT=9003
 EXTRA_TEST_OPTIONS=""

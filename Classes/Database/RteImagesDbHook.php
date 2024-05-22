@@ -266,12 +266,9 @@ class RteImagesDbHook
             return $value;
         }
 
-
-
         $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
         $siteHost = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
         $sitePath = '';
-        $siteUrl = '';
 
         if (!is_string($siteUrl)) {
             $siteUrl = '';
@@ -288,7 +285,7 @@ class RteImagesDbHook
         $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
         $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
-        $pageTsConfig = BackendUtility::getPagesTsConfig(0);
+        $pageTsConfig = BackendUtility::getPagesTSconfig(0);
         $magicImageService->setMagicImageMaximumDimensions($pageTsConfig['TCEFORM.']['RTE.']['default.'] ?? []);
 
         foreach ($imgSplit as $key => $v) {
@@ -379,8 +376,7 @@ class RteImagesDbHook
                         $attribArray['src'] = $imgSrc;
                     }
                 } elseif (
-                    !($this->procOptions['dontFetchExtPictures'] ?? false)
-                    && $this->fetchExternalImages
+                    $this->fetchExternalImages
                     && $isBackend
                     && !str_starts_with($absoluteUrl, $siteUrl)
                 ) {
@@ -406,7 +402,7 @@ class RteImagesDbHook
                             || $extension === 'gif'
                             || $extension === 'png'
                         ) {
-                            $fileName = GeneralUtility::shortMD5($absoluteUrl) . '.' . ($pI['extension'] ?? '');
+                            $fileName = substr(md5($absoluteUrl), 0, 10) . '.' . ($pI['extension'] ?? '');
                             // We insert this image into the user default upload folder
                             $folder = $GLOBALS['BE_USER']->getDefaultUploadFolder();
                             $fileObject = $folder->createFile($fileName)->setContents($externalFile);
