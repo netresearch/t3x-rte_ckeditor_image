@@ -89,35 +89,33 @@ class ImageRenderingController extends AbstractPlugin
                     ];
                     $processedFile = $checkProcessed->createProcessedFile($systemImage, $imageConfiguration);
 
-                    if ($processedFile instanceof ProcessedFile) {
-                        $imageSource = $processedFile->getPublicUrl();
+                    $imageSource = $processedFile->getPublicUrl();
 
-                        if (null === $imageSource) {
-                            throw new FileDoesNotExistException();
-                        }
-
-                        $additionalAttributes = [
-                            'src'    => $imageSource,
-                            'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
-                            'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
-                            'width'  => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
-                            'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
-                        ];
-
-                        $lazyLoading = $this->getLazyLoadingConfiguration();
-
-                        if ($lazyLoading !== null) {
-                            $additionalAttributes['loading'] = $lazyLoading;
-                        }
-
-                        // Remove internal attributes
-                        unset(
-                            $imageAttributes['data-title-override'],
-                            $imageAttributes['data-alt-override']
-                        );
-
-                        $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
+                    if (null === $imageSource) {
+                        throw new FileDoesNotExistException();
                     }
+
+                    $additionalAttributes = [
+                        'src'    => $imageSource,
+                        'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
+                        'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
+                        'width'  => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
+                        'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
+                    ];
+
+                    $lazyLoading = $this->getLazyLoadingConfiguration();
+
+                    if ($lazyLoading !== null) {
+                        $additionalAttributes['loading'] = $lazyLoading;
+                    }
+
+                    // Remove internal attributes
+                    unset(
+                        $imageAttributes['data-title-override'],
+                        $imageAttributes['data-alt-override']
+                    );
+
+                    $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
                 } catch (FileDoesNotExistException $fileDoesNotExistException) {
                     // Log in fact the file could not be retrieved
                     $this->getLogger()->log(
@@ -161,7 +159,7 @@ class ImageRenderingController extends AbstractPlugin
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
         if (
             (isset($imageAttributes['data-htmlarea-zoom'])
-            || isset($imageAttributes['data-htmlarea-clickenlarge']))
+                || isset($imageAttributes['data-htmlarea-clickenlarge']))
             && isset($systemImage)
         ) {
             $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];

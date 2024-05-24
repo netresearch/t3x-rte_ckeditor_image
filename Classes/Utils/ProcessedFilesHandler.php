@@ -22,25 +22,18 @@ class ProcessedFilesHandler
      *
      * @param File $file The file object
      * @param array $imageConfiguration The image configuration
-     * @return ProcessedFile|bool
+     * @return ProcessedFile
      */
-    public function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile|bool
+    public function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile
     {
         /** @var ImageService $imageService */
         $imageService = GeneralUtility::makeInstance(ImageService::class);
 
         // Process the file with the given configuration
         try {
-            $processedImage = $imageService->applyProcessingInstructions($file, $imageConfiguration);
-
-            // Check if the processed file exists
-            if ($processedImage->getOriginalFile()->exists()) {
-                return $processedImage;
-            }
-
-            return false;
+            return $imageService->applyProcessingInstructions($file, $imageConfiguration);
         } catch (\Exception $e) {
-            return false;
+            throw new \Exception('Could not create processed file', 1716565499);
         }
     }
 }
