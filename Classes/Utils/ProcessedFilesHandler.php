@@ -34,7 +34,7 @@ class ProcessedFilesHandler
             $processedImage = $imageService->applyProcessingInstructions($file, $imageConfiguration);
 
             // Check if the processed file exists
-            if ($processedImage instanceof ProcessedFile && $processedImage->getOriginalFile()->exists()) {
+            if ($processedImage->getOriginalFile()->exists()) {
                 return $processedImage;
             }
 
