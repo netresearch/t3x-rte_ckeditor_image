@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use Psr\Log\LogLevel as PsrLogLevel;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -82,8 +83,8 @@ class ImageRenderingController extends AbstractPlugin
                     // check if there is a processed variant, if not, create one
                     $processedFile = null;
                     if ($systemImage instanceof File) {
-                        /** @var \Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler $checkProcessed */
-                        $checkProcessed = GeneralUtility::makeInstance(\Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler::class);
+                        /** @var ProcessedFilesHandler $checkProcessed */
+                        $checkProcessed = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
                         $imageConfiguration = [
                             'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width') ?? 0),
                             'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
@@ -91,7 +92,7 @@ class ImageRenderingController extends AbstractPlugin
                         $processedFile = $checkProcessed->createProcessedFile($systemImage, $imageConfiguration);
                     }
 
-                    if ($processedFile !== false) {
+                    if ($processedFile instanceof ProcessedFile) {
                         $imageSource = $processedFile->getPublicUrl();
 
                         if (null === $imageSource) {
