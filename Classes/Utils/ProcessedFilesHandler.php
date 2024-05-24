@@ -2,25 +2,29 @@
 
 namespace Netresearch\RteCKEditorImage\Utils;
 
+use Symfony\Component\Process\Process;
 use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\ImageService;
 
-class CheckProcessed
+class ProcessedFilesHandler
 {
     /**
-     * Check if a file has a processed variant
+     * Create a processed variant of a file based on the given configuration.
+     * Returns the processedFile or false if the file could not be created
      *
-     *   $processingConfiguration = [
+     * Example for the image configuration:
+     *   $imageConfiguration = [
      *     'width' => '200c',
      *     'height' => '200c',
      *   ];
      *
      * @param File $file The file object
      * @param array $imageConfiguration The image configuration
-     * @return bool True if there is a processed variant, otherwise false
+     * @return ProcessedFile|bool
      */
-    function hasProcessedVariant(File $file, array $imageConfiguration): bool
+    function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile|bool
     {
         /** @var ImageService $imageService */
         $imageService = GeneralUtility::makeInstance(ImageService::class);
@@ -30,7 +34,11 @@ class CheckProcessed
             $processedImage = $imageService->applyProcessingInstructions($file, $imageConfiguration);
 
             // Check if the processed file exists
-            return $processedImage !== null && $processedImage->getOriginalFile()->exists();
+            if ($processedImage instanceof ProcessedFile && $processedImage->getOriginalFile()->exists()) {
+                return $processedImage;
+            }
+
+            return false;
         } catch (\Exception $e) {
             return false;
         }

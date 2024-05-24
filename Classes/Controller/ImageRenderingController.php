@@ -16,6 +16,7 @@ use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -78,28 +79,19 @@ class ImageRenderingController extends AbstractPlugin
                     $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
                     $systemImage     = $resourceFactory->getFileObject($fileUid);
 
-                    // check if there is a processed variant
-                    $hasProcessedVariant = false;
+                    // check if there is a processed variant, if not, create one
+                    $processedFile = null;
                     if ($systemImage instanceof File) {
-                        /** @var \Netresearch\RteCKEditorImage\Utils\CheckProcessed $checkProcessed */
-                        $checkProcessed = GeneralUtility::makeInstance(\Netresearch\RteCKEditorImage\Utils\CheckProcessed::class);
+                        /** @var \Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler $checkProcessed */
+                        $checkProcessed = GeneralUtility::makeInstance(\Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler::class);
                         $imageConfiguration = [
                             'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width') ?? 0),
                             'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
                         ];
-                        $hasProcessedVariant = $checkProcessed->hasProcessedVariant($systemImage, $imageConfiguration);
+                        $processedFile = $checkProcessed->createProcessedFile($systemImage, $imageConfiguration);
                     }
 
-                    if ($hasProcessedVariant) { //$imageSource !== $systemImage->getPublicUrl()) {
-                        // Source file is a processed image
-                        $imageConfiguration = [
-                            'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width') ?? 0),
-                            'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
-                        ];
-
-                        $processedFile = $this->getMagicImageService()
-                            ->createMagicImage($systemImage, $imageConfiguration);
-
+                    if ($processedFile !== false && $processedFile instanceof ProcessedFile) {
                         $imageSource = $processedFile->getPublicUrl();
 
                         if (null === $imageSource) {
