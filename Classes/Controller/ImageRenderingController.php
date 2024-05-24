@@ -78,7 +78,19 @@ class ImageRenderingController extends AbstractPlugin
                     $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
                     $systemImage     = $resourceFactory->getFileObject($fileUid);
 
-                    if ($imageSource !== $systemImage->getPublicUrl()) {
+                    // check if there is a processed variant
+                    $hasProcessedVariant = false;
+                    if ($systemImage instanceof File) {
+                        /** @var \Netresearch\RteCKEditorImage\Utils\CheckProcessed $checkProcessed */
+                        $checkProcessed = GeneralUtility::makeInstance(\Netresearch\RteCKEditorImage\Utils\CheckProcessed::class);
+                        $imageConfiguration = [
+                            'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width') ?? 0),
+                            'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
+                        ];
+                        $hasProcessedVariant = $checkProcessed->hasProcessedVariant($systemImage, $imageConfiguration);
+                    }
+
+                    if ($hasProcessedVariant) { //$imageSource !== $systemImage->getPublicUrl()) {
                         // Source file is a processed image
                         $imageConfiguration = [
                             'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width') ?? 0),
