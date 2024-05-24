@@ -91,7 +91,7 @@ class ImageRenderingController extends AbstractPlugin
                         $processedFile = $checkProcessed->createProcessedFile($systemImage, $imageConfiguration);
                     }
 
-                    if ($processedFile !== false && $processedFile instanceof ProcessedFile) {
+                    if ($processedFile !== false) {
                         $imageSource = $processedFile->getPublicUrl();
 
                         if (null === $imageSource) {
