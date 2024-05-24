@@ -24,7 +24,7 @@ class ProcessedFilesHandler
      * @param array $imageConfiguration The image configuration
      * @return ProcessedFile|bool
      */
-    function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile|bool
+    public function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile|bool
     {
         /** @var ImageService $imageService */
         $imageService = GeneralUtility::makeInstance(ImageService::class);
