@@ -81,13 +81,13 @@ class ImageRenderingController extends AbstractPlugin
                     $systemImage     = $resourceFactory->getFileObject($fileUid);
 
                     // check if there is a processed variant, if not, create one
-                    /** @var ProcessedFilesHandler $checkProcessed */
-                    $checkProcessed = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
+                    /** @var ProcessedFilesHandler $processedHandler */
+                    $processedHandler = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
                     $imageConfiguration = [
                         'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width') ?? 0),
                         'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
                     ];
-                    $processedFile = $checkProcessed->createProcessedFile($systemImage, $imageConfiguration);
+                    $processedFile = $processedHandler->createProcessedFile($systemImage, $imageConfiguration);
 
                     $imageSource = $processedFile->getPublicUrl();
 
