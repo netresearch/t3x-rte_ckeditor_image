@@ -12,7 +12,7 @@ class ProcessedFilesHandler
 {
     /**
      * Create a processed variant of a file based on the given configuration.
-     * Returns the processedFile or false if the file could not be created
+     * Returns the ProcessedFile or throws an exception if creation failed.
      *
      * Example for the image configuration:
      *   $imageConfiguration = [
