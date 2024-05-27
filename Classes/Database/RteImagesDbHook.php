@@ -286,7 +286,7 @@ class RteImagesDbHook
         $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
         $pageTsConfig = BackendUtility::getPagesTSconfig(0);
-        $magicImageService->setMagicImageMaximumDimensions($pageTsConfig['TCEFORM.']['RTE.']['default.'] ?? []);
+        $magicImageService->setMagicImageMaximumDimensions($pageTsConfig['RTE.']['default.'] ?? []);
 
         foreach ($imgSplit as $key => $v) {
             // Odd numbers contains the <img> tags
