@@ -11,11 +11,13 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use Psr\Log\LogLevel as PsrLogLevel;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -78,44 +80,42 @@ class ImageRenderingController extends AbstractPlugin
                     $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
                     $systemImage     = $resourceFactory->getFileObject($fileUid);
 
-                    if ($imageSource !== $systemImage->getPublicUrl()) {
-                        // Source file is a processed image
-                        $imageConfiguration = [
-                            'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width') ?? 0),
-                            'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
-                        ];
+                    // check if there is a processed variant, if not, create one
+                    /** @var ProcessedFilesHandler $processedHandler */
+                    $processedHandler = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
+                    $imageConfiguration = [
+                        'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width') ?? 0),
+                        'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
+                    ];
+                    $processedFile = $processedHandler->createProcessedFile($systemImage, $imageConfiguration);
 
-                        $processedFile = $this->getMagicImageService()
-                            ->createMagicImage($systemImage, $imageConfiguration);
+                    $imageSource = $processedFile->getPublicUrl();
 
-                        $imageSource = $processedFile->getPublicUrl();
-
-                        if (null === $imageSource) {
-                            throw new FileDoesNotExistException();
-                        }
-
-                        $additionalAttributes = [
-                            'src'    => $imageSource,
-                            'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
-                            'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
-                            'width'  => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
-                            'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
-                        ];
-
-                        $lazyLoading = $this->getLazyLoadingConfiguration();
-
-                        if ($lazyLoading !== null) {
-                            $additionalAttributes['loading'] = $lazyLoading;
-                        }
-
-                        // Remove internal attributes
-                        unset(
-                            $imageAttributes['data-title-override'],
-                            $imageAttributes['data-alt-override']
-                        );
-
-                        $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
+                    if (null === $imageSource) {
+                        throw new FileDoesNotExistException();
                     }
+
+                    $additionalAttributes = [
+                        'src'    => $imageSource,
+                        'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
+                        'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
+                        'width'  => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
+                        'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
+                    ];
+
+                    $lazyLoading = $this->getLazyLoadingConfiguration();
+
+                    if ($lazyLoading !== null) {
+                        $additionalAttributes['loading'] = $lazyLoading;
+                    }
+
+                    // Remove internal attributes
+                    unset(
+                        $imageAttributes['data-title-override'],
+                        $imageAttributes['data-alt-override']
+                    );
+
+                    $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
                 } catch (FileDoesNotExistException $fileDoesNotExistException) {
                     // Log in fact the file could not be retrieved
                     $this->getLogger()->log(
@@ -159,7 +159,7 @@ class ImageRenderingController extends AbstractPlugin
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
         if (
             (isset($imageAttributes['data-htmlarea-zoom'])
-            || isset($imageAttributes['data-htmlarea-clickenlarge']))
+                || isset($imageAttributes['data-htmlarea-clickenlarge']))
             && isset($systemImage)
         ) {
             $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];

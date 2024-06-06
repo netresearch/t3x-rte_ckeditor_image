@@ -1,4 +1,4 @@
-# 12.0.1
+# 12.0.2
 
 ## TASK
 
@@ -20,6 +20,32 @@
 
 ## MISC
 
+- Allow inline images 0316b33
+- Ignore .cache and composer.json.testing which are created during running the test suites, because they do not need to beeing tracked in the repository. 8978558
+- chore: update actions to fix Node.js 16 actions are deprecated. db31a83
+- Show more information in functional tests e673dcc
+- fix previous test changes 300ba5d
+- make test compatible with TYPO3 > v12 3f98798
+- improve functional test job name ec3dfc1
+- chore: exclude TYPO3 v13 + PHP 8.1 from test matrix due to 'typo3/cms-core v13.0.1 requires php ^8.2' 5cf301d
+- chore: migrate composeUpdate step for supporting TYPO3 v12 as default and TYPO3 v13 ae7b4b1
+- use Postgres as default DBMS in tests - it's image is smaller and the tests therefore faster 462deec
+- chore: update test suite with latest PHP and TYPO3 versions a392215
+- chore: give the action job a meaningful name d882e78
+- chore: fix package name for cms_rte_ckeditor in ext_emconf.php 5cff197
+- chore: migrate phpunit configuration bb2e525
+- fix: functional tests adb9c9c
+- fix: do not override TYPO3_SITE_URL 2b8c79a
+- chore: fix CS 10e2bb2
+- fix: validate imageSource only if not NULL 753b3fc
+- fix: call to undefined method - GeneralUtility::shortMD5() was removed in TYPO3 v12 e89e844
+- fix: remove access to non existant property It was removed long ago and requested configuration option does not exists anymore since TYPO3 v10 f5ce607
+- chore: fix function name case a370ff7
+- chore: remove dead code a096121
+- fix: ensure $imageSource is valid before working with it. 41d67f8
+- chore: remove obsolete phpstan ignore error patterns dc80f2e
+- set GitHub codespace environment container to PHP (8.2) 3d74578
+- fix #270: circumvent PHP < 7.4.4 bug with childNodes being NULL 36201ef
 - Apply class to  bacbd45
 - chore: coding style 962dd48
 - chore: fix coding style 9f8628a
