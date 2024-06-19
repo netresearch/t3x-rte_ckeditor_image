@@ -31,20 +31,7 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
         ```shell
         composer req netresearch/rte-ckeditor-image
         ```
-
-    2. download from [TYPO3 TER](https://extensions.typo3.org/extension/rte_ckeditor_image/)
-
-2. Activate the extension
-
-    1. in Extension Manager
-
-    2. via command line
-
-        ```shell
-        ./typo3/cli_dispatch.phpsh extbase extension:install rte_ckeditor_image
-        ```
-
-3. Add a preset for rte_ckeditor or override the default one (as below):
+2. Add a preset for rte_ckeditor or override the default one (as below):
 
     ```php
     <?php
@@ -64,6 +51,10 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
       config:
         # RTE default config removes image plugin - restore it:
         removePlugins: null
+        toolbar:
+          items:
+            - '|'
+            - insertImage
     ```
 
 4. Enable RTE config preset (e.g. `default`)
