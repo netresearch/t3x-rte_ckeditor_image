@@ -65,7 +65,7 @@ class SelectImageController extends ElementBrowserController
         $queryParams = $request->getQueryParams();
 
         if (!$isInfoAction) {
-            $bparams = explode('|', $queryParams['bparams']);
+            $bparams = explode('|', (string) $queryParams['bparams']);
 
             if (isset($bparams[3]) && ($bparams[3] === '')) {
                 $bparams[3] = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
@@ -148,7 +148,7 @@ class SelectImageController extends ElementBrowserController
             if ($file->isDeleted() || $file->isMissing()) {
                 $file = null;
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $file = null;
         }
 

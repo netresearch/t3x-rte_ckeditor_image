@@ -72,7 +72,7 @@ class RteImagesDbHook
         $this->fetchExternalImages = (bool) $extensionConfiguration
             ->get('rte_ckeditor_image', 'fetchExternalImages');
 
-        $this->logger = $logManager->getLogger(__CLASS__);
+        $this->logger = $logManager->getLogger(self::class);
     }
 
     /**
@@ -115,7 +115,7 @@ class RteImagesDbHook
                 if (($key % 2) === 1) {
                     // Get the attributes of the img tag
                     [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
-                    $absoluteUrl = trim($attribArray['src']);
+                    $absoluteUrl = trim((string) $attribArray['src']);
 
                     // Transform the src attribute into an absolute url, if it not already
                     if (strncasecmp($absoluteUrl, 'http', 4) !== 0) {
@@ -294,7 +294,7 @@ class RteImagesDbHook
                 // Get attributes
                 [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
                 // It's always an absolute URL coming from the RTE into the Database.
-                $absoluteUrl = trim($attribArray['src']);
+                $absoluteUrl = trim((string) $attribArray['src']);
 
                 // Make path absolute if it is relative, and we have a site path which is not '/'
                 if (($sitePath !== '') && str_starts_with($absoluteUrl, $sitePath)) {
@@ -369,7 +369,7 @@ class RteImagesDbHook
 
                         // publicUrl like 'https://www.domain.xy/typo3/image/process?token=...'?
                         // -> generate img source from storage basepath and identifier instead
-                        if ($imgSrc !== null && strpos($imgSrc, 'process?token=') !== false) {
+                        if ($imgSrc !== null && str_contains((string) $imgSrc, 'process?token=')) {
                             $imgSrc = $originalImageFile->getStorage()->getPublicUrl($magicImage);
                         }
 
@@ -387,7 +387,7 @@ class RteImagesDbHook
                     $externalFile = null;
                     try {
                         $externalFile = GeneralUtility::getUrl($absoluteUrl);
-                    } catch (Throwable $e) {
+                    } catch (Throwable) {
                         // do nothing, further image processing will be skipped
                     }
                     if ($externalFile !== null) {
@@ -444,7 +444,7 @@ class RteImagesDbHook
                                     $attribArray['data-htmlarea-file-uid'] = $fileUid;
                                 }
                             }
-                        } catch (ResourceDoesNotExistException $resourceDoesNotExistException) {
+                        } catch (ResourceDoesNotExistException) {
                             // Nothing to be done if file/folder not found
                         }
                     }
@@ -464,8 +464,8 @@ class RteImagesDbHook
                     $attribArray['alt'] = '';
                 }
                 // Convert absolute to relative url
-                if (str_starts_with($attribArray['src'], $siteUrl)) {
-                    $attribArray['src'] = substr($attribArray['src'], strlen($siteUrl));
+                if (str_starts_with((string) $attribArray['src'], $siteUrl)) {
+                    $attribArray['src'] = substr((string) $attribArray['src'], strlen($siteUrl));
                 }
                 $imgSplit[$key] = '<img ' . GeneralUtility::implodeAttributes($attribArray, true, true) . ' />';
             }

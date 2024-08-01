@@ -74,7 +74,7 @@ class ImageLinkRenderingController extends AbstractPlugin
         $parsedImages = [];
 
         // Extract all TYPO3 images from link content
-        preg_match_all($imgSearchPattern, $linkContent, $passedImages);
+        preg_match_all($imgSearchPattern, (string) $linkContent, $passedImages);
 
         $passedImages = $passedImages[0];
 
@@ -139,7 +139,7 @@ class ImageLinkRenderingController extends AbstractPlugin
 
                         // Image template; empty attributes are removed by 3rd param 'false'
                         $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
-                    } catch (FileDoesNotExistException $fileDoesNotExistException) {
+                    } catch (FileDoesNotExistException) {
                         $parsedImages[] = strip_tags($passedImage, '<img>');
 
                         // Log in fact the file could not be retrieved
@@ -221,7 +221,7 @@ class ImageLinkRenderingController extends AbstractPlugin
     protected function getLogger(): Logger
     {
         return GeneralUtility::makeInstance(LogManager::class)
-            ->getLogger(get_class($this));
+            ->getLogger(static::class);
     }
 
     /**

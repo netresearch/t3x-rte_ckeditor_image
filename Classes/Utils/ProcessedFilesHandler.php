@@ -32,7 +32,7 @@ class ProcessedFilesHandler
         // Process the file with the given configuration
         try {
             return $imageService->applyProcessingInstructions($file, $imageConfiguration);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new \Exception('Could not create processed file', 1716565499);
         }
     }
