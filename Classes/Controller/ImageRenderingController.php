@@ -116,7 +116,7 @@ class ImageRenderingController extends AbstractPlugin
                     );
 
                     $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
-                } catch (FileDoesNotExistException $fileDoesNotExistException) {
+                } catch (FileDoesNotExistException) {
                     // Log in fact the file could not be retrieved
                     $this->getLogger()->log(
                         PsrLogLevel::ERROR,
@@ -147,8 +147,8 @@ class ImageRenderingController extends AbstractPlugin
             is_string($imageSource)
             && strlen($imageSource) > 0
             && strncasecmp($imageSource, 'http', 4) !== 0
-            && strncmp($imageSource, '/', 1) !== 0
-            && strpos($imageSource, 'data:image') !== 0
+            && !str_starts_with($imageSource, '/')
+            && !str_starts_with($imageSource, 'data:image')
         ) {
             $imageAttributes['src'] = '/' . $imageSource;
         }
@@ -239,14 +239,14 @@ class ImageRenderingController extends AbstractPlugin
     protected function isExternalImage(string $imageSource): bool
     {
         // https://github.com/netresearch/t3x-rte_ckeditor_image/issues/187
-        if (strpos($imageSource, '/typo3/image/process?token') !== false) {
+        if (str_contains($imageSource, '/typo3/image/process?token')) {
             // is a 11LTS backend processing url only valid for BE users, thus reprocessing needed
             return false;
         }
 
         // Source starts with "http(s)" or a double slash
         return (strncasecmp($imageSource, 'http', 4) === 0)
-            || (strncmp($imageSource, '//', 2) === 0);
+            || (str_starts_with($imageSource, '//'));
     }
 
     /**
@@ -255,7 +255,7 @@ class ImageRenderingController extends AbstractPlugin
     protected function getLogger(): Logger
     {
         return GeneralUtility::makeInstance(LogManager::class)
-            ->getLogger(get_class($this));
+            ->getLogger(static::class);
     }
 
     /**
