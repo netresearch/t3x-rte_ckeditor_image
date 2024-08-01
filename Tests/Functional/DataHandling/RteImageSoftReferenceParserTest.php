@@ -13,6 +13,10 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
         'typo3conf/ext/rte_ckeditor_image',
     ];
 
+    protected array $coreExtensionsToLoad = [
+        'typo3/cms-rte-ckeditor',
+    ];
+
     /**
      * @test
      */
