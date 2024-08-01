@@ -6,3 +6,4 @@ vendor/
 public/
 .cache/
 composer.json.testing
+rector/
