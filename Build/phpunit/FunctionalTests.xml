@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
     Functional test suite setup
 
@@ -9,24 +10,20 @@
 -->
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
     backupGlobals="true"
+    beStrictAboutTestsThatDoNotTestAnything="false"
     bootstrap="FunctionalTestsBootstrap.php"
+    cacheDirectory=".phpunit.cache"
     cacheResult="false"
     colors="true"
-    convertErrorsToExceptions="true"
-    convertWarningsToExceptions="true"
-    convertNoticesToExceptions="true"
-    convertDeprecationsToExceptions="true"
-    forceCoversAnnotation="false"
+    failOnRisky="true"
+    failOnWarning="true"
+    requireCoverageMetadata="false"
     stopOnError="false"
     stopOnFailure="false"
     stopOnIncomplete="false"
     stopOnSkipped="false"
-    verbose="false"
-    beStrictAboutTestsThatDoNotTestAnything="false"
-    failOnWarning="true"
-    failOnRisky="true"
 >
   <testsuites>
     <testsuite name="Functional tests">
