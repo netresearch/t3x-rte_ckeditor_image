@@ -22,7 +22,7 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
-use TYPO3\CMS\Recordlist\Controller\ElementBrowserController;
+use \TYPO3\CMS\Backend\Controller\ElementBrowserController;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**

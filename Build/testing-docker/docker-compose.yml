@@ -44,7 +44,6 @@ services:
                 typo3/cms-extbase:^13.0.1 \\
                 typo3/cms-fluid:^13.0.1 \\
                 typo3/cms-install:^13.0.1 \\
-                typo3/cms-recordlist:^13.0.1 \\
                 typo3/cms-rte-ckeditor:^13.0.1
             composer req typo3/cms-core:^13.0.1 -W --no-update
         fi
