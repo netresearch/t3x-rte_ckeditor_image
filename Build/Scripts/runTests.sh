@@ -511,15 +511,30 @@ case ${TEST_SUITE} in
         ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-install-highest-${SUFFIX} -e COMPOSER_CACHE_DIR=.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} /bin/bash -c "
             if [ ${TYPO3_VERSION} -eq 11 ]; then
               composer require --no-ansi --no-interaction --no-progress --no-install \
-                typo3/cms-core:^11.5.38 || exit 1
+                typo3/cms-core:^11.5.38 \\
+                typo3/cms-backend:^11.5.38 \\
+                typo3/cms-frontend:^11.5.38 \\
+                typo3/cms-extbase:^11.5.38 \\
+                typo3/cms-rte-ckeditor:^11.5.38 \\
+                || exit 1
             fi
             if [ ${TYPO3_VERSION} -eq 12 ]; then
               composer require --no-ansi --no-interaction --no-progress --no-install \
-                typo3/cms-core:^12.4.17 || exit 1
+                typo3/cms-core:^12.4.17 \\
+                typo3/cms-backend:^12.4.17 \\
+                typo3/cms-frontend:^12.4.17 \\
+                typo3/cms-extbase:^12.4.17 \\
+                typo3/cms-rte-ckeditor:^12.4.17 \\
+                 || exit 1
             fi
             if [ ${TYPO3_VERSION} -eq 13 ]; then
               composer require --no-ansi --no-interaction --no-progress --no-install \
-                typo3/cms-core:^13.2.1 || exit 1
+                typo3/cms-core:^13.2.1 \\
+                typo3/cms-backend:^13.2.1 \\
+                typo3/cms-frontend:^13.2.1 \\
+                typo3/cms-extbase:^13.2.1 \\
+                typo3/cms-rte-ckeditor:^13.2.1 \\
+                 || exit 1
             fi
             composer update --no-progress --no-interaction  || exit 1
             composer show || exit 1
