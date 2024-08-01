@@ -3,7 +3,7 @@
     "type": "typo3-cms-extension",
     "description": "Image support in CKEditor for the TYPO3 ecosystem",
     "homepage": "https://github.com/netresearch/t3x-rte_ckeditor_image",
-    "license": "AGPL-3.0",
+    "license": "AGPL-3.0-or-later",
     "require": {
         "ext-dom": "*",
         "ext-libxml": "*",
