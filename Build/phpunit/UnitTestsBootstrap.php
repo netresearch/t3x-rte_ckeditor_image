@@ -13,7 +13,7 @@
  */
 
 /**
- * Boilerplate for a functional test phpunit boostrap file.
+ * Boilerplate for a unit test phpunit boostrap file.
  *
  * This file is loosely maintained within TYPO3 testing-framework, extensions
  * are encouraged to not use it directly, but to copy it to an own place,
@@ -45,8 +45,9 @@
 
     $testbase->defineSitePath();
 
+    $composerMode = defined('TYPO3_COMPOSER_MODE') && TYPO3_COMPOSER_MODE === true;
     $requestType = \TYPO3\CMS\Core\Core\SystemEnvironmentBuilder::REQUESTTYPE_BE | \TYPO3\CMS\Core\Core\SystemEnvironmentBuilder::REQUESTTYPE_CLI;
-    \TYPO3\TestingFramework\Core\SystemEnvironmentBuilder::run(0, $requestType);
+    \TYPO3\TestingFramework\Core\SystemEnvironmentBuilder::run(0, $requestType, $composerMode);
 
     $testbase->createDirectory(\TYPO3\CMS\Core\Core\Environment::getPublicPath() . '/typo3conf/ext');
     $testbase->createDirectory(\TYPO3\CMS\Core\Core\Environment::getPublicPath() . '/typo3temp/assets');
