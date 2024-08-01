@@ -12,6 +12,11 @@
 		"ghcr.io/devcontainers-contrib/features/composer:1": {},
 		"ghcr.io/opencodeco/devcontainers/install-php-extensions:0": {
 			"extensions": "intl"
+		},
+		"docker-in-docker": {
+			"version": "latest",
+			"moby": true,
+			"dockerDashComposeVersion": "v2"
 		}
 	},
 
