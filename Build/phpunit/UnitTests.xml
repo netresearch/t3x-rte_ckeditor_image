@@ -23,14 +23,12 @@
   colors="true"
   failOnWarning="true"
   failOnRisky="true"
-  forceCoversAnnotation="false"
   processIsolation="false"
   stopOnError="false"
   stopOnFailure="false"
   stopOnIncomplete="false"
   stopOnSkipped="false"
   requireCoverageMetadata="false"
-  verbose="false"
 >
   <coverage/>
   <testsuites>

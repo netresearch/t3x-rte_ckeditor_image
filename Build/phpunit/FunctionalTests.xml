@@ -18,13 +18,11 @@
     colors="true"
     failOnRisky="true"
     failOnWarning="true"
-    forceCoversAnnotation="false"
     requireCoverageMetadata="false"
     stopOnError="false"
     stopOnFailure="false"
     stopOnIncomplete="false"
     stopOnSkipped="false"
-    verbose="false"
 >
   <coverage/>
   <testsuites>
