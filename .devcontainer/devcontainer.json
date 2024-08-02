@@ -1,3 +1,25 @@
 {
-	"image": "mcr.microsoft.com/devcontainers/php"
+	"image": "mcr.microsoft.com/devcontainers/php",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"github.vscode-github-actions"
+			]
+		}
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/devcontainers-contrib/features/composer:1": {},
+		"ghcr.io/opencodeco/devcontainers/install-php-extensions:0": {
+			"extensions": "intl soap imagick pcov pcntl apcu exif gd mysqli zip"
+		},
+		"docker-in-docker": {
+			"version": "latest",
+			"moby": true,
+			"dockerDashComposeVersion": "v2"
+		}
+	},
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "composer install; mkdir rector; cd rector; composer init -n --name local/rector; composer require ssch/typo3-rector -n; cd ..; rector/vendor/bin/rector --version"
 }

@@ -27,5 +27,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -t ${{ matrix.core-version }} -s composerUpdate
-      - run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -t ${{ matrix.core-version }} -s functional -d ${{matrix.db}}
+      - name: Install testing system
+        run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -t ${{ matrix.core-version }} -s composerInstallHighest
+
+      - name: Functional Tests
+        run: Build/Scripts/runTests.sh -p ${{ matrix.php-version }} -t ${{ matrix.core-version }} -s functional -d ${{matrix.db}}

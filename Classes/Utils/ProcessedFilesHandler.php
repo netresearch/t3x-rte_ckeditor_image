@@ -21,7 +21,7 @@ class ProcessedFilesHandler
      *   ];
      *
      * @param File $file The file object
-     * @param array $imageConfiguration The image configuration
+     * @param mixed[] $imageConfiguration The image configuration
      * @return ProcessedFile
      */
     public function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile
@@ -32,7 +32,7 @@ class ProcessedFilesHandler
         // Process the file with the given configuration
         try {
             return $imageService->applyProcessingInstructions($file, $imageConfiguration);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new \Exception('Could not create processed file', 1716565499);
         }
     }

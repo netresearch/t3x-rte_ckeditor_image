@@ -31,7 +31,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
      *
      * @var HtmlParser
      */
-    private HtmlParser $htmlParser;
+    private readonly HtmlParser $htmlParser;
 
     /**
      * @var array<int, string>

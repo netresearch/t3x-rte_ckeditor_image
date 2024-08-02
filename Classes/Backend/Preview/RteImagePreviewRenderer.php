@@ -30,6 +30,8 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
 {
     private bool $reachedLimit = false;
     private int $totalLength = 0;
+
+    /** @var DOMNode[] */
     private array $toRemove = [];
 
     /**
@@ -106,7 +108,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
 
         // Remove any nodes that exceed limit
         foreach ($toRemove as $child) {
-            $child->parentNode->removeChild($child);
+            $child->parentNode?->removeChild($child);
         }
 
         $result = $dom->saveHTML();
@@ -120,7 +122,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
      * @param DOMNode $node
      * @param int     $maxLength
      *
-     * @return array
+     * @return DOMNode[]
      */
     private function walk(DOMNode $node, int $maxLength): array
     {

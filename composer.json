@@ -3,14 +3,13 @@
     "type": "typo3-cms-extension",
     "description": "Image support in CKEditor for the TYPO3 ecosystem",
     "homepage": "https://github.com/netresearch/t3x-rte_ckeditor_image",
-    "license": "AGPL-3.0",
+    "license": "AGPL-3.0-or-later",
     "require": {
         "ext-dom": "*",
         "ext-libxml": "*",
         "typo3/cms-core": "^12.4",
         "typo3/cms-backend": "^12.4",
         "typo3/cms-frontend": "^12.4",
-        "typo3/cms-recordlist": "^12.4",
         "typo3/cms-extbase": "^12.4",
         "typo3/cms-rte-ckeditor": "^12.4"
     },
@@ -19,7 +18,10 @@
         "phpstan/phpstan-strict-rules": "^1.4",
         "phpstan/phpstan-phpunit": "^1.3",
         "squizlabs/php_codesniffer": "^3.7",
-        "typo3/testing-framework": "^8.0.7"
+        "typo3/testing-framework": "^8.0.7",
+        "phpstan/phpstan-deprecation-rules": "^1.2",
+        "friendsoftypo3/phpstan-typo3": "^0.9.0",
+        "friendsofphp/php-cs-fixer": "^3.61"
     },
     "config": {
         "vendor-dir": ".Build/vendor",

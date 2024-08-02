@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace Netresearch\RteCKEditorImage\Tests\Functional\DataHandling;
 
 use TYPO3\CMS\Core\Database\ReferenceIndex;
@@ -11,6 +13,10 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
 {
     protected array $testExtensionsToLoad = [
         'typo3conf/ext/rte_ckeditor_image',
+    ];
+
+    protected array $coreExtensionsToLoad = [
+        'typo3/cms-rte-ckeditor',
     ];
 
     /**
