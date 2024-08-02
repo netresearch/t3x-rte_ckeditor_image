@@ -36,6 +36,76 @@ cleanUp() {
 }
 
 handleDbmsOptions() {
+    # -a, -d, -i depend on each other. Validate input combinations and set defaults.
+    case ${DBMS} in
+        mariadb)
+            [ -z "${DATABASE_DRIVER}" ] && DATABASE_DRIVER="mysqli"
+            if [ "${DATABASE_DRIVER}" != "mysqli" ] && [ "${DATABASE_DRIVER}" != "pdo_mysql" ]; then
+                echo "Invalid combination -d ${DBMS} -a ${DATABASE_DRIVER}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            [ -z "${DBMS_VERSION}" ] && DBMS_VERSION="10.3"
+            if ! [[ ${DBMS_VERSION} =~ ^(10.3|10.4|10.5|10.6|10.7|10.8|10.9|10.10|10.11|11.0|11.1)$ ]]; then
+                echo "Invalid combination -d ${DBMS} -i ${DBMS_VERSION}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            ;;
+        mysql)
+            [ -z "${DATABASE_DRIVER}" ] && DATABASE_DRIVER="mysqli"
+            if [ "${DATABASE_DRIVER}" != "mysqli" ] && [ "${DATABASE_DRIVER}" != "pdo_mysql" ]; then
+                echo "Invalid combination -d ${DBMS} -a ${DATABASE_DRIVER}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            [ -z "${DBMS_VERSION}" ] && DBMS_VERSION="8.0"
+            if ! [[ ${DBMS_VERSION} =~ ^(5.5|5.6|5.7|8.0)$ ]]; then
+                echo "Invalid combination -d ${DBMS} -i ${DBMS_VERSION}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            ;;
+        postgres)
+            if [ -n "${DATABASE_DRIVER}" ]; then
+                echo "Invalid combination -d ${DBMS} -a ${DATABASE_DRIVER}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            [ -z "${DBMS_VERSION}" ] && DBMS_VERSION="10"
+            if ! [[ ${DBMS_VERSION} =~ ^(10|11|12|13|14|15|16)$ ]]; then
+                echo "Invalid combination -d ${DBMS} -i ${DBMS_VERSION}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            ;;
+        sqlite)
+            if [ -n "${DATABASE_DRIVER}" ]; then
+                echo "Invalid combination -d ${DBMS} -a ${DATABASE_DRIVER}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            if [ -n "${DBMS_VERSION}" ]; then
+                echo "Invalid combination -d ${DBMS} -i ${DATABASE_DRIVER}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            ;;
+        *)
+            echo "Invalid option -d ${DBMS}" >&2
+            echo >&2
+            echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+            exit 1
+            ;;
+    esac
 }
 
 cleanCacheFiles() {
@@ -62,6 +132,165 @@ cleanRenderedDocumentationFiles() {
 }
 
 loadHelp() {
+    # Load help text into $HELP
+    read -r -d '' HELP <<EOF
+TYPO3 core test runner. Execute unit, functional and other test suites in
+a container based test environment. Handles execution of single test files,
+sending xdebug information to a local IDE and more.
+
+Usage: $0 [options] [file]
+
+Options:
+    -s <...>
+        Specifies which test suite to run
+            - cgl: Fixes the code style with the PHP Coding Standards Fixer (PHP-CS-Fixer).
+            - clean: clean up build, cache and testing related files and folders
+            - cleanCache: clean up cache related files and folders
+            - cleanRenderedDocumentation: clean up rendered documentation files and folders (Documentation-GENERATED-temp)
+            - cleanTests: clean up test related files and folders
+            - composer: "composer" with all remaining arguments dispatched.
+            - composerNormalize: Normalizes the composer.json.
+            - composerUnused: Finds unused Composer packages.
+            - composerUpdateMax: "composer update", with no platform.php config.
+            - composerUpdateMin: "composer update --prefer-lowest", with platform.php set to PHP version x.x.0.
+            - docsGenerate: Renders the extension ReST documentation.
+            - functional: PHP functional tests
+            - lintCss: CSS file linting. Set -n for dry-run.
+            - lintJs: JavaScript file linting. Set -n for dry-run.
+            - lintJson: JSON linting
+            - lintPhp: PHP linting
+            - lintTypoScript: TypoScript linting
+            - lintYaml: YAML linting
+            - npm: "npm" with all remaining arguments dispatched.
+            - phpstan: PHPStan tests
+            - phpstanGenerateBaseline: regenerate PHPStan baseline, handy after PHPStan updates
+            - shellcheck: check runTests.sh for shell issues
+            - unit (default): PHP unit tests
+            - unitRandom: PHP unit tests in random order, add -o <number> to use specific seed
+            - update: Updates existing typo3/core-testing-*:latest container images and removes dangling local volumes.
+
+    -a <mysqli|pdo_mysql>
+        Only with -s functional|functionalDeprecated
+        Specifies to use another driver, following combinations are available:
+            - mysql
+                - mysqli (default)
+                - pdo_mysql
+            - mariadb
+                - mysqli (default)
+                - pdo_mysql
+
+    -b <docker|podman>
+        Container environment:
+            - docker (default)
+            - podman
+
+    -d <sqlite|mariadb|mysql|postgres>
+        Only with -s functional|functionalDeprecated
+        Specifies on which DBMS tests are performed
+            - mariadb: use mariadb
+            - mysql: use MySQL
+            - postgres: use postgres
+            - sqlite: (default): use sqlite
+
+    -i version
+        Specify a specific database version
+        With "-d mariadb":
+            - 10.3   short-term, maintained until 2023-05-25 (default)
+            - 10.4   short-term, maintained until 2024-06-18
+            - 10.5   short-term, maintained until 2025-06-24
+            - 10.6   long-term, maintained until 2026-06
+            - 10.7   short-term, no longer maintained
+            - 10.8   short-term, maintained until 2023-05
+            - 10.9   short-term, maintained until 2023-08
+            - 10.10  short-term, maintained until 2023-11
+            - 10.11  long-term, maintained until 2028-02
+            - 11.0   development series
+            - 11.1   short-term development series
+        With "-d mysql":
+            - 5.5   unmaintained since 2018-12
+            - 5.6   unmaintained since 2021-02
+            - 5.7   maintained until 2023-10
+            - 8.0   maintained until 2026-04 (default)
+        With "-d postgres":
+            - 10    unmaintained since 2022-11-10 (default)
+            - 11    unmaintained since 2023-11-09
+            - 12    maintained until 2024-11-14
+            - 13    maintained until 2025-11-13
+            - 14    maintained until 2026-11-12
+            - 15    maintained until 2027-11-11
+            - 16    maintained until 2028-11-09
+
+    -t <11.5|12.4>
+        Only with -s composerUpdateMin|composerUpdateMax
+        Specifies the TYPO3 CORE Version to be used
+            - 11.5: use TYPO3 v11 with typo3/cms-composer-installers ^3
+            - 12.4: (default) use TYPO3 v12 with typo3/cms-composer-installers ^5
+
+    -p <7.4|8.0|8.1|8.2|8.3|8.4>
+        Specifies the PHP minor version to be used
+            - 7.4: use PHP 7.4
+            - 8.0: use PHP 8.0
+            - 8.1: use PHP 8.1
+            - 8.2: use PHP 8.2
+            - 8.3: (default) use PHP 8.3
+            - 8.4: use PHP 8.4
+
+    -e "<phpunit options>"
+        Only with -s functional|functionalDeprecated|unit|unitDeprecated|unitRandom
+        Additional options to send to phpunit (unit & functional tests). For phpunit,
+        options starting with "--" must be added after options starting with "-".
+        Example -e "-v --filter canRetrieveValueWithGP" to enable verbose output AND filter tests
+        named "canRetrieveValueWithGP"
+
+    -x
+        Only with -s functional|functionalDeprecated|unit|unitDeprecated|unitRandom
+        Send information to host instance for test or system under test break points. This is especially
+        useful if a local PhpStorm instance is listening on default xdebug port 9003. A different port
+        can be selected with -y
+
+    -y <port>
+        Send xdebug information to a different port than default 9003 if an IDE like PhpStorm
+        is not listening on default port.
+
+    -o <number>
+        Only with -s unitRandom
+        Set specific random seed to replay a random run in this order again. The phpunit randomizer
+        outputs the used seed at the end (in gitlab core testing logs, too). Use that number to
+        replay the unit tests in that order.
+
+    -n
+        Only with -s cgl|composerNormalize|npm|lintJs|lintCss
+        Activate dry-run in checks so they do not actively change files and only print broken ones.
+
+    -u
+        Update existing typo3/core-testing-*:latest container images and remove dangling local volumes.
+        New images are published once in a while and only the latest ones are supported by core testing.
+        Use this if weird test errors occur. Also removes obsolete image versions of typo3/core-testing-*.
+
+    -h
+        Show this help.
+
+Examples:
+    # Run all core unit tests using PHP 8.3
+    ./Build/Scripts/runTests.sh
+    ./Build/Scripts/runTests.sh -s unit
+
+    # Run all core units tests and enable xdebug (have a PhpStorm listening on port 9003!)
+    ./Build/Scripts/runTests.sh -x
+
+    # Run unit tests in phpunit verbose mode with xdebug on PHP 8.1 and filter for test canRetrieveValueWithGP
+    ./Build/Scripts/runTests.sh -x -p 8.1 -e "-v --filter canRetrieveValueWithGP"
+
+    # Run functional tests in phpunit with a filtered test method name in a specified file
+    # example will currently execute two tests, both of which start with the search term
+    ./Build/Scripts/runTests.sh -s functional -e "--filter deleteContent" typo3/sysext/core/Tests/Functional/DataHandling/Regular/Modify/ActionTest.php
+
+    # Run functional tests on postgres with xdebug, php 8.1 and execute a restricted set of tests
+    ./Build/Scripts/runTests.sh -x -p 8.1 -s functional -d postgres typo3/sysext/core/Tests/Functional/Authentication
+
+    # Run functional tests on postgres 11
+    ./Build/Scripts/runTests.sh -s functional -d postgres -i 11
+EOF
 }
 
 # Test if at least one of the supported container binaries exists, else exit out with error
