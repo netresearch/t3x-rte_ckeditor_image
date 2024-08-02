@@ -163,7 +163,7 @@ class ImageLinkRenderingController extends AbstractPlugin
      *
      * @param string $passedImage
      *
-     * @return array<string, string>
+     * @return string[]
      */
     protected function getImageAttributes(string $passedImage): array
     {
@@ -174,7 +174,7 @@ class ImageLinkRenderingController extends AbstractPlugin
             $imageAttributes
         );
 
-        /** @var false|array $result */
+        /** @var false|string[] $result */
         $result = array_combine($imageAttributes[1], $imageAttributes[2]);
 
         return is_array($result) ? $result : [];
