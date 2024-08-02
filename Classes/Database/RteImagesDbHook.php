@@ -221,7 +221,7 @@ class RteImagesDbHook
 
     /**
      * Process the modified text from TCA text field before its stored in the database.
-     * 
+     *
      * @param mixed[] $fieldArray
      */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
