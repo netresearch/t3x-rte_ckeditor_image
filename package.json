@@ -1,0 +1,32 @@
+{
+	"name": "tea",
+	"description": "npm helper tools used for the extension",
+	"repository": {
+		"url": "https://github.com/FriendsOfTYPO3/tea.git"
+	},
+	"keywords": [],
+	"type": "module",
+	"author": "",
+	"version": "1.0.0",
+	"license": "GPL-2.0-or-later",
+	"engines": {
+		"node": "^22.5.0",
+		"npm": "^10.8.0"
+	},
+	"scripts": {
+		"ci:lint:js": "eslint 'Resources/Public/**/*.js'",
+		"fix:lint:js": "eslint 'Resources/Public/**/*.js' --quiet --fix",
+		"ci:lint:css": "stylelint Resources/Public/**/*.css",
+		"fix:lint:css": "stylelint Resources/Public/**/*.css --fix"
+	},
+	"devDependencies": {
+		"eslint": "^9.2.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-prettier": "^5.1.3",
+		"install": "^0.13.0",
+		"prettier": "^3.2.5",
+		"stylelint": "^16.5.0",
+		"stylelint-config-standard-scss": "^13.1.0",
+		"stylelint-no-browser-hacks": "^1.3.0"
+	}
+}

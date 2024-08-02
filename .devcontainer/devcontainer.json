@@ -20,6 +20,5 @@
 		}
 	},
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "composer install; mkdir rector; cd rector; composer init -n --name local/rector; composer require ssch/typo3-rector -n; cd ..; rector/vendor/bin/rector --version"
+	"postCreateCommand": "composer install"
 }

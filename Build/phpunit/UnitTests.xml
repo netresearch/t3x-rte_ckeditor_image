@@ -18,44 +18,34 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
   backupGlobals="true"
-  bootstrap="UnitTestsBootstrap.php"
+  beStrictAboutTestsThatDoNotTestAnything="false"
   cacheResult="false"
   colors="true"
+  failOnWarning="true"
+  failOnRisky="true"
+  forceCoversAnnotation="false"
   processIsolation="false"
   stopOnError="false"
   stopOnFailure="false"
   stopOnIncomplete="false"
   stopOnSkipped="false"
-  beStrictAboutTestsThatDoNotTestAnything="false"
-  failOnWarning="true"
-  failOnRisky="true"
-  cacheDirectory=".phpunit.cache"
   requireCoverageMetadata="false"
+  verbose="false"
 >
+  <coverage/>
   <testsuites>
     <testsuite name="Unit tests">
       <!--
-                This path either needs an adaption in extensions, or an extension's
-                test location path needs to be given to phpunit.
-            -->
-      <directory>../Tests/Unit/</directory>
+          This path either needs an adaption in extensions, or an extension's
+          test location path needs to be given to phpunit.
+      -->
+      <directory suffix="Test.php">./</directory>
     </testsuite>
   </testsuites>
   <php>
+    <!-- @deprecated: will be removed with next major version, constant TYPO3_MODE is deprecated -->
+    <const name="TYPO3_MODE" value="BE"/>
     <ini name="display_errors" value="1"/>
-    <!--
-            Set E_ALL after tests failing for E_ALL are fixed.
-        <ini name="error_reporting" value="E_ALL" />
-        -->
-    <ini name="error_reporting" value="E_ALL"/>
     <env name="TYPO3_CONTEXT" value="Testing"/>
   </php>
-  <source>
-    <include>
-      <!--
-                This path needs an adaption in extensions, when coverage statistics are wanted.
-            -->
-      <directory>../Classes/</directory>
-    </include>
-  </source>
 </phpunit>
