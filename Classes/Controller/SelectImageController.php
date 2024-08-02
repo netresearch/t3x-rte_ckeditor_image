@@ -11,10 +11,9 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
-use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Core\Configuration\Richtext;
+use TYPO3\CMS\Backend\Controller\ElementBrowserController;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
@@ -22,7 +21,6 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
-use TYPO3\CMS\Backend\Controller\ElementBrowserController;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -65,7 +63,7 @@ class SelectImageController extends ElementBrowserController
         $queryParams = $request->getQueryParams();
 
         if (!$isInfoAction) {
-            $bparams = explode('|', (string) $queryParams['bparams']);
+            $bparams = explode('|', (string)$queryParams['bparams']);
 
             if (isset($bparams[3]) && ($bparams[3] === '')) {
                 $bparams[3] = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
@@ -97,40 +95,42 @@ class SelectImageController extends ElementBrowserController
             die;
         }
 
-        $file          = $this->getImage((int) $id);
+        $file          = $this->getImage((int)$id);
         $processedFile = $this->processImage($file, $params);
 
-        return new JsonResponse([
-            'uid'       => $file->getUid(),
-            'alt'       => $file->getProperty('alternative') ?? '',
-            'title'     => $file->getProperty('title') ?? '',
-            'width'     => $file->getProperty('width'),
-            'height'    => $file->getProperty('height'),
-            'url'       => $file->getPublicUrl(),
-            'processed' => [
-                'width'  => $processedFile->getProperty('width'),
-                'height' => $processedFile->getProperty('height'),
-                'url'    => $processedFile->getPublicUrl(),
-            ],
-            'lang'      => [
-                'override'          => LocalizationUtility::translate(
-                    'LLL:EXT:core/Resources/Private/Language/'
-                    . 'locallang_core.xlf:labels.placeholder.override'
-                ),
-                'overrideNoDefault' => LocalizationUtility::translate(
-                    'LLL:EXT:core/Resources/Private/Language/'
-                    . 'locallang_core.xlf:labels.placeholder.override_not_available'
-                ),
-                'cssClass'          => LocalizationUtility::translate(
-                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                    . 'locallang_be.xlf:labels.ckeditor.cssclass'
-                ),
-                'zoom'              => LocalizationUtility::translate(
-                    'LLL:EXT:frontend/Resources/Private/Language/'
-                    . 'locallang_ttc.xlf:image_zoom_formlabel'
-                ),
-            ],
-        ]);
+        return new JsonResponse(
+            [
+                'uid'       => $file->getUid(),
+                'alt'       => $file->getProperty('alternative') ?? '',
+                'title'     => $file->getProperty('title') ?? '',
+                'width'     => $file->getProperty('width'),
+                'height'    => $file->getProperty('height'),
+                'url'       => $file->getPublicUrl(),
+                'processed' => [
+                    'width'  => $processedFile->getProperty('width'),
+                    'height' => $processedFile->getProperty('height'),
+                    'url'    => $processedFile->getPublicUrl(),
+                ],
+                'lang'      => [
+                    'override'          => LocalizationUtility::translate(
+                        'LLL:EXT:core/Resources/Private/Language/'
+                        . 'locallang_core.xlf:labels.placeholder.override'
+                    ),
+                    'overrideNoDefault' => LocalizationUtility::translate(
+                        'LLL:EXT:core/Resources/Private/Language/'
+                        . 'locallang_core.xlf:labels.placeholder.override_not_available'
+                    ),
+                    'cssClass'          => LocalizationUtility::translate(
+                        'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                        . 'locallang_be.xlf:labels.ckeditor.cssclass'
+                    ),
+                    'zoom'              => LocalizationUtility::translate(
+                        'LLL:EXT:frontend/Resources/Private/Language/'
+                        . 'locallang_ttc.xlf:image_zoom_formlabel'
+                    ),
+                ],
+            ]
+        );
     }
 
     /**
@@ -148,7 +148,7 @@ class SelectImageController extends ElementBrowserController
             if ($file->isDeleted() || $file->isMissing()) {
                 $file = null;
             }
-        } catch (Exception) {
+        } catch (\Exception) {
             $file = null;
         }
 
@@ -171,25 +171,27 @@ class SelectImageController extends ElementBrowserController
     protected function processImage(File $file, array $params): ProcessedFile
     {
         // TODO: Get this from page ts config
-        $this->magicImageService->setMagicImageMaximumDimensions([
-            'buttons.' => [
-                'image.' => [
-                    'options.' => [
-                        'magic.' => [
-                            'maxWidth' => 1920,
-                            'maxHeight' => 9999,
-                        ]
-                    ]
-                ]
+        $this->magicImageService->setMagicImageMaximumDimensions(
+            [
+                'buttons.' => [
+                    'image.' => [
+                        'options.' => [
+                            'magic.' => [
+                                'maxWidth' => 1920,
+                                'maxHeight' => 9999,
+                            ],
+                        ],
+                    ],
+                ],
             ]
-        ]);
+        );
 
         return $this->magicImageService
             ->createMagicImage(
                 $file,
                 [
-                    'width'  => (int) ($params['width'] ?? $file->getProperty('width')),
-                    'height' => (int) ($params['height'] ?? $file->getProperty('height')),
+                    'width'  => (int)($params['width'] ?? $file->getProperty('width')),
+                    'height' => (int)($params['height'] ?? $file->getProperty('height')),
                 ]
             );
     }

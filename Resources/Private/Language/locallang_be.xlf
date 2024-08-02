@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<xliff version="1.0">
-    <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image">
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="EXT:rte_ckeditor_image/Resources/Private/Language/locallang_be.xlf" product-name="rte_ckeditor_image">
         <header/>
         <body>
             <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">

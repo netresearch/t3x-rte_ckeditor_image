@@ -2,9 +2,9 @@
 
 namespace Netresearch\RteCKEditorImage\EventListener;
 
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\RteCKEditor\Form\Element\Event\AfterPrepareConfigurationForEditorEvent;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 
 class RteConfigurationListener
 {

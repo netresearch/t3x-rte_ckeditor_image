@@ -9,17 +9,19 @@
 
 declare(strict_types=1);
 
-defined('TYPO3') or die();
+defined('TYPO3') || die();
 
 /**
  * TCA override for tt_content table.
  */
 call_user_func(
     static function (): void {
-        /** @var string[] $cleanSoftReferences */
+        /**
+         * @var string[] $cleanSoftReferences
+         */
         $cleanSoftReferences = explode(
             ',',
-            (string) $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref']
+            (string)$GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref']
         );
 
         // Remove obsolete soft reference key 'images', the references from RTE content to the original

@@ -15,8 +15,6 @@ use TYPO3\CMS\Core\DataHandling\SoftReference\AbstractSoftReferenceParser;
 use TYPO3\CMS\Core\DataHandling\SoftReference\SoftReferenceParserResult;
 use TYPO3\CMS\Core\Html\HtmlParser;
 
-use function count;
-
 /**
  * Class for processing of the FAL soft references on img tags inserted in RTE content.
  *
@@ -66,7 +64,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
         string $content,
         string $structurePath = ''
     ): SoftReferenceParserResult {
-        $this->setTokenIdBasePrefix($table, (string) $uid, $field, $structurePath);
+        $this->setTokenIdBasePrefix($table, (string)$uid, $field, $structurePath);
 
         if ($this->parserKey === 'rtehtmlarea_images') {
             $retVal = $this->findImageTags($content);
@@ -95,7 +93,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
 
         $images = $this->findImagesWithDataUid();
 
-        if (count($images) === 0) {
+        if (\count($images) === 0) {
             return [];
         }
 
@@ -111,7 +109,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
      */
     private function isImageTag(string $element): bool
     {
-        return (bool) preg_match('/^<img/', $element);
+        return (bool)preg_match('/^<img/', $element);
     }
 
     /**
@@ -140,7 +138,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
             }
 
             // Initialize the element entry with info text here
-            $tokenID = $this->makeTokenID((string) $key);
+            $tokenID = $this->makeTokenID((string)$key);
 
             $images[$key] = [];
             $images[$key]['matchString'] = $htmlTag;

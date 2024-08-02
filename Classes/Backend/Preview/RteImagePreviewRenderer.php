@@ -11,9 +11,6 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Backend\Preview;
 
-use DOMDocument;
-use DOMNode;
-use DOMText;
 use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
 use TYPO3\CMS\Frontend\Preview\TextPreviewRenderer;
 
@@ -31,7 +28,9 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
     private bool $reachedLimit = false;
     private int $totalLength = 0;
 
-    /** @var DOMNode[] */
+    /**
+     * @var \DOMNode[]
+     */
     private array $toRemove = [];
 
     /**
@@ -69,7 +68,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
     /**
      * Processing of larger amounts of text (usually from RTE/bodytext fields) with word wrapping etc.
      *
-     * @param string $input Input string
+     * @param  string $input Input string
      * @return string Output string
      */
     protected function renderTextWithHtml(string $input): string
@@ -95,7 +94,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
         // Set error level
         $internalErrors = libxml_use_internal_errors(true);
 
-        $dom = new DOMDocument();
+        $dom = new \DOMDocument();
         $dom->loadHTML(
             '<?xml encoding="UTF-8">' . $html,
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
@@ -119,18 +118,18 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
     /**
      * Walk the DOM tree and collect the length of all text nodes.
      *
-     * @param DOMNode $node
-     * @param int     $maxLength
+     * @param \DOMNode $node
+     * @param int      $maxLength
      *
-     * @return DOMNode[]
+     * @return \DOMNode[]
      */
-    private function walk(DOMNode $node, int $maxLength): array
+    private function walk(\DOMNode $node, int $maxLength): array
     {
         if ($this->reachedLimit) {
             $this->toRemove[] = $node;
         } else {
             // Only text nodes should have a text, so do the splitting here
-            if (($node instanceof DOMText) && ($node->nodeValue !== null)) {
+            if (($node instanceof \DOMText) && ($node->nodeValue !== null)) {
                 $this->totalLength += $nodeLen = mb_strlen($node->nodeValue);
 
                 if ($this->totalLength > $maxLength) {

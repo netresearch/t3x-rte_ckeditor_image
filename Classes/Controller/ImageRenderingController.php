@@ -17,14 +17,10 @@ use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
-
-use function get_class;
-use function is_array;
 
 /**
  * Controller to render the image tag in frontend.
@@ -59,8 +55,9 @@ class ImageRenderingController extends AbstractPlugin
     /**
      * Returns a processed image to be displayed on the Frontend.
      *
-     * @param null|string  $content Content input (not used)
-     * @param mixed[]      $conf    TypoScript configuration
+     * @param string|null $content Content input (not used)
+     * @param mixed[]     $conf    TypoScript configuration
+     * @throws FileDoesNotExistException
      *
      * @return string HTML output
      */
@@ -73,7 +70,7 @@ class ImageRenderingController extends AbstractPlugin
         // of the RTE is to download the external image and create a local image.
         // However, it may happen if the RTE has the flag "disable"
         if (!$this->isExternalImage($imageSource)) {
-            $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
+            $fileUid = (int)($imageAttributes['data-htmlarea-file-uid'] ?? 0);
 
             if ($fileUid > 0) {
                 try {
@@ -81,17 +78,19 @@ class ImageRenderingController extends AbstractPlugin
                     $systemImage     = $resourceFactory->getFileObject($fileUid);
 
                     // check if there is a processed variant, if not, create one
-                    /** @var ProcessedFilesHandler $processedHandler */
+                    /**
+                     * @var ProcessedFilesHandler $processedHandler
+                     */
                     $processedHandler = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
                     $imageConfiguration = [
-                        'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width') ?? 0),
-                        'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
+                        'width'  => (int)($imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0),
+                        'height' => (int)($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
                     ];
                     $processedFile = $processedHandler->createProcessedFile($systemImage, $imageConfiguration);
 
                     $imageSource = $processedFile->getPublicUrl();
 
-                    if (null === $imageSource) {
+                    if ($imageSource === null) {
                         throw new FileDoesNotExistException();
                     }
 
@@ -136,7 +135,8 @@ class ImageRenderingController extends AbstractPlugin
                 'data-htmlarea-file-uid',
                 'data-htmlarea-file-table',
                 'data-htmlarea-zoom',
-                'data-htmlarea-clickenlarge' // Legacy zoom property
+                // Legacy zoom property
+                'data-htmlarea-clickenlarge',
             ];
 
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
@@ -158,16 +158,20 @@ class ImageRenderingController extends AbstractPlugin
 
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
         if (
-            (isset($imageAttributes['data-htmlarea-zoom'])
-                || isset($imageAttributes['data-htmlarea-clickenlarge']))
+            (
+                isset($imageAttributes['data-htmlarea-zoom'])
+                || isset($imageAttributes['data-htmlarea-clickenlarge'])
+            )
             && isset($systemImage)
         ) {
             $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
             $config['enable'] = 1;
 
-            $systemImage->updateProperties([
-                'title' => $imageAttributes['title'] ?? $systemImage->getProperty('title') ?? '',
-            ]);
+            $systemImage->updateProperties(
+                [
+                    'title' => $imageAttributes['title'] ?? $systemImage->getProperty('title') ?? '',
+                ]
+            );
 
             if ($this->cObj !== null) {
                 $this->cObj->setCurrentFile($systemImage);
@@ -187,7 +191,7 @@ class ImageRenderingController extends AbstractPlugin
     /**
      * Returns the lazy loading configuration.
      *
-     * @return null|string
+     * @return string|null
      */
     private function getLazyLoadingConfiguration(): ?string
     {
@@ -218,10 +222,12 @@ class ImageRenderingController extends AbstractPlugin
 
             // Get RTE configuration
 
-            /** @var array<string, mixed[]> $pageTSConfig */
+            /**
+             * @var array<string, mixed[]> $pageTSConfig
+             */
             $pageTSConfig = $this->frontendController->getPagesTSconfig();
 
-            if (is_array($pageTSConfig['RTE.']['default.'])) {
+            if (\is_array($pageTSConfig['RTE.']['default.'])) {
                 $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
             }
         }
@@ -269,6 +275,6 @@ class ImageRenderingController extends AbstractPlugin
      */
     protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
-        return (string) ($attributes[$attributeName] ?? $image->getProperty($attributeName));
+        return (string)($attributes[$attributeName] ?? $image->getProperty($attributeName));
     }
 }

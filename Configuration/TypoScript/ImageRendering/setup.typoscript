@@ -5,25 +5,28 @@
 #******************************************************
 
 lib.parseFunc_RTE {
-    tags.img = TEXT
-    tags.img {
-        current = 1
-        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+    tags {
+        img = TEXT
+        img {
+            current = 1
+            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+        }
+        a = TEXT
+        a {
+            current = 1
+            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController->renderImages
+        }
     }
-    tags.a = TEXT
-    tags.a {
-        current = 1
-        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController->renderImages
-    }
-    nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
-        allparams.unset = 1
-        data-htmlarea-file-uid.unset = 1
-        data-htmlarea-file-table.unset = 1
-        data-htmlarea-zoom.unset = 1
-        data-htmlarea-clickenlarge.unset = 1
-        data-title-override.unset = 1
-        data-alt-override.unset = 1
+    nonTypoTagStdWrap {
+        HTMLparser.tags.img.fixAttrib {
+            allparams.unset = 1
+            data-htmlarea-file-uid.unset = 1
+            data-htmlarea-file-table.unset = 1
+            data-htmlarea-zoom.unset = 1
+            data-htmlarea-clickenlarge.unset = 1
+            data-title-override.unset = 1
+            data-alt-override.unset = 1
+        }
+        encapsLines.encapsTagList := addToList(img)
     }
 }
-
-lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img)
