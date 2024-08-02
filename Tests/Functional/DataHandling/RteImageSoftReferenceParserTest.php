@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace Netresearch\RteCKEditorImage\Tests\Functional\DataHandling;
 
 use TYPO3\CMS\Core\Database\ReferenceIndex;
