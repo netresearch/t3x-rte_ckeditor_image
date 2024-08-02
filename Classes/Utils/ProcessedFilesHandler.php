@@ -21,7 +21,7 @@ class ProcessedFilesHandler
      *   ];
      *
      * @param File $file The file object
-     * @param array $imageConfiguration The image configuration
+     * @param mixed[] $imageConfiguration The image configuration
      * @return ProcessedFile
      */
     public function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile

@@ -221,6 +221,8 @@ class RteImagesDbHook
 
     /**
      * Process the modified text from TCA text field before its stored in the database.
+     * 
+     * @param mixed[] $fieldArray
      */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function processDatamap_postProcessFieldArray(
@@ -369,7 +371,7 @@ class RteImagesDbHook
 
                         // publicUrl like 'https://www.domain.xy/typo3/image/process?token=...'?
                         // -> generate img source from storage basepath and identifier instead
-                        if ($imgSrc !== null && str_contains((string) $imgSrc, 'process?token=')) {
+                        if ($imgSrc !== null && str_contains($imgSrc, 'process?token=')) {
                             $imgSrc = $originalImageFile->getStorage()->getPublicUrl($magicImage);
                         }
 
@@ -474,6 +476,9 @@ class RteImagesDbHook
         return implode('', $imgSplit);
     }
 
+    /**
+     * @return mixed[]
+     */
     private function resolveFieldConfigurationAndRespectColumnsOverrides(
         \TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler,
         string $table,
