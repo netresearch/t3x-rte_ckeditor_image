@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!--
-    Boilerplate for a functional test suite setup.
+    Boilerplate for a unit test suite setup.
 
     This file is loosely maintained within TYPO3 testing-framework, extensions
     are encouraged to not use it directly, but to copy it to an own place,
-    for instance Build/FunctionalTests.xml.
-    Note FunctionalTestsBootstrap.php should be copied along the way.
+    for instance Build/UnitTests.xml.
+    Note UnitTestsBootstrap.php should be copied along the way.
 
     Functional tests should extend \TYPO3\TestingFramework\Core\Tests\FunctionalTestCase,
     take a look at this class for further documentation on how to run the suite.
@@ -14,40 +14,36 @@
     file is located next to this .xml as FunctionalTestsBootstrap.php
 
 -->
-<phpunit 
+<phpunit
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
   backupGlobals="true"
-  bootstrap="FunctionalTestsBootstrap.php"
+  beStrictAboutTestsThatDoNotTestAnything="false"
   cacheResult="false"
   colors="true"
+  failOnWarning="true"
+  failOnRisky="true"
   processIsolation="false"
   stopOnError="false"
   stopOnFailure="false"
   stopOnIncomplete="false"
   stopOnSkipped="false"
-  beStrictAboutTestsThatDoNotTestAnything="false"
-  failOnWarning="true"
-  failOnRisky="true"
-  cacheDirectory=".phpunit.cache"
   requireCoverageMetadata="false"
-  displayDetailsOnTestsThatTriggerDeprecations="true"
-  displayDetailsOnTestsThatTriggerErrors="true"
-  displayDetailsOnTestsThatTriggerNotices="true"
-  displayDetailsOnTestsThatTriggerWarnings="true"
 >
+  <coverage/>
   <testsuites>
-    <testsuite name="Functional tests">
+    <testsuite name="Unit tests">
       <!--
-                This path either needs an adaption in extensions, or an extension's
-                test location path needs to be given to phpunit.
-            -->
-      <directory>../Tests/Functional/</directory>
+          This path either needs an adaption in extensions, or an extension's
+          test location path needs to be given to phpunit.
+      -->
+      <directory suffix="Test.php">./</directory>
     </testsuite>
   </testsuites>
   <php>
+    <!-- @deprecated: will be removed with next major version, constant TYPO3_MODE is deprecated -->
+    <const name="TYPO3_MODE" value="BE"/>
     <ini name="display_errors" value="1"/>
-    <ini name="error_reporting" value="E_ALL"/>
     <env name="TYPO3_CONTEXT" value="Testing"/>
   </php>
 </phpunit>

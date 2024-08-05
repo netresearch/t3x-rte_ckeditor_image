@@ -1,3 +1,24 @@
 {
-	"image": "mcr.microsoft.com/devcontainers/php"
+	"image": "mcr.microsoft.com/devcontainers/php",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"github.vscode-github-actions"
+			]
+		}
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/devcontainers-contrib/features/composer:1": {},
+		"ghcr.io/opencodeco/devcontainers/install-php-extensions:0": {
+			"extensions": "intl soap imagick pcov pcntl apcu exif gd mysqli zip"
+		},
+		"docker-in-docker": {
+			"version": "latest",
+			"moby": true,
+			"dockerDashComposeVersion": "v2"
+		}
+	},
+
+	"postCreateCommand": "composer install"
 }

@@ -1,5 +1,7 @@
 <?php
 
+use Netresearch\RteCKEditorImage\Controller\SelectImageController;
+
 /**
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
@@ -13,7 +15,7 @@
 return [
     'rteckeditorimage_wizard_select_image' => [
         'path' => '/rte/wizard/selectimage',
-        'target' => \Netresearch\RteCKEditorImage\Controller\SelectImageController::class . '::mainAction',
+        'target' => SelectImageController::class . '::mainAction',
         'parameters' => [
             'mode' => 'file',
         ],
