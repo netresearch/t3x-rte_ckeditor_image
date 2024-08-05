@@ -20,6 +20,7 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
 /**
@@ -164,7 +165,7 @@ class ImageRenderingController extends AbstractPlugin
             )
             && isset($systemImage)
         ) {
-            $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
+            $config = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray()['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
             $config['enable'] = 1;
 
             $systemImage->updateProperties(
@@ -173,7 +174,7 @@ class ImageRenderingController extends AbstractPlugin
                 ]
             );
 
-            if ($this->cObj !== null) {
+            if ($this->cObj instanceof ContentObjectRenderer) {
                 $this->cObj->setCurrentFile($systemImage);
 
                 // Use $this->cObject to have access to all parameters from the image tag
@@ -190,12 +191,10 @@ class ImageRenderingController extends AbstractPlugin
 
     /**
      * Returns the lazy loading configuration.
-     *
-     * @return string|null
      */
     private function getLazyLoadingConfiguration(): ?string
     {
-        return $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        return $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray()['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
     }
 
     /**
@@ -210,8 +209,6 @@ class ImageRenderingController extends AbstractPlugin
 
     /**
      * Instantiates and prepares the Magic Image service.
-     *
-     * @return MagicImageService
      */
     protected function getMagicImageService(): MagicImageService
     {
@@ -237,10 +234,6 @@ class ImageRenderingController extends AbstractPlugin
 
     /**
      * Tells whether the image URL is found to be "external".
-     *
-     * @param string $imageSource The image source
-     *
-     * @return bool
      */
     protected function isExternalImage(string $imageSource): bool
     {
@@ -255,9 +248,6 @@ class ImageRenderingController extends AbstractPlugin
             || (str_starts_with($imageSource, '//'));
     }
 
-    /**
-     * @return Logger
-     */
     protected function getLogger(): Logger
     {
         return GeneralUtility::makeInstance(LogManager::class)
@@ -267,14 +257,10 @@ class ImageRenderingController extends AbstractPlugin
     /**
      * Returns attributes value or even empty string when override mode is enabled
      *
-     * @param string                $attributeName
      * @param array<string, string> $attributes
-     * @param File                  $image
-     *
-     * @return string
      */
-    protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
+    protected function getAttributeValue(string $attributeName, array $attributes, File $file): string
     {
-        return (string)($attributes[$attributeName] ?? $image->getProperty($attributeName));
+        return (string)($attributes[$attributeName] ?? $file->getProperty($attributeName));
     }
 }

@@ -9,6 +9,8 @@
 
 declare(strict_types=1);
 
+use Netresearch\RteCKEditorImage\Backend\Preview\RteImagePreviewRenderer;
+
 defined('TYPO3') || die();
 
 /**
@@ -37,6 +39,6 @@ call_user_func(
 
         // Register preview renderer
         $GLOBALS['TCA']['tt_content']['types']['text']['previewRenderer']
-            = \Netresearch\RteCKEditorImage\Backend\Preview\RteImagePreviewRenderer::class;
+            = RteImagePreviewRenderer::class;
     }
 );

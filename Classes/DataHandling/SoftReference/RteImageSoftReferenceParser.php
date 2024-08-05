@@ -25,25 +25,19 @@ use TYPO3\CMS\Core\Html\HtmlParser;
 class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
 {
     /**
-     * TYPO3 HTML parser.
-     *
-     * @var HtmlParser
-     */
-    private readonly HtmlParser $htmlParser;
-
-    /**
      * @var array<int, string>
      */
     private array $splitContentTags;
 
     /**
      * Constructor.
-     *
-     * @param HtmlParser $htmlParser
      */
-    public function __construct(HtmlParser $htmlParser)
-    {
-        $this->htmlParser = $htmlParser;
+    public function __construct(
+        /**
+         * TYPO3 HTML parser.
+         */
+        private readonly HtmlParser $htmlParser
+    ) {
     }
 
     /**
@@ -54,8 +48,6 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
      * @param int    $uid           UID of the record
      * @param string $content       The content/value of the field
      * @param string $structurePath If running from inside a FlexForm structure, this is the path of the tag.
-     *
-     * @return SoftReferenceParserResult
      */
     public function parse(
         string $table,
@@ -66,11 +58,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
     ): SoftReferenceParserResult {
         $this->setTokenIdBasePrefix($table, (string)$uid, $field, $structurePath);
 
-        if ($this->parserKey === 'rtehtmlarea_images') {
-            $retVal = $this->findImageTags($content);
-        } else {
-            $retVal = [];
-        }
+        $retVal = $this->parserKey === 'rtehtmlarea_images' ? $this->findImageTags($content) : [];
 
         return SoftReferenceParserResult::create($content, $retVal);
     }
@@ -93,7 +81,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
 
         $images = $this->findImagesWithDataUid();
 
-        if (\count($images) === 0) {
+        if ($images === []) {
             return [];
         }
 
@@ -102,10 +90,6 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
 
     /**
      * Checks for image tags.
-     *
-     * @param string $element
-     *
-     * @return bool
      */
     private function isImageTag(string $element): bool
     {

@@ -13,12 +13,12 @@ class RteConfigurationListener
     {
     }
 
-    public function __invoke(AfterPrepareConfigurationForEditorEvent $event): void
+    public function __invoke(AfterPrepareConfigurationForEditorEvent $afterPrepareConfigurationForEditorEvent): void
     {
-        $configuration = $event->getConfiguration();
+        $configuration = $afterPrepareConfigurationForEditorEvent->getConfiguration();
         $configuration['style']['typo3image'] = [
             'routeUrl' => (string)$this->uriBuilder->buildUriFromRoute('rteckeditorimage_wizard_select_image'),
         ];
-        $event->setConfiguration($configuration);
+        $afterPrepareConfigurationForEditorEvent->setConfiguration($configuration);
     }
 }

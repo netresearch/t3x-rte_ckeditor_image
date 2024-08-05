@@ -9,6 +9,8 @@
 
 declare(strict_types=1);
 
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+
 defined('TYPO3') || die();
 
 /**
@@ -16,7 +18,7 @@ defined('TYPO3') || die();
  */
 call_user_func(
     static function (): void {
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile(
+        ExtensionManagementUtility::addStaticFile(
             'rte_ckeditor_image',
             'Configuration/TypoScript/ImageRendering',
             'CKEditor Image Support'

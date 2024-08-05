@@ -32,35 +32,22 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
  */
 class SelectImageController extends ElementBrowserController
 {
-    /**
-     * @var bool
-     */
     protected bool $isInfoAction = false;
 
-    /**
-     * @var ResourceFactory
-     */
     private ResourceFactory $resourceFactory;
 
-    /**
-     * @var MagicImageService
-     */
     private MagicImageService $magicImageService;
 
     /**
      * Forward to infoAction if wanted
-     *
-     * @param ServerRequestInterface $request
-     *
-     * @return ResponseInterface
      */
-    public function mainAction(ServerRequestInterface $request): ResponseInterface
+    public function mainAction(ServerRequestInterface $serverRequest): ResponseInterface
     {
         $this->resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
         $this->magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
-        $isInfoAction = GeneralUtility::_GP('action') === 'info';
-        $queryParams = $request->getQueryParams();
+        $isInfoAction = ($GLOBALS['TYPO3_REQUEST']->getParsedBody()['action'] ?? $GLOBALS['TYPO3_REQUEST']->getQueryParams()['action'] ?? null) === 'info';
+        $queryParams = $serverRequest->getQueryParams();
 
         if (!$isInfoAction) {
             $bparams = explode('|', (string)$queryParams['bparams']);
@@ -71,23 +58,19 @@ class SelectImageController extends ElementBrowserController
             }
         }
 
-        $request = $request->withQueryParams($queryParams);
+        $serverRequest = $serverRequest->withQueryParams($queryParams);
 
-        return $isInfoAction ? $this->infoAction($request) : parent::mainAction($request);
+        return $isInfoAction ? $this->infoAction($serverRequest) : parent::mainAction($serverRequest);
     }
 
     /**
      * Retrieve image info
-     *
-     * @param ServerRequestInterface $request
-     *
-     * @return ResponseInterface
      */
-    public function infoAction(ServerRequestInterface $request): ResponseInterface
+    public function infoAction(ServerRequestInterface $serverRequest): ResponseInterface
     {
-        $id              = $request->getQueryParams()['fileId'];
-        $table           = $request->getQueryParams()['table'];
-        $params          = $request->getQueryParams()['P'] ?? [];
+        $id              = $serverRequest->getQueryParams()['fileId'];
+        $table           = $serverRequest->getQueryParams()['table'];
+        $params          = $serverRequest->getQueryParams()['P'] ?? [];
         $params['table'] = $table;
 
         if (!$id || !is_numeric($id)) {
@@ -113,20 +96,17 @@ class SelectImageController extends ElementBrowserController
                 ],
                 'lang'      => [
                     'override'          => LocalizationUtility::translate(
-                        'LLL:EXT:core/Resources/Private/Language/'
-                        . 'locallang_core.xlf:labels.placeholder.override'
+                        'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override'
                     ),
                     'overrideNoDefault' => LocalizationUtility::translate(
                         'LLL:EXT:core/Resources/Private/Language/'
                         . 'locallang_core.xlf:labels.placeholder.override_not_available'
                     ),
                     'cssClass'          => LocalizationUtility::translate(
-                        'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                        . 'locallang_be.xlf:labels.ckeditor.cssclass'
+                        'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/locallang_be.xlf:labels.ckeditor.cssclass'
                     ),
                     'zoom'              => LocalizationUtility::translate(
-                        'LLL:EXT:frontend/Resources/Private/Language/'
-                        . 'locallang_ttc.xlf:image_zoom_formlabel'
+                        'LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:image_zoom_formlabel'
                     ),
                 ],
             ]
@@ -137,8 +117,6 @@ class SelectImageController extends ElementBrowserController
      * Get the original image.
      *
      * @param int $id The uid of the file to instantiate
-     *
-     * @return File
      */
     protected function getImage(int $id): File
     {
@@ -165,8 +143,6 @@ class SelectImageController extends ElementBrowserController
      *
      * @param File     $file   The original image file
      * @param string[] $params The parameters used to process the image
-     *
-     * @return ProcessedFile
      */
     protected function processImage(File $file, array $params): ProcessedFile
     {

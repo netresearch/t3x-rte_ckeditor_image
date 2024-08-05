@@ -19,6 +19,7 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
 /**
@@ -62,7 +63,7 @@ class ImageLinkRenderingController extends AbstractPlugin
     public function renderImages(?string $content, array $conf = []): string
     {
         // Get link inner HTML
-        $linkContent = $this->cObj !== null ? $this->cObj->getCurrentVal() : null;
+        $linkContent = $this->cObj instanceof ContentObjectRenderer ? $this->cObj->getCurrentVal() : null;
 
         // Find all images with file-uid attribute
         $imgSearchPattern = '/<p[^>]*>\s*<img(?=.*src).*?\/>\s*<\/p>/';
@@ -85,7 +86,7 @@ class ImageLinkRenderingController extends AbstractPlugin
             // so it will never match this condition.
             //
             // But we leave this as fallback for older render versions.
-            if ((\count($imageAttributes) > 0) && isset($imageAttributes['data-htmlarea-file-uid'])) {
+            if (($imageAttributes !== []) && isset($imageAttributes['data-htmlarea-file-uid'])) {
                 $fileUid = (int)($imageAttributes['data-htmlarea-file-uid']);
 
                 if ($fileUid > 0) {
@@ -158,7 +159,6 @@ class ImageLinkRenderingController extends AbstractPlugin
     /**
      * Returns a sanitizes array of attributes out $passedImage
      *
-     * @param string $passedImage
      *
      * @return string[]
      */
@@ -181,18 +181,14 @@ class ImageLinkRenderingController extends AbstractPlugin
 
     /**
      * Returns the lazy loading configuration.
-     *
-     * @return string|null
      */
     private function getLazyLoadingConfiguration(): ?string
     {
-        return $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        return $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray()['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
     }
 
     /**
      * Instantiates and prepares the Magic Image service.
-     *
-     * @return MagicImageService
      */
     protected function getMagicImageService(): MagicImageService
     {
@@ -216,9 +212,6 @@ class ImageLinkRenderingController extends AbstractPlugin
         return $magicImageService;
     }
 
-    /**
-     * @return Logger
-     */
     protected function getLogger(): Logger
     {
         return GeneralUtility::makeInstance(LogManager::class)
@@ -228,14 +221,10 @@ class ImageLinkRenderingController extends AbstractPlugin
     /**
      * Returns attributes value or even empty string when override mode is enabled
      *
-     * @param string                $attributeName
      * @param array<string, string> $attributes
-     * @param File                  $image
-     *
-     * @return string
      */
-    protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
+    protected function getAttributeValue(string $attributeName, array $attributes, File $file): string
     {
-        return (string)($attributes[$attributeName] ?? $image->getProperty($attributeName));
+        return (string)($attributes[$attributeName] ?? $file->getProperty($attributeName));
     }
 }

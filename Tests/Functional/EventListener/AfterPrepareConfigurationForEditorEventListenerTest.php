@@ -20,7 +20,7 @@ class AfterPrepareConfigurationForEditorEventListenerTest extends FunctionalTest
         'typo3/cms-rte-ckeditor',
     ];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         // Additional setup if required
@@ -32,7 +32,7 @@ class AfterPrepareConfigurationForEditorEventListenerTest extends FunctionalTest
         $eventDispatcher = GeneralUtility::makeInstance(EventDispatcher::class);
 
         // Mock the event
-        $event = new AfterPrepareConfigurationForEditorEvent(
+        $afterPrepareConfigurationForEditorEvent = new AfterPrepareConfigurationForEditorEvent(
             [
                 'format_tags' => 'p;h1;h2;h3',
                 'toolbarGroups' => [
@@ -44,7 +44,7 @@ class AfterPrepareConfigurationForEditorEventListenerTest extends FunctionalTest
         );
 
         // Dispatch the event
-        $eventDispatcher->dispatch($event);
+        $eventDispatcher->dispatch($afterPrepareConfigurationForEditorEvent);
 
         // Assert that the event listener modified the configuration as expected
         $expectedConfiguration = [
@@ -60,6 +60,6 @@ class AfterPrepareConfigurationForEditorEventListenerTest extends FunctionalTest
             ],
         ];
 
-        self::assertSame($expectedConfiguration, $event->getConfiguration());
+        $this->assertSame($expectedConfiguration, $afterPrepareConfigurationForEditorEvent->getConfiguration());
     }
 }

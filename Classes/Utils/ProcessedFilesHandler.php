@@ -23,7 +23,6 @@ class ProcessedFilesHandler
      * @param  File    $file               The file object
      * @param  mixed[] $imageConfiguration The image configuration
      * @throws \Exception
-     * @return ProcessedFile
      */
     public function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile
     {

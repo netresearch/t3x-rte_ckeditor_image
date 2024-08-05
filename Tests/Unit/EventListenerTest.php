@@ -39,19 +39,19 @@ class EventListenerTest extends TestCase
         // Create the event with the initial configuration and the necessary data array
         $data = [];
         // Add the appropriate data for the second argument if needed
-        $event = new AfterPrepareConfigurationForEditorEvent($initialConfiguration, $data);
+        $afterPrepareConfigurationForEditorEvent = new AfterPrepareConfigurationForEditorEvent($initialConfiguration, $data);
 
         // Mock the UriBuilder
         $uriBuilderMock = $this->createMock(UriBuilder::class);
         $uriBuilderMock->method('buildUriFromRoute')->willReturn('/rteckeditorimage_wizard_select_image.gif');
 
         // Instantiate the event listener with the mocked UriBuilder
-        $listener = new RteConfigurationListener($uriBuilderMock);
+        $rteConfigurationListener = new RteConfigurationListener($uriBuilderMock);
 
         // Invoke the event listener with the event
-        $listener($event);
+        $rteConfigurationListener($afterPrepareConfigurationForEditorEvent);
 
         // Assert that the event's configuration has been modified as expected
-        self::assertSame($expectedConfiguration, $event->getConfiguration());
+        $this->assertSame($expectedConfiguration, $afterPrepareConfigurationForEditorEvent->getConfiguration());
     }
 }

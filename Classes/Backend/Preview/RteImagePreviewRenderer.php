@@ -26,6 +26,7 @@ use TYPO3\CMS\Frontend\Preview\TextPreviewRenderer;
 class RteImagePreviewRenderer extends TextPreviewRenderer
 {
     private bool $reachedLimit = false;
+
     private int $totalLength = 0;
 
     /**
@@ -37,14 +38,10 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
      * Dedicated method for rendering preview body HTML for the page module only.
      * Receives the GridColumnItem that contains the record for which a preview should be
      * rendered and returned.
-     *
-     * @param GridColumnItem $item
-     *
-     * @return string
      */
-    public function renderPageModulePreviewContent(GridColumnItem $item): string
+    public function renderPageModulePreviewContent(GridColumnItem $gridColumnItem): string
     {
-        $row  = $item->getRecord();
+        $row  = $gridColumnItem->getRecord();
         $html = $row['bodytext'] ?? '';
 
         // Sanitize HTML (replaces invalid chars with U+FFFD)<.
@@ -82,10 +79,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
     /**
      * Truncates the given text, but preserves HTML tags.
      *
-     * @param string $html
-     * @param int    $length
      *
-     * @return string
      *
      * @see https://stackoverflow.com/questions/16583676/shorten-text-without-splitting-words-or-breaking-html-tags
      */
@@ -94,8 +88,8 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
         // Set error level
         $internalErrors = libxml_use_internal_errors(true);
 
-        $dom = new \DOMDocument();
-        $dom->loadHTML(
+        $domDocument = new \DOMDocument();
+        $domDocument->loadHTML(
             '<?xml encoding="UTF-8">' . $html,
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
@@ -103,14 +97,14 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
         // Restore error level
         libxml_use_internal_errors($internalErrors);
 
-        $toRemove = $this->walk($dom, $length);
+        $toRemove = $this->walk($domDocument, $length);
 
         // Remove any nodes that exceed limit
         foreach ($toRemove as $child) {
             $child->parentNode?->removeChild($child);
         }
 
-        $result = $dom->saveHTML();
+        $result = $domDocument->saveHTML();
 
         return $result === false ? '' : $result;
     }
@@ -118,23 +112,21 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
     /**
      * Walk the DOM tree and collect the length of all text nodes.
      *
-     * @param \DOMNode $node
-     * @param int      $maxLength
      *
      * @return \DOMNode[]
      */
-    private function walk(\DOMNode $node, int $maxLength): array
+    private function walk(\DOMNode $domNode, int $maxLength): array
     {
         if ($this->reachedLimit) {
-            $this->toRemove[] = $node;
+            $this->toRemove[] = $domNode;
         } else {
             // Only text nodes should have a text, so do the splitting here
-            if (($node instanceof \DOMText) && ($node->nodeValue !== null)) {
-                $this->totalLength += $nodeLen = mb_strlen($node->nodeValue);
+            if (($domNode instanceof \DOMText) && ($domNode->nodeValue !== null)) {
+                $this->totalLength += $nodeLen = mb_strlen($domNode->nodeValue);
 
                 if ($this->totalLength > $maxLength) {
-                    $node->nodeValue = mb_substr(
-                        $node->nodeValue,
+                    $domNode->nodeValue = mb_substr(
+                        $domNode->nodeValue,
                         0,
                         $nodeLen - ($this->totalLength - $maxLength)
                     ) . '...';
@@ -145,8 +137,8 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
 
             // We need to explizitly check hasChildNodes() to circumvent a bug in PHP < 7.4.4
             // which results in childNodes being NULL https://bugs.php.net/bug.php?id=79271
-            if ($node->hasChildNodes()) {
-                foreach ($node->childNodes as $child) {
+            if ($domNode->hasChildNodes()) {
+                foreach ($domNode->childNodes as $child) {
                     $this->walk($child, $maxLength);
                 }
             }
