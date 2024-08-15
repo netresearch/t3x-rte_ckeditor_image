@@ -29,6 +29,7 @@
   stopOnIncomplete="false"
   stopOnSkipped="false"
   requireCoverageMetadata="false"
+  displayDetailsOnTestsThatTriggerWarnings="true"
 >
   <coverage/>
   <testsuites>

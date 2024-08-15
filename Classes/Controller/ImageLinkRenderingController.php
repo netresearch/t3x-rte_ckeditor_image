@@ -29,28 +29,18 @@ use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  * @link    https://www.netresearch.de
  */
-class ImageLinkRenderingController extends AbstractPlugin
+class ImageLinkRenderingController
 {
-    /**
-     * Same as class name
-     *
-     * @var string
+    /*
+     * Reference to the parent (calling) cObject set from TypoScript
      */
-    public $prefixId = 'ImageLinkRenderingController';
+    private ContentObjectRenderer $contentObjectRenderer;
 
-    /**
-     * Path to this script relative to the extension dir
-     *
-     * @var string
-     */
-    public $scriptRelPath = 'Classes/Controller/ImageLinkRenderingController.php';
-
-    /**
-     * The extension key.
-     *
-     * @var string
-     */
-    public $extKey = 'rte_ckeditor_image';
+    public function setContentObjectRenderer(
+        ContentObjectRenderer $contentObjectRenderer,
+    ): void {
+        $this->contentObjectRenderer = $contentObjectRenderer;
+    }
 
     /**
      * Returns a processed image to be displayed on the Frontend.
@@ -63,7 +53,7 @@ class ImageLinkRenderingController extends AbstractPlugin
     public function renderImages(?string $content, array $conf = []): string
     {
         // Get link inner HTML
-        $linkContent = $this->cObj instanceof ContentObjectRenderer ? $this->cObj->getCurrentVal() : null;
+        $linkContent = $this->contentObjectRenderer instanceof ContentObjectRenderer ? $this->contentObjectRenderer->getCurrentVal() : null;
 
         // Find all images with file-uid attribute
         $imgSearchPattern = '/<p[^>]*>\s*<img(?=.*src).*?\/>\s*<\/p>/';
@@ -159,7 +149,6 @@ class ImageLinkRenderingController extends AbstractPlugin
     /**
      * Returns a sanitizes array of attributes out $passedImage
      *
-     *
      * @return string[]
      */
     protected function getImageAttributes(string $passedImage): array
@@ -181,32 +170,61 @@ class ImageLinkRenderingController extends AbstractPlugin
 
     /**
      * Returns the lazy loading configuration.
+     * 
+     * If not set, the default value is 'lazy'.
+     * 
+     * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/10.3/Feature-90426-Browser-nativeLazyLoadingForImages.html
      */
     private function getLazyLoadingConfiguration(): ?string
     {
-        return $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray()['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        if (! isset($GLOBALS['TYPO3_REQUEST'])) {
+            // return default value
+            return 'lazy';
+        }
+
+        $tsfe = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray();
+        
+        if (! isset($tsfe['lib.']['contentElement.']['settings.']['media.']['lazyLoading'])) {
+            // return default value
+            return 'lazy';
+        }
+
+        return $tsfe['lib.']['contentElement.']['settings.']['media.']['lazyLoading'];
     }
 
     /**
      * Instantiates and prepares the Magic Image service.
+     * 
+     * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.4/Deprecation-99237-MagicImageService.html
+     * 
+     * Due to it's deprecated status, we will just ignore if the settings are not available:
+     * 
+     * $pageTSConfig['RTE.']['default.']['buttons.']['image.']['options.']['magic.']
+     * 
+     * @deprecated
      */
     protected function getMagicImageService(): MagicImageService
     {
         static $magicImageService;
 
-        if ($magicImageService === null) {
-            $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
+        if ($magicImageService !== null) {
+            return $magicImageService;
+        }
 
-            // Get RTE configuration
+        $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
-            /**
-             * @var array<string, mixed[]> $pageTSConfig
-             */
-            $pageTSConfig = $this->frontendController->getPagesTSconfig();
+        if (! isset($GLOBALS['TSFE'])) {
+            return $magicImageService;
+        }
 
-            if (\is_array($pageTSConfig['RTE.']['default.'])) {
-                $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
-            }
+        // Get RTE configuration
+        /**
+         * @var array<string, mixed[]> $pageTSConfig
+         */
+        $pageTSConfig = $GLOBALS['TSFE']->getPagesTSconfig();
+
+        if (\is_array($pageTSConfig['RTE.']['default.'])) {
+            $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
         }
 
         return $magicImageService;

@@ -37,41 +37,24 @@ return RectorConfig::configure()
     ->withSets([
         // Rector sets
 
-        LevelSetList::UP_TO_PHP_53,
-        LevelSetList::UP_TO_PHP_54,
-        LevelSetList::UP_TO_PHP_55,
-        LevelSetList::UP_TO_PHP_56,
-        LevelSetList::UP_TO_PHP_70,
-        LevelSetList::UP_TO_PHP_71,
-        LevelSetList::UP_TO_PHP_72,
-        LevelSetList::UP_TO_PHP_73,
-        LevelSetList::UP_TO_PHP_74,
-        LevelSetList::UP_TO_PHP_80,
         LevelSetList::UP_TO_PHP_81,
         // LevelSetList::UP_TO_PHP_82,
         // LevelSetList::UP_TO_PHP_83,
 
-        // SetList::CODE_QUALITY,
-        // SetList::CODING_STYLE,
-        // SetList::DEAD_CODE,
-        // SetList::EARLY_RETURN,
-        // SetList::INSTANCEOF,
-        // SetList::NAMING,
-        // SetList::PRIVATIZATION,
-        // SetList::STRICT_BOOLEANS,
-        // SetList::TYPE_DECLARATION,
+        SetList::CODE_QUALITY,
+        SetList::CODING_STYLE,
+        SetList::DEAD_CODE,
+        SetList::EARLY_RETURN,
+        SetList::INSTANCEOF,
+        SetList::NAMING,
+        SetList::PRIVATIZATION,
+        SetList::STRICT_BOOLEANS,
+        SetList::TYPE_DECLARATION,
 
         // PHPUnit sets
-
-        // PHPUnitSetList::PHPUNIT80_DMS,
-        // PHPUnitSetList::PHPUNIT_40,
-        // PHPUnitSetList::PHPUNIT_50,
-        // PHPUnitSetList::PHPUNIT_60,
-        // PHPUnitSetList::PHPUNIT_70,
-        // PHPUnitSetList::PHPUNIT_80,
-        // PHPUnitSetList::PHPUNIT_90,
-        // PHPUnitSetList::PHPUNIT_100,
-        // PHPUnitSetList::PHPUNIT_CODE_QUALITY,
+        PHPUnitSetList::PHPUNIT_110,
+        PHPUnitSetList::PHPUNIT_CODE_QUALITY,
+        PHPUnitSetList::ANNOTATIONS_TO_ATTRIBUTES,
 
         // TYPO3 Sets
         // https://github.com/sabbelasichon/typo3-rector/blob/main/src/Set/Typo3LevelSetList.php
@@ -82,7 +65,7 @@ return RectorConfig::configure()
 
         Typo3LevelSetList::UP_TO_TYPO3_12,
 
-        TYPO3TestingFrameworkSetList::TYPO3_TESTING_FRAMEWORK_8,
+        //TYPO3TestingFrameworkSetList::TYPO3_TESTING_FRAMEWORK_8,
     ])
     // To have a better analysis from PHPStan, we teach it here some more things
     ->withPHPStanConfigs([
@@ -94,9 +77,9 @@ return RectorConfig::configure()
     ])
     ->withImportNames(true, true, false)
     ->withConfiguredRule(ExtEmConfRector::class, [
-        ExtEmConfRector::PHP_VERSION_CONSTRAINT => '8.1.0-8.3.99',
-        ExtEmConfRector::TYPO3_VERSION_CONSTRAINT => '12.0.0-13.2.99',
-        ExtEmConfRector::ADDITIONAL_VALUES_TO_BE_REMOVED => [],
+        // ExtEmConfRector::PHP_VERSION_CONSTRAINT => '8.1.0-8.3.99',
+        // ExtEmConfRector::TYPO3_VERSION_CONSTRAINT => '12.0.0-13.2.99',
+        // ExtEmConfRector::ADDITIONAL_VALUES_TO_BE_REMOVED => [],
     ])
     ->withSkip([
     ]);
