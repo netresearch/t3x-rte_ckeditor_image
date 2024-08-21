@@ -61,11 +61,11 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
     {
         // Sanitize HTML: replaces
         // - Invalid control chars: [\x00-\x08\x0B\x0C\x0E-\x1F]
-        $controlChars = "[\x00-\x08\x0B\x0C\x0E-\x1F]";
+        $controlChars = '[\x00-\x08\x0B\x0C\x0E-\x1F]';
         // - UTF-16 surrogates: \xED[\xA0-\xBF].
-        $invalidUtf8Surrogates = "\xED[\xA0-\xBF].";
+        $invalidUtf8Surrogates = '\xED[\xA0-\xBF].';
         // - Non-characters U+FFFE and U+FFFF: \xEF\xBF[\xBE\xBF]
-        $invalidUtf8NonChars = "\xEF\xBF[\xBE\xBF]";
+        $invalidUtf8NonChars = '\xEF\xBF[\xBE\xBF]';
 
         $pattern = '/' . $controlChars . '|' . $invalidUtf8Surrogates . '|' . $invalidUtf8NonChars . '/';
 
