@@ -44,15 +44,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
         $row  = $gridColumnItem->getRecord();
         $html = $row['bodytext'] ?? '';
 
-        // Sanitize HTML (replaces invalid chars with U+FFFD)<.
-        // - Invalid control chars: [\x00-\x08\x0B\x0C\x0E-\x1F]
-        // - UTF-16 surrogates: \xED[\xA0-\xBF].
-        // - Non-characters U+FFFE and U+FFFF: \xEF\xBF[\xBE\xBF]
-        $html = preg_replace(
-            '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF].|\xEF\xBF[\xBE\xBF]/',
-            "\xEF\xBF\xBD",
-            $html
-        );
+        $html = self::sanitizeHtml($html);
 
         return $this
             ->linkEditContent(
@@ -63,12 +55,33 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
     }
 
     /**
+     * Sanitizes HTML by replacing invalid characters with U+FFFD.
+     */
+    private static function sanitizeHtml(string $html): string
+    {
+        // Sanitize HTML: replaces
+        // - Invalid control chars: [\x00-\x08\x0B\x0C\x0E-\x1F]
+        $controlChars = "[\x00-\x08\x0B\x0C\x0E-\x1F]";
+        // - UTF-16 surrogates: \xED[\xA0-\xBF].
+        $invalidUtf8Surrogates = "\xED[\xA0-\xBF].";
+        // - Non-characters U+FFFE and U+FFFF: \xEF\xBF[\xBE\xBF]
+        $invalidUtf8NonChars = "\xEF\xBF[\xBE\xBF]";
+
+        $pattern = '/' . $controlChars . '|' . $invalidUtf8Surrogates . '|' . $invalidUtf8NonChars . '/';
+
+        // with U+FFFD.
+        $placeholder = "�";
+
+        return preg_replace($pattern, $placeholder, $html);
+    }
+
+    /**
      * Processing of larger amounts of text (usually from RTE/bodytext fields) with word wrapping etc.
      *
      * @param  string $input Input string
      * @return string Output string
      */
-    protected function renderTextWithHtml(string $input): string
+    private function renderTextWithHtml(string $input): string
     {
         // Allow only <img> and <p>-tags in preview, to prevent possible HTML mismatch
         $input = strip_tags($input, '<img><p>');
@@ -78,8 +91,6 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
 
     /**
      * Truncates the given text, but preserves HTML tags.
-     *
-     *
      *
      * @see https://stackoverflow.com/questions/16583676/shorten-text-without-splitting-words-or-breaking-html-tags
      */
@@ -111,7 +122,6 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
 
     /**
      * Walk the DOM tree and collect the length of all text nodes.
-     *
      *
      * @return \DOMNode[]
      */
