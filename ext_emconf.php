@@ -8,6 +8,7 @@ $EM_CONF[$_EXTKEY] = [
     'clearCacheOnLoad' => 0,
     'author' => 'Sebastian Koschel',
     'author_email' => 'sebastian.koschel@netresearch.de',
+    'author_company' => 'Netresearch DTT GbmH',
     'version' => '12.0.2',
     'constraints' => [
         'depends' => [
@@ -18,6 +19,16 @@ $EM_CONF[$_EXTKEY] = [
         'conflicts' => [],
         'suggests' => [
             'setup' => '',
+        ],
+    ],
+    'autoload' => [
+        'psr-4' => [
+            'Netresearch\\RteCKEditorImage\\' => 'Classes/',
+        ],
+    ],
+    'autoload-dev' => [
+        'psr-4' => [
+            'Netresearch\\RteCKEditorImage\\Tests\\' => 'Tests/',
         ],
     ],
 ];

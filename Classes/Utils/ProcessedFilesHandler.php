@@ -20,13 +20,15 @@ class ProcessedFilesHandler
      *     'height' => '200c',
      *   ];
      *
-     * @param File $file The file object
-     * @param mixed[] $imageConfiguration The image configuration
-     * @return ProcessedFile
+     * @param  File    $file               The file object
+     * @param  mixed[] $imageConfiguration The image configuration
+     * @throws \Exception
      */
     public function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile
     {
-        /** @var ImageService $imageService */
+        /**
+         * @var ImageService $imageService
+         */
         $imageService = GeneralUtility::makeInstance(ImageService::class);
 
         // Process the file with the given configuration

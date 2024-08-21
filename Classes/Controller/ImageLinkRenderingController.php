@@ -19,11 +19,7 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
-
-use function count;
-use function get_class;
-use function is_array;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
  * Controller to render the linked images in frontend
@@ -32,33 +28,23 @@ use function is_array;
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  * @link    https://www.netresearch.de
  */
-class ImageLinkRenderingController extends AbstractPlugin
+class ImageLinkRenderingController
 {
-    /**
-     * Same as class name
-     *
-     * @var string
+    /*
+     * Reference to the parent (calling) cObject set from TypoScript
      */
-    public $prefixId = 'ImageLinkRenderingController';
+    private ContentObjectRenderer $contentObjectRenderer;
 
-    /**
-     * Path to this script relative to the extension dir
-     *
-     * @var string
-     */
-    public $scriptRelPath = 'Classes/Controller/ImageLinkRenderingController.php';
-
-    /**
-     * The extension key.
-     *
-     * @var string
-     */
-    public $extKey = 'rte_ckeditor_image';
+    public function setContentObjectRenderer(
+        ContentObjectRenderer $contentObjectRenderer,
+    ): void {
+        $this->contentObjectRenderer = $contentObjectRenderer;
+    }
 
     /**
      * Returns a processed image to be displayed on the Frontend.
      *
-     * @param null|string $content Content input (not used)
+     * @param string|null $content Content input (not used)
      * @param mixed[]     $conf    TypoScript configuration
      *
      * @return string HTML output
@@ -66,7 +52,7 @@ class ImageLinkRenderingController extends AbstractPlugin
     public function renderImages(?string $content, array $conf = []): string
     {
         // Get link inner HTML
-        $linkContent = $this->cObj !== null ? $this->cObj->getCurrentVal() : null;
+        $linkContent = $this->contentObjectRenderer->getCurrentVal();
 
         // Find all images with file-uid attribute
         $imgSearchPattern = '/<p[^>]*>\s*<img(?=.*src).*?\/>\s*<\/p>/';
@@ -74,11 +60,11 @@ class ImageLinkRenderingController extends AbstractPlugin
         $parsedImages = [];
 
         // Extract all TYPO3 images from link content
-        preg_match_all($imgSearchPattern, (string) $linkContent, $passedImages);
+        preg_match_all($imgSearchPattern, (string)$linkContent, $passedImages);
 
         $passedImages = $passedImages[0];
 
-        if (count($passedImages) === 0) {
+        if (\count($passedImages) === 0) {
             return $linkContent;
         }
 
@@ -89,8 +75,8 @@ class ImageLinkRenderingController extends AbstractPlugin
             // so it will never match this condition.
             //
             // But we leave this as fallback for older render versions.
-            if ((count($imageAttributes) > 0) && isset($imageAttributes['data-htmlarea-file-uid'])) {
-                $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid']);
+            if (($imageAttributes !== []) && isset($imageAttributes['data-htmlarea-file-uid'])) {
+                $fileUid = (int)($imageAttributes['data-htmlarea-file-uid']);
 
                 if ($fileUid > 0) {
                     try {
@@ -98,8 +84,8 @@ class ImageLinkRenderingController extends AbstractPlugin
                         $systemImage = $resourceFactory->getFileObject($fileUid);
 
                         $imageConfiguration = [
-                            'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width')  ?? 0),
-                            'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
+                            'width'  => (int)($imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0),
+                            'height' => (int)($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
                         ];
 
                         $processedFile = $this->getMagicImageService()
@@ -132,7 +118,8 @@ class ImageLinkRenderingController extends AbstractPlugin
                             'data-htmlarea-file-uid',
                             'data-htmlarea-file-table',
                             'data-htmlarea-zoom',
-                            'data-htmlarea-clickenlarge' // Legacy zoom property
+                            // Legacy zoom property
+                            'data-htmlarea-clickenlarge',
                         ];
 
                         $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
@@ -161,8 +148,6 @@ class ImageLinkRenderingController extends AbstractPlugin
     /**
      * Returns a sanitizes array of attributes out $passedImage
      *
-     * @param string $passedImage
-     *
      * @return string[]
      */
     protected function getImageAttributes(string $passedImage): array
@@ -174,50 +159,76 @@ class ImageLinkRenderingController extends AbstractPlugin
             $imageAttributes
         );
 
-        /** @var false|string[] $result */
+        /**
+         * @var false|string[] $result
+         */
         $result = array_combine($imageAttributes[1], $imageAttributes[2]);
 
-        return is_array($result) ? $result : [];
+        return \is_array($result) ? $result : [];
     }
 
     /**
      * Returns the lazy loading configuration.
      *
-     * @return null|string
+     * If not set, the default value is 'lazy'.
+     *
+     * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/10.3/Feature-90426-Browser-nativeLazyLoadingForImages.html
      */
-    private function getLazyLoadingConfiguration(): ?string
+    private function getLazyLoadingConfiguration(): string
     {
-        return $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        if (! isset($GLOBALS['TYPO3_REQUEST'])) {
+            // return default value
+            return 'lazy';
+        }
+
+        $tsfe = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray();
+
+        if (! isset($tsfe['lib.']['contentElement.']['settings.']['media.']['lazyLoading'])) {
+            // return default value
+            return 'lazy';
+        }
+
+        return $tsfe['lib.']['contentElement.']['settings.']['media.']['lazyLoading'];
     }
 
     /**
      * Instantiates and prepares the Magic Image service.
      *
-     * @return MagicImageService
+     * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.4/Deprecation-99237-MagicImageService.html
+     *
+     * Due to it's deprecated status, we will just ignore if the settings are not available:
+     *
+     * $pageTSConfig['RTE.']['default.']['buttons.']['image.']['options.']['magic.']
+     *
+     * @deprecated
      */
     protected function getMagicImageService(): MagicImageService
     {
         static $magicImageService;
 
-        if ($magicImageService === null) {
-            $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
+        if ($magicImageService !== null) {
+            return $magicImageService;
+        }
 
-            // Get RTE configuration
+        $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
-            /** @var array<string, mixed[]> $pageTSConfig */
-            $pageTSConfig = $this->frontendController->getPagesTSconfig();
+        if (! isset($GLOBALS['TSFE'])) {
+            return $magicImageService;
+        }
 
-            if (is_array($pageTSConfig['RTE.']['default.'])) {
-                $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
-            }
+        // Get RTE configuration
+        /**
+         * @var array<string, mixed[]> $pageTSConfig
+         */
+        $pageTSConfig = $GLOBALS['TSFE']->getPagesTSconfig();
+
+        if (\is_array($pageTSConfig['RTE.']['default.'])) {
+            $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
         }
 
         return $magicImageService;
     }
 
-    /**
-     * @return Logger
-     */
     protected function getLogger(): Logger
     {
         return GeneralUtility::makeInstance(LogManager::class)
@@ -227,14 +238,10 @@ class ImageLinkRenderingController extends AbstractPlugin
     /**
      * Returns attributes value or even empty string when override mode is enabled
      *
-     * @param string                $attributeName
      * @param array<string, string> $attributes
-     * @param File                  $image
-     *
-     * @return string
      */
-    protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
+    protected function getAttributeValue(string $attributeName, array $attributes, File $file): string
     {
-        return (string) ($attributes[$attributeName] ?? $image->getProperty($attributeName));
+        return (string)($attributes[$attributeName] ?? $file->getProperty($attributeName));
     }
 }
