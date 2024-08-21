@@ -165,7 +165,9 @@ class ImageRenderingController extends AbstractPlugin
             )
             && isset($systemImage)
         ) {
-            $config = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray()['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
+            $config = $GLOBALS['TYPO3_REQUEST']
+                ->getAttribute('frontend.typoscript')
+                ->getSetupArray()['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
             $config['enable'] = 1;
 
             $systemImage->updateProperties(
@@ -192,9 +194,21 @@ class ImageRenderingController extends AbstractPlugin
     /**
      * Returns the lazy loading configuration.
      */
-    private function getLazyLoadingConfiguration(): ?string
+    private function getLazyLoadingConfiguration(): string
     {
-        return $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray()['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        if (! isset($GLOBALS['TYPO3_REQUEST'])) {
+            // return default value
+            return 'lazy';
+        }
+
+        $tsfe = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray();
+
+        if (! isset($tsfe['lib.']['contentElement.']['settings.']['media.']['lazyLoading'])) {
+            // return default value
+            return 'lazy';
+        }
+
+        return $tsfe['lib.']['contentElement.']['settings.']['media.']['lazyLoading'];
     }
 
     /**

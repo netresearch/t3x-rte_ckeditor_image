@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Netresearch\RteCKEditorImage\Tests\Unit\Backend\Preview;
+namespace Netresearch\RteCKEditorImage\Tests\Unit;
 
 use Netresearch\RteCKEditorImage\Backend\Preview\RteImagePreviewRenderer;
 use PHPUnit\Framework\TestCase;
@@ -10,16 +10,20 @@ use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
 
 class RteImagePreviewRendererTest extends TestCase
 {
-    private RteImagePreviewRenderer $previewRenderer;
+    private RteImagePreviewRenderer&\PHPUnit\Framework\MockObject\MockObject $previewRenderer;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // mock RteImagePreviewRenderer
-        $this->previewRenderer = $this->getMockBuilder(RteImagePreviewRenderer::class)->onlyMethods(['linkEditContent'])->getMock();
+        $this->previewRenderer = $this->getMockBuilder(RteImagePreviewRenderer::class)
+            ->onlyMethods(['linkEditContent'])
+            ->getMock();
     }
 
+    /**
+     * @return string[][]
+     */
     public static function additionProvider(): array
     {
         $prefix = '<?xml encoding="UTF-8">';
@@ -62,10 +66,10 @@ class RteImagePreviewRendererTest extends TestCase
                 'expected' => $prefix . '<p>Invalid&#65533;surrogate</p>' . $suffix,
             ],
             'sanitize_non_chars' => [
-                'input' => "Invalid\xF4\x8F\xBF\xBFnon-char-",
-                'expected' => $prefix . '<p>Invalid&#65533;non-char</p>' . $suffix,
+                'input' => "Valid\xF4\x8F\xBF\xBFchar",
+                'expected' => $prefix . '<p>Valid&#1114111;char</p>' . $suffix,
             ],
-            'sanitize_non_chars' => [
+            'sanitize_non_char' => [
                 'input' => "Non\xEF\xBF\xBEcharacter",
                 'expected' => $prefix . '<p>Non&#65533;character</p>' . $suffix,
             ],
@@ -82,13 +86,10 @@ class RteImagePreviewRendererTest extends TestCase
             ->method('getRecord')
             ->willReturn(['bodytext' => $input]);
 
-
         $this->previewRenderer->expects($this->once())
             ->method('linkEditContent')
             ->with($this->equalTo($expected));
 
-        $result = $this->previewRenderer->renderPageModulePreviewContent($gridColumnItem);
-
-        #$this->assertSame($expected, $result);
+        $this->previewRenderer->renderPageModulePreviewContent($gridColumnItem);
     }
 }

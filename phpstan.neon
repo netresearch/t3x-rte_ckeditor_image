@@ -52,3 +52,6 @@ parameters:
                 - '$_FILES'
                 - '$_SERVER'
             message: 'Use PSR-7 API instead'
+
+    ignoreErrors:
+        - '#Dynamic call to static method PHPUnit\\Framework\\.*#'

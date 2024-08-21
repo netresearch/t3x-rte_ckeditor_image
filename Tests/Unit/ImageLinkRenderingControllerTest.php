@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Netresearch\RteCKEditorImage\Tests\Unit\Controller;
+namespace Netresearch\RteCKEditorImage\Tests\Unit;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
-use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
@@ -45,7 +44,7 @@ class ImageLinkRenderingControllerTest extends TestCase
         ]));
     }
 
-    #[nTest]
+    #[Test]
     public function renderImagesLazyLoadingAttribute(): void
     {
         $sampleContent = '<p><img src="image.jpg" data-htmlarea-file-uid="123"/></p>';
@@ -70,7 +69,8 @@ class ImageLinkRenderingControllerTest extends TestCase
 
         $this->magicImageServiceMock->method('createMagicImage')->willReturn($processedFileMock);
 
-        $expectedOutput = '<img src="processed-url" title="Sample Title" alt="Sample Alt" width="100" height="100" loading="lazy" />';
+        $expectedOutput
+            = '<img src="processed-url" title="Sample Title" alt="Sample Alt" width="100" height="100" loading="lazy" />';
         $actualOutput = $this->imageLinkRenderingController->renderImages(null, []);
 
         $this->assertSame($expectedOutput, $actualOutput);
@@ -79,7 +79,8 @@ class ImageLinkRenderingControllerTest extends TestCase
     #[Test]
     public function testRenderImages(): void
     {
-        $sampleContent = '<img src=456 /> <p>some foo bar</p> <p><img src="image.jpg" data-htmlarea-file-uid="123"/></p> some foo bar';
+        $sampleContent
+            = '<img src=456 /> <p>some foo bar</p> <p><img src="image.jpg" data-htmlarea-file-uid="123"/></p> some foo bar';
         $this->contentObjectRendererMock->method('getCurrentVal')->willReturn($sampleContent);
 
         $fileMock = $this->createMock(File::class);
@@ -101,7 +102,8 @@ class ImageLinkRenderingControllerTest extends TestCase
 
         $this->magicImageServiceMock->method('createMagicImage')->willReturn($processedFileMock);
 
-        $expectedOutput = '<img src=456 /> <p>some foo bar</p> <img src="processed-url" title="Sample Title" alt="Sample Alt" width="100" height="100" loading="lazy" /> some foo bar';
+        $expectedOutput
+            = '<img src=456 /> <p>some foo bar</p> <img src="processed-url" title="Sample Title" alt="Sample Alt" width="100" height="100" loading="lazy" /> some foo bar';
         $actualOutput = $this->imageLinkRenderingController->renderImages(null, []);
 
         $this->assertSame($expectedOutput, $actualOutput);

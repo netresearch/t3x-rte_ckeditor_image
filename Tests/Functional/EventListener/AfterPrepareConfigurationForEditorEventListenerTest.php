@@ -20,14 +20,8 @@ class AfterPrepareConfigurationForEditorEventListenerTest extends FunctionalTest
         'typo3/cms-rte-ckeditor',
     ];
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        // Additional setup if required
-    }
-
     #[Test]
-    public function it_modifies_editor_configuration_correctly(): void
+    public function testEditorConfigurationIsApplied(): void
     {
         $eventDispatcher = GeneralUtility::makeInstance(EventDispatcher::class);
 

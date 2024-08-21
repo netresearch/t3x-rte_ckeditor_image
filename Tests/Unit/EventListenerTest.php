@@ -39,7 +39,8 @@ class EventListenerTest extends TestCase
         // Create the event with the initial configuration and the necessary data array
         $data = [];
         // Add the appropriate data for the second argument if needed
-        $afterPrepareConfigurationForEditorEvent = new AfterPrepareConfigurationForEditorEvent($initialConfiguration, $data);
+        $afterPrepareConfigurationForEditorEvent
+            = new AfterPrepareConfigurationForEditorEvent($initialConfiguration, $data);
 
         // Mock the UriBuilder
         $uriBuilderMock = $this->createMock(UriBuilder::class);

@@ -70,9 +70,9 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
         $pattern = '/' . $controlChars . '|' . $invalidUtf8Surrogates . '|' . $invalidUtf8NonChars . '/';
 
         // with U+FFFD.
-        $placeholder = "�";
+        $placeholder = '�';
 
-        return preg_replace($pattern, $placeholder, $html);
+        return preg_replace($pattern, $placeholder, $html) ?? '';
     }
 
     /**
@@ -132,7 +132,8 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
         } else {
             // Only text nodes should have a text, so do the splitting here
             if (($domNode instanceof \DOMText) && ($domNode->nodeValue !== null)) {
-                $this->totalLength += $nodeLen = mb_strlen($domNode->nodeValue);
+                $nodeLen = mb_strlen($domNode->nodeValue);
+                $this->totalLength += $nodeLen;
 
                 if ($this->totalLength > $maxLength) {
                     $domNode->nodeValue = mb_substr(

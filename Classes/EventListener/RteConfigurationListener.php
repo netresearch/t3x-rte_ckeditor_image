@@ -9,9 +9,7 @@ use TYPO3\CMS\RteCKEditor\Form\Element\Event\AfterPrepareConfigurationForEditorE
 
 class RteConfigurationListener
 {
-    public function __construct(private readonly UriBuilder $uriBuilder)
-    {
-    }
+    public function __construct(private readonly UriBuilder $uriBuilder) {} // phpcs:ignore
 
     public function __invoke(AfterPrepareConfigurationForEditorEvent $afterPrepareConfigurationForEditorEvent): void
     {

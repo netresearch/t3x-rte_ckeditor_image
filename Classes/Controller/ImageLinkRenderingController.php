@@ -20,7 +20,6 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
 /**
  * Controller to render the linked images in frontend
@@ -53,7 +52,7 @@ class ImageLinkRenderingController
     public function renderImages(?string $content, array $conf = []): string
     {
         // Get link inner HTML
-        $linkContent = $this->contentObjectRenderer instanceof ContentObjectRenderer ? $this->contentObjectRenderer->getCurrentVal() : null;
+        $linkContent = $this->contentObjectRenderer->getCurrentVal();
 
         // Find all images with file-uid attribute
         $imgSearchPattern = '/<p[^>]*>\s*<img(?=.*src).*?\/>\s*<\/p>/';
@@ -170,12 +169,12 @@ class ImageLinkRenderingController
 
     /**
      * Returns the lazy loading configuration.
-     * 
+     *
      * If not set, the default value is 'lazy'.
-     * 
+     *
      * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/10.3/Feature-90426-Browser-nativeLazyLoadingForImages.html
      */
-    private function getLazyLoadingConfiguration(): ?string
+    private function getLazyLoadingConfiguration(): string
     {
         if (! isset($GLOBALS['TYPO3_REQUEST'])) {
             // return default value
@@ -183,7 +182,7 @@ class ImageLinkRenderingController
         }
 
         $tsfe = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray();
-        
+
         if (! isset($tsfe['lib.']['contentElement.']['settings.']['media.']['lazyLoading'])) {
             // return default value
             return 'lazy';
@@ -194,13 +193,13 @@ class ImageLinkRenderingController
 
     /**
      * Instantiates and prepares the Magic Image service.
-     * 
+     *
      * https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.4/Deprecation-99237-MagicImageService.html
-     * 
+     *
      * Due to it's deprecated status, we will just ignore if the settings are not available:
-     * 
+     *
      * $pageTSConfig['RTE.']['default.']['buttons.']['image.']['options.']['magic.']
-     * 
+     *
      * @deprecated
      */
     protected function getMagicImageService(): MagicImageService

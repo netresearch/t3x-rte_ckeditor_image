@@ -29,16 +29,9 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
      */
     private array $splitContentTags;
 
-    /**
-     * Constructor.
-     */
     public function __construct(
-        /**
-         * TYPO3 HTML parser.
-         */
         private readonly HtmlParser $htmlParser
-    ) {
-    }
+    ) {} // phpcs:ignore
 
     /**
      * Main function through which all processing happens.
