@@ -14,6 +14,7 @@ namespace Netresearch\RteCKEditorImage\Controller;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Resource\File;
@@ -98,14 +99,15 @@ class SelectImageController extends ElementBrowserController
         }
 
         $file          = $this->getImage((int) $id);
-        $processedFile = $this->processImage($file, $params);
+        $maxDimensions = $this->getMaxDimensions($params);
+        $processedFile = $this->processImage($file, $params, $maxDimensions);
 
         return new JsonResponse([
             'uid'       => $file->getUid(),
             'alt'       => $file->getProperty('alternative') ?? '',
             'title'     => $file->getProperty('title') ?? '',
-            'width'     => $file->getProperty('width'),
-            'height'    => $file->getProperty('height'),
+            'width'     => min($file->getProperty('width'), $maxDimensions['width']),
+            'height'    => min($file->getProperty('height'), $maxDimensions['height']),
             'url'       => $file->getPublicUrl(),
             'processed' => [
                 'width'  => $processedFile->getProperty('width'),
@@ -163,21 +165,21 @@ class SelectImageController extends ElementBrowserController
     /**
      * Get the processed image.
      *
-     * @param File     $file   The original image file
-     * @param string[] $params The parameters used to process the image
+     * @param File     $file                    The original image file
+     * @param string[] $params                  The parameters used to process the image
+     * @param array<string, int> $maxDimensions The maximum width and height
      *
      * @return ProcessedFile
      */
-    protected function processImage(File $file, array $params): ProcessedFile
+    protected function processImage(File $file, array $params, array $maxDimensions): ProcessedFile
     {
-        // TODO: Get this from page ts config
         $this->magicImageService->setMagicImageMaximumDimensions([
             'buttons.' => [
                 'image.' => [
                     'options.' => [
                         'magic.' => [
-                            'maxWidth' => 1920,
-                            'maxHeight' => 9999,
+                            'maxWidth' => $maxDimensions['width'],
+                            'maxHeight' => $maxDimensions['height'],
                         ]
                     ]
                 ]
@@ -192,5 +194,24 @@ class SelectImageController extends ElementBrowserController
                     'height' => (int) ($params['height'] ?? $file->getProperty('height')),
                 ]
             );
+    }
+
+    /**
+     * @param string[] $params
+     *
+     * @return int[]|array<string, int>
+     */
+    protected function getMaxDimensions(array $params): array
+    {
+        $tsConfig = BackendUtility::getPagesTSconfig((int) ($params['pid'] ?? 0));
+        $richtextConfigurationName = $params['richtextConfigurationName'] ?? 'default';
+        if ($richtextConfigurationName === '') {
+            $richtextConfigurationName = 'default';
+        }
+        $rteConfig = $tsConfig['RTE.'][$richtextConfigurationName . '.'];
+        $maxHeight = $rteConfig['buttons.']['image.']['options.']['magic.']['maxHeight'] ?? 9999;
+        $maxWidth = $rteConfig['buttons.']['image.']['options.']['magic.']['maxWidth'] ?? 1920;
+
+        return ['width' => $maxWidth, 'height' => $maxHeight];
     }
 }

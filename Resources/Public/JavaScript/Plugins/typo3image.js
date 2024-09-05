@@ -334,7 +334,7 @@ function askImageAttributes(editor, img, attributes, table) {
  * @return {$.Deferred}
  */
 function getImageInfo(editor, table, uid, params) {
-    let url = editor.config.get('style').typo3image.routeUrl + '&action=info&fileId=' + encodeURIComponent(uid) + '&table=' + encodeURIComponent(table) + '&contentsLanguage=en&editorId=123';
+    let url = editor.config.get('typo3image').routeUrl + '&action=info&fileId=' + encodeURIComponent(uid) + '&table=' + encodeURIComponent(table) + '&contentsLanguage=en&editorId=123';
 
     if (typeof params.width !== 'undefined' && params.width.length) {
         url += '&P[width]=' + params.width;
@@ -357,7 +357,7 @@ function selectImage(editor) {
     ];
 
     // TODO: Use ajaxUrl
-    const contentUrl = editor.config.get('style').typo3image.routeUrl + '&contentsLanguage=en&editorId=123&bparams=' + bparams.join('|');
+    const contentUrl = editor.config.get('typo3image').routeUrl + '&contentsLanguage=en&editorId=123&bparams=' + bparams.join('|');
 
     const modal = Modal.advanced({
         type: Modal.types.iframe,
