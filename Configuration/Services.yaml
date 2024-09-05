@@ -16,11 +16,5 @@ services:
   Netresearch\RteCKEditorImage\Database\RteImagesDbHook:
     public: true
 
-  Netresearch\RteCKEditorImage\EventListener\RteConfigurationListener:
-    tags:
-      - name: event.listener
-        identifier: 'rte_configuration_listener'
-        event: TYPO3\CMS\RteCKEditor\Form\Element\Event\AfterPrepareConfigurationForEditorEvent
-
   Netresearch\RteCKEditorImage\Controller\SelectImageController:
     tags: ['backend.controller']

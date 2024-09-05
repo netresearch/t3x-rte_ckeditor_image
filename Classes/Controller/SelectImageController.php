@@ -17,6 +17,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use TYPO3\CMS\Backend\Controller\ElementBrowserController;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Resource\File;
@@ -36,9 +37,27 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 class SelectImageController extends ElementBrowserController
 {
     /**
-     * @var bool
+     * Minimum allowed image dimension in pixels.
      */
-    protected bool $isInfoAction = false;
+    private const IMAGE_MIN_DIMENSION = 1;
+
+    /**
+     * Maximum allowed image dimension in pixels.
+     *
+     * Prevents resource exhaustion: 10000x10000px ≈ 400MB memory worst case.
+     * Values above this limit will be clamped to prevent server crashes.
+     */
+    private const IMAGE_MAX_DIMENSION = 10000;
+
+    /**
+     * Default maximum width for images from TSConfig.
+     */
+    private const IMAGE_DEFAULT_MAX_WIDTH = 1920;
+
+    /**
+     * Default maximum height for images from TSConfig.
+     */
+    private const IMAGE_DEFAULT_MAX_HEIGHT = 9999;
 
     /**
      * @var ResourceFactory
@@ -51,7 +70,7 @@ class SelectImageController extends ElementBrowserController
     private MagicImageService $magicImageService;
 
     /**
-     * Forward to infoAction if wanted
+     * Forward to infoAction if wanted.
      *
      * @param ServerRequestInterface $request
      *
@@ -62,8 +81,13 @@ class SelectImageController extends ElementBrowserController
         $this->resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
         $this->magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
-        $isInfoAction = GeneralUtility::_GP('action') === 'info';
+        $parsedBody = $request->getParsedBody();
         $queryParams = $request->getQueryParams();
+        $isInfoAction = (
+            (is_array($parsedBody) ? ($parsedBody['action'] ?? null) : null)
+            ?? $queryParams['action']
+            ?? null
+        ) === 'info';
 
         if (!$isInfoAction) {
             $bparams = explode('|', (string) $queryParams['bparams']);
@@ -108,14 +132,15 @@ class SelectImageController extends ElementBrowserController
             return (new Response())->withStatus(403, 'Forbidden');
         }
 
-        $processedFile = $this->processImage($file, $params);
+        $maxDimensions = $this->getMaxDimensions($params);
+        $processedFile = $this->processImage($file, $params, $maxDimensions);
 
         return new JsonResponse([
             'uid'       => $file->getUid(),
             'alt'       => $file->getProperty('alternative') ?? '',
             'title'     => $file->getProperty('title') ?? '',
-            'width'     => $file->getProperty('width'),
-            'height'    => $file->getProperty('height'),
+            'width'     => min($file->getProperty('width'), $maxDimensions['width']),
+            'height'    => min($file->getProperty('height'), $maxDimensions['height']),
             'url'       => $file->getPublicUrl(),
             'processed' => [
                 'width'  => $processedFile->getProperty('width'),
@@ -214,25 +239,25 @@ class SelectImageController extends ElementBrowserController
     /**
      * Get the processed image.
      *
-     * @param File     $file   The original image file
-     * @param string[] $params The parameters used to process the image
+     * @param File               $file          The original image file
+     * @param string[]           $params        The parameters used to process the image
+     * @param array<string, int> $maxDimensions The maximum width and height
      *
      * @return ProcessedFile
      */
-    protected function processImage(File $file, array $params): ProcessedFile
+    protected function processImage(File $file, array $params, array $maxDimensions): ProcessedFile
     {
-        // TODO: Get this from page ts config
         $this->magicImageService->setMagicImageMaximumDimensions([
             'buttons.' => [
                 'image.' => [
                     'options.' => [
                         'magic.' => [
-                            'maxWidth' => 1920,
-                            'maxHeight' => 9999,
-                        ]
-                    ]
-                ]
-            ]
+                            'maxWidth'  => $maxDimensions['width'],
+                            'maxHeight' => $maxDimensions['height'],
+                        ],
+                    ],
+                ],
+            ],
         ]);
 
         return $this->magicImageService
@@ -243,5 +268,39 @@ class SelectImageController extends ElementBrowserController
                     'height' => (int) ($params['height'] ?? $file->getProperty('height')),
                 ]
             );
+    }
+
+    /**
+     * Get maximum image dimensions from page TSConfig.
+     *
+     * Reads dimension limits from TSConfig and enforces reasonable bounds
+     * to prevent resource exhaustion attacks.
+     *
+     * @param string[] $params Request parameters including optional 'pid' and 'richtextConfigurationName'
+     *
+     * @return array<string, int> Array with 'width' and 'height' keys containing validated dimension limits
+     */
+    protected function getMaxDimensions(array $params): array
+    {
+        $tsConfig = BackendUtility::getPagesTSconfig((int) ($params['pid'] ?? 0));
+        $richtextConfigurationName = $params['richtextConfigurationName'] ?? 'default';
+        if ($richtextConfigurationName === '') {
+            $richtextConfigurationName = 'default';
+        }
+
+        // Safe array access: fallback to empty array if TSConfig structure doesn't exist
+        $rteConfig = $tsConfig['RTE.'][$richtextConfigurationName . '.'] ?? [];
+        $imageOptions = $rteConfig['buttons.']['image.']['options.']['magic.'] ?? [];
+
+        // Type cast to ensure integers (handles string values from TSConfig)
+        $maxHeight = (int) ($imageOptions['maxHeight'] ?? self::IMAGE_DEFAULT_MAX_HEIGHT);
+        $maxWidth  = (int) ($imageOptions['maxWidth'] ?? self::IMAGE_DEFAULT_MAX_WIDTH);
+
+        // Enforce reasonable bounds: 1px minimum, 10000px maximum
+        // This prevents resource exhaustion (10000x10000 ≈ 400MB vs 50000x50000 ≈ 10GB)
+        $maxHeight = max(self::IMAGE_MIN_DIMENSION, min(self::IMAGE_MAX_DIMENSION, $maxHeight));
+        $maxWidth  = max(self::IMAGE_MIN_DIMENSION, min(self::IMAGE_MAX_DIMENSION, $maxWidth));
+
+        return ['width' => $maxWidth, 'height' => $maxHeight];
     }
 }
