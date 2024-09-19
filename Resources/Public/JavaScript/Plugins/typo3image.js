@@ -421,8 +421,55 @@ function edit(selectedImage, editor, imageAttributes) {
 
 export default class Typo3Image extends Core.Plugin {
     static pluginName = 'Typo3Image';
+
+    static get requires() {
+        return ['StyleUtils'];
+    }
+
     init() {
         const editor = this.editor;
+
+        const styleUtils = editor.plugins.get('StyleUtils');
+        // Add listener to allow style sets for `img` element, when a `typo3image` element is selected
+        this.listenTo(styleUtils, 'isStyleEnabledForBlock', (event, [style, element]) => {
+            if (style.element === 'img') {
+                for (const item of editor.model.document.selection.getFirstRange().getItems()) {
+                    if (item.name === 'typo3image') {
+                        event.return = true;
+                    }
+                }
+            }
+        })
+
+        // Add listener to check if style is active for `img` element, when a `typo3image` element is selected
+        this.listenTo(styleUtils, 'isStyleActiveForBlock', (event, [style, element]) => {
+            if (style.element === 'img') {
+                for (const item of editor.model.document.selection.getFirstRange().getItems()) {
+                    if (item.name === 'typo3image') {
+                        const classAttribute = item.getAttribute('class');
+                        if (classAttribute && typeof classAttribute === 'string') {
+                            const classlist = classAttribute.split(' ');
+                            if (style.classes.filter(value => !classlist.includes(value)).length === 0) {
+                                event.return = true;
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        // Add listener to return the correct `typo3image` model element for `img` style
+        this.listenTo(styleUtils, 'getAffectedBlocks', (event, [style, element]) => {
+            if (style.element === 'img') {
+                for (const item of editor.model.document.selection.getFirstRange().getItems()) {
+                    if (item.name === 'typo3image') {
+                        event.return = [item]
+                        break
+                    }
+                }
+            }
+        })
 
         editor.editing.view.addObserver(DoubleClickObserver);
 
@@ -564,6 +611,17 @@ export default class Typo3Image extends Core.Plugin {
 
             return button;
         });
+
+        // Make image selectable with a single click
+        editor.listenTo(editor.editing.view.document, 'click', (event, data) => {
+            const modelElement = editor.editing.mapper.toModelElement(data.target);
+            if (modelElement && modelElement.name === 'typo3image') {
+                // Select the clicked element
+                editor.model.change(writer => {
+                    writer.setSelection(modelElement, 'on');
+                });
+            }
+        })
 
         editor.listenTo(editor.editing.view.document, 'dblclick', (event, data) => {
             const modelElement = editor.editing.mapper.toModelElement(data.target);
