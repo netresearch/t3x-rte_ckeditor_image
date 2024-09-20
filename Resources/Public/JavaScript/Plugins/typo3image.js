@@ -470,6 +470,29 @@ export default class Typo3Image extends Core.Plugin {
             }
         })
 
+        const ghs = editor.plugins.get('GeneralHtmlSupport');
+        // Convert `addModelHtmlClass` to and event
+        ghs.decorate('addModelHtmlClass')
+        // Add listener to update the `class` attribute of the `typo3image` element
+        this.listenTo(ghs, 'addModelHtmlClass', (event, [viewElement, className, selectable]) => {
+            if (selectable && selectable.name === 'typo3image') {
+                editor.model.change(writer => {
+                    writer.setAttribute('class', className.join(' '), selectable);
+                })
+            }
+        })
+
+        // Convert `removeModelHtmlClass` to and event
+        ghs.decorate('removeModelHtmlClass')
+        // Add listener to remove the `class` attribute of the `typo3image` element
+        this.listenTo(ghs, 'removeModelHtmlClass', (event, [viewElement, className, selectable]) => {
+            if (selectable && selectable.name === 'typo3image') {
+                editor.model.change(writer => {
+                    writer.removeAttribute('class', selectable);
+                })
+            }
+        })
+
         editor.editing.view.addObserver(DoubleClickObserver);
 
         editor.model.schema.register('typo3image', {
@@ -559,6 +582,15 @@ export default class Typo3Image extends Core.Plugin {
                     return writer.createEmptyElement('img', attributes)
                 },
             });
+
+        // Register the attribute converter to make changes to the `class` attribute visible in the view
+        editor.conversion.for('downcast').attributeToAttribute({
+            model: {
+                name: 'typo3image',
+                key: 'class'
+            },
+            view: 'class'
+        })
 
 
         // Loop over existing images
