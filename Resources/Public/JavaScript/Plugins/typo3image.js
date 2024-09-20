@@ -422,7 +422,7 @@ export default class Typo3Image extends Core.Plugin {
     static pluginName = 'Typo3Image';
 
     static get requires() {
-        return ['StyleUtils'];
+        return ['StyleUtils', 'GeneralHtmlSupport'];
     }
 
     init() {
