@@ -14,8 +14,8 @@ namespace Netresearch\RteCKEditorImage\Backend\Preview;
 use DOMDocument;
 use DOMNode;
 use DOMText;
+use TYPO3\CMS\Backend\Preview\StandardContentPreviewRenderer;
 use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
-use TYPO3\CMS\Frontend\Preview\TextPreviewRenderer;
 
 /**
  * Renders the preview of TCA "text" elements. This class overrides the
@@ -26,7 +26,7 @@ use TYPO3\CMS\Frontend\Preview\TextPreviewRenderer;
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  * @link    https://www.netresearch.de
  */
-class RteImagePreviewRenderer extends TextPreviewRenderer
+class RteImagePreviewRenderer extends StandardContentPreviewRenderer
 {
     private bool $reachedLimit = false;
     private int $totalLength = 0;
