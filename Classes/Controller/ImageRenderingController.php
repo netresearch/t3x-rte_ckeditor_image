@@ -226,11 +226,11 @@ class ImageRenderingController
             // Get RTE configuration
 
             /** @var array<string, mixed[]> $pageTSConfig */
-            $pageTSConfig = $GLOBALS['TSFE']->getPagesTSconfig();
+            //$pageTSConfig = $GLOBALS['TSFE']->getPagesTSconfig();
 
-            if (is_array($pageTSConfig['RTE.']['default.'])) {
-                $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
-            }
+            //if (is_array($pageTSConfig['RTE.']['default.'])) {
+            //    $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
+            //}
         }
 
         return $magicImageService;
