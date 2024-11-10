@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Database;
 
+use Netresearch\RteCKEditorImage\Service\MagicImageService;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareTrait;
 use Throwable;
@@ -30,7 +31,6 @@ use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
