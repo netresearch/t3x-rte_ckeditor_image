@@ -11,18 +11,17 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use Netresearch\RteCKEditorImage\Service\MagicImageService;
 use Psr\Log\LogLevel as PsrLogLevel;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 use function count;
-use function get_class;
 use function is_array;
 
 /**
@@ -32,7 +31,7 @@ use function is_array;
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  * @link    https://www.netresearch.de
  */
-class ImageLinkRenderingController extends AbstractPlugin
+class ImageLinkRenderingController
 {
     /**
      * Same as class name
@@ -54,6 +53,14 @@ class ImageLinkRenderingController extends AbstractPlugin
      * @var string
      */
     public $extKey = 'rte_ckeditor_image';
+
+    private ContentObjectRenderer $cObj;
+
+    public function setContentObjectRenderer(
+        ContentObjectRenderer $cObj,
+    ): void {
+        $this->cObj = $cObj;
+    }
 
     /**
      * Returns a processed image to be displayed on the Frontend.
@@ -205,7 +212,7 @@ class ImageLinkRenderingController extends AbstractPlugin
             // Get RTE configuration
 
             /** @var array<string, mixed[]> $pageTSConfig */
-            $pageTSConfig = $this->frontendController->getPagesTSconfig();
+            $pageTSConfig = $GLOBALS['TSFE']->getPagesTSconfig();
 
             if (is_array($pageTSConfig['RTE.']['default.'])) {
                 $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);

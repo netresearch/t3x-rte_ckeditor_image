@@ -12,14 +12,13 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Controller;
 
 use Exception;
+use Netresearch\RteCKEditorImage\Service\MagicImageService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
 use TYPO3\CMS\Backend\Controller\ElementBrowserController;
@@ -61,8 +60,8 @@ class SelectImageController extends ElementBrowserController
         $this->resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
         $this->magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
-        $isInfoAction = GeneralUtility::_GP('action') === 'info';
         $queryParams = $request->getQueryParams();
+        $isInfoAction = $queryParams['action'] ?? null === 'info';
 
         if (!$isInfoAction) {
             $bparams = explode('|', (string) $queryParams['bparams']);
