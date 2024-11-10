@@ -54,7 +54,7 @@ class ImageLinkRenderingController
      */
     public $extKey = 'rte_ckeditor_image';
 
-    private ContentObjectRenderer $cObj;
+	protected ContentObjectRenderer $cObj;
 
     public function setContentObjectRenderer(
         ContentObjectRenderer $cObj,
