@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Database;
 
-use Netresearch\RteCKEditorImage\Service\MagicImageService;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareTrait;
 use Throwable;
