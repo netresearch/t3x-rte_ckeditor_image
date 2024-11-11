@@ -30,6 +30,7 @@ use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -285,10 +286,6 @@ class RteImagesDbHook
         }
 
         $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-        $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
-
-        $pageTsConfig = BackendUtility::getPagesTSconfig(0);
-        $magicImageService->setMagicImageMaximumDimensions($pageTsConfig['RTE.']['default.'] ?? []);
 
         foreach ($imgSplit as $key => $v) {
             // Odd numbers contains the <img> tags
@@ -361,8 +358,10 @@ class RteImagesDbHook
                         GeneralUtility::makeInstance(Context::class)
                             ->setAspect('fileProcessing', new FileProcessingAspect(false));
 
-                        $magicImage = $magicImageService
-                            ->createMagicImage($originalImageFile, $imageConfiguration);
+                        $magicImage = $originalImageFile->process(
+                            ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
+                            $imageConfiguration,
+                        );
 
                         $attribArray['width'] = $magicImage->getProperty('width');
                         $attribArray['height'] = $magicImage->getProperty('height');
@@ -413,8 +412,10 @@ class RteImagesDbHook
                                 'height' => $attribArray['height']
                             ];
 
-                            $magicImage = $magicImageService
-                                ->createMagicImage($fileObject, $imageConfiguration);
+                            $magicImage = $fileObject->process(
+                                ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
+                                $imageConfiguration,
+                            );
 
                             $attribArray['width'] = $magicImage->getProperty('width');
                             $attribArray['height'] = $magicImage->getProperty('height');

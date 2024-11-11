@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Controller;
 
 use Exception;
-use Netresearch\RteCKEditorImage\Service\MagicImageService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\JsonResponse;
@@ -34,19 +33,9 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 class SelectImageController extends ElementBrowserController
 {
     /**
-     * @var bool
-     */
-    protected bool $isInfoAction = false;
-
-    /**
      * @var ResourceFactory
      */
     private ResourceFactory $resourceFactory;
-
-    /**
-     * @var MagicImageService
-     */
-    private MagicImageService $magicImageService;
 
     /**
      * Forward to infoAction if wanted
@@ -58,10 +47,9 @@ class SelectImageController extends ElementBrowserController
     public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-        $this->magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
         $queryParams = $request->getQueryParams();
-        $isInfoAction = $queryParams['action'] ?? null === 'info';
+        $isInfoAction = ($queryParams['action'] ?? null) === 'info';
 
         if (!$isInfoAction) {
             $bparams = explode('|', (string) $queryParams['bparams']);
@@ -169,27 +157,15 @@ class SelectImageController extends ElementBrowserController
      */
     protected function processImage(File $file, array $params): ProcessedFile
     {
-        // TODO: Get this from page ts config
-        $this->magicImageService->setMagicImageMaximumDimensions([
-            'buttons.' => [
-                'image.' => [
-                    'options.' => [
-                        'magic.' => [
-                            'maxWidth' => 1920,
-                            'maxHeight' => 9999,
-                        ]
-                    ]
-                ]
-            ]
-        ]);
+        $width = min(1920, (int) ($params['width'] ?? $file->getProperty('width')));
+        $height = min(9999, (int) ($params['height'] ?? $file->getProperty('height')));
 
-        return $this->magicImageService
-            ->createMagicImage(
-                $file,
-                [
-                    'width'  => (int) ($params['width'] ?? $file->getProperty('width')),
-                    'height' => (int) ($params['height'] ?? $file->getProperty('height')),
-                ]
-            );
+        return $file->process(
+            ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
+            [
+                'width'  => $width,
+                'height' => $height,
+            ],
+        );
     }
 }
