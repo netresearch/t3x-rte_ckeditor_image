@@ -11,12 +11,13 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
-use Netresearch\RteCKEditorImage\Service\MagicImageService;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LogLevel as PsrLogLevel;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -54,7 +55,7 @@ class ImageLinkRenderingController
      */
     public $extKey = 'rte_ckeditor_image';
 
-	protected ContentObjectRenderer $cObj;
+	protected ?ContentObjectRenderer $cObj = null;
 
     public function setContentObjectRenderer(
         ContentObjectRenderer $cObj,
@@ -70,7 +71,7 @@ class ImageLinkRenderingController
      *
      * @return string HTML output
      */
-    public function renderImages(?string $content, array $conf = []): string
+    public function renderImages(?string $content, array $conf, ServerRequestInterface $request): string
     {
         // Get link inner HTML
         $linkContent = $this->cObj !== null ? $this->cObj->getCurrentVal() : null;
@@ -109,8 +110,10 @@ class ImageLinkRenderingController
                             'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
                         ];
 
-                        $processedFile = $this->getMagicImageService()
-                            ->createMagicImage($systemImage, $imageConfiguration);
+                        $processedFile = $systemImage->process(
+                            ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
+                            $imageConfiguration,
+                        );
 
                         $additionalAttributes = [
                             'src'    => $processedFile->getPublicUrl(),
@@ -120,7 +123,7 @@ class ImageLinkRenderingController
                             'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
                         ];
 
-                        $lazyLoading = $this->getLazyLoadingConfiguration();
+                        $lazyLoading = $this->getLazyLoadingConfiguration($request);
 
                         if ($lazyLoading !== null) {
                             $additionalAttributes['loading'] = $lazyLoading;
@@ -192,34 +195,11 @@ class ImageLinkRenderingController
      *
      * @return null|string
      */
-    private function getLazyLoadingConfiguration(): ?string
+    private function getLazyLoadingConfiguration(ServerRequestInterface $request): ?string
     {
-        return $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
-    }
+		$setupArray = $request->getAttribute('frontend.typoscript')->getSetupArray();
 
-    /**
-     * Instantiates and prepares the Magic Image service.
-     *
-     * @return MagicImageService
-     */
-    protected function getMagicImageService(): MagicImageService
-    {
-        static $magicImageService;
-
-        if ($magicImageService === null) {
-            $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
-
-            // Get RTE configuration
-
-            /** @var array<string, mixed[]> $pageTSConfig */
-            //$pageTSConfig = $GLOBALS['TSFE']->getPagesTSconfig();
-
-            //if (is_array($pageTSConfig['RTE.']['default.'])) {
-            //    $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
-            //}
-        }
-
-        return $magicImageService;
+		return $setupArray['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
     }
 
     /**
@@ -234,7 +214,7 @@ class ImageLinkRenderingController
     /**
      * Returns attributes value or even empty string when override mode is enabled
      *
-     * @param string                $attributeName
+     * @param non-empty-string $attributeName
      * @param array<string, string> $attributes
      * @param File                  $image
      *

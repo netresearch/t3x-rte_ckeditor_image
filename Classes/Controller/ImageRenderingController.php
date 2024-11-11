@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
-use Netresearch\RteCKEditorImage\Service\MagicImageService;
 use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LogLevel as PsrLogLevel;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -21,9 +21,6 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-
-use function get_class;
-use function is_array;
 
 /**
  * Controller to render the image tag in frontend.
@@ -55,7 +52,7 @@ class ImageRenderingController
      */
     public $extKey = 'rte_ckeditor_image';
 
-    protected ContentObjectRenderer $cObj;
+    protected ?ContentObjectRenderer $cObj = null;
 
     public function setContentObjectRenderer(
         ContentObjectRenderer $cObj,
@@ -68,10 +65,10 @@ class ImageRenderingController
      *
      * @param null|string  $content Content input (not used)
      * @param mixed[]      $conf    TypoScript configuration
-     *
+     * @param ServerRequestInterface $request
      * @return string HTML output
      */
-    public function renderImageAttributes(?string $content, array $conf = []): string
+    public function renderImageAttributes(?string $content, array $conf, ServerRequestInterface $request): string
     {
         $imageAttributes = $this->getImageAttributes();
         $imageSource     = $imageAttributes['src'] ?? '';
@@ -110,7 +107,7 @@ class ImageRenderingController
                         'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
                     ];
 
-                    $lazyLoading = $this->getLazyLoadingConfiguration();
+                    $lazyLoading = $this->getLazyLoadingConfiguration($request);
 
                     if ($lazyLoading !== null) {
                         $additionalAttributes['loading'] = $lazyLoading;
@@ -169,7 +166,8 @@ class ImageRenderingController
                 || isset($imageAttributes['data-htmlarea-clickenlarge']))
             && isset($systemImage)
         ) {
-            $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
+			$setupArray = $request->getAttribute('frontend.typoscript')->getSetupArray();
+            $config = $setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
             $config['enable'] = 1;
 
             $systemImage->updateProperties([
@@ -196,9 +194,11 @@ class ImageRenderingController
      *
      * @return null|string
      */
-    private function getLazyLoadingConfiguration(): ?string
+    private function getLazyLoadingConfiguration(ServerRequestInterface $request): ?string
     {
-        return $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        $setupArray = $request->getAttribute('frontend.typoscript')->getSetupArray();
+
+        return $setupArray['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
     }
 
     /**
@@ -209,31 +209,6 @@ class ImageRenderingController
     protected function getImageAttributes(): array
     {
         return $this->cObj->parameters ?? [];
-    }
-
-    /**
-     * Instantiates and prepares the Magic Image service.
-     *
-     * @return MagicImageService
-     */
-    protected function getMagicImageService(): MagicImageService
-    {
-        static $magicImageService;
-
-        if ($magicImageService === null) {
-            $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
-
-            // Get RTE configuration
-
-            /** @var array<string, mixed[]> $pageTSConfig */
-            //$pageTSConfig = $GLOBALS['TSFE']->getPagesTSconfig();
-
-            //if (is_array($pageTSConfig['RTE.']['default.'])) {
-            //    $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
-            //}
-        }
-
-        return $magicImageService;
     }
 
     /**
@@ -268,7 +243,7 @@ class ImageRenderingController
     /**
      * Returns attributes value or even empty string when override mode is enabled
      *
-     * @param string                $attributeName
+     * @param non-empty-string $attributeName
      * @param array<string, string> $attributes
      * @param File                  $image
      *
