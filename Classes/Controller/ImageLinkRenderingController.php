@@ -55,7 +55,7 @@ class ImageLinkRenderingController
      */
     public $extKey = 'rte_ckeditor_image';
 
-	protected ?ContentObjectRenderer $cObj = null;
+    protected ?ContentObjectRenderer $cObj = null;
 
     public function setContentObjectRenderer(
         ContentObjectRenderer $cObj,
@@ -197,9 +197,9 @@ class ImageLinkRenderingController
      */
     private function getLazyLoadingConfiguration(ServerRequestInterface $request): ?string
     {
-		$setupArray = $request->getAttribute('frontend.typoscript')->getSetupArray();
+        $setupArray = $request->getAttribute('frontend.typoscript')->getSetupArray();
 
-		return $setupArray['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        return $setupArray['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
     }
 
     /**
