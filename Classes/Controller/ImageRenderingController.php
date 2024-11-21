@@ -166,7 +166,7 @@ class ImageRenderingController
                 || isset($imageAttributes['data-htmlarea-clickenlarge']))
             && isset($systemImage)
         ) {
-			$setupArray = $request->getAttribute('frontend.typoscript')->getSetupArray();
+            $setupArray = $request->getAttribute('frontend.typoscript')->getSetupArray();
             $config = $setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
             $config['enable'] = 1;
 
