@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Functional\DataHandling;
 
+use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ReferenceIndex;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -19,9 +20,7 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
         'typo3/cms-rte-ckeditor',
     ];
 
-    /**
-     * @test
-     */
+    #[Test]
     public function updateReferenceIndexAddsIndexEntryForImage(): void
     {
         $this->importCSVDataSet(__DIR__ . '/Fixtures/ReferenceIndex/UpdateReferenceIndexImport.csv');

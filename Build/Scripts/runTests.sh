@@ -231,7 +231,7 @@ Options:
         Specifies the TYPO3 CORE Version to be used
             - 11.5: use TYPO3 v11 (default)
             - 12.4: use TYPO3 v12
-            - 13.2: use TYPO3 v13
+            - 13.4: use TYPO3 v13
 
     -p <7.4|8.0|8.1|8.2|8.3>
         Specifies the PHP minor version to be used
@@ -529,11 +529,11 @@ case ${TEST_SUITE} in
             fi
             if [ ${TYPO3_VERSION} -eq 13 ]; then
               composer require --no-ansi --no-interaction --no-progress --no-install \
-                typo3/cms-core:^13.2.1 \\
-                typo3/cms-backend:^13.2.1 \\
-                typo3/cms-frontend:^13.2.1 \\
-                typo3/cms-extbase:^13.2.1 \\
-                typo3/cms-rte-ckeditor:^13.2.1 \\
+                typo3/cms-core:^13.4 \\
+                typo3/cms-backend:^13.4 \\
+                typo3/cms-frontend:^13.4 \\
+                typo3/cms-extbase:^13.4 \\
+                typo3/cms-rte-ckeditor:^13.4 \\
                  || exit 1
             fi
             composer update --no-progress --no-interaction  || exit 1
@@ -556,7 +556,7 @@ case ${TEST_SUITE} in
             fi
             if [ ${TYPO3_VERSION} -eq 13 ]; then
               composer require --no-ansi --no-interaction --no-progress --no-install \
-                typo3/cms-core:^13.2.1 || exit 1
+                typo3/cms-core:^13.4 || exit 1
             fi
             composer update --no-ansi --no-interaction --no-progress --with-dependencies --prefer-lowest || exit 1
             composer show || exit 1
