@@ -420,8 +420,78 @@ function edit(selectedImage, editor, imageAttributes) {
 
 export default class Typo3Image extends Core.Plugin {
     static pluginName = 'Typo3Image';
+
+    static get requires() {
+        return ['StyleUtils', 'GeneralHtmlSupport'];
+    }
+
     init() {
         const editor = this.editor;
+
+        const styleUtils = editor.plugins.get('StyleUtils');
+        // Add listener to allow style sets for `img` element, when a `typo3image` element is selected
+        this.listenTo(styleUtils, 'isStyleEnabledForBlock', (event, [style, element]) => {
+            if (style.element === 'img') {
+                for (const item of editor.model.document.selection.getFirstRange().getItems()) {
+                    if (item.name === 'typo3image') {
+                        event.return = true;
+                    }
+                }
+            }
+        })
+
+        // Add listener to check if style is active for `img` element, when a `typo3image` element is selected
+        this.listenTo(styleUtils, 'isStyleActiveForBlock', (event, [style, element]) => {
+            if (style.element === 'img') {
+                for (const item of editor.model.document.selection.getFirstRange().getItems()) {
+                    if (item.name === 'typo3image') {
+                        const classAttribute = item.getAttribute('class');
+                        if (classAttribute && typeof classAttribute === 'string') {
+                            const classlist = classAttribute.split(' ');
+                            if (style.classes.filter(value => !classlist.includes(value)).length === 0) {
+                                event.return = true;
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        // Add listener to return the correct `typo3image` model element for `img` style
+        this.listenTo(styleUtils, 'getAffectedBlocks', (event, [style, element]) => {
+            if (style.element === 'img') {
+                for (const item of editor.model.document.selection.getFirstRange().getItems()) {
+                    if (item.name === 'typo3image') {
+                        event.return = [item]
+                        break
+                    }
+                }
+            }
+        })
+
+        const ghs = editor.plugins.get('GeneralHtmlSupport');
+        // Convert `addModelHtmlClass` to and event
+        ghs.decorate('addModelHtmlClass')
+        // Add listener to update the `class` attribute of the `typo3image` element
+        this.listenTo(ghs, 'addModelHtmlClass', (event, [viewElement, className, selectable]) => {
+            if (selectable && selectable.name === 'typo3image') {
+                editor.model.change(writer => {
+                    writer.setAttribute('class', className.join(' '), selectable);
+                })
+            }
+        })
+
+        // Convert `removeModelHtmlClass` to and event
+        ghs.decorate('removeModelHtmlClass')
+        // Add listener to remove the `class` attribute of the `typo3image` element
+        this.listenTo(ghs, 'removeModelHtmlClass', (event, [viewElement, className, selectable]) => {
+            if (selectable && selectable.name === 'typo3image') {
+                editor.model.change(writer => {
+                    writer.removeAttribute('class', selectable);
+                })
+            }
+        })
 
         editor.editing.view.addObserver(DoubleClickObserver);
 
@@ -510,6 +580,15 @@ export default class Typo3Image extends Core.Plugin {
                 },
             });
 
+        // Register the attribute converter to make changes to the `class` attribute visible in the view
+        editor.conversion.for('downcast').attributeToAttribute({
+            model: {
+                name: 'typo3image',
+                key: 'class'
+            },
+            view: 'class'
+        })
+
 
         // Loop over existing images
         editor.model.change(writer => {
@@ -563,6 +642,17 @@ export default class Typo3Image extends Core.Plugin {
             return button;
         });
 
+        // Make image selectable with a single click
+        editor.listenTo(editor.editing.view.document, 'click', (event, data) => {
+            const modelElement = editor.editing.mapper.toModelElement(data.target);
+            if (modelElement && modelElement.name === 'typo3image') {
+                // Select the clicked element
+                editor.model.change(writer => {
+                    writer.setSelection(modelElement, 'on');
+                });
+            }
+        })
+
         editor.listenTo(editor.editing.view.document, 'dblclick', (event, data) => {
             const modelElement = editor.editing.mapper.toModelElement(data.target);
             if (modelElement && modelElement.name === 'typo3image') {
@@ -580,7 +670,7 @@ export default class Typo3Image extends Core.Plugin {
                     {
                         width: modelElement.getAttribute('width'),
                         height: modelElement.getAttribute('height'),
-                        class: selectedElement.getAttribute('class'),
+                        class: modelElement.getAttribute('class'),
                         alt: modelElement.getAttribute('alt'),
                         title: modelElement.getAttribute('title'),
                         'data-htmlarea-zoom': modelElement.getAttribute('enableZoom'),
