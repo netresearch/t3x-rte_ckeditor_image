@@ -184,10 +184,7 @@ class ImageLinkRenderingController
             $imageAttributes
         );
 
-        /** @var false|string[] $result */
-        $result = array_combine($imageAttributes[1], $imageAttributes[2]);
-
-        return is_array($result) ? $result : [];
+        return array_combine($imageAttributes[1], $imageAttributes[2]);
     }
 
     /**

@@ -490,7 +490,7 @@ class RteImagesDbHook
         $columnsOverridesConfigOfField =
             $GLOBALS['TCA'][$table]['types'][$recordType]['columnsOverrides'][$field]['config'] ?? null;
 
-        if ($columnsOverridesConfigOfField) {
+        if (null !== $columnsOverridesConfigOfField) {
             ArrayUtility::mergeRecursiveWithOverrule($tcaFieldConf, $columnsOverridesConfigOfField);
         }
 
