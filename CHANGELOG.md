@@ -1,4 +1,4 @@
-# 12.0.2
+# 13.0.0
 
 ## TASK
 
@@ -20,6 +20,55 @@
 
 ## MISC
 
+- upgrade github actions c6da5a1
+- chore: fix phpstan reportings e44763e
+- chore: disable usage of obsolete friendsoftypo3/phpstan-typo3 0bfcaab
+- chore: remove deprecated usage of ExtensionManagementUtility::addPageTSConfig() a58c4d4
+- chore: update dev/test packages and tools for TYPO3 v13 only 9b87941
+- chore: update main branch alias 88a474a
+- Change version and depends 5fe4b8b
+- Fix CS d9f3f90
+- Fix CS 9bb93dc
+- Remove php 8.1 from workflows 6179fd8
+- Remove MagicImageService d308230
+- Remove MagicImageService 7c18c7b
+- Fix missing TSFE method 96c9f2a
+- Fix missing TSFE method 77618d8
+- Fix missing TextPreviewRenderer 41af4fa
+- Fix visibility 3fe4022
+- Fix support for 13.4 44fb084
+- Update composer.json b01a7a1
+- chore: PHP CodeSniffer finding 2096580
+- chore: add some more required PHP extensions a627d85
+- chore: tweak phpstan configruation 93e87eb
+- chore: phpstan findings 579894a
+- chore: cs 94cdee2
+- chore: PHP CodeSniffer findings 2e65460
+- chore: fix composer.json syntax 5054cc8
+- chore: fix test setup b5deef1
+- chore: replace obsolete recordlist extension - fixes #282 6cdd264
+- chore: update phpstan test a655a7f
+- chore: fix test by declaring what extenions are required - even if not really required by the test itself. 0279e1f
+- chore: update phpunit xml scheme dd6e6e1
+- chore: rector findings eb85962
+- chore: update pipeline/action for updated test suite bfb6f30
+- chore: update test suite e6790eb
+- chore: ignore rector folder created in devcontainer 23492e8
+- chore: add docker and compose to devcontainer c6c0b8c
+- chore: add rector configuration and add rector to devcontainer e5f6066
+- chore: configure devcontainer with vscode extension gh actions, PHP ext-intl, composer and gh cli and run composer install dc07d74
+- Update ext_emconf.php a372489
+- Update README.md for V12 28c5552
+- fix issue #286 a4461bb
+- fix createProcessedFile method description 2915c34
+- fix naming ec29a4c
+- fix comments b9b56ee
+- remove unnecessary check 6e86925
+- fix more phpstan issues. 69f6f43
+- fix phpstan findings 52a370b
+- fix phpcs findings 8f41b9a
+- refactor check / creation of processed file f345873
+- Frontend: Try new way to check if a file has a processed variant cad2a75
 - Allow inline images 0316b33
 - Ignore .cache and composer.json.testing which are created during running the test suites, because they do not need to beeing tracked in the repository. 8978558
 - chore: update actions to fix Node.js 16 actions are deprecated. db31a83
