@@ -120,7 +120,7 @@
                     });
                 }
 
-                // Override link command
+                // Add image command
                 editor.addCommand('image', {
                     exec: function () {
                         var current = editor.getSelection().getSelectedElement();
@@ -195,18 +195,31 @@
                 // @see typo3/sysext/rte_ckeditor/Resources/Public/JavaScript/RteLinkBrowser.js
                 editor.on('insertElement', function (e) {
                     var element = e.data;
+
                     if (element.getName() === 'a') {
                         var selection = editor.getSelection();
                         const selectedElement = selection.getSelectedElement();
-                        if (selection.getSelectedText().trim() !== '' || selectedElement) {
+
+                        if (
+                            (selection.getSelectedText()
+                            && (selection.getSelectedText().trim() !== ''))
+                            || selectedElement
+                        ) {
                             if (selectedElement && selectedElement.getName() === 'td'){
                                 return;
                             }
+
                             element.setHtml(editor.getSelectedHtml(true));
+
                             var a = null;
-                            if (selectedElement && selectedElement.getParent().getName() === 'a') {
+
+                            if (
+                                selectedElement
+                                && (selectedElement.getParent().getName() === 'a')
+                            ) {
                                 selectedElement.getParent().remove();
                             }
+
                             while (a = element.findOne('a')) {
                                 a.remove(true);
                             }
