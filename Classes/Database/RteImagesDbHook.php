@@ -27,6 +27,7 @@ use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\AbstractFile;
+use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
@@ -412,9 +413,10 @@ class RteImagesDbHook
                         ) {
                             $fileName = substr(md5($absoluteUrl), 0, 10) . '.' . ($pI['extension'] ?? '');
                             // We insert this image into the user default upload folder
-                            $folder             = $GLOBALS['BE_USER']->getDefaultUploadFolder();
-                            $fileObject         = $folder->createFile($fileName)->setContents($externalFile);
-                            $imageConfiguration = [
+                            $uploadFolderResolver = GeneralUtility::makeInstance(DefaultUploadFolderResolver::class);
+                            $folder               = $uploadFolderResolver->resolve($GLOBALS['BE_USER']);
+                            $fileObject           = $folder->createFile($fileName)->setContents($externalFile);
+                            $imageConfiguration   = [
                                 'width'  => $attribArray['width'],
                                 'height' => $attribArray['height'],
                             ];
