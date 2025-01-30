@@ -440,7 +440,10 @@ export default class Typo3Image extends Core.Plugin {
                 'enableZoom',
                 'width',
                 'height',
+                'htmlA',
                 'linkHref',
+                'linkTarget',
+                'linkTitle'
             ],
         });
 
