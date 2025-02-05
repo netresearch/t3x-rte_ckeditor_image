@@ -55,7 +55,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
      * @param string $field         Field name for which processing occurs
      * @param int    $uid           UID of the record
      * @param string $content       The content/value of the field
-     * @param string $structurePath If running from inside a FlexForm structure, this is the path of the tag.
+     * @param string $structurePath if running from inside a FlexForm structure, this is the path of the tag
      *
      * @return SoftReferenceParserResult
      */
@@ -64,7 +64,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
         string $field,
         int $uid,
         string $content,
-        string $structurePath = ''
+        string $structurePath = '',
     ): SoftReferenceParserResult {
         $this->setTokenIdBasePrefix($table, (string) $uid, $field, $structurePath);
 
@@ -142,7 +142,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
             // Initialize the element entry with info text here
             $tokenID = $this->makeTokenID((string) $key);
 
-            $images[$key] = [];
+            $images[$key]                = [];
             $images[$key]['matchString'] = $htmlTag;
 
             // Token and substitute value

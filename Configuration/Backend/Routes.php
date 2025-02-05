@@ -7,13 +7,15 @@
  * LICENSE file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 /**
- * Definitions of routes
+ * Definitions of routes.
  */
 return [
     'rteckeditorimage_wizard_select_image' => [
-        'path' => '/rte/wizard/selectimage',
-        'target' => \Netresearch\RteCKEditorImage\Controller\SelectImageController::class . '::mainAction',
+        'path'       => '/rte/wizard/selectimage',
+        'target'     => Netresearch\RteCKEditorImage\Controller\SelectImageController::class . '::mainAction',
         'parameters' => [
             'mode' => 'file',
         ],

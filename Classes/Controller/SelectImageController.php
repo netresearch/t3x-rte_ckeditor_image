@@ -14,13 +14,13 @@ namespace Netresearch\RteCKEditorImage\Controller;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Controller\ElementBrowserController;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
-use TYPO3\CMS\Backend\Controller\ElementBrowserController;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -38,7 +38,7 @@ class SelectImageController extends ElementBrowserController
     private ResourceFactory $resourceFactory;
 
     /**
-     * Forward to infoAction if wanted
+     * Forward to infoAction if wanted.
      *
      * @param ServerRequestInterface $request
      *
@@ -48,14 +48,14 @@ class SelectImageController extends ElementBrowserController
     {
         $this->resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
 
-        $queryParams = $request->getQueryParams();
+        $queryParams  = $request->getQueryParams();
         $isInfoAction = ($queryParams['action'] ?? null) === 'info';
 
         if (!$isInfoAction) {
             $bparams = explode('|', (string) $queryParams['bparams']);
 
             if (isset($bparams[3]) && ($bparams[3] === '')) {
-                $bparams[3] = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
+                $bparams[3]             = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
                 $queryParams['bparams'] = implode('|', $bparams);
             }
         }
@@ -66,7 +66,7 @@ class SelectImageController extends ElementBrowserController
     }
 
     /**
-     * Retrieve image info
+     * Retrieve image info.
      *
      * @param ServerRequestInterface $request
      *
@@ -81,7 +81,7 @@ class SelectImageController extends ElementBrowserController
 
         if (!$id || !is_numeric($id)) {
             header(HttpUtility::HTTP_STATUS_412);
-            die;
+            exit;
         }
 
         $file          = $this->getImage((int) $id);
@@ -99,8 +99,8 @@ class SelectImageController extends ElementBrowserController
                 'height' => $processedFile->getProperty('height'),
                 'url'    => $processedFile->getPublicUrl(),
             ],
-            'lang'      => [
-                'override'          => LocalizationUtility::translate(
+            'lang' => [
+                'override' => LocalizationUtility::translate(
                     'LLL:EXT:core/Resources/Private/Language/'
                     . 'locallang_core.xlf:labels.placeholder.override'
                 ),
@@ -108,11 +108,11 @@ class SelectImageController extends ElementBrowserController
                     'LLL:EXT:core/Resources/Private/Language/'
                     . 'locallang_core.xlf:labels.placeholder.override_not_available'
                 ),
-                'cssClass'          => LocalizationUtility::translate(
+                'cssClass' => LocalizationUtility::translate(
                     'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
                     . 'locallang_be.xlf:labels.ckeditor.cssclass'
                 ),
-                'zoom'              => LocalizationUtility::translate(
+                'zoom' => LocalizationUtility::translate(
                     'LLL:EXT:frontend/Resources/Private/Language/'
                     . 'locallang_ttc.xlf:image_zoom_formlabel'
                 ),
@@ -141,7 +141,7 @@ class SelectImageController extends ElementBrowserController
 
         if ($file === null) {
             header(HttpUtility::HTTP_STATUS_404);
-            die;
+            exit;
         }
 
         return $file;
@@ -157,7 +157,7 @@ class SelectImageController extends ElementBrowserController
      */
     protected function processImage(File $file, array $params): ProcessedFile
     {
-        $width = min(1920, (int) ($params['width'] ?? $file->getProperty('width')));
+        $width  = min(1920, (int) ($params['width'] ?? $file->getProperty('width')));
         $height = min(9999, (int) ($params['height'] ?? $file->getProperty('height')));
 
         return $file->process(

@@ -32,21 +32,21 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 class ImageRenderingController
 {
     /**
-     * Same as class name
+     * Same as class name.
      *
      * @var string
      */
     public $prefixId = 'ImageRenderingController';
 
     /**
-     * Path to this script relative to the extension dir
+     * Path to this script relative to the extension dir.
      *
      * @var string
      */
     public $scriptRelPath = 'Classes/Controller/ImageRenderingController.php';
 
     /**
-     * The extension key
+     * The extension key.
      *
      * @var string
      */
@@ -63,9 +63,10 @@ class ImageRenderingController
     /**
      * Returns a processed image to be displayed on the Frontend.
      *
-     * @param null|string  $content Content input (not used)
-     * @param mixed[]      $conf    TypoScript configuration
+     * @param string|null            $content Content input (not used)
+     * @param mixed[]                $conf    TypoScript configuration
      * @param ServerRequestInterface $request
+     *
      * @return string HTML output
      */
     public function renderImageAttributes(?string $content, array $conf, ServerRequestInterface $request): string
@@ -86,16 +87,16 @@ class ImageRenderingController
 
                     // check if there is a processed variant, if not, create one
                     /** @var ProcessedFilesHandler $processedHandler */
-                    $processedHandler = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
+                    $processedHandler   = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
                     $imageConfiguration = [
-                        'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width') ?? 0),
+                        'width'  => (int) ($imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0),
                         'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
                     ];
                     $processedFile = $processedHandler->createProcessedFile($systemImage, $imageConfiguration);
 
                     $imageSource = $processedFile->getPublicUrl();
 
-                    if (null === $imageSource) {
+                    if ($imageSource === null) {
                         throw new FileDoesNotExistException();
                     }
 
@@ -140,7 +141,7 @@ class ImageRenderingController
                 'data-htmlarea-file-uid',
                 'data-htmlarea-file-table',
                 'data-htmlarea-zoom',
-                'data-htmlarea-clickenlarge' // Legacy zoom property
+                'data-htmlarea-clickenlarge', // Legacy zoom property
             ];
 
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
@@ -166,8 +167,8 @@ class ImageRenderingController
                 || isset($imageAttributes['data-htmlarea-clickenlarge']))
             && isset($systemImage)
         ) {
-            $setupArray = $request->getAttribute('frontend.typoscript')->getSetupArray();
-            $config = $setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
+            $setupArray       = $request->getAttribute('frontend.typoscript')->getSetupArray();
+            $config           = $setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
             $config['enable'] = 1;
 
             $systemImage->updateProperties([
@@ -192,7 +193,7 @@ class ImageRenderingController
     /**
      * Returns the lazy loading configuration.
      *
-     * @return null|string
+     * @return string|null
      */
     private function getLazyLoadingConfiguration(ServerRequestInterface $request): ?string
     {
@@ -202,7 +203,7 @@ class ImageRenderingController
     }
 
     /**
-     * Returns a sanitizes array of attributes out of $this->cObj
+     * Returns a sanitizes array of attributes out of $this->cObj.
      *
      * @return array<string, string>
      */
@@ -228,7 +229,7 @@ class ImageRenderingController
 
         // Source starts with "http(s)" or a double slash
         return (strncasecmp($imageSource, 'http', 4) === 0)
-            || (str_starts_with($imageSource, '//'));
+            || str_starts_with($imageSource, '//');
     }
 
     /**
@@ -241,9 +242,9 @@ class ImageRenderingController
     }
 
     /**
-     * Returns attributes value or even empty string when override mode is enabled
+     * Returns attributes value or even empty string when override mode is enabled.
      *
-     * @param non-empty-string $attributeName
+     * @param non-empty-string      $attributeName
      * @param array<string, string> $attributes
      * @param File                  $image
      *

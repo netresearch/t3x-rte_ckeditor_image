@@ -23,10 +23,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 use function count;
-use function is_array;
 
 /**
- * Controller to render the linked images in frontend
+ * Controller to render the linked images in frontend.
  *
  * @author  Mathias Uhlmann <mathias.uhlmann@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
@@ -35,14 +34,14 @@ use function is_array;
 class ImageLinkRenderingController
 {
     /**
-     * Same as class name
+     * Same as class name.
      *
      * @var string
      */
     public $prefixId = 'ImageLinkRenderingController';
 
     /**
-     * Path to this script relative to the extension dir
+     * Path to this script relative to the extension dir.
      *
      * @var string
      */
@@ -66,7 +65,7 @@ class ImageLinkRenderingController
     /**
      * Returns a processed image to be displayed on the Frontend.
      *
-     * @param null|string $content Content input (not used)
+     * @param string|null $content Content input (not used)
      * @param mixed[]     $conf    TypoScript configuration
      *
      * @return string HTML output
@@ -78,8 +77,8 @@ class ImageLinkRenderingController
 
         // Find all images with file-uid attribute
         $imgSearchPattern = '/<p[^>]*>\s*<img(?=.*src).*?\/>\s*<\/p>/';
-        $passedImages = [];
-        $parsedImages = [];
+        $passedImages     = [];
+        $parsedImages     = [];
 
         // Extract all TYPO3 images from link content
         preg_match_all($imgSearchPattern, (string) $linkContent, $passedImages);
@@ -98,15 +97,15 @@ class ImageLinkRenderingController
             //
             // But we leave this as fallback for older render versions.
             if ((count($imageAttributes) > 0) && isset($imageAttributes['data-htmlarea-file-uid'])) {
-                $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid']);
+                $fileUid = (int) $imageAttributes['data-htmlarea-file-uid'];
 
                 if ($fileUid > 0) {
                     try {
                         $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-                        $systemImage = $resourceFactory->getFileObject($fileUid);
+                        $systemImage     = $resourceFactory->getFileObject($fileUid);
 
                         $imageConfiguration = [
-                            'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width')  ?? 0),
+                            'width'  => (int) ($imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0),
                             'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
                         ];
 
@@ -142,7 +141,7 @@ class ImageLinkRenderingController
                             'data-htmlarea-file-uid',
                             'data-htmlarea-file-table',
                             'data-htmlarea-zoom',
-                            'data-htmlarea-clickenlarge' // Legacy zoom property
+                            'data-htmlarea-clickenlarge', // Legacy zoom property
                         ];
 
                         $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
@@ -169,7 +168,7 @@ class ImageLinkRenderingController
     }
 
     /**
-     * Returns a sanitizes array of attributes out $passedImage
+     * Returns a sanitizes array of attributes out $passedImage.
      *
      * @param string $passedImage
      *
@@ -190,7 +189,7 @@ class ImageLinkRenderingController
     /**
      * Returns the lazy loading configuration.
      *
-     * @return null|string
+     * @return string|null
      */
     private function getLazyLoadingConfiguration(ServerRequestInterface $request): ?string
     {
@@ -209,9 +208,9 @@ class ImageLinkRenderingController
     }
 
     /**
-     * Returns attributes value or even empty string when override mode is enabled
+     * Returns attributes value or even empty string when override mode is enabled.
      *
-     * @param non-empty-string $attributeName
+     * @param non-empty-string      $attributeName
      * @param array<string, string> $attributes
      * @param File                  $image
      *

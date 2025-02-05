@@ -29,7 +29,7 @@ use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
 class RteImagePreviewRenderer extends StandardContentPreviewRenderer
 {
     private bool $reachedLimit = false;
-    private int $totalLength = 0;
+    private int $totalLength   = 0;
 
     /** @var DOMNode[] */
     private array $toRemove = [];
@@ -70,6 +70,7 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
      * Processing of larger amounts of text (usually from RTE/bodytext fields) with word wrapping etc.
      *
      * @param string $input Input string
+     *
      * @return string Output string
      */
     protected function renderTextWithHtml(string $input): string

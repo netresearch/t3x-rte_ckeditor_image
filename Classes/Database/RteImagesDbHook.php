@@ -20,8 +20,8 @@ use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExis
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\FileProcessingAspect;
-use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Html\HtmlParser;
+use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\AbstractFile;
@@ -31,8 +31,8 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 use function count;
 use function is_array;
@@ -40,12 +40,11 @@ use function is_string;
 use function strlen;
 
 /**
- * Class for processing of the FAL soft references on img tags inserted in RTE content
+ * Class for processing of the FAL soft references on img tags inserted in RTE content.
  *
  * @author  Stefan Galinski <stefan@sgalinski.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  * @link    https://www.netresearch.de
- *
  */
 class RteImagesDbHook
 {
@@ -67,7 +66,7 @@ class RteImagesDbHook
      */
     public function __construct(
         ExtensionConfiguration $extensionConfiguration,
-        LogManager $logManager
+        LogManager $logManager,
     ) {
         $this->fetchExternalImages = (bool) $extensionConfiguration
             ->get('rte_ckeditor_image', 'fetchExternalImages');
@@ -88,7 +87,7 @@ class RteImagesDbHook
     public function transform_rte(
         // @codingStandardsIgnoreEnd
         string $value,
-        RteHtmlParser $rteHtmlParser
+        RteHtmlParser $rteHtmlParser,
     ): string {
         // Split content by <img> tags and traverse the resulting array for processing:
         $imgSplit = $rteHtmlParser->splitTags('img', $value);
@@ -115,7 +114,7 @@ class RteImagesDbHook
                 if (($key % 2) === 1) {
                     // Get the attributes of the img tag
                     [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
-                    $absoluteUrl = trim((string) $attribArray['src']);
+                    $absoluteUrl   = trim((string) $attribArray['src']);
 
                     // Transform the src attribute into an absolute url, if it not already
                     if (strncasecmp($absoluteUrl, 'http', 4) !== 0) {
@@ -141,10 +140,10 @@ class RteImagesDbHook
                 }
             }
         }
+
         // Return processed content:
         return implode('', $imgSplit);
     }
-
 
     /**
      * Finds width and height from attrib-array
@@ -153,7 +152,7 @@ class RteImagesDbHook
      * @param string $styleAttribute The image style attribute
      * @param string $imageAttribute The image attribute to match in the style attribute (e.g. width, height)
      *
-     * @return null|mixed
+     * @return mixed|null
      */
     private function matchStyleAttribute(string $styleAttribute, string $imageAttribute)
     {
@@ -174,7 +173,7 @@ class RteImagesDbHook
      * @param string[] $attributes     The attributes of the image tag
      * @param string   $imageAttribute The image attribute to extract (e.g. width, height)
      *
-     * @return null|mixed
+     * @return mixed|null
      */
     private function extractFromAttributeValueOrStyle(array $attributes, string $imageAttribute)
     {
@@ -230,7 +229,7 @@ class RteImagesDbHook
         string $table,
         string $id,
         array &$fieldArray,
-        \TYPO3\CMS\Core\DataHandling\DataHandler &$dataHandler
+        \TYPO3\CMS\Core\DataHandling\DataHandler &$dataHandler,
     ): void {
         foreach ($fieldArray as $field => $fieldValue) {
             // Ignore not existing fields in TCA definition
@@ -262,7 +261,7 @@ class RteImagesDbHook
     private function modifyRteField(string $value): string
     {
         $rteHtmlParser = new HtmlParser();
-        $imgSplit = $rteHtmlParser->splitTags('img', $value);
+        $imgSplit      = $rteHtmlParser->splitTags('img', $value);
 
         if (count($imgSplit) === 0) {
             return $value;
@@ -348,10 +347,9 @@ class RteImagesDbHook
                     if (($absoluteUrl !== $imageFileUrl) && ($absoluteUrl !== $originalImageFile->getPublicUrl())) {
                         // Magic image case: get a processed file with the requested configuration
                         $imageConfiguration = [
-                            'width' => $imageWidth,
+                            'width'  => $imageWidth,
                             'height' => $imageHeight,
                         ];
-
 
                         // ensure we do get a processed file
                         GeneralUtility::makeInstance(Context::class)
@@ -362,7 +360,7 @@ class RteImagesDbHook
                             $imageConfiguration,
                         );
 
-                        $attribArray['width'] = $magicImage->getProperty('width');
+                        $attribArray['width']  = $magicImage->getProperty('width');
                         $attribArray['height'] = $magicImage->getProperty('height');
 
                         $imgSrc = $magicImage->getPublicUrl();
@@ -391,9 +389,9 @@ class RteImagesDbHook
                         // do nothing, further image processing will be skipped
                     }
                     if ($externalFile !== null) {
-                        $pU = parse_url($absoluteUrl);
-                        $path = is_array($pU) ? ($pU['path'] ?? '') : '';
-                        $pI = pathinfo($path);
+                        $pU        = parse_url($absoluteUrl);
+                        $path      = is_array($pU) ? ($pU['path'] ?? '') : '';
+                        $pI        = pathinfo($path);
                         $extension = strtolower($pI['extension'] ?? '');
 
                         if (
@@ -404,11 +402,11 @@ class RteImagesDbHook
                         ) {
                             $fileName = substr(md5($absoluteUrl), 0, 10) . '.' . ($pI['extension'] ?? '');
                             // We insert this image into the user default upload folder
-                            $folder = $GLOBALS['BE_USER']->getDefaultUploadFolder();
-                            $fileObject = $folder->createFile($fileName)->setContents($externalFile);
+                            $folder             = $GLOBALS['BE_USER']->getDefaultUploadFolder();
+                            $fileObject         = $folder->createFile($fileName)->setContents($externalFile);
                             $imageConfiguration = [
-                                'width' => $attribArray['width'],
-                                'height' => $attribArray['height']
+                                'width'  => $attribArray['width'],
+                                'height' => $attribArray['height'],
                             ];
 
                             $magicImage = $fileObject->process(
@@ -416,10 +414,10 @@ class RteImagesDbHook
                                 $imageConfiguration,
                             );
 
-                            $attribArray['width'] = $magicImage->getProperty('width');
-                            $attribArray['height'] = $magicImage->getProperty('height');
+                            $attribArray['width']                  = $magicImage->getProperty('width');
+                            $attribArray['height']                 = $magicImage->getProperty('height');
                             $attribArray['data-htmlarea-file-uid'] = $fileObject->getUid();
-                            $attribArray['src'] = $magicImage->getPublicUrl();
+                            $attribArray['src']                    = $magicImage->getPublicUrl();
                         }
                     }
                 } elseif (str_starts_with($absoluteUrl, $siteUrl)) {
@@ -436,7 +434,7 @@ class RteImagesDbHook
                             $fileOrFolderObject = $resourceFactory->retrieveFileOrFolderObject($path);
                             if ($fileOrFolderObject instanceof FileInterface) {
                                 $fileIdentifier = $fileOrFolderObject->getIdentifier();
-                                $fileObject = $fileOrFolderObject->getStorage()->getFile($fileIdentifier);
+                                $fileObject     = $fileOrFolderObject->getStorage()->getFile($fileIdentifier);
                                 if ($fileObject instanceof AbstractFile) {
                                     $fileUid = $fileObject->getUid();
                                     // if the retrieved file is a processed file, get the original file...
@@ -482,15 +480,14 @@ class RteImagesDbHook
     private function resolveFieldConfigurationAndRespectColumnsOverrides(
         \TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler,
         string $table,
-        string $field
+        string $field,
     ): array {
         $tcaFieldConf = $GLOBALS['TCA'][$table]['columns'][$field]['config'];
         $recordType   = BackendUtility::getTCAtypeValue($table, $dataHandler->checkValue_currentRecord);
 
-        $columnsOverridesConfigOfField =
-            $GLOBALS['TCA'][$table]['types'][$recordType]['columnsOverrides'][$field]['config'] ?? null;
+        $columnsOverridesConfigOfField = $GLOBALS['TCA'][$table]['types'][$recordType]['columnsOverrides'][$field]['config'] ?? null;
 
-        if (null !== $columnsOverridesConfigOfField) {
+        if ($columnsOverridesConfigOfField !== null) {
             ArrayUtility::mergeRecursiveWithOverrule($tcaFieldConf, $columnsOverridesConfigOfField);
         }
 

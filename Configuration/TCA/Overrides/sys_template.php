@@ -9,14 +9,14 @@
 
 declare(strict_types=1);
 
-defined('TYPO3') or die();
+defined('TYPO3') or exit;
 
 /**
  * TCA override for sys_template table.
  */
 call_user_func(
     static function (): void {
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile(
+        TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile(
             'rte_ckeditor_image',
             'Configuration/TypoScript/ImageRendering',
             'CKEditor Image Support'
