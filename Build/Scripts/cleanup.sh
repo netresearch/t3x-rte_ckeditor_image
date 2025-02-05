@@ -5,6 +5,6 @@
 #composer config --unset platform.php
 #composer config --unset platform
 
-rm -rf .Build
+rm -rf .build
 rm -f composer.lock
 rm -f Build/testing-docker/.env
