@@ -4,6 +4,26 @@
     "description": "Image support in CKEditor for the TYPO3 ecosystem",
     "homepage": "https://github.com/netresearch/t3x-rte_ckeditor_image",
     "license": "AGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Sebastian Koschel",
+            "email": "sebastian.koschel@netresearch.de",
+            "role": "Developer",
+            "homepage": "https://www.netresearch.de/"
+        },
+        {
+            "name": "Sebastian Mendel",
+            "email": "sebastian.mendel@netresearch.de",
+            "role": "Developer",
+            "homepage": "https://www.netresearch.de/"
+        },
+        {
+            "name": "Rico Sonntag",
+            "email": "rico.sonntag@netresearch.de",
+            "role": "Developer",
+            "homepage": "https://www.netresearch.de/"
+        }
+    ],
     "require": {
         "ext-dom": "*",
         "ext-libxml": "*",
@@ -24,17 +44,21 @@
         "phpstan/phpstan-deprecation-rules": "^1.0 || ^2.0",
         "ssch/typo3-rector": "^2.0 || ^3.0"
     },
-    "config": {
-        "vendor-dir": ".Build/vendor",
-        "bin-dir": ".Build/bin",
-        "allow-plugins": {
-            "typo3/cms-composer-installers": true,
-            "typo3/class-alias-loader": true
-        }
-    },
     "autoload": {
         "psr-4": {
             "Netresearch\\RteCKEditorImage\\": "Classes"
+        }
+    },
+    "config": {
+        "bin-dir": ".build/bin",
+        "vendor-dir": ".build/vendor",
+        "discard-changes": true,
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "platform-check": false,
+        "allow-plugins": {
+            "typo3/cms-composer-installers": true,
+            "typo3/class-alias-loader": true
         }
     },
     "extra": {
@@ -43,7 +67,40 @@
         },
         "typo3/cms": {
             "extension-key": "rte_ckeditor_image",
-            "web-dir": ".Build/Web"
+            "web-dir": ".build/public"
         }
+    },
+    "scripts": {
+        "ci:cgl": [
+            "php-cs-fixer fix --config Build/.php-cs-fixer.dist.php --diff --verbose --cache-file .build/.php-cs-fixer.cache"
+        ],
+        "ci:rector": [
+            "rector process --config Build/rector.php"
+        ],
+        "ci:test:php:cgl": [
+            "@ci:cgl --dry-run"
+        ],
+        "ci:test:php:lint": [
+            "phplint --configuration Build/.phplint.yml"
+        ],
+        "ci:test:php:unit": [
+            "XDEBUG_MODE=coverage phpunit -c Build/UnitTests.xml"
+        ],
+        "ci:test:php:phpstan": [
+            "phpstan analyze --configuration Build/phpstan.neon --memory-limit=-1"
+        ],
+        "ci:test:php:phpstan:baseline": [
+            "phpstan analyze --configuration Build/phpstan.neon --memory-limit=-1 --generate-baseline Build/phpstan-baseline.neon --allow-empty-baseline"
+        ],
+        "ci:test:php:rector": [
+            "@ci:rector --dry-run"
+        ],
+        "ci:test": [
+            "@ci:test:php:lint",
+            "@ci:test:php:phpstan",
+            "@ci:test:php:rector",
+            "@ci:test:php:unit",
+            "@ci:test:php:cgl"
+        ]
     }
 }
