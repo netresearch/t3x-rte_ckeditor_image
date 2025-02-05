@@ -1,0 +1,88 @@
+# Adapted from https://github.com/TYPO3GmbH/blog/blob/master/.github/workflows/ci.yml
+name: CI
+
+on:
+    push:
+    pull_request:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                typo3: [ '^13.0' ]
+                php: [ '8.2', '8.3', '8.4' ]
+
+        steps:
+            -   id: checkout
+                name: Checkout
+                uses: actions/checkout@v4
+
+            -   id: setup_php
+                name: Set up PHP version ${{ matrix.php }}
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php }}
+                    tools: composer:v2, php-cs-fixer
+
+            -   name: Validate composer.json and composer.lock
+                run: composer validate
+
+            -   id: composer-cache-vars
+                name: Composer Cache Vars
+                run: |
+                    echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+                    echo "timestamp=$(date +"%s")" >> $GITHUB_OUTPUT
+
+            -   id: composer-cache-dependencies
+                name: Cache Composer dependencies
+                uses: actions/cache@v4
+                with:
+                    path: ${{ steps.composer-cache-vars.outputs.dir }}
+                    key: ${{ runner.os }}-composer-${{ matrix.php }}-${{ matrix.typo3 }}-${{ steps.composer-cache-vars.outputs.timestamp }}
+                    restore-keys: |
+                        ${{ runner.os }}-composer-${{ matrix.php }}-${{ matrix.typo3 }}-
+                        ${{ runner.os }}-composer-${{ matrix.php }}-
+                        ${{ runner.os }}-composer-
+
+            -   id: install
+                name: Install dependencies with typo3/cms-core:${{ matrix.typo3 }}
+                run: |
+                    composer require typo3/cms-core:${{ matrix.typo3 }} --no-progress --no-update
+                    composer require typo3/cms-backend:${{ matrix.typo3 }} --no-progress --no-update
+                    composer require typo3/cms-extbase:${{ matrix.typo3 }} --no-progress --no-update
+                    composer require typo3/cms-extensionmanager:${{ matrix.typo3 }} --no-progress --no-update
+                    composer install
+                    git checkout composer.json
+
+            -   id: lint
+                name: Lint
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer ci:test:php:lint
+
+            -   id: cgl
+                name: CGL
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    php-cs-fixer fix --dry-run --verbose --config Build/.php-cs-fixer.dist.php
+
+            -   id: phpstan
+                name: PHPStan
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer ci:test:php:phpstan -- --error-format=github
+
+            -   id: rector
+                name: Rector
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer ci:test:php:rector
+
+            -   id: tests_unit
+                name: Unit Tests
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer ci:test:php:unit
