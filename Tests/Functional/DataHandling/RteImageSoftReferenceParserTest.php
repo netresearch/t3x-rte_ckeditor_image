@@ -28,7 +28,7 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
 
         $versionInformation = GeneralUtility::makeInstance(Typo3Version::class);
         if ($versionInformation->getMajorVersion() < 13) {
-            (new ReferenceIndex())->updateIndex(false);
+            GeneralUtility::makeInstance(ReferenceIndex::class)->updateIndex(false);
         } else {
             $this->get(ReferenceIndex::class)->updateIndex(false);
         }
