@@ -10,7 +10,7 @@ set -x
 # --------
 # defaults
 # --------
-PHP_VERSION="8.3"
+PHP_VERSION="8.2"
 CORE_VERSION="13"
 
 # -------------------

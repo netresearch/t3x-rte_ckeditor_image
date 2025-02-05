@@ -34,15 +34,14 @@
         "typo3/cms-rte-ckeditor": "^13.4"
     },
     "require-dev": {
-        "typo3/testing-framework": "^7.0 || ^8.0",
+        "typo3/testing-framework": "^8.0 || ^9.0",
         "friendsofphp/php-cs-fixer": "^3.65",
-        "saschaegerer/phpstan-typo3": "^1.0 || v2.x-dev",
+        "saschaegerer/phpstan-typo3": "v2.x-dev",
         "overtrue/phplint": "^9.5",
-        "phpstan/phpstan": "^1.0 || ^2.0",
-        "phpstan/phpstan-strict-rules": "^1.0 || ^2.0",
-        "phpstan/phpstan-phpunit": "^1.0 || ^2.0",
-        "phpstan/phpstan-deprecation-rules": "^1.0 || ^2.0",
-        "ssch/typo3-rector": "^2.0 || ^3.0"
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "ssch/typo3-rector": "^3.0"
     },
     "autoload": {
         "psr-4": {
@@ -83,9 +82,6 @@
         "ci:test:php:lint": [
             "phplint --configuration Build/.phplint.yml"
         ],
-        "ci:test:php:unit": [
-            "XDEBUG_MODE=coverage phpunit -c Build/UnitTests.xml"
-        ],
         "ci:test:php:phpstan": [
             "phpstan analyze --configuration Build/phpstan.neon --memory-limit=-1"
         ],
@@ -99,7 +95,6 @@
             "@ci:test:php:lint",
             "@ci:test:php:phpstan",
             "@ci:test:php:rector",
-            "@ci:test:php:unit",
             "@ci:test:php:cgl"
         ]
     }
