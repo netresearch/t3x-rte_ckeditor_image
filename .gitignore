@@ -1,9 +1,22 @@
-.Build/
-Build/testing-docker/.env
-composer.lock
-.idea/
+# PHPStorm
+.idea
+
+# OSX
+.DS_Store
+
+# Composer
 vendor/
-public/
-.cache/
-composer.json.testing
-rector/
+bin/
+logs/
+composer.lock
+
+# Build stuff
+.build/
+
+# PHPUnit
+phpunit-report.xml
+coverage/
+
+# Cache
+.php-cs-fixer.cache
+.phplint.cache
