@@ -306,18 +306,6 @@ class RteImagesDbHook
                     $absoluteUrl = $siteUrl . $absoluteUrl;
                 }
 
-                // Get image dimensions set in the image tag, if any
-                $imageWidth  = $this->getImageWidthFromAttributes($attribArray);
-                $imageHeight = $this->getImageHeightFromAttributes($attribArray);
-
-                if ($imageWidth > 0) {
-                    $attribArray['width'] = $imageWidth;
-                }
-
-                if ($imageHeight > 0) {
-                    $attribArray['height'] = $imageHeight;
-                }
-
                 $originalImageFile = null;
                 if (isset($attribArray['data-htmlarea-file-uid'])) {
                     // An original image file uid is available
@@ -336,6 +324,12 @@ class RteImagesDbHook
                         }
                     }
                 }
+
+                $imageWidth = $this->getImageWidthFromAttributes($attribArray) ?: $originalImageFile->getProperty('width');
+                $imageHeight = $this->getImageHeightFromAttributes($attribArray) ?: $originalImageFile->getProperty('height');
+
+                $attribArray['width'] = $imageWidth;
+                $attribArray['height'] = $imageHeight;
 
                 $isBackend = false;
 
