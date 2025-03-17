@@ -333,7 +333,7 @@ class RteImagesDbHook
                     if ($imageWidth === 0) {
                         $imageWidth = $originalImageFile->getProperty('width');
                     }
-                    if (!$imageHeight === 0) {
+                    if ($imageHeight === 0) {
                         $imageHeight = $originalImageFile->getProperty('height');
                     }
                 }
