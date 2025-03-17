@@ -330,10 +330,10 @@ class RteImagesDbHook
                 }
                 // If empty image dimensions but file exists, take file dimensions
                 if ($originalImageFile instanceof File) {
-                    if (!$imageWidth) {
+                    if ($imageWidth === 0) {
                         $imageWidth = $originalImageFile->getProperty('width');
                     }
-                    if (!$imageHeight) {
+                    if (!$imageHeight === 0) {
                         $imageHeight = $originalImageFile->getProperty('height');
                     }
                 }
