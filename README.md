@@ -57,14 +57,14 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
             - insertImage
     ```
 
-4. Enable RTE config preset (e.g. `default`)
+3. Enable RTE config preset (e.g. `default`)
 
     ```
     # Page TSConfig
     RTE.default.preset = default
     ```
 
-5. Include extension Static Template file
+4. Include extension Static Template file
 
     1. go to Template » Info/Modify » Edit whole template record » Includes
     2. choose `CKEditor Image Support` for `Include static (from extensions)` before the Fluid Styled content 
