@@ -139,7 +139,7 @@ class SelectImageController extends ElementBrowserController
             $file = null;
         }
 
-        if ($file === null) {
+        if (!$file instanceof File) {
             header(HttpUtility::HTTP_STATUS_404);
             exit;
         }

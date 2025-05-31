@@ -29,7 +29,8 @@ use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
 class RteImagePreviewRenderer extends StandardContentPreviewRenderer
 {
     private bool $reachedLimit = false;
-    private int $totalLength   = 0;
+
+    private int $totalLength = 0;
 
     /** @var DOMNode[] */
     private array $toRemove = [];
