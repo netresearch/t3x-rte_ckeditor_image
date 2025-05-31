@@ -672,7 +672,7 @@ export default class Typo3Image extends Core.Plugin {
                     {
                         width: modelElement.getAttribute('width'),
                         height: modelElement.getAttribute('height'),
-                        class: selectedElement.getAttribute('class'),
+                        class: modelElement.getAttribute('class'),
                         alt: modelElement.getAttribute('alt'),
                         title: modelElement.getAttribute('title'),
                         'data-htmlarea-zoom': modelElement.getAttribute('enableZoom'),
