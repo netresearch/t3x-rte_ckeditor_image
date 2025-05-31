@@ -175,7 +175,7 @@ class ImageRenderingController
                 'title' => $imageAttributes['title'] ?? $systemImage->getProperty('title') ?? '',
             ]);
 
-            if ($this->cObj !== null) {
+            if ($this->cObj instanceof ContentObjectRenderer) {
                 $this->cObj->setCurrentFile($systemImage);
 
                 // Use $this->cObject to have access to all parameters from the image tag

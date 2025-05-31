@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Utils;
 
 use Exception;
-use Symfony\Component\Process\Process;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Utility\GeneralUtility;

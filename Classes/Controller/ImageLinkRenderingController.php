@@ -22,8 +22,6 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
-use function count;
-
 /**
  * Controller to render the linked images in frontend.
  *
@@ -73,7 +71,7 @@ class ImageLinkRenderingController
     public function renderImages(?string $content, array $conf, ServerRequestInterface $request): string
     {
         // Get link inner HTML
-        $linkContent = $this->cObj !== null ? $this->cObj->getCurrentVal() : null;
+        $linkContent = $this->cObj instanceof ContentObjectRenderer ? $this->cObj->getCurrentVal() : null;
 
         // Find all images with file-uid attribute
         $imgSearchPattern = '/<p[^>]*>\s*<img(?=.*src).*?\/>\s*<\/p>/';
@@ -85,7 +83,7 @@ class ImageLinkRenderingController
 
         $passedImages = $passedImages[0];
 
-        if (count($passedImages) === 0) {
+        if ($passedImages === []) {
             return $linkContent;
         }
 
@@ -96,7 +94,7 @@ class ImageLinkRenderingController
             // so it will never match this condition.
             //
             // But we leave this as fallback for older render versions.
-            if ((count($imageAttributes) > 0) && isset($imageAttributes['data-htmlarea-file-uid'])) {
+            if (($imageAttributes !== []) && isset($imageAttributes['data-htmlarea-file-uid'])) {
                 $fileUid = (int) $imageAttributes['data-htmlarea-file-uid'];
 
                 if ($fileUid > 0) {

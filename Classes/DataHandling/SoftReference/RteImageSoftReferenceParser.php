@@ -15,8 +15,6 @@ use TYPO3\CMS\Core\DataHandling\SoftReference\AbstractSoftReferenceParser;
 use TYPO3\CMS\Core\DataHandling\SoftReference\SoftReferenceParserResult;
 use TYPO3\CMS\Core\Html\HtmlParser;
 
-use function count;
-
 /**
  * Class for processing of the FAL soft references on img tags inserted in RTE content.
  *
@@ -68,11 +66,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
     ): SoftReferenceParserResult {
         $this->setTokenIdBasePrefix($table, (string) $uid, $field, $structurePath);
 
-        if ($this->parserKey === 'rtehtmlarea_images') {
-            $retVal = $this->findImageTags($content);
-        } else {
-            $retVal = [];
-        }
+        $retVal = $this->parserKey === 'rtehtmlarea_images' ? $this->findImageTags($content) : [];
 
         return SoftReferenceParserResult::create($content, $retVal);
     }
@@ -95,7 +89,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
 
         $images = $this->findImagesWithDataUid();
 
-        if (count($images) === 0) {
+        if ($images === []) {
             return [];
         }
 
