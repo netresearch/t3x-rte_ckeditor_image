@@ -26,8 +26,6 @@ jobs:
                 with:
                     php-version: ${{ matrix.php }}
                     tools: composer:v2, php-cs-fixer
-                env:
-                    PHP_CS_FIXER_IGNORE_ENV: true
 
             -   name: Validate composer.json and composer.lock
                 run: composer validate
@@ -68,6 +66,8 @@ jobs:
             -   id: cgl
                 name: CGL
                 if: ${{ always() && steps.install.conclusion == 'success' }}
+                env:
+                    PHP_CS_FIXER_IGNORE_ENV: true
                 run: |
                     php-cs-fixer fix --dry-run --verbose --config Build/.php-cs-fixer.dist.php
 
