@@ -26,6 +26,8 @@ jobs:
                 with:
                     php-version: ${{ matrix.php }}
                     tools: composer:v2, php-cs-fixer
+                env:
+                    PHP_CS_FIXER_IGNORE_ENV: true
 
             -   name: Validate composer.json and composer.lock
                 run: composer validate
