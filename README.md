@@ -142,6 +142,14 @@ editor:
       typo3image:
         allowedExtensions: "jpg,jpeg,png"
 ```
+## Upgrade
+
+Run the upgrade wizard to replace processed image paths:
+
+```shell
+vendor/bin/typo3 upgrade:run processedImageSrcUpgrade
+```
+
 
 ## Deployment
 
