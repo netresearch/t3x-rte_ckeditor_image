@@ -20,3 +20,5 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_parsehtml_proc.php'
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig(
     'RTE.default.proc.overruleMode := addToList(rtehtmlarea_images_db)'
 );
+
+$GLOBALS["TYPO3_CONF_VARS"]["SC_OPTIONS"]["ext/install"]["update"]["processedImageSrcUpgrade"] = \Netresearch\RteCKEditorImage\Updates\ProcessedImageSrcUpgradeWizard::class;
