@@ -482,7 +482,7 @@ export default class Typo3Image extends Core.Plugin {
             }
         })
 
-        // Convert `removeModelHtmlClass` to and event
+        // Convert `removeModelHtmlClass` to an event
         ghs.decorate('removeModelHtmlClass')
         // Add listener to remove the `class` attribute of the `typo3image` element
         this.listenTo(ghs, 'removeModelHtmlClass', (event, [viewElement, className, selectable]) => {
