@@ -52,8 +52,10 @@ class ProcessedImageSrcUpgradeWizard implements UpgradeWizardInterface
                     ->select('uid', $field)
                     ->from($table)
                     ->where(
-                        $queryBuilder->expr()->like($field, $queryBuilder->createNamedParameter('%_processed_%')),
-                        $queryBuilder->expr()->like($field, $queryBuilder->createNamedParameter('%data-htmlarea-file-uid%'))
+                        $queryBuilder->expr()->andX(
+                            $queryBuilder->expr()->like($field, $queryBuilder->createNamedParameter('%_processed_%')),
+                            $queryBuilder->expr()->like($field, $queryBuilder->createNamedParameter('%data-htmlarea-file-uid%'))
+                        )
                     );
 
                 $rows = $queryBuilder->executeQuery()->fetchAllAssociative();
