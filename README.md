@@ -67,7 +67,16 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
 5. Include extension Static Template file
 
     1. go to Template » Info/Modify » Edit whole template record » Includes
-    2. choose `CKEditor Image Support` for `Include static (from extensions)` before the Fluid Styled content 
+    2. choose `CKEditor Image Support` for `Include static (from extensions)` before the Fluid Styled content
+
+## Upgrade from v11
+
+When upgrading an existing installation make sure the static template `CKEditor Image Support` is
+included **before** `fluid_styled_content`. This allows TYPO3 to automatically regenerate processed
+images after the update.
+
+If images remain broken, run the upgrade wizard shipped with this extension to recreate processed
+images.
 
 ## Configuration
 
