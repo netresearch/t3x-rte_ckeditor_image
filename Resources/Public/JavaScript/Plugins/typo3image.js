@@ -471,7 +471,7 @@ export default class Typo3Image extends Core.Plugin {
         })
 
         const ghs = editor.plugins.get('GeneralHtmlSupport');
-        // Convert `addModelHtmlClass` to and event
+        // Convert `addModelHtmlClass` to an event
         ghs.decorate('addModelHtmlClass')
         // Add listener to update the `class` attribute of the `typo3image` element
         this.listenTo(ghs, 'addModelHtmlClass', (event, [viewElement, className, selectable]) => {
