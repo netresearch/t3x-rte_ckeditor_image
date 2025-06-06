@@ -21,6 +21,9 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_parsehtml_proc.php'
     'RTE.default.proc.overruleMode := addToList(rtehtmlarea_images_db)'
 );
 
+// Register upgrade wizard
+$GLOBALS["TYPO3_CONF_VARS"]["SC_OPTIONS"]["ext/install"]["update"]["processedImageSrcUpgrade"] = \Netresearch\RteCKEditorImage\Updates\ProcessedImageSrcUpgradeWizard::class;
+
 // Warn if static template order is wrong
 (function () {
     $environmentService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
@@ -86,4 +89,4 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_parsehtml_proc.php'
             break;
         }
     }
-});
+})();
