@@ -41,40 +41,98 @@ class ProcessedImageSrcUpgradeWizard implements UpgradeWizardInterface
         $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
 
         foreach ($GLOBALS['TCA'] as $table => $tableConfig) {
-            foreach ($tableConfig['columns'] ?? [] as $field => $fieldConfig) {
-                if (!($fieldConfig['config']['enableRichtext'] ?? false)) {
-                    continue;
-                }
-
-                $connection = $connectionPool->getConnectionForTable($table);
-                $queryBuilder = $connection->createQueryBuilder();
-                $queryBuilder
-                    ->select('uid', $field)
-                    ->from($table)
-                    ->where(
-                        $queryBuilder->expr()->andX(
-                            $queryBuilder->expr()->like($field, $queryBuilder->createNamedParameter('%_processed_%')),
-                            $queryBuilder->expr()->like($field, $queryBuilder->createNamedParameter('%data-htmlarea-file-uid%'))
-                        )
-                    );
-
-                $rows = $queryBuilder->executeQuery()->fetchAllAssociative();
-
-                foreach ($rows as $row) {
-                    $newContent = $this->replaceImageSources($row[$field] ?? '', $resourceFactory);
-                    if ($newContent !== $row[$field]) {
-                        $connection->update($table, [$field => $newContent], ['uid' => (int)$row['uid']]);
-                    }
-                }
-            }
+            $this->processTableColumn($table, $tableConfig, $connectionPool, $resourceFactory);
         }
 
         return true;
     }
 
-    public function getPrerequisites(): array
+    private function processTableColumn(string $table, array $tableConfig, ConnectionPool $connectionPool, ResourceFactory $resourceFactory) 
     {
-        return [];
+        foreach ($tableConfig['columns'] ?? [] as $field => $fieldConfig) {
+            if (!$this->isRelevantField($table, $field, $fieldConfig)) {
+                continue;
+            }
+
+            $this->processField($table, $field, $fieldConfig, $connectionPool, $resourceFactory);
+        }
+    }
+
+    private function isRelevantField(string $table, string $field, array $fieldConfig): bool
+    {
+        $isRelevantContentElement =
+            $table === 'tt_content'
+            && $field === 'bodytext';
+
+        $isRichtextField =
+            ($fieldConfig['config']['enableRichtext'] ?? false);
+
+        return $isRelevantContentElement || $isRichtextField;
+    }
+
+    private function processField(string $table, string $field, array $fieldConfig, ConnectionPool $connectionPool, ResourceFactory $resourceFactory): void
+    {
+        $connection = $connectionPool->getConnectionForTable($table);
+        $queryBuilder = $connection->createQueryBuilder();
+        
+        $this->buildQuery($queryBuilder, $table, $field);
+        $rows = $queryBuilder->executeQuery()->fetchAllAssociative();
+
+        $this->updateRows($table, $field, $rows, $connection, $resourceFactory);
+    }
+
+    private function buildQuery(\TYPO3\CMS\Core\Database\Query\QueryBuilder $queryBuilder, string $table, string $field): void
+    {
+        $queryBuilder
+            ->select('uid', $field)
+            ->from($table);
+
+        $isRelevantContentElement = $table === 'tt_content' && $field === 'bodytext';
+
+        if ($isRelevantContentElement) {
+            $this->addContentElementRestrictions($queryBuilder, $field);
+        } else {
+            $this->addGeneralRestrictions($queryBuilder, $field);
+        }
+    }
+
+    private function addContentElementRestrictions(\TYPO3\CMS\Core\Database\Query\QueryBuilder $queryBuilder, string $field): void
+    {
+        $queryBuilder->where(
+            $queryBuilder->expr()->in('CType', $queryBuilder->createNamedParameter(
+                ['text', 'textmedia', 'textpic'],
+                \Doctrine\DBAL\Connection::PARAM_STR_ARRAY
+            )),
+            $this->buildLikeExpression($queryBuilder, $field)
+        );
+    }
+
+    private function addGeneralRestrictions(\TYPO3\CMS\Core\Database\Query\QueryBuilder $queryBuilder, string $field): void
+    {
+        $queryBuilder->where(
+            $this->buildLikeExpression($queryBuilder, $field)
+        );
+    }
+
+    private function buildLikeExpression(\TYPO3\CMS\Core\Database\Query\QueryBuilder $queryBuilder, string $field): \TYPO3\CMS\Core\Database\Query\Expression\CompositeExpression
+    {
+        return $queryBuilder->expr()->andX(
+            $queryBuilder->expr()->like($field, $queryBuilder->createNamedParameter('%data-htmlarea-file-uid%')),
+            $queryBuilder->expr()->orX(
+                $queryBuilder->expr()->like($field, $queryBuilder->createNamedParameter('%_processed_%')),
+                $queryBuilder->expr()->like($field, $queryBuilder->createNamedParameter('%typo3/image/process%'))
+            )
+        );
+    }
+
+    private function updateRows(string $table, string $field, array $rows, \Doctrine\DBAL\Connection $connection, ResourceFactory $resourceFactory): void
+    {
+        foreach ($rows as $row) {
+            $newContent = $this->replaceImageSources($row[$field] ?? '', $resourceFactory);
+            if ($newContent !== $row[$field]) {
+                $connection->update($table, [$field => $newContent], ['uid' => (int)$row['uid']]);
+            }
+        }
     }
 
     private function replaceImageSources(string $html, ResourceFactory $resourceFactory): string
@@ -86,7 +144,7 @@ class ProcessedImageSrcUpgradeWizard implements UpgradeWizardInterface
         foreach ($dom->getElementsByTagName('img') as $img) {
             $src = $img->getAttribute('src');
             $fileUid = (int)$img->getAttribute('data-htmlarea-file-uid');
-            if ($fileUid > 0 && strpos($src, '_processed_') !== false) {
+            if ($fileUid > 0 && $this->isProcessedImage($src)) {
                 try {
                     /** @var File $file */
                     $file = $resourceFactory->getFileObject($fileUid);
@@ -108,5 +166,15 @@ class ProcessedImageSrcUpgradeWizard implements UpgradeWizardInterface
         }
 
         return $result === '' ? $html : $result;
+    }
+
+    private function isProcessedImage(string $src): bool
+    {
+        return str_contains($src, '_processed_') || str_contains($src, 'typo3/image/process');
+    }
+
+    public function getPrerequisites(): array
+    {
+        return [];
     }
 }
