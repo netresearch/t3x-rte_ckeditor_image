@@ -22,7 +22,7 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_parsehtml_proc.php'
 );
 
 // Warn if static template order is wrong
-call_user_func(function () {
+(function () {
     $environmentService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
         \TYPO3\CMS\Extbase\Service\EnvironmentService::class
     );
@@ -38,9 +38,15 @@ call_user_func(function () {
         ->select('uid', 'title', 'include_static_file')
         ->from('sys_template')
         ->where(
-            $queryBuilder->expr()->neq(
-                'include_static_file',
-                $queryBuilder->createNamedParameter('')
+            $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->neq(
+                    'include_static_file',
+                    $queryBuilder->createNamedParameter('')
+                ),
+                $queryBuilder->expr()->like(
+                    'include_static_file',
+                    $queryBuilder->createNamedParameter('%fluid_styled_content%')
+                )
             )
         )
         ->executeQuery()
@@ -76,7 +82,7 @@ call_user_func(function () {
             \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
                 \TYPO3\CMS\Core\Log\LogManager::class
             )->getLogger('rte_ckeditor_image')
-                ->warning('CKEditor Image Support static template should be included before fluid_styled_content');
+                ->warning('CKEditor Image Support static template should be included before fluid_styled_content (UID ' . $template['uid'] . ')');
             break;
         }
     }
