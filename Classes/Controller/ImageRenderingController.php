@@ -92,7 +92,14 @@ class ImageRenderingController
                         'width'  => (int) ($imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0),
                         'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
                     ];
-                    $processedFile = $processedHandler->createProcessedFile($systemImage, $imageConfiguration);
+                    
+                    // For SVG images, use original file if no processing is needed
+                    $isSvg = $systemImage->getExtension() === 'svg';
+                    if ($isSvg && $imageConfiguration['width'] <= 0 && $imageConfiguration['height'] <= 0) {
+                        $processedFile = $systemImage;
+                    } else {
+                        $processedFile = $processedHandler->createProcessedFile($systemImage, $imageConfiguration);
+                    }
 
                     $imageSource = $processedFile->getPublicUrl();
 

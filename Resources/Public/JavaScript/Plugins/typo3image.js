@@ -79,6 +79,13 @@ function getImageDialog(editor, img, attributes) {
             alt: { label: 'Alternative Text', type: 'text' }
         }
     ];
+    
+    // Get maxWidth and maxHeight from editor configuration (from TSConfig)
+    const maxConfigWidth = editor.config.get('style').typo3image.maxWidth || 1920;
+    const maxConfigHeight = editor.config.get('style').typo3image.maxHeight || 9999;
+    
+    // Check if the image is SVG
+    const isSvg = img.url && (img.url.endsWith('.svg') || img.url.includes('.svg?')) || false;
 
     d.$el = $('<div class="rteckeditorimage">');
 
@@ -145,22 +152,33 @@ function getImageDialog(editor, img, attributes) {
                     ratio = 1 / ratio;
                 }
                 var opposite = 1;
+                
+                // For SVG images or when image dimensions are smaller than TSConfig max values,
+                // use the TSConfig max values instead
                 var max = img[key];
-                var min = Math.ceil(opposite * ratio);
+                if (isSvg || (key === 'width' && img.width < maxConfigWidth) || (key === 'height' && img.height < maxConfigHeight)) {
+                    max = key === 'width' ? maxConfigWidth : maxConfigHeight;
+                }
+                
+                var min = 1; // Allow minimum of 1px for all images
                 $el.attr('max', max);
                 $el.attr('min', min);
 
                 var constrainDimensions = function (currentMin, delta) {
-                    value = parseInt($el.val().replace(/[^0-9]/g, '') || max);
+                    value = parseInt($el.val().replace(/[^0-9]/g, '') || (isSvg ? '' : max));
                     if (delta) {
                         value += delta;
                     }
                     value = Math.max(currentMin, Math.min(value, max));
-                    var $opposite = elements[key === 'width' ? 'height' : 'width'],
-                        oppositeMax = parseInt($opposite.attr('max')),
-                        ratio = oppositeMax / max;
-
-                    $opposite.val(value === max ? oppositeMax : Math.ceil(value * ratio));
+                    
+                    // For SVG images, allow free-form sizing without ratio constraint
+                    if (!isSvg && ratio && ratio > 0) {
+                        var $opposite = elements[key === 'width' ? 'height' : 'width'],
+                            oppositeMax = parseInt($opposite.attr('max')),
+                            oppositeRatio = key === 'width' ? (1 / ratio) : ratio;
+                        
+                        $opposite.val(Math.ceil(value * oppositeRatio));
+                    }
                     $el.val(value);
                 };
 

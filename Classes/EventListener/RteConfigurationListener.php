@@ -21,9 +21,17 @@ class RteConfigurationListener
     {
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
-        $configuration                        = $event->getConfiguration();
+        $configuration = $event->getConfiguration();
+        
+        // Get TSConfig settings for the image plugin
+        $tsConfig = $event->getData()['config']['tsConfig'] ?? [];
+        $maxWidth = $tsConfig['buttons.']['image.']['options.']['magic.']['maxWidth'] ?? 1920;
+        $maxHeight = $tsConfig['buttons.']['image.']['options.']['magic.']['maxHeight'] ?? 9999;
+        
         $configuration['style']['typo3image'] = [
             'routeUrl' => (string) $uriBuilder->buildUriFromRoute('rteckeditorimage_wizard_select_image'),
+            'maxWidth' => (int) $maxWidth,
+            'maxHeight' => (int) $maxHeight,
         ];
         $event->setConfiguration($configuration);
     }
