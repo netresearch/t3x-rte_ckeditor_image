@@ -24,3 +24,9 @@ services:
 
   Netresearch\RteCKEditorImage\Controller\SelectImageController:
     tags: ['backend.controller']
+
+  # Upgrade wizard registration
+  Netresearch\RteCKEditorImage\Updates\ProcessedImageSrcUpgradeWizard:
+    tags:
+      - name: install.upgradewizard
+        identifier: processedImageSrcUpgrade
