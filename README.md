@@ -74,7 +74,7 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
 (optional) Configure the Extension Configuration for this extension:
 
 **fetchExternalImages**: By default, if an img source is an external URL, this image will be fetched and uploaded
-to the current BE users uploads folder. The default behaviour can be turned off with this option.
+ to the current BE users uploads folder. The default behaviour can be turned off with this option.
 
 ### Maximum width/height
 
@@ -132,6 +132,14 @@ editor:
   externalPlugins:
       typo3image:
         allowedExtensions: "jpg,jpeg,png"
+```
+
+## Upgrade
+
+Run the upgrade wizard to replace processed image paths:
+
+```shell
+vendor/bin/typo3 upgrade:run processedImageSrcUpgrade
 ```
 
 ## Deployment
