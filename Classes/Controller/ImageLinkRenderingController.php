@@ -69,9 +69,14 @@ class ImageLinkRenderingController extends AbstractPlugin
         $linkContent = $this->cObj !== null ? $this->cObj->getCurrentVal() : null;
 
         // Find all images with file-uid attribute
-        $imgSearchPattern = '/<p[^>]*>\s*<img(?=.*src).*?\/>\s*<\/p>/';
-        $passedImages = [];
-        $parsedImages = [];
+        // SECURITY: Use atomic groups to prevent ReDoS attacks via catastrophic backtracking
+        $imgSearchPattern = '/<p[^>]*+>\s*+<img(?>[^>]*)src(?>[^>]*)\/>\s*+<\/p>/';
+        $passedImages     = [];
+        $parsedImages     = [];
+
+        // SECURITY: Set PCRE limits to prevent ReDoS
+        ini_set('pcre.backtrack_limit', '100000');
+        ini_set('pcre.recursion_limit', '100000');
 
         // Extract all TYPO3 images from link content
         preg_match_all($imgSearchPattern, (string) $linkContent, $passedImages);
@@ -168,8 +173,9 @@ class ImageLinkRenderingController extends AbstractPlugin
     protected function getImageAttributes(string $passedImage): array
     {
         // Get image attributes
+        // SECURITY: Use atomic groups to prevent ReDoS attacks
         preg_match_all(
-            '/([a-zA-Z0-9-]+)=["]([^"]*)"|([a-zA-Z0-9-]+)=[\']([^\']*)\'/',
+            '/([a-zA-Z0-9-]++)=["]([^"]*)"|([a-zA-Z0-9-]++)=[\']([^\']*)\'/',
             $passedImage,
             $imageAttributes
         );

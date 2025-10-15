@@ -97,7 +97,14 @@ class SelectImageController extends ElementBrowserController
             die;
         }
 
-        $file          = $this->getImage((int) $id);
+        $file = $this->getImage((int) $id);
+
+        // SECURITY: Verify user has permission to access this file (IDOR protection)
+        if (!$this->isFileAccessibleByUser($file)) {
+            header(HttpUtility::HTTP_STATUS_403);
+            exit;
+        }
+
         $processedFile = $this->processImage($file, $params);
 
         return new JsonResponse([
@@ -158,6 +165,50 @@ class SelectImageController extends ElementBrowserController
         }
 
         return $file;
+    }
+
+    /**
+     * Verifies if the current backend user can access the given file.
+     * Implements IDOR protection by checking file mount permissions.
+     *
+     * @param File $file The file to check access for
+     *
+     * @return bool True if user can access the file
+     */
+    protected function isFileAccessibleByUser(File $file): bool
+    {
+        $backendUser = $GLOBALS['BE_USER'] ?? null;
+
+        // No backend user context - deny access
+        if ($backendUser === null) {
+            return false;
+        }
+
+        // Check if user has general access to sys_file table
+        if (!$backendUser->check('tables_select', 'sys_file')) {
+            return false;
+        }
+
+        // Admin users have access to all files
+        if ($backendUser->isAdmin()) {
+            return true;
+        }
+
+        // Check if file storage is within user's file mounts
+        $storage = $file->getStorage();
+        $storageRecord = $storage->getStorageRecord();
+
+        // Get user's file mounts
+        $fileMounts = $backendUser->getFileStorageRecords();
+
+        // Check if storage is in user's accessible storages
+        foreach ($fileMounts as $fileMount) {
+            if ((int) $fileMount['uid'] === (int) $storageRecord['uid']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
