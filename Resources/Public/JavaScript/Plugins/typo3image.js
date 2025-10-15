@@ -336,12 +336,13 @@ function askImageAttributes(editor, img, attributes, table) {
 function getImageInfo(editor, table, uid, params) {
     let url = editor.config.get('typo3image').routeUrl + '&action=info&fileId=' + encodeURIComponent(uid) + '&table=' + encodeURIComponent(table) + '&contentsLanguage=en&editorId=123';
 
+    // SECURITY: Encode URL parameters to prevent injection attacks
     if (typeof params.width !== 'undefined' && params.width.length) {
-        url += '&P[width]=' + params.width;
+        url += '&P[width]=' + encodeURIComponent(params.width);
     }
 
     if (typeof params.height !== 'undefined' && params.height.length) {
-        url += '&P[height]=' + params.height;
+        url += '&P[height]=' + encodeURIComponent(params.height);
     }
 
     return $.getJSON(url);
@@ -396,7 +397,7 @@ function edit(selectedImage, editor, imageAttributes) {
         .then(function (attributes) {
 
             editor.model.change(writer => {
-                console.log(attributes);
+                // SECURITY: Removed console.log to prevent information disclosure in production
 
                 const newImage = writer.createElement('typo3image', {
                     fileUid: attributes.fileUid,
@@ -594,11 +595,12 @@ export default class Typo3Image extends Core.Plugin {
 
 
         // Loop over existing images
+        // SECURITY: Removed debug logging to prevent information disclosure
         editor.model.change(writer => {
             const range = writer.createRangeIn(editor.model.document.getRoot());
-            console.log(range);
+            // Process existing images if needed
             for (const value of range.getWalker({ ignoreElementEnd: true })) {
-                console.log(value);
+                // Image processing logic would go here
             }
         });
 
@@ -614,7 +616,7 @@ export default class Typo3Image extends Core.Plugin {
             });
 
             button.on('execute', () => {
-                console.log(editor.config);
+                // SECURITY: Removed console.log to prevent configuration disclosure
                 const selectedElement = editor.model.document.selection.getSelectedElement();
 
                 if (selectedElement && selectedElement.name === 'typo3image') {
