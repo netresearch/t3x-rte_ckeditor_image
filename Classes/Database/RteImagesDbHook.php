@@ -78,18 +78,19 @@ class RteImagesDbHook
     }
 
     /**
-     * Validates if the given URL is allowed for external image fetching.
+     * Validates if the given URL is allowed for external image fetching and returns the safe IP.
      * Implements SSRF protection by checking against internal IP ranges and private networks.
+     * Returns the validated IP address to prevent DNS rebinding attacks.
      *
      * @param string $url The URL to validate
      *
-     * @return bool True if URL is safe to fetch
+     * @return string|null The validated IP address or null if validation fails
      */
-    private function isUrlSafeForExternalFetch(string $url): bool
+    private function getSafeIpForExternalFetch(string $url): ?string
     {
         $parsedUrl = parse_url($url);
         if (!is_array($parsedUrl) || !isset($parsedUrl['host'])) {
-            return false;
+            return null;
         }
 
         $host = $parsedUrl['host'];
@@ -109,18 +110,18 @@ class RteImagesDbHook
             if (
                 filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false
             ) {
-                return false;
+                return null;
             }
         } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
             // Block private IPv6 ranges
             if (
                 filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false
             ) {
-                return false;
+                return null;
             }
         } else {
             // Invalid IP format
-            return false;
+            return null;
         }
 
         // Additional check: block cloud metadata endpoints
@@ -132,11 +133,11 @@ class RteImagesDbHook
 
         foreach ($blockedHosts as $blockedHost) {
             if (stripos($host, $blockedHost) !== false || stripos($ip, $blockedHost) !== false) {
-                return false;
+                return null;
             }
         }
 
-        return true;
+        return $ip;
     }
 
     /**
@@ -148,11 +149,14 @@ class RteImagesDbHook
      */
     private function isValidImageMimeType(string $fileContent): bool
     {
+        // Allowed image MIME types for external images
+        // Note: SVG (image/svg+xml) is intentionally excluded for security reasons
+        // as SVG files can contain JavaScript and pose XSS risks
         $allowedMimeTypes = [
-            'image/jpeg',
-            'image/jpg',
-            'image/png',
-            'image/gif',
+            'image/jpeg',  // Standard JPEG format
+            'image/png',   // PNG format
+            'image/gif',   // GIF format
+            'image/webp',  // Modern WebP format
         ];
 
         // Use finfo to detect MIME type from content
@@ -481,8 +485,9 @@ class RteImagesDbHook
                     // External image from another URL: in that case, fetch image, unless
                     // the feature is disabled, or we are not in backend mode.
                     //
-                    // SECURITY: Validate URL against SSRF attacks before fetching
-                    if (!$this->isUrlSafeForExternalFetch($absoluteUrl)) {
+                    // SECURITY: Validate URL and get safe IP to prevent DNS rebinding attacks
+                    $safeIp = $this->getSafeIpForExternalFetch($absoluteUrl);
+                    if ($safeIp === null) {
                         if ($this->logger instanceof LoggerInterface) {
                             $this->logger->warning(
                                 'Blocked external image fetch: URL failed SSRF validation',
@@ -492,10 +497,28 @@ class RteImagesDbHook
                         continue;
                     }
 
-                    // Fetch the external image
+                    // Fetch the external image using validated IP to prevent DNS rebinding
                     $externalFile = null;
                     try {
-                        $externalFile = GeneralUtility::getUrl($absoluteUrl);
+                        /** @var \TYPO3\CMS\Core\Http\RequestFactory $requestFactory */
+                        $requestFactory = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\RequestFactory::class);
+
+                        $parsedUrl = parse_url($absoluteUrl);
+                        $host = $parsedUrl['host'];
+                        $port = $parsedUrl['port'] ?? (($parsedUrl['scheme'] ?? 'http') === 'https' ? 443 : 80);
+
+                        $response = $requestFactory->request($absoluteUrl, 'GET', [
+                            'timeout' => 5,
+                            'allow_redirects' => false, // Prevent redirect to unsafe locations
+                            'curl' => [
+                                // Force cURL to use validated IP for this hostname:port
+                                CURLOPT_RESOLVE => [sprintf('%s:%d:%s', $host, $port, $safeIp)]
+                            ]
+                        ]);
+
+                        if ($response->getStatusCode() === 200) {
+                            $externalFile = $response->getBody()->getContents();
+                        }
                     } catch (Throwable $exception) {
                         if ($this->logger instanceof LoggerInterface) {
                             $this->logger->error(
@@ -525,7 +548,7 @@ class RteImagesDbHook
 
                         // Validate file extension (defense in depth after MIME check)
                         if (
-                            in_array($extension, ['jpg', 'jpeg', 'gif', 'png'], true)
+                            in_array($extension, ['jpg', 'jpeg', 'gif', 'png', 'webp'], true)
                         ) {
                             $fileName = substr(md5($absoluteUrl), 0, 10) . '.' . ($pI['extension'] ?? '');
                             // We insert this image into the user default upload folder
