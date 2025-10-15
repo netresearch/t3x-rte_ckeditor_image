@@ -16,6 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Http\JsonResponse;
+use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -93,16 +94,18 @@ class SelectImageController extends ElementBrowserController
         $params['table'] = $table;
 
         if (!$id || !is_numeric($id)) {
-            header(HttpUtility::HTTP_STATUS_412);
-            die;
+            return (new Response())->withStatus(412, 'Precondition Failed');
         }
 
-        $file = $this->getImage((int) $id);
+        try {
+            $file = $this->getImage((int) $id);
+        } catch (\RuntimeException) {
+            return (new Response())->withStatus(404, 'Not Found');
+        }
 
         // SECURITY: Verify user has permission to access this file (IDOR protection)
         if (!$this->isFileAccessibleByUser($file)) {
-            header(HttpUtility::HTTP_STATUS_403);
-            exit;
+            return (new Response())->withStatus(403, 'Forbidden');
         }
 
         $processedFile = $this->processImage($file, $params);
@@ -146,6 +149,7 @@ class SelectImageController extends ElementBrowserController
      * @param int $id The uid of the file to instantiate
      *
      * @return File
+     * @throws \RuntimeException If file not found, deleted, or missing
      */
     protected function getImage(int $id): File
     {
@@ -153,18 +157,13 @@ class SelectImageController extends ElementBrowserController
             $file = $this->resourceFactory->getFileObject($id);
 
             if ($file->isDeleted() || $file->isMissing()) {
-                $file = null;
+                throw new \RuntimeException('File is deleted or missing', 1734282001);
             }
-        } catch (Exception) {
-            $file = null;
-        }
 
-        if ($file === null) {
-            header(HttpUtility::HTTP_STATUS_404);
-            die;
+            return $file;
+        } catch (Exception $exception) {
+            throw new \RuntimeException('File not found', 1734282000, $exception);
         }
-
-        return $file;
     }
 
     /**
