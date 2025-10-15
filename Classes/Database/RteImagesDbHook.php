@@ -78,6 +78,91 @@ class RteImagesDbHook
     }
 
     /**
+     * Validates if the given URL is allowed for external image fetching.
+     * Implements SSRF protection by checking against internal IP ranges and private networks.
+     *
+     * @param string $url The URL to validate
+     *
+     * @return bool True if URL is safe to fetch
+     */
+    private function isUrlSafeForExternalFetch(string $url): bool
+    {
+        $parsedUrl = parse_url($url);
+        if (!is_array($parsedUrl) || !isset($parsedUrl['host'])) {
+            return false;
+        }
+
+        $host = $parsedUrl['host'];
+
+        // Resolve hostname to IP address
+        $ip = gethostbyname($host);
+        if ($ip === $host) {
+            // DNS resolution failed or is already an IP
+            $ip = $host;
+        }
+
+        // Validate IP is not in private/reserved ranges
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
+            // Block private IPv4 ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+            // Block loopback (127.0.0.0/8)
+            // Block link-local (169.254.0.0/16)
+            if (
+                filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false
+            ) {
+                return false;
+            }
+        } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
+            // Block private IPv6 ranges
+            if (
+                filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false
+            ) {
+                return false;
+            }
+        } else {
+            // Invalid IP format
+            return false;
+        }
+
+        // Additional check: block cloud metadata endpoints
+        $blockedHosts = [
+            '169.254.169.254',  // AWS/Azure/GCP metadata
+            'metadata.google.internal',
+            'instance-data',
+        ];
+
+        foreach ($blockedHosts as $blockedHost) {
+            if (stripos($host, $blockedHost) !== false || stripos($ip, $blockedHost) !== false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Validates file content by MIME type to prevent malicious uploads.
+     *
+     * @param string $fileContent The file content to validate
+     *
+     * @return bool True if MIME type is allowed
+     */
+    private function isValidImageMimeType(string $fileContent): bool
+    {
+        $allowedMimeTypes = [
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+            'image/gif',
+        ];
+
+        // Use finfo to detect MIME type from content
+        $finfo    = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->buffer($fileContent);
+
+        return in_array($mimeType, $allowedMimeTypes, true);
+    }
+
+    /**
      * This method is called to transform RTE content in the database so the Rich Text Editor
      * can deal with, e.g. links.
      *
@@ -342,12 +427,17 @@ class RteImagesDbHook
                     }
                 }
 
-                $isBackend = false;
-
-                // Determine application type
-                if (($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface) {
-                    $isBackend = ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend();
+                // Determine application type - fail secure: require backend context
+                if (!(($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface)) {
+                    throw new \RuntimeException('Invalid request context: ServerRequest required', 1734278400);
                 }
+
+                $applicationType = ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST']);
+                if (!$applicationType->isBackend()) {
+                    throw new \RuntimeException('Backend context required for image processing', 1734278401);
+                }
+
+                $isBackend = true;
 
                 if ($originalImageFile instanceof File) {
                     // Build public URL to image, remove trailing slash from site URL
@@ -391,20 +481,49 @@ class RteImagesDbHook
                     // External image from another URL: in that case, fetch image, unless
                     // the feature is disabled, or we are not in backend mode.
                     //
+                    // SECURITY: Validate URL against SSRF attacks before fetching
+                    if (!$this->isUrlSafeForExternalFetch($absoluteUrl)) {
+                        if ($this->logger instanceof LoggerInterface) {
+                            $this->logger->warning(
+                                'Blocked external image fetch: URL failed SSRF validation',
+                                ['url' => $absoluteUrl]
+                            );
+                        }
+                        continue;
+                    }
+
                     // Fetch the external image
                     $externalFile = null;
                     try {
                         $externalFile = GeneralUtility::getUrl($absoluteUrl);
-                    } catch (Throwable) {
+                    } catch (Throwable $exception) {
+                        if ($this->logger instanceof LoggerInterface) {
+                            $this->logger->error(
+                                'Failed to fetch external image',
+                                ['exception' => $exception]
+                            );
+                        }
                         // do nothing, further image processing will be skipped
                     }
 
-                    if ($externalFile !== null) {
+                    if ($externalFile !== null && $externalFile !== false) {
+                        // SECURITY: Validate MIME type from content before processing
+                        if (!$this->isValidImageMimeType($externalFile)) {
+                            if ($this->logger instanceof LoggerInterface) {
+                                $this->logger->warning(
+                                    'Blocked external image: Invalid MIME type detected',
+                                    ['url' => $absoluteUrl]
+                                );
+                            }
+                            continue;
+                        }
+
                         $pU        = parse_url($absoluteUrl);
                         $path      = is_array($pU) ? ($pU['path'] ?? '') : '';
                         $pI        = pathinfo($path);
                         $extension = strtolower($pI['extension'] ?? '');
 
+                        // Validate file extension (defense in depth after MIME check)
                         if (
                             in_array($extension, ['jpg', 'jpeg', 'gif', 'png'], true)
                         ) {
@@ -434,10 +553,32 @@ class RteImagesDbHook
                     // Image has no data-htmlarea-file-uid attribute
                     // Relative path, rawurldecoded for special characters.
                     $path = rawurldecode(substr($absoluteUrl, strlen($siteUrl)));
+
+                    // SECURITY: Sanitize path to prevent directory traversal
+                    $path = str_replace(['../', '..\\', "\0"], '', $path);
+
                     // Absolute filepath, locked to relative path of this project
                     $filepath = GeneralUtility::getFileAbsFileName($path);
+
+                    // SECURITY: Verify the resolved path is within allowed directory
+                    if ($filepath !== '') {
+                        $realpath = realpath($filepath);
+                        $publicPath = \TYPO3\CMS\Core\Core\Environment::getPublicPath();
+
+                        // Ensure realpath succeeded and is within public path
+                        if ($realpath === false || !str_starts_with($realpath, $publicPath)) {
+                            if ($this->logger instanceof LoggerInterface) {
+                                $this->logger->warning(
+                                    'Blocked file access: Path traversal attempt detected',
+                                    ['path' => $path]
+                                );
+                            }
+                            continue;
+                        }
+                    }
+
                     // Check file existence (in relative directory to this installation!)
-                    if (($filepath !== '') && @is_file($filepath)) {
+                    if (($filepath !== '') && is_file($filepath)) {
                         // Let's try to find a file uid for this image
                         try {
                             $fileOrFolderObject = $resourceFactory->retrieveFileOrFolderObject($path);

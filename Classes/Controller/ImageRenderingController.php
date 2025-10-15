@@ -121,11 +121,12 @@ class ImageRenderingController
                     );
 
                     $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
-                } catch (FileDoesNotExistException) {
-                    // Log in fact the file could not be retrieved
+                } catch (FileDoesNotExistException $exception) {
+                    // SECURITY: Log without exposing internal file UIDs to prevent information disclosure
                     $this->getLogger()->log(
                         PsrLogLevel::ERROR,
-                        sprintf('Unable to find file with uid "%s"', $fileUid)
+                        'Unable to find requested file',
+                        ['exception' => $exception]
                     );
                 }
             }
