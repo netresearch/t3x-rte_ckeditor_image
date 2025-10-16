@@ -125,7 +125,7 @@ class SelectImageController extends ElementBrowserController
         }
 
         $maxDimensions = $this->getMaxDimensions($params);
-	$processedFile = $this->processImage($file, $params, $maxDimensions);
+        $processedFile = $this->processImage($file, $params, $maxDimensions);
 
         return new JsonResponse([
             'uid'       => $file->getUid(),

@@ -443,8 +443,6 @@ class RteImagesDbHook
                     throw new RuntimeException('Backend context required for image processing', 1734278401);
                 }
 
-                $isBackend = true;
-
                 if ($originalImageFile instanceof File) {
                     // Build public URL to image, remove trailing slash from site URL
                     $imageFileUrl = rtrim($siteUrl, '/') . $originalImageFile->getPublicUrl();
@@ -481,11 +479,11 @@ class RteImagesDbHook
                     }
                 } elseif (
                     $this->fetchExternalImages
-                    && $isBackend
                     && !str_starts_with($absoluteUrl, $siteUrl)
                 ) {
                     // External image from another URL: in that case, fetch image, unless
-                    // the feature is disabled, or we are not in backend mode.
+                    // the feature is disabled.
+                    // Note: Backend context is already validated above (lines 441-444).
                     //
                     // SECURITY: Validate URL and get safe IP to prevent DNS rebinding attacks
                     $safeIp = $this->getSafeIpForExternalFetch($absoluteUrl);
