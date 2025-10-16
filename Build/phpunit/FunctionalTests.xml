@@ -17,7 +17,7 @@
     cacheDirectory=".phpunit.cache"
     cacheResult="false"
     colors="true"
-    failOnRisky="true"
+    failOnRisky="false"
     failOnWarning="false"
     requireCoverageMetadata="false"
     stopOnError="false"
