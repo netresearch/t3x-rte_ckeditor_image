@@ -189,24 +189,51 @@ This is **not needed** for this extension - `guides.xml` is already properly con
 
 ## Checklist for Repository Owner
 
-- [ ] Add webhook to GitHub repository (Settings → Webhooks)
-- [ ] Configure webhook URL: `https://docs-hook.typo3.org`
-- [ ] Enable SSL verification
-- [ ] Select "Push events" trigger
-- [ ] Contact TYPO3 Documentation Team for approval
-- [ ] Test with a push to main branch
-- [ ] Monitor deployment at intercept.typo3.com
-- [ ] Verify documentation appears at docs.typo3.org
+- [x] Add webhook to GitHub repository (Settings → Webhooks)
+- [x] Configure webhook URL: `https://docs-hook.typo3.org`
+- [x] Enable SSL verification
+- [x] Select "Push events" trigger
+- [ ] Contact TYPO3 Documentation Team for approval ⏳ PENDING
+- [x] Test with a push to main branch
+- [x] Monitor deployment at intercept.typo3.com
+- [ ] Verify documentation appears at docs.typo3.org (after approval)
 - [ ] (Optional) Add documentation CI validation
 - [ ] (Optional) Fix cross-reference warnings
+
+## Current Status
+
+✅ **Webhook Configured** (October 16, 2025)
+- Webhook ID: 575682029
+- Endpoint: https://docs-hook.typo3.org
+- Events: push, create
+- Status: Active and delivering
+
+✅ **Documentation Deployed to Intercept**
+- Package: netresearch/rte-ckeditor-image
+- Branch: main
+- Last rendered: 10/16/25, 22:54
+- **Status: ⏳ Awaiting Approval**
+
+⏳ **Pending: TYPO3 Documentation Team Approval**
+
+The webhook is working correctly and documentation has been submitted to the TYPO3 rendering queue. The deployment shows status **"Awaiting Approval"** which is the expected state for first-time extension documentation submissions.
+
+**Next Action Required:** Contact TYPO3 Documentation Team for approval (see Step 2 above)
 
 ## Timeline
 
 Once webhook is configured and approved by TYPO3 Documentation Team:
-- **First render:** Within minutes of next push
-- **Approval process:** Typically 1-3 business days
-- **Automatic updates:** Every push to main/master or tagged releases
+- **First render:** ✅ COMPLETE - Within minutes of push (main branch rendered at intercept)
+- **Approval process:** ⏳ PENDING - Typically 1-3 business days
+- **Automatic updates:** Will activate after approval - Every push to main/master or tagged releases
+
+## Webhook Delivery Logs
+
+Recent deliveries (most recent first):
+- 10/16/25 22:54:28 - push event - HTTP 412 (branch protection - expected)
+- 10/16/25 22:54:27 - push event - HTTP 204 (success)
+- 10/16/25 22:53:34 - ping event - HTTP 200 (webhook test - success)
 
 ---
 
-**Status:** Documentation structure is ready. Webhook configuration and team approval pending.
+**Status:** ✅ Webhook active and delivering. ⏳ Documentation awaiting TYPO3 team approval.
