@@ -1,15 +1,23 @@
 <?php
 
+/**
+ * This file is part of the package netresearch/rte-ckeditor-image.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Functional\Controller;
 
 use Netresearch\RteCKEditorImage\Controller\SelectImageController;
 use ReflectionClass;
+use ReflectionException;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
- * Test case for SelectImageController::getMaxDimensions()
+ * Test case for SelectImageController::getMaxDimensions().
  *
  * This test validates the security improvements in PR #299:
  * - Safe array access with fallback to defaults
@@ -45,12 +53,13 @@ class SelectImageControllerTest extends FunctionalTestCase
      * @param array  $parameters Array of parameters to pass into method
      *
      * @return mixed Method return
-     * @throws \ReflectionException
+     *
+     * @throws ReflectionException
      */
     private function invokeMethod(object $object, string $methodName, array $parameters = []): mixed
     {
         $reflection = new ReflectionClass(get_class($object));
-        $method = $reflection->getMethod($methodName);
+        $method     = $reflection->getMethod($methodName);
         $method->setAccessible(true);
 
         return $method->invokeArgs($object, $parameters);
@@ -60,12 +69,15 @@ class SelectImageControllerTest extends FunctionalTestCase
      * Get class constant value using reflection.
      *
      * @param string $constantName
+     *
      * @return mixed
-     * @throws \ReflectionException
+     *
+     * @throws ReflectionException
      */
     private function getConstant(string $constantName): mixed
     {
         $reflection = new ReflectionClass(SelectImageController::class);
+
         return $reflection->getConstant($constantName);
     }
 
@@ -76,7 +88,7 @@ class SelectImageControllerTest extends FunctionalTestCase
     {
         // Call with PID 0 (root page) which should use defaults if no TSConfig is set
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
-            ['pid' => 0]
+            ['pid' => 0],
         ]);
 
         $this->assertIsArray($result);
@@ -93,7 +105,7 @@ class SelectImageControllerTest extends FunctionalTestCase
     {
         // Empty configuration name should fallback to 'default'
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
-            ['pid' => 0, 'richtextConfigurationName' => '']
+            ['pid' => 0, 'richtextConfigurationName' => ''],
         ]);
 
         $this->assertIsArray($result);
@@ -108,7 +120,7 @@ class SelectImageControllerTest extends FunctionalTestCase
     {
         // Missing PID should default to 0
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
-            []
+            [],
         ]);
 
         $this->assertIsArray($result);
@@ -122,7 +134,7 @@ class SelectImageControllerTest extends FunctionalTestCase
     public function getMaxDimensionsEnforcesMinimumBounds(): void
     {
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
-            ['pid' => 0]
+            ['pid' => 0],
         ]);
 
         $this->assertGreaterThanOrEqual(1, $result['width'], 'Width should be at least 1');
@@ -136,7 +148,7 @@ class SelectImageControllerTest extends FunctionalTestCase
     {
         // The method should clamp values to 10000 maximum to prevent resource exhaustion
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
-            ['pid' => 0]
+            ['pid' => 0],
         ]);
 
         $this->assertLessThanOrEqual(10000, $result['width'], 'Width should not exceed 10000');
@@ -149,7 +161,7 @@ class SelectImageControllerTest extends FunctionalTestCase
     public function getMaxDimensionsReturnsIntegerValues(): void
     {
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
-            ['pid' => 0]
+            ['pid' => 0],
         ]);
 
         $this->assertIsInt($result['width'], 'Width should be an integer');
@@ -162,7 +174,7 @@ class SelectImageControllerTest extends FunctionalTestCase
     public function getMaxDimensionsReturnsArrayWithCorrectKeys(): void
     {
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
-            ['pid' => 0]
+            ['pid' => 0],
         ]);
 
         $this->assertIsArray($result);
@@ -173,7 +185,8 @@ class SelectImageControllerTest extends FunctionalTestCase
 
     /**
      * @test
-     * @throws \ReflectionException
+     *
+     * @throws ReflectionException
      */
     public function classConstantsHaveExpectedValues(): void
     {
@@ -190,7 +203,7 @@ class SelectImageControllerTest extends FunctionalTestCase
     {
         // Null configuration name should fallback to 'default'
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
-            ['pid' => 0, 'richtextConfigurationName' => null]
+            ['pid' => 0, 'richtextConfigurationName' => null],
         ]);
 
         $this->assertIsArray($result);
@@ -206,7 +219,7 @@ class SelectImageControllerTest extends FunctionalTestCase
         // Verify that returned dimensions won't cause memory exhaustion
         // 10000x10000 ≈ 400MB is the documented safe maximum
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
-            ['pid' => 0]
+            ['pid' => 0],
         ]);
 
         $maxArea = $result['width'] * $result['height'];
