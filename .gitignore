@@ -12,11 +12,13 @@ composer.lock
 
 # Build stuff
 .build/
+.Build/
 
 # PHPUnit
 phpunit-report.xml
 coverage/
 
 # Cache
+.cache/
 .php-cs-fixer.cache
 .phplint.cache
