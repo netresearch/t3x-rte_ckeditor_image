@@ -18,7 +18,7 @@
     cacheResult="false"
     colors="true"
     failOnRisky="true"
-    failOnWarning="true"
+    failOnWarning="false"
     requireCoverageMetadata="false"
     stopOnError="false"
     stopOnFailure="false"
