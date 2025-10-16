@@ -150,7 +150,7 @@ class ImageRenderingController
         // Add a leading slash if only a path is given
         if (
             is_string($imageSource)
-            && strlen($imageSource) > 0
+            && $imageSource !== ''
             && strncasecmp($imageSource, 'http', 4) !== 0
             && !str_starts_with($imageSource, '/')
             && !str_starts_with($imageSource, 'data:image')
