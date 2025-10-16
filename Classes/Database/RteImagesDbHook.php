@@ -11,9 +11,11 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Database;
 
+use finfo;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Throwable;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
@@ -159,7 +161,7 @@ class RteImagesDbHook
         ];
 
         // Use finfo to detect MIME type from content
-        $finfo    = new \finfo(FILEINFO_MIME_TYPE);
+        $finfo    = new finfo(FILEINFO_MIME_TYPE);
         $mimeType = $finfo->buffer($fileContent);
 
         return in_array($mimeType, $allowedMimeTypes, true);
@@ -438,12 +440,12 @@ class RteImagesDbHook
 
                 // Determine application type - fail secure: require backend context
                 if (!(($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface)) {
-                    throw new \RuntimeException('Invalid request context: ServerRequest required', 1734278400);
+                    throw new RuntimeException('Invalid request context: ServerRequest required', 1734278400);
                 }
 
                 $applicationType = ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST']);
                 if (!$applicationType->isBackend()) {
-                    throw new \RuntimeException('Backend context required for image processing', 1734278401);
+                    throw new RuntimeException('Backend context required for image processing', 1734278401);
                 }
 
                 $isBackend = true;
@@ -508,16 +510,16 @@ class RteImagesDbHook
                         $requestFactory = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\RequestFactory::class);
 
                         $parsedUrl = parse_url($absoluteUrl);
-                        $host = $parsedUrl['host'];
-                        $port = $parsedUrl['port'] ?? (($parsedUrl['scheme'] ?? 'http') === 'https' ? 443 : 80);
+                        $host      = $parsedUrl['host'];
+                        $port      = $parsedUrl['port'] ?? (($parsedUrl['scheme'] ?? 'http') === 'https' ? 443 : 80);
 
                         $response = $requestFactory->request($absoluteUrl, 'GET', [
-                            'timeout' => 5,
+                            'timeout'         => 5,
                             'allow_redirects' => false, // Prevent redirect to unsafe locations
-                            'curl' => [
+                            'curl'            => [
                                 // Force cURL to use validated IP for this hostname:port
-                                CURLOPT_RESOLVE => [sprintf('%s:%d:%s', $host, $port, $safeIp)]
-                            ]
+                                CURLOPT_RESOLVE => [sprintf('%s:%d:%s', $host, $port, $safeIp)],
+                            ],
                         ]);
 
                         if ($response->getStatusCode() === 200) {
@@ -586,7 +588,7 @@ class RteImagesDbHook
 
                     // SECURITY: Verify the resolved path is within allowed directory
                     if ($filepath !== '') {
-                        $realpath = realpath($filepath);
+                        $realpath   = realpath($filepath);
                         $publicPath = \TYPO3\CMS\Core\Core\Environment::getPublicPath();
 
                         // Ensure realpath succeeded and is within public path

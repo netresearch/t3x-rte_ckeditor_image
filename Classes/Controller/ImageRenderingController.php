@@ -80,6 +80,27 @@ class ImageRenderingController extends AbstractPlugin
                     $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
                     $systemImage     = $resourceFactory->getFileObject($fileUid);
 
+                    // SECURITY: Prevent privilege escalation by checking file visibility
+                    // Only process public files in frontend rendering. Non-public files must
+                    // use TYPO3's protected file delivery (eID_dumpFile) which performs
+                    // proper authentication checks for the current frontend user.
+                    // This prevents low-privilege backend editors from exposing files
+                    // outside their Filemount restrictions by manipulating file UIDs.
+                    if (!$systemImage->getStorage()->isPublic()) {
+                        $this->getLogger()->log(
+                            PsrLogLevel::WARNING,
+                            'Blocked rendering of non-public file in frontend context',
+                            [
+                                'fileUid'     => $fileUid,
+                                'storage'     => $systemImage->getStorage()->getUid(),
+                                'storageName' => $systemImage->getStorage()->getName(),
+                            ]
+                        );
+
+                        // Skip processing and continue with cleanup
+                        throw new FileDoesNotExistException();
+                    }
+
                     // check if there is a processed variant, if not, create one
                     /** @var ProcessedFilesHandler $processedHandler */
                     $processedHandler = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
