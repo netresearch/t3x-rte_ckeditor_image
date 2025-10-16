@@ -175,10 +175,12 @@ class ImageLinkRenderingController
                     } catch (FileDoesNotExistException) {
                         $parsedImages[] = strip_tags($passedImage, '<img>');
 
-                        // Log in fact the file could not be retrieved
+                        // SECURITY: Don't expose file UIDs in error messages (information disclosure)
+                        // Move sensitive data to structured context array instead
                         $this->getLogger()->log(
                             PsrLogLevel::ERROR,
-                            sprintf('Unable to find file with uid "%s"', $fileUid)
+                            'Unable to find requested file',
+                            ['fileUid' => $fileUid]
                         );
                     }
                 }
