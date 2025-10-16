@@ -35,3 +35,6 @@ package-lock.json
 
 # Agent/AI Development
 claudedocs/
+
+# Documentation rendering
+Documentation-GENERATED-temp/
