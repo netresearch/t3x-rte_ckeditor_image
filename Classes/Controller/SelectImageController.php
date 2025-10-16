@@ -14,6 +14,7 @@ namespace Netresearch\RteCKEditorImage\Controller;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use TYPO3\CMS\Backend\Controller\ElementBrowserController;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\JsonResponse;
@@ -22,7 +23,6 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\HttpUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -115,7 +115,7 @@ class SelectImageController extends ElementBrowserController
 
         try {
             $file = $this->getImage((int) $id);
-        } catch (\RuntimeException) {
+        } catch (RuntimeException) {
             return (new Response())->withStatus(404, 'Not Found');
         }
 
@@ -166,7 +166,8 @@ class SelectImageController extends ElementBrowserController
      * @param int $id The uid of the file to instantiate
      *
      * @return File
-     * @throws \RuntimeException If file not found, deleted, or missing
+     *
+     * @throws RuntimeException If file not found, deleted, or missing
      */
     protected function getImage(int $id): File
     {
@@ -174,12 +175,12 @@ class SelectImageController extends ElementBrowserController
             $file = $this->resourceFactory->getFileObject($id);
 
             if ($file->isDeleted() || $file->isMissing()) {
-                throw new \RuntimeException('File is deleted or missing', 1734282001);
+                throw new RuntimeException('File is deleted or missing', 1734282001);
             }
 
             return $file;
         } catch (Exception $exception) {
-            throw new \RuntimeException('File not found', 1734282000, $exception);
+            throw new RuntimeException('File not found', 1734282000, $exception);
         }
     }
 
@@ -211,7 +212,7 @@ class SelectImageController extends ElementBrowserController
         }
 
         // Check if file storage is within user's file mounts
-        $storage = $file->getStorage();
+        $storage       = $file->getStorage();
         $storageRecord = $storage->getStorageRecord();
 
         // Get user's file mounts
