@@ -94,12 +94,16 @@ jobs:
             -   id: functional
                 name: Functional Tests
                 if: ${{ always() && steps.install.conclusion == 'success' }}
+                env:
+                    typo3DatabaseDriver: pdo_sqlite
                 run: |
                     composer ci:test:php:functional
 
             -   id: coverage
                 name: Generate Coverage Report
                 if: ${{ always() && steps.functional.conclusion == 'success' && matrix.php == '8.3' }}
+                env:
+                    typo3DatabaseDriver: pdo_sqlite
                 run: |
                     composer ci:coverage:functional
 
