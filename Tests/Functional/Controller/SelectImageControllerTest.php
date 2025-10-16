@@ -34,7 +34,7 @@ class SelectImageControllerTest extends FunctionalTestCase
         'typo3/cms-rte-ckeditor',
     ];
 
-    private SelectImageController $subject;
+    private ?SelectImageController $subject = null;
 
     protected function setUp(): void
     {

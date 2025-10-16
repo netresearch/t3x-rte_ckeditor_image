@@ -217,8 +217,8 @@ parameters:
 			path: ../Classes/Controller/SelectImageController.php
 
 		-
-			message: '#^Class Netresearch\\RteCKEditorImage\\Controller\\SelectImageController has an uninitialized property \$resourceFactory\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
+			message: '#^Netresearch\\RteCKEditorImage\\Controller\\SelectImageController\:\:__construct\(\) does not call parent constructor from TYPO3\\CMS\\Backend\\Controller\\ElementBrowserController\.$#'
+			identifier: constructor.missingParentCall
 			count: 1
 			path: ../Classes/Controller/SelectImageController.php
 
@@ -249,12 +249,6 @@ parameters:
 		-
 			message: '#^Cannot access offset ''data\-htmlarea\-file\-uid'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
-
-		-
-			message: '#^Class Netresearch\\RteCKEditorImage\\DataHandling\\SoftReference\\RteImageSoftReferenceParser has an uninitialized property \$splitContentTags\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
 			count: 1
 			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
 
@@ -505,12 +499,6 @@ parameters:
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Class Netresearch\\RteCKEditorImage\\Tests\\Functional\\Controller\\SelectImageControllerTest has an uninitialized property \$subject\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
-
-		-
 			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\)\.$#'
 			identifier: staticMethod.dynamicCall
 			count: 4
@@ -550,6 +538,12 @@ parameters:
 			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertLessThanOrEqual\(\)\.$#'
 			identifier: staticMethod.dynamicCall
 			count: 3
+			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: '#^Parameter \#1 \$object of method Netresearch\\RteCKEditorImage\\Tests\\Functional\\Controller\\SelectImageControllerTest\:\:invokeMethod\(\) expects object, Netresearch\\RteCKEditorImage\\Controller\\SelectImageController\|null given\.$#'
+			identifier: argument.type
+			count: 9
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
