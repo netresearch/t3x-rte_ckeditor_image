@@ -1,3 +1,4 @@
 "sys_refindex",,,,,
 ,"tablename","recuid","field","softref_key","ref_table","ref_uid"
+,"sys_file","1","storage","","sys_file_storage","1"
 ,"tt_content","1","bodytext","rtehtmlarea_images","sys_file","1"
