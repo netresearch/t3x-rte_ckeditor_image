@@ -13,14 +13,40 @@
 
 # Image support for CKEditor for TYPO3
 
-This extension adds the TYPO3 image browser to CKEditor.\
+**Version 13.0.x** for TYPO3 13.4+
+**License:** AGPL-3.0-or-later
+
+This extension adds comprehensive image handling capabilities to CKEditor for TYPO3.\
 Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image).
 
 <kbd>![](Resources/Public/Images/demo.gif?raw=true)</kbd>
 
-- Same image handling as rtehtmlarea (magic images, usual RTE TSConfig supported)
-- Image browser as usual in e.g. FAL file selector
-- Dialog for changing width, height, alt and title (aspect ratio automatically maintained)
+## Features
+
+- **TYPO3 FAL Integration**: Native file browser with full File Abstraction Layer support
+- **Magic Images**: Same image processing as rtehtmlarea (cropping, scaling, TSConfig supported)
+- **Image Dialog**: Configure width, height, alt, and title (aspect ratio automatically maintained)
+- **Custom Styles**: Configurable image styles with CKEditor 5 style system
+- **Lazy Loading**: TYPO3 native browser lazyload support
+- **Event-Driven**: PSR-14 events for extensibility
+
+## Requirements
+
+- **TYPO3:** 13.4 or later
+- **PHP:** 8.2, 8.3, or 8.4
+- **Extensions:** cms-rte-ckeditor (included in TYPO3 core)
+
+### Critical Dependencies (v13.0.0+)
+
+The CKEditor plugin requires these dependencies for style functionality:
+
+```yaml
+# In your RTE YAML configuration
+importModules:
+  - '@ckeditor/ckeditor5-html-support'
+```
+
+**Important:** Missing `GeneralHtmlSupport` will disable the style dropdown for images. See [Documentation](Documentation/Index.md) for details.
 
 ## Installation
 
@@ -49,12 +75,15 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
 
     editor:
       config:
-        # RTE default config removes image plugin - restore it:
-        removePlugins: null
         toolbar:
           items:
+            - heading
             - '|'
-            - insertImage
+            - typo3image
+            - link
+            - '|'
+            - bold
+            - italic
     ```
 
 3. Enable RTE config preset (e.g. `default`)
@@ -134,8 +163,34 @@ editor:
         allowedExtensions: "jpg,jpeg,png"
 ```
 
+## Documentation
+
+For comprehensive documentation, see [Documentation/Index.md](Documentation/Index.md):
+
+- **Integrators**: [Configuration Guide](Documentation/Integration/Configuration.md) | [Examples](Documentation/Examples/Common-Use-Cases.md) | [Troubleshooting](Documentation/Troubleshooting/Common-Issues.md)
+- **PHP Developers**: [Architecture Overview](Documentation/Architecture/Overview.md) | [API Reference](Documentation/API/Controllers.md) | [AGENTS.md](AGENTS.md)
+- **JS Developers**: [CKEditor Plugin](Documentation/CKEditor/Plugin-Development.md) | [Style Integration](Documentation/CKEditor/Style-Integration.md) | [Resources/AGENTS.md](Resources/AGENTS.md)
+- **Contributors**: [CONTRIBUTING.md](CONTRIBUTING.md) | [AGENTS.md](AGENTS.md) | [Tests/AGENTS.md](Tests/AGENTS.md)
+
+## Development
+
+```bash
+# Quick start
+composer install
+make help                    # See all available targets
+
+# Development workflow
+make lint                    # Run all linters
+make format                  # Fix code style
+make test                    # Run tests
+make ci                      # Full CI check (pre-commit)
+```
+
+See [AGENTS.md](AGENTS.md) for complete development guide, code standards, and PR checklist.
+
 ## Deployment
 
-- developed on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image)
-- [composer repository](https://packagist.org/packages/netresearch/rte-ckeditor-image)
-- new version will automatically be uploaded to TER via Github Action when creating a new Github release
+- Developed on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image)
+- [Composer repository](https://packagist.org/packages/netresearch/rte-ckeditor-image)
+- [TYPO3 Extension Repository](https://extensions.typo3.org/extension/rte_ckeditor_image)
+- New versions automatically uploaded to TER via GitHub Action when creating a release

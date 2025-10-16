@@ -108,6 +108,17 @@ static get requires() {
 
 **Important:** Missing either plugin will disable the style dropdown for images. See [Style Integration](CKEditor/Style-Integration.md) for details.
 
+## Quick Navigation by Role
+
+| Role | Start Here | Then Read | Advanced |
+|------|-----------|-----------|----------|
+| **Integrator** | [Configuration Guide](Integration/Configuration.md) | [Examples](Examples/Common-Use-Cases.md) | [Troubleshooting](Troubleshooting/Common-Issues.md) |
+| **PHP Developer** | [Architecture Overview](Architecture/Overview.md) | [API Reference](API/Controllers.md) | [../AGENTS.md](../AGENTS.md) + [../Classes/AGENTS.md](../Classes/AGENTS.md) |
+| **JS Developer** | [CKEditor Plugin](CKEditor/Plugin-Development.md) | [Style Integration](CKEditor/Style-Integration.md) | [../Resources/AGENTS.md](../Resources/AGENTS.md) |
+| **Contributor** | [../CONTRIBUTING.md](../CONTRIBUTING.md) | [../AGENTS.md](../AGENTS.md) | [Testing](../Tests/AGENTS.md) |
+
+---
+
 ## Documentation Use Cases
 
 ### For Integrators
@@ -119,10 +130,19 @@ static get requires() {
 
 ### For Developers
 
-- **Extend the CKEditor plugin** → [Plugin Development](CKEditor/Plugin-Development.md)
+#### PHP Backend Development
+- **Understand the architecture** → [Architecture Overview](Architecture/Overview.md)
+- **Controller APIs** → [Controllers API](API/Controllers.md)
 - **Customize image processing** → [Data Handling API](API/DataHandling.md)
 - **Listen to extension events** → [Event Listeners](API/EventListeners.md)
-- **Understand the architecture** → [Architecture Overview](Architecture/Overview.md)
+- **Code standards & patterns** → [../Classes/AGENTS.md](../Classes/AGENTS.md)
+
+#### JavaScript/CKEditor Development
+- **Extend the CKEditor plugin** → [Plugin Development](CKEditor/Plugin-Development.md)
+- **Style system integration** → [Style Integration](CKEditor/Style-Integration.md)
+- **Custom model element** → [Model Element](CKEditor/Model-Element.md)
+- **Conversion system** → [Conversions](CKEditor/Conversions.md)
+- **Code standards & patterns** → [../Resources/AGENTS.md](../Resources/AGENTS.md)
 
 ### For Troubleshooters
 
