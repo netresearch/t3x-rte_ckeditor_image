@@ -208,8 +208,12 @@ class ImageLinkRenderingController extends AbstractPlugin
         $attributes = [];
         foreach ($imageAttributes as $match) {
             // $match[1] and $match[2] are for double quotes, $match[3] and $match[4] are for single quotes
-            $key   = $match[1] !== '' ? $match[1] : $match[3];
-            $value = $match[1] !== '' ? $match[2] : $match[4];
+            // When double-quoted: $match[1] = name, $match[2] = value, $match[3] = '', $match[4] = ''
+            // When single-quoted: $match[1] = '', $match[2] = '', $match[3] = name, $match[4] = value
+            // @phpstan-ignore notIdentical.alwaysTrue (false positive - $match[1] can be '' for single quotes)
+            $key = $match[1] !== '' ? $match[1] : $match[3];
+            // @phpstan-ignore notIdentical.alwaysTrue (false positive - $match[1] can be '' for single quotes)
+            $value            = $match[1] !== '' ? $match[2] : $match[4];
             $attributes[$key] = $value;
         }
 
