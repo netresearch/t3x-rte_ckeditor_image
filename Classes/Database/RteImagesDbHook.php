@@ -66,6 +66,11 @@ class RteImagesDbHook
     protected bool $fetchExternalImages;
 
     /**
+     * @var bool
+     */
+    protected bool $allowSvgImages;
+
+    /**
      * Constructor.
      *
      * @param ExtensionConfiguration $extensionConfiguration
@@ -80,6 +85,8 @@ class RteImagesDbHook
     ) {
         $this->fetchExternalImages = (bool) $extensionConfiguration
             ->get('rte_ckeditor_image', 'fetchExternalImages');
+        $this->allowSvgImages = (bool) $extensionConfiguration
+            ->get('rte_ckeditor_image', 'allowSvgImages');
 
         $this->logger = $logManager->getLogger(self::class);
     }
@@ -157,14 +164,20 @@ class RteImagesDbHook
     private function isValidImageMimeType(string $fileContent): bool
     {
         // Allowed image MIME types for external images
-        // Note: SVG (image/svg+xml) is intentionally excluded for security reasons
-        // as SVG files can contain JavaScript and pose XSS risks
         $allowedMimeTypes = [
             'image/jpeg',  // Standard JPEG format
             'image/png',   // PNG format
             'image/gif',   // GIF format
             'image/webp',  // Modern WebP format
         ];
+
+        // Conditionally allow SVG if explicitly enabled in extension configuration
+        // WARNING: SVG files can contain JavaScript, event handlers, and XML entities
+        // that pose XSS risks. Only enable if you trust the image sources and have
+        // additional sanitization in place.
+        if ($this->allowSvgImages) {
+            $allowedMimeTypes[] = 'image/svg+xml';
+        }
 
         // Use finfo to detect MIME type from content
         $finfo    = new finfo(FILEINFO_MIME_TYPE);
@@ -559,10 +572,14 @@ class RteImagesDbHook
                         $pI        = pathinfo($path);
                         $extension = strtolower($pI['extension'] ?? '');
 
+                        // Build allowed extensions list based on configuration
+                        $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'webp'];
+                        if ($this->allowSvgImages) {
+                            $allowedExtensions[] = 'svg';
+                        }
+
                         // Validate file extension (defense in depth after MIME check)
-                        if (
-                            in_array($extension, ['jpg', 'jpeg', 'gif', 'png', 'webp'], true)
-                        ) {
+                        if (in_array($extension, $allowedExtensions, true)) {
                             $fileName = substr(md5($absoluteUrl), 0, 10) . '.' . ($pI['extension'] ?? '');
                             // We insert this image into the user default upload folder
                             $uploadFolderResolver = GeneralUtility::makeInstance(DefaultUploadFolderResolver::class);
