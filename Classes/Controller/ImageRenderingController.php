@@ -73,6 +73,7 @@ class ImageRenderingController
     {
         $imageAttributes = $this->getImageAttributes();
         $imageSource     = $imageAttributes['src'] ?? '';
+        $systemImage     = null; // Initialize to prevent undefined variable in popup rendering check
 
         // It is pretty rare to be in presence of an external image as the default behaviour
         // of the RTE is to download the external image and create a local image.
