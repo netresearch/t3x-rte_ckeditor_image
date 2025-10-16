@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<guides xmlns="https://www.phpdoc.org/guides"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://www.phpdoc.org/guides ../vendor/phpdocumentor/guides-cli/resources/schema/guides.xsd"
+        links-are-relative="true"
+        input-format="md"
+        input-file="Index.md"
+        default-code-language="php">
+
+    <!-- TYPO3 Documentation Theme Configuration -->
+    <extension class="\T3Docs\Typo3DocsTheme\DependencyInjection\Typo3DocsThemeExtension"
+               edit-on-github="netresearch/t3x-rte_ckeditor_image"
+               edit-on-github-branch="main"
+               edit-on-github-directory="Documentation"
+               interlink-shortcode="rte_ckeditor_image"
+               project-home="https://extensions.typo3.org/extension/rte_ckeditor_image"
+               project-contact="https://github.com/netresearch/t3x-rte_ckeditor_image/discussions"
+               project-repository="https://github.com/netresearch/t3x-rte_ckeditor_image"
+               project-issues="https://github.com/netresearch/t3x-rte_ckeditor_image/issues"
+               project-discussions="https://github.com/netresearch/t3x-rte_ckeditor_image/discussions"
+               typo3-core-preferred="13.4"/>
+
+    <!-- Project Metadata -->
+    <project title="RTE CKEditor Image"
+             version="local"
+             release="13.0"
+             copyright="since 2017 by Netresearch &amp; Contributors"/>
+
+    <!-- Interlink References -->
+    <inventory id="t3coreapi"
+               url="https://docs.typo3.org/m/typo3/reference-coreapi/13.4/en-us/"/>
+    <inventory id="t3tsref"
+               url="https://docs.typo3.org/m/typo3/reference-tsconfig/13.4/en-us/"/>
+    <inventory id="t3extbasebook"
+               url="https://docs.typo3.org/m/typo3/book-extbasefluid/13.4/en-us/"/>
+    <inventory id="t3ckeditor"
+               url="https://docs.typo3.org/c/typo3/cms-rte-ckeditor/13.4/en-us/"/>
+
+</guides>
