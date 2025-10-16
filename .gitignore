@@ -22,3 +22,6 @@ coverage/
 .cache/
 .php-cs-fixer.cache
 .phplint.cache
+
+# Serena MCP
+.serena/
