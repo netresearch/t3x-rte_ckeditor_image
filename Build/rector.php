@@ -33,10 +33,10 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__ . '/../ext_*.sql',
     ]);
 
-    $rectorConfig->phpstanConfig('Build/phpstan.neon');
+    $rectorConfig->phpstanConfig(__DIR__ . '/phpstan.neon');
+    $rectorConfig->phpVersion(80200);
     $rectorConfig->importNames();
     $rectorConfig->removeUnusedImports();
-    $rectorConfig->disableParallel();
 
     // Define what rule sets will be applied
     $rectorConfig->sets([
