@@ -35,7 +35,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
     /**
      * @var array<int, string>
      */
-    private array $splitContentTags;
+    private array $splitContentTags = [];
 
     /**
      * Constructor.
