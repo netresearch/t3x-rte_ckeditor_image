@@ -23,3 +23,8 @@ parameters:
     # Strict configuration options for maximum code quality
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: true
+
+    # Advanced type inference and checking
+    inferPrivatePropertyTypeFromConstructor: true
+    checkMissingCallableSignature: true
+    checkUninitializedProperties: true

@@ -217,6 +217,12 @@ parameters:
 			path: ../Classes/Controller/SelectImageController.php
 
 		-
+			message: '#^Class Netresearch\\RteCKEditorImage\\Controller\\SelectImageController has an uninitialized property \$resourceFactory\. Give it default value or assign it in the constructor\.$#'
+			identifier: property.uninitialized
+			count: 1
+			path: ../Classes/Controller/SelectImageController.php
+
+		-
 			message: '#^Parameter \#1 \$params of method Netresearch\\RteCKEditorImage\\Controller\\SelectImageController\:\:getMaxDimensions\(\) expects array\<string\>, mixed given\.$#'
 			identifier: argument.type
 			count: 1
@@ -243,6 +249,12 @@ parameters:
 		-
 			message: '#^Cannot access offset ''data\-htmlarea\-file\-uid'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
+
+		-
+			message: '#^Class Netresearch\\RteCKEditorImage\\DataHandling\\SoftReference\\RteImageSoftReferenceParser has an uninitialized property \$splitContentTags\. Give it default value or assign it in the constructor\.$#'
+			identifier: property.uninitialized
 			count: 1
 			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
 
@@ -490,6 +502,12 @@ parameters:
 			message: '#^Cannot access offset ''width'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 4
+			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: '#^Class Netresearch\\RteCKEditorImage\\Tests\\Functional\\Controller\\SelectImageControllerTest has an uninitialized property \$subject\. Give it default value or assign it in the constructor\.$#'
+			identifier: property.uninitialized
+			count: 1
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
