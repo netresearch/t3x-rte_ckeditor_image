@@ -176,8 +176,11 @@ class ImageRenderingController extends AbstractPlugin
             $imageAttributes['src'] = '/' . $imageSource;
         }
 
+        // Ensure all attributes are strings for implodeAttributes
+        $stringAttributes = array_map(fn ($value): string => (string) $value, $imageAttributes);
+
         // Image template; empty attributes are removed by 3rd param 'false'
-        $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
+        $img = '<img ' . GeneralUtility::implodeAttributes($stringAttributes, true) . ' />';
 
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
         if (
@@ -185,7 +188,9 @@ class ImageRenderingController extends AbstractPlugin
                 || isset($imageAttributes['data-htmlarea-clickenlarge']))
             && isset($systemImage)
         ) {
-            $config = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
+            // PHPStan type safety: ensure config is an array
+            $popupConfig = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
+            $config      = is_array($popupConfig) ? $popupConfig : [];
             $config['enable'] = 1;
 
             $systemImage->updateProperties([
@@ -214,7 +219,10 @@ class ImageRenderingController extends AbstractPlugin
      */
     private function getLazyLoadingConfiguration(): ?string
     {
-        return $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        // PHPStan type safety: ensure we return string|null only
+        $lazyLoading = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+
+        return is_string($lazyLoading) ? $lazyLoading : null;
     }
 
     /**
