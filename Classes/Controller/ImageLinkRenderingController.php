@@ -197,16 +197,23 @@ class ImageLinkRenderingController extends AbstractPlugin
     {
         // Get image attributes
         // SECURITY: Use atomic groups to prevent ReDoS attacks
+        // Use PREG_SET_ORDER to get matched pairs and avoid array_combine() mismatch issues
         preg_match_all(
             '/([a-zA-Z0-9-]++)=["]([^"]*)"|([a-zA-Z0-9-]++)=[\']([^\']*)\'/',
             $passedImage,
-            $imageAttributes
+            $imageAttributes,
+            PREG_SET_ORDER
         );
 
-        /** @var false|string[] $result */
-        $result = array_combine($imageAttributes[1], $imageAttributes[2]);
+        $attributes = [];
+        foreach ($imageAttributes as $match) {
+            // $match[1] and $match[2] are for double quotes, $match[3] and $match[4] are for single quotes
+            $key   = $match[1] !== '' ? $match[1] : $match[3];
+            $value = $match[1] !== '' ? $match[2] : $match[4];
+            $attributes[$key] = $value;
+        }
 
-        return is_array($result) ? $result : [];
+        return $attributes;
     }
 
     /**
