@@ -46,4 +46,9 @@
     <ini name="error_reporting" value="E_ALL"/>
     <env name="TYPO3_CONTEXT" value="Testing"/>
   </php>
+  <source>
+    <include>
+      <directory suffix=".php">../../Classes</directory>
+    </include>
+  </source>
 </phpunit>
