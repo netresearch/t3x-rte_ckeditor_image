@@ -60,7 +60,15 @@ class SelectImageController extends ElementBrowserController
     /**
      * @var ResourceFactory
      */
-    private ResourceFactory $resourceFactory;
+    private readonly ResourceFactory $resourceFactory;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+    }
 
     /**
      * Forward to infoAction if wanted.
@@ -71,7 +79,6 @@ class SelectImageController extends ElementBrowserController
      */
     public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
-        $this->resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
 
         $parsedBody   = $request->getParsedBody();
         $queryParams  = $request->getQueryParams();
