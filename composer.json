@@ -83,7 +83,7 @@
             "@ci:cgl --dry-run"
         ],
         "ci:test:php:functional": [
-            "phpunit -c Build/phpunit/FunctionalTests.xml"
+            "phpunit -c Build/phpunit/FunctionalTests.xml --dont-report-useless-tests"
         ],
         "ci:test:php:lint": [
             "phplint --configuration Build/.phplint.yml"
@@ -98,7 +98,7 @@
             "@ci:rector --dry-run"
         ],
         "ci:coverage:functional": [
-            "phpunit -c Build/phpunit/FunctionalTests.xml --coverage-clover=.build/logs/clover.xml --coverage-html=.build/coverage"
+            "phpunit -c Build/phpunit/FunctionalTests.xml --coverage-clover=.build/logs/clover.xml --coverage-html=.build/coverage --dont-report-useless-tests"
         ],
         "ci:test": [
             "@ci:test:php:lint",
