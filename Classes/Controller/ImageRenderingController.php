@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
  * For the full copyright and license information, please read the
@@ -27,7 +27,8 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  *
  * @author  Christian Opitz <christian.opitz@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
- * @link    https://www.netresearch.de
+ *
+ * @see    https://www.netresearch.de
  */
 class ImageRenderingController
 {
@@ -100,7 +101,7 @@ class ImageRenderingController
                                 'fileUid'     => $fileUid,
                                 'storage'     => $systemImage->getStorage()->getUid(),
                                 'storageName' => $systemImage->getStorage()->getName(),
-                            ]
+                            ],
                         );
 
                         // Skip processing and continue with cleanup
@@ -139,7 +140,7 @@ class ImageRenderingController
                     // Remove internal attributes
                     unset(
                         $imageAttributes['data-title-override'],
-                        $imageAttributes['data-alt-override']
+                        $imageAttributes['data-alt-override'],
                     );
 
                     $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
@@ -148,7 +149,7 @@ class ImageRenderingController
                     $this->getLogger()->log(
                         PsrLogLevel::ERROR,
                         'Unable to find requested file',
-                        ['exception' => $exception]
+                        ['exception' => $exception],
                     );
                 }
             }
@@ -214,7 +215,7 @@ class ImageRenderingController
                 return $this->cObj->imageLinkWrap(
                     $img,
                     $systemImage,
-                    $config
+                    $config,
                 );
             }
         }

@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
  * For the full copyright and license information, please read the
@@ -27,7 +27,8 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  *
  * @author  Mathias Uhlmann <mathias.uhlmann@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
- * @link    https://www.netresearch.de
+ *
+ * @see    https://www.netresearch.de
  */
 class ImageLinkRenderingController
 {
@@ -121,7 +122,7 @@ class ImageLinkRenderingController
                                     'fileUid'     => $fileUid,
                                     'storage'     => $systemImage->getStorage()->getUid(),
                                     'storageName' => $systemImage->getStorage()->getName(),
-                                ]
+                                ],
                             );
 
                             // Skip processing and continue with next image
@@ -155,7 +156,7 @@ class ImageLinkRenderingController
                         // Remove internal attributes
                         unset(
                             $imageAttributes['data-title-override'],
-                            $imageAttributes['data-alt-override']
+                            $imageAttributes['data-alt-override'],
                         );
 
                         $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
@@ -183,7 +184,7 @@ class ImageLinkRenderingController
                         $this->getLogger()->log(
                             PsrLogLevel::ERROR,
                             'Unable to find requested file',
-                            ['fileUid' => $fileUid]
+                            ['fileUid' => $fileUid],
                         );
                     }
                 }
@@ -214,7 +215,7 @@ class ImageLinkRenderingController
             '/([a-zA-Z0-9-]++)=["]([^"]*)"|([a-zA-Z0-9-]++)=[\']([^\']*)\'/',
             $passedImage,
             $imageAttributes,
-            PREG_SET_ORDER
+            PREG_SET_ORDER,
         );
 
         $attributes = [];

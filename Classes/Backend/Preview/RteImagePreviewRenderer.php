@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
  * For the full copyright and license information, please read the
@@ -24,7 +24,8 @@ use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
  *
  * @author  Rico Sonntag <rico.sonntag@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
- * @link    https://www.netresearch.de
+ *
+ * @see    https://www.netresearch.de
  */
 class RteImagePreviewRenderer extends StandardContentPreviewRenderer
 {
@@ -56,13 +57,13 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
         $html = preg_replace(
             '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF].|\xEF\xBF[\xBE\xBF]/',
             "\xEF\xBF\xBD",
-            $html
+            $html,
         );
 
         return $this
             ->linkEditContent(
                 $this->renderTextWithHtml($html),
-                $row
+                $row,
             )
             . '<br />';
     }
@@ -100,7 +101,7 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
         $dom = new DOMDocument();
         $dom->loadHTML(
             '<?xml encoding="UTF-8">' . $html,
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
         // Restore error level
@@ -139,7 +140,7 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
                     $node->nodeValue = mb_substr(
                         $node->nodeValue,
                         0,
-                        $nodeLen - ($this->totalLength - $maxLength)
+                        $nodeLen - ($this->totalLength - $maxLength),
                     ) . '...';
 
                     $this->reachedLimit = true;
