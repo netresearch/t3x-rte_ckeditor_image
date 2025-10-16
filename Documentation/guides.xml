@@ -12,7 +12,7 @@
                edit-on-github="netresearch/t3x-rte_ckeditor_image"
                edit-on-github-branch="main"
                edit-on-github-directory="Documentation"
-               interlink-shortcode="rte_ckeditor_image"
+               interlink-shortcode="netresearch/rte-ckeditor-image"
                project-home="https://extensions.typo3.org/extension/rte_ckeditor_image"
                project-contact="https://github.com/netresearch/t3x-rte_ckeditor_image/discussions"
                project-repository="https://github.com/netresearch/t3x-rte_ckeditor_image"
