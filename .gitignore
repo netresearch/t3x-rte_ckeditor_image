@@ -23,6 +23,13 @@ coverage/
 .php-cs-fixer.cache
 .phplint.cache
 
+# PHP-CS-Fixer generated config
+.php-cs-fixer.php
+
+# Node.js
+node_modules/
+package-lock.json
+
 # Serena MCP
 .serena/
 

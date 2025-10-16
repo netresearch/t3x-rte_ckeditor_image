@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Fast pre-commit checks for code quality
+echo "🔍 Running pre-commit checks..."
+
+# Generate .php-cs-fixer.php if not exists
+if [ ! -f .php-cs-fixer.php ]; then
+    echo "📝 Generating .php-cs-fixer.php from Build/.php-cs-fixer.dist.php"
+    cp Build/.php-cs-fixer.dist.php .php-cs-fixer.php
+fi
+
+# Run PHP Lint (fast)
+echo "🔎 Running PHP Lint..."
+composer ci:test:php:lint || exit 1
+
+# Run PHP-CS-Fixer dry-run (fast)
+echo "🎨 Running PHP-CS-Fixer..."
+composer ci:test:php:cgl || exit 1
+
+# Run PHPStan (medium speed)
+echo "📊 Running PHPStan..."
+composer ci:test:php:phpstan || exit 1
+
+echo "✅ All pre-commit checks passed!"

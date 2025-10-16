@@ -71,6 +71,12 @@ jobs:
                 run: |
                     composer ci:test:php:lint
 
+            -   id: generate-php-cs-fixer-config
+                name: Generate .php-cs-fixer.php
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    cp Build/.php-cs-fixer.dist.php .php-cs-fixer.php
+
             -   id: cgl
                 name: CGL
                 if: ${{ always() && steps.install.conclusion == 'success' }}
