@@ -25,3 +25,6 @@ coverage/
 
 # Serena MCP
 .serena/
+
+# Agent/AI Development
+claudedocs/
