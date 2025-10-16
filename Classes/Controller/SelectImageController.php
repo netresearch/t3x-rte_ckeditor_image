@@ -17,13 +17,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use TYPO3\CMS\Backend\Controller\ElementBrowserController;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
@@ -65,11 +63,6 @@ class SelectImageController extends ElementBrowserController
     private ResourceFactory $resourceFactory;
 
     /**
-     * @var MagicImageService
-     */
-    private MagicImageService $magicImageService;
-
-    /**
      * Forward to infoAction if wanted.
      *
      * @param ServerRequestInterface $request
@@ -79,10 +72,9 @@ class SelectImageController extends ElementBrowserController
     public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-        $this->magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
-        $parsedBody = $request->getParsedBody();
-        $queryParams = $request->getQueryParams();
+        $parsedBody   = $request->getParsedBody();
+        $queryParams  = $request->getQueryParams();
         $isInfoAction = (
             (is_array($parsedBody) ? ($parsedBody['action'] ?? null) : null)
             ?? $queryParams['action']
@@ -93,7 +85,7 @@ class SelectImageController extends ElementBrowserController
             $bparams = explode('|', (string) $queryParams['bparams']);
 
             if (isset($bparams[3]) && ($bparams[3] === '')) {
-                $bparams[3] = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
+                $bparams[3]             = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
                 $queryParams['bparams'] = implode('|', $bparams);
             }
         }
@@ -147,8 +139,8 @@ class SelectImageController extends ElementBrowserController
                 'height' => $processedFile->getProperty('height'),
                 'url'    => $processedFile->getPublicUrl(),
             ],
-            'lang'      => [
-                'override'          => LocalizationUtility::translate(
+            'lang' => [
+                'override' => LocalizationUtility::translate(
                     'LLL:EXT:core/Resources/Private/Language/'
                     . 'locallang_core.xlf:labels.placeholder.override'
                 ),
@@ -156,11 +148,11 @@ class SelectImageController extends ElementBrowserController
                     'LLL:EXT:core/Resources/Private/Language/'
                     . 'locallang_core.xlf:labels.placeholder.override_not_available'
                 ),
-                'cssClass'          => LocalizationUtility::translate(
+                'cssClass' => LocalizationUtility::translate(
                     'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
                     . 'locallang_be.xlf:labels.ckeditor.cssclass'
                 ),
-                'zoom'              => LocalizationUtility::translate(
+                'zoom' => LocalizationUtility::translate(
                     'LLL:EXT:frontend/Resources/Private/Language/'
                     . 'locallang_ttc.xlf:image_zoom_formlabel'
                 ),
@@ -247,27 +239,16 @@ class SelectImageController extends ElementBrowserController
      */
     protected function processImage(File $file, array $params, array $maxDimensions): ProcessedFile
     {
-        $this->magicImageService->setMagicImageMaximumDimensions([
-            'buttons.' => [
-                'image.' => [
-                    'options.' => [
-                        'magic.' => [
-                            'maxWidth'  => $maxDimensions['width'],
-                            'maxHeight' => $maxDimensions['height'],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
+        $width  = min($maxDimensions['width'], (int) ($params['width'] ?? $file->getProperty('width')));
+        $height = min($maxDimensions['height'], (int) ($params['height'] ?? $file->getProperty('height')));
 
-        return $this->magicImageService
-            ->createMagicImage(
-                $file,
-                [
-                    'width'  => (int) ($params['width'] ?? $file->getProperty('width')),
-                    'height' => (int) ($params['height'] ?? $file->getProperty('height')),
-                ]
-            );
+        return $file->process(
+            ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
+            [
+                'width'  => $width,
+                'height' => $height,
+            ],
+        );
     }
 
     /**
@@ -282,14 +263,14 @@ class SelectImageController extends ElementBrowserController
      */
     protected function getMaxDimensions(array $params): array
     {
-        $tsConfig = BackendUtility::getPagesTSconfig((int) ($params['pid'] ?? 0));
+        $tsConfig                  = BackendUtility::getPagesTSconfig((int) ($params['pid'] ?? 0));
         $richtextConfigurationName = $params['richtextConfigurationName'] ?? 'default';
         if ($richtextConfigurationName === '') {
             $richtextConfigurationName = 'default';
         }
 
         // Safe array access: fallback to empty array if TSConfig structure doesn't exist
-        $rteConfig = $tsConfig['RTE.'][$richtextConfigurationName . '.'] ?? [];
+        $rteConfig    = $tsConfig['RTE.'][$richtextConfigurationName . '.'] ?? [];
         $imageOptions = $rteConfig['buttons.']['image.']['options.']['magic.'] ?? [];
 
         // Type cast to ensure integers (handles string values from TSConfig)
