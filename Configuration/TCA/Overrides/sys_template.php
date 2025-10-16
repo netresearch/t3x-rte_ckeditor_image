@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
  * For the full copyright and license information, please read the
@@ -21,7 +21,7 @@ call_user_func(
         ExtensionManagementUtility::addStaticFile(
             'rte_ckeditor_image',
             'Configuration/TypoScript/ImageRendering',
-            'CKEditor Image Support'
+            'CKEditor Image Support',
         );
-    }
+    },
 );

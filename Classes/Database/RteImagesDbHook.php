@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
  * For the full copyright and license information, please read the
@@ -11,11 +11,20 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Database;
 
+use function count;
+
 use finfo;
+
+use function is_array;
+use function is_string;
+
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+
+use function strlen;
+
 use Throwable;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
@@ -41,17 +50,13 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-use function count;
-use function is_array;
-use function is_string;
-use function strlen;
-
 /**
  * Class for processing of the FAL soft references on img tags inserted in RTE content.
  *
  * @author  Stefan Galinski <stefan@sgalinski.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
- * @link    https://www.netresearch.de
+ *
+ * @see    https://www.netresearch.de
  */
 class RteImagesDbHook
 {
@@ -214,7 +219,7 @@ class RteImagesDbHook
                 $sitePath = str_replace(
                     $siteHost,
                     '',
-                    $siteUrl
+                    $siteUrl,
                 );
             }
 
@@ -232,7 +237,7 @@ class RteImagesDbHook
                         $attribArray['src'] = preg_replace(
                             '#^' . preg_quote($sitePath, '#') . '#',
                             '',
-                            (string) $attribArray['src']
+                            (string) $attribArray['src'],
                         );
 
                         $attribArray['src'] = $siteUrl . $attribArray['src'];
@@ -395,7 +400,7 @@ class RteImagesDbHook
             $sitePath = str_replace(
                 $siteHost,
                 '',
-                $siteUrl
+                $siteUrl,
             );
         }
 
@@ -440,7 +445,7 @@ class RteImagesDbHook
                             // Log the fact the file could not be retrieved.
                             $message = sprintf(
                                 'Could not find file with uid "%s"',
-                                $attribArray['data-htmlarea-file-uid']
+                                $attribArray['data-htmlarea-file-uid'],
                             );
 
                             $this->logger->error($message, ['exception' => $exception]);
@@ -506,7 +511,7 @@ class RteImagesDbHook
                         if ($this->logger instanceof LoggerInterface) {
                             $this->logger->warning(
                                 'Blocked external image fetch: URL failed SSRF validation',
-                                ['url' => $absoluteUrl]
+                                ['url' => $absoluteUrl],
                             );
                         }
 
@@ -539,7 +544,7 @@ class RteImagesDbHook
                         if ($this->logger instanceof LoggerInterface) {
                             $this->logger->error(
                                 'Failed to fetch external image',
-                                ['exception' => $exception]
+                                ['exception' => $exception],
                             );
                         }
 
@@ -552,7 +557,7 @@ class RteImagesDbHook
                             if ($this->logger instanceof LoggerInterface) {
                                 $this->logger->warning(
                                     'Blocked external image: Invalid MIME type detected',
-                                    ['url' => $absoluteUrl]
+                                    ['url' => $absoluteUrl],
                                 );
                             }
 
@@ -615,7 +620,7 @@ class RteImagesDbHook
                             if ($this->logger instanceof LoggerInterface) {
                                 $this->logger->warning(
                                     'Blocked file access: Path traversal attempt detected',
-                                    ['path' => $path]
+                                    ['path' => $path],
                                 );
                             }
 
@@ -656,7 +661,7 @@ class RteImagesDbHook
                 $attribArray['style'] = preg_replace(
                     '/(?:^|[^-])(\\s*(?:width|height)\\s*:[^;]*(?:$|;))/si',
                     '',
-                    $attribArray['style'] ?? ''
+                    $attribArray['style'] ?? '',
                 );
                 // Must have alt attribute
                 if (!isset($attribArray['alt'])) {

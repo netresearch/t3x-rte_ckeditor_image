@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
  * For the full copyright and license information, please read the
@@ -21,7 +21,7 @@ call_user_func(
         /** @var string[] $cleanSoftReferences */
         $cleanSoftReferences = explode(
             ',',
-            (string) $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref']
+            (string) $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref'],
         );
 
         // Remove obsolete soft reference key 'images', the references from RTE content to the original
@@ -32,11 +32,11 @@ call_user_func(
         // Set up soft reference index parsing for RTE images
         $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['softref'] = implode(
             ',',
-            $cleanSoftReferences
+            $cleanSoftReferences,
         );
 
         // Register preview renderer
         $GLOBALS['TCA']['tt_content']['types']['text']['previewRenderer']
             = RteImagePreviewRenderer::class;
-    }
+    },
 );

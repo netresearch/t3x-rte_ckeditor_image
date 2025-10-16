@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
  * For the full copyright and license information, please read the
@@ -30,7 +30,8 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
  *
  * @author  Christian Opitz <christian.opitz@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
- * @link    https://www.netresearch.de
+ *
+ * @see    https://www.netresearch.de
  */
 class SelectImageController extends ElementBrowserController
 {
@@ -142,19 +143,19 @@ class SelectImageController extends ElementBrowserController
             'lang' => [
                 'override' => LocalizationUtility::translate(
                     'LLL:EXT:core/Resources/Private/Language/'
-                    . 'locallang_core.xlf:labels.placeholder.override'
+                    . 'locallang_core.xlf:labels.placeholder.override',
                 ),
                 'overrideNoDefault' => LocalizationUtility::translate(
                     'LLL:EXT:core/Resources/Private/Language/'
-                    . 'locallang_core.xlf:labels.placeholder.override_not_available'
+                    . 'locallang_core.xlf:labels.placeholder.override_not_available',
                 ),
                 'cssClass' => LocalizationUtility::translate(
                     'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                    . 'locallang_be.xlf:labels.ckeditor.cssclass'
+                    . 'locallang_be.xlf:labels.ckeditor.cssclass',
                 ),
                 'zoom' => LocalizationUtility::translate(
                     'LLL:EXT:frontend/Resources/Private/Language/'
-                    . 'locallang_ttc.xlf:image_zoom_formlabel'
+                    . 'locallang_ttc.xlf:image_zoom_formlabel',
                 ),
             ],
         ]);
