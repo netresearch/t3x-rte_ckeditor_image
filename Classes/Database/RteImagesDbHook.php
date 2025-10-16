@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Database;
 
+use TYPO3\CMS\Core\Http\RequestFactory;
+use TYPO3\CMS\Core\Core\Environment;
 use finfo;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -502,14 +504,15 @@ class RteImagesDbHook
                                 ['url' => $absoluteUrl]
                             );
                         }
+
                         continue;
                     }
 
                     // Fetch the external image using validated IP to prevent DNS rebinding
                     $externalFile = null;
                     try {
-                        /** @var \TYPO3\CMS\Core\Http\RequestFactory $requestFactory */
-                        $requestFactory = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\RequestFactory::class);
+                        /** @var RequestFactory $requestFactory */
+                        $requestFactory = GeneralUtility::makeInstance(RequestFactory::class);
 
                         $parsedUrl = parse_url($absoluteUrl);
                         $host      = $parsedUrl['host'];
@@ -534,6 +537,7 @@ class RteImagesDbHook
                                 ['exception' => $exception]
                             );
                         }
+
                         // do nothing, further image processing will be skipped
                     }
 
@@ -546,6 +550,7 @@ class RteImagesDbHook
                                     ['url' => $absoluteUrl]
                                 );
                             }
+
                             continue;
                         }
 
@@ -592,7 +597,7 @@ class RteImagesDbHook
                     // SECURITY: Verify the resolved path is within allowed directory
                     if ($filepath !== '') {
                         $realpath   = realpath($filepath);
-                        $publicPath = \TYPO3\CMS\Core\Core\Environment::getPublicPath();
+                        $publicPath = Environment::getPublicPath();
 
                         // Ensure realpath succeeded and is within public path
                         if ($realpath === false || !str_starts_with($realpath, $publicPath)) {
@@ -602,6 +607,7 @@ class RteImagesDbHook
                                     ['path' => $path]
                                 );
                             }
+
                             continue;
                         }
                     }
