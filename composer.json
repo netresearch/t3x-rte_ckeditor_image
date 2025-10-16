@@ -39,6 +39,7 @@
         "saschaegerer/phpstan-typo3": "^2.1",
         "overtrue/phplint": "^9.5",
         "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
         "phpstan/phpstan-strict-rules": "^2.0",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "ssch/typo3-rector": "^3.0"
@@ -76,8 +77,14 @@
         "ci:rector": [
             "rector process --config Build/rector.php"
         ],
+        "ci:security": [
+            "composer audit"
+        ],
         "ci:test:php:cgl": [
             "@ci:cgl --dry-run"
+        ],
+        "ci:test:php:functional": [
+            "phpunit -c Build/phpunit/FunctionalTests.xml"
         ],
         "ci:test:php:lint": [
             "phplint --configuration Build/.phplint.yml"
@@ -91,11 +98,15 @@
         "ci:test:php:rector": [
             "@ci:rector --dry-run"
         ],
+        "ci:coverage:functional": [
+            "phpunit -c Build/phpunit/FunctionalTests.xml --coverage-clover=.build/logs/clover.xml --coverage-html=.build/coverage"
+        ],
         "ci:test": [
             "@ci:test:php:lint",
             "@ci:test:php:phpstan",
             "@ci:test:php:rector",
-            "@ci:test:php:cgl"
+            "@ci:test:php:cgl",
+            "@ci:test:php:functional"
         ]
     }
 }

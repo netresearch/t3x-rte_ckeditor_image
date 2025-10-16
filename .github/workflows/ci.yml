@@ -3,7 +3,9 @@ name: CI
 
 on:
     push:
+        branches: [main]
     pull_request:
+        branches: [main]
 
 jobs:
     build:
@@ -29,6 +31,12 @@ jobs:
 
             -   name: Validate composer.json and composer.lock
                 run: composer validate
+
+            -   id: security
+                name: Security audit
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer audit
 
             -   id: composer-cache-vars
                 name: Composer Cache Vars
@@ -82,3 +90,23 @@ jobs:
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
                     composer ci:test:php:rector
+
+            -   id: functional
+                name: Functional Tests
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer ci:test:php:functional
+
+            -   id: coverage
+                name: Generate Coverage Report
+                if: ${{ always() && steps.functional.conclusion == 'success' && matrix.php == '8.3' }}
+                run: |
+                    composer ci:coverage:functional
+
+            -   id: upload-coverage
+                name: Upload Coverage to Codecov
+                if: ${{ always() && steps.coverage.conclusion == 'success' && matrix.php == '8.3' }}
+                uses: codecov/codecov-action@v5
+                with:
+                    files: .build/logs/clover.xml
+                    fail_ci_if_error: false
