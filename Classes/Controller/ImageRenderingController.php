@@ -181,8 +181,11 @@ class ImageRenderingController
             $imageAttributes['src'] = '/' . $imageSource;
         }
 
+        // Ensure all attributes are strings for implodeAttributes
+        $stringAttributes = array_map(fn ($value): string => (string) $value, $imageAttributes);
+
         // Image template; empty attributes are removed by 3rd param 'false'
-        $img = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
+        $img = '<img ' . GeneralUtility::implodeAttributes($stringAttributes, true) . ' />';
 
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
         if (
@@ -190,8 +193,14 @@ class ImageRenderingController
                 || isset($imageAttributes['data-htmlarea-clickenlarge']))
             && isset($systemImage)
         ) {
-            $setupArray       = $request->getAttribute('frontend.typoscript')->getSetupArray();
-            $config           = $setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
+            $frontendTyposcript = $request->getAttribute('frontend.typoscript');
+            if ($frontendTyposcript === null) {
+                return $img;
+            }
+
+            $setupArray       = $frontendTyposcript->getSetupArray();
+            $popupConfig      = $setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
+            $config           = is_array($popupConfig) ? $popupConfig : [];
             $config['enable'] = 1;
 
             $systemImage->updateProperties([
@@ -220,9 +229,16 @@ class ImageRenderingController
      */
     private function getLazyLoadingConfiguration(ServerRequestInterface $request): ?string
     {
-        $setupArray = $request->getAttribute('frontend.typoscript')->getSetupArray();
+        $frontendTyposcript = $request->getAttribute('frontend.typoscript');
+        if ($frontendTyposcript === null) {
+            return null;
+        }
 
-        return $setupArray['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        $setupArray = $frontendTyposcript->getSetupArray();
+
+        $lazyLoading = $setupArray['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+
+        return is_string($lazyLoading) ? $lazyLoading : null;
     }
 
     /**

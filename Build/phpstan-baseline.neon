@@ -31,12 +31,6 @@ parameters:
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
-			message: '#^Cannot call method getSetupArray\(\) on TYPO3\\CMS\\Core\\TypoScript\\FrontendTypoScript\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
 			count: 2
@@ -45,13 +39,7 @@ parameters:
 		-
 			message: '#^Cannot cast mixed to string\.$#'
 			identifier: cast.string
-			count: 2
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
-			message: '#^Method Netresearch\\RteCKEditorImage\\Controller\\ImageLinkRenderingController\:\:getLazyLoadingConfiguration\(\) should return string\|null but returns mixed\.$#'
-			identifier: return.type
-			count: 1
+			count: 4
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
@@ -61,19 +49,7 @@ parameters:
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
-			message: '#^Offset 1 might not exist on array\{0\: string, 1\?\: non\-empty\-string, 2\?\: string, 3\?\: non\-empty\-string, 4\?\: string\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 3
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
-			message: '#^Offset 2 might not exist on array\{0\: string, 1\?\: non\-empty\-string, 2\?\: string, 3\?\: non\-empty\-string, 4\?\: string\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
-			message: '#^Parameter \#1 \$arr of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:implodeAttributes\(\) expects array\<string, int\|string\>, array\<mixed\> given\.$#'
+			message: '#^Parameter \#1 \$arr of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:implodeAttributes\(\) expects array\<string, int\|string\>, array\<string\> given\.$#'
 			identifier: argument.type
 			count: 1
 			path: ../Classes/Controller/ImageLinkRenderingController.php
@@ -94,12 +70,6 @@ parameters:
 			message: '#^Cannot access offset ''contentElement\.'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 2
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''enable'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
 			path: ../Classes/Controller/ImageRenderingController.php
 
 		-
@@ -127,12 +97,6 @@ parameters:
 			path: ../Classes/Controller/ImageRenderingController.php
 
 		-
-			message: '#^Cannot call method getSetupArray\(\) on TYPO3\\CMS\\Core\\TypoScript\\FrontendTypoScript\|null\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
 			count: 2
@@ -141,30 +105,12 @@ parameters:
 		-
 			message: '#^Cannot cast mixed to string\.$#'
 			identifier: cast.string
-			count: 1
+			count: 2
 			path: ../Classes/Controller/ImageRenderingController.php
 
 		-
 			message: '#^Method Netresearch\\RteCKEditorImage\\Controller\\ImageRenderingController\:\:getImageAttributes\(\) should return array\<string, string\> but returns array\.$#'
 			identifier: return.type
-			count: 1
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Method Netresearch\\RteCKEditorImage\\Controller\\ImageRenderingController\:\:getLazyLoadingConfiguration\(\) should return string\|null but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Parameter \#1 \$arr of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:implodeAttributes\(\) expects array\<string, int\|string\>, array\<string, mixed\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Parameter \#3 \$conf of method TYPO3\\CMS\\Frontend\\ContentObject\\ContentObjectRenderer\:\:imageLinkWrap\(\) expects array, mixed given\.$#'
-			identifier: argument.type
 			count: 1
 			path: ../Classes/Controller/ImageRenderingController.php
 
