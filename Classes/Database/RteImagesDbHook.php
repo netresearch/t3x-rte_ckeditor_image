@@ -126,7 +126,7 @@ class RteImagesDbHook
                         $attribArray['src'] = preg_replace(
                             '#^' . preg_quote($sitePath, '#') . '#',
                             '',
-                            $attribArray['src']
+                            (string) $attribArray['src']
                         );
 
                         $attribArray['src'] = $siteUrl . $attribArray['src'];
@@ -406,10 +406,7 @@ class RteImagesDbHook
                         $extension = strtolower($pI['extension'] ?? '');
 
                         if (
-                            $extension === 'jpg'
-                            || $extension === 'jpeg'
-                            || $extension === 'gif'
-                            || $extension === 'png'
+                            in_array($extension, ['jpg', 'jpeg', 'gif', 'png'], true)
                         ) {
                             $fileName = substr(md5($absoluteUrl), 0, 10) . '.' . ($pI['extension'] ?? '');
                             // We insert this image into the user default upload folder
