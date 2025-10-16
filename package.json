@@ -1,0 +1,24 @@
+{
+  "name": "rte-ckeditor-image",
+  "version": "13.0.0",
+  "description": "Image support in CKEditor for the TYPO3 ecosystem",
+  "private": true,
+  "scripts": {
+    "prepare": "husky install",
+    "lint": "composer ci:test:php:lint",
+    "phpstan": "composer ci:test:php:phpstan",
+    "cgl": "composer ci:test:php:cgl"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0"
+  },
+  "lint-staged": {
+    "*.php": [
+      "composer ci:test:php:lint",
+      "composer ci:test:php:cgl"
+    ]
+  }
+}

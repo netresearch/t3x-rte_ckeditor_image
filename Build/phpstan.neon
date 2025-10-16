@@ -6,8 +6,8 @@ includes:
     - %currentWorkingDirectory%/Build/phpstan-baseline.neon
 
 parameters:
-    # You can currently choose from 10 levels (0 is the loosest and 9 is the strictest).
-    level: 6
+    # Level 10 is the strictest level - maximum type safety and code quality checks
+    level: 10
 
     paths:
         - %currentWorkingDirectory%/Classes/
@@ -20,4 +20,6 @@ parameters:
         - %currentWorkingDirectory%/.build/*
         - %currentWorkingDirectory%/ext_emconf.php
 
+    # Strict configuration options for maximum code quality
     treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: true

@@ -31,7 +31,7 @@ return (new PhpCsFixer\Config())
     ->setRiskyAllowed(true)
     ->setRules([
         '@PSR12'                          => true,
-        '@PER-CS2x0'                      => true,
+        '@PER-CS3x0'                      => true,
         '@Symfony'                        => true,
 
         // Additional custom rules
