@@ -170,8 +170,11 @@ class ImageLinkRenderingController
 
                         $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
 
+                        // Ensure all attributes are strings for implodeAttributes
+                        $stringAttributes = array_map(fn ($value): string => (string) $value, $imageAttributes);
+
                         // Image template; empty attributes are removed by 3rd param 'false'
-                        $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
+                        $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($stringAttributes, true) . ' />';
                     } catch (FileDoesNotExistException) {
                         $parsedImages[] = strip_tags($passedImage, '<img>');
 
@@ -190,7 +193,9 @@ class ImageLinkRenderingController
         }
 
         // Replace original images with parsed
-        return str_replace($passedImages, $parsedImages, $linkContent);
+        $result = str_replace($passedImages, $parsedImages, $linkContent);
+
+        return is_string($result) ? $result : (string) $linkContent;
     }
 
     /**
@@ -217,10 +222,8 @@ class ImageLinkRenderingController
             // $match[1] and $match[2] are for double quotes, $match[3] and $match[4] are for single quotes
             // When double-quoted: $match[1] = name, $match[2] = value, $match[3] = '', $match[4] = ''
             // When single-quoted: $match[1] = '', $match[2] = '', $match[3] = name, $match[4] = value
-            // @phpstan-ignore notIdentical.alwaysTrue (false positive - $match[1] can be '' for single quotes)
-            $key = $match[1] !== '' ? $match[1] : $match[3];
-            // @phpstan-ignore notIdentical.alwaysTrue (false positive - $match[1] can be '' for single quotes)
-            $value            = $match[1] !== '' ? $match[2] : $match[4];
+            $key              = ($match[1] ?? '') !== '' ? $match[1] : ($match[3] ?? '');
+            $value            = ($match[1] ?? '') !== '' ? ($match[2] ?? '') : ($match[4] ?? '');
             $attributes[$key] = $value;
         }
 
@@ -234,9 +237,16 @@ class ImageLinkRenderingController
      */
     private function getLazyLoadingConfiguration(ServerRequestInterface $request): ?string
     {
-        $setupArray = $request->getAttribute('frontend.typoscript')->getSetupArray();
+        $frontendTyposcript = $request->getAttribute('frontend.typoscript');
+        if ($frontendTyposcript === null) {
+            return null;
+        }
 
-        return $setupArray['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        $setupArray = $frontendTyposcript->getSetupArray();
+
+        $lazyLoading = $setupArray['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+
+        return is_string($lazyLoading) ? $lazyLoading : null;
     }
 
     /**
