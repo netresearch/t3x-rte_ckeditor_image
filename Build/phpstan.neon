@@ -1,8 +1,8 @@
 includes:
-    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-strict-rules/rules.neon
-    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-deprecation-rules/rules.neon
-#    - %currentWorkingDirectory%/.build/vendor/phpstan/phpstan-phpunit/rules.neon
-    - %currentWorkingDirectory%/.build/vendor/saschaegerer/phpstan-typo3/extension.neon
+    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-strict-rules/rules.neon
+    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-deprecation-rules/rules.neon
+#    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-phpunit/rules.neon
+    - %currentWorkingDirectory%/.Build/vendor/saschaegerer/phpstan-typo3/extension.neon
     - %currentWorkingDirectory%/Build/phpstan-baseline.neon
 
 parameters:
@@ -17,7 +17,7 @@ parameters:
         - %currentWorkingDirectory%/ext_localconf.php
 
     excludePaths:
-        - %currentWorkingDirectory%/.build/*
+        - %currentWorkingDirectory%/.Build/*
         - %currentWorkingDirectory%/ext_emconf.php
 
     # Strict configuration options for maximum code quality
