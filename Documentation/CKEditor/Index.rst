@@ -105,5 +105,5 @@ Related Documentation
 =====================
 
 - :ref:`api-documentation` - PHP backend integration
-- :ref:`configuration` - Plugin configuration
-- :ref:`common-use-cases` - Practical implementation examples
+- :ref:`integration-configuration` - Plugin configuration
+- :ref:`examples-common-use-cases` - Practical implementation examples
