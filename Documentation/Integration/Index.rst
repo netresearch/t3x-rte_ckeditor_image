@@ -104,10 +104,40 @@ Configuration Topics
 Related Documentation
 =====================
 
-- :ref:`examples-common-use-cases` - Practical configuration examples
-- :ref:`api-documentation` - Backend integration
-- :ref:`ckeditor-plugin-development` - Frontend plugin
-- :ref:`troubleshooting-index` - Configuration issues
+.. card-grid::
+    :columns: 1
+    :columns-md: 2
+    :gap: 4
+    :class: pb-4
+    :card-height: 100
+
+    ..  card:: 📚 Examples
+
+        Practical configuration examples and common use cases
+
+        ..  card-footer:: :ref:`Read more <examples-common-use-cases>`
+            :button-style: btn btn-secondary stretched-link
+
+    ..  card:: 🔌 API Documentation
+
+        Backend integration and PHP APIs
+
+        ..  card-footer:: :ref:`Read more <api-documentation>`
+            :button-style: btn btn-secondary stretched-link
+
+    ..  card:: ⚙️ CKEditor Plugin
+
+        Frontend plugin development guide
+
+        ..  card-footer:: :ref:`Read more <ckeditor-plugin-development>`
+            :button-style: btn btn-secondary stretched-link
+
+    ..  card:: 🐛 Troubleshooting
+
+        Configuration issues and debugging
+
+        ..  card-footer:: :ref:`Read more <troubleshooting-index>`
+            :button-style: btn btn-secondary stretched-link
 
 .. toctree::
    :hidden:

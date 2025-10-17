@@ -278,7 +278,7 @@ Get Help
 
 - `GitHub Issues <https://github.com/netresearch/t3x-rte_ckeditor_image/issues>`__
 - `GitHub Discussions <https://github.com/netresearch/t3x-rte_ckeditor_image/discussions>`__
-- `TYPO3 Slack <https://typo3.org/community/meet/chat-slack>`__ - #ext-rte_ckeditor_image
+- `TYPO3 Slack #ext-rte_ckeditor_image <https://typo3.slack.com/archives/ext-rte_ckeditor_image>`__
 
 Contribute
 ----------

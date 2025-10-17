@@ -549,7 +549,7 @@ If issues persist after troubleshooting:
 
 1. **Check GitHub Issues:** https://github.com/netresearch/t3x-rte_ckeditor_image/issues
 2. **Review Changelog:** Look for breaking changes in CHANGELOG.md
-3. **TYPO3 Slack:** Join #typo3-cms channel
+3. **TYPO3 Slack:** Join `#typo3-cms <https://typo3.slack.com/archives/typo3-cms>`__
 4. **Stack Overflow:** Tag questions with ``typo3`` and ``ckeditor``
 
 .. important::
