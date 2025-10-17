@@ -1,0 +1,24 @@
+..  This file is automatically included in every .rst file
+..  Do not write content here - use it for common substitutions and links
+
+..  Common Substitutions
+..  ====================
+
+..  |composer|      replace:: :bash:`composer`
+..  |php|           replace:: :bash:`php`
+..  |typo3|         replace:: TYPO3
+
+..  External Links
+..  ==============
+
+..  _CKEditor 5:     https://ckeditor.com/docs/ckeditor5/latest/
+..  _Packagist:      https://packagist.org/packages/netresearch/rte-ckeditor-image
+..  _TER:            https://extensions.typo3.org/extension/rte_ckeditor_image
+
+..  Internal Project Links
+..  ======================
+
+..  _GitHub Repository:   https://github.com/netresearch/t3x-rte_ckeditor_image
+..  _GitHub Issues:       https://github.com/netresearch/t3x-rte_ckeditor_image/issues
+..  _GitHub Discussions:  https://github.com/netresearch/t3x-rte_ckeditor_image/discussions
+..  _Contributors:        https://github.com/netresearch/t3x-rte_ckeditor_image/graphs/contributors

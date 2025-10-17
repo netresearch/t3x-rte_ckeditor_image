@@ -1,16 +1,23 @@
-# Architecture & Design
+.. _architecture-index:
+
+=======================
+Architecture & Design
+=======================
 
 System architecture, component design, and technical implementation details.
 
-## Overview
+Overview
+========
 
 This section explains the architectural decisions, design patterns, and component interactions in the RTE CKEditor Image extension.
 
-## Available Documentation
+Available Documentation
+=======================
 
-**[Architecture Overview](Overview.md)**
+**Architecture Overview** (:ref:`architecture-overview`)
 
 Comprehensive system architecture documentation:
+
 - Component diagram and interactions
 - Data flow from backend to frontend
 - CKEditor plugin architecture
@@ -19,28 +26,34 @@ Comprehensive system architecture documentation:
 - Event-driven architecture
 - Security considerations
 
-## Key Concepts
+Key Concepts
+============
 
-### Three-Layer Architecture
+Three-Layer Architecture
+------------------------
 
 1. **CKEditor Plugin Layer** (JavaScript)
+
    - Custom typo3image plugin
    - Model element definition
    - UI components and commands
    - Upcast/downcast conversions
 
 2. **TYPO3 Backend Layer** (PHP)
+
    - Controllers for image selection and rendering
    - Database hooks for content processing
    - FAL integration
    - Event listeners
 
 3. **Frontend Rendering Layer** (PHP/HTML)
+
    - TypoScript configuration
    - Image processing and optimization
    - HTML generation
 
-### Design Patterns
+Design Patterns
+---------------
 
 - **MVC Pattern** - Controllers, models, and views separation
 - **Event-Driven** - PSR-14 events for extensibility
@@ -48,8 +61,9 @@ Comprehensive system architecture documentation:
 - **Soft References** - TYPO3 reference tracking
 - **Command Pattern** - CKEditor commands for actions
 
-## Related Documentation
+Related Documentation
+=====================
 
-- [API Documentation](../API/Index.md) - PHP class reference
-- [CKEditor Plugin](../CKEditor/Plugin-Development.md) - Plugin implementation
-- [Configuration](../Integration/Configuration.md) - System configuration
+- API Documentation - PHP class reference
+- CKEditor Plugin - Plugin implementation
+- Configuration - System configuration
