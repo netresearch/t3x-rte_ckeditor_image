@@ -21,26 +21,26 @@ API Components
     :class: pb-4
     :card-height: 100
 
-    ..  card:: :ref:`Controllers API <api-controllers>`
+    ..  card:: 🎮 Controllers API
 
         Frontend and backend controllers for image handling and rendering
 
         ..  card-footer:: :ref:`Read more <api-controllers>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
-    ..  card:: :ref:`Data Handling API <api-datahandling>`
+    ..  card:: 📊 Data Handling API
 
         Database hooks, content processing, and image transformations
 
         ..  card-footer:: :ref:`Read more <api-datahandling>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
-    ..  card:: :ref:`Event Listeners <api-eventlisteners>`
+    ..  card:: 🔔 Event Listeners
 
         PSR-14 event system integration for RTE configuration
 
         ..  card-footer:: :ref:`Read more <api-eventlisteners>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
 Usage Examples
 ==============

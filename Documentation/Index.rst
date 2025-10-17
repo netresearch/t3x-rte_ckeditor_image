@@ -40,52 +40,52 @@ Image support in CKEditor for the TYPO3 ecosystem.
     :class: pb-4
     :card-height: 100
 
-    ..  card:: :ref:`Introduction <introduction>`
+    ..  card:: 📘 Introduction
 
         The RTE CKEditor Image extension provides comprehensive image handling
         capabilities for TYPO3's CKEditor Rich Text Editor with full FAL integration.
 
         ..  card-footer:: :ref:`Read more <introduction>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
-    ..  card:: :ref:`Quick Start <quick-start>`
+    ..  card:: ⚡ Quick Start
 
         Get up and running quickly with installation instructions and
         basic configuration examples.
 
         ..  card-footer:: :ref:`Read more <quick-start>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
-    ..  card:: :ref:`Configuration <integration-configuration>`
+    ..  card:: ⚙️ Configuration
 
         Learn how to configure custom image styles, processing options,
         and frontend rendering setup.
 
         ..  card-footer:: :ref:`Read more <integration-configuration>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
-    ..  card:: :ref:`Architecture <architecture-index>`
+    ..  card:: 🏗️ Architecture
 
         Understand the extension's architecture, design patterns,
         and how components interact.
 
         ..  card-footer:: :ref:`Read more <architecture-index>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
-    ..  card:: :ref:`Developer API <api-documentation>`
+    ..  card:: 🔧 Developer API
 
         Explore the PHP and JavaScript APIs for extending and
         customizing the extension.
 
         ..  card-footer:: :ref:`Read more <api-documentation>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
-    ..  card:: :ref:`Troubleshooting <troubleshooting-index>`
+    ..  card:: 🐛 Troubleshooting
 
         Find solutions to common issues and learn debugging techniques.
 
         ..  card-footer:: :ref:`Read more <troubleshooting-index>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
 
 .. _introduction:
@@ -129,8 +129,12 @@ System Requirements
 - **PHP:** 8.2, 8.3, or 8.4
 - **Extensions:** cms-rte-ckeditor (included in TYPO3 core)
 
-Critical Dependencies (v13.0.0+)
----------------------------------
+Critical Dependencies
+---------------------
+
+.. versionadded:: 13.0.0
+   The CKEditor plugin now requires ``StyleUtils`` and ``GeneralHtmlSupport``
+   dependencies for style functionality. Previous versions did not have this requirement.
 
 The CKEditor plugin requires these dependencies for style functionality:
 
@@ -328,7 +332,6 @@ Additional Resources
    :maxdepth: 2
    :caption: User Documentation
 
-   README
    Integration/Index
    Examples/Index
    Troubleshooting/Index

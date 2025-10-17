@@ -67,20 +67,29 @@ Extension Configuration
 
 Configure extension behavior in Extension Manager or settings.php:
 
-Fetch External Images
----------------------
+.. confval:: fetchExternalImages
 
-.. code-block:: php
-   :caption: settings.php or LocalConfiguration.php
+   :type: boolean
+   :Default: true
+   :Path: $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['rte_ckeditor_image']['fetchExternalImages']
 
-   $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['rte_ckeditor_image'] = [
-       'fetchExternalImages' => true,  // Default: true
-   ];
+   Controls whether external image URLs are automatically fetched and uploaded to the backend user's upload folder.
 
-**Options**:
+   When enabled, pasting external image URLs into the editor will trigger automatic download and upload to FAL.
 
-- ``true``: External image URLs are fetched and uploaded to BE user's uploads folder
-- ``false``: External URLs remain as external links
+   Options:
+
+   - ``true``: External image URLs are fetched and uploaded to BE user's uploads folder
+   - ``false``: External URLs remain as external links (not recommended for security)
+
+   **Example:**
+
+   .. code-block:: php
+      :caption: settings.php or LocalConfiguration.php
+
+      $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['rte_ckeditor_image'] = [
+          'fetchExternalImages' => true,
+      ];
 
 Performance Optimization
 ========================

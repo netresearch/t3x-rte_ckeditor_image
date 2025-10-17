@@ -64,17 +64,26 @@ Advanced RTE Configuration
 Custom Allowed Extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Override allowed image file extensions:
+.. confval:: editor.externalPlugins.typo3image.allowedExtensions
 
-.. code-block:: yaml
+   :type: string
+   :Default: Value from ``$GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']``
 
-   editor:
-     externalPlugins:
-       typo3image:
-         route: "rteckeditorimage_wizard_select_image"
-         allowedExtensions: "jpg,jpeg,png,gif,webp"
+   Comma-separated list of allowed image file extensions for the RTE image plugin.
 
-Default: Uses ``$GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']``
+   Restricts which file types can be selected through the image browser.
+
+   **Example:**
+
+   .. code-block:: yaml
+
+      editor:
+        externalPlugins:
+          typo3image:
+            route: "rteckeditorimage_wizard_select_image"
+            allowedExtensions: "jpg,jpeg,png,gif,webp"
+
+   If not specified, falls back to the global TYPO3 configuration at ``$GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']``
 
 Multiple RTE Presets
 ~~~~~~~~~~~~~~~~~~~~

@@ -101,33 +101,33 @@ Configuration Topics
     :class: pb-4
     :card-height: 100
 
-    .. card:: RTE Setup
+    ..  card:: 🛠️ RTE Setup
 
         RTE configuration, presets, and toolbar setup
 
-        .. card-footer:: :ref:`Read more <integration-configuration-rte-setup>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <integration-configuration-rte-setup>`
+            :button-style: btn btn-primary stretched-link
 
-    .. card:: TSConfig
+    ..  card:: ⚙️ TSConfig
 
         Page TSConfig settings, permissions, and file mounts
 
-        .. card-footer:: :ref:`Read more <integration-configuration-tsconfig>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <integration-configuration-tsconfig>`
+            :button-style: btn btn-primary stretched-link
 
-    .. card:: Frontend Rendering
+    ..  card:: 🖼️ Frontend Rendering
 
         TypoScript configuration and frontend rendering setup
 
-        .. card-footer:: :ref:`Read more <integration-configuration-frontend-rendering>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <integration-configuration-frontend-rendering>`
+            :button-style: btn btn-primary stretched-link
 
-    .. card:: Advanced Configuration
+    ..  card:: 🔧 Advanced Configuration
 
         Custom styles, performance optimization, and best practices
 
-        .. card-footer:: :ref:`Read more <integration-configuration-advanced>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <integration-configuration-advanced>`
+            :button-style: btn btn-primary stretched-link
 
 Related Documentation
 =====================
