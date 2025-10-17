@@ -1,9 +1,14 @@
 .Build/
+.build/
 Build/testing-docker/.env
 composer.lock
 .idea/
 vendor/
 public/
 .cache/
+.php-cs-fixer.cache
+.phplint.cache/
+.serena/
 composer.json.testing
 rector/
+claudedocs/
