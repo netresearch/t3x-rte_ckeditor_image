@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Database;
 
-use TYPO3\CMS\Core\Http\RequestFactory;
-use TYPO3\CMS\Core\Core\Environment;
 use finfo;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareTrait;
