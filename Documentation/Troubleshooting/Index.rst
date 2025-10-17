@@ -102,10 +102,10 @@ Community Support
    `github.com/netresearch/t3x-rte_ckeditor_image/discussions <https://github.com/netresearch/t3x-rte_ckeditor_image/discussions>`__
 
 **TYPO3 Slack**
-   #ext-rte_ckeditor_image channel
+   `#ext-rte_ckeditor_image channel <https://typo3.slack.com/archives/ext-rte_ckeditor_image>`__
 
 **TYPO3 Forum**
-   `https://typo3.org/community/meet/ <https://typo3.org/community/meet/>`__
+   `typo3.org/community/meet <https://typo3.org/community/meet/>`__
 
 Reporting Bugs
 --------------
@@ -170,17 +170,40 @@ Troubleshooting Topics
 Related Documentation
 =====================
 
-:ref:`integration-configuration`
-   Correct configuration
+.. card-grid::
+    :columns: 1
+    :columns-md: 2
+    :gap: 4
+    :class: pb-4
+    :card-height: 100
 
-:ref:`examples-common-use-cases`
-   Working implementations
+    ..  card:: ⚙️ Configuration
 
-:ref:`architecture-overview`
-   System design understanding
+        Correct configuration and setup guide
 
-:ref:`api-index`
-   Technical reference
+        ..  card-footer:: :ref:`Read more <integration-configuration>`
+            :button-style: btn btn-secondary stretched-link
+
+    ..  card:: 📚 Examples
+
+        Working implementations and use cases
+
+        ..  card-footer:: :ref:`Read more <examples-common-use-cases>`
+            :button-style: btn btn-secondary stretched-link
+
+    ..  card:: 🏗️ Architecture
+
+        System design and component interaction
+
+        ..  card-footer:: :ref:`Read more <architecture-overview>`
+            :button-style: btn btn-secondary stretched-link
+
+    ..  card:: 🔌 API Reference
+
+        Technical API documentation
+
+        ..  card-footer:: :ref:`Read more <api-index>`
+            :button-style: btn btn-secondary stretched-link
 
 .. toctree::
    :hidden:
