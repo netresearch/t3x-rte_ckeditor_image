@@ -6,8 +6,9 @@ includes:
     - %currentWorkingDirectory%/Build/phpstan-baseline.neon
 
 parameters:
-    # Level 10 is the strictest level - maximum type safety and code quality checks
-    level: 10
+    # Level 9 is the maximum available level for TYPO3 v12 PHPStan version
+    # Level 10 requires PHPStan 2.0+ but TYPO3 v12 uses PHPStan 1.x
+    level: 9
 
     paths:
         - %currentWorkingDirectory%/Classes/

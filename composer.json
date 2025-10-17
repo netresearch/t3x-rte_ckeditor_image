@@ -69,7 +69,7 @@
             "@ci:rector --dry-run"
         ],
         "ci:coverage:functional": [
-            "phpunit -c Build/phpunit/FunctionalTests.xml --coverage-clover=.build/logs/clover.xml --coverage-html=.build/coverage"
+            "phpunit -c Build/phpunit/FunctionalTests.xml --coverage-clover=.Build/logs/clover.xml --coverage-html=.Build/coverage"
         ],
         "ci:test": [
             "@ci:test:php:lint",
