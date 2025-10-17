@@ -63,34 +63,6 @@ By Component
 - **Frontend rendering** → :ref:`integration-configuration-frontend-rendering`
 - **Image processing** → :ref:`integration-configuration-image-processing`
 
-Integration Guides
-==================
-
-Fresh Installation
-------------------
-
-1. Install extension via Composer
-2. Configure RTE (YAML)
-3. Set up TSConfig
-4. Configure TypoScript
-5. Clear caches
-
-Existing Installation
----------------------
-
-1. Review current RTE configuration
-2. Merge typo3image configuration
-3. Update user permissions
-4. Test in staging environment
-5. Deploy to production
-
-Migration from Other Solutions
-------------------------------
-
-- From native TYPO3 image handling
-- From third-party extensions
-- Configuration migration patterns
-
 Configuration Topics
 ====================
 
