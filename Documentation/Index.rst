@@ -69,7 +69,7 @@ Image support in CKEditor for the TYPO3 ecosystem.
 
          .. rst-class:: card-header h3
 
-            .. rubric:: :ref:`Configuration <configuration>`
+            .. rubric:: :ref:`Configuration <integration-configuration>`
 
          .. container:: card-body
 
@@ -82,7 +82,7 @@ Image support in CKEditor for the TYPO3 ecosystem.
 
          .. rst-class:: card-header h3
 
-            .. rubric:: :ref:`Architecture <architecture>`
+            .. rubric:: :ref:`Architecture <architecture-overview>`
 
          .. container:: card-body
 
@@ -95,7 +95,7 @@ Image support in CKEditor for the TYPO3 ecosystem.
 
          .. rst-class:: card-header h3
 
-            .. rubric:: :ref:`Developer API <developer-api>`
+            .. rubric:: :ref:`Developer API <api-documentation>`
 
          .. container:: card-body
 
@@ -108,7 +108,7 @@ Image support in CKEditor for the TYPO3 ecosystem.
 
          .. rst-class:: card-header h3
 
-            .. rubric:: :ref:`Troubleshooting <troubleshooting>`
+            .. rubric:: :ref:`Troubleshooting <troubleshooting-common-issues>`
 
          .. container:: card-body
 
@@ -212,7 +212,7 @@ Add the image button to your RTE configuration:
            - bold
            - italic
 
-For complete configuration options, see :ref:`Configuration Guide <configuration>`.
+For complete configuration options, see :ref:`Configuration Guide <integration-configuration>`.
 
 
 .. _navigation-by-role:
@@ -222,18 +222,17 @@ Quick Navigation by Role
 
 .. container:: table-row
 
-   +-----------------+--------------------------------------------+------------------------------------------+----------------------------------------+
-   | Role            | Start Here                                 | Then Read                                | Advanced                               |
-   +=================+============================================+==========================================+========================================+
-   | **Integrator**  | :ref:`Configuration Guide <configuration>` | :ref:`Examples <examples>`               | :ref:`Troubleshooting <troubleshooting>`|
-   +-----------------+--------------------------------------------+------------------------------------------+----------------------------------------+
-   | **PHP Dev**     | :ref:`Architecture <architecture>`         | :ref:`API Reference <api-controllers>`   | AGENTS.md files                        |
-   +-----------------+--------------------------------------------+------------------------------------------+----------------------------------------+
-   | **JS Dev**      | :ref:`CKEditor Plugin <ckeditor-plugin>`   | :ref:`Style Integration                  | Resources/AGENTS.md                    |
-   |                 |                                            | <ckeditor-style-integration>`            |                                        |
-   +-----------------+--------------------------------------------+------------------------------------------+----------------------------------------+
-   | **Contributor** | CONTRIBUTING.md                            | AGENTS.md                                | Tests/AGENTS.md                        |
-   +-----------------+--------------------------------------------+------------------------------------------+----------------------------------------+
+   +-----------------+--------------------------------------------------------+-------------------------------------------------------+----------------------------------------------------+
+   | Role            | Start Here                                             | Then Read                                             | Advanced                                           |
+   +=================+========================================================+=======================================================+====================================================+
+   | **Integrator**  | :ref:`Configuration Guide <integration-configuration>` | :ref:`Examples <examples-common-use-cases>`           | :ref:`Troubleshooting <troubleshooting-common-issues>`|
+   +-----------------+--------------------------------------------------------+-------------------------------------------------------+----------------------------------------------------+
+   | **PHP Dev**     | :ref:`Architecture <architecture-overview>`            | :ref:`API Reference <api-documentation>`              | :ref:`Data Handling <api-datahandling>`            |
+   +-----------------+--------------------------------------------------------+-------------------------------------------------------+----------------------------------------------------+
+   | **JS Dev**      | :ref:`CKEditor Plugin <ckeditor-plugin-development>`   | :ref:`Style Integration <ckeditor-style-integration>` | :ref:`Conversions <ckeditor-conversions>`          |
+   +-----------------+--------------------------------------------------------+-------------------------------------------------------+----------------------------------------------------+
+   | **Contributor** | :ref:`Architecture <architecture-overview>`            | :ref:`API Documentation <api-documentation>`          | :ref:`Examples <examples-common-use-cases>`        |
+   +-----------------+--------------------------------------------------------+-------------------------------------------------------+----------------------------------------------------+
 
 
 .. _documentation-use-cases:
@@ -244,10 +243,10 @@ Documentation Use Cases
 For Integrators
 ---------------
 
-- **Add custom image styles** → :ref:`Configuration Guide <configuration>`
-- **Configure image processing** → :ref:`Configuration Guide <configuration>`
-- **Set up frontend rendering** → :ref:`Configuration Guide <configuration>`
-- **Enable lazy loading** → :ref:`Examples: Lazy Loading <examples>`
+- **Add custom image styles** → :ref:`Configuration Guide <integration-configuration>`
+- **Configure image processing** → :ref:`Configuration Guide <integration-configuration>`
+- **Set up frontend rendering** → :ref:`Configuration Guide <integration-configuration>`
+- **Enable lazy loading** → :ref:`Examples: Lazy Loading <examples-common-use-cases>`
 
 For Developers
 --------------
@@ -255,28 +254,26 @@ For Developers
 PHP Backend Development
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-- **Understand the architecture** → :ref:`Architecture Overview <architecture>`
+- **Understand the architecture** → :ref:`Architecture Overview <architecture-overview>`
 - **Controller APIs** → :ref:`Controllers API <api-controllers>`
 - **Customize image processing** → :ref:`Data Handling API <api-datahandling>`
 - **Listen to extension events** → :ref:`Event Listeners <api-eventlisteners>`
-- **Code standards & patterns** → Classes/AGENTS.md
 
 JavaScript/CKEditor Development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **Extend the CKEditor plugin** → :ref:`Plugin Development <ckeditor-plugin>`
+- **Extend the CKEditor plugin** → :ref:`Plugin Development <ckeditor-plugin-development>`
 - **Style system integration** → :ref:`Style Integration <ckeditor-style-integration>`
-- **Custom model element** → :ref:`Model Element <ckeditor-model>`
+- **Custom model element** → :ref:`Model Element <ckeditor-model-element>`
 - **Conversion system** → :ref:`Conversions <ckeditor-conversions>`
-- **Code standards & patterns** → Resources/AGENTS.md
 
 For Troubleshooters
 -------------------
 
-- **Images not appearing** → :ref:`Frontend Rendering Issues <troubleshooting>`
-- **Style dropdown disabled** → :ref:`Style Drop-down Not Working <troubleshooting>`
-- **File browser not opening** → :ref:`File Browser Issues <troubleshooting>`
-- **Performance problems** → :ref:`Performance Optimization <troubleshooting>`
+- **Images not appearing** → :ref:`Frontend Rendering Issues <troubleshooting-frontend-rendering>`
+- **Style dropdown disabled** → :ref:`Style Drop-down Not Working <troubleshooting-style-dropdown>`
+- **File browser not opening** → :ref:`File Browser Issues <troubleshooting-file-browser>`
+- **Performance problems** → :ref:`Common Issues <troubleshooting-common-issues>`
 
 
 .. _support-contributing:
