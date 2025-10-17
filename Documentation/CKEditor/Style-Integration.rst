@@ -9,7 +9,12 @@ Complete guide to integrating the typo3image plugin with CKEditor's style system
 Overview
 ========
 
-**Critical Dependencies** (v13.0.0+):
+.. versionadded:: 13.0.0
+   Integration with ``GeneralHtmlSupport`` is now required for style functionality.
+   Previous versions only required ``StyleUtils``, which caused the style dropdown
+   to be disabled for images.
+
+**Critical Dependencies**:
 
 .. code-block:: javascript
 

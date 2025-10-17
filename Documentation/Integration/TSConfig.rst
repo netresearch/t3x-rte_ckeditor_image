@@ -18,15 +18,32 @@ Page TSConfig
 Magic Image Configuration
 -------------------------
 
-Configure maximum image dimensions:
+Configure maximum image dimensions for automatic image processing:
+
+.. confval:: RTE.default.buttons.image.options.magic.maxWidth
+
+   :type: integer
+   :Default: 300
+
+   Maximum width in pixels for images inserted through the RTE.
+
+   Images larger than this value will be automatically resized during processing.
+
+.. confval:: RTE.default.buttons.image.options.magic.maxHeight
+
+   :type: integer
+   :Default: 1000
+
+   Maximum height in pixels for images inserted through the RTE.
+
+   Images taller than this value will be automatically resized during processing.
+
+**Example:**
 
 .. code-block:: typoscript
 
    RTE.default.buttons.image.options.magic {
-       # Maximum width (default: 300)
        maxWidth = 1920
-
-       # Maximum height (default: 1000)
        maxHeight = 9999
    }
 
@@ -46,13 +63,32 @@ Processing Modes
 Upload Folder Configuration
 ---------------------------
 
+.. confval:: RTE.default.buttons.image.options.defaultUploadFolder
+
+   :type: string
+   :Default: (empty)
+
+   Default upload folder for images inserted through the RTE.
+
+   Format: ``<storage_uid>:<folder_path>``
+
+   Example: ``1:rte_uploads/`` uses storage 1 and uploads to ``rte_uploads/`` directory.
+
+.. confval:: RTE.default.buttons.image.options.createUploadFolderIfNeeded
+
+   :type: boolean
+   :Default: false
+
+   Automatically creates the upload folder if it doesn't exist.
+
+   Recommended to set to ``1`` (true) to avoid upload errors.
+
+**Example:**
+
 .. code-block:: typoscript
 
    RTE.default.buttons.image.options {
-       # Default upload folder
        defaultUploadFolder = 1:rte_uploads/
-
-       # Create upload folder if missing
        createUploadFolderIfNeeded = 1
    }
 
