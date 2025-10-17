@@ -1,6 +1,11 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Parameter \\#1 \\$input of method Netresearch\\\\RteCKEditorImage\\\\Backend\\\\Preview\\\\RteImagePreviewRenderer\\:\\:renderTextWithHtml\\(\\) expects string, string\\|null given\\.$#"
+			count: 1
+			path: ../Classes/Backend/Preview/RteImagePreviewRenderer.php
+
+		-
 			message: """
 				#^Call to deprecated method getPagesTSconfig\\(\\) of class TYPO3\\\\CMS\\\\Frontend\\\\Controller\\\\TypoScriptFrontendController\\:
 				since TYPO3 v12, will be removed in v13\\. Frontend should typically not depend on Backend TsConfig\\.
@@ -137,6 +142,11 @@ parameters:
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
+			message: "#^PHPDoc tag @return with type mixed is not subtype of native type string\\|null\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
 			message: "#^Parameter \\#1 \\$value of method Netresearch\\\\RteCKEditorImage\\\\Database\\\\RteImagesDbHook\\:\\:modifyRteField\\(\\) expects string, mixed given\\.$#"
 			count: 1
 			path: ../Classes/Database/RteImagesDbHook.php
@@ -195,34 +205,3 @@ parameters:
 			message: "#^Cannot call method updateIndex\\(\\) on mixed\\.$#"
 			count: 1
 			path: ../Tests/Functional/DataHandling/RteImageSoftReferenceParserTest.php
-
-		-
-			message: """
-				#^Call to deprecated method andX\\(\\) of class TYPO3\\\\CMS\\\\Core\\\\Database\\\\Query\\\\Expression\\\\ExpressionBuilder\\:
-				since v12, will be removed in v13\\. Use ExpressionBuilder\\:\\:and\\(\\) instead\\.$#
-			"""
-			count: 1
-			path: ../ext_localconf.php
-
-		-
-			message: "#^Call to method isEnvironmentInBackendMode\\(\\) on an unknown class TYPO3\\\\CMS\\\\Extbase\\\\Service\\\\EnvironmentService\\.$#"
-			count: 1
-			path: ../ext_localconf.php
-
-		-
-			message: "#^Cannot cast mixed to string\\.$#"
-			count: 1
-			path: ../ext_localconf.php
-
-		-
-			message: "#^Class TYPO3\\\\CMS\\\\Extbase\\\\Service\\\\EnvironmentService not found\\.$#"
-			count: 1
-			path: ../ext_localconf.php
-
-		-
-			message: """
-				#^Fetching deprecated class constant WARNING of class TYPO3\\\\CMS\\\\Core\\\\Messaging\\\\FlashMessage\\:
-				Use \\\\TYPO3\\\\CMS\\\\Core\\\\Type\\\\ContextualFeedbackSeverity\\:\\:WARNING instead$#
-			"""
-			count: 1
-			path: ../ext_localconf.php

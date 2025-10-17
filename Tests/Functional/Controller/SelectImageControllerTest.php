@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
  * For the full copyright and license information, please read the
@@ -48,9 +48,9 @@ class SelectImageControllerTest extends FunctionalTestCase
     /**
      * Call protected/private method of a class.
      *
-     * @param object               $object     Instantiated object that we will run method on
-     * @param string               $methodName Method name to call
-     * @param array<int, mixed>    $parameters Array of parameters to pass into method
+     * @param object            $object     Instantiated object that we will run method on
+     * @param string            $methodName Method name to call
+     * @param array<int, mixed> $parameters Array of parameters to pass into method
      *
      * @return mixed Method return
      *
@@ -226,7 +226,7 @@ class SelectImageControllerTest extends FunctionalTestCase
         $this->assertLessThanOrEqual(
             100000000, // 10000 * 10000
             $maxArea,
-            'Dimensions should not allow memory exhaustion (max 10000x10000)'
+            'Dimensions should not allow memory exhaustion (max 10000x10000)',
         );
     }
 }

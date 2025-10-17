@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the package netresearch/rte-ckeditor-image.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
 namespace Netresearch\RteCKEditorImage\Utils;
 
 use Exception;
@@ -20,8 +29,9 @@ class ProcessedFilesHandler
      *     'height' => '200c',
      *   ];
      *
-     * @param File $file The file object
+     * @param File    $file               The file object
      * @param mixed[] $imageConfiguration The image configuration
+     *
      * @return ProcessedFile
      */
     public function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile

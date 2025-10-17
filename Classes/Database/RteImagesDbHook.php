@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
  * For the full copyright and license information, please read the
@@ -11,11 +11,20 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Database;
 
+use function count;
+
 use finfo;
+
+use function is_array;
+use function is_string;
+
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+
+use function strlen;
+
 use Throwable;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
@@ -38,21 +47,16 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
-
-use function count;
-use function is_array;
-use function is_string;
-use function strlen;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class for processing of the FAL soft references on img tags inserted in RTE content
+ * Class for processing of the FAL soft references on img tags inserted in RTE content.
  *
  * @author  Stefan Galinski <stefan@sgalinski.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
- * @link    https://www.netresearch.de
  *
+ * @see    https://www.netresearch.de
  */
 class RteImagesDbHook
 {
@@ -215,7 +219,7 @@ class RteImagesDbHook
                 $sitePath = str_replace(
                     $siteHost,
                     '',
-                    $siteUrl
+                    $siteUrl,
                 );
             }
 
@@ -224,7 +228,7 @@ class RteImagesDbHook
                 if (($key % 2) === 1) {
                     // Get the attributes of the img tag
                     [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
-                    $absoluteUrl = trim((string) $attribArray['src']);
+                    $absoluteUrl   = trim((string) $attribArray['src']);
 
                     // Transform the src attribute into an absolute url, if it not already
                     if (strncasecmp($absoluteUrl, 'http', 4) !== 0) {
@@ -233,7 +237,7 @@ class RteImagesDbHook
                         $attribArray['src'] = preg_replace(
                             '#^' . preg_quote($sitePath, '#') . '#',
                             '',
-                            (string) $attribArray['src']
+                            (string) $attribArray['src'],
                         );
 
                         $attribArray['src'] = $siteUrl . $attribArray['src'];
@@ -255,7 +259,6 @@ class RteImagesDbHook
         return implode('', $imgSplit);
     }
 
-
     /**
      * Finds width and height from attrib-array
      * If the width and height is found in the style-attribute, use that!
@@ -263,7 +266,7 @@ class RteImagesDbHook
      * @param string $styleAttribute The image style attribute
      * @param string $imageAttribute The image attribute to match in the style attribute (e.g. width, height)
      *
-     * @return null|mixed
+     * @return mixed|null
      */
     private function matchStyleAttribute(string $styleAttribute, string $imageAttribute): ?string
     {
@@ -284,7 +287,7 @@ class RteImagesDbHook
      * @param string[] $attributes     The attributes of the image tag
      * @param string   $imageAttribute The image attribute to extract (e.g. width, height)
      *
-     * @return null|mixed
+     * @return mixed|null
      */
     private function extractFromAttributeValueOrStyle(array $attributes, string $imageAttribute)
     {
@@ -354,13 +357,16 @@ class RteImagesDbHook
             if (!array_key_exists('type', $tcaFieldConf)) {
                 continue;
             }
+
             if ($tcaFieldConf['type'] !== 'text') {
                 continue;
             }
+
             // Ignore all none RTE text fields
             if (!array_key_exists('enableRichtext', $tcaFieldConf)) {
                 continue;
             }
+
             if ($tcaFieldConf['enableRichtext'] === false) {
                 continue;
             }
@@ -376,7 +382,7 @@ class RteImagesDbHook
     private function modifyRteField(string $value): string
     {
         $rteHtmlParser = new HtmlParser();
-        $imgSplit = $rteHtmlParser->splitTags('img', $value);
+        $imgSplit      = $rteHtmlParser->splitTags('img', $value);
 
         if (count($imgSplit) === 0) {
             return $value;
@@ -394,11 +400,11 @@ class RteImagesDbHook
             $sitePath = str_replace(
                 $siteHost,
                 '',
-                $siteUrl
+                $siteUrl,
             );
         }
 
-        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+        $resourceFactory   = GeneralUtility::makeInstance(ResourceFactory::class);
         $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
         $pageTsConfig = BackendUtility::getPagesTSconfig(0);
@@ -435,7 +441,7 @@ class RteImagesDbHook
                             // Log the fact the file could not be retrieved.
                             $message = sprintf(
                                 'Could not find file with uid "%s"',
-                                $attribArray['data-htmlarea-file-uid']
+                                $attribArray['data-htmlarea-file-uid'],
                             );
 
                             $this->logger->error($message, ['exception' => $exception]);
@@ -480,7 +486,7 @@ class RteImagesDbHook
                     if (($absoluteUrl !== $imageFileUrl) && ($absoluteUrl !== $originalImageFile->getPublicUrl())) {
                         // Magic image case: get a processed file with the requested configuration
                         $imageConfiguration = [
-                            'width' => $imageWidth,
+                            'width'  => $imageWidth,
                             'height' => $imageHeight,
                         ];
 
@@ -492,7 +498,7 @@ class RteImagesDbHook
                         $magicImage = $magicImageService
                             ->createMagicImage($originalImageFile, $imageConfiguration);
 
-                        $attribArray['width'] = $magicImage->getProperty('width');
+                        $attribArray['width']  = $magicImage->getProperty('width');
                         $attribArray['height'] = $magicImage->getProperty('height');
 
                         $imgSrc = $magicImage->getPublicUrl();
@@ -519,7 +525,7 @@ class RteImagesDbHook
                         if ($this->logger instanceof LoggerInterface) {
                             $this->logger->warning(
                                 'Blocked external image fetch: URL failed SSRF validation',
-                                ['url' => $absoluteUrl]
+                                ['url' => $absoluteUrl],
                             );
                         }
 
@@ -552,7 +558,7 @@ class RteImagesDbHook
                         if ($this->logger instanceof LoggerInterface) {
                             $this->logger->error(
                                 'Failed to fetch external image',
-                                ['exception' => $exception]
+                                ['exception' => $exception],
                             );
                         }
 
@@ -565,7 +571,7 @@ class RteImagesDbHook
                             if ($this->logger instanceof LoggerInterface) {
                                 $this->logger->warning(
                                     'Blocked external image: Invalid MIME type detected',
-                                    ['url' => $absoluteUrl]
+                                    ['url' => $absoluteUrl],
                                 );
                             }
 
@@ -598,10 +604,10 @@ class RteImagesDbHook
                             $magicImage = $magicImageService
                                 ->createMagicImage($fileObject, $imageConfiguration);
 
-                            $attribArray['width'] = $magicImage->getProperty('width');
-                            $attribArray['height'] = $magicImage->getProperty('height');
+                            $attribArray['width']                  = $magicImage->getProperty('width');
+                            $attribArray['height']                 = $magicImage->getProperty('height');
                             $attribArray['data-htmlarea-file-uid'] = $fileObject->getUid();
-                            $attribArray['src'] = $magicImage->getPublicUrl();
+                            $attribArray['src']                    = $magicImage->getPublicUrl();
                         }
                     }
                 } elseif (str_starts_with($absoluteUrl, $siteUrl)) {
@@ -626,7 +632,7 @@ class RteImagesDbHook
                             if ($this->logger instanceof LoggerInterface) {
                                 $this->logger->warning(
                                     'Blocked file access: Path traversal attempt detected',
-                                    ['path' => $path]
+                                    ['path' => $path],
                                 );
                             }
 
@@ -641,7 +647,7 @@ class RteImagesDbHook
                             $fileOrFolderObject = $resourceFactory->retrieveFileOrFolderObject($path);
                             if ($fileOrFolderObject instanceof FileInterface) {
                                 $fileIdentifier = $fileOrFolderObject->getIdentifier();
-                                $fileObject = $fileOrFolderObject->getStorage()->getFile($fileIdentifier);
+                                $fileObject     = $fileOrFolderObject->getStorage()->getFile($fileIdentifier);
                                 if ($fileObject instanceof AbstractFile) {
                                     $fileUid = $fileObject->getUid();
                                     // if the retrieved file is a processed file, get the original file...
@@ -667,7 +673,7 @@ class RteImagesDbHook
                 $attribArray['style'] = preg_replace(
                     '/(?:^|[^-])(\\s*(?:width|height)\\s*:[^;]*(?:$|;))/si',
                     '',
-                    $attribArray['style'] ?? ''
+                    $attribArray['style'] ?? '',
                 );
                 // Must have alt attribute
                 if (!isset($attribArray['alt'])) {
@@ -697,10 +703,10 @@ class RteImagesDbHook
         $tcaFieldConf = $GLOBALS['TCA'][$table]['columns'][$field]['config'];
         $recordType   = BackendUtility::getTCAtypeValue($table, $dataHandler->checkValue_currentRecord);
 
-        $columnsOverridesConfigOfField =
-            $GLOBALS['TCA'][$table]['types'][$recordType]['columnsOverrides'][$field]['config'] ?? null;
+        $columnsOverridesConfigOfField
+            = $GLOBALS['TCA'][$table]['types'][$recordType]['columnsOverrides'][$field]['config'] ?? null;
 
-        if (null !== $columnsOverridesConfigOfField) {
+        if ($columnsOverridesConfigOfField !== null) {
             ArrayUtility::mergeRecursiveWithOverrule($tcaFieldConf, $columnsOverridesConfigOfField);
         }
 

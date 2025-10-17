@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
  * For the full copyright and license information, please read the
@@ -11,7 +11,8 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use function is_array;
+
 use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use Psr\Log\LogLevel as PsrLogLevel;
 use TYPO3\CMS\Core\Log\Logger;
@@ -21,34 +22,35 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
-use function is_array;
 
 /**
  * Controller to render the image tag in frontend.
  *
  * @author  Christian Opitz <christian.opitz@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
- * @link    https://www.netresearch.de
+ *
+ * @see    https://www.netresearch.de
  */
 class ImageRenderingController extends AbstractPlugin
 {
     /**
-     * Same as class name
+     * Same as class name.
      *
      * @var string
      */
     public $prefixId = 'ImageRenderingController';
 
     /**
-     * Path to this script relative to the extension dir
+     * Path to this script relative to the extension dir.
      *
      * @var string
      */
     public $scriptRelPath = 'Classes/Controller/ImageRenderingController.php';
 
     /**
-     * The extension key
+     * The extension key.
      *
      * @var string
      */
@@ -57,8 +59,8 @@ class ImageRenderingController extends AbstractPlugin
     /**
      * Returns a processed image to be displayed on the Frontend.
      *
-     * @param null|string  $content Content input (not used)
-     * @param mixed[]      $conf    TypoScript configuration
+     * @param string|null $content Content input (not used)
+     * @param mixed[]     $conf    TypoScript configuration
      *
      * @return string HTML output
      */
@@ -93,7 +95,7 @@ class ImageRenderingController extends AbstractPlugin
                                 'fileUid'     => $fileUid,
                                 'storage'     => $systemImage->getStorage()->getUid(),
                                 'storageName' => $systemImage->getStorage()->getName(),
-                            ]
+                            ],
                         );
 
                         // Skip processing and continue with cleanup
@@ -102,16 +104,16 @@ class ImageRenderingController extends AbstractPlugin
 
                     // check if there is a processed variant, if not, create one
                     /** @var ProcessedFilesHandler $processedHandler */
-                    $processedHandler = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
+                    $processedHandler   = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
                     $imageConfiguration = [
-                        'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width') ?? 0),
+                        'width'  => (int) ($imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0),
                         'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
                     ];
                     $processedFile = $processedHandler->createProcessedFile($systemImage, $imageConfiguration);
 
                     $imageSource = $processedFile->getPublicUrl();
 
-                    if (null === $imageSource) {
+                    if ($imageSource === null) {
                         throw new FileDoesNotExistException();
                     }
 
@@ -132,7 +134,7 @@ class ImageRenderingController extends AbstractPlugin
                     // Remove internal attributes
                     unset(
                         $imageAttributes['data-title-override'],
-                        $imageAttributes['data-alt-override']
+                        $imageAttributes['data-alt-override'],
                     );
 
                     $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
@@ -141,7 +143,7 @@ class ImageRenderingController extends AbstractPlugin
                     $this->getLogger()->log(
                         PsrLogLevel::ERROR,
                         'Unable to find requested file',
-                        ['exception' => $exception]
+                        ['exception' => $exception],
                     );
                 }
             }
@@ -157,7 +159,7 @@ class ImageRenderingController extends AbstractPlugin
                 'data-htmlarea-file-uid',
                 'data-htmlarea-file-table',
                 'data-htmlarea-zoom',
-                'data-htmlarea-clickenlarge' // Legacy zoom property
+                'data-htmlarea-clickenlarge', // Legacy zoom property
             ];
 
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
@@ -189,7 +191,7 @@ class ImageRenderingController extends AbstractPlugin
             // PHPStan type safety: ensure config is an array
             $popupConfig = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray()['lib.']['contentElement.']['settings.']['media.']['popup.']
                 ?? [];
-            $config      = is_array($popupConfig) ? $popupConfig : [];
+            $config           = is_array($popupConfig) ? $popupConfig : [];
             $config['enable'] = 1;
 
             $systemImage->updateProperties([
@@ -203,7 +205,7 @@ class ImageRenderingController extends AbstractPlugin
                 return $this->cObj->imageLinkWrap(
                     $img,
                     $systemImage,
-                    $config
+                    $config,
                 );
             }
         }
@@ -214,7 +216,7 @@ class ImageRenderingController extends AbstractPlugin
     /**
      * Returns the lazy loading configuration.
      *
-     * @return null|string
+     * @return string|null
      */
     private function getLazyLoadingConfiguration(): ?string
     {
@@ -226,7 +228,7 @@ class ImageRenderingController extends AbstractPlugin
     }
 
     /**
-     * Returns a sanitizes array of attributes out of $this->cObj
+     * Returns a sanitizes array of attributes out of $this->cObj.
      *
      * @return array<string, string>
      */
@@ -277,7 +279,7 @@ class ImageRenderingController extends AbstractPlugin
 
         // Source starts with "http(s)" or a double slash
         return (strncasecmp($imageSource, 'http', 4) === 0)
-            || (str_starts_with($imageSource, '//'));
+            || str_starts_with($imageSource, '//');
     }
 
     /**
@@ -290,7 +292,7 @@ class ImageRenderingController extends AbstractPlugin
     }
 
     /**
-     * Returns attributes value or even empty string when override mode is enabled
+     * Returns attributes value or even empty string when override mode is enabled.
      *
      * @param string                $attributeName
      * @param array<string, string> $attributes
