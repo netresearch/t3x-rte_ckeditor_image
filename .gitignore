@@ -9,6 +9,7 @@ public/
 .php-cs-fixer.cache
 .phplint.cache/
 .serena/
+.beads/
 composer.json.testing
 rector/
 claudedocs/
