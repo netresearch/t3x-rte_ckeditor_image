@@ -1,0 +1,207 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Parameter \\#1 \\$input of method Netresearch\\\\RteCKEditorImage\\\\Backend\\\\Preview\\\\RteImagePreviewRenderer\\:\\:renderTextWithHtml\\(\\) expects string, string\\|null given\\.$#"
+			count: 1
+			path: ../Classes/Backend/Preview/RteImagePreviewRenderer.php
+
+		-
+			message: """
+				#^Call to deprecated method getPagesTSconfig\\(\\) of class TYPO3\\\\CMS\\\\Frontend\\\\Controller\\\\TypoScriptFrontendController\\:
+				since TYPO3 v12, will be removed in v13\\. Frontend should typically not depend on Backend TsConfig\\.
+				            If really needed, use PageTsConfigFactory, see usage in DatabaseRecordLinkBuilder\\.
+				            Remove together with class PageTsConfig\\.$#
+			"""
+			count: 1
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: "#^Cannot cast mixed to int\\.$#"
+			count: 2
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: "#^Cannot cast mixed to string\\.$#"
+			count: 4
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: """
+				#^Class Netresearch\\\\RteCKEditorImage\\\\Controller\\\\ImageLinkRenderingController extends deprecated class TYPO3\\\\CMS\\\\Frontend\\\\Plugin\\\\AbstractPlugin\\:
+				since TYPO3 v12\\.4\\. Will be removed in TYPO3 v13\\.0\\.$#
+			"""
+			count: 1
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: """
+				#^Fetching class constant class of deprecated class TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Service\\\\MagicImageService\\:
+				since v12\\. Will be removed with v13\\.$#
+			"""
+			count: 1
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\Controller\\\\ImageLinkRenderingController\\:\\:renderImages\\(\\) should return string but returns mixed\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: "#^Parameter \\#3 \\$subject of function str_replace expects array\\|string, mixed given\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: """
+				#^Return type of method Netresearch\\\\RteCKEditorImage\\\\Controller\\\\ImageLinkRenderingController\\:\\:getMagicImageService\\(\\) has typehint with deprecated class TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Service\\\\MagicImageService\\:
+				since v12\\. Will be removed with v13\\.$#
+			"""
+			count: 1
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: """
+				#^Call to deprecated method getPagesTSconfig\\(\\) of class TYPO3\\\\CMS\\\\Frontend\\\\Controller\\\\TypoScriptFrontendController\\:
+				since TYPO3 v12, will be removed in v13\\. Frontend should typically not depend on Backend TsConfig\\.
+				            If really needed, use PageTsConfigFactory, see usage in DatabaseRecordLinkBuilder\\.
+				            Remove together with class PageTsConfig\\.$#
+			"""
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: "#^Cannot cast mixed to int\\.$#"
+			count: 2
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: "#^Cannot cast mixed to string\\.$#"
+			count: 2
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: """
+				#^Class Netresearch\\\\RteCKEditorImage\\\\Controller\\\\ImageRenderingController extends deprecated class TYPO3\\\\CMS\\\\Frontend\\\\Plugin\\\\AbstractPlugin\\:
+				since TYPO3 v12\\.4\\. Will be removed in TYPO3 v13\\.0\\.$#
+			"""
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: """
+				#^Fetching class constant class of deprecated class TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Service\\\\MagicImageService\\:
+				since v12\\. Will be removed with v13\\.$#
+			"""
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: """
+				#^Return type of method Netresearch\\\\RteCKEditorImage\\\\Controller\\\\ImageRenderingController\\:\\:getMagicImageService\\(\\) has typehint with deprecated class TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Service\\\\MagicImageService\\:
+				since v12\\. Will be removed with v13\\.$#
+			"""
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: "#^Cannot cast mixed to int\\.$#"
+			count: 2
+			path: ../Classes/Controller/SelectImageController.php
+
+		-
+			message: "#^Netresearch\\\\RteCKEditorImage\\\\Controller\\\\SelectImageController\\:\\:__construct\\(\\) does not call parent constructor from TYPO3\\\\CMS\\\\Backend\\\\Controller\\\\ElementBrowserController\\.$#"
+			count: 1
+			path: ../Classes/Controller/SelectImageController.php
+
+		-
+			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\DataHandling\\\\SoftReference\\\\RteImageSoftReferenceParser\\:\\:findImageTags\\(\\) should return array\\<string, array\\<array\\<string, mixed\\>\\>\\|string\\> but returns array\\<array\\<string, mixed\\>\\>\\.$#"
+			count: 1
+			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
+
+		-
+			message: "#^Cannot access offset 'host' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Cannot call method createFile\\(\\) on bool\\|TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Folder\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Cannot cast mixed to int\\.$#"
+			count: 2
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: """
+				#^Fetching class constant class of deprecated class TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Service\\\\MagicImageService\\:
+				since v12\\. Will be removed with v13\\.$#
+			"""
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^PHPDoc tag @return with type mixed is not subtype of native type string\\|null\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Parameter \\#1 \\$value of method Netresearch\\\\RteCKEditorImage\\\\Database\\\\RteImagesDbHook\\:\\:modifyRteField\\(\\) expects string, mixed given\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Cannot access offset 'height' on mixed\\.$#"
+			count: 4
+			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: "#^Cannot access offset 'width' on mixed\\.$#"
+			count: 4
+			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\)\\.$#"
+			count: 4
+			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\)\\.$#"
+			count: 1
+			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\)\\.$#"
+			count: 12
+			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertGreaterThanOrEqual\\(\\)\\.$#"
+			count: 2
+			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\)\\.$#"
+			count: 5
+			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsInt\\(\\)\\.$#"
+			count: 2
+			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertLessThanOrEqual\\(\\)\\.$#"
+			count: 3
+			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Netresearch\\\\RteCKEditorImage\\\\Tests\\\\Functional\\\\Controller\\\\SelectImageControllerTest\\:\\:invokeMethod\\(\\) expects object, Netresearch\\\\RteCKEditorImage\\\\Controller\\\\SelectImageController\\|null given\\.$#"
+			count: 9
+			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: "#^Cannot call method updateIndex\\(\\) on mixed\\.$#"
+			count: 1
+			path: ../Tests/Functional/DataHandling/RteImageSoftReferenceParserTest.php

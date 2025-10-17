@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of the package netresearch/rte-ckeditor-image.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Functional\DataHandling;
@@ -28,7 +35,7 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
 
         $versionInformation = GeneralUtility::makeInstance(Typo3Version::class);
         if ($versionInformation->getMajorVersion() < 13) {
-            (new ReferenceIndex())->updateIndex(false);
+            GeneralUtility::makeInstance(ReferenceIndex::class)->updateIndex(false);
         } else {
             $this->get(ReferenceIndex::class)->updateIndex(false);
         }

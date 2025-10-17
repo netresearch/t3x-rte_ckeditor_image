@@ -1,8 +1,17 @@
 <?php
 
+/*
+ * This file is part of the package netresearch/rte-ckeditor-image.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
 namespace Netresearch\RteCKEditorImage\Utils;
 
-use Symfony\Component\Process\Process;
+use Exception;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -20,8 +29,9 @@ class ProcessedFilesHandler
      *     'height' => '200c',
      *   ];
      *
-     * @param File $file The file object
+     * @param File    $file               The file object
      * @param mixed[] $imageConfiguration The image configuration
+     *
      * @return ProcessedFile
      */
     public function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile
@@ -32,8 +42,8 @@ class ProcessedFilesHandler
         // Process the file with the given configuration
         try {
             return $imageService->applyProcessingInstructions($file, $imageConfiguration);
-        } catch (\Exception) {
-            throw new \Exception('Could not create processed file', 1716565499);
+        } catch (Exception) {
+            throw new Exception('Could not create processed file', 1716565499);
         }
     }
 }

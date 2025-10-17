@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
  * For the full copyright and license information, please read the
@@ -24,11 +24,13 @@ use TYPO3\CMS\Frontend\Preview\TextPreviewRenderer;
  *
  * @author  Rico Sonntag <rico.sonntag@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
- * @link    https://www.netresearch.de
+ *
+ * @see    https://www.netresearch.de
  */
 class RteImagePreviewRenderer extends TextPreviewRenderer
 {
     private bool $reachedLimit = false;
+
     private int $totalLength = 0;
 
     /** @var DOMNode[] */
@@ -55,13 +57,13 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
         $html = preg_replace(
             '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF].|\xEF\xBF[\xBE\xBF]/',
             "\xEF\xBF\xBD",
-            $html
+            (string) $html,
         );
 
         return $this
             ->linkEditContent(
                 $this->renderTextWithHtml($html),
-                $row
+                $row,
             )
             . '<br />';
     }
@@ -70,6 +72,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
      * Processing of larger amounts of text (usually from RTE/bodytext fields) with word wrapping etc.
      *
      * @param string $input Input string
+     *
      * @return string Output string
      */
     protected function renderTextWithHtml(string $input): string
@@ -98,7 +101,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
         $dom = new DOMDocument();
         $dom->loadHTML(
             '<?xml encoding="UTF-8">' . $html,
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
         // Restore error level
@@ -137,7 +140,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
                     $node->nodeValue = mb_substr(
                         $node->nodeValue,
                         0,
-                        $nodeLen - ($this->totalLength - $maxLength)
+                        $nodeLen - ($this->totalLength - $maxLength),
                     ) . '...';
 
                     $this->reachedLimit = true;

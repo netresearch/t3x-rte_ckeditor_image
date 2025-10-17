@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * This file is part of the package netresearch/rte-ckeditor-image.
  *
  * For the full copyright and license information, please read the
@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use function is_array;
+
 use Psr\Log\LogLevel as PsrLogLevel;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -19,30 +21,28 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
 
-use function count;
-use function get_class;
-use function is_array;
-
 /**
- * Controller to render the linked images in frontend
+ * Controller to render the linked images in frontend.
  *
  * @author  Mathias Uhlmann <mathias.uhlmann@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
- * @link    https://www.netresearch.de
+ *
+ * @see    https://www.netresearch.de
  */
 class ImageLinkRenderingController extends AbstractPlugin
 {
     /**
-     * Same as class name
+     * Same as class name.
      *
      * @var string
      */
     public $prefixId = 'ImageLinkRenderingController';
 
     /**
-     * Path to this script relative to the extension dir
+     * Path to this script relative to the extension dir.
      *
      * @var string
      */
@@ -58,7 +58,7 @@ class ImageLinkRenderingController extends AbstractPlugin
     /**
      * Returns a processed image to be displayed on the Frontend.
      *
-     * @param null|string $content Content input (not used)
+     * @param string|null $content Content input (not used)
      * @param mixed[]     $conf    TypoScript configuration
      *
      * @return string HTML output
@@ -66,19 +66,24 @@ class ImageLinkRenderingController extends AbstractPlugin
     public function renderImages(?string $content, array $conf = []): string
     {
         // Get link inner HTML
-        $linkContent = $this->cObj !== null ? $this->cObj->getCurrentVal() : null;
+        $linkContent = $this->cObj instanceof ContentObjectRenderer ? $this->cObj->getCurrentVal() : null;
 
         // Find all images with file-uid attribute
-        $imgSearchPattern = '/<p[^>]*>\s*<img(?=.*src).*?\/>\s*<\/p>/';
-        $passedImages = [];
-        $parsedImages = [];
+        // SECURITY: Use atomic groups to prevent ReDoS attacks via catastrophic backtracking
+        $imgSearchPattern = '/<p[^>]*+>\s*+<img(?>[^>]*)src(?>[^>]*)\/>\s*+<\/p>/';
+        $passedImages     = [];
+        $parsedImages     = [];
+
+        // SECURITY: Set PCRE limits to prevent ReDoS
+        ini_set('pcre.backtrack_limit', '100000');
+        ini_set('pcre.recursion_limit', '100000');
 
         // Extract all TYPO3 images from link content
         preg_match_all($imgSearchPattern, (string) $linkContent, $passedImages);
 
         $passedImages = $passedImages[0];
 
-        if (count($passedImages) === 0) {
+        if ($passedImages === []) {
             return $linkContent;
         }
 
@@ -89,16 +94,37 @@ class ImageLinkRenderingController extends AbstractPlugin
             // so it will never match this condition.
             //
             // But we leave this as fallback for older render versions.
-            if ((count($imageAttributes) > 0) && isset($imageAttributes['data-htmlarea-file-uid'])) {
-                $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid']);
+            if (($imageAttributes !== []) && isset($imageAttributes['data-htmlarea-file-uid'])) {
+                $fileUid = (int) $imageAttributes['data-htmlarea-file-uid'];
 
                 if ($fileUid > 0) {
                     try {
                         $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-                        $systemImage = $resourceFactory->getFileObject($fileUid);
+                        $systemImage     = $resourceFactory->getFileObject($fileUid);
+
+                        // SECURITY: Prevent privilege escalation by checking file visibility
+                        // Only process public files in frontend rendering. Non-public files must
+                        // use TYPO3's protected file delivery (eID_dumpFile) which performs
+                        // proper authentication checks for the current frontend user.
+                        // This prevents low-privilege backend editors from exposing files
+                        // outside their Filemount restrictions by manipulating file UIDs.
+                        if (!$systemImage->getStorage()->isPublic()) {
+                            $this->getLogger()->log(
+                                PsrLogLevel::WARNING,
+                                'Blocked rendering of non-public file in linked image context',
+                                [
+                                    'fileUid'     => $fileUid,
+                                    'storage'     => $systemImage->getStorage()->getUid(),
+                                    'storageName' => $systemImage->getStorage()->getName(),
+                                ],
+                            );
+
+                            // Skip processing and continue with next image
+                            throw new FileDoesNotExistException();
+                        }
 
                         $imageConfiguration = [
-                            'width'  => (int) ($imageAttributes['width']  ?? $systemImage->getProperty('width')  ?? 0),
+                            'width'  => (int) ($imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0),
                             'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
                         ];
 
@@ -122,7 +148,7 @@ class ImageLinkRenderingController extends AbstractPlugin
                         // Remove internal attributes
                         unset(
                             $imageAttributes['data-title-override'],
-                            $imageAttributes['data-alt-override']
+                            $imageAttributes['data-alt-override'],
                         );
 
                         $imageAttributes = array_merge($imageAttributes, $additionalAttributes);
@@ -132,20 +158,25 @@ class ImageLinkRenderingController extends AbstractPlugin
                             'data-htmlarea-file-uid',
                             'data-htmlarea-file-table',
                             'data-htmlarea-zoom',
-                            'data-htmlarea-clickenlarge' // Legacy zoom property
+                            'data-htmlarea-clickenlarge', // Legacy zoom property
                         ];
 
                         $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
 
+                        // Ensure all attributes are strings for implodeAttributes
+                        $stringAttributes = array_map(fn ($value): string => (string) $value, $imageAttributes);
+
                         // Image template; empty attributes are removed by 3rd param 'false'
-                        $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($imageAttributes, true) . ' />';
+                        $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($stringAttributes, true) . ' />';
                     } catch (FileDoesNotExistException) {
                         $parsedImages[] = strip_tags($passedImage, '<img>');
 
-                        // Log in fact the file could not be retrieved
+                        // SECURITY: Don't expose file UIDs in error messages (information disclosure)
+                        // Move sensitive data to structured context array instead
                         $this->getLogger()->log(
                             PsrLogLevel::ERROR,
-                            sprintf('Unable to find file with uid "%s"', $fileUid)
+                            'Unable to find requested file',
+                            ['fileUid' => $fileUid],
                         );
                     }
                 }
@@ -155,11 +186,13 @@ class ImageLinkRenderingController extends AbstractPlugin
         }
 
         // Replace original images with parsed
-        return str_replace($passedImages, $parsedImages, $linkContent);
+        $result = str_replace($passedImages, $parsedImages, $linkContent);
+
+        return is_string($result) ? $result : (string) $linkContent;
     }
 
     /**
-     * Returns a sanitizes array of attributes out $passedImage
+     * Returns a sanitizes array of attributes out $passedImage.
      *
      * @param string $passedImage
      *
@@ -168,26 +201,40 @@ class ImageLinkRenderingController extends AbstractPlugin
     protected function getImageAttributes(string $passedImage): array
     {
         // Get image attributes
+        // SECURITY: Use atomic groups to prevent ReDoS attacks
+        // Use PREG_SET_ORDER to get matched pairs and avoid array_combine() mismatch issues
         preg_match_all(
-            '/([a-zA-Z0-9-]+)=["]([^"]*)"|([a-zA-Z0-9-]+)=[\']([^\']*)\'/',
+            '/([a-zA-Z0-9-]++)=["]([^"]*)"|([a-zA-Z0-9-]++)=[\']([^\']*)\'/',
             $passedImage,
-            $imageAttributes
+            $imageAttributes,
+            PREG_SET_ORDER,
         );
 
-        /** @var false|string[] $result */
-        $result = array_combine($imageAttributes[1], $imageAttributes[2]);
+        $attributes = [];
+        foreach ($imageAttributes as $match) {
+            // $match[1] and $match[2] are for double quotes, $match[3] and $match[4] are for single quotes
+            // When double-quoted: $match[1] = name, $match[2] = value, $match[3] = '', $match[4] = ''
+            // When single-quoted: $match[1] = '', $match[2] = '', $match[3] = name, $match[4] = value
+            $key              = ($match[1] ?? '') !== '' ? $match[1] : ($match[3] ?? '');
+            $value            = ($match[1] ?? '') !== '' ? ($match[2] ?? '') : ($match[4] ?? '');
+            $attributes[$key] = $value;
+        }
 
-        return is_array($result) ? $result : [];
+        return $attributes;
     }
 
     /**
      * Returns the lazy loading configuration.
      *
-     * @return null|string
+     * @return string|null
      */
     private function getLazyLoadingConfiguration(): ?string
     {
-        return $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        // PHPStan type safety: ensure we return string|null only
+        $lazyLoading = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray()['lib.']['contentElement.']['settings.']['media.']['lazyLoading']
+            ?? null;
+
+        return is_string($lazyLoading) ? $lazyLoading : null;
     }
 
     /**
@@ -225,7 +272,7 @@ class ImageLinkRenderingController extends AbstractPlugin
     }
 
     /**
-     * Returns attributes value or even empty string when override mode is enabled
+     * Returns attributes value or even empty string when override mode is enabled.
      *
      * @param string                $attributeName
      * @param array<string, string> $attributes
