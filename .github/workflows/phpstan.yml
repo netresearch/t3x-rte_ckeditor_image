@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         operating-system: [ubuntu-24.04]
-        php-version: ['8.1', '8.2', '8.3']
+        php-version: ['8.1', '8.2', '8.3', '8.4']
 
     name: Testing PHP ${{ matrix.php-version }} on ${{ matrix.operating-system }}
 
@@ -24,4 +24,4 @@ jobs:
 
       - run: composer validate
       - run: composer install --no-progress
-      - run: .Build/bin/phpstan analyse -c phpstan.neon
+      - run: .Build/bin/phpstan analyse -c Build/phpstan.neon
