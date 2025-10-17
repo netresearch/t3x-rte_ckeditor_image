@@ -8,54 +8,6 @@ Integration & Configuration
 
 Complete configuration reference and integration guide for the RTE CKEditor Image extension.
 
-Overview
-========
-
-This section provides comprehensive configuration documentation covering all aspects of integrating and configuring the extension in your TYPO3 installation.
-
-Available Documentation
-=======================
-
-Configuration Guide
--------------------
-
-:ref:`Complete configuration reference <integration-configuration>` covering:
-
-RTE Configuration (YAML)
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-- Editor configuration
-- Toolbar button placement
-- Image plugin options
-- Style definitions
-- Processing rules
-
-Page TSConfig
-~~~~~~~~~~~~~
-
-- Backend user permissions
-- File browser configuration
-- Maximum image dimensions
-- Allowed file types
-- Upload folder settings
-
-TypoScript Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-- Frontend rendering setup
-- Image processing options
-- Link rendering configuration
-- Lazy loading settings
-- Custom attributes
-
-Extension Configuration
-~~~~~~~~~~~~~~~~~~~~~~~
-
-- Global extension settings
-- Security settings
-- Performance options
-- Feature toggles
-
 Configuration Quick Reference
 ==============================
 
@@ -139,10 +91,57 @@ Migration from Other Solutions
 - From third-party extensions
 - Configuration migration patterns
 
+Configuration Topics
+====================
+
+.. card-grid::
+    :columns: 1
+    :columns-md: 2
+    :gap: 4
+    :class: pb-4
+    :card-height: 100
+
+    .. card:: RTE Setup
+
+        RTE configuration, presets, and toolbar setup
+
+        .. card-footer:: :ref:`Read more <integration-configuration-rte-setup>`
+            :button-style: btn btn-primary
+
+    .. card:: TSConfig
+
+        Page TSConfig settings, permissions, and file mounts
+
+        .. card-footer:: :ref:`Read more <integration-configuration-tsconfig>`
+            :button-style: btn btn-primary
+
+    .. card:: Frontend Rendering
+
+        TypoScript configuration and frontend rendering setup
+
+        .. card-footer:: :ref:`Read more <integration-configuration-frontend-rendering>`
+            :button-style: btn btn-primary
+
+    .. card:: Advanced Configuration
+
+        Custom styles, performance optimization, and best practices
+
+        .. card-footer:: :ref:`Read more <integration-configuration-advanced>`
+            :button-style: btn btn-primary
+
 Related Documentation
 =====================
 
 - :ref:`examples-common-use-cases` - Practical configuration examples
 - :ref:`api-documentation` - Backend integration
 - :ref:`ckeditor-plugin-development` - Frontend plugin
-- :ref:`troubleshooting-common-issues` - Configuration issues
+- :ref:`troubleshooting-index` - Configuration issues
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+
+   RTE-Setup
+   TSConfig
+   Frontend-Rendering
+   Advanced-Configuration

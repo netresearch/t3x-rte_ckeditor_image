@@ -1,69 +1,73 @@
+.. _architecture:
 .. _architecture-index:
 
-=======================
+============================
 Architecture & Design
-=======================
+============================
 
-System architecture, component design, and technical implementation details.
+System architecture, component design, and technical implementation details for the RTE CKEditor Image extension.
+
+.. contents:: Table of Contents
+   :depth: 2
+   :local:
 
 Overview
 ========
 
 This section explains the architectural decisions, design patterns, and component interactions in the RTE CKEditor Image extension.
 
-Available Documentation
-=======================
+Architecture Topics
+===================
 
-**Architecture Overview** (:ref:`architecture-overview`)
+..  card-grid::
+    :columns: 1
+    :columns-md: 2
+    :gap: 4
+    :class: pb-4
+    :card-height: 100
 
-Comprehensive system architecture documentation:
+    ..  card:: :ref:`System Architecture <architecture-system-components>`
 
-- Component diagram and interactions
-- Data flow from backend to frontend
-- CKEditor plugin architecture
-- TYPO3 integration patterns
-- Database schema and soft references
-- Event-driven architecture
-- Security considerations
+        Three-layer architecture, core components, technology stack, and security/performance considerations
 
-Key Concepts
-============
+        ..  card-footer:: :ref:`Read more <architecture-system-components>`
+            :button-style: btn btn-primary
 
-Three-Layer Architecture
-------------------------
+    ..  card:: :ref:`Design Patterns <architecture-design-patterns>`
 
-1. **CKEditor Plugin Layer** (JavaScript)
+        Key design patterns, integration points, data flow, and extension points for developers
 
-   - Custom typo3image plugin
-   - Model element definition
-   - UI components and commands
-   - Upcast/downcast conversions
+        ..  card-footer:: :ref:`Read more <architecture-design-patterns>`
+            :button-style: btn btn-primary
 
-2. **TYPO3 Backend Layer** (PHP)
+Quick Links
+===========
 
-   - Controllers for image selection and rendering
-   - Database hooks for content processing
-   - FAL integration
-   - Event listeners
+System Understanding
+--------------------
 
-3. **Frontend Rendering Layer** (PHP/HTML)
+- **Learn the architecture** → :ref:`architecture-system-components`
+- **Understand data flow** → :ref:`architecture-data-flow`
+- **Extend the system** → :ref:`architecture-extension-points`
 
-   - TypoScript configuration
-   - Image processing and optimization
-   - HTML generation
+Integration Reference
+---------------------
 
-Design Patterns
----------------
-
-- **MVC Pattern** - Controllers, models, and views separation
-- **Event-Driven** - PSR-14 events for extensibility
-- **Plugin Architecture** - Modular CKEditor plugin
-- **Soft References** - TYPO3 reference tracking
-- **Command Pattern** - CKEditor commands for actions
+- **TYPO3 Core integration** → :ref:`architecture-integration-points`
+- **CKEditor integration** → :ref:`ckeditor-plugin-development`
+- **Backend APIs** → :ref:`api-documentation`
 
 Related Documentation
 =====================
 
-- API Documentation - PHP class reference
-- CKEditor Plugin - Plugin implementation
-- Configuration - System configuration
+- :ref:`ckeditor-plugin-development` - CKEditor 5 plugin implementation
+- :ref:`api-documentation` - PHP backend APIs
+- :ref:`integration-configuration` - Configuration reference
+- :ref:`examples-common-use-cases` - Practical examples
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+
+   System-Architecture
+   Design-Patterns

@@ -4,7 +4,6 @@
         xsi:schemaLocation="https://www.phpdoc.org/guides ../vendor/phpdocumentor/guides-cli/resources/schema/guides.xsd"
         links-are-relative="true"
         input-format="rst"
-        input-file="Index.rst"
         default-code-language="php">
 
     <!-- TYPO3 Documentation Theme Configuration -->

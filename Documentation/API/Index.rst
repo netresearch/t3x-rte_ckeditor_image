@@ -1,4 +1,5 @@
 .. _api-documentation:
+.. _api-index:
 
 ==================
 API Documentation
@@ -10,47 +11,36 @@ Complete API reference for all PHP classes in the RTE CKEditor Image extension.
    :depth: 2
    :local:
 
-Overview
-========
+API Components
+==============
 
-This section provides detailed documentation for the PHP backend components that power the extension's functionality.
+..  card-grid::
+    :columns: 1
+    :columns-md: 2
+    :gap: 4
+    :class: pb-4
+    :card-height: 100
 
-Available Documentation
-=======================
+    ..  card:: :ref:`Controllers API <api-controllers>`
 
-Controllers
------------
+        Frontend and backend controllers for image handling and rendering
 
-:ref:`Controllers API Reference <api-controllers>`
+        ..  card-footer:: :ref:`Read more <api-controllers>`
+            :button-style: btn btn-primary
 
-Frontend and backend controllers for image handling:
+    ..  card:: :ref:`Data Handling API <api-datahandling>`
 
-- ``SelectImageController`` - Backend image selection and preview
-- ``ImageRenderingController`` - Frontend image rendering
-- ``ImageLinkRenderingController`` - Linked image rendering
+        Database hooks, content processing, and image transformations
 
-Data Handling
--------------
+        ..  card-footer:: :ref:`Read more <api-datahandling>`
+            :button-style: btn btn-primary
 
-:ref:`Data Handling API Reference <api-datahandling>`
+    ..  card:: :ref:`Event Listeners <api-eventlisteners>`
 
-Database hooks and image processing:
+        PSR-14 event system integration for RTE configuration
 
-- ``RteImagesDbHook`` - Content processing and magic images
-- Soft reference handling
-- External image fetching
-- Image transformation and storage
-
-Event Listeners
----------------
-
-:ref:`Event Listeners Reference <api-eventlisteners>`
-
-PSR-14 event system integration:
-
-- ``RteConfigurationListener`` - RTE configuration injection
-- Event-driven architecture patterns
-- Custom event handling
+        ..  card-footer:: :ref:`Read more <api-eventlisteners>`
+            :button-style: btn btn-primary
 
 Usage Examples
 ==============
@@ -63,3 +53,11 @@ Related Documentation
 - :ref:`Architecture Overview <architecture-overview>` - Understand how components interact
 - :ref:`CKEditor Plugin Development <ckeditor-plugin-development>` - Frontend JavaScript components
 - :ref:`Configuration Guide <integration-configuration>` - Configure PHP components
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+
+   Controllers
+   DataHandling
+   EventListeners

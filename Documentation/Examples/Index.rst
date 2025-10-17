@@ -1,95 +1,91 @@
 .. include:: /Includes.rst.txt
 
 .. _examples:
+.. _examples-common-use-cases:
 
 ====================
 Examples & Use Cases
 ====================
 
-Practical examples and real-world implementation patterns for common scenarios.
+Practical, ready-to-use examples for common implementation scenarios with rte_ckeditor_image.
 
-Overview
-========
+.. contents:: Table of Contents
+   :depth: 2
+   :local:
 
-This section provides hands-on examples demonstrating how to implement various features and solve common use cases with the RTE CKEditor Image extension.
+Examples by Topic
+=================
 
-Available Documentation
-=======================
+.. card-grid::
+    :columns: 1
+    :columns-md: 2
+    :gap: 4
+    :class: pb-4
+    :card-height: 100
 
-Common Use Cases
-----------------
+    .. card:: Basic Integration
 
-:ref:`Comprehensive collection of practical examples <examples-common-use-cases>`:
+        Minimal setup guide for getting basic image functionality working quickly.
+        Perfect for new installations and quick starts.
 
-Configuration Examples
-~~~~~~~~~~~~~~~~~~~~~~
+        .. card-footer:: :ref:`Read more <examples-basic-integration>`
+            :button-style: btn btn-primary
 
-- Custom image styles and classes
-- Responsive image configurations
-- Maximum dimensions and constraints
-- File type restrictions
+    .. card:: Image Styles
 
-Frontend Examples
-~~~~~~~~~~~~~~~~~
+        Configure custom image styles with Bootstrap classes, CSS groups, and style dropdowns.
+        Includes both framework-based and custom CSS approaches.
 
-- Lazy loading implementation
-- Lightbox/modal integration
-- Responsive images with srcset
-- Image optimization techniques
+        .. card-footer:: :ref:`Read more <examples-image-styles>`
+            :button-style: btn btn-primary
 
-Development Examples
-~~~~~~~~~~~~~~~~~~~~
+    .. card:: Responsive Images
 
-- Custom event listeners
-- Backend processing customization
-- Custom image converters
-- Plugin extension patterns
+        Implement responsive images with automatic srcset generation and multiple breakpoints.
+        Complete PHP implementation with result examples.
 
-Testing Examples
-~~~~~~~~~~~~~~~~
+        .. card-footer:: :ref:`Read more <examples-responsive-images>`
+            :button-style: btn btn-primary
 
-- Functional test setup
-- Unit test patterns
-- Integration testing
-- Test execution commands
+    .. card:: Advanced Features
 
-Example Categories
-==================
+        Add lightbox functionality with PhotoSwipe and implement lazy loading for performance.
+        Includes both native browser lazy loading and Intersection Observer fallbacks.
 
-Quick Start
------------
+        .. card-footer:: :ref:`Read more <examples-advanced-features>`
+            :button-style: btn btn-primary
 
-- Basic image insertion
-- Simple style configuration
-- Default rendering setup
+    .. card:: Custom Extensions
 
-Intermediate
-------------
+        Extend the image plugin with custom dialog fields, external image handling,
+        multi-language support, and automatic backend processing hooks.
 
-- Custom CSS classes
-- Responsive configurations
-- Performance optimization
+        .. card-footer:: :ref:`Read more <examples-custom-extensions>`
+            :button-style: btn btn-primary
 
-Advanced
---------
+    .. card:: Testing
 
-- Custom backend processing
-- Event-driven customization
-- Complex style systems
-- Multi-language setups
+        Functional and unit test examples for ensuring quality and preventing regressions.
+        Includes controller tests and database hook tests.
 
-How to Use These Examples
-==========================
+        .. card-footer:: :ref:`Read more <examples-testing>`
+            :button-style: btn btn-primary
 
-1. **Copy-paste ready** - All examples are production-ready code
-2. **Commented code** - Detailed explanations inline
-3. **Prerequisites noted** - Required configurations specified
-4. **Testing included** - Test examples where applicable
-
-Related Documentation
+Quick Reference Links
 =====================
 
-- :ref:`integration-configuration` - Full configuration reference
-- :ref:`api` - PHP API for custom implementations
-- :ref:`ckeditor-plugin-development` - JavaScript customization
-- :ref:`troubleshooting-common-issues` - Problem solving
+- :ref:`integration-configuration` - Complete configuration guide
+- :ref:`ckeditor-plugin-development` - Extend the plugin
+- :ref:`api-controllers` - Controller APIs
+- :ref:`troubleshooting-index` - Problem solving
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+
+   Basic-Integration
+   Image-Styles
+   Responsive-Images
+   Advanced-Features
+   Custom-Extensions
+   Testing

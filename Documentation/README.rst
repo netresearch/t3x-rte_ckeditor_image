@@ -1,4 +1,5 @@
 .. _documentation-index:
+.. _installation:
 
 ====================================
 RTE CKEditor Image - Documentation
