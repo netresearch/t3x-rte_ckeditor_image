@@ -20,7 +20,7 @@ $repoRoot = __DIR__ . '/..';
 
 $finder = PhpCsFixer\Finder::create()
     ->in($repoRoot)
-    ->exclude(['.build', 'config', 'node_modules', 'var']);
+    ->exclude(['.Build', 'config', 'node_modules', 'var']);
 
 return (new PhpCsFixer\Config())
     // Enable fixers that might change behavior (you control which via setRules)

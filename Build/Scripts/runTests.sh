@@ -42,14 +42,14 @@ handleDbmsOptions() {
             if [ "${DATABASE_DRIVER}" != "mysqli" ] && [ "${DATABASE_DRIVER}" != "pdo_mysql" ]; then
                 echo "Invalid combination -d ${DBMS} -a ${DATABASE_DRIVER}" >&2
                 echo >&2
-                echo "Use \".build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
                 exit 1
             fi
             [ -z "${DBMS_VERSION}" ] && DBMS_VERSION="10.2"
             if ! [[ ${DBMS_VERSION} =~ ^(10.2|10.3|10.4|10.5|10.6|10.7|10.8|10.9|10.10|10.11|11.0|11.1)$ ]]; then
                 echo "Invalid combination -d ${DBMS} -i ${DBMS_VERSION}" >&2
                 echo >&2
-                echo "Use \".build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
                 exit 1
             fi
             ;;
@@ -58,14 +58,14 @@ handleDbmsOptions() {
             if [ "${DATABASE_DRIVER}" != "mysqli" ] && [ "${DATABASE_DRIVER}" != "pdo_mysql" ]; then
                 echo "Invalid combination -d ${DBMS} -a ${DATABASE_DRIVER}" >&2
                 echo >&2
-                echo "Use \".build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
                 exit 1
             fi
             [ -z "${DBMS_VERSION}" ] && DBMS_VERSION="5.5"
             if ! [[ ${DBMS_VERSION} =~ ^(5.5|5.6|5.7|8.0)$ ]]; then
                 echo "Invalid combination -d ${DBMS} -i ${DBMS_VERSION}" >&2
                 echo >&2
-                echo "Use \".build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
                 exit 1
             fi
             ;;
@@ -73,14 +73,14 @@ handleDbmsOptions() {
             if [ -n "${DATABASE_DRIVER}" ]; then
                 echo "Invalid combination -d ${DBMS} -a ${DATABASE_DRIVER}" >&2
                 echo >&2
-                echo "Use \".build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
                 exit 1
             fi
             [ -z "${DBMS_VERSION}" ] && DBMS_VERSION="10"
             if ! [[ ${DBMS_VERSION} =~ ^(10|11|12|13|14|15|16)$ ]]; then
                 echo "Invalid combination -d ${DBMS} -i ${DBMS_VERSION}" >&2
                 echo >&2
-                echo "Use \".build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
                 exit 1
             fi
             ;;
@@ -88,20 +88,20 @@ handleDbmsOptions() {
             if [ -n "${DATABASE_DRIVER}" ]; then
                 echo "Invalid combination -d ${DBMS} -a ${DATABASE_DRIVER}" >&2
                 echo >&2
-                echo "Use \".build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
                 exit 1
             fi
             if [ -n "${DBMS_VERSION}" ]; then
                 echo "Invalid combination -d ${DBMS} -i ${DATABASE_DRIVER}" >&2
                 echo >&2
-                echo "Use \".build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
                 exit 1
             fi
             ;;
         *)
             echo "Invalid option -d ${DBMS}" >&2
             echo >&2
-            echo "Use \".build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+            echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
             exit 1
             ;;
     esac
@@ -110,7 +110,7 @@ handleDbmsOptions() {
 cleanCacheFiles() {
     echo -n "Clean caches ... "
     rm -rf \
-        .build/.cache \
+        .Build/.cache \
         .php-cs-fixer.cache
     echo "done"
 }
@@ -119,7 +119,7 @@ cleanTestFiles() {
     # test related
     echo -n "Clean test related files ... "
     rm -rf \
-        .build/public/typo3temp/var/tests/
+        .Build/public/typo3temp/var/tests/
     echo "done"
 }
 
@@ -132,8 +132,8 @@ cleanRenderedDocumentationFiles() {
 
 cleanComposer() {
   rm -rf \
-    .build/vendor \
-    .build/bin \
+    .Build/vendor \
+    .Build/bin \
     composer.lock
 }
 
@@ -408,7 +408,7 @@ if [ ${#INVALID_OPTIONS[@]} -ne 0 ]; then
         echo ${I} >&2
     done
     echo >&2
-    echo "call \".build/Scripts/runTests.sh -h\" to display help and valid options"
+    echo "call \".Build/Scripts/runTests.sh -h\" to display help and valid options"
     exit 1
 fi
 
@@ -441,7 +441,7 @@ fi
 
 # Create .cache dir: composer need this.
 mkdir -p .cache
-mkdir -p .build/public/typo3temp/var/tests
+mkdir -p .Build/public/typo3temp/var/tests
 
 IMAGE_PHP="ghcr.io/typo3/core-testing-$(echo "php${PHP_VERSION}" | sed -e 's/\.//'):latest"
 IMAGE_ALPINE="docker.io/alpine:3.8"
@@ -478,7 +478,7 @@ case ${TEST_SUITE} in
         if [ "${CGLCHECK_DRY_RUN}" -eq 1 ]; then
             DRY_RUN_OPTIONS='--dry-run --diff'
         fi
-        COMMAND="php -dxdebug.mode=off .build/bin/php-cs-fixer fix -v ${DRY_RUN_OPTIONS} --config=Build/php-cs-fixer/php-cs-fixer.php --using-cache=no"
+        COMMAND="php -dxdebug.mode=off .Build/bin/php-cs-fixer fix -v ${DRY_RUN_OPTIONS} --config=Build/php-cs-fixer/php-cs-fixer.php --using-cache=no"
         ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-command-${SUFFIX} -e COMPOSER_CACHE_DIR=.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} /bin/sh -c "${COMMAND}"
         SUITE_EXIT_CODE=$?
         ;;
@@ -487,7 +487,7 @@ case ${TEST_SUITE} in
           var/ \
           .cache \
           composer.lock \
-          .build/ \
+          .Build/ \
           Tests/Acceptance/Support/_generated/ \
           composer.json.testing \
           Documentation-GENERATED-temp
@@ -572,12 +572,12 @@ case ${TEST_SUITE} in
         SUITE_EXIT_CODE=$?
         ;;
     coveralls)
-        COMMAND=(php -dxdebug.mode=coverage ./.build/bin/php-coveralls --coverage_clover=./.build/logs/clover.xml --json_path=./.build/logs/coveralls-upload.json -v)
+        COMMAND=(php -dxdebug.mode=coverage ./.Build/bin/php-coveralls --coverage_clover=./.Build/logs/clover.xml --json_path=./.Build/logs/coveralls-upload.json -v)
         ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-coverals-${SUFFIX} -e XDEBUG_MODE=coverage -e XDEBUG_TRIGGER=foo -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" -e COMPOSER_CACHE_DIR=.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} "${COMMAND[@]}"
         SUITE_EXIT_CODE=$?
         ;;
     functional)
-        COMMAND=(.build/bin/phpunit -c Build/phpunit/FunctionalTests.xml --exclude-group not-${DBMS} ${EXTRA_TEST_OPTIONS} "$@")
+        COMMAND=(.Build/bin/phpunit -c Build/phpunit/FunctionalTests.xml --exclude-group not-${DBMS} ${EXTRA_TEST_OPTIONS} "$@")
         case ${DBMS} in
             mariadb)
                 echo "Using driver: ${DATABASE_DRIVER}"
@@ -612,12 +612,12 @@ case ${TEST_SUITE} in
         esac
         ;;
     lint)
-        COMMAND="php -v | grep '^PHP'; find . -name '*.php' ! -path '*.build/*' -print0 | xargs -0 -n1 -P4 php -dxdebug.mode=off -l >/dev/null"
+        COMMAND="php -v | grep '^PHP'; find . -name '*.php' ! -path '*.Build/*' -print0 | xargs -0 -n1 -P4 php -dxdebug.mode=off -l >/dev/null"
         ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-command-${SUFFIX} -e COMPOSER_CACHE_DIR=.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} /bin/bash -c "${COMMAND}"
         SUITE_EXIT_CODE=$?
         ;;
     unit)
-        COMMAND=(.build/bin/phpunit -c Build/phpunit/UnitTests.xml --exclude-group not-${DBMS} ${EXTRA_TEST_OPTIONS} "$@")
+        COMMAND=(.Build/bin/phpunit -c Build/phpunit/UnitTests.xml --exclude-group not-${DBMS} ${EXTRA_TEST_OPTIONS} "$@")
         ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name unit-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${IMAGE_PHP} "${COMMAND[@]}"
         SUITE_EXIT_CODE=$?
         ;;

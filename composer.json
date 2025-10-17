@@ -50,8 +50,8 @@
         }
     },
     "config": {
-        "bin-dir": ".build/bin",
-        "vendor-dir": ".build/vendor",
+        "bin-dir": ".Build/bin",
+        "vendor-dir": ".Build/vendor",
         "discard-changes": true,
         "sort-packages": true,
         "optimize-autoloader": true,
@@ -67,12 +67,12 @@
         },
         "typo3/cms": {
             "extension-key": "rte_ckeditor_image",
-            "web-dir": ".build/public"
+            "web-dir": ".Build/public"
         }
     },
     "scripts": {
         "ci:cgl": [
-            "php-cs-fixer fix --config Build/.php-cs-fixer.dist.php --diff --verbose --cache-file .build/.php-cs-fixer.cache"
+            "php-cs-fixer fix --config Build/.php-cs-fixer.dist.php --diff --verbose --cache-file .Build/.php-cs-fixer.cache"
         ],
         "ci:rector": [
             "rector process --config Build/rector.php"
@@ -99,7 +99,7 @@
             "@ci:rector --dry-run"
         ],
         "ci:coverage:functional": [
-            "phpunit -c Build/phpunit/FunctionalTests.xml --coverage-clover=.build/logs/clover.xml --coverage-html=.build/coverage"
+            "phpunit -c Build/phpunit/FunctionalTests.xml --coverage-clover=.Build/logs/clover.xml --coverage-html=.Build/coverage"
         ],
         "ci:test": [
             "@ci:test:php:lint",
