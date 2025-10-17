@@ -118,5 +118,5 @@ jobs:
                 if: ${{ always() && steps.coverage.conclusion == 'success' && matrix.php == '8.3' }}
                 uses: codecov/codecov-action@v5
                 with:
-                    files: .build/logs/clover.xml
+                    files: .Build/logs/clover.xml
                     fail_ci_if_error: false

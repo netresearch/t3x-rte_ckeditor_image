@@ -297,7 +297,7 @@ parameters:
 		-
 			message: '#^Cannot access offset ''height'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
+			count: 3
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
@@ -351,7 +351,7 @@ parameters:
 		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
-			count: 3
+			count: 5
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-

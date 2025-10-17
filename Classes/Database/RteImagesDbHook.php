@@ -422,18 +422,6 @@ class RteImagesDbHook
                     $absoluteUrl = $siteUrl . $absoluteUrl;
                 }
 
-                // Get image dimensions set in the image tag, if any
-                $imageWidth  = $this->getImageWidthFromAttributes($attribArray);
-                $imageHeight = $this->getImageHeightFromAttributes($attribArray);
-
-                if ($imageWidth > 0) {
-                    $attribArray['width'] = $imageWidth;
-                }
-
-                if ($imageHeight > 0) {
-                    $attribArray['height'] = $imageHeight;
-                }
-
                 $originalImageFile = null;
                 if (isset($attribArray['data-htmlarea-file-uid'])) {
                     // An original image file uid is available
@@ -452,6 +440,22 @@ class RteImagesDbHook
                         }
                     }
                 }
+
+                // Get image dimensions: prioritize HTML attributes, fallback to file properties if available
+                $imageWidth  = $this->getImageWidthFromAttributes($attribArray);
+                $imageHeight = $this->getImageHeightFromAttributes($attribArray);
+
+                // Fallback to original file dimensions if not set in attributes
+                if (($imageWidth === 0) && ($originalImageFile instanceof File)) {
+                    $imageWidth = (int) $originalImageFile->getProperty('width');
+                }
+
+                if (($imageHeight === 0) && ($originalImageFile instanceof File)) {
+                    $imageHeight = (int) $originalImageFile->getProperty('height');
+                }
+
+                $attribArray['width']  = $imageWidth;
+                $attribArray['height'] = $imageHeight;
 
                 // Determine application type - fail secure: require backend context
                 if (!(($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface)) {

@@ -1,7 +1,7 @@
 path: ./
 jobs: 10
-cache: .build/.phplint.cache
+cache: .Build/.phplint.cache
 extensions:
     - php
 exclude:
-    - .build
+    - .Build
