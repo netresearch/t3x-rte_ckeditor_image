@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use Psr\Log\LogLevel as PsrLogLevel;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -20,9 +21,6 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
-
-use function count;
-use function get_class;
 use function is_array;
 
 /**
@@ -66,7 +64,7 @@ class ImageLinkRenderingController extends AbstractPlugin
     public function renderImages(?string $content, array $conf = []): string
     {
         // Get link inner HTML
-        $linkContent = $this->cObj !== null ? $this->cObj->getCurrentVal() : null;
+        $linkContent = $this->cObj instanceof ContentObjectRenderer ? $this->cObj->getCurrentVal() : null;
 
         // Find all images with file-uid attribute
         // SECURITY: Use atomic groups to prevent ReDoS attacks via catastrophic backtracking
@@ -83,7 +81,7 @@ class ImageLinkRenderingController extends AbstractPlugin
 
         $passedImages = $passedImages[0];
 
-        if (count($passedImages) === 0) {
+        if ($passedImages === []) {
             return $linkContent;
         }
 
@@ -94,7 +92,7 @@ class ImageLinkRenderingController extends AbstractPlugin
             // so it will never match this condition.
             //
             // But we leave this as fallback for older render versions.
-            if ((count($imageAttributes) > 0) && isset($imageAttributes['data-htmlarea-file-uid'])) {
+            if (($imageAttributes !== []) && isset($imageAttributes['data-htmlarea-file-uid'])) {
                 $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid']);
 
                 if ($fileUid > 0) {
@@ -231,7 +229,7 @@ class ImageLinkRenderingController extends AbstractPlugin
     private function getLazyLoadingConfiguration(): ?string
     {
         // PHPStan type safety: ensure we return string|null only
-        $lazyLoading = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading']
+        $lazyLoading = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray()['lib.']['contentElement.']['settings.']['media.']['lazyLoading']
             ?? null;
 
         return is_string($lazyLoading) ? $lazyLoading : null;

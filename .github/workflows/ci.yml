@@ -27,7 +27,7 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php }}
-                    tools: composer:v2
+                    tools: composer:v2, php-cs-fixer
 
             -   name: Validate composer.json and composer.lock
                 run: composer validate
@@ -61,6 +61,7 @@ jobs:
                     composer require typo3/cms-core:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-backend:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-extbase:${{ matrix.typo3 }} --no-progress --no-update
+                    composer require typo3/cms-extensionmanager:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-frontend:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-rte-ckeditor:${{ matrix.typo3 }} --no-progress --no-update
                     composer install
@@ -71,6 +72,20 @@ jobs:
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
                     composer ci:test:php:lint
+
+            -   id: generate-php-cs-fixer-config
+                name: Generate .php-cs-fixer.php
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    cp Build/.php-cs-fixer.dist.php .php-cs-fixer.php
+
+            -   id: cgl
+                name: CGL
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                env:
+                    PHP_CS_FIXER_IGNORE_ENV: true
+                run: |
+                    php-cs-fixer fix --dry-run --verbose --config Build/.php-cs-fixer.dist.php
 
             -   id: phpstan
                 name: PHPStan

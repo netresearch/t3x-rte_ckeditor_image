@@ -11,19 +11,17 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use Psr\Log\LogLevel as PsrLogLevel;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Plugin\AbstractPlugin;
-
-use function get_class;
 use function is_array;
 
 /**
@@ -189,7 +187,7 @@ class ImageRenderingController extends AbstractPlugin
             && isset($systemImage)
         ) {
             // PHPStan type safety: ensure config is an array
-            $popupConfig = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.']
+            $popupConfig = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray()['lib.']['contentElement.']['settings.']['media.']['popup.']
                 ?? [];
             $config      = is_array($popupConfig) ? $popupConfig : [];
             $config['enable'] = 1;
@@ -198,7 +196,7 @@ class ImageRenderingController extends AbstractPlugin
                 'title' => $imageAttributes['title'] ?? $systemImage->getProperty('title') ?? '',
             ]);
 
-            if ($this->cObj !== null) {
+            if ($this->cObj instanceof ContentObjectRenderer) {
                 $this->cObj->setCurrentFile($systemImage);
 
                 // Use $this->cObject to have access to all parameters from the image tag
@@ -221,7 +219,7 @@ class ImageRenderingController extends AbstractPlugin
     private function getLazyLoadingConfiguration(): ?string
     {
         // PHPStan type safety: ensure we return string|null only
-        $lazyLoading = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading']
+        $lazyLoading = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.typoscript')->getSetupArray()['lib.']['contentElement.']['settings.']['media.']['lazyLoading']
             ?? null;
 
         return is_string($lazyLoading) ? $lazyLoading : null;

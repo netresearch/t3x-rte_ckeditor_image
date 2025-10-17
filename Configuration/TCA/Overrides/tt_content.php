@@ -9,7 +9,9 @@
 
 declare(strict_types=1);
 
-defined('TYPO3') or die();
+use Netresearch\RteCKEditorImage\Backend\Preview\RteImagePreviewRenderer;
+
+defined('TYPO3') || die();
 
 /**
  * TCA override for tt_content table.
@@ -35,6 +37,6 @@ call_user_func(
 
         // Register preview renderer
         $GLOBALS['TCA']['tt_content']['types']['text']['previewRenderer']
-            = \Netresearch\RteCKEditorImage\Backend\Preview\RteImagePreviewRenderer::class;
+            = RteImagePreviewRenderer::class;
     }
 );

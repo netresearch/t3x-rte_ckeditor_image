@@ -49,9 +49,9 @@ return static function (RectorConfig $rectorConfig): void {
         SetList::STRICT_BOOLEANS,
         SetList::TYPE_DECLARATION,
 
-        // PHP 8.4 support for latest language features
+        // PHP 8.1-8.4 support for TYPO3 v12
         LevelSetList::UP_TO_PHP_84,
-        Typo3LevelSetList::UP_TO_TYPO3_13,
+        Typo3LevelSetList::UP_TO_TYPO3_12,
     ]);
 
     // Skip some rules

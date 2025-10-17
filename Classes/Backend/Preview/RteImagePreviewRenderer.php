@@ -29,6 +29,7 @@ use TYPO3\CMS\Frontend\Preview\TextPreviewRenderer;
 class RteImagePreviewRenderer extends TextPreviewRenderer
 {
     private bool $reachedLimit = false;
+
     private int $totalLength = 0;
 
     /** @var DOMNode[] */
@@ -55,7 +56,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
         $html = preg_replace(
             '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF].|\xEF\xBF[\xBE\xBF]/',
             "\xEF\xBF\xBD",
-            $html
+            (string) $html
         );
 
         return $this

@@ -233,7 +233,7 @@ class RteImagesDbHook
                         $attribArray['src'] = preg_replace(
                             '#^' . preg_quote($sitePath, '#') . '#',
                             '',
-                            $attribArray['src']
+                            (string) $attribArray['src']
                         );
 
                         $attribArray['src'] = $siteUrl . $attribArray['src'];
@@ -250,6 +250,7 @@ class RteImagesDbHook
                 }
             }
         }
+
         // Return processed content:
         return implode('', $imgSplit);
     }
@@ -264,7 +265,7 @@ class RteImagesDbHook
      *
      * @return null|mixed
      */
-    private function matchStyleAttribute(string $styleAttribute, string $imageAttribute)
+    private function matchStyleAttribute(string $styleAttribute, string $imageAttribute): ?string
     {
         $regex   = '[[:space:]]*:[[:space:]]*([0-9]*)[[:space:]]*px';
         $matches = [];
@@ -339,7 +340,7 @@ class RteImagesDbHook
         string $table,
         string $id,
         array &$fieldArray,
-        \TYPO3\CMS\Core\DataHandling\DataHandler &$dataHandler
+        DataHandler &$dataHandler
     ): void {
         foreach ($fieldArray as $field => $fieldValue) {
             // Ignore not existing fields in TCA definition
@@ -349,14 +350,18 @@ class RteImagesDbHook
 
             // Get TCA config for the field
             $tcaFieldConf = $this->resolveFieldConfigurationAndRespectColumnsOverrides($dataHandler, $table, $field);
-
             // Handle only fields of type "text"
-            if (!array_key_exists('type', $tcaFieldConf) || $tcaFieldConf['type'] !== 'text') {
+            if (!array_key_exists('type', $tcaFieldConf)) {
                 continue;
             }
-
+            if ($tcaFieldConf['type'] !== 'text') {
+                continue;
+            }
             // Ignore all none RTE text fields
-            if (!array_key_exists('enableRichtext', $tcaFieldConf) || $tcaFieldConf['enableRichtext'] === false) {
+            if (!array_key_exists('enableRichtext', $tcaFieldConf)) {
+                continue;
+            }
+            if ($tcaFieldConf['enableRichtext'] === false) {
                 continue;
             }
 
@@ -426,7 +431,7 @@ class RteImagesDbHook
                         $originalImageFile = $resourceFactory
                             ->getFileObject((int) $attribArray['data-htmlarea-file-uid']);
                     } catch (FileDoesNotExistException $exception) {
-                        if ($this->logger !== null) {
+                        if ($this->logger instanceof LoggerInterface) {
                             // Log the fact the file could not be retrieved.
                             $message = sprintf(
                                 'Could not find file with uid "%s"',
@@ -437,11 +442,13 @@ class RteImagesDbHook
                         }
                     }
                 }
+
                 // If empty image dimensions but file exists, take file dimensions
                 if ($originalImageFile instanceof File) {
                     if ($imageWidth === 0) {
                         $imageWidth = $originalImageFile->getProperty('width');
                     }
+
                     if ($imageHeight === 0) {
                         $imageHeight = $originalImageFile->getProperty('height');
                     }
@@ -641,6 +648,7 @@ class RteImagesDbHook
                                     if ($fileObject->hasProperty('original')) {
                                         $fileUid = $fileObject->getProperty('original');
                                     }
+
                                     $attribArray['data-htmlarea-file-uid'] = $fileUid;
                                 }
                             }
@@ -649,10 +657,12 @@ class RteImagesDbHook
                         }
                     }
                 }
+
                 if (!$attribArray) {
                     // some error occurred, leave the img tag as is
                     continue;
                 }
+
                 // Remove width and height from style attribute
                 $attribArray['style'] = preg_replace(
                     '/(?:^|[^-])(\\s*(?:width|height)\\s*:[^;]*(?:$|;))/si',
@@ -663,10 +673,12 @@ class RteImagesDbHook
                 if (!isset($attribArray['alt'])) {
                     $attribArray['alt'] = '';
                 }
+
                 // Convert absolute to relative url
                 if (str_starts_with((string) $attribArray['src'], $siteUrl)) {
                     $attribArray['src'] = substr((string) $attribArray['src'], strlen($siteUrl));
                 }
+
                 $imgSplit[$key] = '<img ' . GeneralUtility::implodeAttributes($attribArray, true, true) . ' />';
             }
         }
@@ -678,7 +690,7 @@ class RteImagesDbHook
      * @return mixed[]
      */
     private function resolveFieldConfigurationAndRespectColumnsOverrides(
-        \TYPO3\CMS\Core\DataHandling\DataHandler $dataHandler,
+        DataHandler $dataHandler,
         string $table,
         string $field
     ): array {
