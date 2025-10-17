@@ -442,18 +442,19 @@ class RteImagesDbHook
                 }
 
                 // Get image dimensions: prioritize HTML attributes, fallback to file properties if available
-                $imageWidth = $this->getImageWidthFromAttributes($attribArray);
+                $imageWidth  = $this->getImageWidthFromAttributes($attribArray);
                 $imageHeight = $this->getImageHeightFromAttributes($attribArray);
 
                 // Fallback to original file dimensions if not set in attributes
                 if (($imageWidth === 0) && ($originalImageFile instanceof File)) {
                     $imageWidth = (int) $originalImageFile->getProperty('width');
                 }
+
                 if (($imageHeight === 0) && ($originalImageFile instanceof File)) {
                     $imageHeight = (int) $originalImageFile->getProperty('height');
                 }
 
-                $attribArray['width'] = $imageWidth;
+                $attribArray['width']  = $imageWidth;
                 $attribArray['height'] = $imageHeight;
 
                 // Determine application type - fail secure: require backend context
