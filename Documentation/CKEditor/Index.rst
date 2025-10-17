@@ -18,33 +18,33 @@ Plugin Components
     :class: pb-4
     :card-height: 100
 
-    ..  card:: :ref:`Plugin Development <ckeditor-plugin-development-guide>`
+    ..  card:: 🔌 Plugin Development
 
         Plugin architecture, UI components, commands, and event handling
 
         ..  card-footer:: :ref:`Read more <ckeditor-plugin-development-guide>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
-    ..  card:: :ref:`Model Element <ckeditor-model-element>`
+    ..  card:: 📐 Model Element
 
         The typo3image custom element schema, attributes, and model integration
 
         ..  card-footer:: :ref:`Read more <ckeditor-model-element>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
-    ..  card:: :ref:`Style Integration <ckeditor-style-integration>`
+    ..  card:: 🎨 Style Integration
 
         Style system integration with StyleUtils and GeneralHtmlSupport (critical for v13.0.0+)
 
         ..  card-footer:: :ref:`Read more <ckeditor-style-integration>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
-    ..  card:: :ref:`Conversions <ckeditor-conversions>`
+    ..  card:: ↔️ Conversions
 
         HTML ↔ Model conversion patterns for upcast and downcast transformations
 
         ..  card-footer:: :ref:`Read more <ckeditor-conversions>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
 Quick Links
 ===========

@@ -23,53 +23,53 @@ Examples by Topic
     :class: pb-4
     :card-height: 100
 
-    .. card:: Basic Integration
+    ..  card:: 🚀 Basic Integration
 
         Minimal setup guide for getting basic image functionality working quickly.
         Perfect for new installations and quick starts.
 
-        .. card-footer:: :ref:`Read more <examples-basic-integration>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <examples-basic-integration>`
+            :button-style: btn btn-primary stretched-link
 
-    .. card:: Image Styles
+    ..  card:: 🎨 Image Styles
 
         Configure custom image styles with Bootstrap classes, CSS groups, and style dropdowns.
         Includes both framework-based and custom CSS approaches.
 
-        .. card-footer:: :ref:`Read more <examples-image-styles>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <examples-image-styles>`
+            :button-style: btn btn-primary stretched-link
 
-    .. card:: Responsive Images
+    ..  card:: 📱 Responsive Images
 
         Implement responsive images with automatic srcset generation and multiple breakpoints.
         Complete PHP implementation with result examples.
 
-        .. card-footer:: :ref:`Read more <examples-responsive-images>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <examples-responsive-images>`
+            :button-style: btn btn-primary stretched-link
 
-    .. card:: Advanced Features
+    ..  card:: ⭐ Advanced Features
 
         Add lightbox functionality with PhotoSwipe and implement lazy loading for performance.
         Includes both native browser lazy loading and Intersection Observer fallbacks.
 
-        .. card-footer:: :ref:`Read more <examples-advanced-features>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <examples-advanced-features>`
+            :button-style: btn btn-primary stretched-link
 
-    .. card:: Custom Extensions
+    ..  card:: 🔌 Custom Extensions
 
         Extend the image plugin with custom dialog fields, external image handling,
         multi-language support, and automatic backend processing hooks.
 
-        .. card-footer:: :ref:`Read more <examples-custom-extensions>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <examples-custom-extensions>`
+            :button-style: btn btn-primary stretched-link
 
-    .. card:: Testing
+    ..  card:: ✅ Testing
 
         Functional and unit test examples for ensuring quality and preventing regressions.
         Includes controller tests and database hook tests.
 
-        .. card-footer:: :ref:`Read more <examples-testing>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <examples-testing>`
+            :button-style: btn btn-primary stretched-link
 
 Quick Reference Links
 =====================

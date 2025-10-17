@@ -592,6 +592,6 @@ Related Documentation
 
 - :ref:`Controllers API <api-controllers>`
 - :ref:`Data Handling API <api-datahandling>`
-- :ref:`CKEditor Plugin Development <ckeditor-plugin>`
+- :ref:`CKEditor Plugin Development <ckeditor-plugin-development>`
 - :ref:`Configuration Guide <integration-configuration>`
 - :ref:`Architecture Overview <architecture-overview>`

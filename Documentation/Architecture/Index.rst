@@ -26,19 +26,19 @@ Architecture Topics
     :class: pb-4
     :card-height: 100
 
-    ..  card:: :ref:`System Architecture <architecture-system-components>`
+    ..  card:: 🏛️ System Architecture
 
         Three-layer architecture, core components, technology stack, and security/performance considerations
 
         ..  card-footer:: :ref:`Read more <architecture-system-components>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
-    ..  card:: :ref:`Design Patterns <architecture-design-patterns>`
+    ..  card:: 🎯 Design Patterns
 
         Key design patterns, integration points, data flow, and extension points for developers
 
         ..  card-footer:: :ref:`Read more <architecture-design-patterns>`
-            :button-style: btn btn-primary
+            :button-style: btn btn-primary stretched-link
 
 Quick Links
 ===========

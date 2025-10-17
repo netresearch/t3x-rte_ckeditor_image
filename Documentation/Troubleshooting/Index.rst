@@ -139,33 +139,33 @@ Troubleshooting Topics
     :class: pb-4
     :card-height: 100
 
-    .. card:: Installation Issues
+    ..  card:: 📦 Installation Issues
 
         Extension installation problems, dependency conflicts, cache issues, and permission problems
 
-        .. card-footer:: :ref:`Read more <troubleshooting-installation-issues>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <troubleshooting-installation-issues>`
+            :button-style: btn btn-primary stretched-link
 
-    .. card:: Editor Issues
+    ..  card:: ✏️ Editor Issues
 
         Image button problems, style dropdown issues, file browser problems, and CKEditor errors
 
-        .. card-footer:: :ref:`Read more <troubleshooting-editor-issues>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <troubleshooting-editor-issues>`
+            :button-style: btn btn-primary stretched-link
 
-    .. card:: Frontend Issues
+    ..  card:: 🖥️ Frontend Issues
 
         Image display problems, broken links, dimension issues, and rendering problems
 
-        .. card-footer:: :ref:`Read more <troubleshooting-frontend-issues>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <troubleshooting-frontend-issues>`
+            :button-style: btn btn-primary stretched-link
 
-    .. card:: Performance Issues
+    ..  card:: ⚡ Performance Issues
 
         Editor performance, frontend performance, image processing optimization, and database performance
 
-        .. card-footer:: :ref:`Read more <troubleshooting-performance-issues>`
-            :button-style: btn btn-primary
+        ..  card-footer:: :ref:`Read more <troubleshooting-performance-issues>`
+            :button-style: btn btn-primary stretched-link
 
 Related Documentation
 =====================

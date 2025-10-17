@@ -41,51 +41,39 @@ Image support in CKEditor for the TYPO3 ecosystem.
     :card-height: 100
 
     ..  card:: :ref:`Introduction <introduction>`
+        :link-type: ref
 
-        The RTE CKEditor Image extension provides comprehensive image handling
+        📘 The RTE CKEditor Image extension provides comprehensive image handling
         capabilities for TYPO3's CKEditor Rich Text Editor with full FAL integration.
 
-        ..  card-footer:: :ref:`Read more <introduction>`
-            :button-style: btn btn-primary
-
     ..  card:: :ref:`Quick Start <quick-start>`
+        :link-type: ref
 
-        Get up and running quickly with installation instructions and
+        ⚡ Get up and running quickly with installation instructions and
         basic configuration examples.
 
-        ..  card-footer:: :ref:`Read more <quick-start>`
-            :button-style: btn btn-primary
-
     ..  card:: :ref:`Configuration <integration-configuration>`
+        :link-type: ref
 
-        Learn how to configure custom image styles, processing options,
+        ⚙️ Learn how to configure custom image styles, processing options,
         and frontend rendering setup.
 
-        ..  card-footer:: :ref:`Read more <integration-configuration>`
-            :button-style: btn btn-primary
-
     ..  card:: :ref:`Architecture <architecture-index>`
+        :link-type: ref
 
-        Understand the extension's architecture, design patterns,
+        🏗️ Understand the extension's architecture, design patterns,
         and how components interact.
 
-        ..  card-footer:: :ref:`Read more <architecture-index>`
-            :button-style: btn btn-primary
-
     ..  card:: :ref:`Developer API <api-documentation>`
+        :link-type: ref
 
-        Explore the PHP and JavaScript APIs for extending and
+        🔧 Explore the PHP and JavaScript APIs for extending and
         customizing the extension.
 
-        ..  card-footer:: :ref:`Read more <api-documentation>`
-            :button-style: btn btn-primary
-
     ..  card:: :ref:`Troubleshooting <troubleshooting-index>`
+        :link-type: ref
 
-        Find solutions to common issues and learn debugging techniques.
-
-        ..  card-footer:: :ref:`Read more <troubleshooting-index>`
-            :button-style: btn btn-primary
+        🐛 Find solutions to common issues and learn debugging techniques.
 
 
 .. _introduction:
@@ -328,7 +316,6 @@ Additional Resources
    :maxdepth: 2
    :caption: User Documentation
 
-   README
    Integration/Index
    Examples/Index
    Troubleshooting/Index

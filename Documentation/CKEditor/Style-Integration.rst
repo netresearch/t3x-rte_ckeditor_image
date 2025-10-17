@@ -720,4 +720,4 @@ Related Documentation
 - :ref:`ckeditor-model-element`
 - :ref:`ckeditor-conversions`
 - :ref:`configuration`
-- :ref:`troubleshooting`
+- :ref:`troubleshooting-index`
