@@ -21,7 +21,8 @@
         "typo3/testing-framework": "^8.0.7",
         "phpstan/phpstan-deprecation-rules": "^1.2",
         "friendsoftypo3/phpstan-typo3": "^0.9.0",
-        "friendsofphp/php-cs-fixer": "^3.61"
+        "friendsofphp/php-cs-fixer": "^3.61",
+        "ssch/typo3-rector": "^2.0 || ^3.0"
     },
     "config": {
         "vendor-dir": ".Build/vendor",
@@ -44,5 +45,37 @@
             "extension-key": "rte_ckeditor_image",
             "web-dir": ".Build/Web"
         }
+    },
+    "scripts": {
+        "ci:rector": [
+            "rector process --config Build/rector.php"
+        ],
+        "ci:security": [
+            "composer audit"
+        ],
+        "ci:test:php:functional": [
+            "phpunit -c Build/phpunit/FunctionalTests.xml"
+        ],
+        "ci:test:php:lint": [
+            "find . -name \\*.php ! -path \"./.Build/*\" -print0 | xargs -0 -n1 -P4 php -dxdebug.mode=off -l >/dev/null"
+        ],
+        "ci:test:php:phpstan": [
+            "phpstan analyze --configuration Build/phpstan.neon --memory-limit=-1"
+        ],
+        "ci:test:php:phpstan:baseline": [
+            "phpstan analyze --configuration Build/phpstan.neon --memory-limit=-1 --generate-baseline Build/phpstan-baseline.neon --allow-empty-baseline"
+        ],
+        "ci:test:php:rector": [
+            "@ci:rector --dry-run"
+        ],
+        "ci:coverage:functional": [
+            "phpunit -c Build/phpunit/FunctionalTests.xml --coverage-clover=.build/logs/clover.xml --coverage-html=.build/coverage"
+        ],
+        "ci:test": [
+            "@ci:test:php:lint",
+            "@ci:test:php:phpstan",
+            "@ci:test:php:rector",
+            "@ci:test:php:functional"
+        ]
     }
 }

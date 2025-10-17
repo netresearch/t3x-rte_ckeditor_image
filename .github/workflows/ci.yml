@@ -3,9 +3,9 @@ name: CI
 
 on:
     push:
-        branches: [main]
+        branches: [TYPO3_12]
     pull_request:
-        branches: [main]
+        branches: [TYPO3_12]
 
 jobs:
     build:
@@ -14,8 +14,8 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                typo3: [ '^13.0' ]
-                php: [ '8.2', '8.3', '8.4' ]
+                typo3: [ '^12.4' ]
+                php: [ '8.1', '8.2', '8.3' ]
 
         steps:
             -   id: checkout
@@ -27,7 +27,7 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php }}
-                    tools: composer:v2, php-cs-fixer
+                    tools: composer:v2
 
             -   name: Validate composer.json and composer.lock
                 run: composer validate
@@ -61,7 +61,8 @@ jobs:
                     composer require typo3/cms-core:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-backend:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-extbase:${{ matrix.typo3 }} --no-progress --no-update
-                    composer require typo3/cms-extensionmanager:${{ matrix.typo3 }} --no-progress --no-update
+                    composer require typo3/cms-frontend:${{ matrix.typo3 }} --no-progress --no-update
+                    composer require typo3/cms-rte-ckeditor:${{ matrix.typo3 }} --no-progress --no-update
                     composer install
                     git checkout composer.json
 
@@ -70,14 +71,6 @@ jobs:
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
                     composer ci:test:php:lint
-
-            -   id: cgl
-                name: CGL
-                if: ${{ always() && steps.install.conclusion == 'success' }}
-                env:
-                    PHP_CS_FIXER_IGNORE_ENV: true
-                run: |
-                    php-cs-fixer fix --dry-run --verbose --config Build/.php-cs-fixer.dist.php
 
             -   id: phpstan
                 name: PHPStan
@@ -101,7 +94,7 @@ jobs:
 
             -   id: coverage
                 name: Generate Coverage Report
-                if: ${{ always() && steps.functional.conclusion == 'success' && matrix.php == '8.3' }}
+                if: ${{ always() && steps.functional.conclusion == 'success' && matrix.php == '8.2' }}
                 env:
                     typo3DatabaseDriver: pdo_sqlite
                 run: |
@@ -109,7 +102,7 @@ jobs:
 
             -   id: upload-coverage
                 name: Upload Coverage to Codecov
-                if: ${{ always() && steps.coverage.conclusion == 'success' && matrix.php == '8.3' }}
+                if: ${{ always() && steps.coverage.conclusion == 'success' && matrix.php == '8.2' }}
                 uses: codecov/codecov-action@v5
                 with:
                     files: .build/logs/clover.xml
