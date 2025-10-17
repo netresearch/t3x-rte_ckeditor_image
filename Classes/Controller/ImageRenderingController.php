@@ -189,7 +189,8 @@ class ImageRenderingController extends AbstractPlugin
             && isset($systemImage)
         ) {
             // PHPStan type safety: ensure config is an array
-            $popupConfig = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
+            $popupConfig = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['popup.']
+                ?? [];
             $config      = is_array($popupConfig) ? $popupConfig : [];
             $config['enable'] = 1;
 
@@ -220,7 +221,8 @@ class ImageRenderingController extends AbstractPlugin
     private function getLazyLoadingConfiguration(): ?string
     {
         // PHPStan type safety: ensure we return string|null only
-        $lazyLoading = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        $lazyLoading = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading']
+            ?? null;
 
         return is_string($lazyLoading) ? $lazyLoading : null;
     }

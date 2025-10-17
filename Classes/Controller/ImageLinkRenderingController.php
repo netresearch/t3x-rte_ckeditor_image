@@ -231,7 +231,8 @@ class ImageLinkRenderingController extends AbstractPlugin
     private function getLazyLoadingConfiguration(): ?string
     {
         // PHPStan type safety: ensure we return string|null only
-        $lazyLoading = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
+        $lazyLoading = $GLOBALS['TSFE']->tmpl->setup['lib.']['contentElement.']['settings.']['media.']['lazyLoading']
+            ?? null;
 
         return is_string($lazyLoading) ? $lazyLoading : null;
     }
