@@ -29,90 +29,45 @@ RTE CKEditor Image
 :Rendered:
    |today|
 
-----
-
 Image support in CKEditor for the TYPO3 ecosystem.
 
 ----
 
-.. container:: row m-0 p-0
+.. card-grid::
+   :columns: 1
+   :columns-md: 2
+   :gap: 4
+   :class: pb-4
+   :card-height: 100
 
-   .. container:: col-12 col-md-6 pl-0 pr-3 py-3 m-0
+   .. card:: :ref:`Introduction <introduction>`
 
-      .. container:: card px-0 h-100
+      The RTE CKEditor Image extension provides comprehensive image handling
+      capabilities for TYPO3's CKEditor Rich Text Editor with full FAL integration.
 
-         .. rst-class:: card-header h3
+   .. card:: :ref:`Quick Start <quick-start>`
 
-            .. rubric:: :ref:`Introduction <introduction>`
+      Get up and running quickly with installation instructions and
+      basic configuration examples.
 
-         .. container:: card-body
+   .. card:: :ref:`Configuration <integration-configuration>`
 
-            The RTE CKEditor Image extension provides comprehensive image handling
-            capabilities for TYPO3's CKEditor Rich Text Editor with full FAL integration.
+      Learn how to configure custom image styles, processing options,
+      and frontend rendering setup.
 
-   .. container:: col-12 col-md-6 pl-0 pr-3 py-3 m-0
+   .. card:: :ref:`Architecture <architecture-overview>`
 
-      .. container:: card px-0 h-100
+      Understand the extension's architecture, design patterns,
+      and how components interact.
 
-         .. rst-class:: card-header h3
+   .. card:: :ref:`Developer API <api-documentation>`
 
-            .. rubric:: :ref:`Quick Start <quick-start>`
+      Explore the PHP and JavaScript APIs for extending and
+      customizing the extension.
 
-         .. container:: card-body
+   .. card:: :ref:`Troubleshooting <troubleshooting-common-issues>`
 
-            Get up and running quickly with installation instructions and
-            basic configuration examples.
-
-   .. container:: col-12 col-md-6 pl-0 pr-3 py-3 m-0
-
-      .. container:: card px-0 h-100
-
-         .. rst-class:: card-header h3
-
-            .. rubric:: :ref:`Configuration <integration-configuration>`
-
-         .. container:: card-body
-
-            Learn how to configure custom image styles, processing options,
-            and frontend rendering setup.
-
-   .. container:: col-12 col-md-6 pl-0 pr-3 py-3 m-0
-
-      .. container:: card px-0 h-100
-
-         .. rst-class:: card-header h3
-
-            .. rubric:: :ref:`Architecture <architecture-overview>`
-
-         .. container:: card-body
-
-            Understand the extension's architecture, design patterns,
-            and how components interact.
-
-   .. container:: col-12 col-md-6 pl-0 pr-3 py-3 m-0
-
-      .. container:: card px-0 h-100
-
-         .. rst-class:: card-header h3
-
-            .. rubric:: :ref:`Developer API <api-documentation>`
-
-         .. container:: card-body
-
-            Explore the PHP and JavaScript APIs for extending and
-            customizing the extension.
-
-   .. container:: col-12 col-md-6 pl-0 pr-3 py-3 m-0
-
-      .. container:: card px-0 h-100
-
-         .. rst-class:: card-header h3
-
-            .. rubric:: :ref:`Troubleshooting <troubleshooting-common-issues>`
-
-         .. container:: card-body
-
-            Find solutions to common issues and learn debugging techniques.
+      Find solutions to common issues and learn debugging techniques.
 
 
 .. _introduction:
@@ -222,17 +177,17 @@ Quick Navigation by Role
 
 .. container:: table-row
 
-   +-----------------+--------------------------------------------------------+-------------------------------------------------------+----------------------------------------------------+
-   | Role            | Start Here                                             | Then Read                                             | Advanced                                           |
-   +=================+========================================================+=======================================================+====================================================+
-   | **Integrator**  | :ref:`Configuration Guide <integration-configuration>` | :ref:`Examples <examples-common-use-cases>`           | :ref:`Troubleshooting <troubleshooting-common-issues>`|
-   +-----------------+--------------------------------------------------------+-------------------------------------------------------+----------------------------------------------------+
-   | **PHP Dev**     | :ref:`Architecture <architecture-overview>`            | :ref:`API Reference <api-documentation>`              | :ref:`Data Handling <api-datahandling>`            |
-   +-----------------+--------------------------------------------------------+-------------------------------------------------------+----------------------------------------------------+
-   | **JS Dev**      | :ref:`CKEditor Plugin <ckeditor-plugin-development>`   | :ref:`Style Integration <ckeditor-style-integration>` | :ref:`Conversions <ckeditor-conversions>`          |
-   +-----------------+--------------------------------------------------------+-------------------------------------------------------+----------------------------------------------------+
-   | **Contributor** | :ref:`Architecture <architecture-overview>`            | :ref:`API Documentation <api-documentation>`          | :ref:`Examples <examples-common-use-cases>`        |
-   +-----------------+--------------------------------------------------------+-------------------------------------------------------+----------------------------------------------------+
+   +-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
+   | Role            | Start Here                                             | Then Read                                             | Advanced                                            |
+   +=================+========================================================+=======================================================+=====================================================+
+   | **Integrator**  | :ref:`Configuration Guide <integration-configuration>` | :ref:`Examples <examples-common-use-cases>`           | :ref:`Troubleshooting <troubleshooting-common-issues>` |
+   +-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
+   | **PHP Dev**     | :ref:`Architecture <architecture-overview>`            | :ref:`API Reference <api-documentation>`              | :ref:`Data Handling <api-datahandling>`             |
+   +-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
+   | **JS Dev**      | :ref:`CKEditor Plugin <ckeditor-plugin-development>`   | :ref:`Style Integration <ckeditor-style-integration>` | :ref:`Conversions <ckeditor-conversions>`           |
+   +-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
+   | **Contributor** | :ref:`Architecture <architecture-overview>`            | :ref:`API Documentation <api-documentation>`          | :ref:`Examples <examples-common-use-cases>`         |
+   +-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
 
 
 .. _documentation-use-cases:
