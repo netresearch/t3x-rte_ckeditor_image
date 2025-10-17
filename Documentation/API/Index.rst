@@ -55,11 +55,11 @@ PSR-14 event system integration:
 Usage Examples
 ==============
 
-See :ref:`Common Use Cases <examples-common>` for practical implementation examples of these APIs.
+See :ref:`Common Use Cases <examples-common-use-cases>` for practical implementation examples of these APIs.
 
 Related Documentation
 =====================
 
 - :ref:`Architecture Overview <architecture-overview>` - Understand how components interact
-- :ref:`CKEditor Plugin Development <ckeditor-plugin>` - Frontend JavaScript components
+- :ref:`CKEditor Plugin Development <ckeditor-plugin-development>` - Frontend JavaScript components
 - :ref:`Configuration Guide <integration-configuration>` - Configure PHP components

@@ -100,14 +100,14 @@ By Use Case
 
 - **Basic editor** → :ref:`integration-configuration-minimal`
 - **Style-aware images** → :ref:`integration-configuration-custom-styles`
-- **Responsive images** → :ref:`integration-configuration-responsive`
+- **Responsive images** → :ref:`integration-configuration`
 - **Restricted access** → :ref:`integration-configuration-permissions`
 
 By Component
 ------------
 
-- **CKEditor plugin** → :ref:`integration-configuration-plugin`
-- **File browser** → :ref:`integration-configuration-file-browser`
+- **CKEditor plugin** → :ref:`integration-configuration`
+- **File browser** → :ref:`integration-configuration`
 - **Frontend rendering** → :ref:`integration-configuration-frontend-rendering`
 - **Image processing** → :ref:`integration-configuration-image-processing`
 
@@ -142,7 +142,7 @@ Migration from Other Solutions
 Related Documentation
 =====================
 
-- :ref:`examples` - Practical configuration examples
-- :ref:`api` - Backend integration
-- :ref:`ckeditor` - Frontend plugin
+- :ref:`examples-common-use-cases` - Practical configuration examples
+- :ref:`api-documentation` - Backend integration
+- :ref:`ckeditor-plugin-development` - Frontend plugin
 - :ref:`troubleshooting-common-issues` - Configuration issues

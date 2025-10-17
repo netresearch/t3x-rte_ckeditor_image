@@ -296,15 +296,19 @@ Additional Resources
    :caption: User Documentation
 
    Installation <README>
-   Configuration <Integration/Configuration>
-   Examples <Examples/Common-Use-Cases>
-   Troubleshooting <Troubleshooting/Common-Issues>
+   Integration/Index
+   Integration/Configuration
+   Examples/Index
+   Examples/Common-Use-Cases
+   Troubleshooting/Index
+   Troubleshooting/Common-Issues
 
 .. toctree::
    :hidden:
    :maxdepth: 2
    :caption: Architecture & Design
 
+   Architecture/Index
    Architecture/Overview
 
 .. toctree::
@@ -312,9 +316,11 @@ Additional Resources
    :maxdepth: 2
    :caption: Developer Documentation
 
+   API/Index
    API/Controllers
    API/DataHandling
    API/EventListeners
+   CKEditor/Index
    CKEditor/Plugin-Development
    CKEditor/Model-Element
    CKEditor/Style-Integration
