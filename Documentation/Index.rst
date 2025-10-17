@@ -175,19 +175,17 @@ For complete configuration options, see :ref:`Configuration Guide <integration-c
 Quick Navigation by Role
 ========================
 
-.. container:: table-row
-
-   +-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
-   | Role            | Start Here                                             | Then Read                                             | Advanced                                            |
-   +=================+========================================================+=======================================================+=====================================================+
-   | **Integrator**  | :ref:`Configuration Guide <integration-configuration>` | :ref:`Examples <examples-common-use-cases>`           | :ref:`Troubleshooting <troubleshooting-common-issues>` |
-   +-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
-   | **PHP Dev**     | :ref:`Architecture <architecture-overview>`            | :ref:`API Reference <api-documentation>`              | :ref:`Data Handling <api-datahandling>`             |
-   +-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
-   | **JS Dev**      | :ref:`CKEditor Plugin <ckeditor-plugin-development>`   | :ref:`Style Integration <ckeditor-style-integration>` | :ref:`Conversions <ckeditor-conversions>`           |
-   +-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
-   | **Contributor** | :ref:`Architecture <architecture-overview>`            | :ref:`API Documentation <api-documentation>`          | :ref:`Examples <examples-common-use-cases>`         |
-   +-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
++-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
+| Role            | Start Here                                             | Then Read                                             | Advanced                                            |
++=================+========================================================+=======================================================+=====================================================+
+| **Integrator**  | :ref:`Configuration Guide <integration-configuration>` | :ref:`Examples <examples-common-use-cases>`           | :ref:`Troubleshooting <troubleshooting-common-issues>` |
++-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
+| **PHP Dev**     | :ref:`Architecture <architecture-overview>`            | :ref:`API Reference <api-documentation>`              | :ref:`Data Handling <api-datahandling>`             |
++-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
+| **JS Dev**      | :ref:`CKEditor Plugin <ckeditor-plugin-development>`   | :ref:`Style Integration <ckeditor-style-integration>` | :ref:`Conversions <ckeditor-conversions>`           |
++-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
+| **Contributor** | :ref:`Architecture <architecture-overview>`            | :ref:`API Documentation <api-documentation>`          | :ref:`Examples <examples-common-use-cases>`         |
++-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
 
 
 .. _documentation-use-cases:
