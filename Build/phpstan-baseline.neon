@@ -1,571 +1,228 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Parameter \#3 \$subject of function preg_replace expects array\<float\|int\|string\>\|string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Backend/Preview/RteImagePreviewRenderer.php
-
-		-
-			message: '#^Cannot access offset ''contentElement\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: """
+				#^Call to deprecated method getPagesTSconfig\\(\\) of class TYPO3\\\\CMS\\\\Frontend\\\\Controller\\\\TypoScriptFrontendController\\:
+				since TYPO3 v12, will be removed in v13\\. Frontend should typically not depend on Backend TsConfig\\.
+				            If really needed, use PageTsConfigFactory, see usage in DatabaseRecordLinkBuilder\\.
+				            Remove together with class PageTsConfig\\.$#
+			"""
 			count: 1
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
-			message: '#^Cannot access offset ''lazyLoading'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''media\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''settings\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
-			message: '#^Cannot cast mixed to int\.$#'
-			identifier: cast.int
+			message: "#^Cannot cast mixed to int\\.$#"
 			count: 2
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
-			message: '#^Cannot cast mixed to string\.$#'
-			identifier: cast.string
+			message: "#^Cannot cast mixed to string\\.$#"
 			count: 4
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
-			message: '#^Method Netresearch\\RteCKEditorImage\\Controller\\ImageLinkRenderingController\:\:renderImages\(\) should return string but returns mixed\.$#'
-			identifier: return.type
+			message: """
+				#^Class Netresearch\\\\RteCKEditorImage\\\\Controller\\\\ImageLinkRenderingController extends deprecated class TYPO3\\\\CMS\\\\Frontend\\\\Plugin\\\\AbstractPlugin\\:
+				since TYPO3 v12\\.4\\. Will be removed in TYPO3 v13\\.0\\.$#
+			"""
 			count: 1
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
-			message: '#^Parameter \#1 \$arr of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:implodeAttributes\(\) expects array\<string, int\|string\>, array\<string\> given\.$#'
-			identifier: argument.type
+			message: """
+				#^Fetching class constant class of deprecated class TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Service\\\\MagicImageService\\:
+				since v12\\. Will be removed with v13\\.$#
+			"""
 			count: 1
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
-			message: '#^Parameter \#2 \$attributes of method Netresearch\\RteCKEditorImage\\Controller\\ImageLinkRenderingController\:\:getAttributeValue\(\) expects array\<string, string\>, array\<string\> given\.$#'
-			identifier: argument.type
-			count: 2
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
-			message: '#^Parameter \#3 \$subject of function str_replace expects array\<string\>\|string, mixed given\.$#'
-			identifier: argument.type
+			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\Controller\\\\ImageLinkRenderingController\\:\\:renderImages\\(\\) should return string but returns mixed\\.$#"
 			count: 1
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
-			message: '#^Cannot access offset ''contentElement\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: "#^Parameter \\#3 \\$subject of function str_replace expects array\\|string, mixed given\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: """
+				#^Return type of method Netresearch\\\\RteCKEditorImage\\\\Controller\\\\ImageLinkRenderingController\\:\\:getMagicImageService\\(\\) has typehint with deprecated class TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Service\\\\MagicImageService\\:
+				since v12\\. Will be removed with v13\\.$#
+			"""
+			count: 1
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: """
+				#^Call to deprecated method getPagesTSconfig\\(\\) of class TYPO3\\\\CMS\\\\Frontend\\\\Controller\\\\TypoScriptFrontendController\\:
+				since TYPO3 v12, will be removed in v13\\. Frontend should typically not depend on Backend TsConfig\\.
+				            If really needed, use PageTsConfigFactory, see usage in DatabaseRecordLinkBuilder\\.
+				            Remove together with class PageTsConfig\\.$#
+			"""
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: "#^Cannot cast mixed to int\\.$#"
 			count: 2
 			path: ../Classes/Controller/ImageRenderingController.php
 
 		-
-			message: '#^Cannot access offset ''lazyLoading'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''media\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: "#^Cannot cast mixed to string\\.$#"
 			count: 2
 			path: ../Classes/Controller/ImageRenderingController.php
 
 		-
-			message: '#^Cannot access offset ''popup\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: """
+				#^Class Netresearch\\\\RteCKEditorImage\\\\Controller\\\\ImageRenderingController extends deprecated class TYPO3\\\\CMS\\\\Frontend\\\\Plugin\\\\AbstractPlugin\\:
+				since TYPO3 v12\\.4\\. Will be removed in TYPO3 v13\\.0\\.$#
+			"""
 			count: 1
 			path: ../Classes/Controller/ImageRenderingController.php
 
 		-
-			message: '#^Cannot access offset ''settings\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: """
+				#^Fetching class constant class of deprecated class TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Service\\\\MagicImageService\\:
+				since v12\\. Will be removed with v13\\.$#
+			"""
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: """
+				#^Return type of method Netresearch\\\\RteCKEditorImage\\\\Controller\\\\ImageRenderingController\\:\\:getMagicImageService\\(\\) has typehint with deprecated class TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Service\\\\MagicImageService\\:
+				since v12\\. Will be removed with v13\\.$#
+			"""
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: "#^Cannot cast mixed to int\\.$#"
 			count: 2
-			path: ../Classes/Controller/ImageRenderingController.php
+			path: ../Classes/Controller/SelectImageController.php
 
 		-
-			message: '#^Cannot cast mixed to int\.$#'
-			identifier: cast.int
-			count: 2
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Cannot cast mixed to string\.$#'
-			identifier: cast.string
-			count: 2
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Method Netresearch\\RteCKEditorImage\\Controller\\ImageRenderingController\:\:getImageAttributes\(\) should return array\<string, string\> but returns array\.$#'
-			identifier: return.type
-			count: 1
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
+			message: "#^Netresearch\\\\RteCKEditorImage\\\\Controller\\\\SelectImageController\\:\\:__construct\\(\\) does not call parent constructor from TYPO3\\\\CMS\\\\Backend\\\\Controller\\\\ElementBrowserController\\.$#"
 			count: 1
 			path: ../Classes/Controller/SelectImageController.php
 
 		-
-			message: '#^Cannot access offset ''GFX'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot access offset ''buttons\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot access offset ''image\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot access offset ''imagefile_ext'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot access offset ''magic\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot access offset ''maxHeight'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot access offset ''maxWidth'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot access offset ''options\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot access offset ''table'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot access offset ''uid'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot access offset non\-falsy\-string on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot call method check\(\) on mixed\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot call method getFileStorageRecords\(\) on mixed\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot call method isAdmin\(\) on mixed\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot cast mixed to int\.$#'
-			identifier: cast.int
-			count: 6
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot cast mixed to string\.$#'
-			identifier: cast.string
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Netresearch\\RteCKEditorImage\\Controller\\SelectImageController\:\:__construct\(\) does not call parent constructor from TYPO3\\CMS\\Backend\\Controller\\ElementBrowserController\.$#'
-			identifier: constructor.missingParentCall
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Parameter \#1 \$params of method Netresearch\\RteCKEditorImage\\Controller\\SelectImageController\:\:getMaxDimensions\(\) expects array\<string\>, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Parameter \#2 \$params of method Netresearch\\RteCKEditorImage\\Controller\\SelectImageController\:\:processImage\(\) expects array\<string\>, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Binary operation "\." between ''data\-htmlarea\-file…'' and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
+			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\DataHandling\\\\SoftReference\\\\RteImageSoftReferenceParser\\:\\:findImageTags\\(\\) should return array\\<string, array\\<array\\<string, mixed\\>\\>\\|string\\> but returns array\\<array\\<string, mixed\\>\\>\\.$#"
 			count: 1
 			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
 
 		-
-			message: '#^Binary operation "\." between ''sys_file\:'' and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
+			message: "#^Cannot access offset 'host' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
 			count: 1
-			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
-
-		-
-			message: '#^Cannot access offset ''data\-htmlarea\-file\-uid'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
-
-		-
-			message: '#^Method Netresearch\\RteCKEditorImage\\DataHandling\\SoftReference\\RteImageSoftReferenceParser\:\:findImageTags\(\) should return array\<string, array\<array\<string, mixed\>\>\|string\> but returns array\<array\<string, mixed\>\>\.$#'
-			identifier: return.type
-			count: 1
-			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
-
-		-
-			message: '#^Property Netresearch\\RteCKEditorImage\\DataHandling\\SoftReference\\RteImageSoftReferenceParser\:\:\$splitContentTags \(array\<int, string\>\) does not accept array\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
-
-		-
-			message: '#^Cannot access offset ''alt'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
-			message: '#^Cannot access offset ''columns'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: "#^Cannot call method createFile\\(\\) on bool\\|TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Folder\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Cannot cast mixed to int\\.$#"
 			count: 2
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
-			message: '#^Cannot access offset ''columnsOverrides'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: """
+				#^Fetching class constant class of deprecated class TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Service\\\\MagicImageService\\:
+				since v12\\. Will be removed with v13\\.$#
+			"""
 			count: 1
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
-			message: '#^Cannot access offset ''config'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset ''data\-htmlarea\-file\-uid'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset ''height'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset ''host'' on array\{scheme\?\: string, host\?\: string, port\?\: int\<0, 65535\>, user\?\: string, pass\?\: string, path\?\: string, query\?\: string, fragment\?\: string\}\|false\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: "#^Parameter \\#1 \\$value of method Netresearch\\\\RteCKEditorImage\\\\Database\\\\RteImagesDbHook\\:\\:modifyRteField\\(\\) expects string, mixed given\\.$#"
 			count: 1
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
-			message: '#^Cannot access offset ''src'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 9
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset ''style'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset ''types'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset ''width'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset \(int\|string\) on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset string on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 6
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot call method createFile\(\) on bool\|TYPO3\\CMS\\Core\\Resource\\Folder\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot cast mixed to int\.$#'
-			identifier: cast.int
-			count: 3
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot cast mixed to string\.$#'
-			identifier: cast.string
-			count: 5
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Method Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook\:\:resolveFieldConfigurationAndRespectColumnsOverrides\(\) should return array\<mixed\> but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$arr of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:implodeAttributes\(\) expects array\<string, int\|string\>, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$attributes of method Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook\:\:getImageHeightFromAttributes\(\) expects array\<string\>, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$attributes of method Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook\:\:getImageWidthFromAttributes\(\) expects array\<string\>, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$original of static method TYPO3\\CMS\\Core\\Utility\\ArrayUtility\:\:mergeRecursiveWithOverrule\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$tag of method TYPO3\\CMS\\Core\\Html\\HtmlParser\:\:get_tag_attributes\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 2
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$user of method TYPO3\\CMS\\Core\\Resource\\DefaultUploadFolderResolver\:\:resolve\(\) expects TYPO3\\CMS\\Core\\Authentication\\BackendUserAuthentication, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$value of method Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook\:\:modifyRteField\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#2 \$overrule of static method TYPO3\\CMS\\Core\\Utility\\ArrayUtility\:\:mergeRecursiveWithOverrule\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#3 \$subject of function preg_replace expects array\<float\|int\|string\>\|string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset ''bodytext'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: ../Configuration/TCA/Overrides/tt_content.php
-
-		-
-			message: '#^Cannot access offset ''columns'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: ../Configuration/TCA/Overrides/tt_content.php
-
-		-
-			message: '#^Cannot access offset ''config'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: ../Configuration/TCA/Overrides/tt_content.php
-
-		-
-			message: '#^Cannot access offset ''previewRenderer'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Configuration/TCA/Overrides/tt_content.php
-
-		-
-			message: '#^Cannot access offset ''softref'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: ../Configuration/TCA/Overrides/tt_content.php
-
-		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Configuration/TCA/Overrides/tt_content.php
-
-		-
-			message: '#^Cannot access offset ''tt_content'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: ../Configuration/TCA/Overrides/tt_content.php
-
-		-
-			message: '#^Cannot access offset ''types'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Configuration/TCA/Overrides/tt_content.php
-
-		-
-			message: '#^Cannot cast mixed to string\.$#'
-			identifier: cast.string
-			count: 1
-			path: ../Configuration/TCA/Overrides/tt_content.php
-
-		-
-			message: '#^Binary operation "\*" between mixed and mixed results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
-
-		-
-			message: '#^Cannot access offset ''height'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: "#^Cannot access offset 'height' on mixed\\.$#"
 			count: 4
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Cannot access offset ''width'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: "#^Cannot access offset 'width' on mixed\\.$#"
 			count: 4
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\)\\.$#"
 			count: 4
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertCount\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\)\\.$#"
 			count: 1
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertEquals\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\)\\.$#"
 			count: 12
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertGreaterThanOrEqual\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertGreaterThanOrEqual\\(\\)\\.$#"
 			count: 2
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\)\\.$#"
 			count: 5
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertIsInt\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsInt\\(\\)\\.$#"
 			count: 2
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Dynamic call to static method PHPUnit\\Framework\\Assert\:\:assertLessThanOrEqual\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: "#^Dynamic call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertLessThanOrEqual\\(\\)\\.$#"
 			count: 3
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Parameter \#1 \$object of method Netresearch\\RteCKEditorImage\\Tests\\Functional\\Controller\\SelectImageControllerTest\:\:invokeMethod\(\) expects object, Netresearch\\RteCKEditorImage\\Controller\\SelectImageController\|null given\.$#'
-			identifier: argument.type
+			message: "#^Parameter \\#1 \\$object of method Netresearch\\\\RteCKEditorImage\\\\Tests\\\\Functional\\\\Controller\\\\SelectImageControllerTest\\:\\:invokeMethod\\(\\) expects object, Netresearch\\\\RteCKEditorImage\\\\Controller\\\\SelectImageController\\|null given\\.$#"
 			count: 9
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Cannot access an offset on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: "#^Cannot call method updateIndex\\(\\) on mixed\\.$#"
+			count: 1
+			path: ../Tests/Functional/DataHandling/RteImageSoftReferenceParserTest.php
+
+		-
+			message: """
+				#^Call to deprecated method andX\\(\\) of class TYPO3\\\\CMS\\\\Core\\\\Database\\\\Query\\\\Expression\\\\ExpressionBuilder\\:
+				since v12, will be removed in v13\\. Use ExpressionBuilder\\:\\:and\\(\\) instead\\.$#
+			"""
 			count: 1
 			path: ../ext_localconf.php
 
 		-
-			message: '#^Cannot access offset ''SC_OPTIONS'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: "#^Call to method isEnvironmentInBackendMode\\(\\) on an unknown class TYPO3\\\\CMS\\\\Extbase\\\\Service\\\\EnvironmentService\\.$#"
 			count: 1
 			path: ../ext_localconf.php
 
 		-
-			message: '#^Cannot access offset ''processDatamapClass'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: "#^Cannot cast mixed to string\\.$#"
 			count: 1
 			path: ../ext_localconf.php
 
 		-
-			message: '#^Cannot access offset ''t3lib/class\.t3lib_tcemain\.php'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
+			message: "#^Class TYPO3\\\\CMS\\\\Extbase\\\\Service\\\\EnvironmentService not found\\.$#"
+			count: 1
+			path: ../ext_localconf.php
+
+		-
+			message: """
+				#^Fetching deprecated class constant WARNING of class TYPO3\\\\CMS\\\\Core\\\\Messaging\\\\FlashMessage\\:
+				Use \\\\TYPO3\\\\CMS\\\\Core\\\\Type\\\\ContextualFeedbackSeverity\\:\\:WARNING instead$#
+			"""
 			count: 1
 			path: ../ext_localconf.php
