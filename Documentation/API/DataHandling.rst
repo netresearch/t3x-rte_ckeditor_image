@@ -537,4 +537,4 @@ Related Documentation
 - :ref:`Controllers API <api-controllers>`
 - :ref:`Event Listeners <api-eventlisteners>`
 - :ref:`Architecture Overview <architecture-overview>`
-- :ref:`Troubleshooting <troubleshooting-common>`
+- :ref:`Troubleshooting <troubleshooting-index>`

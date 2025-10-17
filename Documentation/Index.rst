@@ -33,41 +33,59 @@ Image support in CKEditor for the TYPO3 ecosystem.
 
 ----
 
-.. card-grid::
-   :columns: 1
-   :columns-md: 2
-   :gap: 4
-   :class: pb-4
-   :card-height: 100
+..  card-grid::
+    :columns: 1
+    :columns-md: 2
+    :gap: 4
+    :class: pb-4
+    :card-height: 100
 
-   .. card:: :ref:`Introduction <introduction>`
+    ..  card:: :ref:`Introduction <introduction>`
 
-      The RTE CKEditor Image extension provides comprehensive image handling
-      capabilities for TYPO3's CKEditor Rich Text Editor with full FAL integration.
+        The RTE CKEditor Image extension provides comprehensive image handling
+        capabilities for TYPO3's CKEditor Rich Text Editor with full FAL integration.
 
-   .. card:: :ref:`Quick Start <quick-start>`
+        ..  card-footer:: :ref:`Read more <introduction>`
+            :button-style: btn btn-primary
 
-      Get up and running quickly with installation instructions and
-      basic configuration examples.
+    ..  card:: :ref:`Quick Start <quick-start>`
 
-   .. card:: :ref:`Configuration <integration-configuration>`
+        Get up and running quickly with installation instructions and
+        basic configuration examples.
 
-      Learn how to configure custom image styles, processing options,
-      and frontend rendering setup.
+        ..  card-footer:: :ref:`Read more <quick-start>`
+            :button-style: btn btn-primary
 
-   .. card:: :ref:`Architecture <architecture-overview>`
+    ..  card:: :ref:`Configuration <integration-configuration>`
 
-      Understand the extension's architecture, design patterns,
-      and how components interact.
+        Learn how to configure custom image styles, processing options,
+        and frontend rendering setup.
 
-   .. card:: :ref:`Developer API <api-documentation>`
+        ..  card-footer:: :ref:`Read more <integration-configuration>`
+            :button-style: btn btn-primary
 
-      Explore the PHP and JavaScript APIs for extending and
-      customizing the extension.
+    ..  card:: :ref:`Architecture <architecture-index>`
 
-   .. card:: :ref:`Troubleshooting <troubleshooting-common-issues>`
+        Understand the extension's architecture, design patterns,
+        and how components interact.
 
-      Find solutions to common issues and learn debugging techniques.
+        ..  card-footer:: :ref:`Read more <architecture-index>`
+            :button-style: btn btn-primary
+
+    ..  card:: :ref:`Developer API <api-documentation>`
+
+        Explore the PHP and JavaScript APIs for extending and
+        customizing the extension.
+
+        ..  card-footer:: :ref:`Read more <api-documentation>`
+            :button-style: btn btn-primary
+
+    ..  card:: :ref:`Troubleshooting <troubleshooting-index>`
+
+        Find solutions to common issues and learn debugging techniques.
+
+        ..  card-footer:: :ref:`Read more <troubleshooting-index>`
+            :button-style: btn btn-primary
 
 
 .. _introduction:
@@ -175,17 +193,34 @@ For complete configuration options, see :ref:`Configuration Guide <integration-c
 Quick Navigation by Role
 ========================
 
-+-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
-| Role            | Start Here                                             | Then Read                                             | Advanced                                            |
-+=================+========================================================+=======================================================+=====================================================+
-| **Integrator**  | :ref:`Configuration Guide <integration-configuration>` | :ref:`Examples <examples-common-use-cases>`           | :ref:`Troubleshooting <troubleshooting-common-issues>` |
-+-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
-| **PHP Dev**     | :ref:`Architecture <architecture-overview>`            | :ref:`API Reference <api-documentation>`              | :ref:`Data Handling <api-datahandling>`             |
-+-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
-| **JS Dev**      | :ref:`CKEditor Plugin <ckeditor-plugin-development>`   | :ref:`Style Integration <ckeditor-style-integration>` | :ref:`Conversions <ckeditor-conversions>`           |
-+-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
-| **Contributor** | :ref:`Architecture <architecture-overview>`            | :ref:`API Documentation <api-documentation>`          | :ref:`Examples <examples-common-use-cases>`         |
-+-----------------+--------------------------------------------------------+-------------------------------------------------------+-----------------------------------------------------+
+.. list-table::
+   :header-rows: 1
+   :widths: 15 30 30 25
+
+   * - Role
+     - Start Here
+     - Then Read
+     - Advanced
+
+   * - **Integrator**
+     - :ref:`Configuration Guide <integration-configuration>`
+     - :ref:`Examples <examples-common-use-cases>`
+     - :ref:`Troubleshooting <troubleshooting-index>`
+
+   * - **PHP Dev**
+     - :ref:`Architecture <architecture-index>`
+     - :ref:`API Reference <api-documentation>`
+     - :ref:`Data Handling <api-datahandling>`
+
+   * - **JS Dev**
+     - :ref:`CKEditor Plugin <ckeditor-plugin-development>`
+     - :ref:`Style Integration <ckeditor-style-integration>`
+     - :ref:`Conversions <ckeditor-conversions>`
+
+   * - **Contributor**
+     - :ref:`Architecture <architecture-index>`
+     - :ref:`API Documentation <api-documentation>`
+     - :ref:`Examples <examples-common-use-cases>`
 
 
 .. _documentation-use-cases:
@@ -207,7 +242,7 @@ For Developers
 PHP Backend Development
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-- **Understand the architecture** → :ref:`Architecture Overview <architecture-overview>`
+- **Understand the architecture** → :ref:`Architecture Overview <architecture-index>`
 - **Controller APIs** → :ref:`Controllers API <api-controllers>`
 - **Customize image processing** → :ref:`Data Handling API <api-datahandling>`
 - **Listen to extension events** → :ref:`Event Listeners <api-eventlisteners>`
@@ -226,7 +261,7 @@ For Troubleshooters
 - **Images not appearing** → :ref:`Frontend Rendering Issues <troubleshooting-frontend-rendering>`
 - **Style dropdown disabled** → :ref:`Style Drop-down Not Working <troubleshooting-style-dropdown>`
 - **File browser not opening** → :ref:`File Browser Issues <troubleshooting-file-browser>`
-- **Performance problems** → :ref:`Common Issues <troubleshooting-common-issues>`
+- **Performance problems** → :ref:`Common Issues <troubleshooting-index>`
 
 
 .. _support-contributing:
@@ -266,7 +301,7 @@ Credits
 Development & Maintenance
 --------------------------
 
-- Netresearch - Gesellschaft für neue Netzwerke mbH
+- `Netresearch DTT GmbH <https://www.netresearch.de/>`__
 - Sebastian Koschel
 - Sebastian Mendel
 - Rico Sonntag
@@ -293,13 +328,10 @@ Additional Resources
    :maxdepth: 2
    :caption: User Documentation
 
-   Installation <README>
+   README
    Integration/Index
-   Integration/Configuration
    Examples/Index
-   Examples/Common-Use-Cases
    Troubleshooting/Index
-   Troubleshooting/Common-Issues
 
 .. toctree::
    :hidden:
@@ -307,7 +339,6 @@ Additional Resources
    :caption: Architecture & Design
 
    Architecture/Index
-   Architecture/Overview
 
 .. toctree::
    :hidden:
@@ -315,11 +346,4 @@ Additional Resources
    :caption: Developer Documentation
 
    API/Index
-   API/Controllers
-   API/DataHandling
-   API/EventListeners
    CKEditor/Index
-   CKEditor/Plugin-Development
-   CKEditor/Model-Element
-   CKEditor/Style-Integration
-   CKEditor/Conversions

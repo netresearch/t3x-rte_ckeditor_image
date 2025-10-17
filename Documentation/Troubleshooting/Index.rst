@@ -10,61 +10,6 @@ Solutions to common issues, debugging techniques, and support resources.
    :local:
    :depth: 2
 
-Overview
-========
-
-This section provides comprehensive troubleshooting guidance for common issues encountered when using the RTE CKEditor Image extension.
-
-Available Documentation
-=======================
-
-:ref:`troubleshooting-common-issues`
-------------------------------------
-
-Complete troubleshooting guide covering:
-
-Installation & Setup Issues
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* Extension installation problems
-* Dependency conflicts
-* Cache-related issues
-* Permission problems
-
-Editor Issues
-^^^^^^^^^^^^^
-
-* Image button not appearing
-* File browser not opening
-* Style dropdown disabled (critical for v13.0.0+)
-* Upload failures
-* Preview not working
-
-Frontend Rendering Issues
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* Images not displaying
-* Broken image links
-* Incorrect dimensions
-* Missing styles
-* Link rendering problems
-
-Performance Issues
-^^^^^^^^^^^^^^^^^^
-
-* Slow image loading
-* Large file handling
-* Processing timeouts
-* Memory exhaustion
-
-Configuration Issues
-^^^^^^^^^^^^^^^^^^^^
-
-* TSConfig not applying
-* TypoScript conflicts
-* RTE configuration errors
-* Style configuration problems
-
 Quick Fixes
 ===========
 
@@ -184,15 +129,43 @@ Include:
 * Error messages
 * Browser console output
 
-Known Issues & Workarounds
-===========================
+Troubleshooting Topics
+======================
 
-See :ref:`troubleshooting-common-issues` for detailed information on:
+.. card-grid::
+    :columns: 1
+    :columns-md: 2
+    :gap: 4
+    :class: pb-4
+    :card-height: 100
 
-* v13.0.0 style integration changes
-* Browser compatibility issues
-* Performance considerations
-* Edge cases and limitations
+    .. card:: Installation Issues
+
+        Extension installation problems, dependency conflicts, cache issues, and permission problems
+
+        .. card-footer:: :ref:`Read more <troubleshooting-installation-issues>`
+            :button-style: btn btn-primary
+
+    .. card:: Editor Issues
+
+        Image button problems, style dropdown issues, file browser problems, and CKEditor errors
+
+        .. card-footer:: :ref:`Read more <troubleshooting-editor-issues>`
+            :button-style: btn btn-primary
+
+    .. card:: Frontend Issues
+
+        Image display problems, broken links, dimension issues, and rendering problems
+
+        .. card-footer:: :ref:`Read more <troubleshooting-frontend-issues>`
+            :button-style: btn btn-primary
+
+    .. card:: Performance Issues
+
+        Editor performance, frontend performance, image processing optimization, and database performance
+
+        .. card-footer:: :ref:`Read more <troubleshooting-performance-issues>`
+            :button-style: btn btn-primary
 
 Related Documentation
 =====================
@@ -208,3 +181,12 @@ Related Documentation
 
 :ref:`api-index`
    Technical reference
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+
+   Installation-Issues
+   Editor-Issues
+   Frontend-Issues
+   Performance-Issues

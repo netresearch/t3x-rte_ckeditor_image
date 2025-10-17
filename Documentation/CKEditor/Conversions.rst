@@ -793,4 +793,4 @@ Related Documentation
 - :ref:`ckeditor-model-element`
 - :ref:`ckeditor-style-integration`
 - :ref:`architecture-overview`
-- :ref:`api-data-handling`
+- :ref:`api-datahandling`

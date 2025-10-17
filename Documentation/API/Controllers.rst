@@ -297,5 +297,5 @@ Related Documentation
 =====================
 
 - :ref:`Architecture Overview <architecture-overview>`
-- :ref:`Data Flow <architecture-dataflow>`
+- :ref:`Data Flow <architecture-design-patterns>`
 - :ref:`TypoScript Configuration <typoscript-reference>`

@@ -6,65 +6,45 @@ CKEditor Plugin Development
 
 Complete documentation for the CKEditor 5 plugin implementation.
 
-Overview
-========
-
 The typo3image plugin is a custom CKEditor 5 plugin that integrates TYPO3's File Abstraction Layer (FAL) with the rich text editor, enabling seamless image management within the CKEditor interface.
 
-Available Documentation
-========================
+Plugin Components
+=================
 
-Plugin Development
-------------------
+..  card-grid::
+    :columns: 1
+    :columns-md: 2
+    :gap: 4
+    :class: pb-4
+    :card-height: 100
 
-:ref:`ckeditor-plugin-development-guide`
+    ..  card:: :ref:`Plugin Development <ckeditor-plugin-development-guide>`
 
-Complete plugin architecture and implementation:
+        Plugin architecture, UI components, commands, and event handling
 
-- Plugin structure and initialization
-- UI components (button, toolbar, dialog)
-- Commands and command execution
-- Integration with CKEditor ecosystem
-- Event handling and lifecycle
+        ..  card-footer:: :ref:`Read more <ckeditor-plugin-development-guide>`
+            :button-style: btn btn-primary
 
-Model Element
--------------
+    ..  card:: :ref:`Model Element <ckeditor-model-element>`
 
-:ref:`ckeditor-model-element`
+        The typo3image custom element schema, attributes, and model integration
 
-The typo3image custom model element:
+        ..  card-footer:: :ref:`Read more <ckeditor-model-element>`
+            :button-style: btn btn-primary
 
-- Element schema and attributes
-- Model manipulation methods
-- Attribute handling and validation
-- Integration with CKEditor model
-- Differences from standard ``imageBlock``
+    ..  card:: :ref:`Style Integration <ckeditor-style-integration>`
 
-Style Integration
------------------
+        Style system integration with StyleUtils and GeneralHtmlSupport (critical for v13.0.0+)
 
-:ref:`ckeditor-style-integration`
+        ..  card-footer:: :ref:`Read more <ckeditor-style-integration>`
+            :button-style: btn btn-primary
 
-Critical for v13.0.0+ - Style system integration:
+    ..  card:: :ref:`Conversions <ckeditor-conversions>`
 
-- StyleUtils and GeneralHtmlSupport dependencies
-- Style application to typo3image elements
-- Configuration and customization
-- Troubleshooting style issues
-- Bug fixes in v13.0.0
+        HTML ↔ Model conversion patterns for upcast and downcast transformations
 
-Conversions
------------
-
-:ref:`ckeditor-conversions`
-
-Upcast and downcast conversion patterns:
-
-- HTML → Model (upcast) conversions
-- Model → HTML (downcast) conversions
-- Attribute conversion patterns
-- Custom conversion implementations
-- Debugging conversion issues
+        ..  card-footer:: :ref:`Read more <ckeditor-conversions>`
+            :button-style: btn btn-primary
 
 Quick Links
 ===========
@@ -107,3 +87,12 @@ Related Documentation
 - :ref:`api-documentation` - PHP backend integration
 - :ref:`integration-configuration` - Plugin configuration
 - :ref:`examples-common-use-cases` - Practical implementation examples
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+
+   Plugin-Development
+   Model-Element
+   Style-Integration
+   Conversions
