@@ -22,7 +22,6 @@ use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -59,17 +58,13 @@ class SelectImageController extends ElementBrowserController
     private const IMAGE_DEFAULT_MAX_HEIGHT = 9999;
 
     /**
-     * @var ResourceFactory
+     * Constructor with dependency injection.
+     *
+     * @param ResourceFactory $resourceFactory Factory for file resources
      */
-    private readonly ResourceFactory $resourceFactory;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this->resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-    }
+    public function __construct(
+        private readonly ResourceFactory $resourceFactory,
+    ) {}
 
     /**
      * Forward to infoAction if wanted.
@@ -181,15 +176,15 @@ class SelectImageController extends ElementBrowserController
     {
         try {
             $file = $this->resourceFactory->getFileObject($id);
-
-            if ($file->isDeleted() || $file->isMissing()) {
-                throw new RuntimeException('File is deleted or missing', 1734282001);
-            }
-
-            return $file;
         } catch (Exception $exception) {
             throw new RuntimeException('File not found', 1734282000, $exception);
         }
+
+        if ($file->isDeleted() || $file->isMissing()) {
+            throw new RuntimeException('File is deleted or missing', 1734282001);
+        }
+
+        return $file;
     }
 
     /**
@@ -202,6 +197,7 @@ class SelectImageController extends ElementBrowserController
      */
     protected function isFileAccessibleByUser(File $file): bool
     {
+        // Note: $GLOBALS['BE_USER'] is still the standard pattern in TYPO3 13 for backend context
         $backendUser = $GLOBALS['BE_USER'] ?? null;
 
         // No backend user context - deny access

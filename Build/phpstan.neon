@@ -28,3 +28,14 @@ parameters:
     inferPrivatePropertyTypeFromConstructor: true
     checkMissingCallableSignature: true
     checkUninitializedProperties: true
+
+    # Ignore uninitialized property errors in test files (properties initialized in setUp())
+    ignoreErrors:
+        - identifier: property.uninitialized
+          path: %currentWorkingDirectory%/Tests/Unit/*
+        # Ignore offset access errors in test files (test assertions on array results)
+        - identifier: offsetAccess.nonOffsetAccessible
+          path: %currentWorkingDirectory%/Tests/Unit/*
+        - identifier: argument.type
+          path: %currentWorkingDirectory%/Tests/Unit/*
+          message: '#Parameter \#2 \$array of static method PHPUnit\\Framework\\Assert::#'

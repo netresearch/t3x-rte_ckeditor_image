@@ -14,11 +14,19 @@ namespace Netresearch\RteCKEditorImage\Utils;
 use Exception;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\ImageService;
 
 class ProcessedFilesHandler
 {
+    /**
+     * Constructor with dependency injection.
+     *
+     * @param ImageService $imageService Service for processing images
+     */
+    public function __construct(
+        private readonly ImageService $imageService,
+    ) {}
+
     /**
      * Create a processed variant of a file based on the given configuration.
      * Returns the ProcessedFile or throws an exception if creation failed.
@@ -36,12 +44,10 @@ class ProcessedFilesHandler
      */
     public function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile
     {
-        /** @var ImageService $imageService */
-        $imageService = GeneralUtility::makeInstance(ImageService::class);
 
         // Process the file with the given configuration
         try {
-            return $imageService->applyProcessingInstructions($file, $imageConfiguration);
+            return $this->imageService->applyProcessingInstructions($file, $imageConfiguration);
         } catch (Exception) {
             throw new Exception('Could not create processed file', 1716565499);
         }
