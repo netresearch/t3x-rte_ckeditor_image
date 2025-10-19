@@ -75,8 +75,12 @@ class RteImagesDbHook
     /**
      * Constructor.
      *
-     * @param ExtensionConfiguration $extensionConfiguration
-     * @param LogManager             $logManager
+     * @param ExtensionConfiguration      $extensionConfiguration
+     * @param LogManager                  $logManager
+     * @param ResourceFactory             $resourceFactory
+     * @param Context                     $context
+     * @param RequestFactory              $requestFactory
+     * @param DefaultUploadFolderResolver $uploadFolderResolver
      *
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -84,6 +88,10 @@ class RteImagesDbHook
     public function __construct(
         ExtensionConfiguration $extensionConfiguration,
         LogManager $logManager,
+        private readonly ResourceFactory $resourceFactory,
+        private readonly Context $context,
+        private readonly RequestFactory $requestFactory,
+        private readonly DefaultUploadFolderResolver $uploadFolderResolver,
     ) {
         $this->fetchExternalImages = (bool) $extensionConfiguration
             ->get('rte_ckeditor_image', 'fetchExternalImages');
@@ -404,8 +412,6 @@ class RteImagesDbHook
             );
         }
 
-        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-
         foreach ($imgSplit as $key => $v) {
             // Odd numbers contains the <img> tags
             if (($key % 2) === 1) {
@@ -426,7 +432,7 @@ class RteImagesDbHook
                 if (isset($attribArray['data-htmlarea-file-uid'])) {
                     // An original image file uid is available
                     try {
-                        $originalImageFile = $resourceFactory
+                        $originalImageFile = $this->resourceFactory
                             ->getFileObject((int) $attribArray['data-htmlarea-file-uid']);
                     } catch (FileDoesNotExistException $exception) {
                         if ($this->logger instanceof LoggerInterface) {
@@ -480,8 +486,7 @@ class RteImagesDbHook
                         ];
 
                         // ensure we do get a processed file
-                        GeneralUtility::makeInstance(Context::class)
-                            ->setAspect('fileProcessing', new FileProcessingAspect(false));
+                        $this->context->setAspect('fileProcessing', new FileProcessingAspect(false));
 
                         $magicImage = $originalImageFile->process(
                             ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
@@ -525,14 +530,11 @@ class RteImagesDbHook
                     // Fetch the external image using validated IP to prevent DNS rebinding
                     $externalFile = null;
                     try {
-                        /** @var RequestFactory $requestFactory */
-                        $requestFactory = GeneralUtility::makeInstance(RequestFactory::class);
-
                         $parsedUrl = parse_url($absoluteUrl);
                         $host      = $parsedUrl['host'];
                         $port      = $parsedUrl['port'] ?? (($parsedUrl['scheme'] ?? 'http') === 'https' ? 443 : 80);
 
-                        $response = $requestFactory->request($absoluteUrl, 'GET', [
+                        $response = $this->requestFactory->request($absoluteUrl, 'GET', [
                             'timeout'         => 5,
                             'allow_redirects' => false, // Prevent redirect to unsafe locations
                             'curl'            => [
@@ -555,7 +557,7 @@ class RteImagesDbHook
                         // do nothing, further image processing will be skipped
                     }
 
-                    if ($externalFile !== null && $externalFile !== false) {
+                    if ($externalFile !== null) {
                         // SECURITY: Validate MIME type from content before processing
                         if (!$this->isValidImageMimeType($externalFile)) {
                             if ($this->logger instanceof LoggerInterface) {
@@ -583,10 +585,9 @@ class RteImagesDbHook
                         if (in_array($extension, $allowedExtensions, true)) {
                             $fileName = substr(md5($absoluteUrl), 0, 10) . '.' . ($pI['extension'] ?? '');
                             // We insert this image into the user default upload folder
-                            $uploadFolderResolver = GeneralUtility::makeInstance(DefaultUploadFolderResolver::class);
-                            $folder               = $uploadFolderResolver->resolve($GLOBALS['BE_USER']);
-                            $fileObject           = $folder->createFile($fileName)->setContents($externalFile);
-                            $imageConfiguration   = [
+                            $folder             = $this->uploadFolderResolver->resolve($GLOBALS['BE_USER']);
+                            $fileObject         = $folder->createFile($fileName)->setContents($externalFile);
+                            $imageConfiguration = [
                                 'width'  => $attribArray['width'],
                                 'height' => $attribArray['height'],
                             ];
@@ -636,7 +637,7 @@ class RteImagesDbHook
                     if (($filepath !== '') && is_file($filepath)) {
                         // Let's try to find a file uid for this image
                         try {
-                            $fileOrFolderObject = $resourceFactory->retrieveFileOrFolderObject($path);
+                            $fileOrFolderObject = $this->resourceFactory->retrieveFileOrFolderObject($path);
                             if ($fileOrFolderObject instanceof FileInterface) {
                                 $fileIdentifier = $fileOrFolderObject->getIdentifier();
                                 $fileObject     = $fileOrFolderObject->getStorage()->getFile($fileIdentifier);

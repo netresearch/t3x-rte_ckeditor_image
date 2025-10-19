@@ -38,8 +38,13 @@ services:
       - name: softreference.parser
         parserKey: rtehtmlarea_images
 
+  # DataHandler hook with full dependency injection
   Netresearch\RteCKEditorImage\Database\RteImagesDbHook:
     public: true
-
-  Netresearch\RteCKEditorImage\Controller\SelectImageController:
-    tags: ['backend.controller']
+    arguments:
+      $extensionConfiguration: '@TYPO3\CMS\Core\Configuration\ExtensionConfiguration'
+      $logManager: '@TYPO3\CMS\Core\Log\LogManager'
+      $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
+      $context: '@TYPO3\CMS\Core\Context\Context'
+      $requestFactory: '@TYPO3\CMS\Core\Http\RequestFactory'
+      $uploadFolderResolver: '@TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver'
