@@ -7,6 +7,31 @@ services:
   Netresearch\RteCKEditorImage\:
     resource: '../Classes/*'
 
+  # Explicitly configure controllers with dependencies
+  Netresearch\RteCKEditorImage\Controller\SelectImageController:
+    public: true
+    tags: ['backend.controller']
+    arguments:
+      $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
+
+  Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController:
+    public: true
+    arguments:
+      $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
+      $logManager: '@TYPO3\CMS\Core\Log\LogManager'
+
+  Netresearch\RteCKEditorImage\Controller\ImageRenderingController:
+    public: true
+    arguments:
+      $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
+      $processedFilesHandler: '@Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler'
+      $logManager: '@TYPO3\CMS\Core\Log\LogManager'
+
+  # Utility classes with dependencies
+  Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler:
+    arguments:
+      $imageService: '@TYPO3\CMS\Extbase\Service\ImageService'
+
   Netresearch\RteCKEditorImage\DataHandling\SoftReference\RteImageSoftReferenceParser:
     public: true
     tags:
