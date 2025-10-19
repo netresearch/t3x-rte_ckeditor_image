@@ -44,6 +44,11 @@
             <directory>../../Tests/Functional/</directory>
         </testsuite>
     </testsuites>
+    <coverage>
+        <include>
+            <directory suffix=".php">../../Classes</directory>
+        </include>
+    </coverage>
     <php>
         <!--
             @deprecated: Set this to not suppress warnings, notices and deprecations in functional tests
