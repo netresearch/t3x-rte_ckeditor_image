@@ -17,6 +17,10 @@ composer.lock
 # PHPUnit
 phpunit-report.xml
 coverage/
+coverage-unit/
+.phpunit.cache/
+clover.xml
+clover-unit.xml
 
 # Cache
 .cache/
@@ -35,6 +39,9 @@ package-lock.json
 
 # Agent/AI Development
 claudedocs/
+.conformance-reports/
+.claude/
+.playwright-mcp/
 
 # Documentation rendering
 Documentation-GENERATED-temp/
