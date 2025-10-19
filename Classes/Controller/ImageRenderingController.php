@@ -55,6 +55,19 @@ class ImageRenderingController
 
     protected ?ContentObjectRenderer $cObj = null;
 
+    /**
+     * Constructor with dependency injection.
+     *
+     * @param ResourceFactory       $resourceFactory       Factory for file resources
+     * @param ProcessedFilesHandler $processedFilesHandler Handler for processing files
+     * @param LogManager            $logManager            Log manager for error logging
+     */
+    public function __construct(
+        private readonly ResourceFactory $resourceFactory,
+        private readonly ProcessedFilesHandler $processedFilesHandler,
+        private readonly LogManager $logManager,
+    ) {}
+
     public function setContentObjectRenderer(
         ContentObjectRenderer $cObj,
     ): void {
@@ -84,8 +97,7 @@ class ImageRenderingController
 
             if ($fileUid > 0) {
                 try {
-                    $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
-                    $systemImage     = $resourceFactory->getFileObject($fileUid);
+                    $systemImage = $this->resourceFactory->getFileObject($fileUid);
 
                     // SECURITY: Prevent privilege escalation by checking file visibility
                     // Only process public files in frontend rendering. Non-public files must
@@ -109,13 +121,11 @@ class ImageRenderingController
                     }
 
                     // check if there is a processed variant, if not, create one
-                    /** @var ProcessedFilesHandler $processedHandler */
-                    $processedHandler   = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
                     $imageConfiguration = [
                         'width'  => (int) ($imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0),
                         'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
                     ];
-                    $processedFile = $processedHandler->createProcessedFile($systemImage, $imageConfiguration);
+                    $processedFile = $this->processedFilesHandler->createProcessedFile($systemImage, $imageConfiguration);
 
                     $imageSource = $processedFile->getPublicUrl();
 
@@ -277,8 +287,7 @@ class ImageRenderingController
      */
     protected function getLogger(): Logger
     {
-        return GeneralUtility::makeInstance(LogManager::class)
-            ->getLogger(static::class);
+        return $this->logManager->getLogger(static::class);
     }
 
     /**
