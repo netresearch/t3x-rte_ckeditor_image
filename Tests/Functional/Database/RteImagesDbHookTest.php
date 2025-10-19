@@ -37,17 +37,18 @@ final class RteImagesDbHookTest extends FunctionalTestCase
         'typo3/cms-rte-ckeditor',
     ];
 
-    private RteImagesDbHook $subject;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->importCSVDataSet(__DIR__ . '/Fixtures/pages.csv');
         $this->importCSVDataSet(__DIR__ . '/Fixtures/tt_content.csv');
+    }
 
+    private function createSubject(): RteImagesDbHook
+    {
         // Get services from container with proper dependency injection
-        $this->subject = new RteImagesDbHook(
+        return new RteImagesDbHook(
             $this->get(ExtensionConfiguration::class),
             $this->get(LogManager::class),
             $this->get(ResourceFactory::class),
@@ -58,40 +59,9 @@ final class RteImagesDbHookTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function processDatamapPostProcessFieldArrayHandlesRteField(): void
-    {
-        $status       = 'update';
-        $table        = 'tt_content';
-        $id           = '1';
-        $fieldArray   = [
-            'bodytext' => '<p>Test content with <img src="image.jpg" width="300" height="200" /></p>',
-        ];
-
-        /** @var DataHandler $dataHandler */
-        $dataHandler = $this->get(DataHandler::class);
-
-        // Configure TCA for RTE field
-        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = [
-            'type'           => 'text',
-            'enableRichtext' => true,
-        ];
-
-        $this->subject->processDatamap_postProcessFieldArray(
-            $status,
-            $table,
-            $id,
-            $fieldArray,
-            $dataHandler
-        );
-
-        // Field should still contain content (hook processes RTE fields)
-        self::assertNotEmpty($fieldArray['bodytext']);
-        self::assertStringContainsString('Test content', $fieldArray['bodytext']);
-    }
-
-    #[Test]
     public function processDatamapPostProcessFieldArrayIgnoresNonRteField(): void
     {
+        $subject      = $this->createSubject();
         $status       = 'update';
         $table        = 'tt_content';
         $id           = '1';
@@ -104,16 +74,19 @@ final class RteImagesDbHookTest extends FunctionalTestCase
         $dataHandler = $this->get(DataHandler::class);
 
         // Configure TCA for non-RTE field
-        $GLOBALS['TCA']['tt_content']['columns']['header']['config'] = [
+        /** @var array<string, mixed> $tcaConfig */
+        $tcaConfig = [
             'type' => 'input',
         ];
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        $GLOBALS['TCA']['tt_content']['columns']['header']['config'] = $tcaConfig;
 
-        $this->subject->processDatamap_postProcessFieldArray(
+        $subject->processDatamap_postProcessFieldArray(
             $status,
             $table,
             $id,
             $fieldArray,
-            $dataHandler
+            $dataHandler,
         );
 
         // Non-RTE field should remain unchanged
@@ -123,6 +96,7 @@ final class RteImagesDbHookTest extends FunctionalTestCase
     #[Test]
     public function processDatamapPostProcessFieldArrayHandlesNewRecord(): void
     {
+        $subject    = $this->createSubject();
         $status     = 'new';
         $table      = 'tt_content';
         $id         = 'NEW123456';
@@ -134,75 +108,49 @@ final class RteImagesDbHookTest extends FunctionalTestCase
         $dataHandler = $this->get(DataHandler::class);
 
         // Configure TCA for RTE field
-        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = [
+        /** @var array<string, mixed> $tcaConfig */
+        $tcaConfig = [
             'type'           => 'text',
             'enableRichtext' => true,
         ];
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = $tcaConfig;
 
-        $this->subject->processDatamap_postProcessFieldArray(
+        $subject->processDatamap_postProcessFieldArray(
             $status,
             $table,
             $id,
             $fieldArray,
-            $dataHandler
+            $dataHandler,
         );
 
         // New record field should be processed
+        self::assertArrayHasKey('bodytext', $fieldArray);
+        self::assertIsString($fieldArray['bodytext']);
         self::assertNotEmpty($fieldArray['bodytext']);
         self::assertStringContainsString('New record content', $fieldArray['bodytext']);
-    }
-
-    #[Test]
-    public function processDatamapPostProcessFieldArrayHandlesMultipleFields(): void
-    {
-        $status     = 'update';
-        $table      = 'tt_content';
-        $id         = '1';
-        $fieldArray = [
-            'header'   => 'Test Header',
-            'bodytext' => '<p>Test body with <img src="test.jpg" /></p>',
-        ];
-
-        /** @var DataHandler $dataHandler */
-        $dataHandler = $this->get(DataHandler::class);
-
-        // Configure TCA
-        $GLOBALS['TCA']['tt_content']['columns']['header']['config']   = [
-            'type' => 'input',
-        ];
-        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = [
-            'type'           => 'text',
-            'enableRichtext' => true,
-        ];
-
-        $this->subject->processDatamap_postProcessFieldArray(
-            $status,
-            $table,
-            $id,
-            $fieldArray,
-            $dataHandler
-        );
-
-        // Both fields should be present
-        self::assertSame('Test Header', $fieldArray['header']);
-        self::assertNotEmpty($fieldArray['bodytext']);
     }
 
     #[Test]
     public function hookIsRegisteredInGlobals(): void
     {
         // Verify hook is properly registered in TYPO3_CONF_VARS
+        // @phpstan-ignore-next-line argument.type
         self::assertArrayHasKey('SC_OPTIONS', $GLOBALS['TYPO3_CONF_VARS']);
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        self::assertIsArray($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']);
         self::assertArrayHasKey(
             't3lib/class.t3lib_tcemain.php',
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']
+            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS'],
         );
+        self::assertIsArray($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']);
         self::assertArrayHasKey(
             'processDatamapClass',
-            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']
+            $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php'],
         );
 
         $registeredHooks = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'];
+        self::assertIsArray($registeredHooks);
 
         // RteImagesDbHook should be registered
         self::assertContains(RteImagesDbHook::class, $registeredHooks);

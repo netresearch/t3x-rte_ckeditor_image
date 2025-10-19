@@ -1,2 +1,3 @@
-uid,pid,storage,identifier,name,type,mime_type,size,sha1,extension
-1,0,1,"/test-image.jpg","test-image.jpg",2,"image/jpeg",12345,"da39a3ee5e6b4b0d3255bfef95601890afd80709","jpg"
+"sys_file",,,,,,,,,
+,"uid","pid","storage","identifier","name","type","mime_type","size","sha1","extension"
+,"1","0","1","/test-image.jpg","test-image.jpg","2","image/jpeg","12345","da39a3ee5e6b4b0d3255bfef95601890afd80709","jpg"

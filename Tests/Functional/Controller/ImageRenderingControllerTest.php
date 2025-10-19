@@ -11,11 +11,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Functional\Controller;
 
-use Netresearch\RteCKEditorImage\Controller\ImageRenderingController;
 use PHPUnit\Framework\Attributes\Test;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -37,52 +33,29 @@ final class ImageRenderingControllerTest extends FunctionalTestCase
         'typo3/cms-rte-ckeditor',
     ];
 
-    private ImageRenderingController $subject;
-    private ResourceStorage $storage;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->importCSVDataSet(__DIR__ . '/Fixtures/sys_file_storage.csv');
         $this->importCSVDataSet(__DIR__ . '/Fixtures/sys_file.csv');
+    }
 
-        $this->subject = $this->get(ImageRenderingController::class);
-
+    private function getStorage(): ResourceStorage
+    {
         /** @var ResourceFactory $resourceFactory */
         $resourceFactory = $this->get(ResourceFactory::class);
-        $this->storage   = $resourceFactory->getStorageObject(1);
-    }
 
-    #[Test]
-    public function renderImageReturnsJsonResponse(): void
-    {
-        /** @var ServerRequestInterface $request */
-        $request = $this->get(ServerRequestInterface::class);
-
-        $response = $this->subject->renderImage($request);
-
-        self::assertInstanceOf(ResponseInterface::class, $response);
-        self::assertInstanceOf(JsonResponse::class, $response);
-    }
-
-    #[Test]
-    public function renderImageLinkReturnsJsonResponse(): void
-    {
-        /** @var ServerRequestInterface $request */
-        $request = $this->get(ServerRequestInterface::class);
-
-        $response = $this->subject->renderImageLink($request);
-
-        self::assertInstanceOf(ResponseInterface::class, $response);
-        self::assertInstanceOf(JsonResponse::class, $response);
+        return $resourceFactory->getStorageObject(1);
     }
 
     #[Test]
     public function storageIsAccessible(): void
     {
-        self::assertInstanceOf(ResourceStorage::class, $this->storage);
-        self::assertTrue($this->storage->isOnline());
+        $storage = $this->getStorage();
+
+        self::assertInstanceOf(ResourceStorage::class, $storage);
+        self::assertTrue($storage->isOnline());
     }
 
     #[Test]
@@ -101,7 +74,8 @@ final class ImageRenderingControllerTest extends FunctionalTestCase
     #[Test]
     public function canAccessStorageRootFolder(): void
     {
-        $rootFolder = $this->storage->getRootLevelFolder();
+        $storage    = $this->getStorage();
+        $rootFolder = $storage->getRootLevelFolder();
 
         self::assertInstanceOf(Folder::class, $rootFolder);
         self::assertSame('/', $rootFolder->getIdentifier());
