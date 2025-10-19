@@ -165,12 +165,34 @@ editor:
 
 ## Documentation
 
-For comprehensive documentation, see [Documentation/Index.md](Documentation/Index.md):
+This project maintains three documentation tiers:
 
-- **Integrators**: [Configuration Guide](Documentation/Integration/Configuration.md) | [Examples](Documentation/Examples/Common-Use-Cases.md) | [Troubleshooting](Documentation/Troubleshooting/Common-Issues.md)
-- **PHP Developers**: [Architecture Overview](Documentation/Architecture/Overview.md) | [API Reference](Documentation/API/Controllers.md) | [AGENTS.md](AGENTS.md)
-- **JS Developers**: [CKEditor Plugin](Documentation/CKEditor/Plugin-Development.md) | [Style Integration](Documentation/CKEditor/Style-Integration.md) | [Resources/AGENTS.md](Resources/AGENTS.md)
-- **Contributors**: [CONTRIBUTING.md](CONTRIBUTING.md) | [AGENTS.md](AGENTS.md) | [Tests/AGENTS.md](Tests/AGENTS.md)
+### Official TYPO3 Documentation
+
+**Published Manual:** https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/
+
+For integrators, administrators, and end users. Covers installation, configuration, troubleshooting, and usage.
+
+**Source:** [Documentation/](Documentation/) (RST format, automatically built and published)
+
+### AI Development Context
+
+**AI Agents & Developers:** [claudedocs/INDEX.md](claudedocs/INDEX.md)
+
+Comprehensive technical knowledge base including:
+- [Architecture & Design](claudedocs/ARCHITECTURE.md) - System design, components, security
+- [API Reference](claudedocs/API_REFERENCE.md) - Complete PHP API documentation
+- [Development Guide](claudedocs/DEVELOPMENT_GUIDE.md) - Workflow, standards, testing
+- [Security Analysis](claudedocs/SECURITY.md) - Threat model, protections, best practices
+
+**Note:** `claudedocs/` is gitignored - generated per session for AI context only.
+
+### Project Essentials
+
+- **[AGENTS.md](AGENTS.md)** - AI development guide and build commands
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
+- **[SECURITY.md](SECURITY.md)** - Security policy
+- **[Documentation/AGENTS.md](Documentation/AGENTS.md)** - TYPO3 documentation system guide
 
 ## Development
 

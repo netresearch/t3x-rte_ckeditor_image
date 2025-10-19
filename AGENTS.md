@@ -1,18 +1,18 @@
-# AGENTS.md
-
-<!-- Managed by agent: keep sections & order; edit content, not structure. Last updated: 2025-10-15 -->
+# AI Agent Development Guide
 
 **Project:** rte_ckeditor_image - TYPO3 CKEditor 5 Image Extension
-**Type:** TYPO3 CMS Extension (PHP 8.2-8.9 + JavaScript/ES6)
-**License:** AGPL-3.0-or-later
+**Type:** TYPO3 CMS Extension (PHP 8.2+ + JavaScript/ES6)
+**License:** GPL-2.0-or-later
 
-## 📋 Precedence & Index
+## 📋 Documentation Structure
 
-**This file wins** at root level. For specifics, see scoped files:
+This project uses a three-tier documentation system:
 
-- **[Classes/AGENTS.md](Classes/AGENTS.md)** - PHP backend (Controllers, EventListeners, Database hooks)
-- **[Resources/AGENTS.md](Resources/AGENTS.md)** - JavaScript/CKEditor 5 plugin, assets
-- **[Tests/AGENTS.md](Tests/AGENTS.md)** - Testing (Functional, Unit)
+- **[claudedocs/](claudedocs/)** - AI session context (Markdown, gitignored, temporary)
+- **[Documentation/](Documentation/)** - Official TYPO3 docs (RST, published, permanent)
+- **Root** - Project essentials (README, CONTRIBUTING, SECURITY, LICENSE)
+
+See **[claudedocs/INDEX.md](claudedocs/INDEX.md)** for AI context navigation and **[Documentation/AGENTS.md](Documentation/AGENTS.md)** for TYPO3 documentation system guide.
 
 ## 🎯 Quick Start
 
@@ -252,12 +252,15 @@ class Typo3Image extends Core.Plugin {
 
 ## 🆘 When Stuck
 
-1. **Documentation:** Check [docs/README.md](docs/README.md) for comprehensive guides
-2. **Architecture:** Review [docs/Architecture/Overview.md](docs/Architecture/Overview.md)
-3. **Examples:** See [docs/Examples/Common-Use-Cases.md](docs/Examples/Common-Use-Cases.md)
-4. **Troubleshooting:** Check [docs/Troubleshooting/Common-Issues.md](docs/Troubleshooting/Common-Issues.md)
-5. **TYPO3 Docs:** https://docs.typo3.org/
-6. **Issues:** https://github.com/netresearch/t3x-rte_ckeditor_image/issues
+1. **AI Context:** Start with [claudedocs/INDEX.md](claudedocs/INDEX.md) for project navigation
+2. **Architecture:** Review [claudedocs/ARCHITECTURE.md](claudedocs/ARCHITECTURE.md)
+3. **Security:** Check [claudedocs/SECURITY.md](claudedocs/SECURITY.md)
+4. **API Reference:** See [claudedocs/API_REFERENCE.md](claudedocs/API_REFERENCE.md)
+5. **Development Guide:** Follow [claudedocs/DEVELOPMENT_GUIDE.md](claudedocs/DEVELOPMENT_GUIDE.md)
+6. **TYPO3 Docs Guide:** Read [Documentation/AGENTS.md](Documentation/AGENTS.md)
+7. **Published Manual:** https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/
+8. **TYPO3 Core Docs:** https://docs.typo3.org/
+9. **Issues:** https://github.com/netresearch/t3x-rte_ckeditor_image/issues
 
 ### Common Issues
 
@@ -314,12 +317,27 @@ class Typo3Image extends Core.Plugin {
 
 ## 🔗 Related Files
 
-- **[Classes/AGENTS.md](Classes/AGENTS.md)** - PHP backend details
-- **[Resources/AGENTS.md](Resources/AGENTS.md)** - JavaScript/assets details
-- **[Tests/AGENTS.md](Tests/AGENTS.md)** - Testing details
-- **[docs/](docs/)** - Comprehensive documentation
-- **[CHANGELOG.md](CHANGELOG.md)** - Release history
+**Root Documentation:**
+- **[README.md](README.md)** - Project overview and quick links
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
+- **[SECURITY.md](SECURITY.md)** - Security policy
+- **[LICENSE](LICENSE)** - GPL-2.0-or-later license
+
+**AI Session Context (gitignored):**
+- **[claudedocs/INDEX.md](claudedocs/INDEX.md)** - Navigation hub
+- **[claudedocs/PROJECT_OVERVIEW.md](claudedocs/PROJECT_OVERVIEW.md)** - Project summary
+- **[claudedocs/ARCHITECTURE.md](claudedocs/ARCHITECTURE.md)** - System design
+- **[claudedocs/DEVELOPMENT_GUIDE.md](claudedocs/DEVELOPMENT_GUIDE.md)** - Development workflow
+- **[claudedocs/API_REFERENCE.md](claudedocs/API_REFERENCE.md)** - PHP API docs
+- **[claudedocs/SECURITY.md](claudedocs/SECURITY.md)** - Security analysis
+
+**Official TYPO3 Documentation:**
+- **[Documentation/](Documentation/)** - RST documentation (published)
+- **[Documentation/AGENTS.md](Documentation/AGENTS.md)** - TYPO3 docs system guide
+
+**Configuration:**
 - **[composer.json](composer.json)** - Dependencies & scripts
+- **[Build/](Build/)** - Development tools configuration
 
 ## 📚 Additional Resources
 
