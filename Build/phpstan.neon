@@ -1,0 +1,28 @@
+includes:
+    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-strict-rules/rules.neon
+    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-phpunit/rules.neon
+    - %currentWorkingDirectory%/Build/phpstan-baseline.neon
+
+parameters:
+    # Level 8 is appropriate for TYPO3 v11 compatibility
+    level: 8
+
+    paths:
+        - %currentWorkingDirectory%/Classes/
+        - %currentWorkingDirectory%/Configuration/
+        - %currentWorkingDirectory%/Resources/
+        - %currentWorkingDirectory%/Tests/
+        - %currentWorkingDirectory%/ext_localconf.php
+
+    excludePaths:
+        - %currentWorkingDirectory%/.Build/*
+        - %currentWorkingDirectory%/ext_emconf.php
+
+    # Strict configuration options for maximum code quality
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: true
+
+    # Advanced type inference and checking
+    inferPrivatePropertyTypeFromConstructor: true
+    checkMissingCallableSignature: true
+    checkUninitializedProperties: true
