@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Controller;
 
 use Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use ReflectionMethod;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -20,9 +21,8 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
  * Unit tests for ImageLinkRenderingController.
- *
- * @covers \Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController
  */
+#[CoversClass(ImageLinkRenderingController::class)]
 final class ImageLinkRenderingControllerTest extends UnitTestCase
 {
     private ImageLinkRenderingController $subject;

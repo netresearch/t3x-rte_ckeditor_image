@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Database;
 
 use Netresearch\RteCKEditorImage\Database\RteImagesDbHook;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
@@ -27,9 +28,8 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
  * Unit tests for RteImagesDbHook.
- *
- * @covers \Netresearch\RteCKEditorImage\Database\RteImagesDbHook
  */
+#[CoversClass(RteImagesDbHook::class)]
 final class RteImagesDbHookTest extends UnitTestCase
 {
     protected bool $resetSingletonInstances = true;

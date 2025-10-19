@@ -13,6 +13,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Controller;
 
 use Netresearch\RteCKEditorImage\Controller\ImageRenderingController;
 use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionMethod;
@@ -23,9 +24,8 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
  * Unit tests for ImageRenderingController.
- *
- * @covers \Netresearch\RteCKEditorImage\Controller\ImageRenderingController
  */
+#[CoversClass(ImageRenderingController::class)]
 final class ImageRenderingControllerTest extends UnitTestCase
 {
     private ImageRenderingController $subject;

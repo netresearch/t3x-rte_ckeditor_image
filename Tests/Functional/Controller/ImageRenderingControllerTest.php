@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Functional\Controller;
 
+use Netresearch\RteCKEditorImage\Controller\ImageRenderingController;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Folder;
@@ -20,9 +22,8 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
  * Functional tests for ImageRenderingController FAL integration.
- *
- * @covers \Netresearch\RteCKEditorImage\Controller\ImageRenderingController
  */
+#[CoversClass(ImageRenderingController::class)]
 final class ImageRenderingControllerTest extends FunctionalTestCase
 {
     protected array $testExtensionsToLoad = [

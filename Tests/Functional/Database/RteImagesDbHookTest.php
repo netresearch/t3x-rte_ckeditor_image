@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Functional\Database;
 
 use Netresearch\RteCKEditorImage\Database\RteImagesDbHook;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Context\Context;
@@ -24,9 +25,8 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
  * Functional tests for RteImagesDbHook DataHandler integration.
- *
- * @covers \Netresearch\RteCKEditorImage\Database\RteImagesDbHook
  */
+#[CoversClass(RteImagesDbHook::class)]
 final class RteImagesDbHookTest extends FunctionalTestCase
 {
     protected array $testExtensionsToLoad = [

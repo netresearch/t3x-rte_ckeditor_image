@@ -13,6 +13,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Controller;
 
 use Exception;
 use Netresearch\RteCKEditorImage\Controller\SelectImageController;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Http\Message\ServerRequestInterface;
@@ -25,9 +26,8 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
  * Unit tests for SelectImageController.
- *
- * @covers \Netresearch\RteCKEditorImage\Controller\SelectImageController
  */
+#[CoversClass(SelectImageController::class)]
 final class SelectImageControllerTest extends UnitTestCase
 {
     protected bool $resetSingletonInstances = true;

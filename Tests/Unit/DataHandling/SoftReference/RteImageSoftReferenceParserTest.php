@@ -12,15 +12,15 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\DataHandling\SoftReference;
 
 use Netresearch\RteCKEditorImage\DataHandling\SoftReference\RteImageSoftReferenceParser;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Html\HtmlParser;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
  * Unit tests for RteImageSoftReferenceParser.
- *
- * @covers \Netresearch\RteCKEditorImage\DataHandling\SoftReference\RteImageSoftReferenceParser
  */
+#[CoversClass(RteImageSoftReferenceParser::class)]
 final class RteImageSoftReferenceParserTest extends UnitTestCase
 {
     private RteImageSoftReferenceParser $subject;
