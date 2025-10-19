@@ -80,8 +80,6 @@ jobs:
             -   id: cgl
                 name: CGL
                 if: ${{ always() && steps.install.conclusion == 'success' }}
-                env:
-                    PHP_CS_FIXER_IGNORE_ENV: true
                 run: |
                     php-cs-fixer fix --dry-run --verbose --config Build/.php-cs-fixer.dist.php
 
@@ -96,6 +94,12 @@ jobs:
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
                     composer ci:test:php:rector
+
+            -   id: unit
+                name: Unit Tests
+                if: ${{ always() && steps.install.conclusion == 'success' }}
+                run: |
+                    composer ci:test:php:unit
 
             -   id: functional
                 name: Functional Tests

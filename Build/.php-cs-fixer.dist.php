@@ -22,7 +22,8 @@ $finder = PhpCsFixer\Finder::create()
     ->in($repoRoot)
     ->exclude(['.Build', 'config', 'node_modules', 'var']);
 
-return (new PhpCsFixer\Config())
+$config = new PhpCsFixer\Config();
+$config
     // Enable fixers that might change behavior (you control which via setRules)
     ->setRiskyAllowed(true)
     ->setRules([
@@ -95,3 +96,11 @@ return (new PhpCsFixer\Config())
         'self_accessor'                   => false, // keep your preference
     ])
     ->setFinder($finder);
+
+// Allow running on PHP 8.3/8.4 even though composer.json minimum is PHP 8.2
+// The code generated is compatible with PHP 8.2 (no 8.3+ specific syntax)
+if (method_exists($config, 'setUnsupportedPhpVersionAllowed')) {
+    $config->setUnsupportedPhpVersionAllowed(true);
+}
+
+return $config;

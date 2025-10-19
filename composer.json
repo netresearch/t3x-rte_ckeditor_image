@@ -86,6 +86,9 @@
         "ci:test:php:functional": [
             "phpunit -c Build/phpunit/FunctionalTests.xml"
         ],
+        "ci:test:php:unit": [
+            ".Build/bin/phpunit -c Build/phpunit/UnitTests.xml"
+        ],
         "ci:test:php:lint": [
             "phplint --configuration Build/.phplint.yml"
         ],
@@ -101,11 +104,15 @@
         "ci:coverage:functional": [
             "phpunit -c Build/phpunit/FunctionalTests.xml --coverage-clover=.Build/logs/clover.xml --coverage-html=.Build/coverage"
         ],
+        "ci:coverage:unit": [
+            ".Build/bin/phpunit -c Build/phpunit/UnitTests.xml --coverage-clover=.Build/logs/clover-unit.xml --coverage-html=.Build/coverage-unit"
+        ],
         "ci:test": [
             "@ci:test:php:lint",
             "@ci:test:php:phpstan",
             "@ci:test:php:rector",
             "@ci:test:php:cgl",
+            "@ci:test:php:unit",
             "@ci:test:php:functional"
         ]
     }
