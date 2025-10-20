@@ -51,12 +51,12 @@ parameters:
 			path: ../Classes/Controller/ImageRenderingController.php
 
 		-
-			message: "#^Parameter \\#1 \\$string1 of function strncasecmp expects string, string\\|null given\\.$#"
+			message: "#^Parameter \\#1 \\$(string1|str1) of function strncasecmp expects string, string\\|null given\\.$#"
 			count: 1
 			path: ../Classes/Controller/ImageRenderingController.php
 
 		-
-			message: "#^Parameter \\#1 \\$string1 of function strncmp expects string, string\\|null given\\.$#"
+			message: "#^Parameter \\#1 \\$(string1|str1) of function strncmp expects string, string\\|null given\\.$#"
 			count: 1
 			path: ../Classes/Controller/ImageRenderingController.php
 
