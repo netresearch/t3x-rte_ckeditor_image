@@ -12,3 +12,9 @@ services:
 
   Netresearch\RteCKEditorImage\Database\RteImagesDbHook:
     public: true
+
+  # Add this section for the upgrade wizard
+  Netresearch\RteCKEditorImage\Updates\ProcessedImageSrcUpgradeWizard:
+    tags:
+      - name: install.upgradewizard
+        identifier: processedImageSrcUpgrade
