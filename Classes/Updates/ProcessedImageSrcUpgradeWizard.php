@@ -149,7 +149,7 @@ class ProcessedImageSrcUpgradeWizard implements UpgradeWizardInterface
                     /** @var File $file */
                     $file = $resourceFactory->getFileObject($fileUid);
                     $img->setAttribute('src', (string)$file->getPublicUrl());
-                } catch (FileDoesNotExistException) {
+                } catch (FileDoesNotExistException $e) {
                     // ignore missing files
                 }
             }
@@ -170,7 +170,7 @@ class ProcessedImageSrcUpgradeWizard implements UpgradeWizardInterface
 
     private function isProcessedImage(string $src): bool
     {
-        return str_contains($src, '_processed_') || str_contains($src, 'typo3/image/process');
+        return strpos($src, '_processed_') !== false || strpos($src, 'typo3/image/process') !== false;
     }
 
     public function getPrerequisites(): array

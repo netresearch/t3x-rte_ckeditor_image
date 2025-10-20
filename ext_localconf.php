@@ -33,9 +33,21 @@ $GLOBALS["TYPO3_CONF_VARS"]["SC_OPTIONS"]["ext/install"]["update"]["processedIma
         return;
     }
 
-    $queryBuilder = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+    $connectionPool = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
         \TYPO3\CMS\Core\Database\ConnectionPool::class
-    )->getQueryBuilderForTable('sys_template');
+    );
+
+    // Skip if sys_template table doesn't exist (e.g., during functional tests)
+    try {
+        $schemaManager = $connectionPool->getConnectionForTable('sys_template')->createSchemaManager();
+        if (!$schemaManager->tablesExist(['sys_template'])) {
+            return;
+        }
+    } catch (\Exception $e) {
+        return;
+    }
+
+    $queryBuilder = $connectionPool->getQueryBuilderForTable('sys_template');
 
     $templates = $queryBuilder
         ->select('uid', 'title', 'include_static_file')

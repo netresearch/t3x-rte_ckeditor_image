@@ -141,6 +141,46 @@ parameters:
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
+			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\Updates\\\\ProcessedImageSrcUpgradeWizard\\:\\:isRelevantField\\(\\) has parameter \\$fieldConfig with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: ../Classes/Updates/ProcessedImageSrcUpgradeWizard.php
+
+		-
+			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\Updates\\\\ProcessedImageSrcUpgradeWizard\\:\\:processField\\(\\) has parameter \\$fieldConfig with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: ../Classes/Updates/ProcessedImageSrcUpgradeWizard.php
+
+		-
+			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\Updates\\\\ProcessedImageSrcUpgradeWizard\\:\\:processTableColumn\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: ../Classes/Updates/ProcessedImageSrcUpgradeWizard.php
+
+		-
+			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\Updates\\\\ProcessedImageSrcUpgradeWizard\\:\\:processTableColumn\\(\\) has parameter \\$tableConfig with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: ../Classes/Updates/ProcessedImageSrcUpgradeWizard.php
+
+		-
+			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\Updates\\\\ProcessedImageSrcUpgradeWizard\\:\\:updateRows\\(\\) has parameter \\$rows with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: ../Classes/Updates/ProcessedImageSrcUpgradeWizard.php
+
+		-
+			message: "#^Parameter \\#2 \\.\\.\\.\\$expressions of method TYPO3\\\\CMS\\\\Core\\\\Database\\\\Query\\\\Expression\\\\ExpressionBuilder\\:\\:andX\\(\\) expects string, TYPO3\\\\CMS\\\\Core\\\\Database\\\\Query\\\\Expression\\\\CompositeExpression given\\.$#"
+			count: 1
+			path: ../Classes/Updates/ProcessedImageSrcUpgradeWizard.php
+
+		-
+			message: "#^Parameter \\#3 \\$connectionPool of method Netresearch\\\\RteCKEditorImage\\\\Updates\\\\ProcessedImageSrcUpgradeWizard\\:\\:processTableColumn\\(\\) expects TYPO3\\\\CMS\\\\Core\\\\Database\\\\ConnectionPool, object given\\.$#"
+			count: 1
+			path: ../Classes/Updates/ProcessedImageSrcUpgradeWizard.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getConnectionForTable\\(\\)\\.$#"
+			count: 1
+			path: ../ext_localconf.php
+
+		-
 			message: "#^Call to an undefined method object\\:\\:getLogger\\(\\)\\.$#"
 			count: 1
 			path: ../ext_localconf.php
