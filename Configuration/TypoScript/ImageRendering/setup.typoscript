@@ -9,11 +9,36 @@ lib.parseFunc_RTE {
     tags.img {
         current = 1
         preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+
+        #******************************************************
+        # noScale: Skip image processing and use original file
+        #
+        # When enabled (noScale = 1), images are not processed
+        # and the original file is used instead of creating
+        # processed variants in typo3temp/.
+        #
+        # Use cases:
+        # - Newsletters (email client compatibility)
+        # - PDF generation (preserve high quality)
+        # - Retina displays (maintain resolution)
+        # - Performance optimization
+        #
+        # Auto-optimization: Even with noScale = 0 (default),
+        # the extension automatically skips processing when
+        # requested dimensions match the original image.
+        #
+        # Default: 0 (process images as before)
+        # Enable: Uncomment the line below
+        #******************************************************
+        # noScale = 1
     }
     tags.a = TEXT
     tags.a {
         current = 1
         preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController->renderImages
+
+        # noScale also available for linked images
+        # noScale = 1
     }
     nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
         allparams.unset = 1

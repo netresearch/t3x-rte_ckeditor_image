@@ -1,3 +1,17 @@
+# Unreleased
+
+## FEATURE
+
+- [FEATURE] Add noScale support to skip image processing and use original files (resolves #77)
+  - Implements TYPO3's standard `noScale` parameter for RTE images
+  - Enables use of original files without creating processed variants in typo3temp/
+  - Use cases: newsletters, PDFs, retina displays, performance optimization
+  - Configuration via TypoScript: `lib.parseFunc_RTE.tags.img.noScale = 1`
+  - Auto-optimization: Automatically skips processing when dimensions match original
+  - Applies to both regular images and linked images
+  - Maintains backward compatibility (default: `noScale = 0`)
+  - Comprehensive unit test coverage for shouldSkipProcessing() logic
+
 # 13.0.0
 
 ## TASK

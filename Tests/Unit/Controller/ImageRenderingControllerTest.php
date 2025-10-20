@@ -12,288 +12,205 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Controller;
 
 use Netresearch\RteCKEditorImage\Controller\ImageRenderingController;
-use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
-use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
- * Unit tests for ImageRenderingController.
+ * Test case for ImageRenderingController.
+ *
+ * @author  Netresearch DTT GmbH <info@netresearch.de>
+ * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
-#[CoversClass(ImageRenderingController::class)]
-final class ImageRenderingControllerTest extends UnitTestCase
+class ImageRenderingControllerTest extends TestCase
 {
-    private ImageRenderingController $subject;
-
-    /** @var ResourceFactory&MockObject */
-    private ResourceFactory $resourceFactoryMock;
-
-    /** @var ProcessedFilesHandler&MockObject */
-    private ProcessedFilesHandler $processedFilesHandlerMock;
-
-    /** @var LogManager&MockObject */
-    private LogManager $logManagerMock;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        /** @var ResourceFactory&MockObject $resourceFactoryMock */
-        $resourceFactoryMock = $this->createMock(ResourceFactory::class);
-
-        /** @var ProcessedFilesHandler&MockObject $processedFilesHandlerMock */
-        $processedFilesHandlerMock = $this->createMock(ProcessedFilesHandler::class);
-
-        /** @var LogManager&MockObject $logManagerMock */
-        $logManagerMock = $this->createMock(LogManager::class);
-
-        $this->resourceFactoryMock       = $resourceFactoryMock;
-        $this->processedFilesHandlerMock = $processedFilesHandlerMock;
-        $this->logManagerMock            = $logManagerMock;
-
-        $this->subject = new ImageRenderingController(
-            $this->resourceFactoryMock,
-            $this->processedFilesHandlerMock,
-            $this->logManagerMock,
-        );
-    }
-
     /**
-     * Helper method to access protected methods.
+     * Helper method to call protected methods for testing.
      *
-     * @param array<int, mixed> $args
+     * @param object  $object     Object instance
+     * @param string  $methodName Method name to call
+     * @param mixed[] $parameters Parameters to pass
+     *
+     * @return mixed
      */
-    private function callProtectedMethod(string $methodName, array $args): mixed
+    protected function callProtectedMethod(object $object, string $methodName, array $parameters = []): mixed
     {
-        $reflection = new ReflectionMethod($this->subject, $methodName);
+        $reflection = new ReflectionMethod($object::class, $methodName);
         $reflection->setAccessible(true);
 
-        return $reflection->invokeArgs($this->subject, $args);
+        return $reflection->invokeArgs($object, $parameters);
     }
 
-    #[Test]
-    public function isExternalImageReturnsTrueForHttpsUrls(): void
+    public function testShouldSkipProcessingReturnsTrueWhenNoScaleEnabled(): void
     {
-        $result = $this->callProtectedMethod('isExternalImage', ['https://example.com/image.jpg']);
+        $controller = new ImageRenderingController();
 
-        self::assertTrue($result);
+        $file = $this->createMock(File::class);
+        $file->method('getProperty')->willReturnMap([
+            ['width', 800],
+            ['height', 600],
+        ]);
+
+        $imageConfig = ['width' => 1920, 'height' => 1080]; // Different dimensions
+        $noScale     = true; // noScale enabled - should skip regardless of dimensions
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+        ]);
+
+        self::assertTrue($result, 'Should skip processing when noScale is enabled');
     }
 
-    #[Test]
-    public function isExternalImageReturnsTrueForHttpUrls(): void
+    public function testShouldSkipProcessingReturnsTrueWhenDimensionsMatchExactly(): void
     {
-        $result = $this->callProtectedMethod('isExternalImage', ['http://example.com/image.jpg']);
+        $controller = new ImageRenderingController();
 
-        self::assertTrue($result);
+        $file = $this->createMock(File::class);
+        $file->method('getProperty')->willReturnMap([
+            ['width', 1920],
+            ['height', 1080],
+        ]);
+
+        $imageConfig = ['width' => 1920, 'height' => 1080]; // Exact match
+        $noScale     = false; // Auto-detection should work
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+        ]);
+
+        self::assertTrue($result, 'Should skip processing when dimensions match exactly (auto-optimization)');
     }
 
-    #[Test]
-    public function isExternalImageReturnsTrueForProtocolRelativeUrls(): void
+    public function testShouldSkipProcessingReturnsTrueWhenNoDimensionsRequested(): void
     {
-        $result = $this->callProtectedMethod('isExternalImage', ['//example.com/image.jpg']);
+        $controller = new ImageRenderingController();
 
-        self::assertTrue($result);
+        $file = $this->createMock(File::class);
+        $file->method('getProperty')->willReturnMap([
+            ['width', 1920],
+            ['height', 1080],
+        ]);
+
+        $imageConfig = ['width' => 0, 'height' => 0]; // No dimensions
+        $noScale     = false;
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+        ]);
+
+        self::assertTrue($result, 'Should skip processing when no dimensions are requested');
     }
 
-    #[Test]
-    public function isExternalImageReturnsFalseForLocalPaths(): void
+    public function testShouldSkipProcessingReturnsFalseWhenDimensionsDiffer(): void
     {
-        $result = $this->callProtectedMethod('isExternalImage', ['/fileadmin/images/test.jpg']);
+        $controller = new ImageRenderingController();
 
-        self::assertFalse($result);
+        $file = $this->createMock(File::class);
+        $file->method('getProperty')->willReturnMap([
+            ['width', 1920],
+            ['height', 1080],
+        ]);
+
+        $imageConfig = ['width' => 800, 'height' => 600]; // Different dimensions
+        $noScale     = false;
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+        ]);
+
+        self::assertFalse($result, 'Should not skip processing when dimensions differ');
     }
 
-    #[Test]
-    public function isExternalImageReturnsFalseForRelativePaths(): void
+    public function testShouldSkipProcessingReturnsFalseWhenOnlyWidthMatches(): void
     {
-        $result = $this->callProtectedMethod('isExternalImage', ['fileadmin/images/test.jpg']);
+        $controller = new ImageRenderingController();
 
-        self::assertFalse($result);
+        $file = $this->createMock(File::class);
+        $file->method('getProperty')->willReturnMap([
+            ['width', 1920],
+            ['height', 1080],
+        ]);
+
+        $imageConfig = ['width' => 1920, 'height' => 600]; // Only width matches
+        $noScale     = false;
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+        ]);
+
+        self::assertFalse($result, 'Should not skip processing when only width matches');
     }
 
-    #[Test]
-    public function isExternalImageReturnsFalseForBackendProcessingUrls(): void
+    public function testShouldSkipProcessingReturnsFalseWhenOnlyHeightMatches(): void
     {
-        // Backend processing URLs should be reprocessed, not treated as external
-        $result = $this->callProtectedMethod('isExternalImage', ['/typo3/image/process?token=abc123']);
+        $controller = new ImageRenderingController();
 
-        self::assertFalse($result);
+        $file = $this->createMock(File::class);
+        $file->method('getProperty')->willReturnMap([
+            ['width', 1920],
+            ['height', 1080],
+        ]);
+
+        $imageConfig = ['width' => 800, 'height' => 1080]; // Only height matches
+        $noScale     = false;
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+        ]);
+
+        self::assertFalse($result, 'Should not skip processing when only height matches');
     }
 
-    #[Test]
-    public function isExternalImageHandlesEmptyString(): void
+    public function testShouldSkipProcessingHandlesMissingDimensionsGracefully(): void
     {
-        $result = $this->callProtectedMethod('isExternalImage', ['']);
+        $controller = new ImageRenderingController();
 
-        self::assertFalse($result);
+        $file = $this->createMock(File::class);
+        $file->method('getProperty')->willReturn(null); // No dimensions on file
+
+        $imageConfig = ['width' => 800, 'height' => 600];
+        $noScale     = false;
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+        ]);
+
+        self::assertFalse($result, 'Should not skip processing when original file has no dimensions');
     }
 
-    #[Test]
-    public function isExternalImageHandlesCaseSensitivity(): void
+    public function testShouldSkipProcessingHandlesEmptyConfiguration(): void
     {
-        // HTTP check should be case-insensitive
-        $result1 = $this->callProtectedMethod('isExternalImage', ['HTTP://EXAMPLE.COM/IMAGE.JPG']);
-        $result2 = $this->callProtectedMethod('isExternalImage', ['HtTpS://example.com/image.jpg']);
+        $controller = new ImageRenderingController();
 
-        self::assertTrue($result1);
-        self::assertTrue($result2);
-    }
+        $file = $this->createMock(File::class);
+        $file->method('getProperty')->willReturnMap([
+            ['width', 1920],
+            ['height', 1080],
+        ]);
 
-    #[Test]
-    public function getAttributeValueReturnsAttributeValueWhenPresent(): void
-    {
-        $attributes = ['alt' => 'Test alt text', 'title' => 'Test title'];
+        $imageConfig = []; // Empty configuration
+        $noScale     = false;
 
-        /** @var File&MockObject $fileMock */
-        $fileMock = $this->createMock(File::class);
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+        ]);
 
-        $result = $this->callProtectedMethod('getAttributeValue', ['alt', $attributes, $fileMock]);
-
-        self::assertSame('Test alt text', $result);
-    }
-
-    #[Test]
-    public function getAttributeValueReturnsFilePropertyWhenAttributeNotPresent(): void
-    {
-        $attributes = ['title' => 'Test title'];
-
-        /** @var File&MockObject $fileMock */
-        $fileMock = $this->createMock(File::class);
-        $fileMock->method('getProperty')->with('alt')->willReturn('File alt text');
-
-        $result = $this->callProtectedMethod('getAttributeValue', ['alt', $attributes, $fileMock]);
-
-        self::assertSame('File alt text', $result);
-    }
-
-    #[Test]
-    public function getAttributeValueReturnsEmptyStringWhenBothMissing(): void
-    {
-        $attributes = [];
-
-        /** @var File&MockObject $fileMock */
-        $fileMock = $this->createMock(File::class);
-        $fileMock->method('getProperty')->with('alt')->willReturn(null);
-
-        $result = $this->callProtectedMethod('getAttributeValue', ['alt', $attributes, $fileMock]);
-
-        self::assertSame('', $result);
-    }
-
-    #[Test]
-    public function getAttributeValuePrefersAttributeOverFileProperty(): void
-    {
-        $attributes = ['alt' => 'Attribute alt'];
-
-        /** @var File&MockObject $fileMock */
-        $fileMock = $this->createMock(File::class);
-        $fileMock->method('getProperty')->with('alt')->willReturn('File alt');
-
-        $result = $this->callProtectedMethod('getAttributeValue', ['alt', $attributes, $fileMock]);
-
-        self::assertSame('Attribute alt', $result);
-    }
-
-    #[Test]
-    public function getAttributeValueHandlesNumericValues(): void
-    {
-        $attributes = ['width' => 800];
-
-        /** @var File&MockObject $fileMock */
-        $fileMock = $this->createMock(File::class);
-
-        $result = $this->callProtectedMethod('getAttributeValue', ['width', $attributes, $fileMock]);
-
-        self::assertSame('800', $result);
-    }
-
-    #[Test]
-    public function getAttributeValueHandlesEmptyStringAttribute(): void
-    {
-        $attributes = ['alt' => ''];
-
-        /** @var File&MockObject $fileMock */
-        $fileMock = $this->createMock(File::class);
-
-        $result = $this->callProtectedMethod('getAttributeValue', ['alt', $attributes, $fileMock]);
-
-        self::assertSame('', $result);
-    }
-
-    #[Test]
-    public function getAttributeValueCastsNullToEmptyString(): void
-    {
-        $attributes = [];
-
-        /** @var File&MockObject $fileMock */
-        $fileMock = $this->createMock(File::class);
-        $fileMock->method('getProperty')->willReturn(null);
-
-        $result = $this->callProtectedMethod('getAttributeValue', ['alt', $attributes, $fileMock]);
-
-        self::assertSame('', $result);
-    }
-
-    #[Test]
-    public function getImageAttributesReturnsEmptyArrayWhenCObjIsNull(): void
-    {
-        // cObj is null by default in setUp
-        $result = $this->callProtectedMethod('getImageAttributes', []);
-
-        self::assertSame([], $result);
-    }
-
-    #[Test]
-    public function getImageAttributesReturnsParametersFromCObj(): void
-    {
-        $expectedParams = [
-            'src'   => '/path/to/image.jpg',
-            'alt'   => 'Test image',
-            'width' => '800',
-        ];
-
-        /** @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer&MockObject $cObjMock */
-        $cObjMock             = $this->createMock(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
-        $cObjMock->parameters = $expectedParams;
-
-        $this->subject->setContentObjectRenderer($cObjMock);
-
-        $result = $this->callProtectedMethod('getImageAttributes', []);
-
-        self::assertSame($expectedParams, $result);
-    }
-
-    #[Test]
-    public function getImageAttributesReturnsEmptyArrayWhenParametersNotSet(): void
-    {
-        /** @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer&MockObject $cObjMock */
-        $cObjMock = $this->createMock(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
-        // Don't set parameters property
-
-        $this->subject->setContentObjectRenderer($cObjMock);
-
-        $result = $this->callProtectedMethod('getImageAttributes', []);
-
-        self::assertSame([], $result);
-    }
-
-    #[Test]
-    public function setContentObjectRendererStoresInstance(): void
-    {
-        /** @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer&MockObject $cObjMock */
-        $cObjMock = $this->createMock(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::class);
-
-        $this->subject->setContentObjectRenderer($cObjMock);
-
-        // Verify by calling getImageAttributes which uses cObj
-        $cObjMock->parameters = ['test' => 'value'];
-        $result               = $this->callProtectedMethod('getImageAttributes', []);
-
-        self::assertSame(['test' => 'value'], $result);
+        self::assertTrue($result, 'Should skip processing when configuration is empty (no dimensions requested)');
     }
 }

@@ -152,6 +152,26 @@ The extension supports [TYPO3 lazyload handling](https://docs.typo3.org/c/typo3/
 styles.content.image.lazyLoading = lazy
 ```
 
+### Using original images without processing (noScale)
+
+To use original images without processing (useful for newsletters, PDFs, or retina displays):
+
+```typoscript
+# TypoScript Setup - Enable globally for all RTE images
+lib.parseFunc_RTE.tags.img.noScale = 1
+
+# Or enable for linked images
+lib.parseFunc_RTE.tags.a.noScale = 1
+```
+
+When `noScale = 1`:
+- Original image files are used (no processed variants in typo3temp/)
+- Image quality is preserved at maximum resolution
+- Width and height attributes are still calculated and applied
+- Ideal for newsletters, PDFs, and high-resolution displays
+
+**Auto-Optimization:** Even with `noScale = 0` (default), the extension automatically skips processing when requested dimensions match the original image dimensions, improving performance.
+
 ### Allowed extensions
 
 By default, the extensions from `$TYPO3_CONF_VARS['GFX']['imagefile_ext']` are allowed. However, you can override this for CKEditor by adding the following to your YAML configuration:

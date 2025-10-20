@@ -120,26 +120,49 @@ class ImageRenderingController
                         throw new FileDoesNotExistException();
                     }
 
-                    // check if there is a processed variant, if not, create one
+                    // Read noScale configuration from TypoScript
+                    $noScale = (bool) ($conf['noScale'] ?? false);
+
+                    // Prepare image configuration
                     $imageConfiguration = [
-                        'width'  => (int) ($imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0),
-                        'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
+                        'width'  => (int) ($imageAttributes['width'] ?? ((int) $systemImage->getProperty('width') ?: 0)),
+                        'height' => (int) ($imageAttributes['height'] ?? ((int) $systemImage->getProperty('height') ?: 0)),
                     ];
-                    $processedFile = $this->processedFilesHandler->createProcessedFile($systemImage, $imageConfiguration);
 
-                    $imageSource = $processedFile->getPublicUrl();
+                    // Check if we should skip processing and use original file
+                    if ($this->shouldSkipProcessing($systemImage, $imageConfiguration, $noScale)) {
+                        // Use original file without processing
+                        $imageSource = $systemImage->getPublicUrl();
 
-                    if ($imageSource === null) {
-                        throw new FileDoesNotExistException();
+                        if ($imageSource === null) {
+                            throw new FileDoesNotExistException();
+                        }
+
+                        $additionalAttributes = [
+                            'src'    => $imageSource,
+                            'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
+                            'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
+                            'width'  => $imageConfiguration['width'] !== 0 ? $imageConfiguration['width'] : ((int) $systemImage->getProperty('width') ?: 0),
+                            'height' => $imageConfiguration['height'] !== 0 ? $imageConfiguration['height'] : ((int) $systemImage->getProperty('height') ?: 0),
+                        ];
+                    } else {
+                        // Process image to create variant
+                        $processedFile = $this->processedFilesHandler->createProcessedFile($systemImage, $imageConfiguration);
+
+                        $imageSource = $processedFile->getPublicUrl();
+
+                        if ($imageSource === null) {
+                            throw new FileDoesNotExistException();
+                        }
+
+                        $additionalAttributes = [
+                            'src'    => $imageSource,
+                            'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
+                            'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
+                            'width'  => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
+                            'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
+                        ];
                     }
-
-                    $additionalAttributes = [
-                        'src'    => $imageSource,
-                        'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
-                        'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
-                        'width'  => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
-                        'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
-                    ];
 
                     $lazyLoading = $this->getLazyLoadingConfiguration($request);
 
@@ -302,5 +325,49 @@ class ImageRenderingController
     protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
         return (string) ($attributes[$attributeName] ?? $image->getProperty($attributeName));
+    }
+
+    /**
+     * Determine if image processing should be skipped.
+     *
+     * Skips processing when:
+     * 1. noScale is explicitly enabled in TypoScript configuration
+     * 2. Auto-optimization: Requested dimensions match original file dimensions exactly
+     * 3. No dimensions requested (use original)
+     *
+     * @param File    $originalFile       The original file
+     * @param mixed[] $imageConfiguration Requested image configuration (width, height)
+     * @param bool    $noScale            noScale setting from TypoScript configuration
+     *
+     * @return bool True if processing should be skipped and original file used
+     */
+    protected function shouldSkipProcessing(
+        File $originalFile,
+        array $imageConfiguration,
+        bool $noScale,
+    ): bool {
+        // Explicit noScale = 1 in TypoScript configuration
+        if ($noScale === true) {
+            return true;
+        }
+
+        // Auto-optimization: Get original dimensions
+        $originalWidth   = (int) ($originalFile->getProperty('width') ?? 0);
+        $originalHeight  = (int) ($originalFile->getProperty('height') ?? 0);
+        $requestedWidth  = (int) ($imageConfiguration['width'] ?? 0);
+        $requestedHeight = (int) ($imageConfiguration['height'] ?? 0);
+
+        // If no dimensions requested, use original file
+        if ($requestedWidth === 0 && $requestedHeight === 0) {
+            return true;
+        }
+
+        // If dimensions match exactly, skip processing (auto-optimization)
+        if ($requestedWidth === $originalWidth && $requestedHeight === $originalHeight) {
+            return true;
+        }
+
+        // Different dimensions requested - processing needed
+        return false;
     }
 }
