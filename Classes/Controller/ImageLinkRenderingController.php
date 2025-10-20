@@ -139,12 +139,21 @@ class ImageLinkRenderingController
                             throw new FileDoesNotExistException();
                         }
 
-                        // Read noScale configuration from TypoScript
+                        // Read noScale configuration from TypoScript (site-wide)
                         $noScale            = (bool) ($conf['noScale'] ?? false);
                         $maxFileSizeForAuto = 0;
 
                         if (isset($conf['noScale.']) && is_array($conf['noScale.'])) {
-                            $maxFileSizeForAuto = (int) ($conf['noScale.']['maxFileSizeForAuto'] ?? 0);
+                            $value = $conf['noScale.']['maxFileSizeForAuto'] ?? 0;
+                            // TypoScript values can be strings or ints - type-guard before casting
+                            if (is_numeric($value)) {
+                                $maxFileSizeForAuto = (int) $value;
+                            }
+                        }
+
+                        // Per-image noScale override: data-noscale attribute takes precedence
+                        if (isset($imageAttributes['data-noscale'])) {
+                            $noScale = (bool) $imageAttributes['data-noscale'];
                         }
 
                         // Prepare image configuration

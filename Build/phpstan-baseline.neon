@@ -33,7 +33,7 @@ parameters:
 		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
-			count: 9
+			count: 8
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
@@ -105,7 +105,7 @@ parameters:
 		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
-			count: 9
+			count: 8
 			path: ../Classes/Controller/ImageRenderingController.php
 
 		-
