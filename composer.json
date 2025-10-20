@@ -51,7 +51,7 @@
             "phpunit -c Build/phpunit/FunctionalTests.xml"
         ],
         "ci:test:php:lint": [
-            "find . -name \\*.php ! -path \"./.Build/*\" -print0 | xargs -0 -n1 -P4 php -dxdebug.mode=off -l >/dev/null"
+            "find . -name \\*.php -not -path \"./.Build/*\" -not -path \"./.build/*\" -not -path \"./node_modules/*\" -print0 | xargs -0 -n1 -P4 php -dxdebug.mode=off -l >/dev/null"
         ],
         "ci:test:php:phpstan": [
             "phpstan analyze --configuration Build/phpstan.neon --memory-limit=-1"

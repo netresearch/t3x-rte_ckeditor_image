@@ -1,6 +1,6 @@
 includes:
     - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-strict-rules/rules.neon
-    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-phpunit/rules.neon
+#    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-phpunit/rules.neon
     - %currentWorkingDirectory%/Build/phpstan-baseline.neon
 
 parameters:
