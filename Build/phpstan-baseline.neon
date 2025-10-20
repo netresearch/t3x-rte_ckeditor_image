@@ -1,0 +1,161 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\Backend\\\\Preview\\\\RteImagePreviewRenderer\\:\\:walk\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: ../Classes/Backend/Preview/RteImagePreviewRenderer.php
+
+		-
+			message: "#^Property Netresearch\\\\RteCKEditorImage\\\\Backend\\\\Preview\\\\RteImagePreviewRenderer\\:\\:\\$toRemove type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: ../Classes/Backend/Preview/RteImagePreviewRenderer.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getFileObject\\(\\)\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getLogger\\(\\)\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:setMagicImageMaximumDimensions\\(\\)\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: "#^PHPDoc tag @var for variable \\$result has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageLinkRenderingController.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getFileObject\\(\\)\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getLogger\\(\\)\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:setMagicImageMaximumDimensions\\(\\)\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: "#^Parameter \\#1 \\$haystack of function strpos expects string, string\\|null given\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: "#^Parameter \\#1 \\$(string1|str1) of function strncasecmp expects string, string\\|null given\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: "#^Parameter \\#1 \\$(string1|str1) of function strncmp expects string, string\\|null given\\.$#"
+			count: 1
+			path: ../Classes/Controller/ImageRenderingController.php
+
+		-
+			message: "#^PHPDoc tag @var for variable \\$bparams has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: ../Classes/Controller/SelectImageController.php
+
+		-
+			message: "#^Property Netresearch\\\\RteCKEditorImage\\\\Controller\\\\SelectImageController\\:\\:\\$magicImageService \\(TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Service\\\\MagicImageService\\) does not accept object\\.$#"
+			count: 1
+			path: ../Classes/Controller/SelectImageController.php
+
+		-
+			message: "#^Property Netresearch\\\\RteCKEditorImage\\\\Controller\\\\SelectImageController\\:\\:\\$resourceFactory \\(TYPO3\\\\CMS\\\\Core\\\\Resource\\\\ResourceFactory\\) does not accept object\\.$#"
+			count: 1
+			path: ../Classes/Controller/SelectImageController.php
+
+		-
+			message: "#^Property Netresearch\\\\RteCKEditorImage\\\\Controller\\\\SelectImageController\\:\\:\\$richText \\(TYPO3\\\\CMS\\\\Core\\\\Configuration\\\\Richtext\\) does not accept object\\.$#"
+			count: 1
+			path: ../Classes/Controller/SelectImageController.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:createMagicImage\\(\\)\\.$#"
+			count: 3
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getCache\\(\\)\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getDefaultBackendStoragePid\\(\\)\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getFileObject\\(\\)\\.$#"
+			count: 2
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:load\\(\\)\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:parse\\(\\)\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:retrieveFileOrFolderObject\\(\\)\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:setAspect\\(\\)\\.$#"
+			count: 2
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:setMagicImageMaximumDimensions\\(\\)\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Class Netresearch\\\\RteCKEditorImage\\\\Database\\\\RteImagesDbHook has an uninitialized property \\$pObj\\. Give it default value or assign it in the constructor\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Class Netresearch\\\\RteCKEditorImage\\\\Database\\\\RteImagesDbHook has an uninitialized property \\$transformationKey\\. Give it default value or assign it in the constructor\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\Database\\\\RteImagesDbHook\\:\\:getProcessedFile\\(\\) has parameter \\$attribArray with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: ../Classes/Database/RteImagesDbHook.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getLogger\\(\\)\\.$#"
+			count: 1
+			path: ../ext_localconf.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getMessageQueueByIdentifier\\(\\)\\.$#"
+			count: 1
+			path: ../ext_localconf.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getQueryBuilderForTable\\(\\)\\.$#"
+			count: 1
+			path: ../ext_localconf.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:isEnvironmentInBackendMode\\(\\)\\.$#"
+			count: 1
+			path: ../ext_localconf.php

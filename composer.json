@@ -42,5 +42,30 @@
             "extension-key": "rte_ckeditor_image",
             "web-dir": ".Build/Web"
         }
+    },
+    "scripts": {
+        "ci:security": [
+            "composer audit"
+        ],
+        "ci:test:php:functional": [
+            "phpunit -c Build/phpunit/FunctionalTests.xml"
+        ],
+        "ci:test:php:lint": [
+            "find . -name \\*.php -not -path \"./.Build/*\" -not -path \"./.build/*\" -not -path \"./node_modules/*\" -print0 | xargs -0 -n1 -P4 php -dxdebug.mode=off -l >/dev/null"
+        ],
+        "ci:test:php:phpstan": [
+            "phpstan analyze --configuration Build/phpstan.neon --memory-limit=-1"
+        ],
+        "ci:test:php:phpstan:baseline": [
+            "phpstan analyze --configuration Build/phpstan.neon --memory-limit=-1 --generate-baseline Build/phpstan-baseline.neon --allow-empty-baseline"
+        ],
+        "ci:coverage:functional": [
+            "phpunit -c Build/phpunit/FunctionalTests.xml --coverage-clover=.Build/logs/clover.xml --coverage-html=.Build/coverage"
+        ],
+        "ci:test": [
+            "@ci:test:php:lint",
+            "@ci:test:php:phpstan",
+            "@ci:test:php:functional"
+        ]
     }
 }
