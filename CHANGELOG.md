@@ -8,9 +8,11 @@
   - Use cases: newsletters, PDFs, retina displays, performance optimization
   - Configuration via TypoScript: `lib.parseFunc_RTE.tags.img.noScale = 1`
   - Auto-optimization: Automatically skips processing when dimensions match original
+  - SVG auto-detection: Vector graphics always use original file (no rasterization)
+  - File size threshold: Control auto-optimization for large files (`noScale.maxFileSizeForAuto`)
   - Applies to both regular images and linked images
   - Maintains backward compatibility (default: `noScale = 0`)
-  - Comprehensive unit test coverage for shouldSkipProcessing() logic
+  - Comprehensive unit test coverage (14 tests) for shouldSkipProcessing() logic
 
 # 13.0.0
 

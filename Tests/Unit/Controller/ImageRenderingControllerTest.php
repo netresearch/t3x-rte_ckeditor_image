@@ -213,4 +213,156 @@ class ImageRenderingControllerTest extends TestCase
 
         self::assertTrue($result, 'Should skip processing when configuration is empty (no dimensions requested)');
     }
+
+    public function testShouldSkipProcessingReturnsTrueForSvgFiles(): void
+    {
+        $controller = new ImageRenderingController();
+
+        $file = $this->createMock(File::class);
+        $file->method('getExtension')->willReturn('svg');
+        $file->method('getProperty')->willReturnMap([
+            ['width', 100],
+            ['height', 100],
+        ]);
+
+        $imageConfig = ['width' => 200, 'height' => 200]; // Different dimensions
+        $noScale     = false; // Not explicitly enabled
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+            0, // No file size limit
+        ]);
+
+        self::assertTrue($result, 'Should skip processing for SVG files regardless of dimensions');
+    }
+
+    public function testShouldSkipProcessingReturnsTrueForSvgUppercase(): void
+    {
+        $controller = new ImageRenderingController();
+
+        $file = $this->createMock(File::class);
+        $file->method('getExtension')->willReturn('SVG'); // Uppercase
+        $file->method('getProperty')->willReturnMap([
+            ['width', 100],
+            ['height', 100],
+        ]);
+
+        $imageConfig = ['width' => 200, 'height' => 200];
+        $noScale     = false;
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+            0,
+        ]);
+
+        self::assertTrue($result, 'Should skip processing for SVG files with uppercase extension');
+    }
+
+    public function testShouldSkipProcessingRespectsFileSizeThreshold(): void
+    {
+        $controller = new ImageRenderingController();
+
+        $file = $this->createMock(File::class);
+        $file->method('getExtension')->willReturn('jpg');
+        $file->method('getProperty')->willReturnMap([
+            ['width', 1920],
+            ['height', 1080],
+        ]);
+        $file->method('getSize')->willReturn(3000000); // 3MB
+
+        $imageConfig = ['width' => 1920, 'height' => 1080]; // Dimensions match
+        $noScale     = false;
+        $maxFileSize = 2000000; // 2MB threshold
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+            $maxFileSize,
+        ]);
+
+        self::assertFalse($result, 'Should not skip processing when file exceeds size threshold');
+    }
+
+    public function testShouldSkipProcessingWhenFileBelowThreshold(): void
+    {
+        $controller = new ImageRenderingController();
+
+        $file = $this->createMock(File::class);
+        $file->method('getExtension')->willReturn('jpg');
+        $file->method('getProperty')->willReturnMap([
+            ['width', 1920],
+            ['height', 1080],
+        ]);
+        $file->method('getSize')->willReturn(1500000); // 1.5MB
+
+        $imageConfig = ['width' => 1920, 'height' => 1080]; // Dimensions match
+        $noScale     = false;
+        $maxFileSize = 2000000; // 2MB threshold
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+            $maxFileSize,
+        ]);
+
+        self::assertTrue($result, 'Should skip processing when file is below size threshold');
+    }
+
+    public function testShouldSkipProcessingIgnoresThresholdWhenZero(): void
+    {
+        $controller = new ImageRenderingController();
+
+        $file = $this->createMock(File::class);
+        $file->method('getExtension')->willReturn('jpg');
+        $file->method('getProperty')->willReturnMap([
+            ['width', 1920],
+            ['height', 1080],
+        ]);
+        $file->method('getSize')->willReturn(10000000); // 10MB (very large)
+
+        $imageConfig = ['width' => 1920, 'height' => 1080]; // Dimensions match
+        $noScale     = false;
+        $maxFileSize = 0; // No threshold
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+            $maxFileSize,
+        ]);
+
+        self::assertTrue($result, 'Should skip processing when threshold is 0 (no limit)');
+    }
+
+    public function testShouldSkipProcessingSvgIgnoresFileSize(): void
+    {
+        $controller = new ImageRenderingController();
+
+        $file = $this->createMock(File::class);
+        $file->method('getExtension')->willReturn('svg');
+        $file->method('getSize')->willReturn(5000000); // 5MB SVG
+        $file->method('getProperty')->willReturnMap([
+            ['width', 100],
+            ['height', 100],
+        ]);
+
+        $imageConfig = ['width' => 200, 'height' => 200]; // Different dimensions
+        $noScale     = false;
+        $maxFileSize = 1000000; // 1MB threshold
+
+        $result = $this->callProtectedMethod($controller, 'shouldSkipProcessing', [
+            $file,
+            $imageConfig,
+            $noScale,
+            $maxFileSize,
+        ]);
+
+        self::assertTrue($result, 'Should skip processing for SVG regardless of file size threshold');
+    }
 }

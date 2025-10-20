@@ -140,7 +140,12 @@ class ImageLinkRenderingController
                         }
 
                         // Read noScale configuration from TypoScript
-                        $noScale = (bool) ($conf['noScale'] ?? false);
+                        $noScale            = (bool) ($conf['noScale'] ?? false);
+                        $maxFileSizeForAuto = 0;
+
+                        if (isset($conf['noScale.']) && is_array($conf['noScale.'])) {
+                            $maxFileSizeForAuto = (int) ($conf['noScale.']['maxFileSizeForAuto'] ?? 0);
+                        }
 
                         // Prepare image configuration
                         $imageConfiguration = [
@@ -149,7 +154,7 @@ class ImageLinkRenderingController
                         ];
 
                         // Check if we should skip processing and use original file
-                        if ($this->shouldSkipProcessing($systemImage, $imageConfiguration, $noScale)) {
+                        if ($this->shouldSkipProcessing($systemImage, $imageConfiguration, $noScale, $maxFileSizeForAuto)) {
                             // Use original file without processing
                             $additionalAttributes = [
                                 'src'    => $systemImage->getPublicUrl(),
@@ -303,13 +308,17 @@ class ImageLinkRenderingController
      * Determine if image processing should be skipped.
      *
      * Skips processing when:
-     * 1. noScale is explicitly enabled in TypoScript configuration
-     * 2. Auto-optimization: Requested dimensions match original file dimensions exactly
-     * 3. No dimensions requested (use original)
+     * 1. SVG files (vector graphics don't benefit from raster processing)
+     * 2. noScale is explicitly enabled in TypoScript configuration
+     * 3. Auto-optimization: Requested dimensions match original file dimensions exactly
+     * 4. No dimensions requested (use original)
+     *
+     * Auto-optimization respects file size threshold to prevent serving oversized originals.
      *
      * @param File    $originalFile       The original file
      * @param mixed[] $imageConfiguration Requested image configuration (width, height)
      * @param bool    $noScale            noScale setting from TypoScript configuration
+     * @param int     $maxFileSizeForAuto Maximum file size in bytes for auto-optimization (0 = no limit)
      *
      * @return bool True if processing should be skipped and original file used
      */
@@ -317,7 +326,14 @@ class ImageLinkRenderingController
         File $originalFile,
         array $imageConfiguration,
         bool $noScale,
+        int $maxFileSizeForAuto = 0,
     ): bool {
+        // SVG files: Always skip processing (vector graphics don't need raster processing)
+        // SVG scaling is handled by the browser, and ImageMagick would rasterize them
+        if (strtolower($originalFile->getExtension()) === 'svg') {
+            return true;
+        }
+
         // Explicit noScale = 1 in TypoScript configuration
         if ($noScale === true) {
             return true;
@@ -334,8 +350,19 @@ class ImageLinkRenderingController
             return true;
         }
 
-        // If dimensions match exactly, skip processing (auto-optimization)
+        // If dimensions match exactly, check file size threshold before auto-optimizing
         if ($requestedWidth === $originalWidth && $requestedHeight === $originalHeight) {
+            // Check file size threshold if configured
+            if ($maxFileSizeForAuto > 0) {
+                $fileSize = $originalFile->getSize();
+
+                // If file exceeds threshold, process it to potentially reduce size
+                if ($fileSize > $maxFileSizeForAuto) {
+                    return false;
+                }
+            }
+
+            // Dimensions match and within size threshold - skip processing
             return true;
         }
 

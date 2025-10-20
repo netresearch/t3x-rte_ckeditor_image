@@ -162,6 +162,16 @@ lib.parseFunc_RTE.tags.img.noScale = 1
 
 # Or enable for linked images
 lib.parseFunc_RTE.tags.a.noScale = 1
+
+# Optional: Set file size threshold for auto-optimization
+lib.parseFunc_RTE.tags.img {
+    noScale = 1
+    noScale {
+        # Maximum file size in bytes for auto-optimization
+        # Prevents serving very large original files
+        maxFileSizeForAuto = 2000000  # 2MB
+    }
+}
 ```
 
 When `noScale = 1`:
@@ -170,7 +180,11 @@ When `noScale = 1`:
 - Width and height attributes are still calculated and applied
 - Ideal for newsletters, PDFs, and high-resolution displays
 
-**Auto-Optimization:** Even with `noScale = 0` (default), the extension automatically skips processing when requested dimensions match the original image dimensions, improving performance.
+**Auto-Optimization:** Even with `noScale = 0` (default), the extension automatically skips processing when:
+- Requested dimensions match the original image dimensions
+- SVG files are detected (vector graphics always use original)
+
+**File Size Threshold:** Control auto-optimization for large files using `maxFileSizeForAuto` (in bytes). When set, files exceeding this size will be processed even if dimensions match, preventing oversized originals from being served.
 
 ### Allowed extensions
 

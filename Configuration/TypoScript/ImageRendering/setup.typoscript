@@ -24,13 +24,24 @@ lib.parseFunc_RTE {
         # - Performance optimization
         #
         # Auto-optimization: Even with noScale = 0 (default),
-        # the extension automatically skips processing when
-        # requested dimensions match the original image.
+        # the extension automatically skips processing when:
+        # - Requested dimensions match the original image
+        # - SVG files (vector graphics - always skipped)
+        #
+        # File size threshold: Control auto-optimization for
+        # large files to prevent serving oversized originals.
+        # Value in bytes (e.g., 2000000 = 2MB)
         #
         # Default: 0 (process images as before)
-        # Enable: Uncomment the line below
+        # Enable: Uncomment the lines below
         #******************************************************
         # noScale = 1
+        # noScale {
+        #     # Maximum file size for auto-optimization (bytes)
+        #     # 0 = no limit, auto-optimization always enabled
+        #     # Example: 2000000 = 2MB threshold
+        #     maxFileSizeForAuto = 2000000
+        # }
     }
     tags.a = TEXT
     tags.a {
@@ -38,7 +49,11 @@ lib.parseFunc_RTE {
         preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController->renderImages
 
         # noScale also available for linked images
+        # Same configuration options as tags.img above
         # noScale = 1
+        # noScale {
+        #     maxFileSizeForAuto = 2000000
+        # }
     }
     nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
         allparams.unset = 1
