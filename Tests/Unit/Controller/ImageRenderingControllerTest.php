@@ -12,9 +12,12 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Controller;
 
 use Netresearch\RteCKEditorImage\Controller\ImageRenderingController;
+use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 
 /**
  * Test case for ImageRenderingController.
@@ -24,6 +27,24 @@ use TYPO3\CMS\Core\Resource\File;
  */
 class ImageRenderingControllerTest extends TestCase
 {
+    /**
+     * Helper method to create controller with mocked dependencies.
+     *
+     * @return ImageRenderingController
+     */
+    protected function createController(): ImageRenderingController
+    {
+        $resourceFactory = $this->createMock(ResourceFactory::class);
+        $processedFilesHandler = $this->createMock(ProcessedFilesHandler::class);
+        $logManager = $this->createMock(LogManager::class);
+
+        return new ImageRenderingController(
+            $resourceFactory,
+            $processedFilesHandler,
+            $logManager
+        );
+    }
+
     /**
      * Helper method to call protected methods for testing.
      *
@@ -43,7 +64,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingReturnsTrueWhenNoScaleEnabled(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getProperty')->willReturnMap([
@@ -65,7 +86,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingReturnsTrueWhenDimensionsMatchExactly(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getProperty')->willReturnMap([
@@ -87,7 +108,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingReturnsTrueWhenNoDimensionsRequested(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getProperty')->willReturnMap([
@@ -109,7 +130,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingReturnsFalseWhenDimensionsDiffer(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getProperty')->willReturnMap([
@@ -131,7 +152,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingReturnsFalseWhenOnlyWidthMatches(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getProperty')->willReturnMap([
@@ -153,7 +174,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingReturnsFalseWhenOnlyHeightMatches(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getProperty')->willReturnMap([
@@ -175,7 +196,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingHandlesMissingDimensionsGracefully(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getProperty')->willReturn(null); // No dimensions on file
@@ -194,7 +215,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingHandlesEmptyConfiguration(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getProperty')->willReturnMap([
@@ -216,7 +237,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingReturnsTrueForSvgFiles(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getExtension')->willReturn('svg');
@@ -240,7 +261,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingReturnsTrueForSvgUppercase(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getExtension')->willReturn('SVG'); // Uppercase
@@ -264,7 +285,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingRespectsFileSizeThreshold(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getExtension')->willReturn('jpg');
@@ -290,7 +311,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingWhenFileBelowThreshold(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getExtension')->willReturn('jpg');
@@ -316,7 +337,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingIgnoresThresholdWhenZero(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getExtension')->willReturn('jpg');
@@ -342,7 +363,7 @@ class ImageRenderingControllerTest extends TestCase
 
     public function testShouldSkipProcessingSvgIgnoresFileSize(): void
     {
-        $controller = new ImageRenderingController();
+        $controller = $this->createController();
 
         $file = $this->createMock(File::class);
         $file->method('getExtension')->willReturn('svg');
