@@ -1,0 +1,132 @@
+#!/bin/bash
+
+## Description: Configure rte_ckeditor_image extension automatically
+## Usage: configure-rte
+## Example: ddev configure-rte
+
+VERSION=${1:-v13}
+INSTALL_DIR=/var/www/html/$VERSION
+
+echo "🔧 Configuring rte_ckeditor_image extension for $VERSION..."
+
+# Install Introduction Package for content
+echo "📦 Installing TYPO3 Introduction Package..."
+composer require typo3/cms-introduction --no-progress -d $INSTALL_DIR
+
+# Activate Introduction extension
+echo "✅ Activating Introduction extension..."
+cd $INSTALL_DIR
+vendor/bin/typo3 extension:setup --extension=introduction
+
+# Create RTE configuration in site package
+echo "📝 Creating RTE configuration..."
+mkdir -p $INSTALL_DIR/public/typo3conf/ext/site_rte/Configuration/RTE
+mkdir -p $INSTALL_DIR/public/typo3conf/ext/site_rte/Configuration/TsConfig/Page
+
+# Create ext_emconf.php
+cat > $INSTALL_DIR/public/typo3conf/ext/site_rte/ext_emconf.php << 'EOF'
+<?php
+$EM_CONF[$_EXTKEY] = [
+    'title' => 'Site RTE Configuration',
+    'description' => 'RTE configuration for rte_ckeditor_image',
+    'category' => 'templates',
+    'state' => 'stable',
+    'version' => '1.0.0',
+    'constraints' => [
+        'depends' => [
+            'typo3' => '13.4.0-13.4.99',
+            'rte_ckeditor_image' => '',
+        ],
+    ],
+];
+EOF
+
+# Create ext_localconf.php
+cat > $INSTALL_DIR/public/typo3conf/ext/site_rte/ext_localconf.php << 'EOF'
+<?php
+defined('TYPO3') or die();
+
+// Register RTE preset
+$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'EXT:site_rte/Configuration/RTE/Default.yaml';
+EOF
+
+# Create RTE configuration YAML
+cat > $INSTALL_DIR/public/typo3conf/ext/site_rte/Configuration/RTE/Default.yaml << 'EOF'
+# Import default RTE config and rte_ckeditor_image plugin
+imports:
+  - { resource: "EXT:rte_ckeditor/Configuration/RTE/Default.yaml" }
+  - { resource: "EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml" }
+
+editor:
+  config:
+    # CRITICAL: Import GeneralHtmlSupport for image styles
+    importModules:
+      - '@ckeditor/ckeditor5-html-support'
+
+    toolbar:
+      items:
+        - heading
+        - '|'
+        - typo3image
+        - link
+        - '|'
+        - bold
+        - italic
+        - underline
+        - strikethrough
+        - subscript
+        - superscript
+        - '|'
+        - bulletedList
+        - numberedList
+        - blockQuote
+        - '|'
+        - alignment
+        - indent
+        - outdent
+        - '|'
+        - horizontalLine
+        - specialCharacters
+        - '|'
+        - removeFormat
+        - undo
+        - redo
+        - '|'
+        - sourceEditing
+EOF
+
+# Create Page TSConfig
+cat > $INSTALL_DIR/public/typo3conf/ext/site_rte/Configuration/TsConfig/Page/RTE.tsconfig << 'EOF'
+# Enable default RTE preset
+RTE.default.preset = default
+EOF
+
+# Create ext_tables.php to load TSConfig
+cat > $INSTALL_DIR/public/typo3conf/ext/site_rte/ext_tables.php << 'EOF'
+<?php
+defined('TYPO3') or die();
+
+// Load Page TSConfig
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig(
+    '@import "EXT:site_rte/Configuration/TsConfig/Page/RTE.tsconfig"'
+);
+EOF
+
+# Composer autoload needs to recognize this extension
+echo "📦 Updating composer autoload..."
+cd $INSTALL_DIR
+composer dump-autoload
+
+# Flush caches
+echo "🧹 Flushing caches..."
+vendor/bin/typo3 cache:flush
+
+echo "✅ RTE configuration complete!"
+echo ""
+echo "📌 Access your TYPO3 installation:"
+echo "   Frontend: https://$VERSION.rte-ckeditor-image.ddev.site/"
+echo "   Backend:  https://$VERSION.rte-ckeditor-image.ddev.site/typo3/"
+echo "   Username: admin"
+echo "   Password: Password:joh316"
+echo ""
+echo "🎨 The rte_ckeditor_image extension is now configured and ready to use in the RTE!"

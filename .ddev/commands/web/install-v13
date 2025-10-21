@@ -35,3 +35,8 @@ vendor/bin/typo3 configuration:set 'GFX/processor_path' '/usr/bin/'
 sed -i "/'deprecations'/,/^[[:space:]]*'disabled' => true,/s/'disabled' => true,/'disabled' => false,/" /var/www/html/$VERSION/config/system/settings.php
 
 vendor/bin/typo3 cache:flush
+
+# Auto-configure rte_ckeditor_image extension
+echo ""
+echo "🔧 Auto-configuring rte_ckeditor_image extension..."
+/var/www/html/.ddev/commands/web/configure-rte $VERSION
