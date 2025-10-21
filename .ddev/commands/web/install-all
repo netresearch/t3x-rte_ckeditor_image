@@ -1,0 +1,10 @@
+#!/bin/bash
+
+## Description: Install TYPO3 13 with your extension
+## Usage: install-all
+## Example: ddev install-all
+
+echo "Installing TYPO3 13.4 LTS..."
+/mnt/ddev_config/commands/web/install-v13
+
+echo "✅ TYPO3 13 installed successfully!"
