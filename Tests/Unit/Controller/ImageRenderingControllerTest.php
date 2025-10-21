@@ -34,14 +34,14 @@ class ImageRenderingControllerTest extends TestCase
      */
     protected function createController(): ImageRenderingController
     {
-        $resourceFactory = $this->createMock(ResourceFactory::class);
+        $resourceFactory       = $this->createMock(ResourceFactory::class);
         $processedFilesHandler = $this->createMock(ProcessedFilesHandler::class);
-        $logManager = $this->createMock(LogManager::class);
+        $logManager            = $this->createMock(LogManager::class);
 
         return new ImageRenderingController(
             $resourceFactory,
             $processedFilesHandler,
-            $logManager
+            $logManager,
         );
     }
 

@@ -158,8 +158,8 @@ class ImageLinkRenderingController
 
                         // Prepare image configuration
                         $imageConfiguration = [
-                            'width'  => (int) ($imageAttributes['width'] ?? ((int) $systemImage->getProperty('width') ?: 0)),
-                            'height' => (int) ($imageAttributes['height'] ?? ((int) $systemImage->getProperty('height') ?: 0)),
+                            'width'  => (int) ($imageAttributes['width'] ?? ((int) $systemImage->getProperty('width'))),
+                            'height' => (int) ($imageAttributes['height'] ?? ((int) $systemImage->getProperty('height'))),
                         ];
 
                         // Check if we should skip processing and use original file
@@ -169,8 +169,8 @@ class ImageLinkRenderingController
                                 'src'    => $systemImage->getPublicUrl(),
                                 'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
                                 'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
-                                'width'  => $imageConfiguration['width'] !== 0 ? $imageConfiguration['width'] : ((int) $systemImage->getProperty('width') ?: 0),
-                                'height' => $imageConfiguration['height'] !== 0 ? $imageConfiguration['height'] : ((int) $systemImage->getProperty('height') ?: 0),
+                                'width'  => $imageConfiguration['width'] !== 0 ? $imageConfiguration['width'] : ((int) $systemImage->getProperty('width')),
+                                'height' => $imageConfiguration['height'] !== 0 ? $imageConfiguration['height'] : ((int) $systemImage->getProperty('height')),
                             ];
                         } else {
                             // Process image to create variant
@@ -344,7 +344,7 @@ class ImageLinkRenderingController
         }
 
         // Explicit noScale = 1 in TypoScript configuration
-        if ($noScale === true) {
+        if ($noScale) {
             return true;
         }
 
