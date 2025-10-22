@@ -17,6 +17,7 @@ composer req t3/cms:'^13' $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/htm
 
 cd /var/www/html/$VERSION
 
+mysql -h db -u root -p"root" -e "DROP DATABASE IF EXISTS ${VERSION};"
 mysql -h db -u root -p"root" -e "CREATE DATABASE ${VERSION};"
 
 vendor/bin/typo3 setup -n --dbname=$VERSION --password=$TYPO3_DB_PASSWORD --create-site="https://${VERSION}.rte-ckeditor-image.ddev.site" --admin-user-password=$TYPO3_SETUP_ADMIN_PASSWORD
@@ -39,4 +40,4 @@ vendor/bin/typo3 cache:flush
 # Auto-configure rte_ckeditor_image extension
 echo ""
 echo "🔧 Auto-configuring rte_ckeditor_image extension..."
-/var/www/html/.ddev/commands/web/configure-rte $VERSION
+/mnt/ddev_config/commands/web/configure-rte $VERSION
