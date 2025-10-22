@@ -2,7 +2,7 @@ services:
   # Redis for TYPO3 caching
   redis:
     container_name: ddev-${DDEV_SITENAME}-redis
-    image: redis:7-alpine
+    image: redis:8-alpine
     restart: unless-stopped
     ports:
       - "6379"
