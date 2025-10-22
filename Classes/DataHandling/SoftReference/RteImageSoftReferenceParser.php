@@ -88,13 +88,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
             $content,
         );
 
-        $images = $this->findImagesWithDataUid();
-
-        if ($images === []) {
-            return [];
-        }
-
-        return $images;
+        return $this->findImagesWithDataUid();
     }
 
     /**
