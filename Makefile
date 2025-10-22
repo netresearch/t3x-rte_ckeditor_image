@@ -9,6 +9,9 @@ help: ## Show available targets
 # DDEV Environment Commands
 # ===================================
 
+.PHONY: up
+up: start setup ## Complete startup (start DDEV + run setup) - ONE COMMAND TO RULE THEM ALL
+
 .PHONY: start
 start: ## Start DDEV environment
 	ddev start
@@ -18,7 +21,8 @@ stop: ## Stop DDEV environment
 	ddev stop
 
 .PHONY: setup
-setup: ## Complete DDEV setup (docs + install + configure)
+setup: ## Complete setup (docs + install + configure)
+	@ddev describe >/dev/null 2>&1 || ddev start
 	ddev setup
 
 .PHONY: docs

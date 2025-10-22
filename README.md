@@ -196,6 +196,30 @@ Comprehensive technical knowledge base including:
 
 ## Development
 
+### DDEV Environment (Complete Testing Setup)
+
+```bash
+# Quick start with DDEV (includes TYPO3 + Introduction package)
+git clone https://github.com/netresearch/t3x-rte_ckeditor_image.git
+cd t3x-rte_ckeditor_image
+make up                      # Start DDEV + complete setup (ONE COMMAND!)
+
+# Access your environment
+# - Overview:       https://rte-ckeditor-image.ddev.site/
+# - Documentation:  https://docs.rte-ckeditor-image.ddev.site/
+# - TYPO3 Frontend: https://v13.rte-ckeditor-image.ddev.site/
+# - TYPO3 Backend:  https://v13.rte-ckeditor-image.ddev.site/typo3/
+# - Credentials:    admin / Password:joh316
+
+# Individual commands
+make start                   # Start DDEV environment
+make setup                   # Complete setup (docs + install + configure)
+make docs                    # Render extension documentation
+ddev configure-rte           # Configure RTE extension in TYPO3
+```
+
+### Local Development (No DDEV)
+
 ```bash
 # Quick start
 composer install
