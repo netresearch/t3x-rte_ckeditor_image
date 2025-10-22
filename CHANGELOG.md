@@ -9,6 +9,8 @@
 
 ## BUGFIX
 
+- [BUGFIX] Fix incorrect toolbar button name in README and DDEV setup (insertimage not typo3image)
+
 - [BUGFIX] Fixes #186: Add timestamp to force the javascript change d6b0e6c
 - [BUGFIX] Fixes #186: Inline image with link sometimes causes incorrect ordering of double 3efd3d5
 - [BUGFIX] Regenerate images in backend view 56e64f8

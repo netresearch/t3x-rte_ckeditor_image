@@ -59,15 +59,15 @@ imports:
 
 editor:
   config:
-    # CRITICAL: Import GeneralHtmlSupport for image styles
-    importModules:
-      - '@ckeditor/ckeditor5-html-support'
+    # IMPORTANT: DO NOT override importModules here!
+    # Plugin.yaml provides: importModules: ['@netresearch/rte-ckeditor-image/Plugins/typo3image.js']
+    # If you need html-support, add it to Plugin.yaml or merge arrays properly
 
     toolbar:
       items:
         - heading
         - '|'
-        - typo3image
+        - insertimage
         - link
         - '|'
         - bold

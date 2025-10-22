@@ -79,7 +79,7 @@ importModules:
           items:
             - heading
             - '|'
-            - typo3image
+            - insertimage
             - link
             - '|'
             - bold
