@@ -18,6 +18,10 @@ echo "✅ Activating Introduction extension..."
 cd $INSTALL_DIR
 vendor/bin/typo3 extension:setup --extension=introduction
 
+# Remove default "main" site created by typo3 setup (Introduction creates its own site)
+echo "🧹 Removing default site (Introduction package provides its own)..."
+rm -rf $INSTALL_DIR/config/sites/main
+
 # Create RTE configuration in site package
 echo "📝 Creating RTE configuration..."
 mkdir -p $INSTALL_DIR/public/typo3conf/ext/site_rte/Configuration/RTE
