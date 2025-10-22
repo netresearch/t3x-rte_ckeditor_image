@@ -1,20 +1,20 @@
 services:
-  # Redis for TYPO3 caching
-  redis:
-    container_name: ddev-${DDEV_SITENAME}-redis
-    image: redis:7-alpine
+  # Valkey for TYPO3 caching (open source, wire-compatible with Redis)
+  valkey:
+    container_name: ddev-${DDEV_SITENAME}-valkey
+    image: valkey/valkey:8-alpine
     restart: unless-stopped
     ports:
       - "6379"
     volumes:
-      - redis-data:/data
+      - valkey-data:/data
     labels:
       com.ddev.site-name: ${DDEV_SITENAME}
       com.ddev.approot: $DDEV_APPROOT
     environment:
-      - REDIS_MAXMEMORY=256mb
-      - REDIS_MAXMEMORY_POLICY=allkeys-lru
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+      - VALKEY_MAXMEMORY=256mb
+      - VALKEY_MAXMEMORY_POLICY=allkeys-lru
+    command: valkey-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
 
   # MailPit for email testing
   mailpit:
@@ -48,5 +48,5 @@ services:
     command: daemon --docker-events
 
 volumes:
-  redis-data:
-    name: "${DDEV_SITENAME}-redis-data"
+  valkey-data:
+    name: "${DDEV_SITENAME}-valkey-data"
