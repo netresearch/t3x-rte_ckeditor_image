@@ -8,22 +8,47 @@ RTE Setup
 
 Complete guide for configuring the RTE (Rich Text Editor) with CKEditor image support.
 
+.. important::
+   **Zero-Configuration Installation (v13.0.0+)**
+
+   The extension works out-of-the-box with zero manual configuration:
+
+   .. code-block:: bash
+
+      composer require netresearch/rte-ckeditor-image
+
+   The ``insertimage`` button is automatically available in all RTEs. **No RTE configuration needed!**
+
+   This guide is for **advanced users** who need custom RTE presets or want to override the defaults.
+
 .. contents:: Table of Contents
    :depth: 3
    :local:
 
-RTE Configuration
-=================
+Automatic Configuration (Default)
+==================================
+
+The extension automatically provides:
+
+- **Preset**: ``rteWithImages`` registered and enabled globally
+- **Toolbar**: ``insertimage`` button included in default toolbar
+- **TypoScript**: Frontend rendering hooks loaded automatically
+- **Configuration**: ``Configuration/RTE/Default.yaml`` with full toolbar
+
+To use the automatic configuration, simply install the extension. No additional steps required.
+
+Custom RTE Configuration
+=========================
 
 .. _integration-configuration-basic:
 
-Basic Setup
------------
+Creating Custom Presets
+-----------------------
 
-Create or update your RTE preset configuration:
+If you need to customize the toolbar or RTE behavior beyond the defaults, create a custom preset:
 
 .. code-block:: yaml
-   :caption: EXT:my_ext/Configuration/RTE/Default.yaml
+   :caption: EXT:my_ext/Configuration/RTE/Custom.yaml
 
    imports:
      # Import default RTE config
@@ -33,30 +58,32 @@ Create or update your RTE preset configuration:
 
    editor:
      config:
-       # Restore image plugin (default config removes it)
-       removePlugins: null
-
        toolbar:
          items:
+           - heading
            - '|'
            - insertimage
+           - link
+           - '|'
+           - bold
+           - italic
 
-Register Preset
-~~~~~~~~~~~~~~~
+Register Custom Preset
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: php
    :caption: EXT:my_ext/ext_localconf.php
 
-   $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default']
-       = 'EXT:my_ext/Configuration/RTE/Default.yaml';
+   $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['custom']
+       = 'EXT:my_ext/Configuration/RTE/Custom.yaml';
 
-Enable Preset
-~~~~~~~~~~~~~
+Enable Custom Preset
+~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: typoscript
    :caption: Page TSConfig
 
-   RTE.default.preset = default
+   RTE.default.preset = custom
 
 Advanced RTE Configuration
 --------------------------
