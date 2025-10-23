@@ -16,4 +16,8 @@ defined('TYPO3') || exit;
 call_user_func(static function (): void {
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][]
         = RteImagesDbHook::class;
+
+    // Register default RTE preset with image support
+    $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['rteWithImages']
+        = 'EXT:rte_ckeditor_image/Configuration/RTE/Default.yaml';
 });
