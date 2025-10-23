@@ -103,7 +103,11 @@ With fluid_styled_content:
 Automatic TypoScript Loading
 =============================
 
-Since **v13.0.0**, TypoScript is loaded automatically via ``ext_localconf.php``:
+.. versionadded:: 13.0.0
+   TypoScript is now loaded automatically via ``ext_localconf.php``.
+   Manual static template inclusion is no longer required.
+
+The extension automatically loads frontend rendering configuration:
 
 .. code-block:: php
 
@@ -113,11 +117,9 @@ Since **v13.0.0**, TypoScript is loaded automatically via ``ext_localconf.php``:
        '@import "EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript"'
    );
 
-**No manual static template inclusion required!**
-
 .. note::
    The static template ``CKEditor Image Support`` is still available for backward compatibility,
-   but is **optional** since v13.0.0. The TypoScript configuration is now loaded automatically.
+   but is optional with automatic loading enabled.
 
 .. _typoscript-reference:
 
