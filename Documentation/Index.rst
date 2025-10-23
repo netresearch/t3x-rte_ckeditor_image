@@ -109,6 +109,15 @@ Key Features
 - Lazy loading and performance optimization
 - Event-driven architecture for extensibility
 
+Visual Preview
+--------------
+
+.. figure:: /Resources/Public/Images/demo.gif
+   :alt: RTE CKEditor Image extension demo
+   :class: with-shadow
+
+   Image insertion and configuration in CKEditor with TYPO3 file browser integration
+
 Version Information
 -------------------
 
@@ -172,6 +181,13 @@ Installation
 **That's it!** The extension automatically registers the ``rteWithImages`` preset and configures it globally for all sites.
 
 The image button (``insertimage``) is now available in your CKEditor toolbar.
+
+.. figure:: /Resources/Public/Images/demo.gif
+   :alt: Image button in CKEditor toolbar
+   :class: with-shadow
+   :width: 600px
+
+   The ``insertimage`` button provides full image management capabilities with TYPO3 file browser integration
 
 Custom Configuration (Optional)
 --------------------------------
