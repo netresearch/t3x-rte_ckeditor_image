@@ -23,7 +23,7 @@ Minimum Setup
      config:
        toolbar:
          items:
-           - typo3image
+           - insertimage
 
 Recommended Setup
 ~~~~~~~~~~~~~~~~~
@@ -34,10 +34,7 @@ Recommended Setup
      config:
        toolbar:
          items:
-           - typo3image
-       typo3image:
-         maxWidth: 1920
-         maxHeight: 1080
+           - insertimage
 
 Full-Featured Setup
 ~~~~~~~~~~~~~~~~~~~

@@ -158,38 +158,28 @@ Quick Start
 Installation
 ------------
 
-Install via Composer:
+1. Install via Composer:
 
-.. code-block:: bash
+   .. code-block:: bash
 
-   composer require netresearch/rte-ckeditor-image
+      composer require netresearch/rte-ckeditor-image
 
-Activate the extension in the TYPO3 Extension Manager or via CLI:
+2. Include the Static Template:
 
-.. code-block:: bash
+   - Go to **Template » Info/Modify » Edit whole template record » Includes**
+   - Choose ``CKEditor Image Support`` for ``Include static (from extensions)`` before Fluid Styled content
 
-   vendor/bin/typo3 extension:activate rte_ckeditor_image
+**That's it!** The extension automatically registers the ``rteWithImages`` preset and configures it globally for all sites.
 
-Basic Configuration
--------------------
+The image button (``insertimage``) is now available in your CKEditor toolbar.
 
-Add the image button to your RTE configuration:
+Custom Configuration (Optional)
+--------------------------------
 
-.. code-block:: yaml
+If you need to customize the RTE configuration or create your own preset, see the
+:ref:`RTE Setup Guide <integration-configuration-rte-setup>` for detailed instructions.
 
-   editor:
-     config:
-       toolbar:
-         items:
-           - heading
-           - '|'
-           - typo3image
-           - link
-           - '|'
-           - bold
-           - italic
-
-For complete configuration options, see :ref:`Configuration Guide <integration-configuration>`.
+The extension provides a default preset that you can extend or override as needed.
 
 
 .. _navigation-by-role:
