@@ -112,7 +112,7 @@ Key Features
 Visual Preview
 --------------
 
-.. figure:: /Resources/Public/Images/demo.gif
+.. figure:: /Images/demo.gif
    :alt: RTE CKEditor Image extension demo
    :class: with-shadow
 
@@ -182,7 +182,7 @@ Installation
 
 The image button (``insertimage``) is now available in your CKEditor toolbar.
 
-.. figure:: /Resources/Public/Images/demo.gif
+.. figure:: /Images/demo.gif
    :alt: Image button in CKEditor toolbar
    :class: with-shadow
    :width: 600px
