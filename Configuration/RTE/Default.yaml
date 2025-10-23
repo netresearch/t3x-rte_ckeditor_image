@@ -1,0 +1,41 @@
+# Import default RTE config and rte_ckeditor_image plugin
+imports:
+  - { resource: "EXT:rte_ckeditor/Configuration/RTE/Default.yaml" }
+  - { resource: "EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml" }
+
+editor:
+  config:
+    # IMPORTANT: DO NOT override importModules here!
+    # Plugin.yaml provides: importModules: ['@netresearch/rte-ckeditor-image/Plugins/typo3image.js']
+    # If you need to add additional modules, ensure proper array merging in your custom preset
+
+    toolbar:
+      items:
+        - heading
+        - '|'
+        - insertimage
+        - link
+        - '|'
+        - bold
+        - italic
+        - underline
+        - strikethrough
+        - subscript
+        - superscript
+        - '|'
+        - bulletedList
+        - numberedList
+        - blockQuote
+        - '|'
+        - alignment
+        - indent
+        - outdent
+        - '|'
+        - horizontalLine
+        - specialCharacters
+        - '|'
+        - removeFormat
+        - undo
+        - redo
+        - '|'
+        - sourceEditing
