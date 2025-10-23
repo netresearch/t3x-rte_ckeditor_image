@@ -8,6 +8,18 @@ Editor Issues
 
 Solutions for problems encountered in the TYPO3 backend editor and CKEditor functionality.
 
+.. important::
+   **Zero-Configuration Installation (v13.0.0+)**
+
+   The extension works out-of-the-box after ``composer require netresearch/rte-ckeditor-image``.
+   Most issues below only apply to **custom RTE preset configurations**.
+
+   If you're using the default automatic configuration and experiencing issues, check:
+
+   1. Clear caches: ``./vendor/bin/typo3 cache:flush``
+   2. Verify extension is activated
+   3. Check browser console for JavaScript errors
+
 .. contents:: Table of Contents
    :local:
    :depth: 2
