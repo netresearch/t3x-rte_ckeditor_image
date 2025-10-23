@@ -10,6 +10,7 @@
 declare(strict_types=1);
 
 use Netresearch\RteCKEditorImage\Database\RteImagesDbHook;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 defined('TYPO3') || exit;
 
@@ -20,4 +21,11 @@ call_user_func(static function (): void {
     // Register default RTE preset with image support
     $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['rteWithImages']
         = 'EXT:rte_ckeditor_image/Configuration/RTE/Default.yaml';
+
+    // Automatically load TypoScript for frontend image rendering
+    ExtensionManagementUtility::addTypoScript(
+        'rte_ckeditor_image',
+        'setup',
+        '@import "EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript"'
+    );
 });
