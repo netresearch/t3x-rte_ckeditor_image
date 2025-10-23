@@ -6,29 +6,56 @@
 Basic Integration
 =================
 
-Quick start guide for getting basic image functionality working with minimal configuration.
+Quick start guide demonstrating the zero-configuration installation and basic customization options.
 
 .. contents:: Table of Contents
    :depth: 3
    :local:
 
-Minimal Setup
-=============
+Zero-Configuration Installation
+================================
 
-**Objective**: Get basic image functionality working
+**Objective**: Get image functionality working with zero manual configuration
 
-Step 1: Install Extension
---------------------------
+Installation
+------------
 
 .. code-block:: bash
 
    composer require netresearch/rte-ckeditor-image:^13.0
 
-Step 2: Create RTE Configuration
----------------------------------
+**That's it!** The extension automatically:
+
+- ✅ Registers the ``rteWithImages`` preset for backend RTE
+- ✅ Configures toolbar with ``insertimage`` button for all sites
+- ✅ Loads TypoScript for frontend image rendering
+- ✅ No manual configuration required
+
+**Result**: Full image functionality working out-of-the-box ✅
+
+Verification
+------------
+
+1. **Backend**: Log into TYPO3 backend → Edit any content element → RTE should show image button
+2. **Frontend**: Insert image in RTE → Save → View frontend → Image renders correctly
+
+.. figure:: /Images/demo.gif
+   :alt: Image insertion demo
+   :class: with-shadow
+   :width: 600px
+
+   The ``insertimage`` button is automatically available after installation
+
+Custom Configuration (Optional)
+================================
+
+If you need to customize the RTE configuration, you can create your own preset:
+
+Custom Preset
+-------------
 
 .. code-block:: yaml
-   :caption: EXT:my_site/Configuration/RTE/Default.yaml
+   :caption: EXT:my_site/Configuration/RTE/Custom.yaml
 
    imports:
      - { resource: "EXT:rte_ckeditor/Configuration/RTE/Default.yaml" }
@@ -36,7 +63,6 @@ Step 2: Create RTE Configuration
 
    editor:
      config:
-       removePlugins: null
        toolbar:
          items:
            - heading
@@ -47,30 +73,26 @@ Step 2: Create RTE Configuration
            - insertimage
            - link
 
-Step 3: Register Preset
-------------------------
+Register Custom Preset
+-----------------------
 
 .. code-block:: php
    :caption: EXT:my_site/ext_localconf.php
 
-   $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default']
-       = 'EXT:my_site/Configuration/RTE/Default.yaml';
+   $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['custom']
+       = 'EXT:my_site/Configuration/RTE/Custom.yaml';
 
-Step 4: Enable in Page TSConfig
---------------------------------
+Enable Custom Preset
+---------------------
 
 .. code-block:: typoscript
    :caption: Configuration/page.tsconfig
 
-   RTE.default.preset = default
+   RTE.default.preset = custom
 
-Step 5: Include Static Template
---------------------------------
-
-- Backend → Template → Edit Template
-- Include static: "CKEditor Image Support"
-
-**Result**: Basic image insertion working ✅
+.. note::
+   The default ``rteWithImages`` preset is automatically configured.
+   Custom presets are only needed for specific toolbar or plugin customization.
 
 Related Documentation
 =====================
