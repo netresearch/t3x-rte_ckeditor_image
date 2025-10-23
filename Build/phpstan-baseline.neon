@@ -553,6 +553,18 @@ parameters:
 			path: ../ext_localconf.php
 
 		-
+			message: '#^Cannot access offset ''Presets'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: ../ext_localconf.php
+
+		-
+			message: '#^Cannot access offset ''RTE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: ../ext_localconf.php
+
+		-
 			message: '#^Cannot access offset ''SC_OPTIONS'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -560,6 +572,12 @@ parameters:
 
 		-
 			message: '#^Cannot access offset ''processDatamapClass'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: ../ext_localconf.php
+
+		-
+			message: '#^Cannot access offset ''rteWithImages'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: ../ext_localconf.php

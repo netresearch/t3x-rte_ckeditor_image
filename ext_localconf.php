@@ -26,6 +26,6 @@ call_user_func(static function (): void {
     ExtensionManagementUtility::addTypoScript(
         'rte_ckeditor_image',
         'setup',
-        '@import "EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript"'
+        '@import "EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript"',
     );
 });

@@ -15,5 +15,5 @@ defined('TYPO3') || exit;
 
 // Load Page TSConfig globally for all sites
 ExtensionManagementUtility::addPageTSConfig(
-    '@import "EXT:rte_ckeditor_image/Configuration/page.tsconfig"'
+    '@import "EXT:rte_ckeditor_image/Configuration/page.tsconfig"',
 );
