@@ -8,36 +8,61 @@ Integration & Configuration
 
 Complete configuration reference and integration guide for the RTE CKEditor Image extension.
 
+.. important::
+   **Zero-Configuration Installation (v13.0.0+)**
+
+   The extension works out-of-the-box after installation:
+
+   .. code-block:: bash
+
+      composer require netresearch/rte-ckeditor-image
+
+   **No manual configuration needed!** The extension automatically:
+
+   - ✅ Registers ``rteWithImages`` preset for backend RTE
+   - ✅ Configures toolbar with ``insertimage`` button
+   - ✅ Loads TypoScript for frontend rendering
+   - ✅ Applies configuration globally to all sites
+
+   This section is for **advanced users** who need custom RTE configurations beyond the defaults.
+
 Configuration Quick Reference
 ==============================
 
-Essential Configurations
-------------------------
+For Custom RTE Presets
+-----------------------
 
-Minimum Setup
-~~~~~~~~~~~~~
+These examples show how to create **custom configurations** that override the automatic defaults.
+If you just installed the extension and it's working, you don't need these.
+
+Minimum Custom Toolbar
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: yaml
 
+   # Only needed if customizing the default toolbar
    editor:
      config:
        toolbar:
          items:
            - insertimage
 
-Recommended Setup
-~~~~~~~~~~~~~~~~~
+Custom Toolbar with Specific Buttons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: yaml
 
+   # Example: Custom preset with limited toolbar
    editor:
      config:
        toolbar:
          items:
+           - bold
+           - italic
            - insertimage
 
-Full-Featured Setup
-~~~~~~~~~~~~~~~~~~~
+Full-Featured Custom Setup
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 See :ref:`integration-configuration-complete-example`
 
