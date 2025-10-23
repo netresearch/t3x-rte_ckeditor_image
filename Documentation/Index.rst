@@ -173,14 +173,16 @@ Installation
 
       composer require netresearch/rte-ckeditor-image
 
-2. Include the Static Template:
+2. Include the Static Template for frontend rendering:
 
    - Go to **Template » Info/Modify » Edit whole template record » Includes**
    - Choose ``CKEditor Image Support`` for ``Include static (from extensions)`` before Fluid Styled content
 
-**That's it!** The extension automatically registers the ``rteWithImages`` preset and configures it globally for all sites.
+**That's it!** The extension automatically:
 
-The image button (``insertimage``) is now available in your CKEditor toolbar.
+- ✅ Registers the ``rteWithImages`` preset for the backend RTE
+- ✅ Configures the toolbar with the ``insertimage`` button globally for all sites
+- ✅ The static template provides TypoScript for proper image rendering on the frontend
 
 .. figure:: /Images/demo.gif
    :alt: Image button in CKEditor toolbar
