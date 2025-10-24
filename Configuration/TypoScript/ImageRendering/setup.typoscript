@@ -3,8 +3,20 @@
 #******************************************************
 # Including library for processing of magic images and file abstraction attributes on img tag
 #******************************************************
+#
+# TYPO3 12 Compatibility Note:
+# In TYPO3 12, lib.parseFunc_RTE is only available if fluid_styled_content is installed.
+# To ensure compatibility with all setups, we configure lib.parseFunc (always available)
+# and let lib.parseFunc_RTE inherit from it when available.
+#
+# TYPO3 13.2+ provides lib.parseFunc_RTE in core, so this dual configuration
+# ensures maximum compatibility across all TYPO3 12 installation scenarios.
+#
+# Related: #291, #293, #304, #29, #112
+#******************************************************
 
-lib.parseFunc_RTE {
+# Base configuration - works in all TYPO3 12 setups
+lib.parseFunc {
     tags.img = TEXT
     tags.img {
         current = 1
@@ -26,4 +38,7 @@ lib.parseFunc_RTE {
     }
 }
 
+# RTE-specific configuration - inherits from lib.parseFunc when available
+# Adds fix for paragraph wrapping issue (#112)
+lib.parseFunc_RTE < lib.parseFunc
 lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img)
