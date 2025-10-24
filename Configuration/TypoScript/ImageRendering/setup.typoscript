@@ -19,8 +19,9 @@ lib.parseFunc_RTE {
         allparams.unset = 1
         data-htmlarea-file-uid.unset = 1
         data-htmlarea-file-table.unset = 1
-        data-htmlarea-zoom.unset = 1
-        data-htmlarea-clickenlarge.unset = 1
+        # Keep zoom attributes for popup/lightbox rendering (see ImageRenderingController.php:202-231)
+        # data-htmlarea-zoom.unset = 1
+        # data-htmlarea-clickenlarge.unset = 1
         data-title-override.unset = 1
         data-alt-override.unset = 1
     }
