@@ -165,7 +165,11 @@ function getImageDialog(editor, img, attributes) {
                 };
 
                 $el.on('input', function () {
-                    constrainDimensions(1);
+                    // Allow empty input during typing (fixes #140)
+                    var val = $el.val().replace(/[^0-9]/g, '');
+                    if (val !== '') {
+                        constrainDimensions(1);
+                    }
                 });
                 $el.on('change', function () {
                     constrainDimensions(min);
