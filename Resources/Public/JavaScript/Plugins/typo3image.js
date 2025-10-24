@@ -188,6 +188,7 @@ function getImageDialog(editor, img, attributes) {
         $inputWidth = d.$el.find('#rteckeditorimage-width'),
         $inputHeight = d.$el.find('#rteckeditorimage-height'),
         $zoom = $('<input id="checkbox-zoom" type="checkbox">'),
+        $noScale = $('<input id="checkbox-noscale" type="checkbox">'),
         cssClass = attributes.class || '',
         $inputCssClass = $('<input id="input-cssclass" type="text" class="form-control">').val(cssClass),
         $customRow = $('<div class="row">').insertAfter($rows[0]),
@@ -197,6 +198,12 @@ function getImageDialog(editor, img, attributes) {
     $zoom.prependTo(
         $('<label>').text(img.lang.zoom).appendTo(
             $('<div class="checkbox" style="margin: -5px 0 15px;">').prependTo($customRowCol1)
+        )
+    );
+
+    $noScale.prependTo(
+        $('<label>').text('Use original file (noScale)').appendTo(
+            $('<div class="checkbox" style="margin: -5px 0 15px;">').appendTo($customRowCol1)
         )
     );
 
@@ -220,6 +227,11 @@ function getImageDialog(editor, img, attributes) {
         $zoom.prop('checked', true);
     }
 
+    // Check for existing noScale attribute
+    if (attributes['data-noscale']) {
+        $noScale.prop('checked', true);
+    }
+
     d.get = function () {
         $.each(fields, function () {
             $.each(this, function (key) {
@@ -237,6 +249,13 @@ function getImageDialog(editor, img, attributes) {
         } else if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
             delete attributes['data-htmlarea-zoom'];
             delete attributes['data-htmlarea-clickenlarge'];
+        }
+
+        // Save noScale attribute
+        if ($noScale.prop('checked')) {
+            attributes['data-noscale'] = true;
+        } else if (attributes['data-noscale']) {
+            delete attributes['data-noscale'];
         }
 
         // Set and escape cssClass value
@@ -289,7 +308,7 @@ function askImageAttributes(editor, img, attributes, table) {
                     var dialogInfo = dialog.get(),
                         filteredAttr = {},
                         allowedAttributes = [
-                            '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-title-override', 'data-alt-override'
+                            '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-title-override', 'data-alt-override'
                         ],
                         attributesNew = $.extend({}, img, dialogInfo);
 
@@ -411,6 +430,7 @@ function edit(selectedImage, editor, imageAttributes) {
                     alt: attributes.alt,
                     altOverride: attributes['data-alt-override'],
                     enableZoom: attributes['data-htmlarea-zoom'] || false,
+                    noScale: attributes['data-noscale'] || false,
                 });
 
                 editor.model.insertObject(newImage);
@@ -509,6 +529,7 @@ export default class Typo3Image extends Core.Plugin {
                 'titleOverride',
                 'class',
                 'enableZoom',
+                'noScale',
                 'width',
                 'height',
                 'htmlA',
@@ -541,6 +562,7 @@ export default class Typo3Image extends Core.Plugin {
                         title: viewElement.getAttribute('title') || '',
                         titleOverride: viewElement.getAttribute('data-title-override') || false,
                         enableZoom: viewElement.getAttribute('data-htmlarea-zoom') || false,
+                        noScale: viewElement.getAttribute('data-noscale') || false,
                     });
                 }
             });
@@ -578,6 +600,10 @@ export default class Typo3Image extends Core.Plugin {
 
                     if (modelElement.getAttribute('enableZoom') || false) {
                         attributes['data-htmlarea-zoom'] = true
+                    }
+
+                    if (modelElement.getAttribute('noScale') || false) {
+                        attributes['data-noscale'] = true
                     }
 
                     return writer.createEmptyElement('img', attributes)
@@ -633,6 +659,7 @@ export default class Typo3Image extends Core.Plugin {
                             alt: selectedElement.getAttribute('alt'),
                             title: selectedElement.getAttribute('title'),
                             'data-htmlarea-zoom': selectedElement.getAttribute('enableZoom'),
+                            'data-noscale': selectedElement.getAttribute('noScale'),
                             'data-title-override': selectedElement.getAttribute('titleOverride'),
                             'data-alt-override': selectedElement.getAttribute('altOverride'),
                         }
@@ -679,6 +706,7 @@ export default class Typo3Image extends Core.Plugin {
                         alt: modelElement.getAttribute('alt'),
                         title: modelElement.getAttribute('title'),
                         'data-htmlarea-zoom': modelElement.getAttribute('enableZoom'),
+                        'data-noscale': modelElement.getAttribute('noScale'),
                         'data-title-override': modelElement.getAttribute('titleOverride'),
                         'data-alt-override': modelElement.getAttribute('altOverride'),
                     }
