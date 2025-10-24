@@ -113,7 +113,7 @@ class SelectImageController extends ElementBrowserController
                         // TYPO3 v12+ ElementBrowser requires this parameter for folder resolution
                         $queryParams['expandFolder'] = $folder->getCombinedIdentifier();
                     }
-                } catch (Exception $exception) {
+                } catch (Exception) {
                     // Silently handle exceptions - parent ElementBrowserController will use default behavior
                     // This ensures admin users with full access are not affected if folder resolution fails
                 }
