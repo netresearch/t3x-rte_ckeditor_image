@@ -79,14 +79,14 @@ Database Hook Test Example
        /**
         * @test
         */
-       public function transformRteAddsAltAttributeIfMissing(): void
+       public function processDatamapAddsImageAttributes(): void
        {
            $hook = new RteImagesDbHook(/* dependencies */);
 
-           $input = '<img src="/fileadmin/image.jpg" data-htmlarea-file-uid="123" />';
-           $output = $hook->transform_rte($input, $rteHtmlParser);
+           $fieldArray = ['bodytext' => '<img src="/fileadmin/image.jpg" />'];
+           $hook->processDatamap_postProcessFieldArray('new', 'tt_content', '1', $fieldArray, $dataHandler);
 
-           self::assertStringContainsString('alt=', $output);
+           self::assertStringContainsString('alt=', $fieldArray['bodytext']);
        }
    }
 

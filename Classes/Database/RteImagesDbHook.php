@@ -35,7 +35,6 @@ use TYPO3\CMS\Core\Context\FileProcessingAspect;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Html\HtmlParser;
-use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -194,77 +193,6 @@ class RteImagesDbHook
         $mimeType = $finfo->buffer($fileContent);
 
         return in_array($mimeType, $allowedMimeTypes, true);
-    }
-
-    /**
-     * This method is called to transform RTE content in the database so the Rich Text Editor
-     * can deal with, e.g. links.
-     *
-     * @param string        $value
-     * @param RteHtmlParser $rteHtmlParser
-     *
-     * @return string
-     */
-    // @codingStandardsIgnoreStart
-    public function transform_rte(
-        // @codingStandardsIgnoreEnd
-        string $value,
-        RteHtmlParser $rteHtmlParser,
-    ): string {
-        // Split content by <img> tags and traverse the resulting array for processing:
-        $imgSplit = $rteHtmlParser->splitTags('img', $value);
-
-        if (count($imgSplit) > 1) {
-            $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
-            $siteHost = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
-            $sitePath = '';
-
-            if (!is_string($siteUrl)) {
-                $siteUrl = '';
-            }
-
-            if (is_string($siteHost)) {
-                $sitePath = str_replace(
-                    $siteHost,
-                    '',
-                    $siteUrl,
-                );
-            }
-
-            foreach ($imgSplit as $key => $v) {
-                // Image found
-                if (($key % 2) === 1) {
-                    // Get the attributes of the img tag
-                    [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
-                    $absoluteUrl   = trim((string) $attribArray['src']);
-
-                    // Transform the src attribute into an absolute url, if it not already
-                    if (strncasecmp($absoluteUrl, 'http', 4) !== 0) {
-                        // If site is in a sub path (e.g. /~user_jim/) this path needs to be
-                        // removed because it will be added with $siteUrl
-                        $attribArray['src'] = preg_replace(
-                            '#^' . preg_quote($sitePath, '#') . '#',
-                            '',
-                            (string) $attribArray['src'],
-                        );
-
-                        $attribArray['src'] = $siteUrl . $attribArray['src'];
-                    }
-
-                    // Must have alt attribute
-                    if (!isset($attribArray['alt'])) {
-                        $attribArray['alt'] = '';
-                    }
-
-                    $imgSplit[$key] = '<img '
-                        . GeneralUtility::implodeAttributes($attribArray, true, true)
-                        . ' />';
-                }
-            }
-        }
-
-        // Return processed content:
-        return implode('', $imgSplit);
     }
 
     /**

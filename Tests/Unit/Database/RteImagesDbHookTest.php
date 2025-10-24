@@ -18,7 +18,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
-use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -232,37 +231,5 @@ final class RteImagesDbHookTest extends UnitTestCase
 
         // Field array should remain unchanged for non-RTE fields
         self::assertSame('plain text content', $fieldArray['bodytext']);
-    }
-
-    #[Test]
-    public function transformRteReturnsUnchangedContentForEmptyString(): void
-    {
-        /** @var RteHtmlParser&MockObject $rteHtmlParserMock */
-        $rteHtmlParserMock = $this->createMock(RteHtmlParser::class);
-        $rteHtmlParserMock
-            ->method('splitTags')
-            ->with('img', '')
-            ->willReturn(['']);
-
-        $result = $this->subject->transform_rte('', $rteHtmlParserMock);
-
-        self::assertSame('', $result);
-    }
-
-    #[Test]
-    public function transformRteReturnsUnchangedContentWithoutImageTags(): void
-    {
-        $content = '<p>This is plain text without images</p>';
-
-        /** @var RteHtmlParser&MockObject $rteHtmlParserMock */
-        $rteHtmlParserMock = $this->createMock(RteHtmlParser::class);
-        $rteHtmlParserMock
-            ->method('splitTags')
-            ->with('img', $content)
-            ->willReturn([$content]);
-
-        $result = $this->subject->transform_rte($content, $rteHtmlParserMock);
-
-        self::assertSame($content, $result);
     }
 }
