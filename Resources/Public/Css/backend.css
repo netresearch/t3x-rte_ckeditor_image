@@ -1,0 +1,11 @@
+/**
+ * Backend preview styling for RTE CKEditor images
+ *
+ * Fixes issue #301: Images are not scaled in Page module
+ * This CSS rule is provided by TYPO3 core in v12+ but missing in v11,
+ * so we provide it here for v11 compatibility.
+ */
+.t3-page-ce-body img {
+    max-width: 100%;
+    height: auto;
+}
