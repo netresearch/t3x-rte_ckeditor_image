@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <title>Page TSConfig Setup
+        documentation</title>
+
+    
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="phpdocumentor/guides" name="generator">
+<meta content="" name="docsearch:name">
+<meta content="" name="docsearch:package_type">
+<meta content="" name="docsearch:release">
+<meta content="" name="docsearch:version">
+<meta content="2025-10-23T19:49:09+00:00" name="docsearch:modified">
+<meta content="2025-10-23T19:49:09+00:00" name="dc.modified">
+<meta content="2025-10-23T19:49:09+00:00" property="article:modified_time">
+    <link href="http://purl.org/dc/elements/1.1/" rel="schema.dc">
+<link href="../_resources/css/theme.css" rel="stylesheet">
+<link href="https://docs.typo3.org/search/" rel="search" title="Search">
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/webcomponents-loader.js"></script>
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/typo3-universe.js" type="module"></script>
+                        <link href="RTE-Setup.html" rel="prev" title="RTE Setup"/>
+            <link href="Frontend-Rendering.html" rel="next" title="Frontend Rendering"/>
+            <link href="../Index.html" rel="top" title="RTE CKEditor Image"/>
+    </head>
+<body>
+<div class="page">
+    <header>
+    <div class="page-topbar">
+        <div class="page-topbar-inner">
+            <typo3-universe active="documentation">
+                <div style="display: block; height: 44px; background-color: #313131;"></div>
+            </typo3-universe>
+        </div>
+    </div>
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="d-flex flex-wrap">
+                <div class="logo-wrapper">
+                    <a class="logo" href="https://docs.typo3.org/" title="TYPO3 Documentation">
+                        <img alt="TYPO3 Logo" class="logo-image" src="../_resources/img/typo3-logo.svg" width="484" height="130">
+                    </a>
+                </div>
+                <div class="align-self-center order-lg-2 order-last">
+                    
+<div class="toc-header">
+    <div class="toc-title pe-3">
+                            <a class="toc-title-project" href="../Index.html">RTE CKEditor Image</a>
+            </div>
+    </div>                </div>
+                <div class="ms-auto order-lg-3 d-flex">
+                    <div class="menu-search-wrapper">
+                        <button id="toc-toggle" class="btn btn-light d-block d-lg-none" tabindex="0" aria-controls="toc-collapse" aria-expanded="false">
+                            <i class="fas fa-bars"></i> <span class="visually-hidden">Mobile Menu</span>
+                        </button>
+                        <all-documentations-menu data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu>
+                                                <search role="search">
+                            <form action="https://docs.typo3.org/search/search" id="global-search-form" method="get">
+                                <div class="sr-only"><label for="globalsearchinput">TYPO3 documentation...</label></div>
+                                <div class="input-group mb-3 mt-sm-3">
+                                    <select class="form-select search__scope" id="searchscope" name="scope">
+                                        <option value="">Search all</option>
+                                    </select>
+                                    <input autocomplete="off" class="form-control shadow-none" id="globalsearchinput" name="q" placeholder="TYPO3 documentation..." type="text" value="">
+                                    <button class="btn btn-light" type="submit"><i class="fa fa-search"></i>&nbsp;<span class="d-none d-md-inline">Search</span></button>
+                                </div>
+                            </form>
+                            <div id="global-search-root"></div>
+                        </search>
+                        <div class="position-relative d-inline-block">
+                            <button id="options-toggle" class="btn btn-light d-block" type="button" aria-expanded="false">
+                                <i class="fas fa-cog"></i> <span class="visually-hidden">Options</span>
+                            </button>
+
+                            <div id="options-panel"
+                                 class="shadow p-3"
+                                 role="menu"
+                                 aria-hidden="true">
+                                <h6 class="dropdown-header text-muted text-uppercase small mb-2">Options</h6>
+
+                                                                                                            <a class="dropdown-item d-flex align-items-center gap-2" href="../_sources/Integration/TSConfig.rst.txt" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-code"></i>
+        View source
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2" href="https://docs.typo3.org/m/typo3/docs-how-to-document/main/en-us/WritingDocsOfficial/GithubMethod.html" id="btnHowToEdit" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-info-circle"></i>
+        How to edit
+    </a>
+                                                                                                                <a class="dropdown-item d-flex align-items-center gap-2" href="../singlehtml/Index.html" target="_blank" rel="noopener">
+                                            <i class="fas fa-print"></i>
+                                            Full documentation (single file)
+                                        </a>
+                                                                                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>    <main class="page-main">
+        <div class="page-main-inner">
+            <div class="page-main-navigation">
+                <nav>
+
+                    <div id="toc-collapse">
+                                                <div aria-label="main navigation" class="toc"
+                             role="navigation">
+                                <all-documentations-menu-mobile
+        data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu-mobile>
+    <div aria-label="Main navigation" class="main_menu" role="navigation">
+                <p class="caption">RTE CKEditor Image</p>
+            <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class=" active" role="menuitem">
+    <a href="Index.html">
+        Integration &amp; Configuration
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="RTE-Setup.html">
+        RTE Setup
+    </a></li><li class=" current active" role="menuitem">
+    <a href="#" aria-current="page">
+        Page TSConfig Setup
+    </a></li><li class="" role="menuitem">
+    <a href="Frontend-Rendering.html">
+        Frontend Rendering
+    </a></li><li class="" role="menuitem">
+    <a href="Advanced-Configuration.html">
+        Advanced Configuration
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Examples/Index.html">
+        Examples &amp; Use Cases
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Examples/Basic-Integration.html">
+        Basic Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Image-Styles.html">
+        Image Styles
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Responsive-Images.html">
+        Responsive Images
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Advanced-Features.html">
+        Advanced Features
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Custom-Extensions.html">
+        Custom Extensions
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Testing.html">
+        Testing Examples
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Troubleshooting/Index.html">
+        Troubleshooting &amp; Support
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Troubleshooting/Installation-Issues.html">
+        Installation Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Editor-Issues.html">
+        Editor Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Frontend-Issues.html">
+        Frontend Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Performance-Issues.html">
+        Performance Issues
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Architecture &amp; Design</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Architecture/Index.html">
+        Architecture &amp; Design
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Architecture/System-Architecture.html">
+        System Architecture
+    </a></li><li class="" role="menuitem">
+    <a href="../Architecture/Design-Patterns.html">
+        Design Patterns &amp; Integration
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../API/Index.html">
+        API Documentation
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../API/Controllers.html">
+        Controllers API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/DataHandling.html">
+        Data Handling API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/EventListeners.html">
+        Event Listeners API
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../CKEditor/Index.html">
+        CKEditor Plugin Development
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../CKEditor/Plugin-Development.html">
+        CKEditor Plugin Development
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Model-Element.html">
+        CKEditor Model Element Reference
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Style-Integration.html">
+        CKEditor Style Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Conversions.html">
+        CKEditor Conversion System
+    </a></li></ul></li>    </ul>
+    </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="page-main-content">
+                <div class="rst-content">                        <nav aria-label="breadcrumbs navigation" class="breadcrumb-bar" role="navigation">
+        
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="../Index.html">RTE CKEditor Image</a></li>
+        <li class="breadcrumb-item"><a href="Index.html">Integration &amp; Configuration</a></li>
+                    <li aria-current="page"  class="breadcrumb-item  active">Page TSConfig Setup</li>
+        </ol>
+        <div class="breadcrumb-additions"></div>
+    </nav>
+                    
+<article class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+    <div itemprop="articleBody">
+        <!-- content start -->
+                
+<section class="section" id="page-tsconfig-setup" data-rst-anchor="integration-configuration-tsconfig">
+            <a id="integration-configuration-tsconfig"></a>
+            <h1>Page TSConfig Setup<a class="headerlink" href="#page-tsconfig-setup" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h1>
+            
+    <p>Configuration of page TSConfig settings for image handling, upload folders, and permissions.</p>
+
+                
+<div class="admonition important" role="alert">
+    <p class="admonition-title">Important</p>
+            
+    <p><strong>Zero-Configuration Installation (v13.0.0+)</strong></p>
+
+    <p>The extension automatically loads basic Page TSConfig via <code>ext_tables.php</code>:</p>
+
+
+<ul>
+    <li class="dash">✅ Magic image processing enabled (maxWidth: 1920, maxHeight: 9999)</li>
+    <li class="dash">✅ RTE preset configured globally</li>
+    <li class="dash">✅ Processing modes set automatically</li>
+</ul>
+
+    <p>This section is for <strong>advanced users</strong> who need to customize these defaults or add field-specific configurations.</p>
+
+</div>
+            <div class="contents-wrapper">
+        <p class="topic-title">Table of Contents</p>
+        <ul class="menu-level">
+    <li class="toc-item">
+    <a href="#page-tsconfig">Page TSConfig</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#magic-image-configuration">Magic Image Configuration</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#processing-modes">Processing Modes</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#upload-folder-configuration">Upload Folder Configuration</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#content-element-configuration">Content Element Configuration</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#enable-for-specific-content-types">Enable for Specific Content Types</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#disable-for-specific-fields">Disable for Specific Fields</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#backend-user-permissions">Backend User Permissions</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#file-mounts">File Mounts</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#access-restrictions">Access Restrictions</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#multi-language-configuration">Multi-Language Configuration</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#language-specific-presets">Language-Specific Presets</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#troubleshooting-configuration">Troubleshooting Configuration</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#debug-rte-configuration">Debug RTE Configuration</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#verify-configuration-loading">Verify Configuration Loading</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#configuration-priority">Configuration Priority</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#related-documentation">Related Documentation</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#configuration-topics">Configuration Topics</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#general-documentation">General Documentation</a>
+
+
+</li>
+                    </ul>
+</li>
+    </ul>
+
+    <button class="toggle-all-sections btn btn-sm btn-light">Collapse all Sections</button>
+</div>
+            <section class="section" id="page-tsconfig">
+            <h2>Page TSConfig<a class="headerlink" href="#page-tsconfig" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="magic-image-configuration">
+            <h3>Magic Image Configuration<a class="headerlink" href="#magic-image-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Configure maximum image dimensions for automatic image processing:</p>
+
+            <section data-search-title="RTE.default.buttons.image.options.magic.maxWidth"
+         data-search-id="confval-rte-default-buttons-image-options-magic-maxwidth"
+         data-search-facet="Option"
+         class="confval-section"
+         id="confval-rte-default-buttons-image-options-magic-maxwidth"
+>
+    <h3 class="sr-only">RTE.default.buttons.image.options.magic.maxWidth</h3>
+    <dl class="confval">
+        <dt             class="d-flex justify-content-between">
+            <div class="confval-header flex-grow-1">
+                <code class="sig-name descname"><span
+                        class="pre">RTE.<wbr>default.<wbr>buttons.<wbr>image.<wbr>options.<wbr>magic.<wbr>max<wbr>Width</span></code>
+                                    <a class="headerlink" href="#confval-rte-default-buttons-image-options-magic-maxwidth"
+                       data-bs-toggle="modal"
+                       data-bs-target="#linkReferenceModal"
+                       data-id="confval-rte-default-buttons-image-options-magic-maxwidth"
+                       title="Reference this configuration value"><i
+                            class="fa-solid fa-paragraph"></i></a>
+                </div>
+            <div class="confval-back-to-top">                    <a href="#" class="backToTop" title="Back to top"><i
+                            class="fa-solid fa-arrow-up fa-xs"></i></a>            </div>        </dt>
+        <dd>
+                        <div class="confval-description">
+                <dl class="field-list simple ">
+            <dt class="field-odd">type</dt>
+
+        <dd class="field-odd">
+            
+    <p>integer</p>
+        </dd>
+            <dt class="field-odd">Default</dt>
+
+        <dd class="field-odd">
+            
+    <p>300</p>
+        </dd>
+    </dl>
+    <p>Maximum width in pixels for images inserted through the RTE.</p>
+
+    <p>Images larger than this value will be automatically resized during processing.</p>
+
+            </div>
+        </dd>
+    </dl>
+</section>
+            <section data-search-title="RTE.default.buttons.image.options.magic.maxHeight"
+         data-search-id="confval-rte-default-buttons-image-options-magic-maxheight"
+         data-search-facet="Option"
+         class="confval-section"
+         id="confval-rte-default-buttons-image-options-magic-maxheight"
+>
+    <h3 class="sr-only">RTE.default.buttons.image.options.magic.maxHeight</h3>
+    <dl class="confval">
+        <dt             class="d-flex justify-content-between">
+            <div class="confval-header flex-grow-1">
+                <code class="sig-name descname"><span
+                        class="pre">RTE.<wbr>default.<wbr>buttons.<wbr>image.<wbr>options.<wbr>magic.<wbr>max<wbr>Height</span></code>
+                                    <a class="headerlink" href="#confval-rte-default-buttons-image-options-magic-maxheight"
+                       data-bs-toggle="modal"
+                       data-bs-target="#linkReferenceModal"
+                       data-id="confval-rte-default-buttons-image-options-magic-maxheight"
+                       title="Reference this configuration value"><i
+                            class="fa-solid fa-paragraph"></i></a>
+                </div>
+            <div class="confval-back-to-top">                    <a href="#" class="backToTop" title="Back to top"><i
+                            class="fa-solid fa-arrow-up fa-xs"></i></a>            </div>        </dt>
+        <dd>
+                        <div class="confval-description">
+                <dl class="field-list simple ">
+            <dt class="field-odd">type</dt>
+
+        <dd class="field-odd">
+            
+    <p>integer</p>
+        </dd>
+            <dt class="field-odd">Default</dt>
+
+        <dd class="field-odd">
+            
+    <p>1000</p>
+        </dd>
+    </dl>
+    <p>Maximum height in pixels for images inserted through the RTE.</p>
+
+    <p>Images taller than this value will be automatically resized during processing.</p>
+
+            </div>
+        </dd>
+    </dl>
+</section>
+            
+    <p><strong>Example:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">RTE.default.buttons.image.options.magic {
+    maxWidth = 1920
+    maxHeight = 9999
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+                
+<div class="admonition warning" role="alert">
+    <p class="admonition-title">Warning</p>
+            
+    <p>Due to TYPO3 bug #87068, you may need to add these settings to root page config instead of custom template extensions.</p>
+
+</div>
+    </section>
+            <section class="section" id="processing-modes">
+            <h3>Processing Modes<a class="headerlink" href="#processing-modes" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">RTE.default.proc.overruleMode := addToList(default)
+RTE.default.proc.overruleMode := addToList(rtehtmlarea_images_db)</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="upload-folder-configuration" data-rst-anchor="integration-configuration-upload-folder">
+            <a id="integration-configuration-upload-folder"></a>
+            <h3>Upload Folder Configuration<a class="headerlink" href="#upload-folder-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <section data-search-title="RTE.default.buttons.image.options.defaultUploadFolder"
+         data-search-id="confval-rte-default-buttons-image-options-defaultuploadfolder"
+         data-search-facet="Option"
+         class="confval-section"
+         id="confval-rte-default-buttons-image-options-defaultuploadfolder"
+>
+    <h3 class="sr-only">RTE.default.buttons.image.options.defaultUploadFolder</h3>
+    <dl class="confval">
+        <dt             class="d-flex justify-content-between">
+            <div class="confval-header flex-grow-1">
+                <code class="sig-name descname"><span
+                        class="pre">RTE.<wbr>default.<wbr>buttons.<wbr>image.<wbr>options.<wbr>default<wbr>Upload<wbr>Folder</span></code>
+                                    <a class="headerlink" href="#confval-rte-default-buttons-image-options-defaultuploadfolder"
+                       data-bs-toggle="modal"
+                       data-bs-target="#linkReferenceModal"
+                       data-id="confval-rte-default-buttons-image-options-defaultuploadfolder"
+                       title="Reference this configuration value"><i
+                            class="fa-solid fa-paragraph"></i></a>
+                </div>
+            <div class="confval-back-to-top">                    <a href="#" class="backToTop" title="Back to top"><i
+                            class="fa-solid fa-arrow-up fa-xs"></i></a>            </div>        </dt>
+        <dd>
+                        <div class="confval-description">
+                <dl class="field-list simple ">
+            <dt class="field-odd">type</dt>
+
+        <dd class="field-odd">
+            
+    <p>string</p>
+        </dd>
+            <dt class="field-odd">Default</dt>
+
+        <dd class="field-odd">
+            
+    <p>(empty)</p>
+        </dd>
+    </dl>
+    <p>Default upload folder for images inserted through the RTE.</p>
+
+    <p>Format: <code>&lt;storage_uid&gt;:&lt;folder_path&gt;</code></p>
+
+    <p>Example: <code>1:rte_uploads/</code> uses storage 1 and uploads to <code>rte_uploads/</code> directory.</p>
+
+            </div>
+        </dd>
+    </dl>
+</section>
+            <section data-search-title="RTE.default.buttons.image.options.createUploadFolderIfNeeded"
+         data-search-id="confval-rte-default-buttons-image-options-createuploadfolderifneeded"
+         data-search-facet="Option"
+         class="confval-section"
+         id="confval-rte-default-buttons-image-options-createuploadfolderifneeded"
+>
+    <h3 class="sr-only">RTE.default.buttons.image.options.createUploadFolderIfNeeded</h3>
+    <dl class="confval">
+        <dt             class="d-flex justify-content-between">
+            <div class="confval-header flex-grow-1">
+                <code class="sig-name descname"><span
+                        class="pre">RTE.<wbr>default.<wbr>buttons.<wbr>image.<wbr>options.<wbr>create<wbr>Upload<wbr>Folder<wbr>If<wbr>Needed</span></code>
+                                    <a class="headerlink" href="#confval-rte-default-buttons-image-options-createuploadfolderifneeded"
+                       data-bs-toggle="modal"
+                       data-bs-target="#linkReferenceModal"
+                       data-id="confval-rte-default-buttons-image-options-createuploadfolderifneeded"
+                       title="Reference this configuration value"><i
+                            class="fa-solid fa-paragraph"></i></a>
+                </div>
+            <div class="confval-back-to-top">                    <a href="#" class="backToTop" title="Back to top"><i
+                            class="fa-solid fa-arrow-up fa-xs"></i></a>            </div>        </dt>
+        <dd>
+                        <div class="confval-description">
+                <dl class="field-list simple ">
+            <dt class="field-odd">type</dt>
+
+        <dd class="field-odd">
+            
+    <p>boolean</p>
+        </dd>
+            <dt class="field-odd">Default</dt>
+
+        <dd class="field-odd">
+            
+    <p>false</p>
+        </dd>
+    </dl>
+    <p>Automatically creates the upload folder if it doesn&#039;t exist.</p>
+
+    <p>Recommended to set to <code>1</code> (true) to avoid upload errors.</p>
+
+            </div>
+        </dd>
+    </dl>
+</section>
+            
+    <p><strong>Example:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">RTE.default.buttons.image.options {
+    defaultUploadFolder = 1:rte_uploads/
+    createUploadFolderIfNeeded = 1
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="content-element-configuration">
+            <h2>Content Element Configuration<a class="headerlink" href="#content-element-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="enable-for-specific-content-types">
+            <h3>Enable for Specific Content Types<a class="headerlink" href="#enable-for-specific-content-types" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript"><span class="hljs-comment"># Only enable for tt_content bodytext</span>
+RTE.config.tt_content.bodytext {
+    preset = default
+    buttons.image.options.magic {
+        maxWidth = 1200
+        maxHeight = 800
+    }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="disable-for-specific-fields">
+            <h3>Disable for Specific Fields<a class="headerlink" href="#disable-for-specific-fields" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript"><span class="hljs-comment"># Disable RTE entirely for specific field</span>
+RTE.config.tt_content.header.disabled = 1</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="backend-user-permissions">
+            <h2>Backend User Permissions<a class="headerlink" href="#backend-user-permissions" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="file-mounts" data-rst-anchor="integration-configuration-permissions">
+            <a id="integration-configuration-permissions"></a>
+            <h3>File Mounts<a class="headerlink" href="#file-mounts" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Ensure backend users have appropriate file mounts:</p>
+
+                <div class="code-block-caption">
+        <span class="caption-text">User TSConfig</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">options.defaultUploadFolder = 1:user_uploads/rte/</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="access-restrictions">
+            <h3>Access Restrictions<a class="headerlink" href="#access-restrictions" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+                <div class="code-block-caption">
+        <span class="caption-text">User TSConfig</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript"><span class="hljs-comment"># Allow only specific file extensions</span>
+options.file_list.validFileExtensions = jpg,jpeg,png,gif,webp</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="multi-language-configuration">
+            <h2>Multi-Language Configuration<a class="headerlink" href="#multi-language-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="language-specific-presets">
+            <h3>Language-Specific Presets<a class="headerlink" href="#language-specific-presets" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript"><span class="hljs-meta">[siteLanguage("locale") == "de_DE"]</span>
+    RTE.default.preset = german
+<span class="hljs-meta">[END]</span>
+
+<span class="hljs-meta">[siteLanguage("locale") == "en_US"]</span>
+    RTE.default.preset = english
+<span class="hljs-meta">[END]</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="troubleshooting-configuration">
+            <h2>Troubleshooting Configuration<a class="headerlink" href="#troubleshooting-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="debug-rte-configuration">
+            <h3>Debug RTE Configuration<a class="headerlink" href="#debug-rte-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Enable RTE debugging:</p>
+
+                <div class="code-block-caption">
+        <span class="caption-text">Page TSConfig</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">RTE.default.showButtons = *
+RTE.default.hideButtons =</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="verify-configuration-loading">
+            <h3>Verify Configuration Loading<a class="headerlink" href="#verify-configuration-loading" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Check active RTE configuration in backend:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Edit content element</li>
+    <li value="2">Open browser console</li>
+    <li value="3">Check <code>CKEDITOR.config</code> object</li>
+</ol>
+
+    </section>
+            <section class="section" id="configuration-priority">
+            <h3>Configuration Priority<a class="headerlink" href="#configuration-priority" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Configuration precedence (highest to lowest):</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Field-specific config: <code>RTE.config.tt_content.bodytext</code></li>
+    <li value="2">Type-specific config: <code>RTE.config.tt_content</code></li>
+    <li value="3">Default config: <code>RTE.default</code></li>
+    <li value="4">Extension defaults</li>
+</ol>
+
+    </section>
+    </section>
+            <section class="section" id="related-documentation">
+            <h2>Related Documentation<a class="headerlink" href="#related-documentation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="configuration-topics">
+            <h3>Configuration Topics<a class="headerlink" href="#configuration-topics" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+
+<ul>
+    <li class="dash"><a href="RTE-Setup.html#integration-configuration-rte-setup">RTE Setup</a> - RTE configuration and basic setup</li>
+    <li class="dash"><a href="Frontend-Rendering.html#integration-configuration-frontend-rendering">Frontend Rendering</a> - TypoScript and frontend rendering setup</li>
+    <li class="dash"><a href="Advanced-Configuration.html#integration-configuration-advanced">Advanced Configuration</a> - Advanced configuration, styles, and best practices</li>
+</ul>
+
+    </section>
+            <section class="section" id="general-documentation">
+            <h3>General Documentation<a class="headerlink" href="#general-documentation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+
+<ul>
+    <li class="dash"><a href="Index.html#integration">Integration &amp; Configuration</a> - Main configuration guide overview</li>
+    <li class="dash"><a href="../Index.html#quick-start">Quick Start</a> - Quick start guide</li>
+    <li class="dash"><a href="../Troubleshooting/Index.html#troubleshooting-index">Troubleshooting &amp; Support</a> - Troubleshooting guide</li>
+</ul>
+
+    </section>
+    </section>
+    </section>
+        <!-- content end -->
+    </div>
+</article>
+                        
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center"><li class="page-item">
+                            <a class="page-link" href="RTE-Setup.html"
+                               title="Accesskey Alt(+Shift)+p">
+                                <i class="fa-solid fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    <li class="page-item">
+                            <a class="page-link" href="Frontend-Rendering.html"
+                               title="Accesskey Alt(+Shift)+n">
+                                Next <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+        </nav>
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="linkReferenceModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="Integration/TSConfig">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="linkReferenceModalLabel">Reference to the headline</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="permalink-alert-success" role="alert"></div>
+                <div class="mb-3">
+                    <label for="permalink-uri" class="col-form-label">URL</label>
+                    <div class="input-group">
+                        <input class="form-control code" id="permalink-uri" readonly>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-uri"><i class="far fa-clone"></i></button>
+                    </div>
+                    <div class="permalink-short-wrapper">
+                        <label for="permalink-short" class="col-form-label">Permalink (Shortlink)</label>
+                        <div class="input-group">
+                            <input class="form-control code" id="permalink-short" readonly>
+                            <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-short"><i class="far fa-clone"></i></button>
+                        </div>
+                        <p><em>Copy and freely share the link</em></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-warning alert-permalink-rst" role="alert">This link target has no permanent anchor assigned.The link below can be used, but is prone to change if the page gets moved.
+                    </div>
+                    <label for="permalink-rst" class="col-form-label">Link in reStructuredText (reST)</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-rst" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-rst"><i class="far fa-clone"></i></button>
+                    </div>
+                    <p><em>Copy this link into your TYPO3 manual.</em></p>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-md" class="col-form-label">Link in Markdown</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-md" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-md"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-html" class="col-form-label">Link in HTML</label>
+                                        <div class="input-group">
+                        <textarea class="form-control code" id="permalink-html" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-html"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>    <div class="modal fade" id="generalModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="Integration/TSConfig"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generalModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="general-alert-success" role="alert"></div>
+                <div id="generalModalContent">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div id="generalModalCustomButtons"></div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-regular fa-circle-xmark"></i>&nbsp;Close</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+
+<footer class="page-footer">
+    <div class="frame frame-ruler-before frame-background-dark">
+        <div class="frame-container">
+            <div class="frame-inner">
+                                <div class="footer-additional">
+                    <p class="text-center">Last rendered: Oct 23, 2025 19:49</p>
+                </div>
+                <div class="footer-meta">
+                    <ul class="footer-meta-navigation">
+                        <li><a href="https://typo3.org/legal-notice" rel="nofollow" target="_blank" title="Legal Notice">Legal Notice</a></li>
+                        <li><a href="https://typo3.org/privacy-policy" rel="nofollow" target="_blank" title="Privacy Policy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="../_resources/js/popper.min.js"></script>
+<script src="../_resources/js/bootstrap.min.js"></script>
+<script src="../_resources/js/theme.min.js"></script>
+
+<!--
+ Locally rendered. No tracking embedded.
+-->
+</body>
+</html>

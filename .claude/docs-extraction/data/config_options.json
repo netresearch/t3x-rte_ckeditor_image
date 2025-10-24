@@ -1,0 +1,23 @@
+{
+  "extraction_date": "2025-10-18T09:04:58Z",
+  "config_options": [
+    {
+      "key": "fetchExternalImages",
+      "category": "basic",
+      "subcategory": "",
+      "type": "boolean",
+      "label": "Fetch external images and load them into the user default upload folder (default is on)",
+      "description": "Fetch external images and load them into the user default upload folder (default is on)",
+      "default": "1"
+    }    ,
+    {
+      "key": "allowSvgImages",
+      "category": "basic",
+      "subcategory": "",
+      "type": "boolean",
+      "label": "Allow SVG images from external sources (SECURITY WARNING",
+      "description": "SVG files can contain JavaScript and pose XSS risks. Only enable if you trust the image sources and have additional sanitization in place. Default is off for security)",
+      "default": "0"
+    }
+  ]
+}

@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <title>CKEditor Conversion System
+        documentation</title>
+
+    
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="phpdocumentor/guides" name="generator">
+<meta content="" name="docsearch:name">
+<meta content="" name="docsearch:package_type">
+<meta content="" name="docsearch:release">
+<meta content="" name="docsearch:version">
+<meta content="2025-10-23T19:49:09+00:00" name="docsearch:modified">
+<meta content="2025-10-23T19:49:09+00:00" name="dc.modified">
+<meta content="2025-10-23T19:49:09+00:00" property="article:modified_time">
+    <link href="http://purl.org/dc/elements/1.1/" rel="schema.dc">
+<link href="../_resources/css/theme.css" rel="stylesheet">
+<link href="https://docs.typo3.org/search/" rel="search" title="Search">
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/webcomponents-loader.js"></script>
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/typo3-universe.js" type="module"></script>
+                        <link href="Style-Integration.html" rel="prev" title="CKEditor Style Integration"/>
+            <link href="../Index.html" rel="top" title="RTE CKEditor Image"/>
+    </head>
+<body>
+<div class="page">
+    <header>
+    <div class="page-topbar">
+        <div class="page-topbar-inner">
+            <typo3-universe active="documentation">
+                <div style="display: block; height: 44px; background-color: #313131;"></div>
+            </typo3-universe>
+        </div>
+    </div>
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="d-flex flex-wrap">
+                <div class="logo-wrapper">
+                    <a class="logo" href="https://docs.typo3.org/" title="TYPO3 Documentation">
+                        <img alt="TYPO3 Logo" class="logo-image" src="../_resources/img/typo3-logo.svg" width="484" height="130">
+                    </a>
+                </div>
+                <div class="align-self-center order-lg-2 order-last">
+                    
+<div class="toc-header">
+    <div class="toc-title pe-3">
+                            <a class="toc-title-project" href="../Index.html">RTE CKEditor Image</a>
+            </div>
+    </div>                </div>
+                <div class="ms-auto order-lg-3 d-flex">
+                    <div class="menu-search-wrapper">
+                        <button id="toc-toggle" class="btn btn-light d-block d-lg-none" tabindex="0" aria-controls="toc-collapse" aria-expanded="false">
+                            <i class="fas fa-bars"></i> <span class="visually-hidden">Mobile Menu</span>
+                        </button>
+                        <all-documentations-menu data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu>
+                                                <search role="search">
+                            <form action="https://docs.typo3.org/search/search" id="global-search-form" method="get">
+                                <div class="sr-only"><label for="globalsearchinput">TYPO3 documentation...</label></div>
+                                <div class="input-group mb-3 mt-sm-3">
+                                    <select class="form-select search__scope" id="searchscope" name="scope">
+                                        <option value="">Search all</option>
+                                    </select>
+                                    <input autocomplete="off" class="form-control shadow-none" id="globalsearchinput" name="q" placeholder="TYPO3 documentation..." type="text" value="">
+                                    <button class="btn btn-light" type="submit"><i class="fa fa-search"></i>&nbsp;<span class="d-none d-md-inline">Search</span></button>
+                                </div>
+                            </form>
+                            <div id="global-search-root"></div>
+                        </search>
+                        <div class="position-relative d-inline-block">
+                            <button id="options-toggle" class="btn btn-light d-block" type="button" aria-expanded="false">
+                                <i class="fas fa-cog"></i> <span class="visually-hidden">Options</span>
+                            </button>
+
+                            <div id="options-panel"
+                                 class="shadow p-3"
+                                 role="menu"
+                                 aria-hidden="true">
+                                <h6 class="dropdown-header text-muted text-uppercase small mb-2">Options</h6>
+
+                                                                                                            <a class="dropdown-item d-flex align-items-center gap-2" href="../_sources/CKEditor/Conversions.rst.txt" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-code"></i>
+        View source
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2" href="https://docs.typo3.org/m/typo3/docs-how-to-document/main/en-us/WritingDocsOfficial/GithubMethod.html" id="btnHowToEdit" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-info-circle"></i>
+        How to edit
+    </a>
+                                                                                                                <a class="dropdown-item d-flex align-items-center gap-2" href="../singlehtml/Index.html" target="_blank" rel="noopener">
+                                            <i class="fas fa-print"></i>
+                                            Full documentation (single file)
+                                        </a>
+                                                                                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>    <main class="page-main">
+        <div class="page-main-inner">
+            <div class="page-main-navigation">
+                <nav>
+
+                    <div id="toc-collapse">
+                                                <div aria-label="main navigation" class="toc"
+                             role="navigation">
+                                <all-documentations-menu-mobile
+        data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu-mobile>
+    <div aria-label="Main navigation" class="main_menu" role="navigation">
+                <p class="caption">RTE CKEditor Image</p>
+            <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Integration/Index.html">
+        Integration &amp; Configuration
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Integration/RTE-Setup.html">
+        RTE Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/TSConfig.html">
+        Page TSConfig Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Frontend-Rendering.html">
+        Frontend Rendering
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Advanced-Configuration.html">
+        Advanced Configuration
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Examples/Index.html">
+        Examples &amp; Use Cases
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Examples/Basic-Integration.html">
+        Basic Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Image-Styles.html">
+        Image Styles
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Responsive-Images.html">
+        Responsive Images
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Advanced-Features.html">
+        Advanced Features
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Custom-Extensions.html">
+        Custom Extensions
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Testing.html">
+        Testing Examples
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Troubleshooting/Index.html">
+        Troubleshooting &amp; Support
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Troubleshooting/Installation-Issues.html">
+        Installation Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Editor-Issues.html">
+        Editor Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Frontend-Issues.html">
+        Frontend Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Performance-Issues.html">
+        Performance Issues
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Architecture &amp; Design</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Architecture/Index.html">
+        Architecture &amp; Design
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Architecture/System-Architecture.html">
+        System Architecture
+    </a></li><li class="" role="menuitem">
+    <a href="../Architecture/Design-Patterns.html">
+        Design Patterns &amp; Integration
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../API/Index.html">
+        API Documentation
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../API/Controllers.html">
+        Controllers API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/DataHandling.html">
+        Data Handling API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/EventListeners.html">
+        Event Listeners API
+    </a></li></ul></li>    <li class=" active" role="menuitem">
+    <a href="Index.html">
+        CKEditor Plugin Development
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="Plugin-Development.html">
+        CKEditor Plugin Development
+    </a></li><li class="" role="menuitem">
+    <a href="Model-Element.html">
+        CKEditor Model Element Reference
+    </a></li><li class="" role="menuitem">
+    <a href="Style-Integration.html">
+        CKEditor Style Integration
+    </a></li><li class=" current active" role="menuitem">
+    <a href="#" aria-current="page">
+        CKEditor Conversion System
+    </a></li></ul></li>    </ul>
+    </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="page-main-content">
+                <div class="rst-content">                        <nav aria-label="breadcrumbs navigation" class="breadcrumb-bar" role="navigation">
+        
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="../Index.html">RTE CKEditor Image</a></li>
+        <li class="breadcrumb-item"><a href="Index.html">CKEditor Plugin Development</a></li>
+                    <li aria-current="page"  class="breadcrumb-item  active">CKEditor Conversion System</li>
+        </ol>
+        <div class="breadcrumb-additions"></div>
+    </nav>
+                    
+<article class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+    <div itemprop="articleBody">
+        <!-- content start -->
+                <section class="section" id="ckeditor-conversion-system" data-rst-anchor="ckeditor-conversions">
+            <a id="ckeditor-conversions"></a>
+            <h1>CKEditor Conversion System<a class="headerlink" href="#ckeditor-conversion-system" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h1>
+            
+    <p>Complete guide to the upcast/downcast conversion system for transforming between HTML and model representations.</p>
+
+            <section class="section" id="conversion-architecture">
+            <h2>Conversion Architecture<a class="headerlink" href="#conversion-architecture" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="three-layer-system">
+            <h3>Three-Layer System<a class="headerlink" href="#three-layer-system" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code>┌──────────────────────────────────────┐
+│ Data Layer (Database/API)           │
+│ HTML with data-* attributes          │
+│ &lt;img data-htmlarea-file-uid=&quot;123&quot;/&gt;  │
+└────────────┬─────────────────────────┘
+             │
+             │ Upcast (Load)
+             │
+┌────────────▼─────────────────────────┐
+│ Model Layer (Abstract)               │
+│ typo3image element with attributes   │
+│ { name: &#039;typo3image&#039;, fileUid: 123 } │
+└────────────┬─────────────────────────┘
+             │
+             │ Downcast (Render)
+             │
+┌────────────▼─────────────────────────┐
+│ View Layer (Editor Display)          │
+│ Visual HTML in contenteditable       │
+│ &lt;img src=&quot;...&quot; class=&quot;...&quot; /&gt;        │
+└──────────────────────────────────────┘
+</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="upcast-conversions">
+            <h2>Upcast Conversions<a class="headerlink" href="#upcast-conversions" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="purpose">
+            <h3>Purpose<a class="headerlink" href="#purpose" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Upcast</strong>: Transforms HTML (from database/API) into model elements when loading content into editor</p>
+
+            
+    <p><strong>When Used</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash">Initial content load into CKEditor</li>
+    <li class="dash">Paste from clipboard</li>
+    <li class="dash">Insert HTML programmatically</li>
+</ul>
+
+    </section>
+            <section class="section" id="image-element-upcast">
+            <h3>Image Element Upcast<a class="headerlink" href="#image-element-upcast" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">editor.conversion.for(<span class="hljs-string">'upcast'</span>).elementToElement({
+    <span class="hljs-attr">view</span>: {
+        <span class="hljs-attr">name</span>: <span class="hljs-string">'img'</span>,
+        <span class="hljs-attr">attributes</span>: [<span class="hljs-string">'data-htmlarea-file-uid'</span>, <span class="hljs-string">'src'</span>]
+    },
+    <span class="hljs-attr">model</span>: <span class="hljs-function">(<span class="hljs-params">viewElement, { writer }</span>) =&gt;</span> {
+        <span class="hljs-keyword">return</span> writer.createElement(<span class="hljs-string">'typo3image'</span>, {
+            <span class="hljs-attr">fileUid</span>: viewElement.getAttribute(<span class="hljs-string">'data-htmlarea-file-uid'</span>),
+            <span class="hljs-attr">fileTable</span>: viewElement.getAttribute(<span class="hljs-string">'data-htmlarea-file-table'</span>) || <span class="hljs-string">'sys_file'</span>,
+            <span class="hljs-attr">src</span>: viewElement.getAttribute(<span class="hljs-string">'src'</span>),
+            <span class="hljs-attr">width</span>: viewElement.getAttribute(<span class="hljs-string">'width'</span>) || <span class="hljs-string">''</span>,
+            <span class="hljs-attr">height</span>: viewElement.getAttribute(<span class="hljs-string">'height'</span>) || <span class="hljs-string">''</span>,
+            <span class="hljs-attr">class</span>: viewElement.getAttribute(<span class="hljs-string">'class'</span>) || <span class="hljs-string">''</span>,
+            <span class="hljs-attr">alt</span>: viewElement.getAttribute(<span class="hljs-string">'alt'</span>) || <span class="hljs-string">''</span>,
+            <span class="hljs-attr">altOverride</span>: viewElement.getAttribute(<span class="hljs-string">'data-alt-override'</span>) || <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">title</span>: viewElement.getAttribute(<span class="hljs-string">'title'</span>) || <span class="hljs-string">''</span>,
+            <span class="hljs-attr">titleOverride</span>: viewElement.getAttribute(<span class="hljs-string">'data-title-override'</span>) || <span class="hljs-literal">false</span>,
+            <span class="hljs-attr">enableZoom</span>: viewElement.getAttribute(<span class="hljs-string">'data-htmlarea-zoom'</span>) || <span class="hljs-literal">false</span>,
+        });
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="configuration-breakdown">
+            <h3>Configuration Breakdown<a class="headerlink" href="#configuration-breakdown" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <section class="section" id="view-matcher">
+            <h4>View Matcher<a class="headerlink" href="#view-matcher" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">view: {
+    <span class="hljs-attr">name</span>: <span class="hljs-string">'img'</span>,
+    <span class="hljs-attr">attributes</span>: [<span class="hljs-string">'data-htmlarea-file-uid'</span>, <span class="hljs-string">'src'</span>]
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Purpose</strong>: Defines which HTML elements should be converted</p>
+
+            
+    <p><strong>Matching Logic</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash"><strong>Element name</strong>: Must be <code>&lt;img&gt;</code></li>
+    <li class="dash"><strong>Required attributes</strong>: Must have both <code>data-htmlarea-file-uid</code> AND <code>src</code></li>
+</ul>
+
+            
+    <p><strong>Examples</strong>:</p>
+
+            
+    <p>Matched (will be upcasted):</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">data-htmlarea-file-uid</span>=<span class="hljs-string">"123"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"/fileadmin/image.jpg"</span> /&gt;</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>Not matched (regular img passthrough):</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"/fileadmin/image.jpg"</span> /&gt;</span>  <span class="hljs-comment">&lt;!-- Missing data-htmlarea-file-uid --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-htmlarea-file-uid</span>=<span class="hljs-string">"123"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>  <span class="hljs-comment">&lt;!-- Wrong element --&gt;</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="model-creator-function">
+            <h4>Model Creator Function<a class="headerlink" href="#model-creator-function" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">model: <span class="hljs-function">(<span class="hljs-params">viewElement, { writer }</span>) =&gt;</span> {
+    <span class="hljs-keyword">return</span> writer.createElement(<span class="hljs-string">'typo3image'</span>, {
+        <span class="hljs-comment">// attributes...</span>
+    });
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Parameters</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash"><code>viewElement</code>: The matched <code>&lt;img&gt;</code> element from HTML</li>
+    <li class="dash"><code>writer</code>: Model writer for creating elements</li>
+</ul>
+
+            
+    <p><strong>Return</strong>: New model element with extracted attributes</p>
+
+    </section>
+            <section class="section" id="attribute-extraction">
+            <h4>Attribute Extraction<a class="headerlink" href="#attribute-extraction" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">fileUid: viewElement.getAttribute(<span class="hljs-string">'data-htmlarea-file-uid'</span>),</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Pattern</strong>: Extract HTML attribute → map to model attribute</p>
+
+            
+    <p><strong>Mappings</strong>:</p>
+
+            <div class="table-responsive">
+    <table class="table table-bordered align-default">
+                            <thead>
+            <tr>
+                            <th>HTML Attribute</th>
+                            <th>Model Attribute</th>
+                            <th>Transformation</th>
+                    </tr>
+        </thead>
+        <tbody>
+    <tr>
+            <td>data-htmlarea-file-uid</td>            <td>fileUid</td>            <td>Direct copy</td>    </tr>    <tr>
+            <td>data-htmlarea-file-table</td>            <td>fileTable</td>            <td>Default: &#039;sys_file&#039;</td>    </tr>    <tr>
+            <td>src</td>            <td>src</td>            <td>Direct copy</td>    </tr>    <tr>
+            <td>width</td>            <td>width</td>            <td>Default: empty string</td>    </tr>    <tr>
+            <td>height</td>            <td>height</td>            <td>Default: empty string</td>    </tr>    <tr>
+            <td>class</td>            <td>class</td>            <td>Default: empty string</td>    </tr>    <tr>
+            <td>alt</td>            <td>alt</td>            <td>Default: empty string</td>    </tr>    <tr>
+            <td>data-alt-override</td>            <td>altOverride</td>            <td>Default: false</td>    </tr>    <tr>
+            <td>title</td>            <td>title</td>            <td>Default: empty string</td>    </tr>    <tr>
+            <td>data-title-override</td>            <td>titleOverride</td>            <td>Default: false</td>    </tr>    <tr>
+            <td>data-htmlarea-zoom</td>            <td>enableZoom</td>            <td>Default: false</td>    </tr></tbody>    </table>
+</div>
+    </section>
+    </section>
+            <section class="section" id="upcast-example-flow">
+            <h3>Upcast Example Flow<a class="headerlink" href="#upcast-example-flow" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Input HTML</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">img</span>
+    <span class="hljs-attr">src</span>=<span class="hljs-string">"/fileadmin/image.jpg"</span>
+    <span class="hljs-attr">data-htmlarea-file-uid</span>=<span class="hljs-string">"123"</span>
+    <span class="hljs-attr">data-htmlarea-file-table</span>=<span class="hljs-string">"sys_file"</span>
+    <span class="hljs-attr">width</span>=<span class="hljs-string">"800"</span>
+    <span class="hljs-attr">height</span>=<span class="hljs-string">"600"</span>
+    <span class="hljs-attr">alt</span>=<span class="hljs-string">"Product photo"</span>
+    <span class="hljs-attr">title</span>=<span class="hljs-string">"Click to enlarge"</span>
+    <span class="hljs-attr">class</span>=<span class="hljs-string">"img-fluid"</span>
+    <span class="hljs-attr">data-htmlarea-zoom</span>=<span class="hljs-string">"true"</span>
+/&gt;</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Upcast Process</strong>:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">CKEditor parser encounters <code>&lt;img&gt;</code> element</li>
+    <li value="2">Checks if has <code>data-htmlarea-file-uid</code> and <code>src</code></li>
+    <li value="3">Calls model creator function</li>
+    <li value="4">Extracts all attributes</li>
+    <li value="5">Creates model element</li>
+</ol>
+
+            
+    <p><strong>Result Model Element</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">{
+    <span class="hljs-attr">name</span>: <span class="hljs-string">'typo3image'</span>,
+    <span class="hljs-attr">attributes</span>: {
+        <span class="hljs-attr">fileUid</span>: <span class="hljs-number">123</span>,
+        <span class="hljs-attr">fileTable</span>: <span class="hljs-string">'sys_file'</span>,
+        <span class="hljs-attr">src</span>: <span class="hljs-string">'/fileadmin/image.jpg'</span>,
+        <span class="hljs-attr">width</span>: <span class="hljs-string">'800'</span>,
+        <span class="hljs-attr">height</span>: <span class="hljs-string">'600'</span>,
+        <span class="hljs-attr">alt</span>: <span class="hljs-string">'Product photo'</span>,
+        <span class="hljs-attr">altOverride</span>: <span class="hljs-literal">false</span>,
+        <span class="hljs-attr">title</span>: <span class="hljs-string">'Click to enlarge'</span>,
+        <span class="hljs-attr">titleOverride</span>: <span class="hljs-literal">false</span>,
+        <span class="hljs-attr">class</span>: <span class="hljs-string">'img-fluid'</span>,
+        <span class="hljs-attr">enableZoom</span>: <span class="hljs-literal">true</span>
+    }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="downcast-conversions">
+            <h2>Downcast Conversions<a class="headerlink" href="#downcast-conversions" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="purpose">
+            <h3>Purpose<a class="headerlink" href="#purpose" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Downcast</strong>: Transforms model elements into HTML for editor display and data saving</p>
+
+            
+    <p><strong>Two Pipelines</strong>:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Editing Downcast</strong>: Render in contenteditable (editor view)</li>
+    <li value="2"><strong>Data Downcast</strong>: Serialize for database storage</li>
+</ol>
+
+    </section>
+            <section class="section" id="image-element-downcast">
+            <h3>Image Element Downcast<a class="headerlink" href="#image-element-downcast" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">editor.conversion.for(<span class="hljs-string">'downcast'</span>).elementToElement({
+    <span class="hljs-attr">model</span>: {
+        <span class="hljs-attr">name</span>: <span class="hljs-string">'typo3image'</span>,
+        <span class="hljs-attr">attributes</span>: [<span class="hljs-string">'fileUid'</span>, <span class="hljs-string">'fileTable'</span>, <span class="hljs-string">'src'</span>]
+    },
+    <span class="hljs-attr">view</span>: <span class="hljs-function">(<span class="hljs-params">modelElement, { writer }</span>) =&gt;</span> {
+        <span class="hljs-keyword">const</span> attributes = {
+            <span class="hljs-string">'src'</span>: modelElement.getAttribute(<span class="hljs-string">'src'</span>),
+            <span class="hljs-string">'data-htmlarea-file-uid'</span>: modelElement.getAttribute(<span class="hljs-string">'fileUid'</span>),
+            <span class="hljs-string">'data-htmlarea-file-table'</span>: modelElement.getAttribute(<span class="hljs-string">'fileTable'</span>),
+            <span class="hljs-string">'width'</span>: modelElement.getAttribute(<span class="hljs-string">'width'</span>),
+            <span class="hljs-string">'height'</span>: modelElement.getAttribute(<span class="hljs-string">'height'</span>),
+            <span class="hljs-string">'class'</span>: modelElement.getAttribute(<span class="hljs-string">'class'</span>) || <span class="hljs-string">''</span>,
+            <span class="hljs-string">'title'</span>: modelElement.getAttribute(<span class="hljs-string">'title'</span>) || <span class="hljs-string">''</span>,
+            <span class="hljs-string">'alt'</span>: modelElement.getAttribute(<span class="hljs-string">'alt'</span>) || <span class="hljs-string">''</span>,
+        };
+
+        <span class="hljs-keyword">if</span> (modelElement.getAttribute(<span class="hljs-string">'titleOverride'</span>)) {
+            attributes[<span class="hljs-string">'data-title-override'</span>] = <span class="hljs-literal">true</span>;
+        }
+        <span class="hljs-keyword">if</span> (modelElement.getAttribute(<span class="hljs-string">'altOverride'</span>)) {
+            attributes[<span class="hljs-string">'data-alt-override'</span>] = <span class="hljs-literal">true</span>;
+        }
+        <span class="hljs-keyword">if</span> (modelElement.getAttribute(<span class="hljs-string">'enableZoom'</span>)) {
+            attributes[<span class="hljs-string">'data-htmlarea-zoom'</span>] = <span class="hljs-literal">true</span>;
+        }
+
+        <span class="hljs-keyword">return</span> writer.createEmptyElement(<span class="hljs-string">'img'</span>, attributes);
+    },
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="configuration-breakdown">
+            <h3>Configuration Breakdown<a class="headerlink" href="#configuration-breakdown" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <section class="section" id="model-matcher">
+            <h4>Model Matcher<a class="headerlink" href="#model-matcher" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">model: {
+    <span class="hljs-attr">name</span>: <span class="hljs-string">'typo3image'</span>,
+    <span class="hljs-attr">attributes</span>: [<span class="hljs-string">'fileUid'</span>, <span class="hljs-string">'fileTable'</span>, <span class="hljs-string">'src'</span>]
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Purpose</strong>: Defines which model elements trigger this conversion</p>
+
+            
+    <p><strong>Matching</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash">Element name is <code>typo3image</code></li>
+    <li class="dash">Has <code>fileUid</code>, <code>fileTable</code>, <code>src</code> attributes (required for meaningful output)</li>
+</ul>
+
+    </section>
+            <section class="section" id="view-creator-function">
+            <h4>View Creator Function<a class="headerlink" href="#view-creator-function" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">view: <span class="hljs-function">(<span class="hljs-params">modelElement, { writer }</span>) =&gt;</span> {
+    <span class="hljs-keyword">return</span> writer.createEmptyElement(<span class="hljs-string">'img'</span>, attributes);
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Parameters</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash"><code>modelElement</code>: The typo3image model element</li>
+    <li class="dash"><code>writer</code>: View writer for creating elements</li>
+</ul>
+
+            
+    <p><strong>Return</strong>: New view element (<code>&lt;img&gt;</code>)</p>
+
+    </section>
+            <section class="section" id="attribute-mapping">
+            <h4>Attribute Mapping<a class="headerlink" href="#attribute-mapping" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">const</span> attributes = {
+    <span class="hljs-string">'src'</span>: modelElement.getAttribute(<span class="hljs-string">'src'</span>),
+    <span class="hljs-string">'data-htmlarea-file-uid'</span>: modelElement.getAttribute(<span class="hljs-string">'fileUid'</span>),
+    <span class="hljs-comment">// ...</span>
+};</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Pattern</strong>: Read model attribute → map to HTML attribute</p>
+
+            
+    <p><strong>Reverse Mappings</strong>:</p>
+
+            <div class="table-responsive">
+    <table class="table table-bordered align-default">
+                            <thead>
+            <tr>
+                            <th>Model Attribute</th>
+                            <th>HTML Attribute</th>
+                            <th>Transformation</th>
+                    </tr>
+        </thead>
+        <tbody>
+    <tr>
+            <td>src</td>            <td>src</td>            <td>Direct copy</td>    </tr>    <tr>
+            <td>fileUid</td>            <td>data-htmlarea-file-uid</td>            <td>Direct copy</td>    </tr>    <tr>
+            <td>fileTable</td>            <td>data-htmlarea-file-table</td>            <td>Direct copy</td>    </tr>    <tr>
+            <td>width</td>            <td>width</td>            <td>Direct copy</td>    </tr>    <tr>
+            <td>height</td>            <td>height</td>            <td>Direct copy</td>    </tr>    <tr>
+            <td>class</td>            <td>class</td>            <td>Default: empty string</td>    </tr>    <tr>
+            <td>alt</td>            <td>alt</td>            <td>Default: empty string</td>    </tr>    <tr>
+            <td>title</td>            <td>title</td>            <td>Default: empty string</td>    </tr>    <tr>
+            <td>altOverride</td>            <td>data-alt-override</td>            <td>Only if true</td>    </tr>    <tr>
+            <td>titleOverride</td>            <td>data-title-override</td>            <td>Only if true</td>    </tr>    <tr>
+            <td>enableZoom</td>            <td>data-htmlarea-zoom</td>            <td>Only if true</td>    </tr></tbody>    </table>
+</div>
+    </section>
+            <section class="section" id="conditional-attributes">
+            <h4>Conditional Attributes<a class="headerlink" href="#conditional-attributes" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">if</span> (modelElement.getAttribute(<span class="hljs-string">'titleOverride'</span>)) {
+    attributes[<span class="hljs-string">'data-title-override'</span>] = <span class="hljs-literal">true</span>;
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Pattern</strong>: Only add boolean attributes when true</p>
+
+            
+    <p><strong>Why</strong>: Cleaner HTML output, avoid unnecessary attributes</p>
+
+            
+    <p><strong>Result</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs xml"><span class="hljs-comment">&lt;!-- When titleOverride = true --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">...</span> <span class="hljs-attr">data-title-override</span>=<span class="hljs-string">"true"</span> /&gt;</span>
+
+<span class="hljs-comment">&lt;!-- When titleOverride = false or absent --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">...</span> /&gt;</span>  <span class="hljs-comment">&lt;!-- No data-title-override attribute --&gt;</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="downcast-example-flow">
+            <h3>Downcast Example Flow<a class="headerlink" href="#downcast-example-flow" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Input Model Element</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">{
+    <span class="hljs-attr">name</span>: <span class="hljs-string">'typo3image'</span>,
+    <span class="hljs-attr">attributes</span>: {
+        <span class="hljs-attr">fileUid</span>: <span class="hljs-number">123</span>,
+        <span class="hljs-attr">fileTable</span>: <span class="hljs-string">'sys_file'</span>,
+        <span class="hljs-attr">src</span>: <span class="hljs-string">'/fileadmin/image.jpg'</span>,
+        <span class="hljs-attr">width</span>: <span class="hljs-string">'800'</span>,
+        <span class="hljs-attr">height</span>: <span class="hljs-string">'600'</span>,
+        <span class="hljs-attr">alt</span>: <span class="hljs-string">'Product photo'</span>,
+        <span class="hljs-attr">altOverride</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">class</span>: <span class="hljs-string">'img-fluid'</span>,
+        <span class="hljs-attr">enableZoom</span>: <span class="hljs-literal">true</span>
+    }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Downcast Process</strong>:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">CKEditor needs to render model element</li>
+    <li value="2">Finds typo3image → elementToElement converter</li>
+    <li value="3">Calls view creator function</li>
+    <li value="4">Maps all attributes</li>
+    <li value="5">Adds conditional attributes</li>
+    <li value="6">Creates view element</li>
+</ol>
+
+            
+    <p><strong>Result HTML</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">img</span>
+    <span class="hljs-attr">src</span>=<span class="hljs-string">"/fileadmin/image.jpg"</span>
+    <span class="hljs-attr">data-htmlarea-file-uid</span>=<span class="hljs-string">"123"</span>
+    <span class="hljs-attr">data-htmlarea-file-table</span>=<span class="hljs-string">"sys_file"</span>
+    <span class="hljs-attr">width</span>=<span class="hljs-string">"800"</span>
+    <span class="hljs-attr">height</span>=<span class="hljs-string">"600"</span>
+    <span class="hljs-attr">alt</span>=<span class="hljs-string">"Product photo"</span>
+    <span class="hljs-attr">data-alt-override</span>=<span class="hljs-string">"true"</span>
+    <span class="hljs-attr">class</span>=<span class="hljs-string">"img-fluid"</span>
+    <span class="hljs-attr">data-htmlarea-zoom</span>=<span class="hljs-string">"true"</span>
+/&gt;</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="attribute-converters">
+            <h2>Attribute Converters<a class="headerlink" href="#attribute-converters" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="class-attribute-converter">
+            <h3>Class Attribute Converter<a class="headerlink" href="#class-attribute-converter" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">editor.conversion.for(<span class="hljs-string">'downcast'</span>).attributeToAttribute({
+    <span class="hljs-attr">model</span>: { <span class="hljs-attr">name</span>: <span class="hljs-string">'typo3image'</span>, <span class="hljs-attr">key</span>: <span class="hljs-string">'class'</span> },
+    <span class="hljs-attr">view</span>: <span class="hljs-string">'class'</span>
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Purpose</strong>: Immediately sync class attribute changes to view</p>
+
+                
+<div class="admonition note" role="alert">
+    <p class="admonition-title">Note</p>
+            
+    <p>The elementToElement converter only runs on element creation. This converter handles attribute updates.</p>
+
+</div>
+            
+    <p><strong>Behavior</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// User changes class via style system</span>
+editor.model.change(<span class="hljs-function"><span class="hljs-params">writer</span> =&gt;</span> {
+    writer.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'float-left mr-3'</span>, modelElement);
+});
+
+<span class="hljs-comment">// Immediately reflected in view</span>
+<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"float-left mr-3"</span> <span class="hljs-attr">...</span> /&gt;</span></span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="custom-attribute-converters">
+            <h3>Custom Attribute Converters<a class="headerlink" href="#custom-attribute-converters" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>You can add converters for any attribute:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Width changes immediately visible</span>
+editor.conversion.for(<span class="hljs-string">'downcast'</span>).attributeToAttribute({
+    <span class="hljs-attr">model</span>: { <span class="hljs-attr">name</span>: <span class="hljs-string">'typo3image'</span>, <span class="hljs-attr">key</span>: <span class="hljs-string">'width'</span> },
+    <span class="hljs-attr">view</span>: <span class="hljs-string">'width'</span>
+});
+
+<span class="hljs-comment">// Alt changes immediately visible</span>
+editor.conversion.for(<span class="hljs-string">'downcast'</span>).attributeToAttribute({
+    <span class="hljs-attr">model</span>: { <span class="hljs-attr">name</span>: <span class="hljs-string">'typo3image'</span>, <span class="hljs-attr">key</span>: <span class="hljs-string">'alt'</span> },
+    <span class="hljs-attr">view</span>: <span class="hljs-string">'alt'</span>
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="data-pipeline">
+            <h2>Data Pipeline<a class="headerlink" href="#data-pipeline" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="complete-load-edit-save-flow">
+            <h3>Complete Load → Edit → Save Flow<a class="headerlink" href="#complete-load-edit-save-flow" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code>1. Load from Database
+   ─────────────────────►
+   HTML String
+   &lt;img data-htmlarea-file-uid=&quot;123&quot; src=&quot;...&quot; /&gt;
+
+2. Upcast (HTML &rarr; Model)
+   ─────────────────────►
+   Model Element
+   typo3image { fileUid: 123, src: &quot;...&quot; }
+
+3. Edit in Editor
+   ─────────────────────►
+   Model Changes
+   width: &quot;800&quot; &rarr; &quot;1200&quot;
+   class: &quot;&quot; &rarr; &quot;float-left&quot;
+
+4. Downcast (Model &rarr; View)
+   ─────────────────────►
+   View Updates
+   &lt;img width=&quot;1200&quot; class=&quot;float-left&quot; ... /&gt;
+
+5. Save to Database
+   ─────────────────────►
+   Data Downcast &rarr; HTML String
+   &lt;img data-htmlarea-file-uid=&quot;123&quot; width=&quot;1200&quot; class=&quot;float-left&quot; ... /&gt;
+
+6. Backend Processing
+   ─────────────────────►
+   RteImagesDbHook processes HTML
+   Magic image processing, URL updates
+</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="paste-handling">
+            <h2>Paste Handling<a class="headerlink" href="#paste-handling" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="paste-from-external-source">
+            <h3>Paste from External Source<a class="headerlink" href="#paste-from-external-source" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>When pasting HTML from external sources (websites, Word, etc.):</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code>1. Browser Paste Event
+   ─────────────────────►
+   External HTML
+   &lt;img src=&quot;https://example.com/image.jpg&quot; /&gt;
+
+2. Upcast Attempted
+   ─────────────────────►
+   Check: data-htmlarea-file-uid present? ❌
+   Result: Upcast skipped, treated as regular &lt;img&gt;
+
+3. Fallback Handling
+   ─────────────────────►
+   CKEditor default image handling
+   May need custom paste processor for external images
+</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="paste-from-same-editor">
+            <h3>Paste from Same Editor<a class="headerlink" href="#paste-from-same-editor" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code>1. Copy typo3image
+   ─────────────────────►
+   Clipboard contains model element
+
+2. Paste
+   ─────────────────────►
+   Direct model copy (no conversion needed)
+
+3. Result
+   ─────────────────────►
+   Duplicate typo3image with same attributes
+</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="custom-conversion-patterns">
+            <h2>Custom Conversion Patterns<a class="headerlink" href="#custom-conversion-patterns" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="pattern-1-transformation-during-upcast">
+            <h3>Pattern 1: Transformation During Upcast<a class="headerlink" href="#pattern-1-transformation-during-upcast" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">editor.conversion.for(<span class="hljs-string">'upcast'</span>).elementToElement({
+    <span class="hljs-attr">view</span>: {
+        <span class="hljs-attr">name</span>: <span class="hljs-string">'img'</span>,
+        <span class="hljs-attr">attributes</span>: [<span class="hljs-string">'data-htmlarea-file-uid'</span>]
+    },
+    <span class="hljs-attr">model</span>: <span class="hljs-function">(<span class="hljs-params">viewElement, { writer }</span>) =&gt;</span> {
+        <span class="hljs-comment">// Transform srcset to src</span>
+        <span class="hljs-keyword">const</span> src = viewElement.getAttribute(<span class="hljs-string">'src'</span>) ||
+                    viewElement.getAttribute(<span class="hljs-string">'srcset'</span>)?.split(<span class="hljs-string">','</span>)[<span class="hljs-number">0</span>];
+
+        <span class="hljs-comment">// Parse dimensions from style</span>
+        <span class="hljs-keyword">const</span> style = viewElement.getAttribute(<span class="hljs-string">'style'</span>) || <span class="hljs-string">''</span>;
+        <span class="hljs-keyword">const</span> widthMatch = style.match(<span class="hljs-regexp">/width:\s*(\d+)px/</span>);
+        <span class="hljs-keyword">const</span> heightMatch = style.match(<span class="hljs-regexp">/height:\s*(\d+)px/</span>);
+
+        <span class="hljs-keyword">return</span> writer.createElement(<span class="hljs-string">'typo3image'</span>, {
+            <span class="hljs-attr">src</span>: src,
+            <span class="hljs-attr">width</span>: widthMatch ? widthMatch[<span class="hljs-number">1</span>] : <span class="hljs-string">''</span>,
+            <span class="hljs-attr">height</span>: heightMatch ? heightMatch[<span class="hljs-number">1</span>] : <span class="hljs-string">''</span>,
+            <span class="hljs-comment">// ... other attributes</span>
+        });
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="pattern-2-conditional-downcast">
+            <h3>Pattern 2: Conditional Downcast<a class="headerlink" href="#pattern-2-conditional-downcast" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">editor.conversion.for(<span class="hljs-string">'downcast'</span>).elementToElement({
+    <span class="hljs-attr">model</span>: <span class="hljs-string">'typo3image'</span>,
+    <span class="hljs-attr">view</span>: <span class="hljs-function">(<span class="hljs-params">modelElement, { writer }</span>) =&gt;</span> {
+        <span class="hljs-comment">// Different output based on context</span>
+        <span class="hljs-keyword">const</span> width = <span class="hljs-built_in">parseInt</span>(modelElement.getAttribute(<span class="hljs-string">'width'</span>), <span class="hljs-number">10</span>);
+
+        <span class="hljs-comment">// Large images get responsive class</span>
+        <span class="hljs-keyword">if</span> (width &gt; <span class="hljs-number">1200</span>) {
+            attributes[<span class="hljs-string">'class'</span>] = (attributes[<span class="hljs-string">'class'</span>] || <span class="hljs-string">''</span>) + <span class="hljs-string">' img-responsive'</span>;
+        }
+
+        <span class="hljs-keyword">return</span> writer.createEmptyElement(<span class="hljs-string">'img'</span>, attributes);
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="pattern-3-multi-element-conversion">
+            <h3>Pattern 3: Multi-Element Conversion<a class="headerlink" href="#pattern-3-multi-element-conversion" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Convert linked image to nested structure</span>
+editor.conversion.for(<span class="hljs-string">'downcast'</span>).elementToStructure({
+    <span class="hljs-attr">model</span>: <span class="hljs-string">'typo3image'</span>,
+    <span class="hljs-attr">view</span>: <span class="hljs-function">(<span class="hljs-params">modelElement, { writer }</span>) =&gt;</span> {
+        <span class="hljs-keyword">const</span> linkHref = modelElement.getAttribute(<span class="hljs-string">'linkHref'</span>);
+
+        <span class="hljs-keyword">if</span> (linkHref) {
+            <span class="hljs-comment">// Create nested structure: &lt;a&gt;&lt;img/&gt;&lt;/a&gt;</span>
+            <span class="hljs-keyword">const</span> img = writer.createEmptyElement(<span class="hljs-string">'img'</span>, imgAttributes);
+            <span class="hljs-keyword">const</span> link = writer.createContainerElement(<span class="hljs-string">'a'</span>, { <span class="hljs-attr">href</span>: linkHref });
+            writer.insert(writer.createPositionAt(link, <span class="hljs-number">0</span>), img);
+            <span class="hljs-keyword">return</span> link;
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-comment">// Just image</span>
+            <span class="hljs-keyword">return</span> writer.createEmptyElement(<span class="hljs-string">'img'</span>, imgAttributes);
+        }
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="debugging-conversions">
+            <h2>Debugging Conversions<a class="headerlink" href="#debugging-conversions" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="logging-upcast">
+            <h3>Logging Upcast<a class="headerlink" href="#logging-upcast" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">editor.conversion.for(<span class="hljs-string">'upcast'</span>).elementToElement({
+    <span class="hljs-attr">view</span>: { <span class="hljs-attr">name</span>: <span class="hljs-string">'img'</span>, <span class="hljs-attr">attributes</span>: [<span class="hljs-string">'data-htmlarea-file-uid'</span>] },
+    <span class="hljs-attr">model</span>: <span class="hljs-function">(<span class="hljs-params">viewElement, { writer }</span>) =&gt;</span> {
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Upcasting image:'</span>, {
+            <span class="hljs-attr">src</span>: viewElement.getAttribute(<span class="hljs-string">'src'</span>),
+            <span class="hljs-attr">fileUid</span>: viewElement.getAttribute(<span class="hljs-string">'data-htmlarea-file-uid'</span>),
+            <span class="hljs-attr">allAttributes</span>: <span class="hljs-built_in">Array</span>.from(viewElement.getAttributes())
+        });
+
+        <span class="hljs-keyword">return</span> writer.createElement(<span class="hljs-string">'typo3image'</span>, {
+            <span class="hljs-comment">// ... attributes</span>
+        });
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="logging-downcast">
+            <h3>Logging Downcast<a class="headerlink" href="#logging-downcast" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">editor.conversion.for(<span class="hljs-string">'downcast'</span>).elementToElement({
+    <span class="hljs-attr">model</span>: <span class="hljs-string">'typo3image'</span>,
+    <span class="hljs-attr">view</span>: <span class="hljs-function">(<span class="hljs-params">modelElement, { writer }</span>) =&gt;</span> {
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Downcasting typo3image:'</span>, {
+            <span class="hljs-attr">fileUid</span>: modelElement.getAttribute(<span class="hljs-string">'fileUid'</span>),
+            <span class="hljs-attr">src</span>: modelElement.getAttribute(<span class="hljs-string">'src'</span>),
+            <span class="hljs-attr">allAttributes</span>: <span class="hljs-built_in">Array</span>.from(modelElement.getAttributes())
+        });
+
+        <span class="hljs-keyword">return</span> writer.createEmptyElement(<span class="hljs-string">'img'</span>, attributes);
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="inspecting-conversion-results">
+            <h3>Inspecting Conversion Results<a class="headerlink" href="#inspecting-conversion-results" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// After loading content</span>
+editor.model.change(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> root = editor.model.document.getRoot();
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> item <span class="hljs-keyword">of</span> root.getChildren()) {
+        <span class="hljs-keyword">if</span> (item.name === <span class="hljs-string">'typo3image'</span>) {
+            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Found typo3image:'</span>, {
+                <span class="hljs-attr">fileUid</span>: item.getAttribute(<span class="hljs-string">'fileUid'</span>),
+                <span class="hljs-attr">src</span>: item.getAttribute(<span class="hljs-string">'src'</span>)
+            });
+        }
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="common-issues">
+            <h2>Common Issues<a class="headerlink" href="#common-issues" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-images-not-converting-on-load">
+            <h3>Issue: Images Not Converting on Load<a class="headerlink" href="#issue-images-not-converting-on-load" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash">HTML loaded but no typo3image elements in model</li>
+    <li class="dash">Images appear as plain text or broken</li>
+</ul>
+
+            
+    <p><strong>Causes</strong>:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Missing <code>data-htmlarea-file-uid</code> attribute</li>
+    <li value="2">Upcast converter not registered</li>
+    <li value="3">View matcher too restrictive</li>
+</ol>
+
+            
+    <p><strong>Solutions</strong>:</p>
+
+            
+    <p>Verify HTML has required attributes:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs xml"><span class="hljs-comment">&lt;!-- Will convert --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">data-htmlarea-file-uid</span>=<span class="hljs-string">"123"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"..."</span> /&gt;</span>
+
+<span class="hljs-comment">&lt;!-- Won't convert (missing required attribute) --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"..."</span> /&gt;</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>Check converter registration:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Verify in browser console</span>
+<span class="hljs-built_in">console</span>.log(editor.conversion);
+<span class="hljs-comment">// Should show upcast/downcast converters</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="issue-attributes-lost-during-conversion">
+            <h3>Issue: Attributes Lost During Conversion<a class="headerlink" href="#issue-attributes-lost-during-conversion" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash">Attributes present in HTML/model</li>
+    <li class="dash">Missing in view/output</li>
+</ul>
+
+            
+    <p><strong>Causes</strong>:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Attribute not in schema <code>allowAttributes</code> list</li>
+    <li value="2">Attribute not mapped in conversion</li>
+    <li value="3">Conditional logic skipping attribute</li>
+</ol>
+
+            
+    <p><strong>Solutions</strong>:</p>
+
+            
+    <p>Verify schema allows attribute:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">allowAttributes: [
+    <span class="hljs-string">'src'</span>, <span class="hljs-string">'fileUid'</span>, <span class="hljs-comment">/* add missing attribute here */</span>
+]</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>Add to conversion:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// In upcast</span>
+<span class="hljs-attr">myCustomAttribute</span>: viewElement.getAttribute(<span class="hljs-string">'data-custom'</span>),
+
+<span class="hljs-comment">// In downcast</span>
+<span class="hljs-string">'data-custom'</span>: modelElement.getAttribute(<span class="hljs-string">'myCustomAttribute'</span>),</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="issue-view-not-updating-when-model-changes">
+            <h3>Issue: View Not Updating When Model Changes<a class="headerlink" href="#issue-view-not-updating-when-model-changes" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash">Model attribute updated</li>
+    <li class="dash">View doesn&#039;t reflect change</li>
+    <li class="dash">Need to reload to see changes</li>
+</ul>
+
+            
+    <p><strong>Cause</strong>: Missing attribute converter for immediate sync</p>
+
+            
+    <p><strong>Solution</strong>:</p>
+
+            
+    <p>Add attribute converter:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">editor.conversion.for(<span class="hljs-string">'downcast'</span>).attributeToAttribute({
+    <span class="hljs-attr">model</span>: { <span class="hljs-attr">name</span>: <span class="hljs-string">'typo3image'</span>, <span class="hljs-attr">key</span>: <span class="hljs-string">'myAttribute'</span> },
+    <span class="hljs-attr">view</span>: <span class="hljs-string">'data-my-attribute'</span>
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="performance-optimization">
+            <h2>Performance Optimization<a class="headerlink" href="#performance-optimization" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="batch-conversions">
+            <h3>Batch Conversions<a class="headerlink" href="#batch-conversions" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Inefficient: Convert one at a time</span>
+images.forEach(<span class="hljs-function"><span class="hljs-params">img</span> =&gt;</span> {
+    editor.model.change(<span class="hljs-function"><span class="hljs-params">writer</span> =&gt;</span> {
+        writer.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'processed'</span>, img);
+    });
+});
+
+<span class="hljs-comment">// Efficient: Single model change batch</span>
+editor.model.change(<span class="hljs-function"><span class="hljs-params">writer</span> =&gt;</span> {
+    images.forEach(<span class="hljs-function"><span class="hljs-params">img</span> =&gt;</span> {
+        writer.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'processed'</span>, img);
+    });
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="lazy-attribute-reading">
+            <h3>Lazy Attribute Reading<a class="headerlink" href="#lazy-attribute-reading" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Inefficient: Read all attributes upfront</span>
+<span class="hljs-keyword">const</span> allAttrs = {
+    <span class="hljs-attr">src</span>: viewElement.getAttribute(<span class="hljs-string">'src'</span>),
+    <span class="hljs-attr">width</span>: viewElement.getAttribute(<span class="hljs-string">'width'</span>),
+    <span class="hljs-attr">height</span>: viewElement.getAttribute(<span class="hljs-string">'height'</span>),
+    <span class="hljs-comment">// ... 20 more attributes</span>
+};
+
+<span class="hljs-comment">// Efficient: Read only needed attributes</span>
+<span class="hljs-keyword">const</span> src = viewElement.getAttribute(<span class="hljs-string">'src'</span>);
+<span class="hljs-keyword">const</span> fileUid = viewElement.getAttribute(<span class="hljs-string">'data-htmlarea-file-uid'</span>);</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="related-documentation">
+            <h2>Related Documentation<a class="headerlink" href="#related-documentation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+
+<ul>
+    <li class="dash"><a href="Plugin-Development.html#ckeditor-plugin-development-guide">CKEditor Plugin Development</a></li>
+    <li class="dash"><a href="Model-Element.html#ckeditor-model-element">CKEditor Model Element Reference</a></li>
+    <li class="dash"><a href="Style-Integration.html#ckeditor-style-integration">CKEditor Style Integration</a></li>
+    <li class="dash"><a href="../Architecture/System-Architecture.html#architecture-overview">System Architecture</a></li>
+    <li class="dash"><a href="../API/DataHandling.html#api-datahandling">Data Handling API</a></li>
+</ul>
+
+    </section>
+    </section>
+        <!-- content end -->
+    </div>
+</article>
+                        
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center"><li class="page-item">
+                            <a class="page-link" href="Style-Integration.html"
+                               title="Accesskey Alt(+Shift)+p">
+                                <i class="fa-solid fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    </ul>
+        </nav>
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="linkReferenceModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="CKEditor/Conversions">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="linkReferenceModalLabel">Reference to the headline</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="permalink-alert-success" role="alert"></div>
+                <div class="mb-3">
+                    <label for="permalink-uri" class="col-form-label">URL</label>
+                    <div class="input-group">
+                        <input class="form-control code" id="permalink-uri" readonly>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-uri"><i class="far fa-clone"></i></button>
+                    </div>
+                    <div class="permalink-short-wrapper">
+                        <label for="permalink-short" class="col-form-label">Permalink (Shortlink)</label>
+                        <div class="input-group">
+                            <input class="form-control code" id="permalink-short" readonly>
+                            <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-short"><i class="far fa-clone"></i></button>
+                        </div>
+                        <p><em>Copy and freely share the link</em></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-warning alert-permalink-rst" role="alert">This link target has no permanent anchor assigned.The link below can be used, but is prone to change if the page gets moved.
+                    </div>
+                    <label for="permalink-rst" class="col-form-label">Link in reStructuredText (reST)</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-rst" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-rst"><i class="far fa-clone"></i></button>
+                    </div>
+                    <p><em>Copy this link into your TYPO3 manual.</em></p>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-md" class="col-form-label">Link in Markdown</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-md" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-md"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-html" class="col-form-label">Link in HTML</label>
+                                        <div class="input-group">
+                        <textarea class="form-control code" id="permalink-html" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-html"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>    <div class="modal fade" id="generalModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="CKEditor/Conversions"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generalModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="general-alert-success" role="alert"></div>
+                <div id="generalModalContent">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div id="generalModalCustomButtons"></div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-regular fa-circle-xmark"></i>&nbsp;Close</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+
+<footer class="page-footer">
+    <div class="frame frame-ruler-before frame-background-dark">
+        <div class="frame-container">
+            <div class="frame-inner">
+                                <div class="footer-additional">
+                    <p class="text-center">Last rendered: Oct 23, 2025 19:49</p>
+                </div>
+                <div class="footer-meta">
+                    <ul class="footer-meta-navigation">
+                        <li><a href="https://typo3.org/legal-notice" rel="nofollow" target="_blank" title="Legal Notice">Legal Notice</a></li>
+                        <li><a href="https://typo3.org/privacy-policy" rel="nofollow" target="_blank" title="Privacy Policy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="../_resources/js/popper.min.js"></script>
+<script src="../_resources/js/bootstrap.min.js"></script>
+<script src="../_resources/js/theme.min.js"></script>
+
+<!--
+ Locally rendered. No tracking embedded.
+-->
+</body>
+</html>

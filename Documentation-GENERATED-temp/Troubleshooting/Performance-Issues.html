@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <title>Performance Issues
+        documentation</title>
+
+    
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="phpdocumentor/guides" name="generator">
+<meta content="" name="docsearch:name">
+<meta content="" name="docsearch:package_type">
+<meta content="" name="docsearch:release">
+<meta content="" name="docsearch:version">
+<meta content="2025-10-23T19:49:09+00:00" name="docsearch:modified">
+<meta content="2025-10-23T19:49:09+00:00" name="dc.modified">
+<meta content="2025-10-23T19:49:09+00:00" property="article:modified_time">
+    <link href="http://purl.org/dc/elements/1.1/" rel="schema.dc">
+<link href="../_resources/css/theme.css" rel="stylesheet">
+<link href="https://docs.typo3.org/search/" rel="search" title="Search">
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/webcomponents-loader.js"></script>
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/typo3-universe.js" type="module"></script>
+                        <link href="Frontend-Issues.html" rel="prev" title="Frontend Issues"/>
+            <link href="../Architecture/Index.html" rel="next" title="Architecture &amp; Design"/>
+            <link href="../Index.html" rel="top" title="RTE CKEditor Image"/>
+    </head>
+<body>
+<div class="page">
+    <header>
+    <div class="page-topbar">
+        <div class="page-topbar-inner">
+            <typo3-universe active="documentation">
+                <div style="display: block; height: 44px; background-color: #313131;"></div>
+            </typo3-universe>
+        </div>
+    </div>
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="d-flex flex-wrap">
+                <div class="logo-wrapper">
+                    <a class="logo" href="https://docs.typo3.org/" title="TYPO3 Documentation">
+                        <img alt="TYPO3 Logo" class="logo-image" src="../_resources/img/typo3-logo.svg" width="484" height="130">
+                    </a>
+                </div>
+                <div class="align-self-center order-lg-2 order-last">
+                    
+<div class="toc-header">
+    <div class="toc-title pe-3">
+                            <a class="toc-title-project" href="../Index.html">RTE CKEditor Image</a>
+            </div>
+    </div>                </div>
+                <div class="ms-auto order-lg-3 d-flex">
+                    <div class="menu-search-wrapper">
+                        <button id="toc-toggle" class="btn btn-light d-block d-lg-none" tabindex="0" aria-controls="toc-collapse" aria-expanded="false">
+                            <i class="fas fa-bars"></i> <span class="visually-hidden">Mobile Menu</span>
+                        </button>
+                        <all-documentations-menu data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu>
+                                                <search role="search">
+                            <form action="https://docs.typo3.org/search/search" id="global-search-form" method="get">
+                                <div class="sr-only"><label for="globalsearchinput">TYPO3 documentation...</label></div>
+                                <div class="input-group mb-3 mt-sm-3">
+                                    <select class="form-select search__scope" id="searchscope" name="scope">
+                                        <option value="">Search all</option>
+                                    </select>
+                                    <input autocomplete="off" class="form-control shadow-none" id="globalsearchinput" name="q" placeholder="TYPO3 documentation..." type="text" value="">
+                                    <button class="btn btn-light" type="submit"><i class="fa fa-search"></i>&nbsp;<span class="d-none d-md-inline">Search</span></button>
+                                </div>
+                            </form>
+                            <div id="global-search-root"></div>
+                        </search>
+                        <div class="position-relative d-inline-block">
+                            <button id="options-toggle" class="btn btn-light d-block" type="button" aria-expanded="false">
+                                <i class="fas fa-cog"></i> <span class="visually-hidden">Options</span>
+                            </button>
+
+                            <div id="options-panel"
+                                 class="shadow p-3"
+                                 role="menu"
+                                 aria-hidden="true">
+                                <h6 class="dropdown-header text-muted text-uppercase small mb-2">Options</h6>
+
+                                                                                                            <a class="dropdown-item d-flex align-items-center gap-2" href="../_sources/Troubleshooting/Performance-Issues.rst.txt" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-code"></i>
+        View source
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2" href="https://docs.typo3.org/m/typo3/docs-how-to-document/main/en-us/WritingDocsOfficial/GithubMethod.html" id="btnHowToEdit" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-info-circle"></i>
+        How to edit
+    </a>
+                                                                                                                <a class="dropdown-item d-flex align-items-center gap-2" href="../singlehtml/Index.html" target="_blank" rel="noopener">
+                                            <i class="fas fa-print"></i>
+                                            Full documentation (single file)
+                                        </a>
+                                                                                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>    <main class="page-main">
+        <div class="page-main-inner">
+            <div class="page-main-navigation">
+                <nav>
+
+                    <div id="toc-collapse">
+                                                <div aria-label="main navigation" class="toc"
+                             role="navigation">
+                                <all-documentations-menu-mobile
+        data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu-mobile>
+    <div aria-label="Main navigation" class="main_menu" role="navigation">
+                <p class="caption">RTE CKEditor Image</p>
+            <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Integration/Index.html">
+        Integration &amp; Configuration
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Integration/RTE-Setup.html">
+        RTE Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/TSConfig.html">
+        Page TSConfig Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Frontend-Rendering.html">
+        Frontend Rendering
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Advanced-Configuration.html">
+        Advanced Configuration
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Examples/Index.html">
+        Examples &amp; Use Cases
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Examples/Basic-Integration.html">
+        Basic Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Image-Styles.html">
+        Image Styles
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Responsive-Images.html">
+        Responsive Images
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Advanced-Features.html">
+        Advanced Features
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Custom-Extensions.html">
+        Custom Extensions
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Testing.html">
+        Testing Examples
+    </a></li></ul></li>    <li class=" active" role="menuitem">
+    <a href="Index.html">
+        Troubleshooting &amp; Support
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="Installation-Issues.html">
+        Installation Issues
+    </a></li><li class="" role="menuitem">
+    <a href="Editor-Issues.html">
+        Editor Issues
+    </a></li><li class="" role="menuitem">
+    <a href="Frontend-Issues.html">
+        Frontend Issues
+    </a></li><li class=" current active" role="menuitem">
+    <a href="#" aria-current="page">
+        Performance Issues
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Architecture &amp; Design</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Architecture/Index.html">
+        Architecture &amp; Design
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Architecture/System-Architecture.html">
+        System Architecture
+    </a></li><li class="" role="menuitem">
+    <a href="../Architecture/Design-Patterns.html">
+        Design Patterns &amp; Integration
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../API/Index.html">
+        API Documentation
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../API/Controllers.html">
+        Controllers API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/DataHandling.html">
+        Data Handling API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/EventListeners.html">
+        Event Listeners API
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../CKEditor/Index.html">
+        CKEditor Plugin Development
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../CKEditor/Plugin-Development.html">
+        CKEditor Plugin Development
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Model-Element.html">
+        CKEditor Model Element Reference
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Style-Integration.html">
+        CKEditor Style Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Conversions.html">
+        CKEditor Conversion System
+    </a></li></ul></li>    </ul>
+    </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="page-main-content">
+                <div class="rst-content">                        <nav aria-label="breadcrumbs navigation" class="breadcrumb-bar" role="navigation">
+        
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="../Index.html">RTE CKEditor Image</a></li>
+        <li class="breadcrumb-item"><a href="Index.html">Troubleshooting &amp; Support</a></li>
+                    <li aria-current="page"  class="breadcrumb-item  active">Performance Issues</li>
+        </ol>
+        <div class="breadcrumb-additions"></div>
+    </nav>
+                    
+<article class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+    <div itemprop="articleBody">
+        <!-- content start -->
+                
+<section class="section" id="performance-issues" data-rst-anchor="troubleshooting-performance-issues">
+            <a id="troubleshooting-performance-issues"></a>
+            <h1>Performance Issues<a class="headerlink" href="#performance-issues" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h1>
+            
+    <p>Solutions for performance problems, slow loading, and optimization strategies.</p>
+
+            <div class="contents-wrapper">
+        <p class="topic-title">Table of Contents</p>
+        <ul class="menu-level">
+    <li class="toc-item">
+    <a href="#editor-performance">Editor Performance</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-slow-editor-loading">Issue: Slow Editor Loading</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#issue-image-selection-dialog-slow">Issue: Image Selection Dialog Slow</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#frontend-performance">Frontend Performance</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-slow-page-load-due-to-images">Issue: Slow Page Load Due to Images</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#issue-excessive-bandwidth-usage">Issue: Excessive Bandwidth Usage</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#image-processing-performance">Image Processing Performance</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-image-processing-timeouts">Issue: Image Processing Timeouts</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#issue-processed-images-directory-growing">Issue: Processed Images Directory Growing</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#database-performance">Database Performance</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-large-database-size">Issue: Large Database Size</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#issue-slow-reference-index-updates">Issue: Slow Reference Index Updates</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#cache-performance">Cache Performance</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-excessive-cache-invalidation">Issue: Excessive Cache Invalidation</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#network-performance">Network Performance</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-slow-image-loading-from-cdn">Issue: Slow Image Loading from CDN</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#monitoring-and-profiling">Monitoring and Profiling</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#performance-monitoring">Performance Monitoring</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#database-query-profiling">Database Query Profiling</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#image-processing-profiling">Image Processing Profiling</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#optimization-best-practices">Optimization Best Practices</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#image-optimization-checklist">Image Optimization Checklist</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#server-optimization-checklist">Server Optimization Checklist</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#related-documentation">Related Documentation</a>
+
+
+</li>
+    <li class="toc-item">
+    <a href="#getting-help">Getting Help</a>
+
+
+</li>
+    </ul>
+
+    <button class="toggle-all-sections btn btn-sm btn-light">Collapse all Sections</button>
+</div>
+            <section class="section" id="editor-performance">
+            <h2>Editor Performance<a class="headerlink" href="#editor-performance" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-slow-editor-loading">
+            <h3>Issue: Slow Editor Loading<a class="headerlink" href="#issue-slow-editor-loading" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>CKEditor takes long time to initialize</li>
+    <li>Image browser slow to open</li>
+</ul>
+
+            
+    <p><strong>Causes:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Large number of files in file browser</li>
+    <li value="2">Unoptimized image processing settings</li>
+    <li value="3">Network latency</li>
+    <li value="4">Browser resource constraints</li>
+</ol>
+
+            
+    <p><strong>Solutions:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Optimize Image Processing:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// LocalConfiguration.php</span>
+$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'GFX'</span>][<span class="hljs-string">'jpg_quality'</span>] = <span class="hljs-number">85</span>;
+$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'GFX'</span>][<span class="hljs-string">'processor_effects'</span>] = <span class="hljs-keyword">false</span>;  <span class="hljs-comment">// If not needed</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="2" type="1">
+    <li value="2"><strong>Reduce Maximum Dimensions:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">RTE.default.buttons.image.options.magic {
+    maxWidth = 1200  <span class="hljs-comment"># Instead of 1920</span>
+    maxHeight = 800  <span class="hljs-comment"># Instead of 9999</span>
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="3" type="1">
+    <li value="3"><strong>Limit File Browser Results:</strong></li>
+</ol>
+
+            
+    <p>Configure file mounts to show only relevant directories:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript"><span class="hljs-comment"># User TSConfig</span>
+options.folderTree.uploadFieldsInLinkBrowser = 0
+options.pageTree.showPageIdWithTitle = 0</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+                
+<div class="admonition tip" role="alert">
+    <p class="admonition-title">Tip</p>
+            
+    <p>Reducing maximum dimensions can significantly improve editor performance.</p>
+
+</div>
+            <hr />
+    </section>
+            <section class="section" id="issue-image-selection-dialog-slow">
+            <h3>Issue: Image Selection Dialog Slow<a class="headerlink" href="#issue-image-selection-dialog-slow" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Modal takes long time to open</li>
+    <li>Thumbnails load slowly</li>
+    <li>Browser becomes unresponsive</li>
+</ul>
+
+            
+    <p><strong>Causes:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Too many files in directory</li>
+    <li value="2">Large unprocessed images</li>
+    <li value="3">Missing thumbnail cache</li>
+</ol>
+
+            
+    <p><strong>Solutions:</strong></p>
+
+            
+    
+<ol start="1">
+    <li value="1">
+    <p><strong>Organize Files into Subdirectories:</strong></p>
+
+
+<ul>
+    <li>Group images by category</li>
+    <li>Use year/month folder structure</li>
+    <li>Keep directories under 100 files</li>
+</ul>
+</li>
+    <li value="2"><strong>Pre-generate Thumbnails:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash"><span class="hljs-comment"># Generate missing thumbnails</span>
+./vendor/bin/typo3 cleanup:missingfiles
+./vendor/bin/typo3 cleanup:previewlinks</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="3" type="1">
+    <li value="3"><strong>Optimize File Storage:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript"><span class="hljs-comment"># Limit file selection to specific folders</span>
+options.defaultUploadFolder = 1:<span class="hljs-bullet">fileadmin/user_upload/</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="frontend-performance">
+            <h2>Frontend Performance<a class="headerlink" href="#frontend-performance" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-slow-page-load-due-to-images">
+            <h3>Issue: Slow Page Load Due to Images<a class="headerlink" href="#issue-slow-page-load-due-to-images" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Pages load slowly</li>
+    <li>Large images not processed</li>
+    <li>High bandwidth usage</li>
+</ul>
+
+            
+    <p><strong>Causes:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Original large images served instead of processed versions</li>
+    <li value="2">No image compression</li>
+    <li value="3">Missing lazy loading</li>
+    <li value="4">Too many images on page</li>
+</ol>
+
+            
+    <p><strong>Solutions:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Enable Image Processing:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// LocalConfiguration.php</span>
+$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'GFX'</span>] = [
+    <span class="hljs-string">'processor_enabled'</span> =&gt; <span class="hljs-keyword">true</span>,
+    <span class="hljs-string">'processor'</span> =&gt; <span class="hljs-string">'ImageMagick'</span>,
+    <span class="hljs-string">'jpg_quality'</span> =&gt; <span class="hljs-number">85</span>,
+];</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="2" type="1">
+    <li value="2"><strong>Configure Reasonable Maximum Dimensions:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">RTE.default.buttons.image.options.magic {
+    maxWidth = 1920
+    maxHeight = 1080
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="3" type="1">
+    <li value="3"><strong>Implement Lazy Loading:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">lib.parseFunc_RTE.tags.img {
+    current = 1
+    preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController-&gt;renderImageAttributes
+    stdWrap.replacement {
+        <span class="hljs-title">10</span> {
+            search = &lt;img
+            replace = &lt;img loading="lazy"
+        }
+    }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="4" type="1">
+    <li value="4"><strong>Enable Browser Caching:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs apache"><span class="hljs-comment"># .htaccess</span>
+<span class="hljs-section">&lt;IfModule mod_expires.c&gt;</span>
+    <span class="hljs-attribute">ExpiresActive</span> <span class="hljs-literal">On</span>
+    <span class="hljs-attribute">ExpiresByType</span> image/jpeg <span class="hljs-string">"access plus 1 year"</span>
+    <span class="hljs-attribute">ExpiresByType</span> image/png <span class="hljs-string">"access plus 1 year"</span>
+    <span class="hljs-attribute">ExpiresByType</span> image/webp <span class="hljs-string">"access plus 1 year"</span>
+<span class="hljs-section">&lt;/IfModule&gt;</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+            <section class="section" id="issue-excessive-bandwidth-usage">
+            <h3>Issue: Excessive Bandwidth Usage<a class="headerlink" href="#issue-excessive-bandwidth-usage" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>High server bandwidth consumption</li>
+    <li>Slow site on mobile devices</li>
+    <li>Large page sizes</li>
+</ul>
+
+            
+    <p><strong>Solutions:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Use WebP Format:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// LocalConfiguration.php</span>
+$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'GFX'</span>][<span class="hljs-string">'processor_allowUpscaling'</span>] = <span class="hljs-keyword">false</span>;
+$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'GFX'</span>][<span class="hljs-string">'processor_stripColorProfileByDefault'</span>] = <span class="hljs-keyword">true</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="2" type="1">
+    <li value="2"><strong>Implement Progressive JPEG:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'GFX'</span>][<span class="hljs-string">'processor_interlace'</span>] = <span class="hljs-keyword">true</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="3" type="1">
+    <li value="3"><strong>Compress Images:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'GFX'</span>][<span class="hljs-string">'jpg_quality'</span>] = <span class="hljs-number">80</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="image-processing-performance">
+            <h2>Image Processing Performance<a class="headerlink" href="#image-processing-performance" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-image-processing-timeouts">
+            <h3>Issue: Image Processing Timeouts<a class="headerlink" href="#issue-image-processing-timeouts" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>500 errors when uploading images</li>
+    <li>Processing hangs</li>
+    <li>Timeouts in backend</li>
+</ul>
+
+            
+    <p><strong>Causes:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Insufficient PHP memory</li>
+    <li value="2">Low execution time limits</li>
+    <li value="3">Slow image processor</li>
+    <li value="4">Very large source images</li>
+</ol>
+
+            
+    <p><strong>Solutions:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Increase PHP Limits:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// php.ini or LocalConfiguration.php</span>
+memory_limit = <span class="hljs-number">512</span>M
+max_execution_time = <span class="hljs-number">300</span>
+upload_max_filesize = <span class="hljs-number">20</span>M
+post_max_size = <span class="hljs-number">20</span>M</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="2" type="1">
+    <li value="2"><strong>Optimize Image Processor:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// LocalConfiguration.php</span>
+$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'GFX'</span>][<span class="hljs-string">'processor_path_lzw'</span>] = <span class="hljs-string">''</span>;
+$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'GFX'</span>][<span class="hljs-string">'processor_colorspace'</span>] = <span class="hljs-string">'RGB'</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="3" type="1">
+    <li value="3"><strong>Limit Upload Size:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript"><span class="hljs-comment"># Page TSConfig</span>
+RTE.default.buttons.image.options.magic {
+    maxFileSize = 5000  <span class="hljs-comment"># 5MB in KB</span>
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+            <section class="section" id="issue-processed-images-directory-growing">
+            <h3>Issue: Processed Images Directory Growing<a class="headerlink" href="#issue-processed-images-directory-growing" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Large <code>_processed_/</code> directory</li>
+    <li>Disk space issues</li>
+    <li>Duplicate processed images</li>
+</ul>
+
+            
+    <p><strong>Causes:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Old processed images not cleaned up</li>
+    <li value="2">Multiple versions of same image</li>
+    <li value="3">Unused processed files accumulating</li>
+</ol>
+
+            
+    <p><strong>Solutions:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Clean Old Processed Files:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash"><span class="hljs-comment"># Remove processed files older than 30 days</span>
+find fileadmin/_processed_ -<span class="hljs-built_in">type</span> f -mtime +30 -delete</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="2" type="1">
+    <li value="2"><strong>Implement Automated Cleanup:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// LocalConfiguration.php</span>
+$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'GFX'</span>][<span class="hljs-string">'processor_allowTemporaryMasksAsPng'</span>] = <span class="hljs-keyword">false</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="3" type="1">
+    <li value="3"><strong>Schedule Cleanup Task:</strong></li>
+</ol>
+
+            
+    <p>Create a scheduler task to regularly clean old processed images:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash"><span class="hljs-comment"># Cron job example (runs weekly)</span>
+0 2 * * 0 find /path/to/fileadmin/_processed_ -<span class="hljs-built_in">type</span> f -mtime +30 -delete</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="database-performance">
+            <h2>Database Performance<a class="headerlink" href="#database-performance" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-large-database-size">
+            <h3>Issue: Large Database Size<a class="headerlink" href="#issue-large-database-size" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Database growing rapidly</li>
+    <li>sys_refindex table very large</li>
+    <li>Slow queries</li>
+</ul>
+
+            
+    <p><strong>Causes:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Excessive soft reference entries</li>
+    <li value="2">Orphaned records</li>
+    <li value="3">Unoptimized indexes</li>
+</ol>
+
+            
+    <p><strong>Solutions:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Rebuild Reference Index:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash">./vendor/bin/typo3 referenceindex:update</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="2" type="1">
+    <li value="2"><strong>Clean Up Orphaned Records:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs sql"><span class="hljs-comment">-- Find images in deleted content</span>
+<span class="hljs-keyword">SELECT</span> uid, bodytext
+<span class="hljs-keyword">FROM</span> tt_content
+<span class="hljs-keyword">WHERE</span> deleted = <span class="hljs-number">1</span> <span class="hljs-keyword">AND</span> bodytext <span class="hljs-keyword">LIKE</span> <span class="hljs-string">'%data-htmlarea-file-uid%'</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="3" type="1">
+    <li value="3"><strong>Optimize Tables:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs sql"><span class="hljs-keyword">OPTIMIZE</span> <span class="hljs-keyword">TABLE</span> sys_refindex;
+<span class="hljs-keyword">OPTIMIZE</span> <span class="hljs-keyword">TABLE</span> tt_content;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+            <section class="section" id="issue-slow-reference-index-updates">
+            <h3>Issue: Slow Reference Index Updates<a class="headerlink" href="#issue-slow-reference-index-updates" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Reference index update takes long time</li>
+    <li>High CPU usage during updates</li>
+</ul>
+
+            
+    <p><strong>Solutions:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Batch Update References:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash"><span class="hljs-comment"># Update in smaller batches</span>
+./vendor/bin/typo3 referenceindex:update --check</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="2" type="1">
+    <li value="2"><strong>Schedule Off-Peak Updates:</strong></li>
+</ol>
+
+            
+    <p>Run reference index updates during low-traffic periods:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash"><span class="hljs-comment"># Cron job (runs at 3 AM)</span>
+0 3 * * * /path/to/vendor/bin/typo3 referenceindex:update</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="cache-performance">
+            <h2>Cache Performance<a class="headerlink" href="#cache-performance" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-excessive-cache-invalidation">
+            <h3>Issue: Excessive Cache Invalidation<a class="headerlink" href="#issue-excessive-cache-invalidation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Caches cleared too frequently</li>
+    <li>Slow page regeneration</li>
+    <li>High server load</li>
+</ul>
+
+            
+    <p><strong>Causes:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Aggressive cache clearing</li>
+    <li value="2">Content changes trigger full cache clear</li>
+    <li value="3">Misconfigured cache tags</li>
+</ol>
+
+            
+    <p><strong>Solutions:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Optimize Cache Configuration:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// LocalConfiguration.php</span>
+$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'SYS'</span>][<span class="hljs-string">'caching'</span>][<span class="hljs-string">'cacheConfigurations'</span>][<span class="hljs-string">'pages'</span>] = [
+    <span class="hljs-string">'backend'</span> =&gt; \TYPO3\CMS\Core\Cache\Backend\RedisBackend::class,
+    <span class="hljs-string">'options'</span> =&gt; [
+        <span class="hljs-string">'hostname'</span> =&gt; <span class="hljs-string">'localhost'</span>,
+        <span class="hljs-string">'database'</span> =&gt; <span class="hljs-number">0</span>,
+        <span class="hljs-string">'port'</span> =&gt; <span class="hljs-number">6379</span>,
+    ],
+];</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="2" type="1">
+    <li value="2"><strong>Use Cache Tags Effectively:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">config {
+    cache_period = 86400
+    sendCacheHeaders = 1
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="3" type="1">
+    <li value="3"><strong>Implement Selective Cache Clearing:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash"><span class="hljs-comment"># Clear only specific cache groups</span>
+./vendor/bin/typo3 cache:flush --group=pages</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="network-performance">
+            <h2>Network Performance<a class="headerlink" href="#network-performance" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-slow-image-loading-from-cdn">
+            <h3>Issue: Slow Image Loading from CDN<a class="headerlink" href="#issue-slow-image-loading-from-cdn" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Images load slowly despite CDN</li>
+    <li>Inconsistent loading times</li>
+    <li>Failed CDN requests</li>
+</ul>
+
+            
+    <p><strong>Solutions:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Configure Proper CDN:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">config {
+    absRefPrefix = /
+<span class="hljs-assignment">    baseURL = https://cdn.yourdomain.com/</span>
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="2" type="1">
+    <li value="2"><strong>Use HTTP/2:</strong></li>
+</ol>
+
+            
+    <p>Ensure your server supports HTTP/2 for multiplexing</p>
+
+            
+    
+<ol start="3" type="1">
+    <li value="3"><strong>Implement Preconnect:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"preconnect"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"https://cdn.yourdomain.com"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"dns-prefetch"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"https://cdn.yourdomain.com"</span>&gt;</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="monitoring-and-profiling">
+            <h2>Monitoring and Profiling<a class="headerlink" href="#monitoring-and-profiling" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="performance-monitoring">
+            <h3>Performance Monitoring<a class="headerlink" href="#performance-monitoring" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Enable TYPO3 Admin Panel:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">config.admPanel = 1</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="2" type="1">
+    <li value="2"><strong>Monitor Image Processing:</strong></li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash"><span class="hljs-comment"># Check processing time</span>
+./vendor/bin/typo3 backend:<span class="hljs-built_in">test</span>:imageprocessing</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="3" type="1">
+    <li value="3"><strong>Track Page Load Times:</strong></li>
+</ol>
+
+            <dl>
+                        <dt>Use browser DevTools Network tab to monitor:</dt>
+        
+        <dd>
+
+<ul>
+    <li>Image load times</li>
+    <li>TTFB (Time to First Byte)</li>
+    <li>Total page load time</li>
+</ul>
+</dd>
+            </dl>
+    </section>
+            <section class="section" id="database-query-profiling">
+            <h3>Database Query Profiling<a class="headerlink" href="#database-query-profiling" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs sql"><span class="hljs-comment">-- Find slow queries</span>
+<span class="hljs-keyword">SHOW</span> <span class="hljs-keyword">PROCESSLIST</span>;
+
+<span class="hljs-comment">-- Analyze reference index queries</span>
+<span class="hljs-keyword">EXPLAIN</span> <span class="hljs-keyword">SELECT</span> * <span class="hljs-keyword">FROM</span> sys_refindex <span class="hljs-keyword">WHERE</span> tablename=<span class="hljs-string">'tt_content'</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="image-processing-profiling">
+            <h3>Image Processing Profiling<a class="headerlink" href="#image-processing-profiling" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash"><span class="hljs-comment"># Time image processing</span>
+time ./vendor/bin/typo3 backend:<span class="hljs-built_in">test</span>:imageprocessing
+
+<span class="hljs-comment"># Monitor processed files</span>
+watch -n 5 <span class="hljs-string">"ls -lh fileadmin/_processed_/ | wc -l"</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="optimization-best-practices">
+            <h2>Optimization Best Practices<a class="headerlink" href="#optimization-best-practices" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="image-optimization-checklist">
+            <h3>Image Optimization Checklist<a class="headerlink" href="#image-optimization-checklist" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>✓ <strong>Configure reasonable maximum dimensions:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">RTE.default.buttons.image.options.magic {
+    maxWidth = 1920
+    maxHeight = 1080
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>✓ <strong>Enable image processing:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'GFX'</span>][<span class="hljs-string">'processor_enabled'</span>] = <span class="hljs-keyword">true</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>✓ <strong>Set appropriate JPEG quality:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'GFX'</span>][<span class="hljs-string">'jpg_quality'</span>] = <span class="hljs-number">85</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>✓ <strong>Implement lazy loading:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">loading</span>=<span class="hljs-string">"lazy"</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"..."</span> /&gt;</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>✓ <strong>Use browser caching:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs apache"><span class="hljs-attribute">ExpiresActive</span> <span class="hljs-literal">On</span>
+<span class="hljs-attribute">ExpiresByType</span> image/jpeg <span class="hljs-string">"access plus 1 year"</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>✓ <strong>Regular cleanup of processed files:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash">find fileadmin/_processed_ -<span class="hljs-built_in">type</span> f -mtime +30 -delete</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>✓ <strong>Monitor disk space and database size</strong></p>
+
+            
+    <p>✓ <strong>Optimize images before upload</strong> (recommend to editors)</p>
+
+    </section>
+            <section class="section" id="server-optimization-checklist">
+            <h3>Server Optimization Checklist<a class="headerlink" href="#server-optimization-checklist" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>✓ <strong>Adequate PHP memory:</strong> 512M minimum</p>
+
+            
+    <p>✓ <strong>Fast image processor:</strong> ImageMagick or GraphicsMagick</p>
+
+            
+    <p>✓ <strong>Redis/Memcached for caching</strong></p>
+
+            
+    <p>✓ <strong>HTTP/2 support enabled</strong></p>
+
+            
+    <p>✓ <strong>CDN for static assets</strong></p>
+
+            
+    <p>✓ <strong>Regular database optimization</strong></p>
+
+            
+    <p>✓ <strong>Scheduled cleanup tasks</strong></p>
+
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="related-documentation">
+            <h2>Related Documentation<a class="headerlink" href="#related-documentation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+    <p><strong>Other Troubleshooting Topics:</strong></p>
+
+            
+
+<ul>
+    <li><a href="Installation-Issues.html#troubleshooting-installation-issues">Installation Issues</a> - Installation and setup problems</li>
+    <li><a href="Editor-Issues.html#troubleshooting-editor-issues">Editor Issues</a> - Editor and backend problems</li>
+    <li><a href="Frontend-Issues.html#troubleshooting-frontend-issues">Frontend Issues</a> - Frontend rendering issues</li>
+</ul>
+
+            
+    <p><strong>Additional Resources:</strong></p>
+
+            
+
+<ul>
+    <li><a href="../Integration/Index.html#integration">Integration &amp; Configuration</a> - Configuration guide</li>
+    <li><a href="../Architecture/System-Architecture.html#architecture-system-components">System Architecture</a> - Image processing details</li>
+    <li><a href="../Integration/Advanced-Configuration.html#best-practices">Best Practices</a> - Performance best practices</li>
+</ul>
+
+    </section>
+            <section class="section" id="getting-help">
+            <h2>Getting Help<a class="headerlink" href="#getting-help" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+    <p>If issues persist after troubleshooting:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Check GitHub Issues:</strong> <a href="https://github.com/netresearch/t3x-rte_ckeditor_image/issues">https://github.com/netresearch/t3x-rte_ckeditor_image/issues</a></li>
+    <li value="2"><strong>Review Changelog:</strong> Look for performance improvements in CHANGELOG.md</li>
+    <li value="3"><strong>TYPO3 Slack:</strong> Join <a href="https://typo3.slack.com/archives/typo3-cms">#typo3-cms</a></li>
+    <li value="4"><strong>Stack Overflow:</strong> Tag questions with <code>typo3</code> and <code>performance</code></li>
+</ol>
+
+                
+<div class="admonition important" role="alert">
+    <p class="admonition-title">Important</p>
+            
+    <p>When reporting performance issues, include:</p>
+
+
+<ul>
+    <li>TYPO3 version</li>
+    <li>Extension version</li>
+    <li>PHP version and limits</li>
+    <li>Server specifications</li>
+    <li>Database size</li>
+    <li>Number of images</li>
+    <li>Performance measurements</li>
+    <li>Profiling data</li>
+</ul>
+
+</div>
+    </section>
+    </section>
+        <!-- content end -->
+    </div>
+</article>
+                        
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center"><li class="page-item">
+                            <a class="page-link" href="Frontend-Issues.html"
+                               title="Accesskey Alt(+Shift)+p">
+                                <i class="fa-solid fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    <li class="page-item">
+                            <a class="page-link" href="../Architecture/Index.html"
+                               title="Accesskey Alt(+Shift)+n">
+                                Next <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+        </nav>
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="linkReferenceModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="Troubleshooting/Performance-Issues">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="linkReferenceModalLabel">Reference to the headline</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="permalink-alert-success" role="alert"></div>
+                <div class="mb-3">
+                    <label for="permalink-uri" class="col-form-label">URL</label>
+                    <div class="input-group">
+                        <input class="form-control code" id="permalink-uri" readonly>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-uri"><i class="far fa-clone"></i></button>
+                    </div>
+                    <div class="permalink-short-wrapper">
+                        <label for="permalink-short" class="col-form-label">Permalink (Shortlink)</label>
+                        <div class="input-group">
+                            <input class="form-control code" id="permalink-short" readonly>
+                            <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-short"><i class="far fa-clone"></i></button>
+                        </div>
+                        <p><em>Copy and freely share the link</em></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-warning alert-permalink-rst" role="alert">This link target has no permanent anchor assigned.The link below can be used, but is prone to change if the page gets moved.
+                    </div>
+                    <label for="permalink-rst" class="col-form-label">Link in reStructuredText (reST)</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-rst" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-rst"><i class="far fa-clone"></i></button>
+                    </div>
+                    <p><em>Copy this link into your TYPO3 manual.</em></p>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-md" class="col-form-label">Link in Markdown</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-md" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-md"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-html" class="col-form-label">Link in HTML</label>
+                                        <div class="input-group">
+                        <textarea class="form-control code" id="permalink-html" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-html"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>    <div class="modal fade" id="generalModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="Troubleshooting/Performance-Issues"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generalModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="general-alert-success" role="alert"></div>
+                <div id="generalModalContent">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div id="generalModalCustomButtons"></div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-regular fa-circle-xmark"></i>&nbsp;Close</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+
+<footer class="page-footer">
+    <div class="frame frame-ruler-before frame-background-dark">
+        <div class="frame-container">
+            <div class="frame-inner">
+                                <div class="footer-additional">
+                    <p class="text-center">Last rendered: Oct 23, 2025 19:49</p>
+                </div>
+                <div class="footer-meta">
+                    <ul class="footer-meta-navigation">
+                        <li><a href="https://typo3.org/legal-notice" rel="nofollow" target="_blank" title="Legal Notice">Legal Notice</a></li>
+                        <li><a href="https://typo3.org/privacy-policy" rel="nofollow" target="_blank" title="Privacy Policy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="../_resources/js/popper.min.js"></script>
+<script src="../_resources/js/bootstrap.min.js"></script>
+<script src="../_resources/js/theme.min.js"></script>
+
+<!--
+ Locally rendered. No tracking embedded.
+-->
+</body>
+</html>

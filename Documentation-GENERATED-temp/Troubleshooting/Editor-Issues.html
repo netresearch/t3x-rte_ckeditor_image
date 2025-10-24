@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <title>Editor Issues
+        documentation</title>
+
+    
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="phpdocumentor/guides" name="generator">
+<meta content="" name="docsearch:name">
+<meta content="" name="docsearch:package_type">
+<meta content="" name="docsearch:release">
+<meta content="" name="docsearch:version">
+<meta content="2025-10-23T19:49:09+00:00" name="docsearch:modified">
+<meta content="2025-10-23T19:49:09+00:00" name="dc.modified">
+<meta content="2025-10-23T19:49:09+00:00" property="article:modified_time">
+    <link href="http://purl.org/dc/elements/1.1/" rel="schema.dc">
+<link href="../_resources/css/theme.css" rel="stylesheet">
+<link href="https://docs.typo3.org/search/" rel="search" title="Search">
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/webcomponents-loader.js"></script>
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/typo3-universe.js" type="module"></script>
+                        <link href="Installation-Issues.html" rel="prev" title="Installation Issues"/>
+            <link href="Frontend-Issues.html" rel="next" title="Frontend Issues"/>
+            <link href="../Index.html" rel="top" title="RTE CKEditor Image"/>
+    </head>
+<body>
+<div class="page">
+    <header>
+    <div class="page-topbar">
+        <div class="page-topbar-inner">
+            <typo3-universe active="documentation">
+                <div style="display: block; height: 44px; background-color: #313131;"></div>
+            </typo3-universe>
+        </div>
+    </div>
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="d-flex flex-wrap">
+                <div class="logo-wrapper">
+                    <a class="logo" href="https://docs.typo3.org/" title="TYPO3 Documentation">
+                        <img alt="TYPO3 Logo" class="logo-image" src="../_resources/img/typo3-logo.svg" width="484" height="130">
+                    </a>
+                </div>
+                <div class="align-self-center order-lg-2 order-last">
+                    
+<div class="toc-header">
+    <div class="toc-title pe-3">
+                            <a class="toc-title-project" href="../Index.html">RTE CKEditor Image</a>
+            </div>
+    </div>                </div>
+                <div class="ms-auto order-lg-3 d-flex">
+                    <div class="menu-search-wrapper">
+                        <button id="toc-toggle" class="btn btn-light d-block d-lg-none" tabindex="0" aria-controls="toc-collapse" aria-expanded="false">
+                            <i class="fas fa-bars"></i> <span class="visually-hidden">Mobile Menu</span>
+                        </button>
+                        <all-documentations-menu data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu>
+                                                <search role="search">
+                            <form action="https://docs.typo3.org/search/search" id="global-search-form" method="get">
+                                <div class="sr-only"><label for="globalsearchinput">TYPO3 documentation...</label></div>
+                                <div class="input-group mb-3 mt-sm-3">
+                                    <select class="form-select search__scope" id="searchscope" name="scope">
+                                        <option value="">Search all</option>
+                                    </select>
+                                    <input autocomplete="off" class="form-control shadow-none" id="globalsearchinput" name="q" placeholder="TYPO3 documentation..." type="text" value="">
+                                    <button class="btn btn-light" type="submit"><i class="fa fa-search"></i>&nbsp;<span class="d-none d-md-inline">Search</span></button>
+                                </div>
+                            </form>
+                            <div id="global-search-root"></div>
+                        </search>
+                        <div class="position-relative d-inline-block">
+                            <button id="options-toggle" class="btn btn-light d-block" type="button" aria-expanded="false">
+                                <i class="fas fa-cog"></i> <span class="visually-hidden">Options</span>
+                            </button>
+
+                            <div id="options-panel"
+                                 class="shadow p-3"
+                                 role="menu"
+                                 aria-hidden="true">
+                                <h6 class="dropdown-header text-muted text-uppercase small mb-2">Options</h6>
+
+                                                                                                            <a class="dropdown-item d-flex align-items-center gap-2" href="../_sources/Troubleshooting/Editor-Issues.rst.txt" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-code"></i>
+        View source
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2" href="https://docs.typo3.org/m/typo3/docs-how-to-document/main/en-us/WritingDocsOfficial/GithubMethod.html" id="btnHowToEdit" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-info-circle"></i>
+        How to edit
+    </a>
+                                                                                                                <a class="dropdown-item d-flex align-items-center gap-2" href="../singlehtml/Index.html" target="_blank" rel="noopener">
+                                            <i class="fas fa-print"></i>
+                                            Full documentation (single file)
+                                        </a>
+                                                                                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>    <main class="page-main">
+        <div class="page-main-inner">
+            <div class="page-main-navigation">
+                <nav>
+
+                    <div id="toc-collapse">
+                                                <div aria-label="main navigation" class="toc"
+                             role="navigation">
+                                <all-documentations-menu-mobile
+        data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu-mobile>
+    <div aria-label="Main navigation" class="main_menu" role="navigation">
+                <p class="caption">RTE CKEditor Image</p>
+            <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Integration/Index.html">
+        Integration &amp; Configuration
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Integration/RTE-Setup.html">
+        RTE Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/TSConfig.html">
+        Page TSConfig Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Frontend-Rendering.html">
+        Frontend Rendering
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Advanced-Configuration.html">
+        Advanced Configuration
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Examples/Index.html">
+        Examples &amp; Use Cases
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Examples/Basic-Integration.html">
+        Basic Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Image-Styles.html">
+        Image Styles
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Responsive-Images.html">
+        Responsive Images
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Advanced-Features.html">
+        Advanced Features
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Custom-Extensions.html">
+        Custom Extensions
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Testing.html">
+        Testing Examples
+    </a></li></ul></li>    <li class=" active" role="menuitem">
+    <a href="Index.html">
+        Troubleshooting &amp; Support
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="Installation-Issues.html">
+        Installation Issues
+    </a></li><li class=" current active" role="menuitem">
+    <a href="#" aria-current="page">
+        Editor Issues
+    </a></li><li class="" role="menuitem">
+    <a href="Frontend-Issues.html">
+        Frontend Issues
+    </a></li><li class="" role="menuitem">
+    <a href="Performance-Issues.html">
+        Performance Issues
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Architecture &amp; Design</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Architecture/Index.html">
+        Architecture &amp; Design
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Architecture/System-Architecture.html">
+        System Architecture
+    </a></li><li class="" role="menuitem">
+    <a href="../Architecture/Design-Patterns.html">
+        Design Patterns &amp; Integration
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../API/Index.html">
+        API Documentation
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../API/Controllers.html">
+        Controllers API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/DataHandling.html">
+        Data Handling API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/EventListeners.html">
+        Event Listeners API
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../CKEditor/Index.html">
+        CKEditor Plugin Development
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../CKEditor/Plugin-Development.html">
+        CKEditor Plugin Development
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Model-Element.html">
+        CKEditor Model Element Reference
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Style-Integration.html">
+        CKEditor Style Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Conversions.html">
+        CKEditor Conversion System
+    </a></li></ul></li>    </ul>
+    </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="page-main-content">
+                <div class="rst-content">                        <nav aria-label="breadcrumbs navigation" class="breadcrumb-bar" role="navigation">
+        
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="../Index.html">RTE CKEditor Image</a></li>
+        <li class="breadcrumb-item"><a href="Index.html">Troubleshooting &amp; Support</a></li>
+                    <li aria-current="page"  class="breadcrumb-item  active">Editor Issues</li>
+        </ol>
+        <div class="breadcrumb-additions"></div>
+    </nav>
+                    
+<article class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+    <div itemprop="articleBody">
+        <!-- content start -->
+                
+<section class="section" id="editor-issues" data-rst-anchor="troubleshooting-editor-issues">
+            <a id="troubleshooting-editor-issues"></a>
+            <h1>Editor Issues<a class="headerlink" href="#editor-issues" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h1>
+            
+    <p>Solutions for problems encountered in the TYPO3 backend editor and CKEditor functionality.</p>
+
+                
+<div class="admonition important" role="alert">
+    <p class="admonition-title">Important</p>
+            
+    <p><strong>Zero-Configuration Installation (v13.0.0+)</strong></p>
+
+    <p>The extension works out-of-the-box after <code>composer require netresearch/rte-ckeditor-image</code>.
+Most issues below only apply to <strong>custom RTE preset configurations</strong>.</p>
+
+    <p>If you&#039;re using the default automatic configuration and experiencing issues, check:</p>
+
+    
+<ol start="1" type="1">
+    <li value="1">Clear caches: <code>./vendor/bin/typo3 cache:flush</code></li>
+    <li value="2">Verify extension is activated</li>
+    <li value="3">Check browser console for JavaScript errors</li>
+</ol>
+
+</div>
+            <div class="contents-wrapper">
+        <p class="topic-title">Table of Contents</p>
+        <ul class="menu-level">
+    <li class="toc-item">
+    <a href="#image-button-problems">Image Button Problems</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-image-button-not-visible-in-toolbar">Issue: Image Button Not Visible in Toolbar</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#style-dropdown-problems">Style Dropdown Problems</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-style-drop-down-not-working-with-images">Issue: Style Drop-Down Not Working with Images</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#issue-custom-image-styles-lost-after-upgrade">Issue: Custom Image Styles Lost After Upgrade</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#file-browser-issues">File Browser Issues</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-file-browser-empty-or-not-loading">Issue: File Browser Empty or Not Loading</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#issue-file-not-found-after-selection">Issue: &quot;File Not Found&quot; After Selection</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#image-dimension-problems">Image Dimension Problems</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-magic-image-maximum-dimensions-not-working">Issue: Magic Image Maximum Dimensions Not Working</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#javascript-ckeditor-errors">JavaScript/CKEditor Errors</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-javascript-console-errors">Issue: JavaScript Console Errors</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#issue-double-click-on-image-does-nothing">Issue: Double-Click on Image Does Nothing</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#editor-loading-problems">Editor Loading Problems</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-editor-not-initializing">Issue: Editor Not Initializing</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#plugin-configuration-issues">Plugin Configuration Issues</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-plugin-not-recognized">Issue: Plugin Not Recognized</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#debugging-editor-issues">Debugging Editor Issues</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#enable-rte-debugging">Enable RTE Debugging</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#check-loaded-configuration">Check Loaded Configuration</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#monitor-network-requests">Monitor Network Requests</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#inspect-dom-elements">Inspect DOM Elements</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#related-documentation">Related Documentation</a>
+
+
+</li>
+    <li class="toc-item">
+    <a href="#getting-help">Getting Help</a>
+
+
+</li>
+    </ul>
+
+    <button class="toggle-all-sections btn btn-sm btn-light">Collapse all Sections</button>
+</div>
+            <section class="section" id="image-button-problems">
+            <h2>Image Button Problems<a class="headerlink" href="#image-button-problems" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-image-button-not-visible-in-toolbar" data-rst-anchor="troubleshooting-image-button-missing">
+            <a id="troubleshooting-image-button-missing"></a>
+            <h3>Issue: Image Button Not Visible in Toolbar<a class="headerlink" href="#issue-image-button-not-visible-in-toolbar" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Insert image button missing from CKEditor toolbar</li>
+    <li>RTE loads but no image functionality</li>
+</ul>
+
+            
+    <p><strong>Causes:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Plugin not properly imported in RTE configuration</li>
+    <li value="2"><code>removePlugins</code> includes image plugin</li>
+    <li value="3">Toolbar configuration missing <code>insertimage</code> item</li>
+</ol>
+
+            
+    <p><strong>Solution:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-comment"># Configuration/RTE/Default.yaml</span>
+<span class="hljs-attr">imports:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">{</span> <span class="hljs-attr">resource:</span> <span class="hljs-string">"EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml"</span> <span class="hljs-string">}</span>
+
+<span class="hljs-attr">editor:</span>
+  <span class="hljs-attr">config:</span>
+    <span class="hljs-attr">removePlugins:</span> <span class="hljs-literal">null</span>  <span class="hljs-comment"># Critical: Don't remove image plugin</span>
+    <span class="hljs-attr">toolbar:</span>
+      <span class="hljs-attr">items:</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">insertimage</span>  <span class="hljs-comment"># Add to toolbar</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="style-dropdown-problems">
+            <h2>Style Dropdown Problems<a class="headerlink" href="#style-dropdown-problems" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-style-drop-down-not-working-with-images" data-rst-anchor="troubleshooting-style-dropdown">
+            <a id="troubleshooting-style-dropdown"></a>
+            <h3>Issue: Style Drop-Down Not Working with Images<a class="headerlink" href="#issue-style-drop-down-not-working-with-images" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Styles disabled when image selected</li>
+    <li>Style changes not applied to images</li>
+</ul>
+
+            
+    <p><strong>Cause:</strong> Missing <code>GeneralHtmlSupport</code> dependency (fixed in v13.0.0+)</p>
+
+            
+    <p><strong>Solution:</strong> Ensure you&#039;re using extension version 13.0.0 or higher:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash">composer require netresearch/rte-ckeditor-image:^13.0</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>The plugin now requires:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> requires() {
+    <span class="hljs-keyword">return</span> [<span class="hljs-string">'StyleUtils'</span>, <span class="hljs-string">'GeneralHtmlSupport'</span>];  <span class="hljs-comment">// Both mandatory</span>
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+                
+<div class="admonition important" role="alert">
+    <p class="admonition-title">Important</p>
+            
+    <p>The <code>GeneralHtmlSupport</code> dependency is critical for style functionality in v13.0.0+</p>
+
+</div>
+            <hr />
+    </section>
+            <section class="section" id="issue-custom-image-styles-lost-after-upgrade">
+            <h3>Issue: Custom Image Styles Lost After Upgrade<a class="headerlink" href="#issue-custom-image-styles-lost-after-upgrade" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Custom styles no longer available</li>
+    <li>Style drop-down empty</li>
+</ul>
+
+            
+    <p><strong>Cause:</strong> RTE configuration changed</p>
+
+            
+    <p><strong>Solution:</strong> Re-apply custom styles in RTE configuration:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-attr">editor:</span>
+  <span class="hljs-attr">config:</span>
+    <span class="hljs-attr">style:</span>
+      <span class="hljs-attr">definitions:</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'Your Custom Style'</span>
+          <span class="hljs-attr">element:</span> <span class="hljs-string">'img'</span>
+          <span class="hljs-attr">classes:</span> <span class="hljs-string">['your-class']</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="file-browser-issues">
+            <h2>File Browser Issues<a class="headerlink" href="#file-browser-issues" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-file-browser-empty-or-not-loading" data-rst-anchor="troubleshooting-file-browser">
+            <a id="troubleshooting-file-browser"></a>
+            <h3>Issue: File Browser Empty or Not Loading<a class="headerlink" href="#issue-file-browser-empty-or-not-loading" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Modal opens but shows no files</li>
+    <li>File browser stuck loading</li>
+</ul>
+
+            
+    <p><strong>Causes:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">No file mount configured for backend user</li>
+    <li value="2">Missing file permissions</li>
+    <li value="3">Empty fileadmin directory</li>
+</ol>
+
+            
+    <p><strong>Solution:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript"><span class="hljs-comment"># User TSConfig</span>
+options.defaultUploadFolder = 1:<span class="hljs-bullet">fileadmin/user_upload/</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>Verify backend user has file mount in:
+<strong>Backend</strong> → <strong>User Management</strong> → <strong>Backend Users</strong> → <strong>File Mounts</strong></p>
+
+            <hr />
+    </section>
+            <section class="section" id="issue-file-not-found-after-selection">
+            <h3>Issue: &quot;File Not Found&quot; After Selection<a class="headerlink" href="#issue-file-not-found-after-selection" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Image selected but error occurs</li>
+    <li>Empty image inserted</li>
+</ul>
+
+            
+    <p><strong>Causes:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">File reference invalid</li>
+    <li value="2">Storage not accessible</li>
+    <li value="3">File deleted from filesystem</li>
+</ol>
+
+            
+    <p><strong>Solution:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Verify file exists in <code>fileadmin/</code></li>
+    <li value="2">Check file permissions (readable by web server)</li>
+    <li value="3">Clear file abstraction layer cache:</li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash">./vendor/bin/typo3 cache:flush --group=system</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="image-dimension-problems">
+            <h2>Image Dimension Problems<a class="headerlink" href="#image-dimension-problems" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-magic-image-maximum-dimensions-not-working">
+            <h3>Issue: Magic Image Maximum Dimensions Not Working<a class="headerlink" href="#issue-magic-image-maximum-dimensions-not-working" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Images not respecting configured maxWidth/maxHeight</li>
+    <li>Large images not being resized</li>
+</ul>
+
+            
+    <p><strong>Cause:</strong> TSConfig settings in custom template extension not loaded (TYPO3 bug #87068)</p>
+
+            
+    <p><strong>Solution:</strong> Add settings to root page config instead:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript"><span class="hljs-comment"># In root page TSConfig (not template extension)</span>
+RTE.default.buttons.image.options.magic {
+    maxWidth = 1920
+    maxHeight = 9999
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+                
+<div class="admonition tip" role="alert">
+    <p class="admonition-title">Tip</p>
+            
+    <p>Place TSConfig settings in root page configuration for proper loading.</p>
+
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="javascript-ckeditor-errors">
+            <h2>JavaScript/CKEditor Errors<a class="headerlink" href="#javascript-ckeditor-errors" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-javascript-console-errors">
+            <h3>Issue: JavaScript Console Errors<a class="headerlink" href="#issue-javascript-console-errors" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Browser console shows errors</li>
+    <li>Editor doesn&#039;t load properly</li>
+</ul>
+
+            <section class="section" id="common-errors">
+            <h4>Common Errors<a class="headerlink" href="#common-errors" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <section class="section" id="1-generalhtmlsupport-is-not-defined">
+            <h5>1. &quot;GeneralHtmlSupport is not defined&quot;<a class="headerlink" href="#1-generalhtmlsupport-is-not-defined" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h5>
+            
+    <p><strong>Cause:</strong> Extension version &lt; 13.0.0</p>
+
+            
+    <p><strong>Solution:</strong> Update to latest version:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash">composer update netresearch/rte-ckeditor-image</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="2-cannot-read-property-typo3image-of-undefined">
+            <h5>2. &quot;Cannot read property &#039;typo3image&#039; of undefined&quot;<a class="headerlink" href="#2-cannot-read-property-typo3image-of-undefined" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h5>
+            
+    <p><strong>Cause:</strong> Plugin configuration not loaded</p>
+
+            
+    <p><strong>Solution:</strong> Verify <code>Configuration/RTE/Plugin.yaml</code> imported:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-attr">imports:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">{</span> <span class="hljs-attr">resource:</span> <span class="hljs-string">"EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml"</span> <span class="hljs-string">}</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="3-jquery-errors">
+            <h5>3. jQuery Errors<a class="headerlink" href="#3-jquery-errors" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h5>
+            
+    <p><strong>Cause:</strong> jQuery not available in context</p>
+
+            
+    <p><strong>Solution:</strong> The plugin requires jQuery. Ensure TYPO3 backend context loads it (typically automatic).</p>
+
+            <hr />
+    </section>
+    </section>
+    </section>
+            <section class="section" id="issue-double-click-on-image-does-nothing">
+            <h3>Issue: Double-Click on Image Does Nothing<a class="headerlink" href="#issue-double-click-on-image-does-nothing" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Double-clicking image doesn&#039;t open dialog</li>
+    <li>Edit functionality not working</li>
+</ul>
+
+            
+    <p><strong>Causes:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">DoubleClickObserver not registered</li>
+    <li value="2">JavaScript error blocking execution</li>
+    <li value="3">Image not recognized as typo3image</li>
+</ol>
+
+            
+    <p><strong>Solution:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Check browser console for JavaScript errors</li>
+    <li value="2">Verify image has <code>data-htmlarea-file-uid</code> attribute</li>
+    <li value="3">Clear browser cache and reload</li>
+    <li value="4">Check CKEditor version compatibility (requires CKEditor 5)</li>
+</ol>
+
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="editor-loading-problems">
+            <h2>Editor Loading Problems<a class="headerlink" href="#editor-loading-problems" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-editor-not-initializing">
+            <h3>Issue: Editor Not Initializing<a class="headerlink" href="#issue-editor-not-initializing" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>CKEditor doesn&#039;t load</li>
+    <li>Textarea remains plain text field</li>
+</ul>
+
+            
+    <p><strong>Causes:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">JavaScript errors preventing initialization</li>
+    <li value="2">RTE configuration not loaded</li>
+    <li value="3">Browser cache issues</li>
+</ol>
+
+            
+    <p><strong>Solution:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Check browser console for errors</li>
+    <li value="2">Verify RTE preset is enabled:</li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-comment"># Configuration/RTE/Default.yaml</span>
+<span class="hljs-attr">imports:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">{</span> <span class="hljs-attr">resource:</span> <span class="hljs-string">"EXT:rte_ckeditor/Configuration/RTE/Default.yaml"</span> <span class="hljs-string">}</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">{</span> <span class="hljs-attr">resource:</span> <span class="hljs-string">"EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml"</span> <span class="hljs-string">}</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="3" type="1">
+    <li value="3">Clear browser and TYPO3 caches:</li>
+</ol>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash">./vendor/bin/typo3 cache:flush</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    
+<ol start="4" type="1">
+    <li value="4">Force reload in browser (Ctrl+Shift+R)</li>
+</ol>
+
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="plugin-configuration-issues">
+            <h2>Plugin Configuration Issues<a class="headerlink" href="#plugin-configuration-issues" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-plugin-not-recognized">
+            <h3>Issue: Plugin Not Recognized<a class="headerlink" href="#issue-plugin-not-recognized" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li>Image plugin functionality missing</li>
+    <li>Console error about undefined plugin</li>
+</ul>
+
+            
+    <p><strong>Cause:</strong> Plugin configuration not properly loaded</p>
+
+            
+    <p><strong>Solution:</strong> Ensure proper import order:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-comment"># Configuration/RTE/Default.yaml</span>
+<span class="hljs-attr">imports:</span>
+  <span class="hljs-comment"># Base CKEditor configuration first</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">{</span> <span class="hljs-attr">resource:</span> <span class="hljs-string">"EXT:rte_ckeditor/Configuration/RTE/Default.yaml"</span> <span class="hljs-string">}</span>
+  <span class="hljs-comment"># Then image plugin</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">{</span> <span class="hljs-attr">resource:</span> <span class="hljs-string">"EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml"</span> <span class="hljs-string">}</span>
+
+<span class="hljs-attr">editor:</span>
+  <span class="hljs-attr">config:</span>
+    <span class="hljs-comment"># Ensure plugin is not removed</span>
+    <span class="hljs-attr">removePlugins:</span> <span class="hljs-literal">null</span>
+    <span class="hljs-attr">toolbar:</span>
+      <span class="hljs-attr">items:</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">insertimage</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="debugging-editor-issues">
+            <h2>Debugging Editor Issues<a class="headerlink" href="#debugging-editor-issues" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="enable-rte-debugging">
+            <h3>Enable RTE Debugging<a class="headerlink" href="#enable-rte-debugging" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript"><span class="hljs-comment"># Page TSConfig</span>
+RTE.default.showButtons = *
+RTE.default.hideButtons =</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="check-loaded-configuration">
+            <h3>Check Loaded Configuration<a class="headerlink" href="#check-loaded-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Browser console:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Check if plugin loaded</span>
+<span class="hljs-built_in">console</span>.log(CKEDITOR.instances);
+
+<span class="hljs-comment">// Inspect editor config</span>
+<span class="hljs-keyword">const</span> editor = <span class="hljs-built_in">Object</span>.values(CKEDITOR.instances)[<span class="hljs-number">0</span>];
+<span class="hljs-built_in">console</span>.log(editor.config);</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="monitor-network-requests">
+            <h3>Monitor Network Requests<a class="headerlink" href="#monitor-network-requests" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    
+<ol start="1" type="1">
+    <li value="1">Open browser DevTools</li>
+    <li value="2">Go to Network tab</li>
+    <li value="3">Trigger image selection</li>
+    <li value="4">
+    <p>Check for failed requests to:</p>
+
+
+<ul>
+    <li><code>/rte/wizard/selectimage</code></li>
+    <li>Backend image info API</li>
+</ul>
+</li>
+</ol>
+
+    </section>
+            <section class="section" id="inspect-dom-elements">
+            <h3>Inspect DOM Elements<a class="headerlink" href="#inspect-dom-elements" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Check if images have required attributes:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// In browser console</span>
+<span class="hljs-built_in">document</span>.querySelectorAll(<span class="hljs-string">'img[data-htmlarea-file-uid]'</span>);</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <hr />
+    </section>
+    </section>
+            <section class="section" id="related-documentation">
+            <h2>Related Documentation<a class="headerlink" href="#related-documentation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+    <p><strong>Other Troubleshooting Topics:</strong></p>
+
+            
+
+<ul>
+    <li><a href="Installation-Issues.html#troubleshooting-installation-issues">Installation Issues</a> - Installation and setup problems</li>
+    <li><a href="Frontend-Issues.html#troubleshooting-frontend-issues">Frontend Issues</a> - Frontend rendering issues</li>
+    <li><a href="Performance-Issues.html#troubleshooting-performance-issues">Performance Issues</a> - Performance optimization</li>
+</ul>
+
+            
+    <p><strong>Additional Resources:</strong></p>
+
+            
+
+<ul>
+    <li><a href="../Integration/Index.html#integration">Integration &amp; Configuration</a> - Configuration guide</li>
+    <li><a href="../CKEditor/Index.html#ckeditor-plugin-development">CKEditor Plugin Development</a> - CKEditor plugin architecture</li>
+    <li><a href="../Integration/Index.html#integration">Integration &amp; Configuration</a> - Image selection features</li>
+</ul>
+
+    </section>
+            <section class="section" id="getting-help">
+            <h2>Getting Help<a class="headerlink" href="#getting-help" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+    <p>If issues persist after troubleshooting:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Check GitHub Issues:</strong> <a href="https://github.com/netresearch/t3x-rte_ckeditor_image/issues">https://github.com/netresearch/t3x-rte_ckeditor_image/issues</a></li>
+    <li value="2"><strong>Review Changelog:</strong> Look for breaking changes in CHANGELOG.md</li>
+    <li value="3"><strong>TYPO3 Slack:</strong> Join <a href="https://typo3.slack.com/archives/typo3-cms">#typo3-cms</a></li>
+    <li value="4"><strong>Stack Overflow:</strong> Tag questions with <code>typo3</code> and <code>ckeditor</code></li>
+</ol>
+
+                
+<div class="admonition important" role="alert">
+    <p class="admonition-title">Important</p>
+            
+    <p>When reporting issues, include:</p>
+
+
+<ul>
+    <li>TYPO3 version</li>
+    <li>Extension version</li>
+    <li>PHP version</li>
+    <li>Browser console errors</li>
+    <li>RTE configuration (sanitized)</li>
+    <li>Steps to reproduce</li>
+</ul>
+
+</div>
+    </section>
+    </section>
+        <!-- content end -->
+    </div>
+</article>
+                        
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center"><li class="page-item">
+                            <a class="page-link" href="Installation-Issues.html"
+                               title="Accesskey Alt(+Shift)+p">
+                                <i class="fa-solid fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    <li class="page-item">
+                            <a class="page-link" href="Frontend-Issues.html"
+                               title="Accesskey Alt(+Shift)+n">
+                                Next <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+        </nav>
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="linkReferenceModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="Troubleshooting/Editor-Issues">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="linkReferenceModalLabel">Reference to the headline</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="permalink-alert-success" role="alert"></div>
+                <div class="mb-3">
+                    <label for="permalink-uri" class="col-form-label">URL</label>
+                    <div class="input-group">
+                        <input class="form-control code" id="permalink-uri" readonly>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-uri"><i class="far fa-clone"></i></button>
+                    </div>
+                    <div class="permalink-short-wrapper">
+                        <label for="permalink-short" class="col-form-label">Permalink (Shortlink)</label>
+                        <div class="input-group">
+                            <input class="form-control code" id="permalink-short" readonly>
+                            <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-short"><i class="far fa-clone"></i></button>
+                        </div>
+                        <p><em>Copy and freely share the link</em></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-warning alert-permalink-rst" role="alert">This link target has no permanent anchor assigned.The link below can be used, but is prone to change if the page gets moved.
+                    </div>
+                    <label for="permalink-rst" class="col-form-label">Link in reStructuredText (reST)</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-rst" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-rst"><i class="far fa-clone"></i></button>
+                    </div>
+                    <p><em>Copy this link into your TYPO3 manual.</em></p>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-md" class="col-form-label">Link in Markdown</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-md" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-md"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-html" class="col-form-label">Link in HTML</label>
+                                        <div class="input-group">
+                        <textarea class="form-control code" id="permalink-html" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-html"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>    <div class="modal fade" id="generalModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="Troubleshooting/Editor-Issues"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generalModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="general-alert-success" role="alert"></div>
+                <div id="generalModalContent">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div id="generalModalCustomButtons"></div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-regular fa-circle-xmark"></i>&nbsp;Close</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+
+<footer class="page-footer">
+    <div class="frame frame-ruler-before frame-background-dark">
+        <div class="frame-container">
+            <div class="frame-inner">
+                                <div class="footer-additional">
+                    <p class="text-center">Last rendered: Oct 23, 2025 19:49</p>
+                </div>
+                <div class="footer-meta">
+                    <ul class="footer-meta-navigation">
+                        <li><a href="https://typo3.org/legal-notice" rel="nofollow" target="_blank" title="Legal Notice">Legal Notice</a></li>
+                        <li><a href="https://typo3.org/privacy-policy" rel="nofollow" target="_blank" title="Privacy Policy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="../_resources/js/popper.min.js"></script>
+<script src="../_resources/js/bootstrap.min.js"></script>
+<script src="../_resources/js/theme.min.js"></script>
+
+<!--
+ Locally rendered. No tracking embedded.
+-->
+</body>
+</html>

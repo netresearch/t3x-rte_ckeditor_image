@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <title>RTE Setup
+        documentation</title>
+
+    
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="phpdocumentor/guides" name="generator">
+<meta content="" name="docsearch:name">
+<meta content="" name="docsearch:package_type">
+<meta content="" name="docsearch:release">
+<meta content="" name="docsearch:version">
+<meta content="2025-10-23T19:49:09+00:00" name="docsearch:modified">
+<meta content="2025-10-23T19:49:09+00:00" name="dc.modified">
+<meta content="2025-10-23T19:49:09+00:00" property="article:modified_time">
+    <link href="http://purl.org/dc/elements/1.1/" rel="schema.dc">
+<link href="../_resources/css/theme.css" rel="stylesheet">
+<link href="https://docs.typo3.org/search/" rel="search" title="Search">
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/webcomponents-loader.js"></script>
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/typo3-universe.js" type="module"></script>
+                        <link href="Index.html" rel="prev" title="Integration &amp; Configuration"/>
+            <link href="TSConfig.html" rel="next" title="Page TSConfig Setup"/>
+            <link href="../Index.html" rel="top" title="RTE CKEditor Image"/>
+    </head>
+<body>
+<div class="page">
+    <header>
+    <div class="page-topbar">
+        <div class="page-topbar-inner">
+            <typo3-universe active="documentation">
+                <div style="display: block; height: 44px; background-color: #313131;"></div>
+            </typo3-universe>
+        </div>
+    </div>
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="d-flex flex-wrap">
+                <div class="logo-wrapper">
+                    <a class="logo" href="https://docs.typo3.org/" title="TYPO3 Documentation">
+                        <img alt="TYPO3 Logo" class="logo-image" src="../_resources/img/typo3-logo.svg" width="484" height="130">
+                    </a>
+                </div>
+                <div class="align-self-center order-lg-2 order-last">
+                    
+<div class="toc-header">
+    <div class="toc-title pe-3">
+                            <a class="toc-title-project" href="../Index.html">RTE CKEditor Image</a>
+            </div>
+    </div>                </div>
+                <div class="ms-auto order-lg-3 d-flex">
+                    <div class="menu-search-wrapper">
+                        <button id="toc-toggle" class="btn btn-light d-block d-lg-none" tabindex="0" aria-controls="toc-collapse" aria-expanded="false">
+                            <i class="fas fa-bars"></i> <span class="visually-hidden">Mobile Menu</span>
+                        </button>
+                        <all-documentations-menu data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu>
+                                                <search role="search">
+                            <form action="https://docs.typo3.org/search/search" id="global-search-form" method="get">
+                                <div class="sr-only"><label for="globalsearchinput">TYPO3 documentation...</label></div>
+                                <div class="input-group mb-3 mt-sm-3">
+                                    <select class="form-select search__scope" id="searchscope" name="scope">
+                                        <option value="">Search all</option>
+                                    </select>
+                                    <input autocomplete="off" class="form-control shadow-none" id="globalsearchinput" name="q" placeholder="TYPO3 documentation..." type="text" value="">
+                                    <button class="btn btn-light" type="submit"><i class="fa fa-search"></i>&nbsp;<span class="d-none d-md-inline">Search</span></button>
+                                </div>
+                            </form>
+                            <div id="global-search-root"></div>
+                        </search>
+                        <div class="position-relative d-inline-block">
+                            <button id="options-toggle" class="btn btn-light d-block" type="button" aria-expanded="false">
+                                <i class="fas fa-cog"></i> <span class="visually-hidden">Options</span>
+                            </button>
+
+                            <div id="options-panel"
+                                 class="shadow p-3"
+                                 role="menu"
+                                 aria-hidden="true">
+                                <h6 class="dropdown-header text-muted text-uppercase small mb-2">Options</h6>
+
+                                                                                                            <a class="dropdown-item d-flex align-items-center gap-2" href="../_sources/Integration/RTE-Setup.rst.txt" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-code"></i>
+        View source
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2" href="https://docs.typo3.org/m/typo3/docs-how-to-document/main/en-us/WritingDocsOfficial/GithubMethod.html" id="btnHowToEdit" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-info-circle"></i>
+        How to edit
+    </a>
+                                                                                                                <a class="dropdown-item d-flex align-items-center gap-2" href="../singlehtml/Index.html" target="_blank" rel="noopener">
+                                            <i class="fas fa-print"></i>
+                                            Full documentation (single file)
+                                        </a>
+                                                                                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>    <main class="page-main">
+        <div class="page-main-inner">
+            <div class="page-main-navigation">
+                <nav>
+
+                    <div id="toc-collapse">
+                                                <div aria-label="main navigation" class="toc"
+                             role="navigation">
+                                <all-documentations-menu-mobile
+        data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu-mobile>
+    <div aria-label="Main navigation" class="main_menu" role="navigation">
+                <p class="caption">RTE CKEditor Image</p>
+            <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class=" active" role="menuitem">
+    <a href="Index.html">
+        Integration &amp; Configuration
+    </a>        <ul class="menu-level-1"><li class=" current active" role="menuitem">
+    <a href="#" aria-current="page">
+        RTE Setup
+    </a></li><li class="" role="menuitem">
+    <a href="TSConfig.html">
+        Page TSConfig Setup
+    </a></li><li class="" role="menuitem">
+    <a href="Frontend-Rendering.html">
+        Frontend Rendering
+    </a></li><li class="" role="menuitem">
+    <a href="Advanced-Configuration.html">
+        Advanced Configuration
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Examples/Index.html">
+        Examples &amp; Use Cases
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Examples/Basic-Integration.html">
+        Basic Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Image-Styles.html">
+        Image Styles
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Responsive-Images.html">
+        Responsive Images
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Advanced-Features.html">
+        Advanced Features
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Custom-Extensions.html">
+        Custom Extensions
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Testing.html">
+        Testing Examples
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Troubleshooting/Index.html">
+        Troubleshooting &amp; Support
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Troubleshooting/Installation-Issues.html">
+        Installation Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Editor-Issues.html">
+        Editor Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Frontend-Issues.html">
+        Frontend Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Performance-Issues.html">
+        Performance Issues
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Architecture &amp; Design</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Architecture/Index.html">
+        Architecture &amp; Design
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Architecture/System-Architecture.html">
+        System Architecture
+    </a></li><li class="" role="menuitem">
+    <a href="../Architecture/Design-Patterns.html">
+        Design Patterns &amp; Integration
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../API/Index.html">
+        API Documentation
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../API/Controllers.html">
+        Controllers API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/DataHandling.html">
+        Data Handling API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/EventListeners.html">
+        Event Listeners API
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../CKEditor/Index.html">
+        CKEditor Plugin Development
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../CKEditor/Plugin-Development.html">
+        CKEditor Plugin Development
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Model-Element.html">
+        CKEditor Model Element Reference
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Style-Integration.html">
+        CKEditor Style Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Conversions.html">
+        CKEditor Conversion System
+    </a></li></ul></li>    </ul>
+    </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="page-main-content">
+                <div class="rst-content">                        <nav aria-label="breadcrumbs navigation" class="breadcrumb-bar" role="navigation">
+        
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="../Index.html">RTE CKEditor Image</a></li>
+        <li class="breadcrumb-item"><a href="Index.html">Integration &amp; Configuration</a></li>
+                    <li aria-current="page"  class="breadcrumb-item  active">RTE Setup</li>
+        </ol>
+        <div class="breadcrumb-additions"></div>
+    </nav>
+                    
+<article class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+    <div itemprop="articleBody">
+        <!-- content start -->
+                
+<section class="section" id="rte-setup" data-rst-anchor="integration-configuration-rte-setup">
+            <a id="integration-configuration-rte-setup"></a>
+            <h1>RTE Setup<a class="headerlink" href="#rte-setup" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h1>
+            
+    <p>Complete guide for configuring the RTE (Rich Text Editor) with CKEditor image support.</p>
+
+                
+<div class="admonition important" role="alert">
+    <p class="admonition-title">Important</p>
+            
+    <p><strong>Zero-Configuration Installation (v13.0.0+)</strong></p>
+
+    <p>The extension works out-of-the-box with zero manual configuration:</p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash">composer require netresearch/rte-ckeditor-image</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    <p>The <code>insertimage</code> button is automatically available in all RTEs. <strong>No RTE configuration needed!</strong></p>
+
+    <p>This guide is for <strong>advanced users</strong> who need custom RTE presets or want to override the defaults.</p>
+
+</div>
+            <div class="contents-wrapper">
+        <p class="topic-title">Table of Contents</p>
+        <ul class="menu-level">
+    <li class="toc-item">
+    <a href="#automatic-configuration-default">Automatic Configuration (Default)</a>
+
+
+</li>
+    <li class="toc-item">
+    <a href="#custom-rte-configuration">Custom RTE Configuration</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#creating-custom-presets">Creating Custom Presets</a>
+
+        <ul class="section-level-2">
+            <li class="toc-item">
+    <a href="#register-custom-preset">Register Custom Preset</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#enable-custom-preset">Enable Custom Preset</a>
+
+
+</li>
+                    </ul>
+</li>
+            <li class="toc-item">
+    <a href="#advanced-rte-configuration">Advanced RTE Configuration</a>
+
+        <ul class="section-level-2">
+            <li class="toc-item">
+    <a href="#custom-allowed-extensions">Custom Allowed Extensions</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#multiple-rte-presets">Multiple RTE Presets</a>
+
+
+</li>
+                    </ul>
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#related-documentation">Related Documentation</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#configuration-topics">Configuration Topics</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#general-documentation">General Documentation</a>
+
+
+</li>
+                    </ul>
+</li>
+    </ul>
+
+    <button class="toggle-all-sections btn btn-sm btn-light">Collapse all Sections</button>
+</div>
+            <section class="section" id="automatic-configuration-default">
+            <h2>Automatic Configuration (Default)<a class="headerlink" href="#automatic-configuration-default" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+    <p>The extension automatically provides:</p>
+
+            
+
+<ul>
+    <li class="dash"><strong>Preset</strong>: <code>rteWithImages</code> registered and enabled globally</li>
+    <li class="dash"><strong>Toolbar</strong>: <code>insertimage</code> button included in default toolbar</li>
+    <li class="dash"><strong>TypoScript</strong>: Frontend rendering hooks loaded automatically</li>
+    <li class="dash"><strong>Configuration</strong>: <code>Configuration/RTE/Default.yaml</code> with full toolbar</li>
+</ul>
+
+            
+    <p>To use the automatic configuration, simply install the extension. No additional steps required.</p>
+
+    </section>
+            <section class="section" id="custom-rte-configuration">
+            <h2>Custom RTE Configuration<a class="headerlink" href="#custom-rte-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="creating-custom-presets" data-rst-anchor="integration-configuration-basic">
+            <a id="integration-configuration-basic"></a>
+            <h3>Creating Custom Presets<a class="headerlink" href="#creating-custom-presets" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>If you need to customize the toolbar or RTE behavior beyond the defaults, create a custom preset:</p>
+
+                <div class="code-block-caption">
+        <span class="caption-text">EXT:my_ext/Configuration/RTE/Custom.yaml</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-attr">imports:</span>
+  <span class="hljs-comment"># Import default RTE config</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">{</span> <span class="hljs-attr">resource:</span> <span class="hljs-string">"EXT:rte_ckeditor/Configuration/RTE/Default.yaml"</span> <span class="hljs-string">}</span>
+  <span class="hljs-comment"># Import image plugin configuration</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">{</span> <span class="hljs-attr">resource:</span> <span class="hljs-string">"EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml"</span> <span class="hljs-string">}</span>
+
+<span class="hljs-attr">editor:</span>
+  <span class="hljs-attr">config:</span>
+    <span class="hljs-attr">toolbar:</span>
+      <span class="hljs-attr">items:</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">heading</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">'|'</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">insertimage</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">link</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">'|'</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">bold</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">italic</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <section class="section" id="register-custom-preset">
+            <h4>Register Custom Preset<a class="headerlink" href="#register-custom-preset" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+                <div class="code-block-caption">
+        <span class="caption-text">EXT:my_ext/ext_localconf.php</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'RTE'</span>][<span class="hljs-string">'Presets'</span>][<span class="hljs-string">'custom'</span>]
+    = <span class="hljs-string">'EXT:my_ext/Configuration/RTE/Custom.yaml'</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="enable-custom-preset">
+            <h4>Enable Custom Preset<a class="headerlink" href="#enable-custom-preset" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+                <div class="code-block-caption">
+        <span class="caption-text">Page TSConfig</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">RTE.default.preset = custom</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="advanced-rte-configuration">
+            <h3>Advanced RTE Configuration<a class="headerlink" href="#advanced-rte-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <section class="section" id="custom-allowed-extensions">
+            <h4>Custom Allowed Extensions<a class="headerlink" href="#custom-allowed-extensions" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <section data-search-title="editor.externalPlugins.typo3image.allowedExtensions"
+         data-search-id="confval-editor-externalplugins-typo3image-allowedextensions"
+         data-search-facet="Option"
+         class="confval-section"
+         id="confval-editor-externalplugins-typo3image-allowedextensions"
+>
+    <h3 class="sr-only">editor.externalPlugins.typo3image.allowedExtensions</h3>
+    <dl class="confval">
+        <dt             class="d-flex justify-content-between">
+            <div class="confval-header flex-grow-1">
+                <code class="sig-name descname"><span
+                        class="pre">editor.<wbr>external<wbr>Plugins.<wbr>typo3image.<wbr>allowed<wbr>Extensions</span></code>
+                                    <a class="headerlink" href="#confval-editor-externalplugins-typo3image-allowedextensions"
+                       data-bs-toggle="modal"
+                       data-bs-target="#linkReferenceModal"
+                       data-id="confval-editor-externalplugins-typo3image-allowedextensions"
+                       title="Reference this configuration value"><i
+                            class="fa-solid fa-paragraph"></i></a>
+                </div>
+            <div class="confval-back-to-top">                    <a href="#" class="backToTop" title="Back to top"><i
+                            class="fa-solid fa-arrow-up fa-xs"></i></a>            </div>        </dt>
+        <dd>
+                        <div class="confval-description">
+                <dl class="field-list simple ">
+            <dt class="field-odd">type</dt>
+
+        <dd class="field-odd">
+            
+    <p>string</p>
+        </dd>
+            <dt class="field-odd">Default</dt>
+
+        <dd class="field-odd">
+            
+    <p>Value from <code>$GLOBALS[&#039;TYPO3_CONF_VARS&#039;][&#039;GFX&#039;][&#039;imagefile_ext&#039;]</code></p>
+        </dd>
+    </dl>
+    <p>Comma-separated list of allowed image file extensions for the RTE image plugin.</p>
+
+    <p>Restricts which file types can be selected through the image browser.</p>
+
+    <p><strong>Example:</strong></p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-attr">editor:</span>
+  <span class="hljs-attr">externalPlugins:</span>
+    <span class="hljs-attr">typo3image:</span>
+      <span class="hljs-attr">route:</span> <span class="hljs-string">"rteckeditorimage_wizard_select_image"</span>
+      <span class="hljs-attr">allowedExtensions:</span> <span class="hljs-string">"jpg,jpeg,png,gif,webp"</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    <p>If not specified, falls back to the global TYPO3 configuration at <code>$GLOBALS[&#039;TYPO3_CONF_VARS&#039;][&#039;GFX&#039;][&#039;imagefile_ext&#039;]</code></p>
+
+            </div>
+        </dd>
+    </dl>
+</section>
+    </section>
+            <section class="section" id="multiple-rte-presets">
+            <h4>Multiple RTE Presets<a class="headerlink" href="#multiple-rte-presets" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            
+    <p>Different configurations for different content types:</p>
+
+                <div class="code-block-caption">
+        <span class="caption-text">EXT:my_ext/Configuration/RTE/Simple.yaml</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-attr">imports:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">{</span> <span class="hljs-attr">resource:</span> <span class="hljs-string">"EXT:rte_ckeditor/Configuration/RTE/Minimal.yaml"</span> <span class="hljs-string">}</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">{</span> <span class="hljs-attr">resource:</span> <span class="hljs-string">"EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml"</span> <span class="hljs-string">}</span>
+
+<span class="hljs-attr">editor:</span>
+  <span class="hljs-attr">config:</span>
+    <span class="hljs-attr">removePlugins:</span> <span class="hljs-literal">null</span>
+    <span class="hljs-attr">toolbar:</span>
+      <span class="hljs-attr">items:</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">insertimage</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+                <div class="code-block-caption">
+        <span class="caption-text">Different presets for different fields</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript"><span class="hljs-comment"># Different presets for different fields</span>
+RTE.default.preset = default
+RTE.config.tt_content.bodytext.preset = full
+RTE.config.tt_content.header.preset = simple</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+    </section>
+            <section class="section" id="related-documentation">
+            <h2>Related Documentation<a class="headerlink" href="#related-documentation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="configuration-topics">
+            <h3>Configuration Topics<a class="headerlink" href="#configuration-topics" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+
+<ul>
+    <li class="dash"><a href="TSConfig.html#integration-configuration-tsconfig">Page TSConfig Setup</a> - Page TSConfig settings and upload configuration</li>
+    <li class="dash"><a href="Frontend-Rendering.html#integration-configuration-frontend-rendering">Frontend Rendering</a> - TypoScript and frontend rendering setup</li>
+    <li class="dash"><a href="Advanced-Configuration.html#integration-configuration-advanced">Advanced Configuration</a> - Advanced configuration, styles, and best practices</li>
+</ul>
+
+    </section>
+            <section class="section" id="general-documentation">
+            <h3>General Documentation<a class="headerlink" href="#general-documentation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+
+<ul>
+    <li class="dash"><a href="Index.html#integration">Integration &amp; Configuration</a> - Main configuration guide overview</li>
+    <li class="dash"><a href="../Index.html#quick-start">Quick Start</a> - Quick start guide</li>
+    <li class="dash"><a href="../Troubleshooting/Index.html#troubleshooting-index">Troubleshooting &amp; Support</a> - Troubleshooting guide</li>
+</ul>
+
+    </section>
+    </section>
+    </section>
+        <!-- content end -->
+    </div>
+</article>
+                        
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center"><li class="page-item">
+                            <a class="page-link" href="Index.html"
+                               title="Accesskey Alt(+Shift)+p">
+                                <i class="fa-solid fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    <li class="page-item">
+                            <a class="page-link" href="TSConfig.html"
+                               title="Accesskey Alt(+Shift)+n">
+                                Next <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+        </nav>
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="linkReferenceModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="Integration/RTE-Setup">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="linkReferenceModalLabel">Reference to the headline</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="permalink-alert-success" role="alert"></div>
+                <div class="mb-3">
+                    <label for="permalink-uri" class="col-form-label">URL</label>
+                    <div class="input-group">
+                        <input class="form-control code" id="permalink-uri" readonly>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-uri"><i class="far fa-clone"></i></button>
+                    </div>
+                    <div class="permalink-short-wrapper">
+                        <label for="permalink-short" class="col-form-label">Permalink (Shortlink)</label>
+                        <div class="input-group">
+                            <input class="form-control code" id="permalink-short" readonly>
+                            <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-short"><i class="far fa-clone"></i></button>
+                        </div>
+                        <p><em>Copy and freely share the link</em></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-warning alert-permalink-rst" role="alert">This link target has no permanent anchor assigned.The link below can be used, but is prone to change if the page gets moved.
+                    </div>
+                    <label for="permalink-rst" class="col-form-label">Link in reStructuredText (reST)</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-rst" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-rst"><i class="far fa-clone"></i></button>
+                    </div>
+                    <p><em>Copy this link into your TYPO3 manual.</em></p>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-md" class="col-form-label">Link in Markdown</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-md" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-md"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-html" class="col-form-label">Link in HTML</label>
+                                        <div class="input-group">
+                        <textarea class="form-control code" id="permalink-html" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-html"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>    <div class="modal fade" id="generalModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="Integration/RTE-Setup"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generalModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="general-alert-success" role="alert"></div>
+                <div id="generalModalContent">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div id="generalModalCustomButtons"></div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-regular fa-circle-xmark"></i>&nbsp;Close</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+
+<footer class="page-footer">
+    <div class="frame frame-ruler-before frame-background-dark">
+        <div class="frame-container">
+            <div class="frame-inner">
+                                <div class="footer-additional">
+                    <p class="text-center">Last rendered: Oct 23, 2025 19:49</p>
+                </div>
+                <div class="footer-meta">
+                    <ul class="footer-meta-navigation">
+                        <li><a href="https://typo3.org/legal-notice" rel="nofollow" target="_blank" title="Legal Notice">Legal Notice</a></li>
+                        <li><a href="https://typo3.org/privacy-policy" rel="nofollow" target="_blank" title="Privacy Policy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="../_resources/js/popper.min.js"></script>
+<script src="../_resources/js/bootstrap.min.js"></script>
+<script src="../_resources/js/theme.min.js"></script>
+
+<!--
+ Locally rendered. No tracking embedded.
+-->
+</body>
+</html>

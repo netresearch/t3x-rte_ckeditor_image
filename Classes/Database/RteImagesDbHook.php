@@ -228,20 +228,18 @@ class RteImagesDbHook
                 if (($key % 2) === 1) {
                     // Get the attributes of the img tag
                     [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
-                    $imageSource = trim($attribArray['src'] ?? '');
+                    $imageSource   = trim($attribArray['src'] ?? '');
 
                     // Check if we need to regenerate the processed image
-                    if ($attribArray['data-htmlarea-file-uid'] ?? false) {
-                        if ($imageSource === '' || !is_file($imageSource)) {
-                            $imageSource = $this->getProcessedFile($attribArray);
-                        }
+                    if (($attribArray['data-htmlarea-file-uid'] ?? false) && ($imageSource === '' || !is_file($imageSource))) {
+                        $imageSource = $this->getProcessedFile($attribArray);
                     }
 
                     // Transform the src attribute into an absolute url, if it not already
                     if (
                         $imageSource !== ''
                         && strncasecmp($imageSource, 'http', 4) !== 0
-                        && strpos($imageSource, 'data:image') !== 0
+                        && !str_starts_with($imageSource, 'data:image')
                     ) {
                         // If site is in a sub path (e.g. /~user_jim/) this path needs to be
                         // removed because it will be added with $siteUrl
@@ -280,14 +278,13 @@ class RteImagesDbHook
      * TYPO3 version upgrades or when processed images are deleted.
      *
      * @param array<string, mixed> $attribArray Image tag attributes including file UID
+     *
      * @return string The public URL of the regenerated processed image, or empty string on failure
      */
     protected function getProcessedFile(array $attribArray): string
     {
-        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+        $resourceFactory   = GeneralUtility::makeInstance(ResourceFactory::class);
         $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
-
-        $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
 
         try {
             $originalImageFile = $resourceFactory
@@ -297,9 +294,9 @@ class RteImagesDbHook
                 $this->logger->error(
                     'Could not regenerate processed image: Original file not found',
                     [
-                        'file_uid' => $attribArray['data-htmlarea-file-uid'],
+                        'file_uid'  => $attribArray['data-htmlarea-file-uid'],
                         'exception' => $exception,
-                    ]
+                    ],
                 );
             }
 
@@ -309,7 +306,7 @@ class RteImagesDbHook
         if ($originalImageFile instanceof File) {
             // Magic image case: get a processed file with the requested configuration
             $imageConfiguration = [
-                'width' => $this->getImageWidthFromAttributes($attribArray),
+                'width'  => $this->getImageWidthFromAttributes($attribArray),
                 'height' => $this->getImageHeightFromAttributes($attribArray),
             ];
 

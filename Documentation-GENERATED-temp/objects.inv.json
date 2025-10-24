@@ -1,0 +1,4112 @@
+{
+    "std:doc": {
+        "API\/Controllers": [
+            "-",
+            "-",
+            "API\/Controllers.html",
+            "Controllers API"
+        ],
+        "API\/DataHandling": [
+            "-",
+            "-",
+            "API\/DataHandling.html",
+            "Data Handling API"
+        ],
+        "API\/EventListeners": [
+            "-",
+            "-",
+            "API\/EventListeners.html",
+            "Event Listeners API"
+        ],
+        "API\/Index": [
+            "-",
+            "-",
+            "API\/Index.html",
+            "API Documentation"
+        ],
+        "Architecture\/Design-Patterns": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html",
+            "Design Patterns & Integration"
+        ],
+        "Architecture\/Index": [
+            "-",
+            "-",
+            "Architecture\/Index.html",
+            "Architecture & Design"
+        ],
+        "Architecture\/System-Architecture": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html",
+            "System Architecture"
+        ],
+        "CKEditor\/Conversions": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html",
+            "CKEditor Conversion System"
+        ],
+        "CKEditor\/Index": [
+            "-",
+            "-",
+            "CKEditor\/Index.html",
+            "CKEditor Plugin Development"
+        ],
+        "CKEditor\/Model-Element": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html",
+            "CKEditor Model Element Reference"
+        ],
+        "CKEditor\/Plugin-Development": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html",
+            "CKEditor Plugin Development"
+        ],
+        "CKEditor\/Style-Integration": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html",
+            "CKEditor Style Integration"
+        ],
+        "Examples\/Advanced-Features": [
+            "-",
+            "-",
+            "Examples\/Advanced-Features.html",
+            "Advanced Features"
+        ],
+        "Examples\/Basic-Integration": [
+            "-",
+            "-",
+            "Examples\/Basic-Integration.html",
+            "Basic Integration"
+        ],
+        "Examples\/Custom-Extensions": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html",
+            "Custom Extensions"
+        ],
+        "Examples\/Image-Styles": [
+            "-",
+            "-",
+            "Examples\/Image-Styles.html",
+            "Image Styles"
+        ],
+        "Examples\/Index": [
+            "-",
+            "-",
+            "Examples\/Index.html",
+            "Examples & Use Cases"
+        ],
+        "Examples\/Responsive-Images": [
+            "-",
+            "-",
+            "Examples\/Responsive-Images.html",
+            "Responsive Images"
+        ],
+        "Examples\/Testing": [
+            "-",
+            "-",
+            "Examples\/Testing.html",
+            "Testing Examples"
+        ],
+        "Index": [
+            "-",
+            "-",
+            "Index.html",
+            "RTE CKEditor Image"
+        ],
+        "Integration\/Advanced-Configuration": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html",
+            "Advanced Configuration"
+        ],
+        "Integration\/Frontend-Rendering": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html",
+            "Frontend Rendering"
+        ],
+        "Integration\/Index": [
+            "-",
+            "-",
+            "Integration\/Index.html",
+            "Integration & Configuration"
+        ],
+        "Integration\/RTE-Setup": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html",
+            "RTE Setup"
+        ],
+        "Integration\/TSConfig": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html",
+            "Page TSConfig Setup"
+        ],
+        "Troubleshooting\/Editor-Issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html",
+            "Editor Issues"
+        ],
+        "Troubleshooting\/Frontend-Issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html",
+            "Frontend Issues"
+        ],
+        "Troubleshooting\/Index": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html",
+            "Troubleshooting & Support"
+        ],
+        "Troubleshooting\/Installation-Issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html",
+            "Installation Issues"
+        ],
+        "Troubleshooting\/Performance-Issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html",
+            "Performance Issues"
+        ]
+    },
+    "std:label": {
+        "api-controllers": [
+            "-",
+            "-",
+            "API\/Controllers.html#api-controllers",
+            "Controllers API"
+        ],
+        "api-selectimagecontroller": [
+            "-",
+            "-",
+            "API\/Controllers.html#api-selectimagecontroller",
+            "SelectImageController"
+        ],
+        "api-imagerenderingcontroller": [
+            "-",
+            "-",
+            "API\/Controllers.html#api-imagerenderingcontroller",
+            "ImageRenderingController"
+        ],
+        "api-imagelinkrenderingcontroller": [
+            "-",
+            "-",
+            "API\/Controllers.html#api-imagelinkrenderingcontroller",
+            "ImageLinkRenderingController"
+        ],
+        "api-datahandling": [
+            "-",
+            "-",
+            "API\/DataHandling.html#api-datahandling",
+            "Data Handling API"
+        ],
+        "api-rteimagesdbhook": [
+            "-",
+            "-",
+            "API\/DataHandling.html#api-rteimagesdbhook",
+            "RteImagesDbHook"
+        ],
+        "api-rteimagesoftreferenceparser": [
+            "-",
+            "-",
+            "API\/DataHandling.html#api-rteimagesoftreferenceparser",
+            "RteImageSoftReferenceParser"
+        ],
+        "api-eventlisteners": [
+            "-",
+            "-",
+            "API\/EventListeners.html#api-eventlisteners",
+            "Event Listeners API"
+        ],
+        "api-rteconfigurationlistener": [
+            "-",
+            "-",
+            "API\/EventListeners.html#api-rteconfigurationlistener",
+            "RteConfigurationListener"
+        ],
+        "api-index": [
+            "-",
+            "-",
+            "API\/Index.html#api-index",
+            "API Documentation"
+        ],
+        "api-documentation": [
+            "-",
+            "-",
+            "API\/Index.html#api-documentation",
+            "API Documentation"
+        ],
+        "architecture-extension-points": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#architecture-extension-points",
+            "Design Patterns & Integration"
+        ],
+        "architecture-data-flow": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#architecture-data-flow",
+            "Design Patterns & Integration"
+        ],
+        "architecture-integration-points": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#architecture-integration-points",
+            "Design Patterns & Integration"
+        ],
+        "architecture-design-patterns": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#architecture-design-patterns",
+            "Design Patterns & Integration"
+        ],
+        "architecture-index": [
+            "-",
+            "-",
+            "Architecture\/Index.html#architecture-index",
+            "Architecture & Design"
+        ],
+        "architecture": [
+            "-",
+            "-",
+            "Architecture\/Index.html#architecture",
+            "Architecture & Design"
+        ],
+        "architecture-technology-stack": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#architecture-technology-stack",
+            "System Architecture"
+        ],
+        "architecture-system-components": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#architecture-system-components",
+            "System Architecture"
+        ],
+        "architecture-overview": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#architecture-overview",
+            "System Architecture"
+        ],
+        "ckeditor-conversions": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#ckeditor-conversions",
+            "CKEditor Conversion System"
+        ],
+        "ckeditor-plugin-development": [
+            "-",
+            "-",
+            "CKEditor\/Index.html#ckeditor-plugin-development",
+            "CKEditor Plugin Development"
+        ],
+        "ckeditor-model-element": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#ckeditor-model-element",
+            "CKEditor Model Element Reference"
+        ],
+        "ckeditor-plugin-development-guide": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#ckeditor-plugin-development-guide",
+            "CKEditor Plugin Development"
+        ],
+        "ckeditor-style-integration": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#ckeditor-style-integration",
+            "CKEditor Style Integration"
+        ],
+        "examples-advanced-features": [
+            "-",
+            "-",
+            "Examples\/Advanced-Features.html#examples-advanced-features",
+            "Advanced Features"
+        ],
+        "examples-basic-integration": [
+            "-",
+            "-",
+            "Examples\/Basic-Integration.html#examples-basic-integration",
+            "Basic Integration"
+        ],
+        "examples-custom-extensions": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#examples-custom-extensions",
+            "Custom Extensions"
+        ],
+        "examples-image-styles": [
+            "-",
+            "-",
+            "Examples\/Image-Styles.html#examples-image-styles",
+            "Image Styles"
+        ],
+        "examples-common-use-cases": [
+            "-",
+            "-",
+            "Examples\/Index.html#examples-common-use-cases",
+            "Examples & Use Cases"
+        ],
+        "examples": [
+            "-",
+            "-",
+            "Examples\/Index.html#examples",
+            "Examples & Use Cases"
+        ],
+        "examples-responsive-images": [
+            "-",
+            "-",
+            "Examples\/Responsive-Images.html#examples-responsive-images",
+            "Responsive Images"
+        ],
+        "examples-testing": [
+            "-",
+            "-",
+            "Examples\/Testing.html#examples-testing",
+            "Testing Examples"
+        ],
+        "start": [
+            "-",
+            "-",
+            "Index.html#start",
+            "RTE CKEditor Image"
+        ],
+        "introduction": [
+            "-",
+            "-",
+            "Index.html#introduction",
+            "Introduction"
+        ],
+        "requirements": [
+            "-",
+            "-",
+            "Index.html#requirements",
+            "Requirements"
+        ],
+        "quick-start": [
+            "-",
+            "-",
+            "Index.html#quick-start",
+            "Quick Start"
+        ],
+        "navigation-by-role": [
+            "-",
+            "-",
+            "Index.html#navigation-by-role",
+            "Quick Navigation by Role"
+        ],
+        "documentation-use-cases": [
+            "-",
+            "-",
+            "Index.html#documentation-use-cases",
+            "Documentation Use Cases"
+        ],
+        "support-contributing": [
+            "-",
+            "-",
+            "Index.html#support-contributing",
+            "Support & Contributing"
+        ],
+        "license": [
+            "-",
+            "-",
+            "Index.html#license",
+            "License"
+        ],
+        "credits": [
+            "-",
+            "-",
+            "Index.html#credits",
+            "Credits"
+        ],
+        "additional-resources": [
+            "-",
+            "-",
+            "Index.html#additional-resources",
+            "Additional Resources"
+        ],
+        "integration-configuration-advanced": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#integration-configuration-advanced",
+            "Advanced Configuration"
+        ],
+        "integration-configuration-custom-styles": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#integration-configuration-custom-styles",
+            "Adding Image Styles"
+        ],
+        "integration-configuration-image-processing": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#integration-configuration-image-processing",
+            "Image Processing Configuration"
+        ],
+        "integration-configuration-minimal": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#integration-configuration-minimal",
+            "Minimal Setup"
+        ],
+        "integration-configuration-complete-example": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#integration-configuration-complete-example",
+            "Full-Featured Setup"
+        ],
+        "best-practices": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#best-practices",
+            "Best Practices"
+        ],
+        "integration-configuration-frontend-rendering": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#integration-configuration-frontend-rendering",
+            "Frontend Rendering"
+        ],
+        "typoscript-reference": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#typoscript-reference",
+            "TypoScript Reference"
+        ],
+        "integration": [
+            "-",
+            "-",
+            "Integration\/Index.html#integration",
+            "Integration & Configuration"
+        ],
+        "integration-configuration-rte-setup": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#integration-configuration-rte-setup",
+            "RTE Setup"
+        ],
+        "integration-configuration-basic": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#integration-configuration-basic",
+            "Creating Custom Presets"
+        ],
+        "integration-configuration-tsconfig": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#integration-configuration-tsconfig",
+            "Page TSConfig Setup"
+        ],
+        "integration-configuration-upload-folder": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#integration-configuration-upload-folder",
+            "Upload Folder Configuration"
+        ],
+        "integration-configuration-permissions": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#integration-configuration-permissions",
+            "File Mounts"
+        ],
+        "troubleshooting-editor-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#troubleshooting-editor-issues",
+            "Editor Issues"
+        ],
+        "troubleshooting-image-button-missing": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#troubleshooting-image-button-missing",
+            "Issue: Image Button Not Visible in Toolbar"
+        ],
+        "troubleshooting-style-dropdown": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#troubleshooting-style-dropdown",
+            "Issue: Style Drop-Down Not Working with Images"
+        ],
+        "troubleshooting-file-browser": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#troubleshooting-file-browser",
+            "Issue: File Browser Empty or Not Loading"
+        ],
+        "troubleshooting-frontend-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#troubleshooting-frontend-issues",
+            "Frontend Issues"
+        ],
+        "troubleshooting-frontend-rendering": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#troubleshooting-frontend-rendering",
+            "Image Display Problems"
+        ],
+        "troubleshooting-index": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#troubleshooting-index",
+            "Troubleshooting & Support"
+        ],
+        "troubleshooting-installation-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#troubleshooting-installation-issues",
+            "Installation Issues"
+        ],
+        "troubleshooting-performance-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#troubleshooting-performance-issues",
+            "Performance Issues"
+        ],
+        "mainaction": [
+            "-",
+            "-",
+            "API\/Controllers.html#mainaction",
+            "mainAction"
+        ],
+        "infoaction": [
+            "-",
+            "-",
+            "API\/Controllers.html#infoaction",
+            "infoAction"
+        ],
+        "getimage": [
+            "-",
+            "-",
+            "API\/Controllers.html#getimage",
+            "getImage"
+        ],
+        "processimage": [
+            "-",
+            "-",
+            "API\/Controllers.html#processimage",
+            "processImage"
+        ],
+        "renderimageattributes": [
+            "-",
+            "-",
+            "API\/Controllers.html#renderimageattributes",
+            "renderImageAttributes"
+        ],
+        "renderimages": [
+            "-",
+            "-",
+            "API\/Controllers.html#renderimages",
+            "renderImages"
+        ],
+        "fetchexternalimages": [
+            "-",
+            "-",
+            "API\/DataHandling.html#fetchexternalimages",
+            "fetchExternalImages"
+        ],
+        "construct": [
+            "-",
+            "-",
+            "API\/DataHandling.html#construct",
+            "__construct"
+        ],
+        "processdatamap-postprocessfieldarray": [
+            "-",
+            "-",
+            "API\/DataHandling.html#processdatamap-postprocessfieldarray",
+            "processDatamap_postProcessFieldArray"
+        ],
+        "transform-rte": [
+            "-",
+            "-",
+            "API\/DataHandling.html#transform-rte",
+            "transform_rte"
+        ],
+        "modifyrtefield": [
+            "-",
+            "-",
+            "API\/DataHandling.html#modifyrtefield",
+            "modifyRteField"
+        ],
+        "getimagewidthfromattributes": [
+            "-",
+            "-",
+            "API\/DataHandling.html#getimagewidthfromattributes",
+            "getImageWidthFromAttributes"
+        ],
+        "getimageheightfromattributes": [
+            "-",
+            "-",
+            "API\/DataHandling.html#getimageheightfromattributes",
+            "getImageHeightFromAttributes"
+        ],
+        "extractfromattributevalueorstyle": [
+            "-",
+            "-",
+            "API\/DataHandling.html#extractfromattributevalueorstyle",
+            "extractFromAttributeValueOrStyle"
+        ],
+        "matchstyleattribute": [
+            "-",
+            "-",
+            "API\/DataHandling.html#matchstyleattribute",
+            "matchStyleAttribute"
+        ],
+        "resolvefieldconfigurationandrespectcolumnsoverrides": [
+            "-",
+            "-",
+            "API\/DataHandling.html#resolvefieldconfigurationandrespectcolumnsoverrides",
+            "resolveFieldConfigurationAndRespectColumnsOverrides"
+        ],
+        "invoke": [
+            "-",
+            "-",
+            "API\/EventListeners.html#invoke",
+            "__invoke"
+        ],
+        "confval-fetchexternalimages": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#confval-fetchexternalimages",
+            "fetchExternalImages"
+        ],
+        "confval-editor-externalplugins-typo3image-allowedextensions": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#confval-editor-externalplugins-typo3image-allowedextensions",
+            "editor.externalPlugins.typo3image.allowedExtensions"
+        ],
+        "confval-rte-default-buttons-image-options-magic-maxwidth": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#confval-rte-default-buttons-image-options-magic-maxwidth",
+            "RTE.default.buttons.image.options.magic.maxWidth"
+        ],
+        "confval-rte-default-buttons-image-options-magic-maxheight": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#confval-rte-default-buttons-image-options-magic-maxheight",
+            "RTE.default.buttons.image.options.magic.maxHeight"
+        ],
+        "confval-rte-default-buttons-image-options-defaultuploadfolder": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#confval-rte-default-buttons-image-options-defaultuploadfolder",
+            "RTE.default.buttons.image.options.defaultUploadFolder"
+        ],
+        "confval-rte-default-buttons-image-options-createuploadfolderifneeded": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#confval-rte-default-buttons-image-options-createuploadfolderifneeded",
+            "RTE.default.buttons.image.options.createUploadFolderIfNeeded"
+        ]
+    },
+    "std:title": {
+        "controllers-api": [
+            "-",
+            "-",
+            "API\/Controllers.html#api-controllers",
+            "Controllers API"
+        ],
+        "selectimagecontroller": [
+            "-",
+            "-",
+            "API\/Controllers.html#api-selectimagecontroller",
+            "SelectImageController"
+        ],
+        "methods": [
+            "-",
+            "-",
+            "API\/Controllers.html#methods",
+            "Methods"
+        ],
+        "mainaction": [
+            "-",
+            "-",
+            "API\/Controllers.html#mainaction",
+            "mainAction()"
+        ],
+        "infoaction": [
+            "-",
+            "-",
+            "API\/Controllers.html#infoaction",
+            "infoAction()"
+        ],
+        "getimage": [
+            "-",
+            "-",
+            "API\/Controllers.html#getimage",
+            "getImage()"
+        ],
+        "processimage": [
+            "-",
+            "-",
+            "API\/Controllers.html#processimage",
+            "processImage()"
+        ],
+        "imagerenderingcontroller": [
+            "-",
+            "-",
+            "API\/Controllers.html#api-imagerenderingcontroller",
+            "ImageRenderingController"
+        ],
+        "renderimageattributes": [
+            "-",
+            "-",
+            "API\/Controllers.html#renderimageattributes",
+            "renderImageAttributes()"
+        ],
+        "imagelinkrenderingcontroller": [
+            "-",
+            "-",
+            "API\/Controllers.html#api-imagelinkrenderingcontroller",
+            "ImageLinkRenderingController"
+        ],
+        "renderimages": [
+            "-",
+            "-",
+            "API\/Controllers.html#renderimages",
+            "renderImages()"
+        ],
+        "service-configuration": [
+            "-",
+            "-",
+            "API\/Controllers.html#service-configuration",
+            "Service Configuration"
+        ],
+        "usage-examples": [
+            "-",
+            "-",
+            "API\/Index.html#usage-examples",
+            "Usage Examples"
+        ],
+        "calling-image-info-from-javascript": [
+            "-",
+            "-",
+            "API\/Controllers.html#calling-image-info-from-javascript",
+            "Calling Image Info from JavaScript"
+        ],
+        "typoscript-configuration": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#typoscript-configuration",
+            "TypoScript Configuration"
+        ],
+        "related-documentation": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#related-documentation",
+            "Related Documentation"
+        ],
+        "data-handling-api": [
+            "-",
+            "-",
+            "API\/DataHandling.html#api-datahandling",
+            "Data Handling API"
+        ],
+        "rteimagesdbhook": [
+            "-",
+            "-",
+            "API\/DataHandling.html#api-rteimagesdbhook",
+            "RteImagesDbHook"
+        ],
+        "class-properties": [
+            "-",
+            "-",
+            "API\/DataHandling.html#class-properties",
+            "Class Properties"
+        ],
+        "fetchexternalimages": [
+            "-",
+            "-",
+            "API\/DataHandling.html#fetchexternalimages",
+            "fetchExternalImages"
+        ],
+        "constructor": [
+            "-",
+            "-",
+            "API\/DataHandling.html#constructor",
+            "Constructor"
+        ],
+        "main-hook-methods": [
+            "-",
+            "-",
+            "API\/DataHandling.html#main-hook-methods",
+            "Main Hook Methods"
+        ],
+        "processdatamap-postprocessfieldarray": [
+            "-",
+            "-",
+            "API\/DataHandling.html#processdatamap-postprocessfieldarray",
+            "processDatamap_postProcessFieldArray()"
+        ],
+        "transform-rte": [
+            "-",
+            "-",
+            "API\/DataHandling.html#transform-rte",
+            "transform_rte()"
+        ],
+        "image-processing-methods": [
+            "-",
+            "-",
+            "API\/DataHandling.html#image-processing-methods",
+            "Image Processing Methods"
+        ],
+        "modifyrtefield": [
+            "-",
+            "-",
+            "API\/DataHandling.html#modifyrtefield",
+            "modifyRteField()"
+        ],
+        "helper-methods": [
+            "-",
+            "-",
+            "API\/DataHandling.html#helper-methods",
+            "Helper Methods"
+        ],
+        "getimagewidthfromattributes": [
+            "-",
+            "-",
+            "API\/DataHandling.html#getimagewidthfromattributes",
+            "getImageWidthFromAttributes()"
+        ],
+        "getimageheightfromattributes": [
+            "-",
+            "-",
+            "API\/DataHandling.html#getimageheightfromattributes",
+            "getImageHeightFromAttributes()"
+        ],
+        "extractfromattributevalueorstyle": [
+            "-",
+            "-",
+            "API\/DataHandling.html#extractfromattributevalueorstyle",
+            "extractFromAttributeValueOrStyle()"
+        ],
+        "matchstyleattribute": [
+            "-",
+            "-",
+            "API\/DataHandling.html#matchstyleattribute",
+            "matchStyleAttribute()"
+        ],
+        "resolvefieldconfigurationandrespectcolumnsoverrides": [
+            "-",
+            "-",
+            "API\/DataHandling.html#resolvefieldconfigurationandrespectcolumnsoverrides",
+            "resolveFieldConfigurationAndRespectColumnsOverrides()"
+        ],
+        "rteimagesoftreferenceparser": [
+            "-",
+            "-",
+            "API\/DataHandling.html#api-rteimagesoftreferenceparser",
+            "RteImageSoftReferenceParser"
+        ],
+        "purpose-of-soft-references": [
+            "-",
+            "-",
+            "API\/DataHandling.html#purpose-of-soft-references",
+            "Purpose of Soft References"
+        ],
+        "parser-key": [
+            "-",
+            "-",
+            "API\/DataHandling.html#parser-key",
+            "Parser Key"
+        ],
+        "parsing-logic": [
+            "-",
+            "-",
+            "API\/DataHandling.html#parsing-logic",
+            "Parsing Logic"
+        ],
+        "reference-index-integration": [
+            "-",
+            "-",
+            "API\/DataHandling.html#reference-index-integration",
+            "Reference Index Integration"
+        ],
+        "custom-hook-extension": [
+            "-",
+            "-",
+            "API\/DataHandling.html#custom-hook-extension",
+            "Custom Hook Extension"
+        ],
+        "querying-soft-references": [
+            "-",
+            "-",
+            "API\/DataHandling.html#querying-soft-references",
+            "Querying Soft References"
+        ],
+        "rebuilding-reference-index": [
+            "-",
+            "-",
+            "API\/DataHandling.html#rebuilding-reference-index",
+            "Rebuilding Reference Index"
+        ],
+        "magic-images-explained": [
+            "-",
+            "-",
+            "API\/DataHandling.html#magic-images-explained",
+            "Magic Images Explained"
+        ],
+        "what-are-magic-images": [
+            "-",
+            "-",
+            "API\/DataHandling.html#what-are-magic-images",
+            "What are Magic Images?"
+        ],
+        "how-it-works": [
+            "-",
+            "-",
+            "API\/DataHandling.html#how-it-works",
+            "How It Works"
+        ],
+        "configuration": [
+            "-",
+            "-",
+            "Examples\/Image-Styles.html#configuration",
+            "Configuration"
+        ],
+        "processing-context": [
+            "-",
+            "-",
+            "API\/DataHandling.html#processing-context",
+            "Processing Context"
+        ],
+        "debugging": [
+            "-",
+            "-",
+            "API\/DataHandling.html#debugging",
+            "Debugging"
+        ],
+        "enable-detailed-logging": [
+            "-",
+            "-",
+            "API\/DataHandling.html#enable-detailed-logging",
+            "Enable Detailed Logging"
+        ],
+        "check-processed-files": [
+            "-",
+            "-",
+            "API\/DataHandling.html#check-processed-files",
+            "Check Processed Files"
+        ],
+        "verify-soft-references": [
+            "-",
+            "-",
+            "API\/DataHandling.html#verify-soft-references",
+            "Verify Soft References"
+        ],
+        "event-listeners-api": [
+            "-",
+            "-",
+            "API\/EventListeners.html#api-eventlisteners",
+            "Event Listeners API"
+        ],
+        "rteconfigurationlistener": [
+            "-",
+            "-",
+            "API\/EventListeners.html#api-rteconfigurationlistener",
+            "RteConfigurationListener"
+        ],
+        "psr-14-event-system": [
+            "-",
+            "-",
+            "API\/EventListeners.html#psr-14-event-system",
+            "PSR-14 Event System"
+        ],
+        "what-is-psr-14": [
+            "-",
+            "-",
+            "API\/EventListeners.html#what-is-psr-14",
+            "What is PSR-14?"
+        ],
+        "why-use-events-over-hooks": [
+            "-",
+            "-",
+            "API\/EventListeners.html#why-use-events-over-hooks",
+            "Why Use Events Over Hooks?"
+        ],
+        "event-flow": [
+            "-",
+            "-",
+            "API\/EventListeners.html#event-flow",
+            "Event Flow"
+        ],
+        "rteconfigurationlistener-api": [
+            "-",
+            "-",
+            "API\/EventListeners.html#rteconfigurationlistener-api",
+            "RteConfigurationListener API"
+        ],
+        "invoke": [
+            "-",
+            "-",
+            "API\/EventListeners.html#invoke",
+            "__invoke()"
+        ],
+        "afterprepareconfigurationforeditorevent": [
+            "-",
+            "-",
+            "API\/EventListeners.html#afterprepareconfigurationforeditorevent",
+            "AfterPrepareConfigurationForEditorEvent"
+        ],
+        "event-properties": [
+            "-",
+            "-",
+            "API\/EventListeners.html#event-properties",
+            "Event Properties"
+        ],
+        "event-lifecycle": [
+            "-",
+            "-",
+            "API\/EventListeners.html#event-lifecycle",
+            "Event Lifecycle"
+        ],
+        "configuration-injection-pattern": [
+            "-",
+            "-",
+            "API\/EventListeners.html#configuration-injection-pattern",
+            "Configuration Injection Pattern"
+        ],
+        "what-gets-injected": [
+            "-",
+            "-",
+            "API\/EventListeners.html#what-gets-injected",
+            "What Gets Injected?"
+        ],
+        "how-ckeditor-plugin-accesses-it": [
+            "-",
+            "-",
+            "API\/EventListeners.html#how-ckeditor-plugin-accesses-it",
+            "How CKEditor Plugin Accesses It"
+        ],
+        "why-this-pattern": [
+            "-",
+            "-",
+            "API\/EventListeners.html#why-this-pattern",
+            "Why This Pattern?"
+        ],
+        "accessing-route-url-in-javascript": [
+            "-",
+            "-",
+            "API\/EventListeners.html#accessing-route-url-in-javascript",
+            "Accessing Route URL in JavaScript"
+        ],
+        "extending-configuration-with-custom-listener": [
+            "-",
+            "-",
+            "API\/EventListeners.html#extending-configuration-with-custom-listener",
+            "Extending Configuration with Custom Listener"
+        ],
+        "modifying-existing-configuration": [
+            "-",
+            "-",
+            "API\/EventListeners.html#modifying-existing-configuration",
+            "Modifying Existing Configuration"
+        ],
+        "override-typo3image-route": [
+            "-",
+            "-",
+            "API\/EventListeners.html#override-typo3image-route",
+            "Override typo3image Route"
+        ],
+        "add-additional-routes": [
+            "-",
+            "-",
+            "API\/EventListeners.html#add-additional-routes",
+            "Add Additional Routes"
+        ],
+        "listener-execution-order": [
+            "-",
+            "-",
+            "API\/EventListeners.html#listener-execution-order",
+            "Listener Execution Order"
+        ],
+        "multiple-listeners-for-same-event": [
+            "-",
+            "-",
+            "API\/EventListeners.html#multiple-listeners-for-same-event",
+            "Multiple Listeners for Same Event"
+        ],
+        "example-two-listeners": [
+            "-",
+            "-",
+            "API\/EventListeners.html#example-two-listeners",
+            "Example: Two Listeners"
+        ],
+        "testing-event-listeners": [
+            "-",
+            "-",
+            "API\/EventListeners.html#testing-event-listeners",
+            "Testing Event Listeners"
+        ],
+        "unit-test-example": [
+            "-",
+            "-",
+            "API\/EventListeners.html#unit-test-example",
+            "Unit Test Example"
+        ],
+        "debugging-event-listeners": [
+            "-",
+            "-",
+            "API\/EventListeners.html#debugging-event-listeners",
+            "Debugging Event Listeners"
+        ],
+        "check-if-listener-is-registered": [
+            "-",
+            "-",
+            "API\/EventListeners.html#check-if-listener-is-registered",
+            "Check if Listener is Registered"
+        ],
+        "log-configuration-changes": [
+            "-",
+            "-",
+            "API\/EventListeners.html#log-configuration-changes",
+            "Log Configuration Changes"
+        ],
+        "verify-configuration-in-browser": [
+            "-",
+            "-",
+            "API\/EventListeners.html#verify-configuration-in-browser",
+            "Verify Configuration in Browser"
+        ],
+        "common-issues": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#common-issues",
+            "Common Issues"
+        ],
+        "issue-routeurl-not-available-in-plugin": [
+            "-",
+            "-",
+            "API\/EventListeners.html#issue-routeurl-not-available-in-plugin",
+            "Issue: routeUrl Not Available in Plugin"
+        ],
+        "issue-multiple-listeners-conflict": [
+            "-",
+            "-",
+            "API\/EventListeners.html#issue-multiple-listeners-conflict",
+            "Issue: Multiple Listeners Conflict"
+        ],
+        "issue-csrf-token-errors": [
+            "-",
+            "-",
+            "API\/EventListeners.html#issue-csrf-token-errors",
+            "Issue: CSRF Token Errors"
+        ],
+        "advanced-patterns": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#advanced-patterns",
+            "Advanced Patterns"
+        ],
+        "conditional-configuration": [
+            "-",
+            "-",
+            "API\/EventListeners.html#conditional-configuration",
+            "Conditional Configuration"
+        ],
+        "user-specific-configuration": [
+            "-",
+            "-",
+            "API\/EventListeners.html#user-specific-configuration",
+            "User-Specific Configuration"
+        ],
+        "environment-specific-configuration": [
+            "-",
+            "-",
+            "API\/EventListeners.html#environment-specific-configuration",
+            "Environment-Specific Configuration"
+        ],
+        "api-documentation-1": [
+            "-",
+            "-",
+            "API\/Index.html#api-index",
+            "API Documentation"
+        ],
+        "api-components": [
+            "-",
+            "-",
+            "API\/Index.html#api-components",
+            "API Components"
+        ],
+        "design-patterns-integration": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#architecture-extension-points",
+            "Design Patterns & Integration"
+        ],
+        "overview": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#overview",
+            "Overview"
+        ],
+        "key-design-patterns": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#key-design-patterns",
+            "Key Design Patterns"
+        ],
+        "dependency-injection": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#dependency-injection",
+            "Dependency Injection"
+        ],
+        "event-driven-architecture": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#event-driven-architecture",
+            "Event-Driven Architecture"
+        ],
+        "mvc-pattern": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#mvc-pattern",
+            "MVC Pattern"
+        ],
+        "plugin-pattern": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#plugin-pattern",
+            "Plugin Pattern"
+        ],
+        "integration-points": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#integration-points",
+            "Integration Points"
+        ],
+        "typo3-core-integration": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#typo3-core-integration",
+            "TYPO3 Core Integration"
+        ],
+        "ckeditor-integration": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#ckeditor-integration",
+            "CKEditor Integration"
+        ],
+        "data-flow": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#data-flow",
+            "Data Flow"
+        ],
+        "image-selection-flow": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#image-selection-flow",
+            "Image Selection Flow"
+        ],
+        "frontend-rendering-flow": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#frontend-rendering-flow",
+            "Frontend Rendering Flow"
+        ],
+        "extension-points": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#extension-points",
+            "Extension Points"
+        ],
+        "example-event-listener": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#example-event-listener",
+            "Example Event Listener"
+        ],
+        "example-typoscript-extension": [
+            "-",
+            "-",
+            "Architecture\/Design-Patterns.html#example-typoscript-extension",
+            "Example TypoScript Extension"
+        ],
+        "architecture-design": [
+            "-",
+            "-",
+            "Architecture\/Index.html#architecture-index",
+            "Architecture & Design"
+        ],
+        "architecture-topics": [
+            "-",
+            "-",
+            "Architecture\/Index.html#architecture-topics",
+            "Architecture Topics"
+        ],
+        "quick-links": [
+            "-",
+            "-",
+            "CKEditor\/Index.html#quick-links",
+            "Quick Links"
+        ],
+        "system-understanding": [
+            "-",
+            "-",
+            "Architecture\/Index.html#system-understanding",
+            "System Understanding"
+        ],
+        "integration-reference": [
+            "-",
+            "-",
+            "Architecture\/Index.html#integration-reference",
+            "Integration Reference"
+        ],
+        "system-architecture": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#architecture-technology-stack",
+            "System Architecture"
+        ],
+        "three-layer-architecture": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#three-layer-architecture",
+            "Three-Layer Architecture"
+        ],
+        "system-design": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#system-design",
+            "System Design"
+        ],
+        "high-level-architecture": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#high-level-architecture",
+            "High-Level Architecture"
+        ],
+        "core-components": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#core-components",
+            "Core Components"
+        ],
+        "backend-layer": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#backend-layer",
+            "Backend Layer"
+        ],
+        "1-controllers-classes-controller": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#1-controllers-classes-controller",
+            "1. Controllers (Classes\/Controller\/)"
+        ],
+        "2-event-listeners-classes-eventlistener": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#2-event-listeners-classes-eventlistener",
+            "2. Event Listeners (Classes\/EventListener\/)"
+        ],
+        "3-database-hooks-classes-database": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#3-database-hooks-classes-database",
+            "3. Database Hooks (Classes\/Database\/)"
+        ],
+        "4-data-handling-classes-datahandling-softreference": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#4-data-handling-classes-datahandling-softreference",
+            "4. Data Handling (Classes\/DataHandling\/SoftReference\/)"
+        ],
+        "frontend-layer-ckeditor-plugin": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#frontend-layer-ckeditor-plugin",
+            "Frontend Layer (CKEditor Plugin)"
+        ],
+        "javascript-module-resources-public-javascript-plugins-typo3image-js": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#javascript-module-resources-public-javascript-plugins-typo3image-js",
+            "JavaScript Module (Resources\/Public\/JavaScript\/Plugins\/typo3image.js)"
+        ],
+        "configuration-layer": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#configuration-layer",
+            "Configuration Layer"
+        ],
+        "yaml-configuration": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#yaml-configuration",
+            "YAML Configuration"
+        ],
+        "typoscript": [
+            "-",
+            "-",
+            "Examples\/Advanced-Features.html#typoscript",
+            "TypoScript"
+        ],
+        "backend-routes": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#backend-routes",
+            "Backend Routes"
+        ],
+        "technology-stack": [
+            "-",
+            "-",
+            "Architecture\/System-Architecture.html#technology-stack",
+            "Technology Stack"
+        ],
+        "security-considerations": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#security-considerations",
+            "Security Considerations"
+        ],
+        "performance-considerations": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#performance-considerations",
+            "Performance Considerations"
+        ],
+        "ckeditor-conversion-system": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#ckeditor-conversions",
+            "CKEditor Conversion System"
+        ],
+        "conversion-architecture": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#conversion-architecture",
+            "Conversion Architecture"
+        ],
+        "three-layer-system": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#three-layer-system",
+            "Three-Layer System"
+        ],
+        "upcast-conversions": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#upcast-conversions",
+            "Upcast Conversions"
+        ],
+        "purpose": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#purpose",
+            "Purpose"
+        ],
+        "image-element-upcast": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#image-element-upcast",
+            "Image Element Upcast"
+        ],
+        "configuration-breakdown": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#configuration-breakdown",
+            "Configuration Breakdown"
+        ],
+        "view-matcher": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#view-matcher",
+            "View Matcher"
+        ],
+        "model-creator-function": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#model-creator-function",
+            "Model Creator Function"
+        ],
+        "attribute-extraction": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#attribute-extraction",
+            "Attribute Extraction"
+        ],
+        "upcast-example-flow": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#upcast-example-flow",
+            "Upcast Example Flow"
+        ],
+        "downcast-conversions": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#downcast-conversions",
+            "Downcast Conversions"
+        ],
+        "image-element-downcast": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#image-element-downcast",
+            "Image Element Downcast"
+        ],
+        "model-matcher": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#model-matcher",
+            "Model Matcher"
+        ],
+        "view-creator-function": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#view-creator-function",
+            "View Creator Function"
+        ],
+        "attribute-mapping": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#attribute-mapping",
+            "Attribute Mapping"
+        ],
+        "conditional-attributes": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#conditional-attributes",
+            "Conditional Attributes"
+        ],
+        "downcast-example-flow": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#downcast-example-flow",
+            "Downcast Example Flow"
+        ],
+        "attribute-converters": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#attribute-converters",
+            "Attribute Converters"
+        ],
+        "class-attribute-converter": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#class-attribute-converter",
+            "Class Attribute Converter"
+        ],
+        "custom-attribute-converters": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#custom-attribute-converters",
+            "Custom Attribute Converters"
+        ],
+        "data-pipeline": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#data-pipeline",
+            "Data Pipeline"
+        ],
+        "complete-load-edit-save-flow": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#complete-load-edit-save-flow",
+            "Complete Load \u2192 Edit \u2192 Save Flow"
+        ],
+        "paste-handling": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#paste-handling",
+            "Paste Handling"
+        ],
+        "paste-from-external-source": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#paste-from-external-source",
+            "Paste from External Source"
+        ],
+        "paste-from-same-editor": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#paste-from-same-editor",
+            "Paste from Same Editor"
+        ],
+        "custom-conversion-patterns": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#custom-conversion-patterns",
+            "Custom Conversion Patterns"
+        ],
+        "pattern-1-transformation-during-upcast": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#pattern-1-transformation-during-upcast",
+            "Pattern 1: Transformation During Upcast"
+        ],
+        "pattern-2-conditional-downcast": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#pattern-2-conditional-downcast",
+            "Pattern 2: Conditional Downcast"
+        ],
+        "pattern-3-multi-element-conversion": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#pattern-3-multi-element-conversion",
+            "Pattern 3: Multi-Element Conversion"
+        ],
+        "debugging-conversions": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#debugging-conversions",
+            "Debugging Conversions"
+        ],
+        "logging-upcast": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#logging-upcast",
+            "Logging Upcast"
+        ],
+        "logging-downcast": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#logging-downcast",
+            "Logging Downcast"
+        ],
+        "inspecting-conversion-results": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#inspecting-conversion-results",
+            "Inspecting Conversion Results"
+        ],
+        "issue-images-not-converting-on-load": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#issue-images-not-converting-on-load",
+            "Issue: Images Not Converting on Load"
+        ],
+        "issue-attributes-lost-during-conversion": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#issue-attributes-lost-during-conversion",
+            "Issue: Attributes Lost During Conversion"
+        ],
+        "issue-view-not-updating-when-model-changes": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#issue-view-not-updating-when-model-changes",
+            "Issue: View Not Updating When Model Changes"
+        ],
+        "performance-optimization": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#performance-optimization",
+            "Performance Optimization"
+        ],
+        "batch-conversions": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#batch-conversions",
+            "Batch Conversions"
+        ],
+        "lazy-attribute-reading": [
+            "-",
+            "-",
+            "CKEditor\/Conversions.html#lazy-attribute-reading",
+            "Lazy Attribute Reading"
+        ],
+        "ckeditor-plugin-development-1": [
+            "-",
+            "-",
+            "CKEditor\/Index.html#ckeditor-plugin-development",
+            "CKEditor Plugin Development"
+        ],
+        "plugin-components": [
+            "-",
+            "-",
+            "CKEditor\/Index.html#plugin-components",
+            "Plugin Components"
+        ],
+        "getting-started": [
+            "-",
+            "-",
+            "CKEditor\/Index.html#getting-started",
+            "Getting Started"
+        ],
+        "common-tasks": [
+            "-",
+            "-",
+            "CKEditor\/Index.html#common-tasks",
+            "Common Tasks"
+        ],
+        "critical-information": [
+            "-",
+            "-",
+            "CKEditor\/Index.html#critical-information",
+            "Critical Information"
+        ],
+        "version-13-0-0-requirements": [
+            "-",
+            "-",
+            "CKEditor\/Index.html#version-13-0-0-requirements",
+            "Version 13.0.0+ Requirements"
+        ],
+        "ckeditor-model-element-reference": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#ckeditor-model-element",
+            "CKEditor Model Element Reference"
+        ],
+        "model-vs-view-architecture": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#model-vs-view-architecture",
+            "Model vs View Architecture"
+        ],
+        "understanding-ckeditor-5-architecture": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#understanding-ckeditor-5-architecture",
+            "Understanding CKEditor 5 Architecture"
+        ],
+        "why-separate-model-and-view": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#why-separate-model-and-view",
+            "Why Separate Model and View?"
+        ],
+        "schema-definition": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#schema-definition",
+            "Schema Definition"
+        ],
+        "schema-properties-explained": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#schema-properties-explained",
+            "Schema Properties Explained"
+        ],
+        "inheritallfrom-blockobject": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#inheritallfrom-blockobject",
+            "inheritAllFrom: '$blockObject'"
+        ],
+        "allowin-text-block": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#allowin-text-block",
+            "allowIn: ['$text', '$block']"
+        ],
+        "allowattributes": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#allowattributes",
+            "allowAttributes: [...]"
+        ],
+        "attribute-reference": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#attribute-reference",
+            "Attribute Reference"
+        ],
+        "core-attributes": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#core-attributes",
+            "Core Attributes"
+        ],
+        "src": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#src",
+            "src"
+        ],
+        "fileuid": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#fileuid",
+            "fileUid"
+        ],
+        "filetable": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#filetable",
+            "fileTable"
+        ],
+        "metadata-attributes": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#metadata-attributes",
+            "Metadata Attributes"
+        ],
+        "alt": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#alt",
+            "alt"
+        ],
+        "altoverride": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#altoverride",
+            "altOverride"
+        ],
+        "title": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#title",
+            "title"
+        ],
+        "titleoverride": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#titleoverride",
+            "titleOverride"
+        ],
+        "visual-attributes": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#visual-attributes",
+            "Visual Attributes"
+        ],
+        "class": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#class",
+            "class"
+        ],
+        "width": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#width",
+            "width"
+        ],
+        "height": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#height",
+            "height"
+        ],
+        "enablezoom": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#enablezoom",
+            "enableZoom"
+        ],
+        "link-attributes": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#link-attributes",
+            "Link Attributes"
+        ],
+        "htmla": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#htmla",
+            "htmlA"
+        ],
+        "linkhref": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#linkhref",
+            "linkHref"
+        ],
+        "linktarget": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#linktarget",
+            "linkTarget"
+        ],
+        "linktitle": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#linktitle",
+            "linkTitle"
+        ],
+        "working-with-model-elements": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#working-with-model-elements",
+            "Working with Model Elements"
+        ],
+        "creating-model-elements": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#creating-model-elements",
+            "Creating Model Elements"
+        ],
+        "updating-attributes": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#updating-attributes",
+            "Updating Attributes"
+        ],
+        "reading-attributes": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#reading-attributes",
+            "Reading Attributes"
+        ],
+        "removing-attributes": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#removing-attributes",
+            "Removing Attributes"
+        ],
+        "model-selection": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#model-selection",
+            "Model Selection"
+        ],
+        "selecting-elements": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#selecting-elements",
+            "Selecting Elements"
+        ],
+        "getting-selected-element": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#getting-selected-element",
+            "Getting Selected Element"
+        ],
+        "iterating-selection-range": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#iterating-selection-range",
+            "Iterating Selection Range"
+        ],
+        "model-traversal": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#model-traversal",
+            "Model Traversal"
+        ],
+        "finding-parent-elements": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#finding-parent-elements",
+            "Finding Parent Elements"
+        ],
+        "finding-previous-next-siblings": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#finding-previous-next-siblings",
+            "Finding Previous\/Next Siblings"
+        ],
+        "walking-the-model-tree": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#walking-the-model-tree",
+            "Walking the Model Tree"
+        ],
+        "attribute-validation": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#attribute-validation",
+            "Attribute Validation"
+        ],
+        "allowed-attributes-enforcement": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#allowed-attributes-enforcement",
+            "Allowed Attributes Enforcement"
+        ],
+        "custom-validation": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#custom-validation",
+            "Custom Validation"
+        ],
+        "model-change-listeners": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#model-change-listeners",
+            "Model Change Listeners"
+        ],
+        "listening-to-attribute-changes": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#listening-to-attribute-changes",
+            "Listening to Attribute Changes"
+        ],
+        "listening-to-element-insertion": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#listening-to-element-insertion",
+            "Listening to Element Insertion"
+        ],
+        "cloning-elements": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#cloning-elements",
+            "Cloning Elements"
+        ],
+        "batch-attribute-updates": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#batch-attribute-updates",
+            "Batch Attribute Updates"
+        ],
+        "conditional-attribute-setting": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#conditional-attribute-setting",
+            "Conditional Attribute Setting"
+        ],
+        "debugging-model-elements": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#debugging-model-elements",
+            "Debugging Model Elements"
+        ],
+        "inspect-element-in-console": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#inspect-element-in-console",
+            "Inspect Element in Console"
+        ],
+        "monitor-model-changes": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#monitor-model-changes",
+            "Monitor Model Changes"
+        ],
+        "visualize-model-structure": [
+            "-",
+            "-",
+            "CKEditor\/Model-Element.html#visualize-model-structure",
+            "Visualize Model Structure"
+        ],
+        "ckeditor-plugin-development": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#ckeditor-plugin-development-guide",
+            "CKEditor Plugin Development"
+        ],
+        "plugin-overview": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#plugin-overview",
+            "Plugin Overview"
+        ],
+        "plugin-structure": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#plugin-structure",
+            "Plugin Structure"
+        ],
+        "custom-model-element-typo3image": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#custom-model-element-typo3image",
+            "Custom Model Element: typo3image"
+        ],
+        "attribute-descriptions": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#attribute-descriptions",
+            "Attribute Descriptions"
+        ],
+        "conversion-system": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#conversion-system",
+            "Conversion System"
+        ],
+        "upcast-html-model": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#upcast-html-model",
+            "Upcast: HTML \u2192 Model"
+        ],
+        "downcast-model-html": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#downcast-model-html",
+            "Downcast: Model \u2192 HTML"
+        ],
+        "ui-components": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#ui-components",
+            "UI Components"
+        ],
+        "insert-image-button": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#insert-image-button",
+            "Insert Image Button"
+        ],
+        "selectimage-function": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#selectimage-function",
+            "selectImage() Function"
+        ],
+        "image-properties-dialog": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#image-properties-dialog",
+            "Image Properties Dialog"
+        ],
+        "getimagedialog-function": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#getimagedialog-function",
+            "getImageDialog() Function"
+        ],
+        "dialog-features": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#dialog-features",
+            "Dialog Features"
+        ],
+        "style-system-integration": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#style-system-integration",
+            "Style System Integration"
+        ],
+        "event-listener-isstyleenabledforblock": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#event-listener-isstyleenabledforblock",
+            "Event Listener: isStyleEnabledForBlock"
+        ],
+        "event-listener-isstyleactiveforblock": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#event-listener-isstyleactiveforblock",
+            "Event Listener: isStyleActiveForBlock"
+        ],
+        "event-listener-getaffectedblocks": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#event-listener-getaffectedblocks",
+            "Event Listener: getAffectedBlocks"
+        ],
+        "generalhtmlsupport-integration": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#generalhtmlsupport-integration",
+            "GeneralHtmlSupport Integration"
+        ],
+        "addmodelhtmlclass-listener": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#addmodelhtmlclass-listener",
+            "addModelHtmlClass Listener"
+        ],
+        "removemodelhtmlclass-listener": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#removemodelhtmlclass-listener",
+            "removeModelHtmlClass Listener"
+        ],
+        "event-observers": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#event-observers",
+            "Event Observers"
+        ],
+        "doubleclickobserver": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#doubleclickobserver",
+            "DoubleClickObserver"
+        ],
+        "click-handler": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#click-handler",
+            "Click Handler"
+        ],
+        "backend-api-integration": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#backend-api-integration",
+            "Backend API Integration"
+        ],
+        "getimageinfo-function": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#getimageinfo-function",
+            "getImageInfo() Function"
+        ],
+        "plugin-configuration": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#plugin-configuration",
+            "Plugin Configuration"
+        ],
+        "registration-configuration-rte-plugin-yaml": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#registration-configuration-rte-plugin-yaml",
+            "Registration (Configuration\/RTE\/Plugin.yaml)"
+        ],
+        "javascript-module-registration": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#javascript-module-registration",
+            "JavaScript Module Registration"
+        ],
+        "development-tips": [
+            "-",
+            "-",
+            "CKEditor\/Plugin-Development.html#development-tips",
+            "Development Tips"
+        ],
+        "ckeditor-style-integration-1": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#ckeditor-style-integration",
+            "CKEditor Style Integration"
+        ],
+        "the-style-system-problem": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#the-style-system-problem",
+            "The Style System Problem"
+        ],
+        "before-v13-0-0-broken": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#before-v13-0-0-broken",
+            "Before v13.0.0 (Broken)"
+        ],
+        "after-v13-0-0-fixed": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#after-v13-0-0-fixed",
+            "After v13.0.0 (Fixed)"
+        ],
+        "style-system-architecture": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#style-system-architecture",
+            "Style System Architecture"
+        ],
+        "three-layer-integration": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#three-layer-integration",
+            "Three-Layer Integration"
+        ],
+        "styleutils-event-system": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#styleutils-event-system",
+            "StyleUtils Event System"
+        ],
+        "event-isstyleenabledforblock": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#event-isstyleenabledforblock",
+            "Event: isStyleEnabledForBlock"
+        ],
+        "event-isstyleactiveforblock": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#event-isstyleactiveforblock",
+            "Event: isStyleActiveForBlock"
+        ],
+        "event-getaffectedblocks": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#event-getaffectedblocks",
+            "Event: getAffectedBlocks"
+        ],
+        "what-is-generalhtmlsupport": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#what-is-generalhtmlsupport",
+            "What is GeneralHtmlSupport?"
+        ],
+        "decoration-pattern": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#decoration-pattern",
+            "Decoration Pattern"
+        ],
+        "event-addmodelhtmlclass": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#event-addmodelhtmlclass",
+            "Event: addModelHtmlClass"
+        ],
+        "event-removemodelhtmlclass": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#event-removemodelhtmlclass",
+            "Event: removeModelHtmlClass"
+        ],
+        "complete-integration-example": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#complete-integration-example",
+            "Complete Integration Example"
+        ],
+        "style-configuration-yaml": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#style-configuration-yaml",
+            "Style Configuration (YAML)"
+        ],
+        "plugin-integration-javascript": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#plugin-integration-javascript",
+            "Plugin Integration (JavaScript)"
+        ],
+        "troubleshooting-style-issues": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#troubleshooting-style-issues",
+            "Troubleshooting Style Issues"
+        ],
+        "issue-style-drop-down-disabled-for-images": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#issue-style-drop-down-disabled-for-images",
+            "Issue: Style Drop-down Disabled for Images"
+        ],
+        "verify-dependencies": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#verify-dependencies",
+            "Verify Dependencies"
+        ],
+        "verify-style-definitions": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#verify-style-definitions",
+            "Verify Style Definitions"
+        ],
+        "check-event-listeners": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#check-event-listeners",
+            "Check Event Listeners"
+        ],
+        "issue-style-changes-not-applied": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#issue-style-changes-not-applied",
+            "Issue: Style Changes Not Applied"
+        ],
+        "verify-ghs-listeners": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#verify-ghs-listeners",
+            "Verify GHS Listeners"
+        ],
+        "check-class-attribute-conversion": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#check-class-attribute-conversion",
+            "Check Class Attribute Conversion"
+        ],
+        "verify-css-loaded": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#verify-css-loaded",
+            "Verify CSS Loaded"
+        ],
+        "issue-styles-not-shown-as-active": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#issue-styles-not-shown-as-active",
+            "Issue: Styles Not Shown as Active"
+        ],
+        "debug-class-matching": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#debug-class-matching",
+            "Debug Class Matching"
+        ],
+        "advanced-style-patterns": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#advanced-style-patterns",
+            "Advanced Style Patterns"
+        ],
+        "multiple-class-styles": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#multiple-class-styles",
+            "Multiple Class Styles"
+        ],
+        "conditional-style-availability": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#conditional-style-availability",
+            "Conditional Style Availability"
+        ],
+        "style-groups": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#style-groups",
+            "Style Groups"
+        ],
+        "event-listener-efficiency": [
+            "-",
+            "-",
+            "CKEditor\/Style-Integration.html#event-listener-efficiency",
+            "Event Listener Efficiency"
+        ],
+        "advanced-features": [
+            "-",
+            "-",
+            "Examples\/Advanced-Features.html#examples-advanced-features",
+            "Advanced Features"
+        ],
+        "lightbox-integration": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#lightbox-integration",
+            "Lightbox Integration"
+        ],
+        "photoswipe-lightbox": [
+            "-",
+            "-",
+            "Examples\/Advanced-Features.html#photoswipe-lightbox",
+            "PhotoSwipe Lightbox"
+        ],
+        "install-photoswipe": [
+            "-",
+            "-",
+            "Examples\/Advanced-Features.html#install-photoswipe",
+            "Install PhotoSwipe"
+        ],
+        "typoscript-setup": [
+            "-",
+            "-",
+            "Examples\/Responsive-Images.html#typoscript-setup",
+            "TypoScript Setup"
+        ],
+        "php-wrapper": [
+            "-",
+            "-",
+            "Examples\/Advanced-Features.html#php-wrapper",
+            "PHP Wrapper"
+        ],
+        "javascript-initialization": [
+            "-",
+            "-",
+            "Examples\/Advanced-Features.html#javascript-initialization",
+            "JavaScript Initialization"
+        ],
+        "lazy-loading": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#lazy-loading",
+            "Lazy Loading"
+        ],
+        "native-lazy-loading": [
+            "-",
+            "-",
+            "Examples\/Advanced-Features.html#native-lazy-loading",
+            "Native Lazy Loading"
+        ],
+        "result-html": [
+            "-",
+            "-",
+            "Examples\/Responsive-Images.html#result-html",
+            "Result HTML"
+        ],
+        "intersection-observer-fallback": [
+            "-",
+            "-",
+            "Examples\/Advanced-Features.html#intersection-observer-fallback",
+            "Intersection Observer Fallback"
+        ],
+        "javascript": [
+            "-",
+            "-",
+            "Examples\/Advanced-Features.html#javascript",
+            "JavaScript"
+        ],
+        "basic-integration": [
+            "-",
+            "-",
+            "Examples\/Basic-Integration.html#examples-basic-integration",
+            "Basic Integration"
+        ],
+        "zero-configuration-installation": [
+            "-",
+            "-",
+            "Examples\/Basic-Integration.html#zero-configuration-installation",
+            "Zero-Configuration Installation"
+        ],
+        "installation": [
+            "-",
+            "-",
+            "Index.html#installation",
+            "Installation"
+        ],
+        "verification": [
+            "-",
+            "-",
+            "Examples\/Basic-Integration.html#verification",
+            "Verification"
+        ],
+        "custom-configuration-optional": [
+            "-",
+            "-",
+            "Index.html#custom-configuration-optional",
+            "Custom Configuration (Optional)"
+        ],
+        "custom-preset": [
+            "-",
+            "-",
+            "Examples\/Basic-Integration.html#custom-preset",
+            "Custom Preset"
+        ],
+        "register-custom-preset": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#register-custom-preset",
+            "Register Custom Preset"
+        ],
+        "enable-custom-preset": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#enable-custom-preset",
+            "Enable Custom Preset"
+        ],
+        "custom-extensions": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#examples-custom-extensions",
+            "Custom Extensions"
+        ],
+        "custom-image-dialog": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#custom-image-dialog",
+            "Custom Image Dialog"
+        ],
+        "extended-image-properties": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#extended-image-properties",
+            "Extended Image Properties"
+        ],
+        "ckeditor-plugin-extension": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#ckeditor-plugin-extension",
+            "CKEditor Plugin Extension"
+        ],
+        "register-plugin": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#register-plugin",
+            "Register Plugin"
+        ],
+        "external-image-handling": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#external-image-handling",
+            "External Image Handling"
+        ],
+        "fetch-and-upload-external-images": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#fetch-and-upload-external-images",
+            "Fetch and Upload External Images"
+        ],
+        "extension-configuration": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#extension-configuration",
+            "Extension Configuration"
+        ],
+        "custom-upload-folder": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#custom-upload-folder",
+            "Custom Upload Folder"
+        ],
+        "custom-fetch-handler": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#custom-fetch-handler",
+            "Custom Fetch Handler"
+        ],
+        "register-hook": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#register-hook",
+            "Register Hook"
+        ],
+        "multi-language-setup": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#multi-language-setup",
+            "Multi-Language Setup"
+        ],
+        "language-specific-image-variants": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#language-specific-image-variants",
+            "Language-Specific Image Variants"
+        ],
+        "page-tsconfig": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#page-tsconfig",
+            "Page TSConfig"
+        ],
+        "rte-configuration": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#rte-configuration",
+            "RTE Configuration"
+        ],
+        "custom-backend-processing": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#custom-backend-processing",
+            "Custom Backend Processing"
+        ],
+        "automatic-image-optimization": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#automatic-image-optimization",
+            "Automatic Image Optimization"
+        ],
+        "custom-hook": [
+            "-",
+            "-",
+            "Examples\/Custom-Extensions.html#custom-hook",
+            "Custom Hook"
+        ],
+        "image-styles": [
+            "-",
+            "-",
+            "Examples\/Image-Styles.html#examples-image-styles",
+            "Image Styles"
+        ],
+        "bootstrap-style-images": [
+            "-",
+            "-",
+            "Examples\/Image-Styles.html#bootstrap-style-images",
+            "Bootstrap-Style Images"
+        ],
+        "css-if-not-using-bootstrap": [
+            "-",
+            "-",
+            "Examples\/Image-Styles.html#css-if-not-using-bootstrap",
+            "CSS (if not using Bootstrap)"
+        ],
+        "examples-use-cases": [
+            "-",
+            "-",
+            "Examples\/Index.html#examples-common-use-cases",
+            "Examples & Use Cases"
+        ],
+        "examples-by-topic": [
+            "-",
+            "-",
+            "Examples\/Index.html#examples-by-topic",
+            "Examples by Topic"
+        ],
+        "quick-reference-links": [
+            "-",
+            "-",
+            "Examples\/Index.html#quick-reference-links",
+            "Quick Reference Links"
+        ],
+        "responsive-images": [
+            "-",
+            "-",
+            "Examples\/Responsive-Images.html#examples-responsive-images",
+            "Responsive Images"
+        ],
+        "automatic-srcset-generation": [
+            "-",
+            "-",
+            "Examples\/Responsive-Images.html#automatic-srcset-generation",
+            "Automatic srcset Generation"
+        ],
+        "php-implementation": [
+            "-",
+            "-",
+            "Examples\/Responsive-Images.html#php-implementation",
+            "PHP Implementation"
+        ],
+        "testing-examples": [
+            "-",
+            "-",
+            "Examples\/Testing.html#examples-testing",
+            "Testing Examples"
+        ],
+        "functional-test": [
+            "-",
+            "-",
+            "Examples\/Testing.html#functional-test",
+            "Functional Test"
+        ],
+        "controller-test-example": [
+            "-",
+            "-",
+            "Examples\/Testing.html#controller-test-example",
+            "Controller Test Example"
+        ],
+        "unit-test": [
+            "-",
+            "-",
+            "Examples\/Testing.html#unit-test",
+            "Unit Test"
+        ],
+        "database-hook-test-example": [
+            "-",
+            "-",
+            "Examples\/Testing.html#database-hook-test-example",
+            "Database Hook Test Example"
+        ],
+        "run-tests": [
+            "-",
+            "-",
+            "Examples\/Testing.html#run-tests",
+            "Run Tests"
+        ],
+        "execute-test-suites": [
+            "-",
+            "-",
+            "Examples\/Testing.html#execute-test-suites",
+            "Execute Test Suites"
+        ],
+        "rte-ckeditor-image": [
+            "-",
+            "-",
+            "Index.html#start",
+            "RTE CKEditor Image"
+        ],
+        "introduction": [
+            "-",
+            "-",
+            "Index.html#introduction",
+            "Introduction"
+        ],
+        "key-features": [
+            "-",
+            "-",
+            "Index.html#key-features",
+            "Key Features"
+        ],
+        "visual-preview": [
+            "-",
+            "-",
+            "Index.html#visual-preview",
+            "Visual Preview"
+        ],
+        "version-information": [
+            "-",
+            "-",
+            "Index.html#version-information",
+            "Version Information"
+        ],
+        "requirements": [
+            "-",
+            "-",
+            "Index.html#requirements",
+            "Requirements"
+        ],
+        "system-requirements": [
+            "-",
+            "-",
+            "Index.html#system-requirements",
+            "System Requirements"
+        ],
+        "critical-dependencies": [
+            "-",
+            "-",
+            "Index.html#critical-dependencies",
+            "Critical Dependencies"
+        ],
+        "quick-start": [
+            "-",
+            "-",
+            "Index.html#quick-start",
+            "Quick Start"
+        ],
+        "quick-navigation-by-role": [
+            "-",
+            "-",
+            "Index.html#navigation-by-role",
+            "Quick Navigation by Role"
+        ],
+        "documentation-use-cases": [
+            "-",
+            "-",
+            "Index.html#documentation-use-cases",
+            "Documentation Use Cases"
+        ],
+        "for-integrators": [
+            "-",
+            "-",
+            "Index.html#for-integrators",
+            "For Integrators"
+        ],
+        "for-developers": [
+            "-",
+            "-",
+            "Index.html#for-developers",
+            "For Developers"
+        ],
+        "php-backend-development": [
+            "-",
+            "-",
+            "Index.html#php-backend-development",
+            "PHP Backend Development"
+        ],
+        "javascript-ckeditor-development": [
+            "-",
+            "-",
+            "Index.html#javascript-ckeditor-development",
+            "JavaScript\/CKEditor Development"
+        ],
+        "for-troubleshooters": [
+            "-",
+            "-",
+            "Index.html#for-troubleshooters",
+            "For Troubleshooters"
+        ],
+        "support-contributing": [
+            "-",
+            "-",
+            "Index.html#support-contributing",
+            "Support & Contributing"
+        ],
+        "get-help": [
+            "-",
+            "-",
+            "Index.html#get-help",
+            "Get Help"
+        ],
+        "contribute": [
+            "-",
+            "-",
+            "Index.html#contribute",
+            "Contribute"
+        ],
+        "license": [
+            "-",
+            "-",
+            "Index.html#license",
+            "License"
+        ],
+        "credits": [
+            "-",
+            "-",
+            "Index.html#credits",
+            "Credits"
+        ],
+        "development-maintenance": [
+            "-",
+            "-",
+            "Index.html#development-maintenance",
+            "Development & Maintenance"
+        ],
+        "community-contributors": [
+            "-",
+            "-",
+            "Index.html#community-contributors",
+            "Community Contributors"
+        ],
+        "additional-resources": [
+            "-",
+            "-",
+            "Index.html#additional-resources",
+            "Additional Resources"
+        ],
+        "advanced-configuration": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#integration-configuration-advanced",
+            "Advanced Configuration"
+        ],
+        "ckeditor-style-configuration": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#ckeditor-style-configuration",
+            "CKEditor Style Configuration"
+        ],
+        "adding-image-styles": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#integration-configuration-custom-styles",
+            "Adding Image Styles"
+        ],
+        "image-processing-configuration": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#image-processing-configuration",
+            "Image Processing Configuration"
+        ],
+        "processed-file-cache": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#processed-file-cache",
+            "Processed File Cache"
+        ],
+        "performance-best-practices": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#performance-best-practices",
+            "Performance Best Practices"
+        ],
+        "example-configurations": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#example-configurations",
+            "Example Configurations"
+        ],
+        "minimal-setup": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#integration-configuration-minimal",
+            "Minimal Setup"
+        ],
+        "full-featured-setup": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#integration-configuration-complete-example",
+            "Full-Featured Setup"
+        ],
+        "best-practices": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#best-practices",
+            "Best Practices"
+        ],
+        "configuration-best-practices": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#configuration-best-practices",
+            "Configuration Best Practices"
+        ],
+        "maintenance": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#maintenance",
+            "Maintenance"
+        ],
+        "configuration-topics": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#configuration-topics",
+            "Configuration Topics"
+        ],
+        "general-documentation": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#general-documentation",
+            "General Documentation"
+        ],
+        "frontend-rendering": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#integration-configuration-frontend-rendering",
+            "Frontend Rendering"
+        ],
+        "frontend-rendering-setup": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#frontend-rendering-setup",
+            "Frontend Rendering Setup"
+        ],
+        "default-css-class": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#default-css-class",
+            "Default CSS Class"
+        ],
+        "lazyload-configuration": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#lazyload-configuration",
+            "Lazyload Configuration"
+        ],
+        "automatic-typoscript-loading": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#automatic-typoscript-loading",
+            "Automatic TypoScript Loading"
+        ],
+        "typoscript-reference": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#typoscript-reference",
+            "TypoScript Reference"
+        ],
+        "complete-typoscript-configuration-options": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#complete-typoscript-configuration-options",
+            "Complete TypoScript Configuration Options"
+        ],
+        "image-rendering": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#image-rendering",
+            "Image Rendering"
+        ],
+        "link-rendering": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#link-rendering",
+            "Link Rendering"
+        ],
+        "html-parser-configuration": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#html-parser-configuration",
+            "HTML Parser Configuration"
+        ],
+        "default-css-classes": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#default-css-classes",
+            "Default CSS Classes"
+        ],
+        "lightbox-configuration": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#lightbox-configuration",
+            "Lightbox Configuration"
+        ],
+        "image-processing": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#image-processing",
+            "Image Processing"
+        ],
+        "encapsulation-configuration": [
+            "-",
+            "-",
+            "Integration\/Frontend-Rendering.html#encapsulation-configuration",
+            "Encapsulation Configuration"
+        ],
+        "integration-configuration": [
+            "-",
+            "-",
+            "Integration\/Index.html#integration",
+            "Integration & Configuration"
+        ],
+        "configuration-quick-reference": [
+            "-",
+            "-",
+            "Integration\/Index.html#configuration-quick-reference",
+            "Configuration Quick Reference"
+        ],
+        "for-custom-rte-presets": [
+            "-",
+            "-",
+            "Integration\/Index.html#for-custom-rte-presets",
+            "For Custom RTE Presets"
+        ],
+        "minimum-custom-toolbar": [
+            "-",
+            "-",
+            "Integration\/Index.html#minimum-custom-toolbar",
+            "Minimum Custom Toolbar"
+        ],
+        "custom-toolbar-with-specific-buttons": [
+            "-",
+            "-",
+            "Integration\/Index.html#custom-toolbar-with-specific-buttons",
+            "Custom Toolbar with Specific Buttons"
+        ],
+        "full-featured-custom-setup": [
+            "-",
+            "-",
+            "Integration\/Index.html#full-featured-custom-setup",
+            "Full-Featured Custom Setup"
+        ],
+        "configuration-patterns": [
+            "-",
+            "-",
+            "Integration\/Index.html#configuration-patterns",
+            "Configuration Patterns"
+        ],
+        "by-use-case": [
+            "-",
+            "-",
+            "Integration\/Index.html#by-use-case",
+            "By Use Case"
+        ],
+        "by-component": [
+            "-",
+            "-",
+            "Integration\/Index.html#by-component",
+            "By Component"
+        ],
+        "rte-setup": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#integration-configuration-rte-setup",
+            "RTE Setup"
+        ],
+        "automatic-configuration-default": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#automatic-configuration-default",
+            "Automatic Configuration (Default)"
+        ],
+        "custom-rte-configuration": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#custom-rte-configuration",
+            "Custom RTE Configuration"
+        ],
+        "creating-custom-presets": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#integration-configuration-basic",
+            "Creating Custom Presets"
+        ],
+        "advanced-rte-configuration": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#advanced-rte-configuration",
+            "Advanced RTE Configuration"
+        ],
+        "custom-allowed-extensions": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#custom-allowed-extensions",
+            "Custom Allowed Extensions"
+        ],
+        "multiple-rte-presets": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#multiple-rte-presets",
+            "Multiple RTE Presets"
+        ],
+        "page-tsconfig-setup": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#integration-configuration-tsconfig",
+            "Page TSConfig Setup"
+        ],
+        "magic-image-configuration": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#magic-image-configuration",
+            "Magic Image Configuration"
+        ],
+        "processing-modes": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#processing-modes",
+            "Processing Modes"
+        ],
+        "upload-folder-configuration": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#integration-configuration-upload-folder",
+            "Upload Folder Configuration"
+        ],
+        "content-element-configuration": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#content-element-configuration",
+            "Content Element Configuration"
+        ],
+        "enable-for-specific-content-types": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#enable-for-specific-content-types",
+            "Enable for Specific Content Types"
+        ],
+        "disable-for-specific-fields": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#disable-for-specific-fields",
+            "Disable for Specific Fields"
+        ],
+        "backend-user-permissions": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#backend-user-permissions",
+            "Backend User Permissions"
+        ],
+        "file-mounts": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#integration-configuration-permissions",
+            "File Mounts"
+        ],
+        "access-restrictions": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#access-restrictions",
+            "Access Restrictions"
+        ],
+        "multi-language-configuration": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#multi-language-configuration",
+            "Multi-Language Configuration"
+        ],
+        "language-specific-presets": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#language-specific-presets",
+            "Language-Specific Presets"
+        ],
+        "troubleshooting-configuration": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#troubleshooting-configuration",
+            "Troubleshooting Configuration"
+        ],
+        "debug-rte-configuration": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#debug-rte-configuration",
+            "Debug RTE Configuration"
+        ],
+        "verify-configuration-loading": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#verify-configuration-loading",
+            "Verify Configuration Loading"
+        ],
+        "configuration-priority": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#configuration-priority",
+            "Configuration Priority"
+        ],
+        "editor-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#troubleshooting-editor-issues",
+            "Editor Issues"
+        ],
+        "image-button-problems": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#image-button-problems",
+            "Image Button Problems"
+        ],
+        "issue-image-button-not-visible-in-toolbar": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#troubleshooting-image-button-missing",
+            "Issue: Image Button Not Visible in Toolbar"
+        ],
+        "style-dropdown-problems": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#style-dropdown-problems",
+            "Style Dropdown Problems"
+        ],
+        "issue-style-drop-down-not-working-with-images": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#troubleshooting-style-dropdown",
+            "Issue: Style Drop-Down Not Working with Images"
+        ],
+        "issue-custom-image-styles-lost-after-upgrade": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#issue-custom-image-styles-lost-after-upgrade",
+            "Issue: Custom Image Styles Lost After Upgrade"
+        ],
+        "file-browser-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#file-browser-issues",
+            "File Browser Issues"
+        ],
+        "issue-file-browser-empty-or-not-loading": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#issue-file-browser-empty-or-not-loading",
+            "Issue: File Browser Empty or Not Loading"
+        ],
+        "issue-file-not-found-after-selection": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#issue-file-not-found-after-selection",
+            "Issue: \"File Not Found\" After Selection"
+        ],
+        "image-dimension-problems": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#image-dimension-problems",
+            "Image Dimension Problems"
+        ],
+        "issue-magic-image-maximum-dimensions-not-working": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#issue-magic-image-maximum-dimensions-not-working",
+            "Issue: Magic Image Maximum Dimensions Not Working"
+        ],
+        "javascript-ckeditor-errors": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#javascript-ckeditor-errors",
+            "JavaScript\/CKEditor Errors"
+        ],
+        "issue-javascript-console-errors": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#issue-javascript-console-errors",
+            "Issue: JavaScript Console Errors"
+        ],
+        "common-errors": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#common-errors",
+            "Common Errors"
+        ],
+        "1-generalhtmlsupport-is-not-defined": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#1-generalhtmlsupport-is-not-defined",
+            "1. \"GeneralHtmlSupport is not defined\""
+        ],
+        "2-cannot-read-property-typo3image-of-undefined": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#2-cannot-read-property-typo3image-of-undefined",
+            "2. \"Cannot read property 'typo3image' of undefined\""
+        ],
+        "3-jquery-errors": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#3-jquery-errors",
+            "3. jQuery Errors"
+        ],
+        "issue-double-click-on-image-does-nothing": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#issue-double-click-on-image-does-nothing",
+            "Issue: Double-Click on Image Does Nothing"
+        ],
+        "editor-loading-problems": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#editor-loading-problems",
+            "Editor Loading Problems"
+        ],
+        "issue-editor-not-initializing": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#issue-editor-not-initializing",
+            "Issue: Editor Not Initializing"
+        ],
+        "plugin-configuration-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#plugin-configuration-issues",
+            "Plugin Configuration Issues"
+        ],
+        "issue-plugin-not-recognized": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#issue-plugin-not-recognized",
+            "Issue: Plugin Not Recognized"
+        ],
+        "debugging-editor-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#debugging-editor-issues",
+            "Debugging Editor Issues"
+        ],
+        "enable-rte-debugging": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#enable-rte-debugging",
+            "Enable RTE Debugging"
+        ],
+        "check-loaded-configuration": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#check-loaded-configuration",
+            "Check Loaded Configuration"
+        ],
+        "monitor-network-requests": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#monitor-network-requests",
+            "Monitor Network Requests"
+        ],
+        "inspect-dom-elements": [
+            "-",
+            "-",
+            "Troubleshooting\/Editor-Issues.html#inspect-dom-elements",
+            "Inspect DOM Elements"
+        ],
+        "getting-help": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#getting-help",
+            "Getting Help"
+        ],
+        "frontend-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#troubleshooting-frontend-issues",
+            "Frontend Issues"
+        ],
+        "image-display-problems": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#troubleshooting-frontend-rendering",
+            "Image Display Problems"
+        ],
+        "issue-images-not-appearing-in-frontend": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#issue-images-not-appearing-in-frontend",
+            "Issue: Images Not Appearing in Frontend"
+        ],
+        "issue-processed-images-not-generated": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#issue-processed-images-not-generated",
+            "Issue: Processed Images Not Generated"
+        ],
+        "broken-links-and-references": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#broken-links-and-references",
+            "Broken Links and References"
+        ],
+        "issue-broken-image-links": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#issue-broken-image-links",
+            "Issue: Broken Image Links"
+        ],
+        "issue-wrong-image-path-in-output": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#issue-wrong-image-path-in-output",
+            "Issue: Wrong Image Path in Output"
+        ],
+        "dimension-problems": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#dimension-problems",
+            "Dimension Problems"
+        ],
+        "issue-images-display-at-wrong-size": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#issue-images-display-at-wrong-size",
+            "Issue: Images Display at Wrong Size"
+        ],
+        "issue-image-dimensions-not-preserved": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#issue-image-dimensions-not-preserved",
+            "Issue: Image Dimensions Not Preserved"
+        ],
+        "style-and-class-problems": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#style-and-class-problems",
+            "Style and Class Problems"
+        ],
+        "issue-css-classes-not-applied": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#issue-css-classes-not-applied",
+            "Issue: CSS Classes Not Applied"
+        ],
+        "issue-data-attributes-visible-in-frontend": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#issue-data-attributes-visible-in-frontend",
+            "Issue: Data Attributes Visible in Frontend"
+        ],
+        "link-rendering-problems": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#link-rendering-problems",
+            "Link Rendering Problems"
+        ],
+        "issue-image-links-not-working": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#issue-image-links-not-working",
+            "Issue: Image Links Not Working"
+        ],
+        "issue-lightbox-zoom-not-working": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#issue-lightbox-zoom-not-working",
+            "Issue: Lightbox\/Zoom Not Working"
+        ],
+        "responsive-image-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#responsive-image-issues",
+            "Responsive Image Issues"
+        ],
+        "issue-images-not-responsive": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#issue-images-not-responsive",
+            "Issue: Images Not Responsive"
+        ],
+        "caching-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#caching-issues",
+            "Caching Issues"
+        ],
+        "issue-old-images-still-displayed": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#issue-old-images-still-displayed",
+            "Issue: Old Images Still Displayed"
+        ],
+        "debugging-frontend-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#debugging-frontend-issues",
+            "Debugging Frontend Issues"
+        ],
+        "check-generated-html": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#check-generated-html",
+            "Check Generated HTML"
+        ],
+        "verify-typoscript-processing": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#verify-typoscript-processing",
+            "Verify TypoScript Processing"
+        ],
+        "check-browser-network-tab": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#check-browser-network-tab",
+            "Check Browser Network Tab"
+        ],
+        "inspect-css": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#inspect-css",
+            "Inspect CSS"
+        ],
+        "monitor-console-errors": [
+            "-",
+            "-",
+            "Troubleshooting\/Frontend-Issues.html#monitor-console-errors",
+            "Monitor Console Errors"
+        ],
+        "troubleshooting-support": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#troubleshooting-index",
+            "Troubleshooting & Support"
+        ],
+        "quick-fixes": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#quick-fixes",
+            "Quick Fixes"
+        ],
+        "most-common-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#most-common-issues",
+            "Most Common Issues"
+        ],
+        "1-style-dropdown-disabled-v13-0-0": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#1-style-dropdown-disabled-v13-0-0",
+            "1. Style Dropdown Disabled (v13.0.0+)"
+        ],
+        "2-images-not-appearing-in-frontend": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#2-images-not-appearing-in-frontend",
+            "2. Images Not Appearing in Frontend"
+        ],
+        "3-file-browser-not-opening": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#3-file-browser-not-opening",
+            "3. File Browser Not Opening"
+        ],
+        "debugging-techniques": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#debugging-techniques",
+            "Debugging Techniques"
+        ],
+        "enable-debug-mode": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#enable-debug-mode",
+            "Enable Debug Mode"
+        ],
+        "browser-console": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#browser-console",
+            "Browser Console"
+        ],
+        "typo3-logs": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#typo3-logs",
+            "TYPO3 Logs"
+        ],
+        "database-queries": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#database-queries",
+            "Database Queries"
+        ],
+        "self-help-resources": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#self-help-resources",
+            "Self-Help Resources"
+        ],
+        "community-support": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#community-support",
+            "Community Support"
+        ],
+        "reporting-bugs": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#reporting-bugs",
+            "Reporting Bugs"
+        ],
+        "troubleshooting-topics": [
+            "-",
+            "-",
+            "Troubleshooting\/Index.html#troubleshooting-topics",
+            "Troubleshooting Topics"
+        ],
+        "installation-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#troubleshooting-installation-issues",
+            "Installation Issues"
+        ],
+        "extension-installation-problems": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#extension-installation-problems",
+            "Extension Installation Problems"
+        ],
+        "issue-extension-not-working-after-typo3-13-upgrade": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#issue-extension-not-working-after-typo3-13-upgrade",
+            "Issue: Extension Not Working After TYPO3 13 Upgrade"
+        ],
+        "dependency-conflicts": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#dependency-conflicts",
+            "Dependency Conflicts"
+        ],
+        "issue-style-drop-down-dependency-error": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#issue-style-drop-down-dependency-error",
+            "Issue: Style Drop-Down Dependency Error"
+        ],
+        "issue-javascript-dependency-errors": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#issue-javascript-dependency-errors",
+            "Issue: JavaScript Dependency Errors"
+        ],
+        "cache-related-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#cache-related-issues",
+            "Cache-Related Issues"
+        ],
+        "issue-configuration-changes-not-applied": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#issue-configuration-changes-not-applied",
+            "Issue: Configuration Changes Not Applied"
+        ],
+        "issue-file-references-not-updated": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#issue-file-references-not-updated",
+            "Issue: File References Not Updated"
+        ],
+        "permission-problems": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#permission-problems",
+            "Permission Problems"
+        ],
+        "issue-processed-images-directory-not-writable": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#issue-processed-images-directory-not-writable",
+            "Issue: Processed Images Directory Not Writable"
+        ],
+        "static-template-configuration": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#static-template-configuration",
+            "Static Template Configuration"
+        ],
+        "issue-static-template-not-included": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#issue-static-template-not-included",
+            "Issue: Static Template Not Included"
+        ],
+        "issue-imagemagick-graphicsmagick-not-configured": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#issue-imagemagick-graphicsmagick-not-configured",
+            "Issue: ImageMagick\/GraphicsMagick Not Configured"
+        ],
+        "debugging-installation": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#debugging-installation",
+            "Debugging Installation"
+        ],
+        "check-extension-installation": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#check-extension-installation",
+            "Check Extension Installation"
+        ],
+        "check-browser-console": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#check-browser-console",
+            "Check Browser Console"
+        ],
+        "database-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Installation-Issues.html#database-issues",
+            "Database Issues"
+        ],
+        "issue-large-database-size": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#issue-large-database-size",
+            "Issue: Large Database Size"
+        ],
+        "performance-issues": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#troubleshooting-performance-issues",
+            "Performance Issues"
+        ],
+        "editor-performance": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#editor-performance",
+            "Editor Performance"
+        ],
+        "issue-slow-editor-loading": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#issue-slow-editor-loading",
+            "Issue: Slow Editor Loading"
+        ],
+        "issue-image-selection-dialog-slow": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#issue-image-selection-dialog-slow",
+            "Issue: Image Selection Dialog Slow"
+        ],
+        "frontend-performance": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#frontend-performance",
+            "Frontend Performance"
+        ],
+        "issue-slow-page-load-due-to-images": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#issue-slow-page-load-due-to-images",
+            "Issue: Slow Page Load Due to Images"
+        ],
+        "issue-excessive-bandwidth-usage": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#issue-excessive-bandwidth-usage",
+            "Issue: Excessive Bandwidth Usage"
+        ],
+        "image-processing-performance": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#image-processing-performance",
+            "Image Processing Performance"
+        ],
+        "issue-image-processing-timeouts": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#issue-image-processing-timeouts",
+            "Issue: Image Processing Timeouts"
+        ],
+        "issue-processed-images-directory-growing": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#issue-processed-images-directory-growing",
+            "Issue: Processed Images Directory Growing"
+        ],
+        "database-performance": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#database-performance",
+            "Database Performance"
+        ],
+        "issue-slow-reference-index-updates": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#issue-slow-reference-index-updates",
+            "Issue: Slow Reference Index Updates"
+        ],
+        "cache-performance": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#cache-performance",
+            "Cache Performance"
+        ],
+        "issue-excessive-cache-invalidation": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#issue-excessive-cache-invalidation",
+            "Issue: Excessive Cache Invalidation"
+        ],
+        "network-performance": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#network-performance",
+            "Network Performance"
+        ],
+        "issue-slow-image-loading-from-cdn": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#issue-slow-image-loading-from-cdn",
+            "Issue: Slow Image Loading from CDN"
+        ],
+        "monitoring-and-profiling": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#monitoring-and-profiling",
+            "Monitoring and Profiling"
+        ],
+        "performance-monitoring": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#performance-monitoring",
+            "Performance Monitoring"
+        ],
+        "database-query-profiling": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#database-query-profiling",
+            "Database Query Profiling"
+        ],
+        "image-processing-profiling": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#image-processing-profiling",
+            "Image Processing Profiling"
+        ],
+        "optimization-best-practices": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#optimization-best-practices",
+            "Optimization Best Practices"
+        ],
+        "image-optimization-checklist": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#image-optimization-checklist",
+            "Image Optimization Checklist"
+        ],
+        "server-optimization-checklist": [
+            "-",
+            "-",
+            "Troubleshooting\/Performance-Issues.html#server-optimization-checklist",
+            "Server Optimization Checklist"
+        ]
+    },
+    "php:method": {
+        "mainaction": [
+            "-",
+            "-",
+            "API\/Controllers.html#mainaction",
+            "mainAction"
+        ],
+        "infoaction": [
+            "-",
+            "-",
+            "API\/Controllers.html#infoaction",
+            "infoAction"
+        ],
+        "getimage": [
+            "-",
+            "-",
+            "API\/Controllers.html#getimage",
+            "getImage"
+        ],
+        "processimage": [
+            "-",
+            "-",
+            "API\/Controllers.html#processimage",
+            "processImage"
+        ],
+        "renderimageattributes": [
+            "-",
+            "-",
+            "API\/Controllers.html#renderimageattributes",
+            "renderImageAttributes"
+        ],
+        "renderimages": [
+            "-",
+            "-",
+            "API\/Controllers.html#renderimages",
+            "renderImages"
+        ],
+        "construct": [
+            "-",
+            "-",
+            "API\/DataHandling.html#construct",
+            "__construct"
+        ],
+        "processdatamap-postprocessfieldarray": [
+            "-",
+            "-",
+            "API\/DataHandling.html#processdatamap-postprocessfieldarray",
+            "processDatamap_postProcessFieldArray"
+        ],
+        "transform-rte": [
+            "-",
+            "-",
+            "API\/DataHandling.html#transform-rte",
+            "transform_rte"
+        ],
+        "modifyrtefield": [
+            "-",
+            "-",
+            "API\/DataHandling.html#modifyrtefield",
+            "modifyRteField"
+        ],
+        "getimagewidthfromattributes": [
+            "-",
+            "-",
+            "API\/DataHandling.html#getimagewidthfromattributes",
+            "getImageWidthFromAttributes"
+        ],
+        "getimageheightfromattributes": [
+            "-",
+            "-",
+            "API\/DataHandling.html#getimageheightfromattributes",
+            "getImageHeightFromAttributes"
+        ],
+        "extractfromattributevalueorstyle": [
+            "-",
+            "-",
+            "API\/DataHandling.html#extractfromattributevalueorstyle",
+            "extractFromAttributeValueOrStyle"
+        ],
+        "matchstyleattribute": [
+            "-",
+            "-",
+            "API\/DataHandling.html#matchstyleattribute",
+            "matchStyleAttribute"
+        ],
+        "resolvefieldconfigurationandrespectcolumnsoverrides": [
+            "-",
+            "-",
+            "API\/DataHandling.html#resolvefieldconfigurationandrespectcolumnsoverrides",
+            "resolveFieldConfigurationAndRespectColumnsOverrides"
+        ],
+        "invoke": [
+            "-",
+            "-",
+            "API\/EventListeners.html#invoke",
+            "__invoke"
+        ]
+    },
+    "php:property": {
+        "fetchexternalimages": [
+            "-",
+            "-",
+            "API\/DataHandling.html#fetchexternalimages",
+            "fetchExternalImages"
+        ]
+    },
+    "std:confval": {
+        "fetchexternalimages": [
+            "-",
+            "-",
+            "Integration\/Advanced-Configuration.html#confval-fetchexternalimages",
+            "fetchExternalImages"
+        ],
+        "editor-externalplugins-typo3image-allowedextensions": [
+            "-",
+            "-",
+            "Integration\/RTE-Setup.html#confval-editor-externalplugins-typo3image-allowedextensions",
+            "editor.externalPlugins.typo3image.allowedExtensions"
+        ],
+        "rte-default-buttons-image-options-magic-maxwidth": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#confval-rte-default-buttons-image-options-magic-maxwidth",
+            "RTE.default.buttons.image.options.magic.maxWidth"
+        ],
+        "rte-default-buttons-image-options-magic-maxheight": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#confval-rte-default-buttons-image-options-magic-maxheight",
+            "RTE.default.buttons.image.options.magic.maxHeight"
+        ],
+        "rte-default-buttons-image-options-defaultuploadfolder": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#confval-rte-default-buttons-image-options-defaultuploadfolder",
+            "RTE.default.buttons.image.options.defaultUploadFolder"
+        ],
+        "rte-default-buttons-image-options-createuploadfolderifneeded": [
+            "-",
+            "-",
+            "Integration\/TSConfig.html#confval-rte-default-buttons-image-options-createuploadfolderifneeded",
+            "RTE.default.buttons.image.options.createUploadFolderIfNeeded"
+        ]
+    }
+}
