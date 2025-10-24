@@ -37,9 +37,6 @@ RUN echo "ddev restart</code></pre>" >> /var/www/html/index.html
 RUN echo "<h3>TYPO3 Commands</h3><pre><code># Clear TYPO3 cache" >> /var/www/html/index.html
 RUN echo "ddev exec -d /var/www/html/v13 \"vendor/bin/typo3 cache:flush\"" >> /var/www/html/index.html
 RUN echo "" >> /var/www/html/index.html
-RUN echo "# Configure RTE extension" >> /var/www/html/index.html
-RUN echo "ddev configure-rte" >> /var/www/html/index.html
-RUN echo "" >> /var/www/html/index.html
 RUN echo "# Run functional tests" >> /var/www/html/index.html
 RUN echo "ddev exec -d /var/www/html/v13 \"vendor/bin/phpunit -c Build/phpunit/FunctionalTests.xml\"</code></pre>" >> /var/www/html/index.html
 RUN echo "<h3>Documentation</h3><pre><code># Render documentation" >> /var/www/html/index.html

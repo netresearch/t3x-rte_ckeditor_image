@@ -33,10 +33,6 @@ docs: ## Render extension documentation
 install-v13: ## Install TYPO3 v13.4 LTS
 	ddev install-v13
 
-.PHONY: configure
-configure: ## Configure rte_ckeditor_image extension
-	ddev configure-rte
-
 .PHONY: ddev-restart
 ddev-restart: ## Restart DDEV containers
 	ddev restart

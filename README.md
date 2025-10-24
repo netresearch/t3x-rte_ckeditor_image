@@ -220,9 +220,8 @@ make up                      # Start DDEV + complete setup (ONE COMMAND!)
 
 # Individual commands
 make start                   # Start DDEV environment
-make setup                   # Complete setup (docs + install + configure)
+make setup                   # Complete setup (docs + install)
 make docs                    # Render extension documentation
-ddev configure-rte           # Configure RTE extension in TYPO3
 ```
 
 ### Local Development (No DDEV)
