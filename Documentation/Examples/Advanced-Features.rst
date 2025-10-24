@@ -146,7 +146,8 @@ TypoScript Setup
                # Remove internal attributes
                data-htmlarea-file-uid.unset = 1
                data-htmlarea-file-table.unset = 1
-               data-htmlarea-zoom.unset = 1
+               # Keep zoom attributes for popup/lightbox rendering
+               # data-htmlarea-zoom.unset = 1
            }
        }
    }

@@ -85,28 +85,6 @@ processDatamap_postProcessFieldArray()
       $dataHandler->process_datamap();
       // Hook is automatically called for each RTE field
 
-transform_rte()
-~~~~~~~~~~~~~~~
-
-.. php:method:: transform_rte(string $value, RteHtmlParser $rteHtmlParser): string
-
-   Transforms RTE content for database storage (legacy method).
-
-   :param string $value: HTML content from RTE
-   :param RteHtmlParser $rteHtmlParser: TYPO3 RTE HTML parser
-   :returns: Transformed HTML string
-   :returntype: string
-
-   **Transformation Steps:**
-
-   1. Splits content by ``<img>`` tags
-   2. Converts relative URLs to absolute
-   3. Adds site URL prefix
-   4. Ensures ``alt`` attribute exists
-
-   .. note::
-      This method follows TYPO3's legacy naming convention (camelCase with underscore).
-
 Image Processing Methods
 ------------------------
 
