@@ -19,6 +19,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionMethod;
 use RuntimeException;
+use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -37,6 +38,9 @@ final class SelectImageControllerTest extends UnitTestCase
     /** @var ResourceFactory&MockObject */
     private ResourceFactory $resourceFactoryMock;
 
+    /** @var DefaultUploadFolderResolver&MockObject */
+    private DefaultUploadFolderResolver $uploadFolderResolverMock;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -44,8 +48,15 @@ final class SelectImageControllerTest extends UnitTestCase
         /** @var ResourceFactory&MockObject $resourceFactoryMock */
         $resourceFactoryMock = $this->createMock(ResourceFactory::class);
 
-        $this->resourceFactoryMock = $resourceFactoryMock;
-        $this->subject             = new SelectImageController($this->resourceFactoryMock);
+        /** @var DefaultUploadFolderResolver&MockObject $uploadFolderResolverMock */
+        $uploadFolderResolverMock = $this->createMock(DefaultUploadFolderResolver::class);
+
+        $this->resourceFactoryMock      = $resourceFactoryMock;
+        $this->uploadFolderResolverMock = $uploadFolderResolverMock;
+        $this->subject                  = new SelectImageController(
+            $this->resourceFactoryMock,
+            $this->uploadFolderResolverMock,
+        );
     }
 
     /**

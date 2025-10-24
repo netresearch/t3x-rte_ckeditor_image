@@ -17,9 +17,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use TYPO3\CMS\Backend\Controller\ElementBrowserController;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
 use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
@@ -60,10 +63,12 @@ class SelectImageController extends ElementBrowserController
     /**
      * Constructor with dependency injection.
      *
-     * @param ResourceFactory $resourceFactory Factory for file resources
+     * @param ResourceFactory             $resourceFactory      Factory for file resources
+     * @param DefaultUploadFolderResolver $uploadFolderResolver Resolver for default upload folders
      */
     public function __construct(
         private readonly ResourceFactory $resourceFactory,
+        private readonly DefaultUploadFolderResolver $uploadFolderResolver,
     ) {}
 
     /**
@@ -90,6 +95,23 @@ class SelectImageController extends ElementBrowserController
             if (isset($bparams[3]) && ($bparams[3] === '')) {
                 $bparams[3]             = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
                 $queryParams['bparams'] = implode('|', $bparams);
+            }
+
+            // Resolve default upload folder for non-admin users
+            // This fixes issue #290: non-admin users need explicit folder context
+            // to avoid InsufficientFolderAccessPermissionsException
+            if (isset($GLOBALS['BE_USER']) && $GLOBALS['BE_USER'] instanceof BackendUserAuthentication) {
+                try {
+                    $folder = $this->uploadFolderResolver->resolve($GLOBALS['BE_USER']);
+                    if ($folder instanceof Folder) {
+                        // Add expandFolder parameter with combined identifier (format: "storage_uid:/path/")
+                        // TYPO3 v12+ ElementBrowser requires this parameter for folder resolution
+                        $queryParams['expandFolder'] = $folder->getCombinedIdentifier();
+                    }
+                } catch (Exception $exception) {
+                    // Silently handle exceptions - parent ElementBrowserController will use default behavior
+                    // This ensures admin users with full access are not affected if folder resolution fails
+                }
             }
         }
 
