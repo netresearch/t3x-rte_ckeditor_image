@@ -14,6 +14,10 @@ defined('TYPO3_MODE') or die();
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_parsehtml_proc.php']['transformation']['rtehtmlarea_images_db']
     = \Netresearch\RteCKEditorImage\Database\RteImagesDbHook::class;
 
+// Register backend CSS for image preview scaling (fixes #301)
+$GLOBALS['TYPO3_CONF_VARS']['BE']['stylesheets']['rte_ckeditor_image'] =
+    'EXT:rte_ckeditor_image/Resources/Public/Css/backend.css';
+
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig(
     'RTE.default.proc.overruleMode := addToList(default)'
 );
