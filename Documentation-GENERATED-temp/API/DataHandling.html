@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <title>Data Handling API
+        documentation</title>
+
+    
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="phpdocumentor/guides" name="generator">
+<meta content="" name="docsearch:name">
+<meta content="" name="docsearch:package_type">
+<meta content="" name="docsearch:release">
+<meta content="" name="docsearch:version">
+<meta content="2025-10-23T19:49:09+00:00" name="docsearch:modified">
+<meta content="2025-10-23T19:49:09+00:00" name="dc.modified">
+<meta content="2025-10-23T19:49:09+00:00" property="article:modified_time">
+    <link href="http://purl.org/dc/elements/1.1/" rel="schema.dc">
+<link href="../_resources/css/theme.css" rel="stylesheet">
+<link href="https://docs.typo3.org/search/" rel="search" title="Search">
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/webcomponents-loader.js"></script>
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/typo3-universe.js" type="module"></script>
+                        <link href="Controllers.html" rel="prev" title="Controllers API"/>
+            <link href="EventListeners.html" rel="next" title="Event Listeners API"/>
+            <link href="../Index.html" rel="top" title="RTE CKEditor Image"/>
+    </head>
+<body>
+<div class="page">
+    <header>
+    <div class="page-topbar">
+        <div class="page-topbar-inner">
+            <typo3-universe active="documentation">
+                <div style="display: block; height: 44px; background-color: #313131;"></div>
+            </typo3-universe>
+        </div>
+    </div>
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="d-flex flex-wrap">
+                <div class="logo-wrapper">
+                    <a class="logo" href="https://docs.typo3.org/" title="TYPO3 Documentation">
+                        <img alt="TYPO3 Logo" class="logo-image" src="../_resources/img/typo3-logo.svg" width="484" height="130">
+                    </a>
+                </div>
+                <div class="align-self-center order-lg-2 order-last">
+                    
+<div class="toc-header">
+    <div class="toc-title pe-3">
+                            <a class="toc-title-project" href="../Index.html">RTE CKEditor Image</a>
+            </div>
+    </div>                </div>
+                <div class="ms-auto order-lg-3 d-flex">
+                    <div class="menu-search-wrapper">
+                        <button id="toc-toggle" class="btn btn-light d-block d-lg-none" tabindex="0" aria-controls="toc-collapse" aria-expanded="false">
+                            <i class="fas fa-bars"></i> <span class="visually-hidden">Mobile Menu</span>
+                        </button>
+                        <all-documentations-menu data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu>
+                                                <search role="search">
+                            <form action="https://docs.typo3.org/search/search" id="global-search-form" method="get">
+                                <div class="sr-only"><label for="globalsearchinput">TYPO3 documentation...</label></div>
+                                <div class="input-group mb-3 mt-sm-3">
+                                    <select class="form-select search__scope" id="searchscope" name="scope">
+                                        <option value="">Search all</option>
+                                    </select>
+                                    <input autocomplete="off" class="form-control shadow-none" id="globalsearchinput" name="q" placeholder="TYPO3 documentation..." type="text" value="">
+                                    <button class="btn btn-light" type="submit"><i class="fa fa-search"></i>&nbsp;<span class="d-none d-md-inline">Search</span></button>
+                                </div>
+                            </form>
+                            <div id="global-search-root"></div>
+                        </search>
+                        <div class="position-relative d-inline-block">
+                            <button id="options-toggle" class="btn btn-light d-block" type="button" aria-expanded="false">
+                                <i class="fas fa-cog"></i> <span class="visually-hidden">Options</span>
+                            </button>
+
+                            <div id="options-panel"
+                                 class="shadow p-3"
+                                 role="menu"
+                                 aria-hidden="true">
+                                <h6 class="dropdown-header text-muted text-uppercase small mb-2">Options</h6>
+
+                                                                                                            <a class="dropdown-item d-flex align-items-center gap-2" href="../_sources/API/DataHandling.rst.txt" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-code"></i>
+        View source
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2" href="https://docs.typo3.org/m/typo3/docs-how-to-document/main/en-us/WritingDocsOfficial/GithubMethod.html" id="btnHowToEdit" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-info-circle"></i>
+        How to edit
+    </a>
+                                                                                                                <a class="dropdown-item d-flex align-items-center gap-2" href="../singlehtml/Index.html" target="_blank" rel="noopener">
+                                            <i class="fas fa-print"></i>
+                                            Full documentation (single file)
+                                        </a>
+                                                                                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>    <main class="page-main">
+        <div class="page-main-inner">
+            <div class="page-main-navigation">
+                <nav>
+
+                    <div id="toc-collapse">
+                                                <div aria-label="main navigation" class="toc"
+                             role="navigation">
+                                <all-documentations-menu-mobile
+        data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu-mobile>
+    <div aria-label="Main navigation" class="main_menu" role="navigation">
+                <p class="caption">RTE CKEditor Image</p>
+            <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Integration/Index.html">
+        Integration &amp; Configuration
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Integration/RTE-Setup.html">
+        RTE Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/TSConfig.html">
+        Page TSConfig Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Frontend-Rendering.html">
+        Frontend Rendering
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Advanced-Configuration.html">
+        Advanced Configuration
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Examples/Index.html">
+        Examples &amp; Use Cases
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Examples/Basic-Integration.html">
+        Basic Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Image-Styles.html">
+        Image Styles
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Responsive-Images.html">
+        Responsive Images
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Advanced-Features.html">
+        Advanced Features
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Custom-Extensions.html">
+        Custom Extensions
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Testing.html">
+        Testing Examples
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Troubleshooting/Index.html">
+        Troubleshooting &amp; Support
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Troubleshooting/Installation-Issues.html">
+        Installation Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Editor-Issues.html">
+        Editor Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Frontend-Issues.html">
+        Frontend Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Performance-Issues.html">
+        Performance Issues
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Architecture &amp; Design</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Architecture/Index.html">
+        Architecture &amp; Design
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Architecture/System-Architecture.html">
+        System Architecture
+    </a></li><li class="" role="menuitem">
+    <a href="../Architecture/Design-Patterns.html">
+        Design Patterns &amp; Integration
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class=" active" role="menuitem">
+    <a href="Index.html">
+        API Documentation
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="Controllers.html">
+        Controllers API
+    </a></li><li class=" current active" role="menuitem">
+    <a href="#" aria-current="page">
+        Data Handling API
+    </a></li><li class="" role="menuitem">
+    <a href="EventListeners.html">
+        Event Listeners API
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../CKEditor/Index.html">
+        CKEditor Plugin Development
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../CKEditor/Plugin-Development.html">
+        CKEditor Plugin Development
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Model-Element.html">
+        CKEditor Model Element Reference
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Style-Integration.html">
+        CKEditor Style Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Conversions.html">
+        CKEditor Conversion System
+    </a></li></ul></li>    </ul>
+    </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="page-main-content">
+                <div class="rst-content">                        <nav aria-label="breadcrumbs navigation" class="breadcrumb-bar" role="navigation">
+        
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="../Index.html">RTE CKEditor Image</a></li>
+        <li class="breadcrumb-item"><a href="Index.html">API Documentation</a></li>
+                    <li aria-current="page"  class="breadcrumb-item  active">Data Handling API</li>
+        </ol>
+        <div class="breadcrumb-additions"></div>
+    </nav>
+                    
+<article class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+    <div itemprop="articleBody">
+        <!-- content start -->
+                <section class="section" id="data-handling-api" data-rst-anchor="api-datahandling">
+            <a id="api-datahandling"></a>
+            <h1>Data Handling API<a class="headerlink" href="#data-handling-api" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h1>
+            
+    <p>Complete API reference for data handling components including soft references and database hooks.</p>
+
+            <div class="contents-wrapper">
+        <p class="topic-title">Table of Contents</p>
+        <ul class="menu-level">
+    <li class="toc-item">
+    <a href="#rteimagesdbhook">RteImagesDbHook</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#class-properties">Class Properties</a>
+
+        <ul class="section-level-2">
+            <li class="toc-item">
+    <a href="#fetchexternalimages">fetchExternalImages</a>
+
+
+</li>
+                    </ul>
+</li>
+            <li class="toc-item">
+    <a href="#constructor">Constructor</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#main-hook-methods">Main Hook Methods</a>
+
+        <ul class="section-level-2">
+            <li class="toc-item">
+    <a href="#processdatamap-postprocessfieldarray">processDatamap_postProcessFieldArray()</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#transform-rte">transform_rte()</a>
+
+
+</li>
+                    </ul>
+</li>
+            <li class="toc-item">
+    <a href="#image-processing-methods">Image Processing Methods</a>
+
+        <ul class="section-level-2">
+            <li class="toc-item">
+    <a href="#modifyrtefield">modifyRteField()</a>
+
+
+</li>
+                    </ul>
+</li>
+            <li class="toc-item">
+    <a href="#helper-methods">Helper Methods</a>
+
+        <ul class="section-level-2">
+            <li class="toc-item">
+    <a href="#getimagewidthfromattributes">getImageWidthFromAttributes()</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#getimageheightfromattributes">getImageHeightFromAttributes()</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#extractfromattributevalueorstyle">extractFromAttributeValueOrStyle()</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#matchstyleattribute">matchStyleAttribute()</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#resolvefieldconfigurationandrespectcolumnsoverrides">resolveFieldConfigurationAndRespectColumnsOverrides()</a>
+
+
+</li>
+                    </ul>
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#rteimagesoftreferenceparser">RteImageSoftReferenceParser</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#purpose-of-soft-references">Purpose of Soft References</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#parser-key">Parser Key</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#parsing-logic">Parsing Logic</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#reference-index-integration">Reference Index Integration</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#usage-examples">Usage Examples</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#custom-hook-extension">Custom Hook Extension</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#querying-soft-references">Querying Soft References</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#rebuilding-reference-index">Rebuilding Reference Index</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#magic-images-explained">Magic Images Explained</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#what-are-magic-images">What are Magic Images?</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#how-it-works">How It Works</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#configuration">Configuration</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#processing-context">Processing Context</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#debugging">Debugging</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#enable-detailed-logging">Enable Detailed Logging</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#check-processed-files">Check Processed Files</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#verify-soft-references">Verify Soft References</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#related-documentation">Related Documentation</a>
+
+
+</li>
+    </ul>
+
+    <button class="toggle-all-sections btn btn-sm btn-light">Collapse all Sections</button>
+</div>
+            <section class="section" id="rteimagesdbhook" data-rst-anchor="api-rteimagesdbhook">
+            <h2>RteImagesDbHook<a class="headerlink" href="#rteimagesdbhook" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <a id="api-rteimagesdbhook"></a>
+            <dl class="field-list simple ">
+            <dt class="field-odd">Namespace</dt>
+
+        <dd class="field-odd">
+            
+    <p><code>Netresearch\RteCKEditorImage\Database</code></p>
+        </dd>
+            <dt class="field-odd">Purpose</dt>
+
+        <dd class="field-odd">
+            
+    <p>TCEmain hook for processing RTE content with image references during database operations</p>
+        </dd>
+            <dt class="field-odd">Hook Registration</dt>
+
+        <dd class="field-odd">
+            
+    <p><code>$GLOBALS[&#039;TYPO3_CONF_VARS&#039;][&#039;SC_OPTIONS&#039;][&#039;t3lib/class.t3lib_tcemain.php&#039;][&#039;processDatamapClass&#039;][]</code></p>
+        </dd>
+            <dt class="field-odd">Service Configuration</dt>
+
+        <dd class="field-odd">
+            
+    <p>Public service (automatically registered via ext_localconf.php)</p>
+        </dd>
+    </dl>
+            <section class="section" id="class-properties">
+            <h3>Class Properties<a class="headerlink" href="#class-properties" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <section class="section" id="fetchexternalimages">
+            <h4>fetchExternalImages<a class="headerlink" href="#fetchexternalimages" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <dl class="php property">
+    <dt class="sig sig-object php" id="fetchexternalimages">
+        <span class="sig-name descname"><span class="pre">fetch<wbr>External<wbr>Images</span></span>
+        <a class="headerlink" href="#fetchexternalimages" data-id="fetchexternalimages" data-bs-toggle="modal" data-bs-target="#linkReferenceModal" data-rstCode=":php:property:`somemanual:fetchExternalImages`"  title="Reference this definition"><i class="fa-solid fa-paragraph"></i></a>
+    </dt>
+    <dd><dl class="field-list simple ">
+            <dt class="field-odd">Type</dt>
+
+        <dd class="field-odd">
+            
+    <p>bool</p>
+        </dd>
+            <dt class="field-odd">Visibility</dt>
+
+        <dd class="field-odd">
+            
+    <p>protected</p>
+        </dd>
+    </dl>
+    <p>Controls whether external image URLs should be fetched and uploaded to TYPO3.</p>
+
+    <p><strong>Configuration:</strong></p>
+
+    <p>Set via Extension Manager or settings.php:</p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'EXTENSIONS'</span>][<span class="hljs-string">'rte_ckeditor_image'</span>][<span class="hljs-string">'fetchExternalImages'</span>] = <span class="hljs-keyword">true</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div></dd>
+</dl>
+    </section>
+    </section>
+            <section class="section" id="constructor">
+            <h3>Constructor<a class="headerlink" href="#constructor" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <dl class="php method">
+    <dt class="sig sig-object php" id="construct">
+<span class="sig-name descname"><span class="pre">__construct</span></span>
+<span class="sig-paren">(</span>
+<em class="sig-param"><span class="pre">ExtensionConfiguration $extensionConfiguration</span></em>, <em class="sig-param"><span class="pre">LogManager $logManager</span></em><span class="sig-paren">)</span>
+        <a class="headerlink" href="#construct" data-id="construct" data-bs-toggle="modal" data-bs-target="#linkReferenceModal" data-rstCode=":php:method:`somemanual:__construct`"  title="Reference this definition"><i class="fa-solid fa-paragraph"></i></a>
+    </dt>
+    <dd>
+        
+    <p>Initializes hook with extension configuration and logging.</p>
+<dl class="field-list simple ">
+            <dt class="field-odd">param ExtensionConfiguration $extensionConfiguration</dt>
+
+        <dd class="field-odd">
+            
+    <p>TYPO3 extension configuration service</p>
+        </dd>
+            <dt class="field-odd">param LogManager $logManager</dt>
+
+        <dd class="field-odd">
+            
+    <p>Logger manager for error logging</p>
+        </dd>
+            <dt class="field-odd">throws ExtensionConfigurationExtensionNotConfiguredException</dt>
+
+        <dd class="field-odd">
+            
+    <p>If extension not configured</p>
+        </dd>
+            <dt class="field-odd">throws ExtensionConfigurationPathDoesNotExistException</dt>
+
+        <dd class="field-odd">
+            
+    <p>If configuration path missing</p>
+        </dd>
+    </dl>
+        </dd>
+</dl>
+    </section>
+            <section class="section" id="main-hook-methods">
+            <h3>Main Hook Methods<a class="headerlink" href="#main-hook-methods" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <section class="section" id="processdatamap-postprocessfieldarray">
+            <h4>processDatamap_postProcessFieldArray()<a class="headerlink" href="#processdatamap-postprocessfieldarray" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <dl class="php method">
+    <dt class="sig sig-object php" id="processdatamap-postprocessfieldarray">
+<span class="sig-name descname"><span class="pre">processDatamap_postProcessFieldArray</span></span>
+<span class="sig-paren">(</span>
+<em class="sig-param"><span class="pre">string $status</span></em>, <em class="sig-param"><span class="pre">string $table</span></em>, <em class="sig-param"><span class="pre">string $id</span></em>, <em class="sig-param"><span class="pre">array &amp;$fieldArray</span></em>, <em class="sig-param"><span class="pre">DataHandler &amp;$dataHandler</span></em><span class="sig-paren">)</span>
+<em class="sig-returns"><span class="pre">: void</span></em>
+        <a class="headerlink" href="#processdatamap-postprocessfieldarray" data-id="processdatamap-postprocessfieldarray" data-bs-toggle="modal" data-bs-target="#linkReferenceModal" data-rstCode=":php:method:`somemanual:processDatamap_postProcessFieldArray`"  title="Reference this definition"><i class="fa-solid fa-paragraph"></i></a>
+    </dt>
+    <dd>
+        
+    <p>Main TCEmain hook method called after field processing, before database save.</p>
+<dl class="field-list simple ">
+            <dt class="field-odd">param string $status</dt>
+
+        <dd class="field-odd">
+            
+    <p>Record status (&#039;new&#039; or &#039;update&#039;)</p>
+        </dd>
+            <dt class="field-odd">param string $table</dt>
+
+        <dd class="field-odd">
+            
+    <p>Database table name</p>
+        </dd>
+            <dt class="field-odd">param string $id</dt>
+
+        <dd class="field-odd">
+            
+    <p>Record ID (or &#039;NEW...&#039; for new records)</p>
+        </dd>
+            <dt class="field-odd">param array $fieldArray</dt>
+
+        <dd class="field-odd">
+            
+    <p>Reference to field values array</p>
+        </dd>
+            <dt class="field-odd">param DataHandler $dataHandler</dt>
+
+        <dd class="field-odd">
+            
+    <p>TYPO3 DataHandler instance</p>
+        </dd>
+    </dl>
+    <p><strong>Processing Flow:</strong></p>
+
+    
+<ol start="1" type="1">
+    <li value="1">Iterates through all fields in <code>$fieldArray</code></li>
+    <li value="2">Identifies RTE text fields via TCA configuration</li>
+    <li value="3">Checks for <code>enableRichtext</code> flag</li>
+    <li value="4">Processes image tags in RTE content</li>
+    <li value="5">Updates <code>$fieldArray</code> with processed content</li>
+</ol>
+
+    <p><strong>Example Usage</strong> (automatic via hook):</p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// When content is saved:</span>
+$dataHandler-&gt;process_datamap();
+<span class="hljs-comment">// Hook is automatically called for each RTE field</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+        </dd>
+</dl>
+    </section>
+            <section class="section" id="transform-rte">
+            <h4>transform_rte()<a class="headerlink" href="#transform-rte" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <dl class="php method">
+    <dt class="sig sig-object php" id="transform-rte">
+<span class="sig-name descname"><span class="pre">transform_rte</span></span>
+<span class="sig-paren">(</span>
+<em class="sig-param"><span class="pre">string $value</span></em>, <em class="sig-param"><span class="pre">RteHtmlParser $rteHtmlParser</span></em><span class="sig-paren">)</span>
+<em class="sig-returns"><span class="pre">: string</span></em>
+        <a class="headerlink" href="#transform-rte" data-id="transform-rte" data-bs-toggle="modal" data-bs-target="#linkReferenceModal" data-rstCode=":php:method:`somemanual:transform_rte`"  title="Reference this definition"><i class="fa-solid fa-paragraph"></i></a>
+    </dt>
+    <dd>
+        
+    <p>Transforms RTE content for database storage (legacy method).</p>
+<dl class="field-list simple ">
+            <dt class="field-odd">param string $value</dt>
+
+        <dd class="field-odd">
+            
+    <p>HTML content from RTE</p>
+        </dd>
+            <dt class="field-odd">param RteHtmlParser $rteHtmlParser</dt>
+
+        <dd class="field-odd">
+            
+    <p>TYPO3 RTE HTML parser</p>
+        </dd>
+            <dt class="field-odd">returntype</dt>
+
+        <dd class="field-odd">
+            
+    <p>string</p>
+        </dd>
+    </dl>
+    <p><strong>Transformation Steps:</strong></p>
+
+    
+<ol start="1" type="1">
+    <li value="1">Splits content by <code>&lt;img&gt;</code> tags</li>
+    <li value="2">Converts relative URLs to absolute</li>
+    <li value="3">Adds site URL prefix</li>
+    <li value="4">Ensures <code>alt</code> attribute exists</li>
+</ol>
+    
+<div class="admonition note" role="alert">
+    <p class="admonition-title">Note</p>
+            
+    <p>This method follows TYPO3&#039;s legacy naming convention (camelCase with underscore).</p>
+
+</div>
+                    <dl class="field-list simple">
+                <dt class="field-even">Returns</dt>
+                <dd class="field-even">
+                    
+    <p>Transformed HTML string</p>
+
+                </dd>
+            </dl>
+        </dd>
+</dl>
+    </section>
+    </section>
+            <section class="section" id="image-processing-methods">
+            <h3>Image Processing Methods<a class="headerlink" href="#image-processing-methods" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <section class="section" id="modifyrtefield">
+            <h4>modifyRteField()<a class="headerlink" href="#modifyrtefield" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <dl class="php method">
+    <dt class="sig sig-object php" id="modifyrtefield">
+<span class="sig-name descname"><span class="pre">modifyRteField</span></span>
+<span class="sig-paren">(</span>
+<em class="sig-param"><span class="pre">string $value</span></em><span class="sig-paren">)</span>
+<em class="sig-returns"><span class="pre">: string</span></em>
+        <a class="headerlink" href="#modifyrtefield" data-id="modifyrtefield" data-bs-toggle="modal" data-bs-target="#linkReferenceModal" data-rstCode=":php:method:`somemanual:modifyRteField`"  title="Reference this definition"><i class="fa-solid fa-paragraph"></i></a>
+    </dt>
+    <dd>
+        
+    <p>Main processing method for RTE field content with images.</p>
+<dl class="field-list simple ">
+            <dt class="field-odd">param string $value</dt>
+
+        <dd class="field-odd">
+            
+    <p>RTE HTML content</p>
+        </dd>
+            <dt class="field-odd">returntype</dt>
+
+        <dd class="field-odd">
+            
+    <p>string</p>
+        </dd>
+            <dt class="field-odd">visibility</dt>
+
+        <dd class="field-odd">
+            
+    <p>private</p>
+        </dd>
+    </dl>
+    <p><strong>Processing Logic:</strong></p>
+
+    <p><strong>1. Image Tag Splitting</strong></p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$imgSplit = $rteHtmlParser-&gt;splitTags(<span class="hljs-string">'img'</span>, $value);
+<span class="hljs-comment">// Results in: ['text', '&lt;img...&gt;', 'text', '&lt;img...&gt;', ...]</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    <p><strong>2. URL Processing</strong></p>
+
+
+<ul>
+    <li class="dash">Converts absolute URLs to relative</li>
+    <li class="dash">Handles site subpath scenarios</li>
+    <li class="dash">Processes <code>data-htmlarea-file-uid</code> references</li>
+</ul>
+
+    <p><strong>3. FAL Integration</strong></p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-keyword">if</span> (<span class="hljs-keyword">isset</span>($attribArray[<span class="hljs-string">'data-htmlarea-file-uid'</span>])) {
+    $originalImageFile = $resourceFactory-&gt;getFileObject($uid);
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    <p><strong>4. Magic Image Processing</strong></p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$imageConfiguration = [
+    <span class="hljs-string">'width'</span> =&gt; $imageWidth,
+    <span class="hljs-string">'height'</span> =&gt; $imageHeight,
+];
+
+$magicImage = $originalImageFile-&gt;process(
+    ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
+    $imageConfiguration
+);</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    <p><strong>5. External Image Fetching</strong></p>
+
+
+<ul>
+    <li class="dash">Only in backend context</li>
+    <li class="dash">Only if <code>fetchExternalImages</code> is true</li>
+    <li class="dash">Downloads and uploads to user&#039;s default folder</li>
+</ul>
+
+    <p><strong>6. Local File Detection</strong></p>
+
+
+<ul>
+    <li class="dash">Checks if image is in fileadmin/</li>
+    <li class="dash">Attempts to find FAL reference</li>
+    <li class="dash">Adds <code>data-htmlarea-file-uid</code> if found</li>
+</ul>
+
+    <p><strong>Scenarios Handled:</strong></p>
+<div class="table-responsive">
+    <table class="table table-bordered align-default">
+                            <thead>
+            <tr>
+                            <th>Scenario</th>
+                            <th>Action</th>
+                    </tr>
+        </thead>
+        <tbody>
+    <tr>
+            <td>Image with <code>data-htmlarea-file-uid</code></td>            <td>Load from FAL, process if dimensions differ</td>    </tr>    <tr>
+            <td>External URL (backend)</td>            <td>Fetch, upload, create FAL record</td>    </tr>    <tr>
+            <td>External URL (frontend)</td>            <td>Leave as-is</td>    </tr>    <tr>
+            <td>Local file without UID</td>            <td>Search FAL, add UID if found</td>    </tr>    <tr>
+            <td>Relative URL</td>            <td>Convert to site-relative path</td>    </tr></tbody>    </table>
+</div>
+                    <dl class="field-list simple">
+                <dt class="field-even">Returns</dt>
+                <dd class="field-even">
+                    
+    <p>Processed HTML content</p>
+
+                </dd>
+            </dl>
+        </dd>
+</dl>
+    </section>
+    </section>
+            <section class="section" id="helper-methods">
+            <h3>Helper Methods<a class="headerlink" href="#helper-methods" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <section class="section" id="getimagewidthfromattributes">
+            <h4>getImageWidthFromAttributes()<a class="headerlink" href="#getimagewidthfromattributes" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <dl class="php method">
+    <dt class="sig sig-object php" id="getimagewidthfromattributes">
+<span class="sig-name descname"><span class="pre">getImageWidthFromAttributes</span></span>
+<span class="sig-paren">(</span>
+<em class="sig-param"><span class="pre">array $attributes</span></em><span class="sig-paren">)</span>
+<em class="sig-returns"><span class="pre">: int</span></em>
+        <a class="headerlink" href="#getimagewidthfromattributes" data-id="getimagewidthfromattributes" data-bs-toggle="modal" data-bs-target="#linkReferenceModal" data-rstCode=":php:method:`somemanual:getImageWidthFromAttributes`"  title="Reference this definition"><i class="fa-solid fa-paragraph"></i></a>
+    </dt>
+    <dd>
+        
+    <p>Extracts width from image attributes, preferring style attribute.</p>
+<dl class="field-list simple ">
+            <dt class="field-odd">param array $attributes</dt>
+
+        <dd class="field-odd">
+            
+    <p>Image tag attributes</p>
+        </dd>
+            <dt class="field-odd">returntype</dt>
+
+        <dd class="field-odd">
+            
+    <p>int</p>
+        </dd>
+            <dt class="field-odd">visibility</dt>
+
+        <dd class="field-odd">
+            
+    <p>private</p>
+        </dd>
+    </dl>
+    <p><strong>Priority:</strong></p>
+
+    
+<ol start="1" type="1">
+    <li value="1">Style attribute: <code>style=&quot;width: 800px&quot;</code></li>
+    <li value="2">Width attribute: <code>width=&quot;800&quot;</code></li>
+</ol>
+
+                    <dl class="field-list simple">
+                <dt class="field-even">Returns</dt>
+                <dd class="field-even">
+                    
+    <p>Integer width value</p>
+
+                </dd>
+            </dl>
+        </dd>
+</dl>
+    </section>
+            <section class="section" id="getimageheightfromattributes">
+            <h4>getImageHeightFromAttributes()<a class="headerlink" href="#getimageheightfromattributes" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <dl class="php method">
+    <dt class="sig sig-object php" id="getimageheightfromattributes">
+<span class="sig-name descname"><span class="pre">getImageHeightFromAttributes</span></span>
+<span class="sig-paren">(</span>
+<em class="sig-param"><span class="pre">array $attributes</span></em><span class="sig-paren">)</span>
+<em class="sig-returns"><span class="pre">: int</span></em>
+        <a class="headerlink" href="#getimageheightfromattributes" data-id="getimageheightfromattributes" data-bs-toggle="modal" data-bs-target="#linkReferenceModal" data-rstCode=":php:method:`somemanual:getImageHeightFromAttributes`"  title="Reference this definition"><i class="fa-solid fa-paragraph"></i></a>
+    </dt>
+    <dd>
+        
+    <p>Extracts height from image attributes, preferring style attribute.</p>
+<dl class="field-list simple ">
+            <dt class="field-odd">param array $attributes</dt>
+
+        <dd class="field-odd">
+            
+    <p>Image tag attributes</p>
+        </dd>
+            <dt class="field-odd">returntype</dt>
+
+        <dd class="field-odd">
+            
+    <p>int</p>
+        </dd>
+            <dt class="field-odd">visibility</dt>
+
+        <dd class="field-odd">
+            
+    <p>private</p>
+        </dd>
+    </dl>
+    <p><strong>Priority:</strong></p>
+
+    
+<ol start="1" type="1">
+    <li value="1">Style attribute: <code>style=&quot;height: 600px&quot;</code></li>
+    <li value="2">Height attribute: <code>height=&quot;600&quot;</code></li>
+</ol>
+
+                    <dl class="field-list simple">
+                <dt class="field-even">Returns</dt>
+                <dd class="field-even">
+                    
+    <p>Integer height value</p>
+
+                </dd>
+            </dl>
+        </dd>
+</dl>
+    </section>
+            <section class="section" id="extractfromattributevalueorstyle">
+            <h4>extractFromAttributeValueOrStyle()<a class="headerlink" href="#extractfromattributevalueorstyle" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <dl class="php method">
+    <dt class="sig sig-object php" id="extractfromattributevalueorstyle">
+<span class="sig-name descname"><span class="pre">extractFromAttributeValueOrStyle</span></span>
+<span class="sig-paren">(</span>
+<em class="sig-param"><span class="pre">array $attributes</span></em>, <em class="sig-param"><span class="pre">string $imageAttribute</span></em><span class="sig-paren">)</span>
+        <a class="headerlink" href="#extractfromattributevalueorstyle" data-id="extractfromattributevalueorstyle" data-bs-toggle="modal" data-bs-target="#linkReferenceModal" data-rstCode=":php:method:`somemanual:extractFromAttributeValueOrStyle`"  title="Reference this definition"><i class="fa-solid fa-paragraph"></i></a>
+    </dt>
+    <dd>
+        
+    <p>Generic extractor for image dimension from attributes or style.</p>
+<dl class="field-list simple ">
+            <dt class="field-odd">param array $attributes</dt>
+
+        <dd class="field-odd">
+            
+    <p>Image tag attributes array</p>
+        </dd>
+            <dt class="field-odd">param string $imageAttribute</dt>
+
+        <dd class="field-odd">
+            
+    <p>Attribute name (&#039;width&#039; or &#039;height&#039;)</p>
+        </dd>
+            <dt class="field-odd">visibility</dt>
+
+        <dd class="field-odd">
+            
+    <p>private</p>
+        </dd>
+    </dl>
+                    <dl class="field-list simple">
+                <dt class="field-even">Returns</dt>
+                <dd class="field-even">
+                    
+    <p>Attribute value (mixed type) or null</p>
+
+                </dd>
+            </dl>
+        </dd>
+</dl>
+    </section>
+            <section class="section" id="matchstyleattribute">
+            <h4>matchStyleAttribute()<a class="headerlink" href="#matchstyleattribute" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <dl class="php method">
+    <dt class="sig sig-object php" id="matchstyleattribute">
+<span class="sig-name descname"><span class="pre">matchStyleAttribute</span></span>
+<span class="sig-paren">(</span>
+<em class="sig-param"><span class="pre">string styleAttribute</span></em>, <em class="sig-param"><span class="pre">string imageAttribute</span></em><span class="sig-paren">)</span>
+        <a class="headerlink" href="#matchstyleattribute" data-id="matchstyleattribute" data-bs-toggle="modal" data-bs-target="#linkReferenceModal" data-rstCode=":php:method:`somemanual:matchStyleAttribute`"  title="Reference this definition"><i class="fa-solid fa-paragraph"></i></a>
+    </dt>
+    <dd>
+        
+    <p>Extracts dimension value from CSS style attribute.</p>
+<dl class="field-list simple ">
+            <dt class="field-odd">param string styleAttribute</dt>
+
+        <dd class="field-odd">
+            
+    <p>CSS style string</p>
+        </dd>
+            <dt class="field-odd">param string imageAttribute</dt>
+
+        <dd class="field-odd">
+            
+    <p>Attribute name to extract</p>
+        </dd>
+            <dt class="field-odd">returntype</dt>
+
+        <dd class="field-odd">
+            
+    <p>string|null</p>
+        </dd>
+            <dt class="field-odd">visibility</dt>
+
+        <dd class="field-odd">
+            
+    <p>private</p>
+        </dd>
+    </dl>
+    <p><strong>Pattern:</strong> <code>/width[[:space:]]*:[[:space:]]*([0-9]*)[[:space:]]*px/i</code></p>
+
+    <p><strong>Example:</strong></p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$style = <span class="hljs-string">"width: 800px; height: 600px;"</span>;
+$width = <span class="hljs-keyword">$this</span>-&gt;matchStyleAttribute($style, <span class="hljs-string">'width'</span>);
+<span class="hljs-comment">// Returns: "800"</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+                    <dl class="field-list simple">
+                <dt class="field-even">Returns</dt>
+                <dd class="field-even">
+                    
+    <p>Extracted value or null</p>
+
+                </dd>
+            </dl>
+        </dd>
+</dl>
+    </section>
+            <section class="section" id="resolvefieldconfigurationandrespectcolumnsoverrides">
+            <h4>resolveFieldConfigurationAndRespectColumnsOverrides()<a class="headerlink" href="#resolvefieldconfigurationandrespectcolumnsoverrides" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <dl class="php method">
+    <dt class="sig sig-object php" id="resolvefieldconfigurationandrespectcolumnsoverrides">
+<span class="sig-name descname"><span class="pre">resolveFieldConfigurationAndRespectColumnsOverrides</span></span>
+<span class="sig-paren">(</span>
+<em class="sig-param"><span class="pre">DataHandler $dataHandler</span></em>, <em class="sig-param"><span class="pre">string $table</span></em>, <em class="sig-param"><span class="pre">string $field</span></em><span class="sig-paren">)</span>
+<em class="sig-returns"><span class="pre">: array</span></em>
+        <a class="headerlink" href="#resolvefieldconfigurationandrespectcolumnsoverrides" data-id="resolvefieldconfigurationandrespectcolumnsoverrides" data-bs-toggle="modal" data-bs-target="#linkReferenceModal" data-rstCode=":php:method:`somemanual:resolveFieldConfigurationAndRespectColumnsOverrides`"  title="Reference this definition"><i class="fa-solid fa-paragraph"></i></a>
+    </dt>
+    <dd>
+        
+    <p>Gets TCA field configuration with type-specific overrides applied.</p>
+<dl class="field-list simple ">
+            <dt class="field-odd">param DataHandler $dataHandler</dt>
+
+        <dd class="field-odd">
+            
+    <p>Data handler instance</p>
+        </dd>
+            <dt class="field-odd">param string $table</dt>
+
+        <dd class="field-odd">
+            
+    <p>Table name</p>
+        </dd>
+            <dt class="field-odd">param string $field</dt>
+
+        <dd class="field-odd">
+            
+    <p>Field name</p>
+        </dd>
+            <dt class="field-odd">returntype</dt>
+
+        <dd class="field-odd">
+            
+    <p>array</p>
+        </dd>
+            <dt class="field-odd">visibility</dt>
+
+        <dd class="field-odd">
+            
+    <p>private</p>
+        </dd>
+    </dl>
+    <p><strong>Use Case:</strong> Handles cases where field config varies by content type (e.g., different RTE configs for header vs. bodytext).</p>
+
+                    <dl class="field-list simple">
+                <dt class="field-even">Returns</dt>
+                <dd class="field-even">
+                    
+    <p>Merged TCA configuration array</p>
+
+                </dd>
+            </dl>
+        </dd>
+</dl>
+    </section>
+    </section>
+    </section>
+            <section class="section" id="rteimagesoftreferenceparser" data-rst-anchor="api-rteimagesoftreferenceparser">
+            <h2>RteImageSoftReferenceParser<a class="headerlink" href="#rteimagesoftreferenceparser" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <a id="api-rteimagesoftreferenceparser"></a>
+            <dl class="field-list simple ">
+            <dt class="field-odd">Namespace</dt>
+
+        <dd class="field-odd">
+            
+    <p><code>Netresearch\RteCKEditorImage\DataHandling\SoftReference</code></p>
+        </dd>
+            <dt class="field-odd">Purpose</dt>
+
+        <dd class="field-odd">
+            
+    <p>Parses soft references to FAL images in RTE content for reference tracking</p>
+        </dd>
+    </dl>
+            
+    <p><strong>Service Configuration:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-string">Netresearch\RteCKEditorImage\DataHandling\SoftReference\RteImageSoftReferenceParser:</span>
+  <span class="hljs-attr">public:</span> <span class="hljs-literal">true</span>
+  <span class="hljs-attr">tags:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">softreference.parser</span>
+      <span class="hljs-attr">parserKey:</span> <span class="hljs-string">rtehtmlarea_images</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            <section class="section" id="purpose-of-soft-references">
+            <h3>Purpose of Soft References<a class="headerlink" href="#purpose-of-soft-references" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Soft references allow TYPO3 to:</p>
+
+            
+
+<ul>
+    <li class="dash">Track where files are used</li>
+    <li class="dash">Prevent deletion of referenced files</li>
+    <li class="dash">Update references when files are moved</li>
+    <li class="dash">Maintain referential integrity</li>
+</ul>
+
+    </section>
+            <section class="section" id="parser-key">
+            <h3>Parser Key<a class="headerlink" href="#parser-key" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <dl class="field-list simple ">
+            <dt class="field-odd">Key</dt>
+
+        <dd class="field-odd">
+            
+    <p><code>rtehtmlarea_images</code></p>
+        </dd>
+    </dl>
+            
+    <p><strong>TCA Registration</strong> (automatic):</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// RTE fields automatically use soft reference parsing</span>
+<span class="hljs-string">'bodytext'</span> =&gt; [
+    <span class="hljs-string">'config'</span> =&gt; [
+        <span class="hljs-string">'type'</span> =&gt; <span class="hljs-string">'text'</span>,
+        <span class="hljs-string">'enableRichtext'</span> =&gt; <span class="hljs-keyword">true</span>,
+        <span class="hljs-comment">// Soft references automatically parsed</span>
+    ]
+]</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="parsing-logic">
+            <h3>Parsing Logic<a class="headerlink" href="#parsing-logic" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>The parser scans RTE content for:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">data-htmlarea-file-uid</span>=<span class="hljs-string">"123"</span> <span class="hljs-attr">...</span> /&gt;</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>And creates soft reference entries:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">[
+    <span class="hljs-string">'matchString'</span> =&gt; <span class="hljs-string">'&lt;img data-htmlarea-file-uid="123" ... /&gt;'</span>,
+    <span class="hljs-string">'subst'</span> =&gt; [
+        <span class="hljs-string">'type'</span> =&gt; <span class="hljs-string">'file'</span>,
+        <span class="hljs-string">'tokenID'</span> =&gt; <span class="hljs-string">'...'</span>,
+        <span class="hljs-string">'tokenValue'</span> =&gt; <span class="hljs-string">'file:123'</span>,
+        <span class="hljs-string">'recordRef'</span> =&gt; <span class="hljs-string">'sys_file:123'</span>
+    ]
+]</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="reference-index-integration">
+            <h3>Reference Index Integration<a class="headerlink" href="#reference-index-integration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Soft references populate <code>sys_refindex</code> table:</p>
+
+            <div class="table-responsive">
+    <table class="table table-bordered align-default">
+                            <thead>
+            <tr>
+                            <th>Field</th>
+                            <th>Value</th>
+                    </tr>
+        </thead>
+        <tbody>
+    <tr>
+            <td>tablename</td>            <td>tt_content</td>    </tr>    <tr>
+            <td>recuid</td>            <td>123 (content element ID)</td>    </tr>    <tr>
+            <td>field</td>            <td>bodytext</td>    </tr>    <tr>
+            <td>ref_table</td>            <td>sys_file</td>    </tr>    <tr>
+            <td>ref_uid</td>            <td>456 (file UID)</td>    </tr>    <tr>
+            <td>softref_key</td>            <td>rtehtmlarea_images</td>    </tr></tbody>    </table>
+</div>
+    </section>
+    </section>
+            <section class="section" id="usage-examples">
+            <h2>Usage Examples<a class="headerlink" href="#usage-examples" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="custom-hook-extension">
+            <h3>Custom Hook Extension<a class="headerlink" href="#custom-hook-extension" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>If you need to extend image processing:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// EXT:my_ext/Classes/Hooks/CustomImageHook.php</span>
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">MyVendor</span>\<span class="hljs-title">MyExt</span>\<span class="hljs-title">Hooks</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomImageHook</span>
+</span>{
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">processDatamap_postProcessFieldArray</span><span class="hljs-params">(
+        string $status,
+        string $table,
+        string $id,
+        array &amp;$fieldArray,
+        \TYPO3\CMS\Core\DataHandling\DataHandler &amp;$dataHandler
+    )</span>: <span class="hljs-title">void</span> </span>{
+        <span class="hljs-comment">// Your custom processing</span>
+        <span class="hljs-keyword">foreach</span> ($fieldArray <span class="hljs-keyword">as</span> $field =&gt; &amp;$value) {
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">$this</span>-&gt;isRteField($table, $field)) {
+                $value = <span class="hljs-keyword">$this</span>-&gt;customImageProcessing($value);
+            }
+        }
+    }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>Register in ext_localconf.php:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'SC_OPTIONS'</span>][<span class="hljs-string">'t3lib/class.t3lib_tcemain.php'</span>][<span class="hljs-string">'processDatamapClass'</span>][]
+    = \MyVendor\MyExt\Hooks\CustomImageHook::class;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="querying-soft-references">
+            <h3>Querying Soft References<a class="headerlink" href="#querying-soft-references" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Find all content using a specific file:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">Database</span>\<span class="hljs-title">ConnectionPool</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">Utility</span>\<span class="hljs-title">GeneralUtility</span>;
+
+$queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+    -&gt;getQueryBuilderForTable(<span class="hljs-string">'sys_refindex'</span>);
+
+$references = $queryBuilder
+    -&gt;select(<span class="hljs-string">'*'</span>)
+    -&gt;from(<span class="hljs-string">'sys_refindex'</span>)
+    -&gt;where(
+        $queryBuilder-&gt;expr()-&gt;eq(
+            <span class="hljs-string">'ref_table'</span>,
+            $queryBuilder-&gt;createNamedParameter(<span class="hljs-string">'sys_file'</span>)
+        ),
+        $queryBuilder-&gt;expr()-&gt;eq(
+            <span class="hljs-string">'ref_uid'</span>,
+            $queryBuilder-&gt;createNamedParameter(<span class="hljs-number">123</span>, \PDO::PARAM_INT)
+        ),
+        $queryBuilder-&gt;expr()-&gt;eq(
+            <span class="hljs-string">'softref_key'</span>,
+            $queryBuilder-&gt;createNamedParameter(<span class="hljs-string">'rtehtmlarea_images'</span>)
+        )
+    )
+    -&gt;executeQuery()
+    -&gt;fetchAllAssociative();</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="rebuilding-reference-index">
+            <h3>Rebuilding Reference Index<a class="headerlink" href="#rebuilding-reference-index" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>If references become out of sync:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash"><span class="hljs-comment"># CLI command</span>
+./vendor/bin/typo3 referenceindex:update
+
+<span class="hljs-comment"># Or programmatically</span>
+use TYPO3\CMS\Core\Database\ReferenceIndex;
+
+<span class="hljs-variable">$referenceIndex</span> = GeneralUtility::makeInstance(ReferenceIndex::class);
+<span class="hljs-variable">$referenceIndex</span>-&gt;updateRefIndexTable(<span class="hljs-string">'tt_content'</span>, 123);</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="magic-images-explained">
+            <h2>Magic Images Explained<a class="headerlink" href="#magic-images-explained" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="what-are-magic-images">
+            <h3>What are Magic Images?<a class="headerlink" href="#what-are-magic-images" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Magic images are TYPO3&#039;s automatic image processing system that creates optimized variants of images based on constraints.</p>
+
+    </section>
+            <section class="section" id="how-it-works">
+            <h3>How It Works<a class="headerlink" href="#how-it-works" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Original Image:</strong> Stored in FAL (e.g., 4000x3000px)</li>
+    <li value="2"><strong>Constraints:</strong> Specified in RTE (e.g., 800x600px)</li>
+    <li value="3"><strong>Processing:</strong> TYPO3 creates processed variant</li>
+    <li value="4"><strong>Storage:</strong> <code>fileadmin/_processed_/a/b/csm_image_hash.jpg</code></li>
+    <li value="5"><strong>URL:</strong> Points to processed variant, not original</li>
+</ol>
+
+    </section>
+            <section class="section" id="configuration">
+            <h3>Configuration<a class="headerlink" href="#configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">RTE.default.buttons.image.options.magic {
+    maxWidth = 1920
+    maxHeight = 9999
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="processing-context">
+            <h3>Processing Context<a class="headerlink" href="#processing-context" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">ProcessedFile::CONTEXT_IMAGECROPSCALEMASK</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>Supported operations:</p>
+
+            
+
+<ul>
+    <li class="dash"><strong>Crop:</strong> <code>crop</code> parameter</li>
+    <li class="dash"><strong>Scale:</strong> <code>width</code>, <code>height</code> parameters</li>
+    <li class="dash"><strong>Mask:</strong> Alpha channel operations</li>
+</ul>
+
+    </section>
+    </section>
+            <section class="section" id="debugging">
+            <h2>Debugging<a class="headerlink" href="#debugging" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="enable-detailed-logging">
+            <h3>Enable Detailed Logging<a class="headerlink" href="#enable-detailed-logging" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// LocalConfiguration.php</span>
+$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'LOG'</span>][<span class="hljs-string">'Netresearch'</span>][<span class="hljs-string">'RteCKEditorImage'</span>][<span class="hljs-string">'writerConfiguration'</span>] = [
+    \Psr\Log\LogLevel::DEBUG =&gt; [
+        \TYPO3\CMS\Core\Log\Writer\FileWriter::class =&gt; [
+            <span class="hljs-string">'logFile'</span> =&gt; <span class="hljs-string">'typo3temp/var/log/rte_ckeditor_image.log'</span>
+        ]
+    ]
+];</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="check-processed-files">
+            <h3>Check Processed Files<a class="headerlink" href="#check-processed-files" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash"><span class="hljs-comment"># List processed images</span>
+ls -la fileadmin/_processed_/
+
+<span class="hljs-comment"># Check file processing status</span>
+./vendor/bin/typo3 cleanup:processedfiles</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="verify-soft-references">
+            <h3>Verify Soft References<a class="headerlink" href="#verify-soft-references" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs sql"><span class="hljs-comment">-- Check soft references for content element</span>
+<span class="hljs-keyword">SELECT</span> * <span class="hljs-keyword">FROM</span> sys_refindex
+<span class="hljs-keyword">WHERE</span> tablename = <span class="hljs-string">'tt_content'</span>
+<span class="hljs-keyword">AND</span> recuid = <span class="hljs-number">123</span>
+<span class="hljs-keyword">AND</span> softref_key = <span class="hljs-string">'rtehtmlarea_images'</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="related-documentation">
+            <h2>Related Documentation<a class="headerlink" href="#related-documentation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+
+<ul>
+    <li class="dash"><a href="Controllers.html#api-controllers">Controllers API</a></li>
+    <li class="dash"><a href="EventListeners.html#api-eventlisteners">Event Listeners</a></li>
+    <li class="dash"><a href="../Architecture/System-Architecture.html#architecture-overview">Architecture Overview</a></li>
+    <li class="dash"><a href="../Troubleshooting/Index.html#troubleshooting-index">Troubleshooting</a></li>
+</ul>
+
+    </section>
+    </section>
+        <!-- content end -->
+    </div>
+</article>
+                        
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center"><li class="page-item">
+                            <a class="page-link" href="Controllers.html"
+                               title="Accesskey Alt(+Shift)+p">
+                                <i class="fa-solid fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    <li class="page-item">
+                            <a class="page-link" href="EventListeners.html"
+                               title="Accesskey Alt(+Shift)+n">
+                                Next <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+        </nav>
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="linkReferenceModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="API/DataHandling">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="linkReferenceModalLabel">Reference to the headline</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="permalink-alert-success" role="alert"></div>
+                <div class="mb-3">
+                    <label for="permalink-uri" class="col-form-label">URL</label>
+                    <div class="input-group">
+                        <input class="form-control code" id="permalink-uri" readonly>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-uri"><i class="far fa-clone"></i></button>
+                    </div>
+                    <div class="permalink-short-wrapper">
+                        <label for="permalink-short" class="col-form-label">Permalink (Shortlink)</label>
+                        <div class="input-group">
+                            <input class="form-control code" id="permalink-short" readonly>
+                            <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-short"><i class="far fa-clone"></i></button>
+                        </div>
+                        <p><em>Copy and freely share the link</em></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-warning alert-permalink-rst" role="alert">This link target has no permanent anchor assigned.The link below can be used, but is prone to change if the page gets moved.
+                    </div>
+                    <label for="permalink-rst" class="col-form-label">Link in reStructuredText (reST)</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-rst" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-rst"><i class="far fa-clone"></i></button>
+                    </div>
+                    <p><em>Copy this link into your TYPO3 manual.</em></p>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-md" class="col-form-label">Link in Markdown</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-md" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-md"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-html" class="col-form-label">Link in HTML</label>
+                                        <div class="input-group">
+                        <textarea class="form-control code" id="permalink-html" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-html"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>    <div class="modal fade" id="generalModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="API/DataHandling"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generalModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="general-alert-success" role="alert"></div>
+                <div id="generalModalContent">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div id="generalModalCustomButtons"></div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-regular fa-circle-xmark"></i>&nbsp;Close</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+
+<footer class="page-footer">
+    <div class="frame frame-ruler-before frame-background-dark">
+        <div class="frame-container">
+            <div class="frame-inner">
+                                <div class="footer-additional">
+                    <p class="text-center">Last rendered: Oct 23, 2025 19:49</p>
+                </div>
+                <div class="footer-meta">
+                    <ul class="footer-meta-navigation">
+                        <li><a href="https://typo3.org/legal-notice" rel="nofollow" target="_blank" title="Legal Notice">Legal Notice</a></li>
+                        <li><a href="https://typo3.org/privacy-policy" rel="nofollow" target="_blank" title="Privacy Policy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="../_resources/js/popper.min.js"></script>
+<script src="../_resources/js/bootstrap.min.js"></script>
+<script src="../_resources/js/theme.min.js"></script>
+
+<!--
+ Locally rendered. No tracking embedded.
+-->
+</body>
+</html>

@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <title>RTE CKEditor Image
+        documentation</title>
+
+    
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="phpdocumentor/guides" name="generator">
+<meta content="" name="docsearch:name">
+<meta content="" name="docsearch:package_type">
+<meta content="" name="docsearch:release">
+<meta content="" name="docsearch:version">
+<meta content="2025-10-23T19:49:09+00:00" name="docsearch:modified">
+<meta content="2025-10-23T19:49:09+00:00" name="dc.modified">
+<meta content="2025-10-23T19:49:09+00:00" property="article:modified_time">
+    <link href="http://purl.org/dc/elements/1.1/" rel="schema.dc">
+<link href="_resources/css/theme.css" rel="stylesheet">
+<link href="https://docs.typo3.org/search/" rel="search" title="Search">
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/webcomponents-loader.js"></script>
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/typo3-universe.js" type="module"></script>
+                        <link href="Integration/Index.html" rel="next" title="Integration &amp; Configuration"/>
+            <link href="#" rel="top" title="RTE CKEditor Image"/>
+    </head>
+<body>
+<div class="page">
+    <header>
+    <div class="page-topbar">
+        <div class="page-topbar-inner">
+            <typo3-universe active="documentation">
+                <div style="display: block; height: 44px; background-color: #313131;"></div>
+            </typo3-universe>
+        </div>
+    </div>
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="d-flex flex-wrap">
+                <div class="logo-wrapper">
+                    <a class="logo" href="https://docs.typo3.org/" title="TYPO3 Documentation">
+                        <img alt="TYPO3 Logo" class="logo-image" src="_resources/img/typo3-logo.svg" width="484" height="130">
+                    </a>
+                </div>
+                <div class="align-self-center order-lg-2 order-last">
+                    
+<div class="toc-header">
+    <div class="toc-title pe-3">
+                            <a class="toc-title-project" href="#">RTE CKEditor Image</a>
+            </div>
+    </div>                </div>
+                <div class="ms-auto order-lg-3 d-flex">
+                    <div class="menu-search-wrapper">
+                        <button id="toc-toggle" class="btn btn-light d-block d-lg-none" tabindex="0" aria-controls="toc-collapse" aria-expanded="false">
+                            <i class="fas fa-bars"></i> <span class="visually-hidden">Mobile Menu</span>
+                        </button>
+                        <all-documentations-menu data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu>
+                                                <search role="search">
+                            <form action="https://docs.typo3.org/search/search" id="global-search-form" method="get">
+                                <div class="sr-only"><label for="globalsearchinput">TYPO3 documentation...</label></div>
+                                <div class="input-group mb-3 mt-sm-3">
+                                    <select class="form-select search__scope" id="searchscope" name="scope">
+                                        <option value="">Search all</option>
+                                    </select>
+                                    <input autocomplete="off" class="form-control shadow-none" id="globalsearchinput" name="q" placeholder="TYPO3 documentation..." type="text" value="">
+                                    <button class="btn btn-light" type="submit"><i class="fa fa-search"></i>&nbsp;<span class="d-none d-md-inline">Search</span></button>
+                                </div>
+                            </form>
+                            <div id="global-search-root"></div>
+                        </search>
+                        <div class="position-relative d-inline-block">
+                            <button id="options-toggle" class="btn btn-light d-block" type="button" aria-expanded="false">
+                                <i class="fas fa-cog"></i> <span class="visually-hidden">Options</span>
+                            </button>
+
+                            <div id="options-panel"
+                                 class="shadow p-3"
+                                 role="menu"
+                                 aria-hidden="true">
+                                <h6 class="dropdown-header text-muted text-uppercase small mb-2">Options</h6>
+
+                                                                                                            <a class="dropdown-item d-flex align-items-center gap-2" href="_sources/Index.rst.txt" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-code"></i>
+        View source
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2" href="https://docs.typo3.org/m/typo3/docs-how-to-document/main/en-us/WritingDocsOfficial/GithubMethod.html" id="btnHowToEdit" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-info-circle"></i>
+        How to edit
+    </a>
+                                                                                                                <a class="dropdown-item d-flex align-items-center gap-2" href="singlehtml/Index.html" target="_blank" rel="noopener">
+                                            <i class="fas fa-print"></i>
+                                            Full documentation (single file)
+                                        </a>
+                                                                                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>    <main class="page-main">
+        <div class="page-main-inner">
+            <div class="page-main-navigation">
+                <nav>
+
+                    <div id="toc-collapse">
+                                                <div aria-label="main navigation" class="toc"
+                             role="navigation">
+                                <all-documentations-menu-mobile
+        data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu-mobile>
+    <div aria-label="Main navigation" class="main_menu" role="navigation">
+                <p class="caption">RTE CKEditor Image</p>
+            <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="Integration/Index.html">
+        Integration &amp; Configuration
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="Integration/RTE-Setup.html">
+        RTE Setup
+    </a></li><li class="" role="menuitem">
+    <a href="Integration/TSConfig.html">
+        Page TSConfig Setup
+    </a></li><li class="" role="menuitem">
+    <a href="Integration/Frontend-Rendering.html">
+        Frontend Rendering
+    </a></li><li class="" role="menuitem">
+    <a href="Integration/Advanced-Configuration.html">
+        Advanced Configuration
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="Examples/Index.html">
+        Examples &amp; Use Cases
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="Examples/Basic-Integration.html">
+        Basic Integration
+    </a></li><li class="" role="menuitem">
+    <a href="Examples/Image-Styles.html">
+        Image Styles
+    </a></li><li class="" role="menuitem">
+    <a href="Examples/Responsive-Images.html">
+        Responsive Images
+    </a></li><li class="" role="menuitem">
+    <a href="Examples/Advanced-Features.html">
+        Advanced Features
+    </a></li><li class="" role="menuitem">
+    <a href="Examples/Custom-Extensions.html">
+        Custom Extensions
+    </a></li><li class="" role="menuitem">
+    <a href="Examples/Testing.html">
+        Testing Examples
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="Troubleshooting/Index.html">
+        Troubleshooting &amp; Support
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="Troubleshooting/Installation-Issues.html">
+        Installation Issues
+    </a></li><li class="" role="menuitem">
+    <a href="Troubleshooting/Editor-Issues.html">
+        Editor Issues
+    </a></li><li class="" role="menuitem">
+    <a href="Troubleshooting/Frontend-Issues.html">
+        Frontend Issues
+    </a></li><li class="" role="menuitem">
+    <a href="Troubleshooting/Performance-Issues.html">
+        Performance Issues
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Architecture &amp; Design</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="Architecture/Index.html">
+        Architecture &amp; Design
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="Architecture/System-Architecture.html">
+        System Architecture
+    </a></li><li class="" role="menuitem">
+    <a href="Architecture/Design-Patterns.html">
+        Design Patterns &amp; Integration
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="API/Index.html">
+        API Documentation
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="API/Controllers.html">
+        Controllers API
+    </a></li><li class="" role="menuitem">
+    <a href="API/DataHandling.html">
+        Data Handling API
+    </a></li><li class="" role="menuitem">
+    <a href="API/EventListeners.html">
+        Event Listeners API
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="CKEditor/Index.html">
+        CKEditor Plugin Development
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="CKEditor/Plugin-Development.html">
+        CKEditor Plugin Development
+    </a></li><li class="" role="menuitem">
+    <a href="CKEditor/Model-Element.html">
+        CKEditor Model Element Reference
+    </a></li><li class="" role="menuitem">
+    <a href="CKEditor/Style-Integration.html">
+        CKEditor Style Integration
+    </a></li><li class="" role="menuitem">
+    <a href="CKEditor/Conversions.html">
+        CKEditor Conversion System
+    </a></li></ul></li>    </ul>
+    </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="page-main-content">
+                <div class="rst-content">                        <nav aria-label="breadcrumbs navigation" class="breadcrumb-bar" role="navigation">
+        
+<ol class="breadcrumb">
+                <li aria-current="page"  class="breadcrumb-item  active">RTE CKEditor Image</li>
+        </ol>
+        <div class="breadcrumb-additions"></div>
+    </nav>
+                    
+<article class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+    <div itemprop="articleBody">
+        <!-- content start -->
+                
+<section class="section" id="rte-ckeditor-image" data-rst-anchor="start">
+            <a id="start"></a>
+            <h1>RTE CKEditor Image<a class="headerlink" href="#rte-ckeditor-image" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h1>
+            <dl class="field-list simple ">
+            <dt class="field-odd">Extension key</dt>
+
+        <dd class="field-odd">
+            
+    <p>rte_ckeditor_image</p>
+        </dd>
+            <dt class="field-odd">Package name</dt>
+
+        <dd class="field-odd">
+            
+    <p>netresearch/rte-ckeditor-image</p>
+        </dd>
+            <dt class="field-odd">Version</dt>
+
+        <dd class="field-odd">
+            
+    <p>13.0.x</p>
+        </dd>
+            <dt class="field-odd">Language</dt>
+
+        <dd class="field-odd">
+            
+    <p>en</p>
+        </dd>
+            <dt class="field-odd">Author</dt>
+
+        <dd class="field-odd">
+            
+    <p>Netresearch DTT GmbH</p>
+        </dd>
+            <dt class="field-odd">License</dt>
+
+        <dd class="field-odd">
+            
+    <p>This document is published under the
+<a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons BY 4.0</a>
+license.</p>
+        </dd>
+            <dt class="field-odd">Rendered</dt>
+
+        <dd class="field-odd">
+            
+    <p>Thu, 23 Oct 2025 19:49:09 +0000</p>
+        </dd>
+    </dl>
+            
+    <p>Image support in CKEditor for the TYPO3 ecosystem.</p>
+
+            <hr />
+            <div class="row card-group pb-4 row-cols-1 row-cols-md-2 g-4">
+    <div class="col">
+            <div class="card h-100">
+            <div class="card-body">
+        <h3>📘 Introduction<a class="headerlink" href="#card" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+        <div class="card-text">
+            
+    <p>The RTE CKEditor Image extension provides comprehensive image handling
+capabilities for TYPO3&#039;s CKEditor Rich Text Editor with full FAL integration.</p>
+
+        </div>
+    </div>
+                                <div class="card-footer ">
+                            <a href="#introduction" class="btn btn-primary stretched-link">Read more</a>
+                                </div>
+    </div>
+        </div><div class="col">
+            <div class="card h-100">
+            <div class="card-body">
+        <h3>⚡ Quick Start<a class="headerlink" href="#card" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+        <div class="card-text">
+            
+    <p>Get up and running quickly with installation instructions and
+basic configuration examples.</p>
+
+        </div>
+    </div>
+                                <div class="card-footer ">
+                            <a href="#quick-start" class="btn btn-primary stretched-link">Read more</a>
+                                </div>
+    </div>
+        </div><div class="col">
+            <div class="card h-100">
+            <div class="card-body">
+        <h3>⚙️ Configuration<a class="headerlink" href="#card" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+        <div class="card-text">
+            
+    <p>Learn how to configure custom image styles, processing options,
+and frontend rendering setup.</p>
+
+        </div>
+    </div>
+                                <div class="card-footer ">
+                            <a href="Integration/Index.html#integration" class="btn btn-primary stretched-link">Read more</a>
+                                </div>
+    </div>
+        </div><div class="col">
+            <div class="card h-100">
+            <div class="card-body">
+        <h3>🏗️ Architecture<a class="headerlink" href="#card" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+        <div class="card-text">
+            
+    <p>Understand the extension&#039;s architecture, design patterns,
+and how components interact.</p>
+
+        </div>
+    </div>
+                                <div class="card-footer ">
+                            <a href="Architecture/Index.html#architecture-index" class="btn btn-primary stretched-link">Read more</a>
+                                </div>
+    </div>
+        </div><div class="col">
+            <div class="card h-100">
+            <div class="card-body">
+        <h3>🔧 Developer API<a class="headerlink" href="#card" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+        <div class="card-text">
+            
+    <p>Explore the PHP and JavaScript APIs for extending and
+customizing the extension.</p>
+
+        </div>
+    </div>
+                                <div class="card-footer ">
+                            <a href="API/Index.html#api-documentation" class="btn btn-primary stretched-link">Read more</a>
+                                </div>
+    </div>
+        </div><div class="col">
+            <div class="card h-100">
+            <div class="card-body">
+        <h3>🐛 Troubleshooting<a class="headerlink" href="#card" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+        <div class="card-text">
+            
+    <p>Find solutions to common issues and learn debugging techniques.</p>
+
+        </div>
+    </div>
+                                <div class="card-footer ">
+                            <a href="Troubleshooting/Index.html#troubleshooting-index" class="btn btn-primary stretched-link">Read more</a>
+                                </div>
+    </div>
+        </div></div>
+            <section class="section" id="introduction" data-rst-anchor="introduction">
+            <a id="introduction"></a>
+            <h2>Introduction<a class="headerlink" href="#introduction" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+    <p>The RTE CKEditor Image extension provides comprehensive image handling capabilities
+for TYPO3&#039;s CKEditor Rich Text Editor. This extension enables editors to insert,
+configure, and style images directly within the CKEditor interface, with full
+integration into TYPO3&#039;s File Abstraction Layer (FAL).</p>
+
+            <section class="section" id="key-features">
+            <h3>Key Features<a class="headerlink" href="#key-features" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+
+<ul>
+    <li class="dash">Native CKEditor 5 plugin integration</li>
+    <li class="dash">Full TYPO3 FAL support with file browser integration</li>
+    <li class="dash">Advanced image processing (magic images, cropping, scaling)</li>
+    <li class="dash">Custom image style configuration</li>
+    <li class="dash">Responsive image support</li>
+    <li class="dash">Lazy loading and performance optimization</li>
+    <li class="dash">Event-driven architecture for extensibility</li>
+</ul>
+
+    </section>
+            <section class="section" id="visual-preview">
+            <h3>Visual Preview<a class="headerlink" href="#visual-preview" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <figure class="with-shadow">
+    <img
+    src="Images/demo.gif"
+                alt="RTE CKEditor Image extension demo"        />
+
+
+            
+                    <figcaption>
+    <p>Image insertion and configuration in CKEditor with TYPO3 file browser integration</p>
+</figcaption>
+            </figure>
+    </section>
+            <section class="section" id="version-information">
+            <h3>Version Information<a class="headerlink" href="#version-information" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <dl class="field-list simple ">
+            <dt class="field-odd">Version</dt>
+
+        <dd class="field-odd">
+            
+    <p>13.0.x for TYPO3 13.4+</p>
+        </dd>
+            <dt class="field-odd">License</dt>
+
+        <dd class="field-odd">
+            
+    <p>AGPL-3.0-or-later</p>
+        </dd>
+            <dt class="field-odd">Repository</dt>
+
+        <dd class="field-odd">
+            
+    <p><a href="https://github.com/netresearch/t3x-rte_ckeditor_image">github.com/netresearch/t3x-rte_ckeditor_image</a></p>
+        </dd>
+    </dl>
+    </section>
+    </section>
+            <section class="section" id="requirements" data-rst-anchor="requirements">
+            <a id="requirements"></a>
+            <h2>Requirements<a class="headerlink" href="#requirements" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="system-requirements">
+            <h3>System Requirements<a class="headerlink" href="#system-requirements" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+
+<ul>
+    <li class="dash"><strong>TYPO3:</strong> 13.4 or later</li>
+    <li class="dash"><strong>PHP:</strong> 8.2, 8.3, or 8.4</li>
+    <li class="dash"><strong>Extensions:</strong> cms-rte-ckeditor (included in TYPO3 core)</li>
+</ul>
+
+    </section>
+            <section class="section" id="critical-dependencies">
+            <h3>Critical Dependencies<a class="headerlink" href="#critical-dependencies" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="versionchange versionadded">
+    <p class="versionmodified">
+        <span class="versionicon"><i class="fa-solid fa-rocket"></i></span>
+        New in version 13.0.0</p>
+    <article>
+        
+    <p>The CKEditor plugin now requires <code>StyleUtils</code> and <code>GeneralHtmlSupport</code>
+dependencies for style functionality. Previous versions did not have this requirement.</p>
+
+    </article>
+</div>
+            
+    <p>The CKEditor plugin requires these dependencies for style functionality:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> requires() {
+    <span class="hljs-keyword">return</span> [<span class="hljs-string">'StyleUtils'</span>, <span class="hljs-string">'GeneralHtmlSupport'</span>];
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+                
+<div class="admonition important" role="alert">
+    <p class="admonition-title">Important</p>
+            
+    <p>Missing either plugin will disable the style dropdown for images.
+See <a href="CKEditor/Style-Integration.html#ckeditor-style-integration">Style Integration</a> for details.</p>
+
+</div>
+    </section>
+    </section>
+            <section class="section" id="quick-start" data-rst-anchor="quick-start">
+            <a id="quick-start"></a>
+            <h2>Quick Start<a class="headerlink" href="#quick-start" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="installation">
+            <h3>Installation<a class="headerlink" href="#installation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Install via Composer:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs bash">composer require netresearch/rte-ckeditor-image</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>That&#039;s it!</strong> The extension works completely out-of-the-box with zero configuration:</p>
+
+            
+
+<ul>
+    <li class="dash">✅ <strong>Backend RTE</strong>: Automatically registers the <code>rteWithImages</code> preset and configures the toolbar with <code>insertimage</code> button for all sites</li>
+    <li class="dash">✅ <strong>Frontend Rendering</strong>: Automatically loads TypoScript for proper image rendering via <code>lib.parseFunc_RTE</code></li>
+    <li class="dash">✅ <strong>No Manual Steps</strong>: No template inclusion, no TSConfig setup, no YAML configuration required</li>
+</ul>
+
+            <figure class="with-shadow">
+    <img
+    src="Images/demo.gif"
+    width="600px"            alt="Image button in CKEditor toolbar"        />
+
+
+            
+                    <figcaption>
+    <p>The <code>insertimage</code> button provides full image management capabilities with TYPO3 file browser integration</p>
+</figcaption>
+            </figure>
+    </section>
+            <section class="section" id="custom-configuration-optional">
+            <h3>Custom Configuration (Optional)<a class="headerlink" href="#custom-configuration-optional" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>If you need to customize the RTE configuration or create your own preset, see the
+<a href="Integration/RTE-Setup.html#integration-configuration-rte-setup">RTE Setup Guide</a> for detailed instructions.</p>
+
+            
+    <p>The extension provides a default preset that you can extend or override as needed.</p>
+
+    </section>
+    </section>
+            <section class="section" id="quick-navigation-by-role" data-rst-anchor="navigation-by-role">
+            <a id="navigation-by-role"></a>
+            <h2>Quick Navigation by Role<a class="headerlink" href="#quick-navigation-by-role" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <div class="table-responsive">
+    <table class="table table-bordered align-default colwidths-grid">
+                    <colgroup>
+                                    <col style="width: 15%">
+                        </colgroup>
+            <thead>
+            <tr>
+                            <th>Role</th>
+                            <th>Start Here</th>
+                            <th>Then Read</th>
+                            <th>Advanced</th>
+                    </tr>
+        </thead>
+        <tbody>
+    <tr>
+            <td><strong>Integrator</strong></td>            <td><a href="Integration/Index.html#integration">Configuration Guide</a></td>            <td><a href="Examples/Index.html#examples-common-use-cases">Examples</a></td>            <td><a href="Troubleshooting/Index.html#troubleshooting-index">Troubleshooting</a></td>    </tr>    <tr>
+            <td><strong>PHP Dev</strong></td>            <td><a href="Architecture/Index.html#architecture-index">Architecture</a></td>            <td><a href="API/Index.html#api-documentation">API Reference</a></td>            <td><a href="API/DataHandling.html#api-datahandling">Data Handling</a></td>    </tr>    <tr>
+            <td><strong>JS Dev</strong></td>            <td><a href="CKEditor/Index.html#ckeditor-plugin-development">CKEditor Plugin</a></td>            <td><a href="CKEditor/Style-Integration.html#ckeditor-style-integration">Style Integration</a></td>            <td><a href="CKEditor/Conversions.html#ckeditor-conversions">Conversions</a></td>    </tr>    <tr>
+            <td><strong>Contributor</strong></td>            <td><a href="Architecture/Index.html#architecture-index">Architecture</a></td>            <td><a href="API/Index.html#api-documentation">API Documentation</a></td>            <td><a href="Examples/Index.html#examples-common-use-cases">Examples</a></td>    </tr></tbody>    </table>
+</div>
+    </section>
+            <section class="section" id="documentation-use-cases" data-rst-anchor="documentation-use-cases">
+            <a id="documentation-use-cases"></a>
+            <h2>Documentation Use Cases<a class="headerlink" href="#documentation-use-cases" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="for-integrators">
+            <h3>For Integrators<a class="headerlink" href="#for-integrators" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+
+<ul>
+    <li class="dash"><strong>Add custom image styles</strong> → <a href="Integration/Index.html#integration">Configuration Guide</a></li>
+    <li class="dash"><strong>Configure image processing</strong> → <a href="Integration/Index.html#integration">Configuration Guide</a></li>
+    <li class="dash"><strong>Set up frontend rendering</strong> → <a href="Integration/Index.html#integration">Configuration Guide</a></li>
+    <li class="dash"><strong>Enable lazy loading</strong> → <a href="Examples/Index.html#examples-common-use-cases">Examples: Lazy Loading</a></li>
+</ul>
+
+    </section>
+            <section class="section" id="for-developers">
+            <h3>For Developers<a class="headerlink" href="#for-developers" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <section class="section" id="php-backend-development">
+            <h4>PHP Backend Development<a class="headerlink" href="#php-backend-development" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            
+
+<ul>
+    <li class="dash"><strong>Understand the architecture</strong> → <a href="Architecture/Index.html#architecture-index">Architecture Overview</a></li>
+    <li class="dash"><strong>Controller APIs</strong> → <a href="API/Controllers.html#api-controllers">Controllers API</a></li>
+    <li class="dash"><strong>Customize image processing</strong> → <a href="API/DataHandling.html#api-datahandling">Data Handling API</a></li>
+    <li class="dash"><strong>Listen to extension events</strong> → <a href="API/EventListeners.html#api-eventlisteners">Event Listeners</a></li>
+</ul>
+
+    </section>
+            <section class="section" id="javascript-ckeditor-development">
+            <h4>JavaScript/CKEditor Development<a class="headerlink" href="#javascript-ckeditor-development" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            
+
+<ul>
+    <li class="dash"><strong>Extend the CKEditor plugin</strong> → <a href="CKEditor/Index.html#ckeditor-plugin-development">Plugin Development</a></li>
+    <li class="dash"><strong>Style system integration</strong> → <a href="CKEditor/Style-Integration.html#ckeditor-style-integration">Style Integration</a></li>
+    <li class="dash"><strong>Custom model element</strong> → <a href="CKEditor/Model-Element.html#ckeditor-model-element">Model Element</a></li>
+    <li class="dash"><strong>Conversion system</strong> → <a href="CKEditor/Conversions.html#ckeditor-conversions">Conversions</a></li>
+</ul>
+
+    </section>
+    </section>
+            <section class="section" id="for-troubleshooters">
+            <h3>For Troubleshooters<a class="headerlink" href="#for-troubleshooters" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+
+<ul>
+    <li class="dash"><strong>Images not appearing</strong> → <a href="Troubleshooting/Frontend-Issues.html#troubleshooting-frontend-rendering">Frontend Rendering Issues</a></li>
+    <li class="dash"><strong>Style dropdown disabled</strong> → <a href="Troubleshooting/Editor-Issues.html#troubleshooting-style-dropdown">Style Drop-down Not Working</a></li>
+    <li class="dash"><strong>File browser not opening</strong> → <a href="Troubleshooting/Editor-Issues.html#troubleshooting-file-browser">File Browser Issues</a></li>
+    <li class="dash"><strong>Performance problems</strong> → <a href="Troubleshooting/Index.html#troubleshooting-index">Common Issues</a></li>
+</ul>
+
+    </section>
+    </section>
+            <section class="section" id="support-contributing" data-rst-anchor="support-contributing">
+            <a id="support-contributing"></a>
+            <h2>Support &amp; Contributing<a class="headerlink" href="#support-contributing" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="get-help">
+            <h3>Get Help<a class="headerlink" href="#get-help" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+
+<ul>
+    <li class="dash"><a href="https://github.com/netresearch/t3x-rte_ckeditor_image/issues">GitHub Issues</a></li>
+    <li class="dash"><a href="https://github.com/netresearch/t3x-rte_ckeditor_image/discussions">GitHub Discussions</a></li>
+    <li class="dash"><a href="https://typo3.slack.com/archives/ext-rte_ckeditor_image">TYPO3 Slack #ext-rte_ckeditor_image</a></li>
+</ul>
+
+    </section>
+            <section class="section" id="contribute">
+            <h3>Contribute<a class="headerlink" href="#contribute" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+
+<ul>
+    <li class="dash">Report bugs or request features via <a href="https://github.com/netresearch/t3x-rte_ckeditor_image/issues">GitHub Issues</a></li>
+    <li class="dash">Submit pull requests for code improvements</li>
+    <li class="dash">Improve documentation via pull requests</li>
+    <li class="dash">Follow <a href="https://docs.typo3.org/m/typo3/guide-contributionworkflow/main/en-us/">TYPO3 Contribution Guidelines</a></li>
+</ul>
+
+    </section>
+    </section>
+            <section class="section" id="license" data-rst-anchor="license">
+            <a id="license"></a>
+            <h2>License<a class="headerlink" href="#license" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+    <p>This extension is licensed under <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0-or-later</a>.</p>
+
+    </section>
+            <section class="section" id="credits" data-rst-anchor="credits">
+            <a id="credits"></a>
+            <h2>Credits<a class="headerlink" href="#credits" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="development-maintenance">
+            <h3>Development &amp; Maintenance<a class="headerlink" href="#development-maintenance" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+
+<ul>
+    <li class="dash"><a href="https://www.netresearch.de/">Netresearch DTT GmbH</a></li>
+    <li class="dash">Sebastian Koschel</li>
+    <li class="dash">Sebastian Mendel</li>
+    <li class="dash">Rico Sonntag</li>
+</ul>
+
+    </section>
+            <section class="section" id="community-contributors">
+            <h3>Community Contributors<a class="headerlink" href="#community-contributors" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>See <a href="https://github.com/netresearch/t3x-rte_ckeditor_image/graphs/contributors">GitHub Contributors</a></p>
+
+    </section>
+    </section>
+            <section class="section" id="additional-resources" data-rst-anchor="additional-resources">
+            <a id="additional-resources"></a>
+            <h2>Additional Resources<a class="headerlink" href="#additional-resources" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+
+<ul>
+    <li class="dash"><strong>TYPO3 Extension Repository:</strong> <a href="https://extensions.typo3.org/extension/rte_ckeditor_image">extensions.typo3.org/extension/rte_ckeditor_image</a></li>
+    <li class="dash"><strong>Packagist:</strong> <a href="https://packagist.org/packages/netresearch/rte-ckeditor-image">packagist.org/packages/netresearch/rte-ckeditor-image</a></li>
+    <li class="dash"><strong>TYPO3 CKEditor Documentation:</strong> <a href="https://docs.typo3.org/c/typo3/cms-rte-ckeditor/13.4/en-us/">docs.typo3.org - RTE CKEditor</a></li>
+    <li class="dash"><strong>CKEditor 5 Documentation:</strong> <a href="https://ckeditor.com/docs/ckeditor5/latest/">ckeditor.com/docs/ckeditor5</a></li>
+</ul>
+
+            
+            
+            
+    </section>
+    </section>
+        <!-- content end -->
+    </div>
+</article>
+                        
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center"><li class="page-item">
+                            <a class="page-link" href="Integration/Index.html"
+                               title="Accesskey Alt(+Shift)+n">
+                                Next <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+        </nav>
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="linkReferenceModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="Index">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="linkReferenceModalLabel">Reference to the headline</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="permalink-alert-success" role="alert"></div>
+                <div class="mb-3">
+                    <label for="permalink-uri" class="col-form-label">URL</label>
+                    <div class="input-group">
+                        <input class="form-control code" id="permalink-uri" readonly>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-uri"><i class="far fa-clone"></i></button>
+                    </div>
+                    <div class="permalink-short-wrapper">
+                        <label for="permalink-short" class="col-form-label">Permalink (Shortlink)</label>
+                        <div class="input-group">
+                            <input class="form-control code" id="permalink-short" readonly>
+                            <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-short"><i class="far fa-clone"></i></button>
+                        </div>
+                        <p><em>Copy and freely share the link</em></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-warning alert-permalink-rst" role="alert">This link target has no permanent anchor assigned.The link below can be used, but is prone to change if the page gets moved.
+                    </div>
+                    <label for="permalink-rst" class="col-form-label">Link in reStructuredText (reST)</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-rst" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-rst"><i class="far fa-clone"></i></button>
+                    </div>
+                    <p><em>Copy this link into your TYPO3 manual.</em></p>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-md" class="col-form-label">Link in Markdown</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-md" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-md"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-html" class="col-form-label">Link in HTML</label>
+                                        <div class="input-group">
+                        <textarea class="form-control code" id="permalink-html" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-html"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>    <div class="modal fade" id="generalModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="Index"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generalModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="general-alert-success" role="alert"></div>
+                <div id="generalModalContent">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div id="generalModalCustomButtons"></div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-regular fa-circle-xmark"></i>&nbsp;Close</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+
+<footer class="page-footer">
+    <div class="frame frame-ruler-before frame-background-dark">
+        <div class="frame-container">
+            <div class="frame-inner">
+                                <div class="footer-additional">
+                    <p class="text-center">Last rendered: Oct 23, 2025 19:49</p>
+                </div>
+                <div class="footer-meta">
+                    <ul class="footer-meta-navigation">
+                        <li><a href="https://typo3.org/legal-notice" rel="nofollow" target="_blank" title="Legal Notice">Legal Notice</a></li>
+                        <li><a href="https://typo3.org/privacy-policy" rel="nofollow" target="_blank" title="Privacy Policy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="_resources/js/popper.min.js"></script>
+<script src="_resources/js/bootstrap.min.js"></script>
+<script src="_resources/js/theme.min.js"></script>
+
+<!--
+ Locally rendered. No tracking embedded.
+-->
+</body>
+</html>

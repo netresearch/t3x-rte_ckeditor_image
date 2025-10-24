@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <title>CKEditor Style Integration
+        documentation</title>
+
+    
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="phpdocumentor/guides" name="generator">
+<meta content="" name="docsearch:name">
+<meta content="" name="docsearch:package_type">
+<meta content="" name="docsearch:release">
+<meta content="" name="docsearch:version">
+<meta content="2025-10-23T19:49:09+00:00" name="docsearch:modified">
+<meta content="2025-10-23T19:49:09+00:00" name="dc.modified">
+<meta content="2025-10-23T19:49:09+00:00" property="article:modified_time">
+    <link href="http://purl.org/dc/elements/1.1/" rel="schema.dc">
+<link href="../_resources/css/theme.css" rel="stylesheet">
+<link href="https://docs.typo3.org/search/" rel="search" title="Search">
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/webcomponents-loader.js"></script>
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/typo3-universe.js" type="module"></script>
+                        <link href="Model-Element.html" rel="prev" title="CKEditor Model Element Reference"/>
+            <link href="Conversions.html" rel="next" title="CKEditor Conversion System"/>
+            <link href="../Index.html" rel="top" title="RTE CKEditor Image"/>
+    </head>
+<body>
+<div class="page">
+    <header>
+    <div class="page-topbar">
+        <div class="page-topbar-inner">
+            <typo3-universe active="documentation">
+                <div style="display: block; height: 44px; background-color: #313131;"></div>
+            </typo3-universe>
+        </div>
+    </div>
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="d-flex flex-wrap">
+                <div class="logo-wrapper">
+                    <a class="logo" href="https://docs.typo3.org/" title="TYPO3 Documentation">
+                        <img alt="TYPO3 Logo" class="logo-image" src="../_resources/img/typo3-logo.svg" width="484" height="130">
+                    </a>
+                </div>
+                <div class="align-self-center order-lg-2 order-last">
+                    
+<div class="toc-header">
+    <div class="toc-title pe-3">
+                            <a class="toc-title-project" href="../Index.html">RTE CKEditor Image</a>
+            </div>
+    </div>                </div>
+                <div class="ms-auto order-lg-3 d-flex">
+                    <div class="menu-search-wrapper">
+                        <button id="toc-toggle" class="btn btn-light d-block d-lg-none" tabindex="0" aria-controls="toc-collapse" aria-expanded="false">
+                            <i class="fas fa-bars"></i> <span class="visually-hidden">Mobile Menu</span>
+                        </button>
+                        <all-documentations-menu data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu>
+                                                <search role="search">
+                            <form action="https://docs.typo3.org/search/search" id="global-search-form" method="get">
+                                <div class="sr-only"><label for="globalsearchinput">TYPO3 documentation...</label></div>
+                                <div class="input-group mb-3 mt-sm-3">
+                                    <select class="form-select search__scope" id="searchscope" name="scope">
+                                        <option value="">Search all</option>
+                                    </select>
+                                    <input autocomplete="off" class="form-control shadow-none" id="globalsearchinput" name="q" placeholder="TYPO3 documentation..." type="text" value="">
+                                    <button class="btn btn-light" type="submit"><i class="fa fa-search"></i>&nbsp;<span class="d-none d-md-inline">Search</span></button>
+                                </div>
+                            </form>
+                            <div id="global-search-root"></div>
+                        </search>
+                        <div class="position-relative d-inline-block">
+                            <button id="options-toggle" class="btn btn-light d-block" type="button" aria-expanded="false">
+                                <i class="fas fa-cog"></i> <span class="visually-hidden">Options</span>
+                            </button>
+
+                            <div id="options-panel"
+                                 class="shadow p-3"
+                                 role="menu"
+                                 aria-hidden="true">
+                                <h6 class="dropdown-header text-muted text-uppercase small mb-2">Options</h6>
+
+                                                                                                            <a class="dropdown-item d-flex align-items-center gap-2" href="../_sources/CKEditor/Style-Integration.rst.txt" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-code"></i>
+        View source
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2" href="https://docs.typo3.org/m/typo3/docs-how-to-document/main/en-us/WritingDocsOfficial/GithubMethod.html" id="btnHowToEdit" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-info-circle"></i>
+        How to edit
+    </a>
+                                                                                                                <a class="dropdown-item d-flex align-items-center gap-2" href="../singlehtml/Index.html" target="_blank" rel="noopener">
+                                            <i class="fas fa-print"></i>
+                                            Full documentation (single file)
+                                        </a>
+                                                                                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>    <main class="page-main">
+        <div class="page-main-inner">
+            <div class="page-main-navigation">
+                <nav>
+
+                    <div id="toc-collapse">
+                                                <div aria-label="main navigation" class="toc"
+                             role="navigation">
+                                <all-documentations-menu-mobile
+        data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu-mobile>
+    <div aria-label="Main navigation" class="main_menu" role="navigation">
+                <p class="caption">RTE CKEditor Image</p>
+            <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Integration/Index.html">
+        Integration &amp; Configuration
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Integration/RTE-Setup.html">
+        RTE Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/TSConfig.html">
+        Page TSConfig Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Frontend-Rendering.html">
+        Frontend Rendering
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Advanced-Configuration.html">
+        Advanced Configuration
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Examples/Index.html">
+        Examples &amp; Use Cases
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Examples/Basic-Integration.html">
+        Basic Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Image-Styles.html">
+        Image Styles
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Responsive-Images.html">
+        Responsive Images
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Advanced-Features.html">
+        Advanced Features
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Custom-Extensions.html">
+        Custom Extensions
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Testing.html">
+        Testing Examples
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Troubleshooting/Index.html">
+        Troubleshooting &amp; Support
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Troubleshooting/Installation-Issues.html">
+        Installation Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Editor-Issues.html">
+        Editor Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Frontend-Issues.html">
+        Frontend Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Performance-Issues.html">
+        Performance Issues
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Architecture &amp; Design</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Architecture/Index.html">
+        Architecture &amp; Design
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Architecture/System-Architecture.html">
+        System Architecture
+    </a></li><li class="" role="menuitem">
+    <a href="../Architecture/Design-Patterns.html">
+        Design Patterns &amp; Integration
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../API/Index.html">
+        API Documentation
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../API/Controllers.html">
+        Controllers API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/DataHandling.html">
+        Data Handling API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/EventListeners.html">
+        Event Listeners API
+    </a></li></ul></li>    <li class=" active" role="menuitem">
+    <a href="Index.html">
+        CKEditor Plugin Development
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="Plugin-Development.html">
+        CKEditor Plugin Development
+    </a></li><li class="" role="menuitem">
+    <a href="Model-Element.html">
+        CKEditor Model Element Reference
+    </a></li><li class=" current active" role="menuitem">
+    <a href="#" aria-current="page">
+        CKEditor Style Integration
+    </a></li><li class="" role="menuitem">
+    <a href="Conversions.html">
+        CKEditor Conversion System
+    </a></li></ul></li>    </ul>
+    </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="page-main-content">
+                <div class="rst-content">                        <nav aria-label="breadcrumbs navigation" class="breadcrumb-bar" role="navigation">
+        
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="../Index.html">RTE CKEditor Image</a></li>
+        <li class="breadcrumb-item"><a href="Index.html">CKEditor Plugin Development</a></li>
+                    <li aria-current="page"  class="breadcrumb-item  active">CKEditor Style Integration</li>
+        </ol>
+        <div class="breadcrumb-additions"></div>
+    </nav>
+                    
+<article class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+    <div itemprop="articleBody">
+        <!-- content start -->
+                <section class="section" id="ckeditor-style-integration-1" data-rst-anchor="ckeditor-style-integration">
+            <a id="ckeditor-style-integration"></a>
+            <h1>CKEditor Style Integration<a class="headerlink" href="#ckeditor-style-integration-1" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h1>
+            
+    <p>Complete guide to integrating the typo3image plugin with CKEditor&#039;s style system (StyleUtils and GeneralHtmlSupport).</p>
+
+            <section class="section" id="overview">
+            <h2>Overview<a class="headerlink" href="#overview" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <div class="versionchange versionadded">
+    <p class="versionmodified">
+        <span class="versionicon"><i class="fa-solid fa-rocket"></i></span>
+        New in version 13.0.0</p>
+    <article>
+        
+    <p>Integration with <code>GeneralHtmlSupport</code> is now required for style functionality.
+Previous versions only required <code>StyleUtils</code>, which caused the style dropdown
+to be disabled for images.</p>
+
+    </article>
+</div>
+            
+    <p><strong>Critical Dependencies</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> requires() {
+    <span class="hljs-keyword">return</span> [<span class="hljs-string">'StyleUtils'</span>, <span class="hljs-string">'GeneralHtmlSupport'</span>];
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+                
+<div class="admonition warning" role="alert">
+    <p class="admonition-title">Warning</p>
+            
+    <p>Both <code>StyleUtils</code> and <code>GeneralHtmlSupport</code> are <strong>mandatory</strong> for style functionality. Missing either plugin causes style drop-down to be disabled for images.</p>
+
+</div>
+    </section>
+            <section class="section" id="the-style-system-problem">
+            <h2>The Style System Problem<a class="headerlink" href="#the-style-system-problem" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="before-v13-0-0-broken">
+            <h3>Before v13.0.0 (Broken)<a class="headerlink" href="#before-v13-0-0-broken" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Missing GeneralHtmlSupport dependency</span>
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> requires() {
+    <span class="hljs-keyword">return</span> [<span class="hljs-string">'StyleUtils'</span>];  <span class="hljs-comment">// Incomplete!</span>
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Issue</strong>: Style drop-down disabled when image selected</p>
+
+            
+    <p><strong>Symptoms</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash">Styles grayed out when typo3image selected</li>
+    <li class="dash">Class changes not applied to images</li>
+    <li class="dash">No visual feedback when applying styles</li>
+</ul>
+
+    </section>
+            <section class="section" id="after-v13-0-0-fixed">
+            <h3>After v13.0.0 (Fixed)<a class="headerlink" href="#after-v13-0-0-fixed" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Both dependencies required</span>
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> requires() {
+    <span class="hljs-keyword">return</span> [<span class="hljs-string">'StyleUtils'</span>, <span class="hljs-string">'GeneralHtmlSupport'</span>];
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Result</strong>: Full style system integration working correctly</p>
+
+    </section>
+    </section>
+            <section class="section" id="style-system-architecture">
+            <h2>Style System Architecture<a class="headerlink" href="#style-system-architecture" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="three-layer-integration">
+            <h3>Three-Layer Integration<a class="headerlink" href="#three-layer-integration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code>┌─────────────────────────────────────────┐
+│ StyleUtils Plugin                       │
+│ - Manages style definitions             │
+│ - Provides event system                 │
+│ - Determines style applicability        │
+└───────────┬─────────────────────────────┘
+            │
+            │ Events
+            │
+┌───────────▼─────────────────────────────┐
+│ Typo3Image Plugin                       │
+│ - Listens to StyleUtils events         │
+│ - Reports typo3image availability       │
+│ - Returns correct model elements        │
+└───────────┬─────────────────────────────┘
+            │
+            │ Operations
+            │
+┌───────────▼─────────────────────────────┐
+│ GeneralHtmlSupport Plugin               │
+│ - Applies class changes to model        │
+│ - Manages HTML attribute manipulation   │
+│ - Ensures class sync with view          │
+└─────────────────────────────────────────┘
+</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="styleutils-event-system">
+            <h2>StyleUtils Event System<a class="headerlink" href="#styleutils-event-system" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="event-isstyleenabledforblock">
+            <h3>Event: isStyleEnabledForBlock<a class="headerlink" href="#event-isstyleenabledforblock" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Purpose</strong>: Determines if a style can be applied to the selected element</p>
+
+            
+    <p><strong>When Fired</strong>: User selects element, style drop-down needs update</p>
+
+            
+    <p><strong>Default Behavior</strong>: Only enable styles for elements matching style definition</p>
+
+            
+    <p><strong>typo3image Override</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">this</span>.listenTo(styleUtils, <span class="hljs-string">'isStyleEnabledForBlock'</span>, (event, [style, element]) =&gt; {
+    <span class="hljs-keyword">if</span> (style.element === <span class="hljs-string">'img'</span>) {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> item <span class="hljs-keyword">of</span> editor.model.document.selection.getFirstRange().getItems()) {
+            <span class="hljs-keyword">if</span> (item.name === <span class="hljs-string">'typo3image'</span>) {
+                event.return = <span class="hljs-literal">true</span>;  <span class="hljs-comment">// Enable img styles for typo3image</span>
+            }
+        }
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Logic Breakdown</strong>:</p>
+
+            
+    
+<ol start="1">
+    <li value="1">
+    <p><strong>Check Style Element</strong>: <code>if (style.element === &#039;img&#039;)</code></p>
+
+
+<ul>
+    <li class="dash">Only process styles defined for <code>&lt;img&gt;</code> elements</li>
+    <li class="dash">Ignore styles for other elements (p, h1, etc.)</li>
+</ul>
+</li>
+    <li value="2">
+    <p><strong>Iterate Selection</strong>: <code>for (const item of ...getFirstRange().getItems())</code></p>
+
+
+<ul>
+    <li class="dash">Get all items in current selection range</li>
+    <li class="dash">Check if any item is a typo3image</li>
+</ul>
+</li>
+    <li value="3">
+    <p><strong>Enable Style</strong>: <code>event.return = true</code></p>
+
+
+<ul>
+    <li class="dash">Tell StyleUtils that img styles ARE applicable to typo3image</li>
+    <li class="dash">Without this, style drop-down would be disabled</li>
+</ul>
+</li>
+</ol>
+
+                
+<div class="admonition note" role="alert">
+    <p class="admonition-title">Note</p>
+            
+    <p>CKEditor doesn&#039;t natively know that <code>typo3image</code> (model element) corresponds to <code>&lt;img&gt;</code> (view element). This listener bridges that gap.</p>
+
+</div>
+    </section>
+            <section class="section" id="event-isstyleactiveforblock">
+            <h3>Event: isStyleActiveForBlock<a class="headerlink" href="#event-isstyleactiveforblock" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Purpose</strong>: Checks if a style is currently active (applied) on selected element</p>
+
+            
+    <p><strong>When Fired</strong>: User selects element, style drop-down shows active styles</p>
+
+            
+    <p><strong>Default Behavior</strong>: Check if element has required classes</p>
+
+            
+    <p><strong>typo3image Implementation</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">this</span>.listenTo(styleUtils, <span class="hljs-string">'isStyleActiveForBlock'</span>, (event, [style, element]) =&gt; {
+    <span class="hljs-keyword">if</span> (style.element === <span class="hljs-string">'img'</span>) {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> item <span class="hljs-keyword">of</span> editor.model.document.selection.getFirstRange().getItems()) {
+            <span class="hljs-keyword">if</span> (item.name === <span class="hljs-string">'typo3image'</span>) {
+                <span class="hljs-keyword">const</span> classAttribute = item.getAttribute(<span class="hljs-string">'class'</span>);
+                <span class="hljs-keyword">if</span> (classAttribute &amp;&amp; <span class="hljs-keyword">typeof</span> classAttribute === <span class="hljs-string">'string'</span>) {
+                    <span class="hljs-keyword">const</span> classlist = classAttribute.split(<span class="hljs-string">' '</span>);
+                    <span class="hljs-comment">// Check if ALL style classes are present</span>
+                    <span class="hljs-keyword">if</span> (style.classes.filter(<span class="hljs-function"><span class="hljs-params">value</span> =&gt;</span> !classlist.includes(value)).length === <span class="hljs-number">0</span>) {
+                        event.return = <span class="hljs-literal">true</span>;  <span class="hljs-comment">// Style is active</span>
+                    }
+                }
+            }
+        }
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Logic Breakdown</strong>:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Check Style Element</strong>: Only process img styles</li>
+    <li value="2"><strong>Find typo3image</strong>: Iterate selection to find typo3image element</li>
+    <li value="3">
+    <p><strong>Get Classes</strong>: <code>const classAttribute = item.getAttribute(&#039;class&#039;)</code></p>
+
+
+<ul>
+    <li class="dash">Read current class attribute from model element</li>
+    <li class="dash">Returns space-separated string (e.g., &quot;float-left img-responsive&quot;)</li>
+</ul>
+</li>
+    <li value="4">
+    <p><strong>Parse Classes</strong>: <code>const classlist = classAttribute.split(&#039; &#039;)</code></p>
+
+
+<ul>
+    <li class="dash">Convert string to array: <code>[&quot;float-left&quot;, &quot;img-responsive&quot;]</code></li>
+</ul>
+</li>
+    <li value="5">
+    <p><strong>Check Match</strong>: <code>style.classes.filter(value =&gt; !classlist.includes(value)).length === 0</code></p>
+
+
+<ul>
+    <li class="dash">Check if ALL style classes are present in element</li>
+    <li class="dash">Example: Style has <code>[&#039;float-left&#039;, &#039;mr-3&#039;]</code>, check both exist</li>
+    <li class="dash">If any missing, style is NOT active</li>
+</ul>
+</li>
+</ol>
+
+            
+    <p><strong>Example</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Style definition</span>
+{
+    <span class="hljs-attr">name</span>: <span class="hljs-string">'Image Left'</span>,
+    <span class="hljs-attr">element</span>: <span class="hljs-string">'img'</span>,
+    <span class="hljs-attr">classes</span>: [<span class="hljs-string">'float-left'</span>, <span class="hljs-string">'mr-3'</span>]
+}
+
+<span class="hljs-comment">// Element class attribute</span>
+<span class="hljs-attr">class</span>: <span class="hljs-string">'float-left mr-3 img-responsive'</span>
+
+<span class="hljs-comment">// Check: Are 'float-left' AND 'mr-3' both present?</span>
+[<span class="hljs-string">'float-left'</span>, <span class="hljs-string">'mr-3'</span>].filter(<span class="hljs-function"><span class="hljs-params">cls</span> =&gt;</span>
+    ![<span class="hljs-string">'float-left'</span>, <span class="hljs-string">'mr-3'</span>, <span class="hljs-string">'img-responsive'</span>].includes(cls)
+).length === <span class="hljs-number">0</span>  <span class="hljs-comment">// true → style is active</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="event-getaffectedblocks">
+            <h3>Event: getAffectedBlocks<a class="headerlink" href="#event-getaffectedblocks" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Purpose</strong>: Returns which model elements should be affected by style operation</p>
+
+            
+    <p><strong>When Fired</strong>: User applies/removes a style</p>
+
+            
+    <p><strong>Default Behavior</strong>: Return block elements from selection</p>
+
+            
+    <p><strong>typo3image Implementation</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">this</span>.listenTo(styleUtils, <span class="hljs-string">'getAffectedBlocks'</span>, (event, [style, element]) =&gt; {
+    <span class="hljs-keyword">if</span> (style.element === <span class="hljs-string">'img'</span>) {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> item <span class="hljs-keyword">of</span> editor.model.document.selection.getFirstRange().getItems()) {
+            <span class="hljs-keyword">if</span> (item.name === <span class="hljs-string">'typo3image'</span>) {
+                event.return = [item];  <span class="hljs-comment">// Return typo3image element</span>
+                <span class="hljs-keyword">break</span>;
+            }
+        }
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Logic Breakdown</strong>:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Check Style Element</strong>: Only process img styles</li>
+    <li value="2"><strong>Find typo3image</strong>: Iterate to find typo3image in selection</li>
+    <li value="3">
+    <p><strong>Return Element</strong>: <code>event.return = [item]</code></p>
+
+
+<ul>
+    <li class="dash">Return array with single typo3image element</li>
+    <li class="dash">StyleUtils will apply style changes to this element</li>
+</ul>
+</li>
+    <li value="4"><strong>Break Loop</strong>: Once found, stop searching</li>
+</ol>
+
+                
+<div class="admonition note" role="alert">
+    <p class="admonition-title">Note</p>
+            
+    <p>StyleUtils can affect multiple blocks (e.g., multiple paragraphs selected). For images, typically only one image is selected.</p>
+
+</div>
+    </section>
+    </section>
+            <section class="section" id="generalhtmlsupport-integration">
+            <h2>GeneralHtmlSupport Integration<a class="headerlink" href="#generalhtmlsupport-integration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="what-is-generalhtmlsupport">
+            <h3>What is GeneralHtmlSupport?<a class="headerlink" href="#what-is-generalhtmlsupport" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Purpose</strong>: Manages HTML attributes that aren&#039;t core CKEditor features</p>
+
+            
+    <p><strong>Capabilities</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash">Add/remove classes via style system</li>
+    <li class="dash">Manage data-* attributes</li>
+    <li class="dash">Handle custom HTML attributes</li>
+    <li class="dash">Sync model attributes with view</li>
+</ul>
+
+    </section>
+            <section class="section" id="decoration-pattern">
+            <h3>Decoration Pattern<a class="headerlink" href="#decoration-pattern" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">const</span> ghs = editor.plugins.get(<span class="hljs-string">'GeneralHtmlSupport'</span>);
+ghs.decorate(<span class="hljs-string">'addModelHtmlClass'</span>);
+ghs.decorate(<span class="hljs-string">'removeModelHtmlClass'</span>);</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>What</strong> <code>decorate()</code> <strong>Does</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash">Makes method observable via event system</li>
+    <li class="dash">Allows plugins to intercept and customize behavior</li>
+    <li class="dash">Enables event listeners to modify operations</li>
+</ul>
+
+    </section>
+            <section class="section" id="event-addmodelhtmlclass">
+            <h3>Event: addModelHtmlClass<a class="headerlink" href="#event-addmodelhtmlclass" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Purpose</strong>: Add CSS class to model element</p>
+
+            
+    <p><strong>When Fired</strong>: Style system applies a style (adds classes)</p>
+
+            
+    <p><strong>typo3image Implementation</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">this</span>.listenTo(ghs, <span class="hljs-string">'addModelHtmlClass'</span>, (event, [viewElement, className, selectable]) =&gt; {
+    <span class="hljs-keyword">if</span> (selectable &amp;&amp; selectable.name === <span class="hljs-string">'typo3image'</span>) {
+        editor.model.change(<span class="hljs-function"><span class="hljs-params">writer</span> =&gt;</span> {
+            writer.setAttribute(<span class="hljs-string">'class'</span>, className.join(<span class="hljs-string">' '</span>), selectable);
+        });
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Parameters</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash"><code>viewElement</code>: View layer element (not used for typo3image)</li>
+    <li class="dash"><code>className</code>: Array of class names to add</li>
+    <li class="dash"><code>selectable</code>: Model element to modify</li>
+</ul>
+
+            
+    <p><strong>Logic</strong>:</p>
+
+            
+    
+<ol start="1">
+    <li value="1">
+    <p><strong>Check Element</strong>: <code>if (selectable &amp;&amp; selectable.name === &#039;typo3image&#039;)</code></p>
+
+
+<ul>
+    <li class="dash">Only process typo3image elements</li>
+</ul>
+</li>
+    <li value="2">
+    <p><strong>Join Classes</strong>: <code>className.join(&#039; &#039;)</code></p>
+
+
+<ul>
+    <li class="dash">Convert array to space-separated string</li>
+    <li class="dash">Example: <code>[&#039;float-left&#039;, &#039;mr-3&#039;]</code> → <code>&#039;float-left mr-3&#039;</code></li>
+</ul>
+</li>
+    <li value="3">
+    <p><strong>Update Model</strong>: <code>writer.setAttribute(&#039;class&#039;, ..., selectable)</code></p>
+
+
+<ul>
+    <li class="dash">Apply classes to model element</li>
+    <li class="dash">Triggers view update automatically</li>
+</ul>
+</li>
+</ol>
+
+            
+    <p><strong>Example Flow</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code>User clicks &quot;Image Left&quot; style
+    &darr;
+StyleUtils determines style applies to typo3image
+    &darr;
+GeneralHtmlSupport.addModelHtmlClass fired
+    &darr;
+Event handler: className = [&#039;float-left&#039;, &#039;mr-3&#039;]
+    &darr;
+Model updated: class = &#039;float-left mr-3&#039;
+    &darr;
+View automatically updates: &lt;img class=&quot;float-left mr-3&quot; ... /&gt;
+</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="event-removemodelhtmlclass">
+            <h3>Event: removeModelHtmlClass<a class="headerlink" href="#event-removemodelhtmlclass" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Purpose</strong>: Remove CSS class from model element</p>
+
+            
+    <p><strong>When Fired</strong>: Style system removes a style (removes classes)</p>
+
+            
+    <p><strong>typo3image Implementation</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">this</span>.listenTo(ghs, <span class="hljs-string">'removeModelHtmlClass'</span>, (event, [viewElement, className, selectable]) =&gt; {
+    <span class="hljs-keyword">if</span> (selectable &amp;&amp; selectable.name === <span class="hljs-string">'typo3image'</span>) {
+        editor.model.change(<span class="hljs-function"><span class="hljs-params">writer</span> =&gt;</span> {
+            writer.removeAttribute(<span class="hljs-string">'class'</span>, selectable);
+        });
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Logic</strong>:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Check Element</strong>: Only process typo3image</li>
+    <li value="2">
+    <p><strong>Remove Attribute</strong>: <code>writer.removeAttribute(&#039;class&#039;, selectable)</code></p>
+
+
+<ul>
+    <li class="dash">Completely removes class attribute</li>
+    <li class="dash">Note: Doesn&#039;t selectively remove classes, removes all</li>
+</ul>
+</li>
+</ol>
+
+                
+<div class="admonition note" role="alert">
+    <p class="admonition-title">Note</p>
+            
+    <p><strong>Limitation</strong>: Current implementation removes ALL classes when any style is removed. Could be enhanced to only remove specific classes.</p>
+
+</div>
+            
+    <p><strong>Enhancement Pattern</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Better implementation: remove only specific classes</span>
+<span class="hljs-keyword">this</span>.listenTo(ghs, <span class="hljs-string">'removeModelHtmlClass'</span>, (event, [viewElement, className, selectable]) =&gt; {
+    <span class="hljs-keyword">if</span> (selectable &amp;&amp; selectable.name === <span class="hljs-string">'typo3image'</span>) {
+        editor.model.change(<span class="hljs-function"><span class="hljs-params">writer</span> =&gt;</span> {
+            <span class="hljs-keyword">const</span> currentClass = selectable.getAttribute(<span class="hljs-string">'class'</span>) || <span class="hljs-string">''</span>;
+            <span class="hljs-keyword">const</span> currentClasses = currentClass.split(<span class="hljs-string">' '</span>).filter(<span class="hljs-built_in">Boolean</span>);
+            <span class="hljs-keyword">const</span> classesToRemove = className;
+
+            <span class="hljs-comment">// Keep classes not being removed</span>
+            <span class="hljs-keyword">const</span> newClasses = currentClasses.filter(
+                <span class="hljs-function"><span class="hljs-params">cls</span> =&gt;</span> !classesToRemove.includes(cls)
+            );
+
+            <span class="hljs-keyword">if</span> (newClasses.length &gt; <span class="hljs-number">0</span>) {
+                writer.setAttribute(<span class="hljs-string">'class'</span>, newClasses.join(<span class="hljs-string">' '</span>), selectable);
+            } <span class="hljs-keyword">else</span> {
+                writer.removeAttribute(<span class="hljs-string">'class'</span>, selectable);
+            }
+        });
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="complete-integration-example">
+            <h2>Complete Integration Example<a class="headerlink" href="#complete-integration-example" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="style-configuration-yaml">
+            <h3>Style Configuration (YAML)<a class="headerlink" href="#style-configuration-yaml" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-comment"># Configuration/RTE/Default.yaml</span>
+<span class="hljs-attr">editor:</span>
+  <span class="hljs-attr">config:</span>
+    <span class="hljs-attr">style:</span>
+      <span class="hljs-attr">definitions:</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'Image Left'</span>
+          <span class="hljs-attr">element:</span> <span class="hljs-string">'img'</span>
+          <span class="hljs-attr">classes:</span> <span class="hljs-string">['float-left',</span> <span class="hljs-string">'mr-3'</span><span class="hljs-string">]</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'Image Right'</span>
+          <span class="hljs-attr">element:</span> <span class="hljs-string">'img'</span>
+          <span class="hljs-attr">classes:</span> <span class="hljs-string">['float-right',</span> <span class="hljs-string">'ml-3'</span><span class="hljs-string">]</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'Image Center'</span>
+          <span class="hljs-attr">element:</span> <span class="hljs-string">'img'</span>
+          <span class="hljs-attr">classes:</span> <span class="hljs-string">['d-block',</span> <span class="hljs-string">'mx-auto'</span><span class="hljs-string">]</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'Full Width'</span>
+          <span class="hljs-attr">element:</span> <span class="hljs-string">'img'</span>
+          <span class="hljs-attr">classes:</span> <span class="hljs-string">['w-100']</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="plugin-integration-javascript">
+            <h3>Plugin Integration (JavaScript)<a class="headerlink" href="#plugin-integration-javascript" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Typo3Image</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Core</span>.<span class="hljs-title">Plugin</span> </span>{
+    <span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> requires() {
+        <span class="hljs-keyword">return</span> [<span class="hljs-string">'StyleUtils'</span>, <span class="hljs-string">'GeneralHtmlSupport'</span>];
+    }
+
+    init() {
+        <span class="hljs-keyword">const</span> editor = <span class="hljs-keyword">this</span>.editor;
+        <span class="hljs-keyword">const</span> styleUtils = editor.plugins.get(<span class="hljs-string">'StyleUtils'</span>);
+        <span class="hljs-keyword">const</span> ghs = editor.plugins.get(<span class="hljs-string">'GeneralHtmlSupport'</span>);
+
+        <span class="hljs-comment">// Enable img styles for typo3image</span>
+        <span class="hljs-keyword">this</span>.listenTo(styleUtils, <span class="hljs-string">'isStyleEnabledForBlock'</span>, (event, [style, element]) =&gt; {
+            <span class="hljs-keyword">if</span> (style.element === <span class="hljs-string">'img'</span>) {
+                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> item <span class="hljs-keyword">of</span> editor.model.document.selection.getFirstRange().getItems()) {
+                    <span class="hljs-keyword">if</span> (item.name === <span class="hljs-string">'typo3image'</span>) {
+                        event.return = <span class="hljs-literal">true</span>;
+                    }
+                }
+            }
+        });
+
+        <span class="hljs-comment">// Check if style is active</span>
+        <span class="hljs-keyword">this</span>.listenTo(styleUtils, <span class="hljs-string">'isStyleActiveForBlock'</span>, (event, [style, element]) =&gt; {
+            <span class="hljs-keyword">if</span> (style.element === <span class="hljs-string">'img'</span>) {
+                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> item <span class="hljs-keyword">of</span> editor.model.document.selection.getFirstRange().getItems()) {
+                    <span class="hljs-keyword">if</span> (item.name === <span class="hljs-string">'typo3image'</span>) {
+                        <span class="hljs-keyword">const</span> classAttribute = item.getAttribute(<span class="hljs-string">'class'</span>);
+                        <span class="hljs-keyword">if</span> (classAttribute &amp;&amp; <span class="hljs-keyword">typeof</span> classAttribute === <span class="hljs-string">'string'</span>) {
+                            <span class="hljs-keyword">const</span> classlist = classAttribute.split(<span class="hljs-string">' '</span>);
+                            <span class="hljs-keyword">if</span> (style.classes.filter(<span class="hljs-function"><span class="hljs-params">value</span> =&gt;</span> !classlist.includes(value)).length === <span class="hljs-number">0</span>) {
+                                event.return = <span class="hljs-literal">true</span>;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        <span class="hljs-comment">// Return affected elements</span>
+        <span class="hljs-keyword">this</span>.listenTo(styleUtils, <span class="hljs-string">'getAffectedBlocks'</span>, (event, [style, element]) =&gt; {
+            <span class="hljs-keyword">if</span> (style.element === <span class="hljs-string">'img'</span>) {
+                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> item <span class="hljs-keyword">of</span> editor.model.document.selection.getFirstRange().getItems()) {
+                    <span class="hljs-keyword">if</span> (item.name === <span class="hljs-string">'typo3image'</span>) {
+                        event.return = [item];
+                        <span class="hljs-keyword">break</span>;
+                    }
+                }
+            }
+        });
+
+        <span class="hljs-comment">// Apply classes</span>
+        ghs.decorate(<span class="hljs-string">'addModelHtmlClass'</span>);
+        <span class="hljs-keyword">this</span>.listenTo(ghs, <span class="hljs-string">'addModelHtmlClass'</span>, (event, [viewElement, className, selectable]) =&gt; {
+            <span class="hljs-keyword">if</span> (selectable &amp;&amp; selectable.name === <span class="hljs-string">'typo3image'</span>) {
+                editor.model.change(<span class="hljs-function"><span class="hljs-params">writer</span> =&gt;</span> {
+                    writer.setAttribute(<span class="hljs-string">'class'</span>, className.join(<span class="hljs-string">' '</span>), selectable);
+                });
+            }
+        });
+
+        <span class="hljs-comment">// Remove classes</span>
+        ghs.decorate(<span class="hljs-string">'removeModelHtmlClass'</span>);
+        <span class="hljs-keyword">this</span>.listenTo(ghs, <span class="hljs-string">'removeModelHtmlClass'</span>, (event, [viewElement, className, selectable]) =&gt; {
+            <span class="hljs-keyword">if</span> (selectable &amp;&amp; selectable.name === <span class="hljs-string">'typo3image'</span>) {
+                editor.model.change(<span class="hljs-function"><span class="hljs-params">writer</span> =&gt;</span> {
+                    writer.removeAttribute(<span class="hljs-string">'class'</span>, selectable);
+                });
+            }
+        });
+    }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="troubleshooting-style-issues">
+            <h2>Troubleshooting Style Issues<a class="headerlink" href="#troubleshooting-style-issues" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-style-drop-down-disabled-for-images">
+            <h3>Issue: Style Drop-down Disabled for Images<a class="headerlink" href="#issue-style-drop-down-disabled-for-images" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash">Select image → style drop-down grayed out</li>
+    <li class="dash">No styles available when image selected</li>
+</ul>
+
+            
+    <p><strong>Causes</strong>:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Missing <code>GeneralHtmlSupport</code> dependency</li>
+    <li value="2">Missing <code>StyleUtils</code> dependency</li>
+    <li value="3">Event listeners not registered</li>
+    <li value="4">Style definitions don&#039;t target &#039;img&#039; element</li>
+</ol>
+
+            
+    <p><strong>Solutions</strong>:</p>
+
+            <section class="section" id="verify-dependencies">
+            <h4>Verify Dependencies<a class="headerlink" href="#verify-dependencies" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> requires() {
+    <span class="hljs-keyword">return</span> [<span class="hljs-string">'StyleUtils'</span>, <span class="hljs-string">'GeneralHtmlSupport'</span>];  <span class="hljs-comment">// Both required!</span>
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="verify-style-definitions">
+            <h4>Verify Style Definitions<a class="headerlink" href="#verify-style-definitions" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-attr">style:</span>
+  <span class="hljs-attr">definitions:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'My Style'</span>
+      <span class="hljs-attr">element:</span> <span class="hljs-string">'img'</span>  <span class="hljs-comment"># Must be 'img', not 'image'</span>
+      <span class="hljs-attr">classes:</span> <span class="hljs-string">['my-class']</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="check-event-listeners">
+            <h4>Check Event Listeners<a class="headerlink" href="#check-event-listeners" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Debug in browser console</span>
+<span class="hljs-keyword">const</span> styleUtils = editor.plugins.get(<span class="hljs-string">'StyleUtils'</span>);
+<span class="hljs-built_in">console</span>.log(styleUtils.listenerCount(<span class="hljs-string">'isStyleEnabledForBlock'</span>));
+<span class="hljs-comment">// Should be &gt; 0</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="issue-style-changes-not-applied">
+            <h3>Issue: Style Changes Not Applied<a class="headerlink" href="#issue-style-changes-not-applied" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash">Style selected from drop-down</li>
+    <li class="dash">No visual change to image</li>
+    <li class="dash">Class attribute not updated</li>
+</ul>
+
+            
+    <p><strong>Causes</strong>:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">GeneralHtmlSupport event listeners not registered</li>
+    <li value="2">Model-to-view conversion missing class attribute</li>
+    <li value="3">CSS classes not defined in stylesheet</li>
+</ol>
+
+            
+    <p><strong>Solutions</strong>:</p>
+
+            <section class="section" id="verify-ghs-listeners">
+            <h4>Verify GHS Listeners<a class="headerlink" href="#verify-ghs-listeners" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">const</span> ghs = editor.plugins.get(<span class="hljs-string">'GeneralHtmlSupport'</span>);
+<span class="hljs-built_in">console</span>.log(ghs.listenerCount(<span class="hljs-string">'addModelHtmlClass'</span>));
+<span class="hljs-comment">// Should be &gt; 0</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="check-class-attribute-conversion">
+            <h4>Check Class Attribute Conversion<a class="headerlink" href="#check-class-attribute-conversion" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">editor.conversion.for(<span class="hljs-string">'downcast'</span>).attributeToAttribute({
+    <span class="hljs-attr">model</span>: { <span class="hljs-attr">name</span>: <span class="hljs-string">'typo3image'</span>, <span class="hljs-attr">key</span>: <span class="hljs-string">'class'</span> },
+    <span class="hljs-attr">view</span>: <span class="hljs-string">'class'</span>
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="verify-css-loaded">
+            <h4>Verify CSS Loaded<a class="headerlink" href="#verify-css-loaded" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs css"><span class="hljs-comment">/* In your stylesheet */</span>
+<span class="hljs-selector-class">.float-left</span> { <span class="hljs-attribute">float</span>: left; <span class="hljs-attribute">margin-right</span>: <span class="hljs-number">1rem</span>; }
+<span class="hljs-selector-class">.float-right</span> { <span class="hljs-attribute">float</span>: right; <span class="hljs-attribute">margin-left</span>: <span class="hljs-number">1rem</span>; }</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="issue-styles-not-shown-as-active">
+            <h3>Issue: Styles Not Shown as Active<a class="headerlink" href="#issue-styles-not-shown-as-active" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms</strong>:</p>
+
+            
+
+<ul>
+    <li class="dash">Image has correct classes</li>
+    <li class="dash">Style not checked/highlighted in drop-down</li>
+    <li class="dash">Cannot tell which style is applied</li>
+</ul>
+
+            
+    <p><strong>Cause</strong>: <code>isStyleActiveForBlock</code> listener not working correctly</p>
+
+            
+    <p><strong>Solution</strong>:</p>
+
+            <section class="section" id="debug-class-matching">
+            <h4>Debug Class Matching<a class="headerlink" href="#debug-class-matching" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// In isStyleActiveForBlock listener</span>
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Element classes:'</span>, item.getAttribute(<span class="hljs-string">'class'</span>));
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Style classes:'</span>, style.classes);
+
+<span class="hljs-keyword">const</span> classlist = item.getAttribute(<span class="hljs-string">'class'</span>).split(<span class="hljs-string">' '</span>);
+<span class="hljs-keyword">const</span> missing = style.classes.filter(<span class="hljs-function"><span class="hljs-params">cls</span> =&gt;</span> !classlist.includes(cls));
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Missing classes:'</span>, missing);</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+    </section>
+            <section class="section" id="advanced-style-patterns">
+            <h2>Advanced Style Patterns<a class="headerlink" href="#advanced-style-patterns" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="multiple-class-styles">
+            <h3>Multiple Class Styles<a class="headerlink" href="#multiple-class-styles" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-comment"># Complex styles with multiple classes</span>
+<span class="hljs-attr">style:</span>
+  <span class="hljs-attr">definitions:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'Responsive Image Card'</span>
+      <span class="hljs-attr">element:</span> <span class="hljs-string">'img'</span>
+      <span class="hljs-attr">classes:</span> <span class="hljs-string">['img-fluid',</span> <span class="hljs-string">'rounded'</span><span class="hljs-string">,</span> <span class="hljs-string">'shadow-sm'</span><span class="hljs-string">,</span> <span class="hljs-string">'d-block'</span><span class="hljs-string">]</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Application</strong>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Results in model:</span>
+<span class="hljs-attr">class</span>: <span class="hljs-string">'img-fluid rounded shadow-sm d-block'</span>
+
+<span class="hljs-comment">// View output:</span>
+&lt;img <span class="hljs-class"><span class="hljs-keyword">class</span></span>=<span class="hljs-string">"img-fluid rounded shadow-sm d-block"</span> src=<span class="hljs-string">"..."</span> /&gt;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="conditional-style-availability">
+            <h3>Conditional Style Availability<a class="headerlink" href="#conditional-style-availability" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Only enable certain styles for specific users</span>
+<span class="hljs-keyword">this</span>.listenTo(styleUtils, <span class="hljs-string">'isStyleEnabledForBlock'</span>, (event, [style, element]) =&gt; {
+    <span class="hljs-keyword">if</span> (style.element === <span class="hljs-string">'img'</span> &amp;&amp; style.name === <span class="hljs-string">'Admin Only Style'</span>) {
+        <span class="hljs-comment">// Check user permission</span>
+        <span class="hljs-keyword">if</span> (!userHasAdminPermission()) {
+            event.return = <span class="hljs-literal">false</span>;  <span class="hljs-comment">// Disable this style</span>
+            event.stop();  <span class="hljs-comment">// Prevent further processing</span>
+            <span class="hljs-keyword">return</span>;
+        }
+    }
+
+    <span class="hljs-comment">// Default behavior for other styles</span>
+    <span class="hljs-keyword">if</span> (style.element === <span class="hljs-string">'img'</span>) {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> item <span class="hljs-keyword">of</span> editor.model.document.selection.getFirstRange().getItems()) {
+            <span class="hljs-keyword">if</span> (item.name === <span class="hljs-string">'typo3image'</span>) {
+                event.return = <span class="hljs-literal">true</span>;
+            }
+        }
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="style-groups">
+            <h3>Style Groups<a class="headerlink" href="#style-groups" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-comment"># Organize styles into groups</span>
+<span class="hljs-attr">style:</span>
+  <span class="hljs-attr">definitions:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'Left Align'</span>
+      <span class="hljs-attr">element:</span> <span class="hljs-string">'img'</span>
+      <span class="hljs-attr">classes:</span> <span class="hljs-string">['float-left']</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'Right Align'</span>
+      <span class="hljs-attr">element:</span> <span class="hljs-string">'img'</span>
+      <span class="hljs-attr">classes:</span> <span class="hljs-string">['float-right']</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'Center Align'</span>
+      <span class="hljs-attr">element:</span> <span class="hljs-string">'img'</span>
+      <span class="hljs-attr">classes:</span> <span class="hljs-string">['mx-auto',</span> <span class="hljs-string">'d-block'</span><span class="hljs-string">]</span>
+
+  <span class="hljs-attr">groupDefinitions:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'Image Alignment'</span>
+      <span class="hljs-attr">styles:</span> <span class="hljs-string">['Left</span> <span class="hljs-string">Align',</span> <span class="hljs-string">'Right Align'</span><span class="hljs-string">,</span> <span class="hljs-string">'Center Align'</span><span class="hljs-string">]</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="performance-considerations">
+            <h2>Performance Considerations<a class="headerlink" href="#performance-considerations" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="event-listener-efficiency">
+            <h3>Event Listener Efficiency<a class="headerlink" href="#event-listener-efficiency" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// Inefficient: Iterates entire range multiple times</span>
+<span class="hljs-keyword">this</span>.listenTo(styleUtils, <span class="hljs-string">'isStyleEnabledForBlock'</span>, (event, [style]) =&gt; {
+    <span class="hljs-keyword">if</span> (style.element === <span class="hljs-string">'img'</span>) {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> item <span class="hljs-keyword">of</span> editor.model.document.selection.getFirstRange().getItems()) {
+            <span class="hljs-keyword">if</span> (item.name === <span class="hljs-string">'typo3image'</span>) {
+                event.return = <span class="hljs-literal">true</span>;
+            }
+        }
+    }
+});
+
+<span class="hljs-comment">// Efficient: Cache selection check</span>
+<span class="hljs-keyword">const</span> isTypo3ImageSelected = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> selection = editor.model.document.selection;
+    <span class="hljs-keyword">const</span> element = selection.getSelectedElement();
+    <span class="hljs-keyword">return</span> element &amp;&amp; element.name === <span class="hljs-string">'typo3image'</span>;
+};
+
+<span class="hljs-keyword">this</span>.listenTo(styleUtils, <span class="hljs-string">'isStyleEnabledForBlock'</span>, (event, [style]) =&gt; {
+    <span class="hljs-keyword">if</span> (style.element === <span class="hljs-string">'img'</span> &amp;&amp; isTypo3ImageSelected()) {
+        event.return = <span class="hljs-literal">true</span>;
+    }
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="related-documentation">
+            <h2>Related Documentation<a class="headerlink" href="#related-documentation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+
+<ul>
+    <li class="dash"><a href="Plugin-Development.html#ckeditor-plugin-development-guide">CKEditor Plugin Development</a></li>
+    <li class="dash"><a href="Model-Element.html#ckeditor-model-element">CKEditor Model Element Reference</a></li>
+    <li class="dash"><a href="Conversions.html#ckeditor-conversions">CKEditor Conversion System</a></li>
+    <li class="dash"><a href="../Examples/Image-Styles.html#configuration">Configuration</a></li>
+    <li class="dash"><a href="../Troubleshooting/Index.html#troubleshooting-index">Troubleshooting &amp; Support</a></li>
+</ul>
+
+    </section>
+    </section>
+        <!-- content end -->
+    </div>
+</article>
+                        
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center"><li class="page-item">
+                            <a class="page-link" href="Model-Element.html"
+                               title="Accesskey Alt(+Shift)+p">
+                                <i class="fa-solid fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    <li class="page-item">
+                            <a class="page-link" href="Conversions.html"
+                               title="Accesskey Alt(+Shift)+n">
+                                Next <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+        </nav>
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="linkReferenceModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="CKEditor/Style-Integration">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="linkReferenceModalLabel">Reference to the headline</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="permalink-alert-success" role="alert"></div>
+                <div class="mb-3">
+                    <label for="permalink-uri" class="col-form-label">URL</label>
+                    <div class="input-group">
+                        <input class="form-control code" id="permalink-uri" readonly>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-uri"><i class="far fa-clone"></i></button>
+                    </div>
+                    <div class="permalink-short-wrapper">
+                        <label for="permalink-short" class="col-form-label">Permalink (Shortlink)</label>
+                        <div class="input-group">
+                            <input class="form-control code" id="permalink-short" readonly>
+                            <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-short"><i class="far fa-clone"></i></button>
+                        </div>
+                        <p><em>Copy and freely share the link</em></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-warning alert-permalink-rst" role="alert">This link target has no permanent anchor assigned.The link below can be used, but is prone to change if the page gets moved.
+                    </div>
+                    <label for="permalink-rst" class="col-form-label">Link in reStructuredText (reST)</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-rst" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-rst"><i class="far fa-clone"></i></button>
+                    </div>
+                    <p><em>Copy this link into your TYPO3 manual.</em></p>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-md" class="col-form-label">Link in Markdown</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-md" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-md"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-html" class="col-form-label">Link in HTML</label>
+                                        <div class="input-group">
+                        <textarea class="form-control code" id="permalink-html" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-html"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>    <div class="modal fade" id="generalModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="CKEditor/Style-Integration"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generalModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="general-alert-success" role="alert"></div>
+                <div id="generalModalContent">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div id="generalModalCustomButtons"></div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-regular fa-circle-xmark"></i>&nbsp;Close</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+
+<footer class="page-footer">
+    <div class="frame frame-ruler-before frame-background-dark">
+        <div class="frame-container">
+            <div class="frame-inner">
+                                <div class="footer-additional">
+                    <p class="text-center">Last rendered: Oct 23, 2025 19:49</p>
+                </div>
+                <div class="footer-meta">
+                    <ul class="footer-meta-navigation">
+                        <li><a href="https://typo3.org/legal-notice" rel="nofollow" target="_blank" title="Legal Notice">Legal Notice</a></li>
+                        <li><a href="https://typo3.org/privacy-policy" rel="nofollow" target="_blank" title="Privacy Policy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="../_resources/js/popper.min.js"></script>
+<script src="../_resources/js/bootstrap.min.js"></script>
+<script src="../_resources/js/theme.min.js"></script>
+
+<!--
+ Locally rendered. No tracking embedded.
+-->
+</body>
+</html>

@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <title>Event Listeners API
+        documentation</title>
+
+    
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="phpdocumentor/guides" name="generator">
+<meta content="" name="docsearch:name">
+<meta content="" name="docsearch:package_type">
+<meta content="" name="docsearch:release">
+<meta content="" name="docsearch:version">
+<meta content="2025-10-23T19:49:09+00:00" name="docsearch:modified">
+<meta content="2025-10-23T19:49:09+00:00" name="dc.modified">
+<meta content="2025-10-23T19:49:09+00:00" property="article:modified_time">
+    <link href="http://purl.org/dc/elements/1.1/" rel="schema.dc">
+<link href="../_resources/css/theme.css" rel="stylesheet">
+<link href="https://docs.typo3.org/search/" rel="search" title="Search">
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/webcomponents-loader.js"></script>
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/typo3-universe.js" type="module"></script>
+                        <link href="DataHandling.html" rel="prev" title="Data Handling API"/>
+            <link href="../CKEditor/Index.html" rel="next" title="CKEditor Plugin Development"/>
+            <link href="../Index.html" rel="top" title="RTE CKEditor Image"/>
+    </head>
+<body>
+<div class="page">
+    <header>
+    <div class="page-topbar">
+        <div class="page-topbar-inner">
+            <typo3-universe active="documentation">
+                <div style="display: block; height: 44px; background-color: #313131;"></div>
+            </typo3-universe>
+        </div>
+    </div>
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="d-flex flex-wrap">
+                <div class="logo-wrapper">
+                    <a class="logo" href="https://docs.typo3.org/" title="TYPO3 Documentation">
+                        <img alt="TYPO3 Logo" class="logo-image" src="../_resources/img/typo3-logo.svg" width="484" height="130">
+                    </a>
+                </div>
+                <div class="align-self-center order-lg-2 order-last">
+                    
+<div class="toc-header">
+    <div class="toc-title pe-3">
+                            <a class="toc-title-project" href="../Index.html">RTE CKEditor Image</a>
+            </div>
+    </div>                </div>
+                <div class="ms-auto order-lg-3 d-flex">
+                    <div class="menu-search-wrapper">
+                        <button id="toc-toggle" class="btn btn-light d-block d-lg-none" tabindex="0" aria-controls="toc-collapse" aria-expanded="false">
+                            <i class="fas fa-bars"></i> <span class="visually-hidden">Mobile Menu</span>
+                        </button>
+                        <all-documentations-menu data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu>
+                                                <search role="search">
+                            <form action="https://docs.typo3.org/search/search" id="global-search-form" method="get">
+                                <div class="sr-only"><label for="globalsearchinput">TYPO3 documentation...</label></div>
+                                <div class="input-group mb-3 mt-sm-3">
+                                    <select class="form-select search__scope" id="searchscope" name="scope">
+                                        <option value="">Search all</option>
+                                    </select>
+                                    <input autocomplete="off" class="form-control shadow-none" id="globalsearchinput" name="q" placeholder="TYPO3 documentation..." type="text" value="">
+                                    <button class="btn btn-light" type="submit"><i class="fa fa-search"></i>&nbsp;<span class="d-none d-md-inline">Search</span></button>
+                                </div>
+                            </form>
+                            <div id="global-search-root"></div>
+                        </search>
+                        <div class="position-relative d-inline-block">
+                            <button id="options-toggle" class="btn btn-light d-block" type="button" aria-expanded="false">
+                                <i class="fas fa-cog"></i> <span class="visually-hidden">Options</span>
+                            </button>
+
+                            <div id="options-panel"
+                                 class="shadow p-3"
+                                 role="menu"
+                                 aria-hidden="true">
+                                <h6 class="dropdown-header text-muted text-uppercase small mb-2">Options</h6>
+
+                                                                                                            <a class="dropdown-item d-flex align-items-center gap-2" href="../_sources/API/EventListeners.rst.txt" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-code"></i>
+        View source
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2" href="https://docs.typo3.org/m/typo3/docs-how-to-document/main/en-us/WritingDocsOfficial/GithubMethod.html" id="btnHowToEdit" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-info-circle"></i>
+        How to edit
+    </a>
+                                                                                                                <a class="dropdown-item d-flex align-items-center gap-2" href="../singlehtml/Index.html" target="_blank" rel="noopener">
+                                            <i class="fas fa-print"></i>
+                                            Full documentation (single file)
+                                        </a>
+                                                                                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>    <main class="page-main">
+        <div class="page-main-inner">
+            <div class="page-main-navigation">
+                <nav>
+
+                    <div id="toc-collapse">
+                                                <div aria-label="main navigation" class="toc"
+                             role="navigation">
+                                <all-documentations-menu-mobile
+        data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu-mobile>
+    <div aria-label="Main navigation" class="main_menu" role="navigation">
+                <p class="caption">RTE CKEditor Image</p>
+            <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Integration/Index.html">
+        Integration &amp; Configuration
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Integration/RTE-Setup.html">
+        RTE Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/TSConfig.html">
+        Page TSConfig Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Frontend-Rendering.html">
+        Frontend Rendering
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Advanced-Configuration.html">
+        Advanced Configuration
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Examples/Index.html">
+        Examples &amp; Use Cases
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Examples/Basic-Integration.html">
+        Basic Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Image-Styles.html">
+        Image Styles
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Responsive-Images.html">
+        Responsive Images
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Advanced-Features.html">
+        Advanced Features
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Custom-Extensions.html">
+        Custom Extensions
+    </a></li><li class="" role="menuitem">
+    <a href="../Examples/Testing.html">
+        Testing Examples
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Troubleshooting/Index.html">
+        Troubleshooting &amp; Support
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Troubleshooting/Installation-Issues.html">
+        Installation Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Editor-Issues.html">
+        Editor Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Frontend-Issues.html">
+        Frontend Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Performance-Issues.html">
+        Performance Issues
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Architecture &amp; Design</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Architecture/Index.html">
+        Architecture &amp; Design
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Architecture/System-Architecture.html">
+        System Architecture
+    </a></li><li class="" role="menuitem">
+    <a href="../Architecture/Design-Patterns.html">
+        Design Patterns &amp; Integration
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class=" active" role="menuitem">
+    <a href="Index.html">
+        API Documentation
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="Controllers.html">
+        Controllers API
+    </a></li><li class="" role="menuitem">
+    <a href="DataHandling.html">
+        Data Handling API
+    </a></li><li class=" current active" role="menuitem">
+    <a href="#" aria-current="page">
+        Event Listeners API
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../CKEditor/Index.html">
+        CKEditor Plugin Development
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../CKEditor/Plugin-Development.html">
+        CKEditor Plugin Development
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Model-Element.html">
+        CKEditor Model Element Reference
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Style-Integration.html">
+        CKEditor Style Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Conversions.html">
+        CKEditor Conversion System
+    </a></li></ul></li>    </ul>
+    </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="page-main-content">
+                <div class="rst-content">                        <nav aria-label="breadcrumbs navigation" class="breadcrumb-bar" role="navigation">
+        
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="../Index.html">RTE CKEditor Image</a></li>
+        <li class="breadcrumb-item"><a href="Index.html">API Documentation</a></li>
+                    <li aria-current="page"  class="breadcrumb-item  active">Event Listeners API</li>
+        </ol>
+        <div class="breadcrumb-additions"></div>
+    </nav>
+                    
+<article class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+    <div itemprop="articleBody">
+        <!-- content start -->
+                <section class="section" id="event-listeners-api" data-rst-anchor="api-eventlisteners">
+            <a id="api-eventlisteners"></a>
+            <h1>Event Listeners API<a class="headerlink" href="#event-listeners-api" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h1>
+            
+    <p>Complete API reference for PSR-14 event listeners in the rte_ckeditor_image extension.</p>
+
+            <div class="contents-wrapper">
+        <p class="topic-title">Table of Contents</p>
+        <ul class="menu-level">
+    <li class="toc-item">
+    <a href="#rteconfigurationlistener">RteConfigurationListener</a>
+
+
+</li>
+    <li class="toc-item">
+    <a href="#psr-14-event-system">PSR-14 Event System</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#what-is-psr-14">What is PSR-14?</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#why-use-events-over-hooks">Why Use Events Over Hooks?</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#event-flow">Event Flow</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#rteconfigurationlistener-api">RteConfigurationListener API</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#invoke">__invoke()</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#afterprepareconfigurationforeditorevent">AfterPrepareConfigurationForEditorEvent</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#event-properties">Event Properties</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#event-lifecycle">Event Lifecycle</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#configuration-injection-pattern">Configuration Injection Pattern</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#what-gets-injected">What Gets Injected?</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#how-ckeditor-plugin-accesses-it">How CKEditor Plugin Accesses It</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#why-this-pattern">Why This Pattern?</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#usage-examples">Usage Examples</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#accessing-route-url-in-javascript">Accessing Route URL in JavaScript</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#extending-configuration-with-custom-listener">Extending Configuration with Custom Listener</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#modifying-existing-configuration">Modifying Existing Configuration</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#override-typo3image-route">Override typo3image Route</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#add-additional-routes">Add Additional Routes</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#listener-execution-order">Listener Execution Order</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#multiple-listeners-for-same-event">Multiple Listeners for Same Event</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#example-two-listeners">Example: Two Listeners</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#testing-event-listeners">Testing Event Listeners</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#unit-test-example">Unit Test Example</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#debugging-event-listeners">Debugging Event Listeners</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#check-if-listener-is-registered">Check if Listener is Registered</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#log-configuration-changes">Log Configuration Changes</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#verify-configuration-in-browser">Verify Configuration in Browser</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#common-issues">Common Issues</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#issue-routeurl-not-available-in-plugin">Issue: routeUrl Not Available in Plugin</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#issue-multiple-listeners-conflict">Issue: Multiple Listeners Conflict</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#issue-csrf-token-errors">Issue: CSRF Token Errors</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#advanced-patterns">Advanced Patterns</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#conditional-configuration">Conditional Configuration</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#user-specific-configuration">User-Specific Configuration</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#environment-specific-configuration">Environment-Specific Configuration</a>
+
+
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#related-documentation">Related Documentation</a>
+
+
+</li>
+    </ul>
+
+    <button class="toggle-all-sections btn btn-sm btn-light">Collapse all Sections</button>
+</div>
+            <section class="section" id="rteconfigurationlistener" data-rst-anchor="api-rteconfigurationlistener">
+            <h2>RteConfigurationListener<a class="headerlink" href="#rteconfigurationlistener" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <a id="api-rteconfigurationlistener"></a>
+            <dl class="field-list simple ">
+            <dt class="field-odd">Namespace</dt>
+
+        <dd class="field-odd">
+            
+    <p><code>Netresearch\RteCKEditorImage\EventListener</code></p>
+        </dd>
+            <dt class="field-odd">Purpose</dt>
+
+        <dd class="field-odd">
+            
+    <p>Injects backend route configuration into CKEditor RTE configuration for image plugin integration</p>
+        </dd>
+            <dt class="field-odd">Event</dt>
+
+        <dd class="field-odd">
+            
+    <p><code>TYPO3\CMS\RteCKEditor\Form\Element\Event\AfterPrepareConfigurationForEditorEvent</code></p>
+        </dd>
+    </dl>
+            
+    <p><strong>Service Configuration:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-string">Netresearch\RteCKEditorImage\EventListener\RteConfigurationListener:</span>
+  <span class="hljs-attr">tags:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">event.listener</span>
+      <span class="hljs-attr">identifier:</span> <span class="hljs-string">'rte_configuration_listener'</span>
+      <span class="hljs-attr">event:</span> <span class="hljs-string">TYPO3\CMS\RteCKEditor\Form\Element\Event\AfterPrepareConfigurationForEditorEvent</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="psr-14-event-system">
+            <h2>PSR-14 Event System<a class="headerlink" href="#psr-14-event-system" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="what-is-psr-14">
+            <h3>What is PSR-14?<a class="headerlink" href="#what-is-psr-14" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>PSR-14 is a standardized event dispatcher interface that allows decoupled components to communicate through events:</p>
+
+            
+
+<ul>
+    <li class="dash"><strong>Events:</strong> Objects containing data about what happened</li>
+    <li class="dash"><strong>Listeners:</strong> Callables that respond to specific events</li>
+    <li class="dash"><strong>Dispatcher:</strong> Routes events to registered listeners</li>
+</ul>
+
+    </section>
+            <section class="section" id="why-use-events-over-hooks">
+            <h3>Why Use Events Over Hooks?<a class="headerlink" href="#why-use-events-over-hooks" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="table-responsive">
+    <table class="table table-bordered align-default">
+                            <thead>
+            <tr>
+                            <th>Feature</th>
+                            <th>PSR-14 Events</th>
+                            <th>Traditional Hooks</th>
+                    </tr>
+        </thead>
+        <tbody>
+    <tr>
+            <td>Standard</td>            <td>Yes (PSR standard)</td>            <td>No (TYPO3-specific)</td>    </tr>    <tr>
+            <td>Type Safety</td>            <td>Strong (typed events)</td>            <td>Weak (array parameters)</td>    </tr>    <tr>
+            <td>Discoverability</td>            <td>IDE autocomplete</td>            <td>Manual documentation</td>    </tr>    <tr>
+            <td>Testing</td>            <td>Easy (mock events)</td>            <td>Difficult (DataHandler)</td>    </tr>    <tr>
+            <td>Modern</td>            <td>PHP 7.4+ features</td>            <td>Legacy patterns</td>    </tr></tbody>    </table>
+</div>
+    </section>
+            <section class="section" id="event-flow">
+            <h3>Event Flow<a class="headerlink" href="#event-flow" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs plaintext">Backend Form Rendering
+    ↓
+RteCKEditor prepares configuration
+    ↓
+AfterPrepareConfigurationForEditorEvent dispatched
+    ↓
+RteConfigurationListener invoked
+    ↓
+Configuration injected with route URL
+    ↓
+CKEditor loads with typo3image plugin config</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="rteconfigurationlistener-api">
+            <h2>RteConfigurationListener API<a class="headerlink" href="#rteconfigurationlistener-api" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="invoke">
+            <h3>__invoke()<a class="headerlink" href="#invoke" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <dl class="php method">
+    <dt class="sig sig-object php" id="invoke">
+<span class="sig-name descname"><span class="pre">__invoke</span></span>
+<span class="sig-paren">(</span>
+<em class="sig-param"><span class="pre">AfterPrepareConfigurationForEditorEvent $event</span></em><span class="sig-paren">)</span>
+<em class="sig-returns"><span class="pre">: void</span></em>
+        <a class="headerlink" href="#invoke" data-id="invoke" data-bs-toggle="modal" data-bs-target="#linkReferenceModal" data-rstCode=":php:method:`somemanual:__invoke`"  title="Reference this definition"><i class="fa-solid fa-paragraph"></i></a>
+    </dt>
+    <dd>
+        
+    <p>Main listener method that modifies RTE configuration before it&#039;s sent to the CKEditor instance.</p>
+<dl class="field-list simple ">
+            <dt class="field-odd">param AfterPrepareConfigurationForEditorEvent $event</dt>
+
+        <dd class="field-odd">
+            
+    <p>Event object containing mutable RTE configuration</p>
+        </dd>
+    </dl>
+    <p><strong>Processing Steps:</strong></p>
+
+    <p><strong>1. URI Builder Instantiation:</strong></p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    <p>Creates TYPO3 URI builder for backend route generation.</p>
+
+    <p><strong>2. Configuration Retrieval:</strong></p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$configuration = $event-&gt;getConfiguration();</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    <p>Gets current RTE configuration array from event.</p>
+
+    <p><strong>3. Route URL Injection:</strong></p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$configuration[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>] = [
+    <span class="hljs-string">'routeUrl'</span> =&gt; (string) $uriBuilder-&gt;buildUriFromRoute(<span class="hljs-string">'rteckeditorimage_wizard_select_image'</span>),
+];</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    <p>Adds backend route URL to configuration under <code>style.typo3image.routeUrl</code>.</p>
+
+    <p><strong>4. Configuration Update:</strong></p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$event-&gt;setConfiguration($configuration);</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    <p>Updates event with modified configuration.</p>
+
+    <p><strong>Result:</strong></p>
+
+    <p>CKEditor receives configuration like:</p>
+<div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript">{
+  <span class="hljs-attr">style</span>: {
+    <span class="hljs-attr">typo3image</span>: {
+      <span class="hljs-attr">routeUrl</span>: <span class="hljs-string">'/typo3/rte/wizard/selectimage?...'</span>
+    }
+  }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+        </dd>
+</dl>
+    </section>
+    </section>
+            <section class="section" id="afterprepareconfigurationforeditorevent">
+            <h2>AfterPrepareConfigurationForEditorEvent<a class="headerlink" href="#afterprepareconfigurationforeditorevent" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="event-properties">
+            <h3>Event Properties<a class="headerlink" href="#event-properties" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AfterPrepareConfigurationForEditorEvent</span>
+</span>{
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">array</span> $configuration;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getConfiguration</span><span class="hljs-params">()</span>: <span class="hljs-title">array</span></span>;
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setConfiguration</span><span class="hljs-params">(array $configuration)</span>: <span class="hljs-title">void</span></span>;
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="event-lifecycle">
+            <h3>Event Lifecycle<a class="headerlink" href="#event-lifecycle" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <dl class="field-list simple ">
+            <dt class="field-odd">Dispatch Point</dt>
+
+        <dd class="field-odd">
+            
+    <p>After RTE configuration is prepared but before rendering</p>
+        </dd>
+            <dt class="field-odd">Mutability</dt>
+
+        <dd class="field-odd">
+            
+    <p>Configuration array can be modified by listeners</p>
+        </dd>
+            <dt class="field-odd">Priority</dt>
+
+        <dd class="field-odd">
+            
+    <p>Not configurable (TYPO3 dispatches in registration order)</p>
+        </dd>
+            <dt class="field-odd">Multiple Listeners</dt>
+
+        <dd class="field-odd">
+            
+    <p>Supported - each listener receives modified config from previous</p>
+        </dd>
+    </dl>
+    </section>
+    </section>
+            <section class="section" id="configuration-injection-pattern">
+            <h2>Configuration Injection Pattern<a class="headerlink" href="#configuration-injection-pattern" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="what-gets-injected">
+            <h3>What Gets Injected?<a class="headerlink" href="#what-gets-injected" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">[
+    <span class="hljs-string">'style'</span> =&gt; [
+        <span class="hljs-string">'typo3image'</span> =&gt; [
+            <span class="hljs-string">'routeUrl'</span> =&gt; <span class="hljs-string">'/typo3/rte/wizard/selectimage?token=abc123'</span>
+        ]
+    ]
+]</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="how-ckeditor-plugin-accesses-it">
+            <h3>How CKEditor Plugin Accesses It<a class="headerlink" href="#how-ckeditor-plugin-accesses-it" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// In Resources/Public/JavaScript/Plugins/typo3image.js</span>
+<span class="hljs-keyword">const</span> routeUrl = editor.config.get(<span class="hljs-string">'style'</span>).typo3image.routeUrl;
+
+<span class="hljs-comment">// Used for image selection modal</span>
+Modal.advanced({
+    <span class="hljs-attr">type</span>: Modal.types.iframe,
+    <span class="hljs-attr">content</span>: routeUrl + <span class="hljs-string">'&amp;contentsLanguage=en&amp;bparams=...'</span>
+});</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="why-this-pattern">
+            <h3>Why This Pattern?<a class="headerlink" href="#why-this-pattern" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+
+<ul>
+    <li class="dash"><strong>Dynamic Routes:</strong> Backend routes include CSRF tokens that change per session</li>
+    <li class="dash"><strong>Environment Independence:</strong> Works across different TYPO3 installations</li>
+    <li class="dash"><strong>Security:</strong> CSRF tokens validated by TYPO3 backend</li>
+    <li class="dash"><strong>Flexibility:</strong> Easily extended for additional configuration</li>
+</ul>
+
+    </section>
+    </section>
+            <section class="section" id="usage-examples">
+            <h2>Usage Examples<a class="headerlink" href="#usage-examples" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="accessing-route-url-in-javascript">
+            <h3>Accessing Route URL in JavaScript<a class="headerlink" href="#accessing-route-url-in-javascript" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// CKEditor plugin initialization</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Typo3Image</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Core</span>.<span class="hljs-title">Plugin</span> </span>{
+    init() {
+        <span class="hljs-keyword">const</span> editor = <span class="hljs-keyword">this</span>.editor;
+        <span class="hljs-keyword">const</span> routeUrl = editor.config.get(<span class="hljs-string">'style'</span>).typo3image.routeUrl;
+
+        <span class="hljs-comment">// Use for image info API calls</span>
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getImageInfo</span>(<span class="hljs-params">fileUid</span>) </span>{
+            <span class="hljs-keyword">const</span> url = routeUrl + <span class="hljs-string">'&amp;action=info&amp;fileId='</span> + fileUid;
+            <span class="hljs-keyword">return</span> fetch(url).then(<span class="hljs-function"><span class="hljs-params">r</span> =&gt;</span> r.json());
+        }
+    }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="extending-configuration-with-custom-listener">
+            <h3>Extending Configuration with Custom Listener<a class="headerlink" href="#extending-configuration-with-custom-listener" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>Create your own listener to add custom configuration:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// EXT:my_ext/Classes/EventListener/CustomRteConfigListener.php</span>
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">MyVendor</span>\<span class="hljs-title">MyExt</span>\<span class="hljs-title">EventListener</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">RteCKEditor</span>\<span class="hljs-title">Form</span>\<span class="hljs-title">Element</span>\<span class="hljs-title">Event</span>\<span class="hljs-title">AfterPrepareConfigurationForEditorEvent</span>;
+
+<span class="hljs-keyword">final</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomRteConfigListener</span>
+</span>{
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__invoke</span><span class="hljs-params">(AfterPrepareConfigurationForEditorEvent $event)</span>: <span class="hljs-title">void</span>
+    </span>{
+        $configuration = $event-&gt;getConfiguration();
+
+        <span class="hljs-comment">// Add custom configuration</span>
+        $configuration[<span class="hljs-string">'myext'</span>] = [
+            <span class="hljs-string">'apiEndpoint'</span> =&gt; <span class="hljs-string">'/api/my-endpoint'</span>,
+            <span class="hljs-string">'options'</span> =&gt; [<span class="hljs-string">'foo'</span> =&gt; <span class="hljs-string">'bar'</span>],
+        ];
+
+        $event-&gt;setConfiguration($configuration);
+    }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>Register in <code>Configuration/Services.yaml</code>:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-string">MyVendor\MyExt\EventListener\CustomRteConfigListener:</span>
+  <span class="hljs-attr">tags:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">event.listener</span>
+      <span class="hljs-attr">identifier:</span> <span class="hljs-string">'custom_rte_config_listener'</span>
+      <span class="hljs-attr">event:</span> <span class="hljs-string">TYPO3\CMS\RteCKEditor\Form\Element\Event\AfterPrepareConfigurationForEditorEvent</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p>Access in CKEditor plugin:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">const</span> myConfig = editor.config.get(<span class="hljs-string">'myext'</span>);
+<span class="hljs-built_in">console</span>.log(myConfig.apiEndpoint);  <span class="hljs-comment">// '/api/my-endpoint'</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="modifying-existing-configuration">
+            <h2>Modifying Existing Configuration<a class="headerlink" href="#modifying-existing-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="override-typo3image-route">
+            <h3>Override typo3image Route<a class="headerlink" href="#override-typo3image-route" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__invoke</span><span class="hljs-params">(AfterPrepareConfigurationForEditorEvent $event)</span>: <span class="hljs-title">void</span>
+</span>{
+    $configuration = $event-&gt;getConfiguration();
+
+    <span class="hljs-comment">// Use custom route instead</span>
+    $configuration[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>][<span class="hljs-string">'routeUrl'</span>] = <span class="hljs-string">'/custom/image/route'</span>;
+
+    $event-&gt;setConfiguration($configuration);
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="add-additional-routes">
+            <h3>Add Additional Routes<a class="headerlink" href="#add-additional-routes" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__invoke</span><span class="hljs-params">(AfterPrepareConfigurationForEditorEvent $event)</span>: <span class="hljs-title">void</span>
+</span>{
+    $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+    $configuration = $event-&gt;getConfiguration();
+
+    <span class="hljs-comment">// Keep existing typo3image config</span>
+    <span class="hljs-comment">// Add new routes for custom functionality</span>
+    $configuration[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>][<span class="hljs-string">'uploadRoute'</span>] =
+        (string) $uriBuilder-&gt;buildUriFromRoute(<span class="hljs-string">'my_custom_upload'</span>);
+    $configuration[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>][<span class="hljs-string">'processRoute'</span>] =
+        (string) $uriBuilder-&gt;buildUriFromRoute(<span class="hljs-string">'my_custom_process'</span>);
+
+    $event-&gt;setConfiguration($configuration);
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="listener-execution-order">
+            <h2>Listener Execution Order<a class="headerlink" href="#listener-execution-order" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="multiple-listeners-for-same-event">
+            <h3>Multiple Listeners for Same Event<a class="headerlink" href="#multiple-listeners-for-same-event" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p>When multiple listeners register for <code>AfterPrepareConfigurationForEditorEvent</code>:</p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1"><strong>Registration Order:</strong> Listeners execute in the order they&#039;re registered</li>
+    <li value="2"><strong>Configuration Chain:</strong> Each listener receives config modified by previous listeners</li>
+    <li value="3"><strong>No Priority:</strong> TYPO3 doesn&#039;t support listener priority for this event</li>
+</ol>
+
+    </section>
+            <section class="section" id="example-two-listeners">
+            <h3>Example: Two Listeners<a class="headerlink" href="#example-two-listeners" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-comment"># services.yaml</span>
+<span class="hljs-string">MyVendor\FirstExt\EventListener\FirstListener:</span>
+  <span class="hljs-attr">tags:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">event.listener</span>
+      <span class="hljs-attr">event:</span> <span class="hljs-string">AfterPrepareConfigurationForEditorEvent</span>
+
+<span class="hljs-string">MyVendor\SecondExt\EventListener\SecondListener:</span>
+  <span class="hljs-attr">tags:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">event.listener</span>
+      <span class="hljs-attr">event:</span> <span class="hljs-string">AfterPrepareConfigurationForEditorEvent</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Execution:</strong></p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs plaintext">1. FirstListener receives base config
+2. FirstListener modifies config (adds 'first' key)
+3. SecondListener receives config with 'first' key
+4. SecondListener modifies config (adds 'second' key)
+5. Final config has both 'first' and 'second' keys</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="testing-event-listeners">
+            <h2>Testing Event Listeners<a class="headerlink" href="#testing-event-listeners" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="unit-test-example">
+            <h3>Unit Test Example<a class="headerlink" href="#unit-test-example" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">TestingFramework</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">Unit</span>\<span class="hljs-title">UnitTestCase</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">Http</span>\<span class="hljs-title">Uri</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Backend</span>\<span class="hljs-title">Routing</span>\<span class="hljs-title">UriBuilder</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RteConfigurationListenerTest</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">UnitTestCase</span>
+</span>{
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@test</span>
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">invokeAddsRouteUrlToConfiguration</span><span class="hljs-params">()</span>: <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-comment">// Arrange</span>
+        $event = <span class="hljs-keyword">new</span> AfterPrepareConfigurationForEditorEvent([<span class="hljs-string">'existing'</span> =&gt; <span class="hljs-string">'config'</span>]);
+        $listener = <span class="hljs-keyword">new</span> RteConfigurationListener();
+
+        <span class="hljs-comment">// Act</span>
+        $listener-&gt;__invoke($event);
+
+        <span class="hljs-comment">// Assert</span>
+        $config = $event-&gt;getConfiguration();
+        <span class="hljs-keyword">self</span>::assertArrayHasKey(<span class="hljs-string">'style'</span>, $config);
+        <span class="hljs-keyword">self</span>::assertArrayHasKey(<span class="hljs-string">'typo3image'</span>, $config[<span class="hljs-string">'style'</span>]);
+        <span class="hljs-keyword">self</span>::assertArrayHasKey(<span class="hljs-string">'routeUrl'</span>, $config[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>]);
+        <span class="hljs-keyword">self</span>::assertStringContainsString(<span class="hljs-string">'rteckeditorimage_wizard_select_image'</span>, $config[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>][<span class="hljs-string">'routeUrl'</span>]);
+    }
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@test</span>
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">invokePreservesExistingConfiguration</span><span class="hljs-params">()</span>: <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-comment">// Arrange</span>
+        $existingConfig = [
+            <span class="hljs-string">'toolbar'</span> =&gt; [<span class="hljs-string">'items'</span> =&gt; [<span class="hljs-string">'bold'</span>, <span class="hljs-string">'italic'</span>]],
+            <span class="hljs-string">'style'</span> =&gt; [<span class="hljs-string">'definitions'</span> =&gt; []]
+        ];
+        $event = <span class="hljs-keyword">new</span> AfterPrepareConfigurationForEditorEvent($existingConfig);
+        $listener = <span class="hljs-keyword">new</span> RteConfigurationListener();
+
+        <span class="hljs-comment">// Act</span>
+        $listener-&gt;__invoke($event);
+
+        <span class="hljs-comment">// Assert</span>
+        $config = $event-&gt;getConfiguration();
+        <span class="hljs-keyword">self</span>::assertArrayHasKey(<span class="hljs-string">'toolbar'</span>, $config);
+        <span class="hljs-keyword">self</span>::assertArrayHasKey(<span class="hljs-string">'style'</span>, $config);
+        <span class="hljs-keyword">self</span>::assertArrayHasKey(<span class="hljs-string">'definitions'</span>, $config[<span class="hljs-string">'style'</span>]);
+        <span class="hljs-keyword">self</span>::assertArrayHasKey(<span class="hljs-string">'typo3image'</span>, $config[<span class="hljs-string">'style'</span>]);
+    }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="debugging-event-listeners">
+            <h2>Debugging Event Listeners<a class="headerlink" href="#debugging-event-listeners" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="check-if-listener-is-registered">
+            <h3>Check if Listener is Registered<a class="headerlink" href="#check-if-listener-is-registered" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// Debug in TYPO3 backend</span>
+<span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">EventDispatcher</span>\<span class="hljs-title">ListenerProvider</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">Utility</span>\<span class="hljs-title">GeneralUtility</span>;
+
+$listenerProvider = GeneralUtility::makeInstance(ListenerProvider::class);
+$listeners = $listenerProvider-&gt;getListenersForEvent(
+    <span class="hljs-keyword">new</span> AfterPrepareConfigurationForEditorEvent([])
+);
+
+<span class="hljs-comment">// Dump listeners</span>
+var_dump($listeners);</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="log-configuration-changes">
+            <h3>Log Configuration Changes<a class="headerlink" href="#log-configuration-changes" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__invoke</span><span class="hljs-params">(AfterPrepareConfigurationForEditorEvent $event)</span>: <span class="hljs-title">void</span>
+</span>{
+    $configuration = $event-&gt;getConfiguration();
+
+    <span class="hljs-comment">// Log before modification</span>
+    GeneralUtility::makeInstance(LogManager::class)
+        -&gt;getLogger(<span class="hljs-keyword">__CLASS__</span>)
+        -&gt;debug(<span class="hljs-string">'RTE config before'</span>, [<span class="hljs-string">'config'</span> =&gt; $configuration]);
+
+    <span class="hljs-comment">// Modify configuration</span>
+    $configuration[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>] = [
+        <span class="hljs-string">'routeUrl'</span> =&gt; <span class="hljs-keyword">$this</span>-&gt;getRouteUrl(),
+    ];
+
+    <span class="hljs-comment">// Log after modification</span>
+    GeneralUtility::makeInstance(LogManager::class)
+        -&gt;getLogger(<span class="hljs-keyword">__CLASS__</span>)
+        -&gt;debug(<span class="hljs-string">'RTE config after'</span>, [<span class="hljs-string">'config'</span> =&gt; $configuration]);
+
+    $event-&gt;setConfiguration($configuration);
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="verify-configuration-in-browser">
+            <h3>Verify Configuration in Browser<a class="headerlink" href="#verify-configuration-in-browser" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-comment">// In browser console after RTE loads</span>
+<span class="hljs-built_in">Object</span>.values(CKEDITOR.instances)[<span class="hljs-number">0</span>].config.get(<span class="hljs-string">'style'</span>).typo3image;
+<span class="hljs-comment">// Should output: {routeUrl: '/typo3/rte/wizard/selectimage?...'}</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="common-issues">
+            <h2>Common Issues<a class="headerlink" href="#common-issues" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="issue-routeurl-not-available-in-plugin">
+            <h3>Issue: routeUrl Not Available in Plugin<a class="headerlink" href="#issue-routeurl-not-available-in-plugin" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li class="dash">JavaScript error: &quot;Cannot read property &#039;typo3image&#039; of undefined&quot;</li>
+    <li class="dash">Image selection modal doesn&#039;t open</li>
+</ul>
+
+            
+    <p><strong>Cause:</strong> Event listener not registered or not executing</p>
+
+            
+    <p><strong>Solution:</strong></p>
+
+            
+    
+<ol start="1" type="1">
+    <li value="1">Verify service configuration in <code>Configuration/Services.yaml</code></li>
+    <li value="2">Clear system cache: <code>./vendor/bin/typo3 cache:flush --group=system</code></li>
+    <li value="3">Check event listener is loaded: <code>grep -r &quot;event.listener&quot; var/cache/code/di/</code></li>
+</ol>
+
+    </section>
+            <section class="section" id="issue-multiple-listeners-conflict">
+            <h3>Issue: Multiple Listeners Conflict<a class="headerlink" href="#issue-multiple-listeners-conflict" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li class="dash">Configuration keys overwritten</li>
+    <li class="dash">Expected configuration missing</li>
+</ul>
+
+            
+    <p><strong>Cause:</strong> Later listener overwrites earlier listener&#039;s changes</p>
+
+            
+    <p><strong>Solution:</strong> Merge instead of replace:</p>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// ❌ Wrong - Overwrites entire 'style' key</span>
+$configuration[<span class="hljs-string">'style'</span>] = [<span class="hljs-string">'typo3image'</span> =&gt; [...]];
+
+<span class="hljs-comment">// ✅ Right - Merges with existing</span>
+$configuration[<span class="hljs-string">'style'</span>] = array_merge(
+    $configuration[<span class="hljs-string">'style'</span>] ?? [],
+    [<span class="hljs-string">'typo3image'</span> =&gt; [...]]
+);</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="issue-csrf-token-errors">
+            <h3>Issue: CSRF Token Errors<a class="headerlink" href="#issue-csrf-token-errors" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Symptoms:</strong></p>
+
+            
+
+<ul>
+    <li class="dash">Backend route returns 403 errors</li>
+    <li class="dash">&quot;Invalid CSRF token&quot; in logs</li>
+</ul>
+
+            
+    <p><strong>Cause:</strong> Route URL built incorrectly or cached</p>
+
+            
+    <p><strong>Solution:</strong></p>
+
+            
+
+<ul>
+    <li class="dash">Always use <code>UriBuilder-&gt;buildUriFromRoute()</code> (includes token)</li>
+    <li class="dash">Never cache route URLs (they expire)</li>
+    <li class="dash">Route URL must be generated per request</li>
+</ul>
+
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-comment">// ❌ Wrong - Static URL without token</span>
+$configuration[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>][<span class="hljs-string">'routeUrl'</span>] = <span class="hljs-string">'/typo3/rte/wizard/selectimage'</span>;
+
+<span class="hljs-comment">// ✅ Right - Dynamic URL with token</span>
+$configuration[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>][<span class="hljs-string">'routeUrl'</span>] =
+    (string) $uriBuilder-&gt;buildUriFromRoute(<span class="hljs-string">'rteckeditorimage_wizard_select_image'</span>);</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="advanced-patterns">
+            <h2>Advanced Patterns<a class="headerlink" href="#advanced-patterns" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="conditional-configuration">
+            <h3>Conditional Configuration<a class="headerlink" href="#conditional-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__invoke</span><span class="hljs-params">(AfterPrepareConfigurationForEditorEvent $event)</span>: <span class="hljs-title">void</span>
+</span>{
+    $configuration = $event-&gt;getConfiguration();
+
+    <span class="hljs-comment">// Only add config for specific RTE presets</span>
+    <span class="hljs-keyword">if</span> (($configuration[<span class="hljs-string">'preset'</span>] ?? <span class="hljs-string">''</span>) === <span class="hljs-string">'full'</span>) {
+        $configuration[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>] = [
+            <span class="hljs-string">'routeUrl'</span> =&gt; <span class="hljs-keyword">$this</span>-&gt;getRouteUrl(),
+            <span class="hljs-string">'enableAdvancedFeatures'</span> =&gt; <span class="hljs-keyword">true</span>,
+        ];
+    }
+
+    $event-&gt;setConfiguration($configuration);
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="user-specific-configuration">
+            <h3>User-Specific Configuration<a class="headerlink" href="#user-specific-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">Context</span>\<span class="hljs-title">Context</span>;
+
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__invoke</span><span class="hljs-params">(AfterPrepareConfigurationForEditorEvent $event)</span>: <span class="hljs-title">void</span>
+</span>{
+    $context = GeneralUtility::makeInstance(Context::class);
+    $configuration = $event-&gt;getConfiguration();
+
+    <span class="hljs-comment">// Add config based on backend user permissions</span>
+    <span class="hljs-keyword">if</span> ($context-&gt;getPropertyFromAspect(<span class="hljs-string">'backend.user'</span>, <span class="hljs-string">'isAdmin'</span>)) {
+        $configuration[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>][<span class="hljs-string">'allowExternalImages'</span>] = <span class="hljs-keyword">true</span>;
+    }
+
+    $event-&gt;setConfiguration($configuration);
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="environment-specific-configuration">
+            <h3>Environment-Specific Configuration<a class="headerlink" href="#environment-specific-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">Environment</span>;
+
+<span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__invoke</span><span class="hljs-params">(AfterPrepareConfigurationForEditorEvent $event)</span>: <span class="hljs-title">void</span>
+</span>{
+    $configuration = $event-&gt;getConfiguration();
+
+    <span class="hljs-comment">// Development-only features</span>
+    <span class="hljs-keyword">if</span> (Environment::getContext()-&gt;isDevelopment()) {
+        $configuration[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>][<span class="hljs-string">'debugMode'</span>] = <span class="hljs-keyword">true</span>;
+        $configuration[<span class="hljs-string">'style'</span>][<span class="hljs-string">'typo3image'</span>][<span class="hljs-string">'verboseLogging'</span>] = <span class="hljs-keyword">true</span>;
+    }
+
+    $event-&gt;setConfiguration($configuration);
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+    </section>
+            <section class="section" id="related-documentation">
+            <h2>Related Documentation<a class="headerlink" href="#related-documentation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+
+<ul>
+    <li class="dash"><a href="Controllers.html#api-controllers">Controllers API</a></li>
+    <li class="dash"><a href="DataHandling.html#api-datahandling">Data Handling API</a></li>
+    <li class="dash"><a href="../CKEditor/Index.html#ckeditor-plugin-development">CKEditor Plugin Development</a></li>
+    <li class="dash"><a href="../Integration/Index.html#integration">Configuration Guide</a></li>
+    <li class="dash"><a href="../Architecture/System-Architecture.html#architecture-overview">Architecture Overview</a></li>
+</ul>
+
+    </section>
+    </section>
+        <!-- content end -->
+    </div>
+</article>
+                        
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center"><li class="page-item">
+                            <a class="page-link" href="DataHandling.html"
+                               title="Accesskey Alt(+Shift)+p">
+                                <i class="fa-solid fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    <li class="page-item">
+                            <a class="page-link" href="../CKEditor/Index.html"
+                               title="Accesskey Alt(+Shift)+n">
+                                Next <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+        </nav>
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="linkReferenceModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="API/EventListeners">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="linkReferenceModalLabel">Reference to the headline</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="permalink-alert-success" role="alert"></div>
+                <div class="mb-3">
+                    <label for="permalink-uri" class="col-form-label">URL</label>
+                    <div class="input-group">
+                        <input class="form-control code" id="permalink-uri" readonly>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-uri"><i class="far fa-clone"></i></button>
+                    </div>
+                    <div class="permalink-short-wrapper">
+                        <label for="permalink-short" class="col-form-label">Permalink (Shortlink)</label>
+                        <div class="input-group">
+                            <input class="form-control code" id="permalink-short" readonly>
+                            <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-short"><i class="far fa-clone"></i></button>
+                        </div>
+                        <p><em>Copy and freely share the link</em></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-warning alert-permalink-rst" role="alert">This link target has no permanent anchor assigned.The link below can be used, but is prone to change if the page gets moved.
+                    </div>
+                    <label for="permalink-rst" class="col-form-label">Link in reStructuredText (reST)</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-rst" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-rst"><i class="far fa-clone"></i></button>
+                    </div>
+                    <p><em>Copy this link into your TYPO3 manual.</em></p>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-md" class="col-form-label">Link in Markdown</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-md" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-md"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-html" class="col-form-label">Link in HTML</label>
+                                        <div class="input-group">
+                        <textarea class="form-control code" id="permalink-html" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-html"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>    <div class="modal fade" id="generalModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="API/EventListeners"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generalModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="general-alert-success" role="alert"></div>
+                <div id="generalModalContent">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div id="generalModalCustomButtons"></div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-regular fa-circle-xmark"></i>&nbsp;Close</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+
+<footer class="page-footer">
+    <div class="frame frame-ruler-before frame-background-dark">
+        <div class="frame-container">
+            <div class="frame-inner">
+                                <div class="footer-additional">
+                    <p class="text-center">Last rendered: Oct 23, 2025 19:49</p>
+                </div>
+                <div class="footer-meta">
+                    <ul class="footer-meta-navigation">
+                        <li><a href="https://typo3.org/legal-notice" rel="nofollow" target="_blank" title="Legal Notice">Legal Notice</a></li>
+                        <li><a href="https://typo3.org/privacy-policy" rel="nofollow" target="_blank" title="Privacy Policy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="../_resources/js/popper.min.js"></script>
+<script src="../_resources/js/bootstrap.min.js"></script>
+<script src="../_resources/js/theme.min.js"></script>
+
+<!--
+ Locally rendered. No tracking embedded.
+-->
+</body>
+</html>

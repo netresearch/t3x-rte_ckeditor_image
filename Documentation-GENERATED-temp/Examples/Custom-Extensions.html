@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <title>Custom Extensions
+        documentation</title>
+
+    
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="phpdocumentor/guides" name="generator">
+<meta content="" name="docsearch:name">
+<meta content="" name="docsearch:package_type">
+<meta content="" name="docsearch:release">
+<meta content="" name="docsearch:version">
+<meta content="2025-10-23T19:49:09+00:00" name="docsearch:modified">
+<meta content="2025-10-23T19:49:09+00:00" name="dc.modified">
+<meta content="2025-10-23T19:49:09+00:00" property="article:modified_time">
+    <link href="http://purl.org/dc/elements/1.1/" rel="schema.dc">
+<link href="../_resources/css/theme.css" rel="stylesheet">
+<link href="https://docs.typo3.org/search/" rel="search" title="Search">
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/webcomponents-loader.js"></script>
+<script src="https://cdn.typo3.com/typo3infrastructure/universe/dist/typo3-universe.js" type="module"></script>
+                        <link href="Advanced-Features.html" rel="prev" title="Advanced Features"/>
+            <link href="Testing.html" rel="next" title="Testing Examples"/>
+            <link href="../Index.html" rel="top" title="RTE CKEditor Image"/>
+    </head>
+<body>
+<div class="page">
+    <header>
+    <div class="page-topbar">
+        <div class="page-topbar-inner">
+            <typo3-universe active="documentation">
+                <div style="display: block; height: 44px; background-color: #313131;"></div>
+            </typo3-universe>
+        </div>
+    </div>
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="d-flex flex-wrap">
+                <div class="logo-wrapper">
+                    <a class="logo" href="https://docs.typo3.org/" title="TYPO3 Documentation">
+                        <img alt="TYPO3 Logo" class="logo-image" src="../_resources/img/typo3-logo.svg" width="484" height="130">
+                    </a>
+                </div>
+                <div class="align-self-center order-lg-2 order-last">
+                    
+<div class="toc-header">
+    <div class="toc-title pe-3">
+                            <a class="toc-title-project" href="../Index.html">RTE CKEditor Image</a>
+            </div>
+    </div>                </div>
+                <div class="ms-auto order-lg-3 d-flex">
+                    <div class="menu-search-wrapper">
+                        <button id="toc-toggle" class="btn btn-light d-block d-lg-none" tabindex="0" aria-controls="toc-collapse" aria-expanded="false">
+                            <i class="fas fa-bars"></i> <span class="visually-hidden">Mobile Menu</span>
+                        </button>
+                        <all-documentations-menu data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu>
+                                                <search role="search">
+                            <form action="https://docs.typo3.org/search/search" id="global-search-form" method="get">
+                                <div class="sr-only"><label for="globalsearchinput">TYPO3 documentation...</label></div>
+                                <div class="input-group mb-3 mt-sm-3">
+                                    <select class="form-select search__scope" id="searchscope" name="scope">
+                                        <option value="">Search all</option>
+                                    </select>
+                                    <input autocomplete="off" class="form-control shadow-none" id="globalsearchinput" name="q" placeholder="TYPO3 documentation..." type="text" value="">
+                                    <button class="btn btn-light" type="submit"><i class="fa fa-search"></i>&nbsp;<span class="d-none d-md-inline">Search</span></button>
+                                </div>
+                            </form>
+                            <div id="global-search-root"></div>
+                        </search>
+                        <div class="position-relative d-inline-block">
+                            <button id="options-toggle" class="btn btn-light d-block" type="button" aria-expanded="false">
+                                <i class="fas fa-cog"></i> <span class="visually-hidden">Options</span>
+                            </button>
+
+                            <div id="options-panel"
+                                 class="shadow p-3"
+                                 role="menu"
+                                 aria-hidden="true">
+                                <h6 class="dropdown-header text-muted text-uppercase small mb-2">Options</h6>
+
+                                                                                                            <a class="dropdown-item d-flex align-items-center gap-2" href="../_sources/Examples/Custom-Extensions.rst.txt" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-code"></i>
+        View source
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2" href="https://docs.typo3.org/m/typo3/docs-how-to-document/main/en-us/WritingDocsOfficial/GithubMethod.html" id="btnHowToEdit" rel="nofollow noopener" target="_blank">
+        <i class="fas fa-info-circle"></i>
+        How to edit
+    </a>
+                                                                                                                <a class="dropdown-item d-flex align-items-center gap-2" href="../singlehtml/Index.html" target="_blank" rel="noopener">
+                                            <i class="fas fa-print"></i>
+                                            Full documentation (single file)
+                                        </a>
+                                                                                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>    <main class="page-main">
+        <div class="page-main-inner">
+            <div class="page-main-navigation">
+                <nav>
+
+                    <div id="toc-collapse">
+                                                <div aria-label="main navigation" class="toc"
+                             role="navigation">
+                                <all-documentations-menu-mobile
+        data-override-url="https://render-guides.ddev.site/_resources/js/menu-proxy.php"></all-documentations-menu-mobile>
+    <div aria-label="Main navigation" class="main_menu" role="navigation">
+                <p class="caption">RTE CKEditor Image</p>
+            <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Integration/Index.html">
+        Integration &amp; Configuration
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Integration/RTE-Setup.html">
+        RTE Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/TSConfig.html">
+        Page TSConfig Setup
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Frontend-Rendering.html">
+        Frontend Rendering
+    </a></li><li class="" role="menuitem">
+    <a href="../Integration/Advanced-Configuration.html">
+        Advanced Configuration
+    </a></li></ul></li>    <li class=" active" role="menuitem">
+    <a href="Index.html">
+        Examples &amp; Use Cases
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="Basic-Integration.html">
+        Basic Integration
+    </a></li><li class="" role="menuitem">
+    <a href="Image-Styles.html">
+        Image Styles
+    </a></li><li class="" role="menuitem">
+    <a href="Responsive-Images.html">
+        Responsive Images
+    </a></li><li class="" role="menuitem">
+    <a href="Advanced-Features.html">
+        Advanced Features
+    </a></li><li class=" current active" role="menuitem">
+    <a href="#" aria-current="page">
+        Custom Extensions
+    </a></li><li class="" role="menuitem">
+    <a href="Testing.html">
+        Testing Examples
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../Troubleshooting/Index.html">
+        Troubleshooting &amp; Support
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Troubleshooting/Installation-Issues.html">
+        Installation Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Editor-Issues.html">
+        Editor Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Frontend-Issues.html">
+        Frontend Issues
+    </a></li><li class="" role="menuitem">
+    <a href="../Troubleshooting/Performance-Issues.html">
+        Performance Issues
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Architecture &amp; Design</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../Architecture/Index.html">
+        Architecture &amp; Design
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../Architecture/System-Architecture.html">
+        System Architecture
+    </a></li><li class="" role="menuitem">
+    <a href="../Architecture/Design-Patterns.html">
+        Design Patterns &amp; Integration
+    </a></li></ul></li>    </ul>    <p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="menu-level-1" role="menubar">
+    <li class="" role="menuitem">
+    <a href="../API/Index.html">
+        API Documentation
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../API/Controllers.html">
+        Controllers API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/DataHandling.html">
+        Data Handling API
+    </a></li><li class="" role="menuitem">
+    <a href="../API/EventListeners.html">
+        Event Listeners API
+    </a></li></ul></li>    <li class="" role="menuitem">
+    <a href="../CKEditor/Index.html">
+        CKEditor Plugin Development
+    </a>        <ul class="menu-level-1"><li class="" role="menuitem">
+    <a href="../CKEditor/Plugin-Development.html">
+        CKEditor Plugin Development
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Model-Element.html">
+        CKEditor Model Element Reference
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Style-Integration.html">
+        CKEditor Style Integration
+    </a></li><li class="" role="menuitem">
+    <a href="../CKEditor/Conversions.html">
+        CKEditor Conversion System
+    </a></li></ul></li>    </ul>
+    </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="page-main-content">
+                <div class="rst-content">                        <nav aria-label="breadcrumbs navigation" class="breadcrumb-bar" role="navigation">
+        
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="../Index.html">RTE CKEditor Image</a></li>
+        <li class="breadcrumb-item"><a href="Index.html">Examples &amp; Use Cases</a></li>
+                    <li aria-current="page"  class="breadcrumb-item  active">Custom Extensions</li>
+        </ol>
+        <div class="breadcrumb-additions"></div>
+    </nav>
+                    
+<article class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+    <div itemprop="articleBody">
+        <!-- content start -->
+                
+<section class="section" id="custom-extensions" data-rst-anchor="examples-custom-extensions">
+            <a id="examples-custom-extensions"></a>
+            <h1>Custom Extensions<a class="headerlink" href="#custom-extensions" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h1>
+            
+    <p>Advanced examples for extending the image plugin with custom fields, external image handling, multi-language support, and backend processing.</p>
+
+            <div class="contents-wrapper">
+        <p class="topic-title">Table of Contents</p>
+        <ul class="menu-level">
+    <li class="toc-item">
+    <a href="#custom-image-dialog">Custom Image Dialog</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#extended-image-properties">Extended Image Properties</a>
+
+        <ul class="section-level-2">
+            <li class="toc-item">
+    <a href="#ckeditor-plugin-extension">CKEditor Plugin Extension</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#register-plugin">Register Plugin</a>
+
+
+</li>
+                    </ul>
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#external-image-handling">External Image Handling</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#fetch-and-upload-external-images">Fetch and Upload External Images</a>
+
+        <ul class="section-level-2">
+            <li class="toc-item">
+    <a href="#extension-configuration">Extension Configuration</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#custom-upload-folder">Custom Upload Folder</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#custom-fetch-handler">Custom Fetch Handler</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#register-hook">Register Hook</a>
+
+
+</li>
+                    </ul>
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#multi-language-setup">Multi-Language Setup</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#language-specific-image-variants">Language-Specific Image Variants</a>
+
+        <ul class="section-level-2">
+            <li class="toc-item">
+    <a href="#page-tsconfig">Page TSConfig</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#rte-configuration">RTE Configuration</a>
+
+
+</li>
+                    </ul>
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#custom-backend-processing">Custom Backend Processing</a>
+
+        <ul class="section-level-1">
+            <li class="toc-item">
+    <a href="#automatic-image-optimization">Automatic Image Optimization</a>
+
+        <ul class="section-level-2">
+            <li class="toc-item">
+    <a href="#custom-hook">Custom Hook</a>
+
+
+</li>
+            <li class="toc-item">
+    <a href="#register-hook">Register Hook</a>
+
+
+</li>
+                    </ul>
+</li>
+                    </ul>
+</li>
+    <li class="toc-item">
+    <a href="#related-documentation">Related Documentation</a>
+
+
+</li>
+    </ul>
+
+    <button class="toggle-all-sections btn btn-sm btn-light">Collapse all Sections</button>
+</div>
+            <section class="section" id="custom-image-dialog">
+            <h2>Custom Image Dialog<a class="headerlink" href="#custom-image-dialog" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="extended-image-properties">
+            <h3>Extended Image Properties<a class="headerlink" href="#extended-image-properties" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            
+    <p><strong>Objective</strong>: Add custom fields to image dialog</p>
+
+            <section class="section" id="ckeditor-plugin-extension">
+            <h4>CKEditor Plugin Extension<a class="headerlink" href="#ckeditor-plugin-extension" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+                <div class="code-block-caption">
+        <span class="caption-text">EXT:my_site/Resources/Public/JavaScript/Plugins/extended-typo3image.js</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs javascript"><span class="hljs-keyword">import</span> { Plugin } <span class="hljs-keyword">from</span> <span class="hljs-string">'@ckeditor/ckeditor5-core'</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ExtendedTypo3Image</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Plugin</span> </span>{
+    <span class="hljs-keyword">static</span> <span class="hljs-keyword">get</span> pluginName() {
+        <span class="hljs-keyword">return</span> <span class="hljs-string">'ExtendedTypo3Image'</span>;
+    }
+
+    init() {
+        <span class="hljs-keyword">const</span> editor = <span class="hljs-keyword">this</span>.editor;
+
+        <span class="hljs-comment">// Extend schema with custom attributes</span>
+        editor.model.schema.extend(<span class="hljs-string">'typo3image'</span>, {
+            <span class="hljs-attr">allowAttributes</span>: [<span class="hljs-string">'customCaption'</span>, <span class="hljs-string">'customCopyright'</span>]
+        });
+
+        <span class="hljs-comment">// Add upcast conversion</span>
+        editor.conversion.for(<span class="hljs-string">'upcast'</span>).attributeToAttribute({
+            <span class="hljs-attr">view</span>: <span class="hljs-string">'data-custom-caption'</span>,
+            <span class="hljs-attr">model</span>: <span class="hljs-string">'customCaption'</span>
+        });
+
+        <span class="hljs-comment">// Add downcast conversion</span>
+        editor.conversion.for(<span class="hljs-string">'downcast'</span>).attributeToAttribute({
+            <span class="hljs-attr">model</span>: <span class="hljs-string">'customCaption'</span>,
+            <span class="hljs-attr">view</span>: <span class="hljs-string">'data-custom-caption'</span>
+        });
+
+        <span class="hljs-comment">// Modify image dialog</span>
+        editor.on(<span class="hljs-string">'typo3image:dialog'</span>, (evt, { dialog, modelElement }) =&gt; {
+            <span class="hljs-comment">// Add custom fields to dialog</span>
+            <span class="hljs-keyword">const</span> customFields = $(<span class="hljs-string">`
+                &lt;div class="form-group"&gt;
+                    &lt;label&gt;Custom Caption&lt;/label&gt;
+                    &lt;input type="text" class="form-control" name="customCaption"
+                           value="<span class="hljs-subst">${modelElement.getAttribute(<span class="hljs-string">'customCaption'</span>) || <span class="hljs-string">''</span>}</span>" /&gt;
+                &lt;/div&gt;
+                &lt;div class="form-group"&gt;
+                    &lt;label&gt;Copyright&lt;/label&gt;
+                    &lt;input type="text" class="form-control" name="customCopyright"
+                           value="<span class="hljs-subst">${modelElement.getAttribute(<span class="hljs-string">'customCopyright'</span>) || <span class="hljs-string">''</span>}</span>" /&gt;
+                &lt;/div&gt;
+            `</span>);
+
+            dialog.$el.append(customFields);
+
+            <span class="hljs-comment">// Override dialog.get() to include custom fields</span>
+            <span class="hljs-keyword">const</span> originalGet = dialog.get;
+            dialog.get = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                <span class="hljs-keyword">const</span> attrs = originalGet.call(<span class="hljs-keyword">this</span>);
+                attrs.customCaption = customFields.find(<span class="hljs-string">'[name="customCaption"]'</span>).val();
+                attrs.customCopyright = customFields.find(<span class="hljs-string">'[name="customCopyright"]'</span>).val();
+                <span class="hljs-keyword">return</span> attrs;
+            };
+        });
+    }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="register-plugin">
+            <h4>Register Plugin<a class="headerlink" href="#register-plugin" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+                <div class="code-block-caption">
+        <span class="caption-text">Configuration/RTE/Extended.yaml</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-attr">editor:</span>
+  <span class="hljs-attr">config:</span>
+    <span class="hljs-attr">importModules:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">'@my-vendor/my-site/extended-typo3image.js'</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Result</strong>: Custom image metadata fields ✅</p>
+
+    </section>
+    </section>
+    </section>
+            <section class="section" id="external-image-handling">
+            <h2>External Image Handling<a class="headerlink" href="#external-image-handling" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="fetch-and-upload-external-images">
+            <h3>Fetch and Upload External Images<a class="headerlink" href="#fetch-and-upload-external-images" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <section class="section" id="extension-configuration">
+            <h4>Extension Configuration<a class="headerlink" href="#extension-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+                <div class="code-block-caption">
+        <span class="caption-text">settings.php</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'EXTENSIONS'</span>][<span class="hljs-string">'rte_ckeditor_image'</span>] = [
+    <span class="hljs-string">'fetchExternalImages'</span> =&gt; <span class="hljs-keyword">true</span>,
+];</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="custom-upload-folder">
+            <h4>Custom Upload Folder<a class="headerlink" href="#custom-upload-folder" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+                <div class="code-block-caption">
+        <span class="caption-text">User TSConfig</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript">options.defaultUploadFolder = 1:user_upload/rte_images/</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="custom-fetch-handler">
+            <h4>Custom Fetch Handler<a class="headerlink" href="#custom-fetch-handler" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+                <div class="code-block-caption">
+        <span class="caption-text">EXT:my_site/Classes/Hooks/CustomImageFetchHook.php</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-keyword">namespace</span> <span class="hljs-title">MyVendor</span>\<span class="hljs-title">MySite</span>\<span class="hljs-title">Hooks</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">Resource</span>\<span class="hljs-title">File</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">Resource</span>\<span class="hljs-title">Folder</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomImageFetchHook</span>
+</span>{
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">postProcessExternalImage</span><span class="hljs-params">(
+        string $externalUrl,
+        File $uploadedFile,
+        Folder $targetFolder
+    )</span>: <span class="hljs-title">void</span> </span>{
+        <span class="hljs-comment">// Add custom metadata</span>
+        $uploadedFile-&gt;updateProperties([
+            <span class="hljs-string">'title'</span> =&gt; <span class="hljs-string">'Imported from '</span> . parse_url($externalUrl, PHP_URL_HOST),
+            <span class="hljs-string">'description'</span> =&gt; <span class="hljs-string">'Automatically fetched external image'</span>,
+        ]);
+
+        <span class="hljs-comment">// Trigger image optimization</span>
+        <span class="hljs-keyword">$this</span>-&gt;optimizeImage($uploadedFile);
+    }
+
+    <span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">optimizeImage</span><span class="hljs-params">(File $file)</span>: <span class="hljs-title">void</span>
+    </span>{
+        <span class="hljs-comment">// Custom optimization logic</span>
+        <span class="hljs-comment">// e.g., compress, resize, convert format</span>
+    }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="register-hook">
+            <h4>Register Hook<a class="headerlink" href="#register-hook" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+                <div class="code-block-caption">
+        <span class="caption-text">ext_localconf.php</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'SC_OPTIONS'</span>][<span class="hljs-string">'rte_ckeditor_image'</span>][<span class="hljs-string">'postProcessExternalImage'</span>][]
+    = \MyVendor\MySite\Hooks\CustomImageFetchHook::class . <span class="hljs-string">'-&gt;postProcessExternalImage'</span>;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Result</strong>: Automatic external image import ✅</p>
+
+    </section>
+    </section>
+    </section>
+            <section class="section" id="multi-language-setup">
+            <h2>Multi-Language Setup<a class="headerlink" href="#multi-language-setup" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="language-specific-image-variants">
+            <h3>Language-Specific Image Variants<a class="headerlink" href="#language-specific-image-variants" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <section class="section" id="page-tsconfig">
+            <h4>Page TSConfig<a class="headerlink" href="#page-tsconfig" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+            <div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs typoscript"><span class="hljs-meta">[siteLanguage("languageId") == 0]</span>
+    <span class="hljs-comment"># Default language (English)</span>
+    RTE.default.preset = default
+<span class="hljs-meta">[END]</span>
+
+<span class="hljs-meta">[siteLanguage("languageId") == 1]</span>
+    <span class="hljs-comment"># German</span>
+    RTE.default.preset = german
+    RTE.default.buttons.image.options.defaultUploadFolder = 1:user_upload/de/
+<span class="hljs-meta">[END]</span>
+
+<span class="hljs-meta">[siteLanguage("languageId") == 2]</span>
+    <span class="hljs-comment"># French</span>
+    RTE.default.preset = french
+    RTE.default.buttons.image.options.defaultUploadFolder = 1:user_upload/fr/
+<span class="hljs-meta">[END]</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="rte-configuration">
+            <h4>RTE Configuration<a class="headerlink" href="#rte-configuration" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+                <div class="code-block-caption">
+        <span class="caption-text">Configuration/RTE/German.yaml</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs yaml"><span class="hljs-attr">imports:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">{</span> <span class="hljs-attr">resource:</span> <span class="hljs-string">"EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml"</span> <span class="hljs-string">}</span>
+
+<span class="hljs-attr">editor:</span>
+  <span class="hljs-attr">config:</span>
+    <span class="hljs-attr">language:</span> <span class="hljs-string">de</span>
+    <span class="hljs-attr">style:</span>
+      <span class="hljs-attr">definitions:</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'Bild Links'</span>
+          <span class="hljs-attr">element:</span> <span class="hljs-string">'img'</span>
+          <span class="hljs-attr">classes:</span> <span class="hljs-string">['float-left']</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">'Bild Rechts'</span>
+          <span class="hljs-attr">element:</span> <span class="hljs-string">'img'</span>
+          <span class="hljs-attr">classes:</span> <span class="hljs-string">['float-right']</span></code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Result</strong>: Language-specific configurations ✅</p>
+
+    </section>
+    </section>
+    </section>
+            <section class="section" id="custom-backend-processing">
+            <h2>Custom Backend Processing<a class="headerlink" href="#custom-backend-processing" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            <section class="section" id="automatic-image-optimization">
+            <h3>Automatic Image Optimization<a class="headerlink" href="#automatic-image-optimization" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h3>
+            <section class="section" id="custom-hook">
+            <h4>Custom Hook<a class="headerlink" href="#custom-hook" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+                <div class="code-block-caption">
+        <span class="caption-text">EXT:my_site/Classes/Hooks/ImageOptimizationHook.php</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php"><span class="hljs-keyword">namespace</span> <span class="hljs-title">MyVendor</span>\<span class="hljs-title">MySite</span>\<span class="hljs-title">Hooks</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">DataHandling</span>\<span class="hljs-title">DataHandler</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">Resource</span>\<span class="hljs-title">FileRepository</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">TYPO3</span>\<span class="hljs-title">CMS</span>\<span class="hljs-title">Core</span>\<span class="hljs-title">Utility</span>\<span class="hljs-title">GeneralUtility</span>;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ImageOptimizationHook</span>
+</span>{
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">processDatamap_afterDatabaseOperations</span><span class="hljs-params">(
+        string $status,
+        string $table,
+        string $id,
+        array $fieldArray,
+        DataHandler $dataHandler
+    )</span>: <span class="hljs-title">void</span> </span>{
+        <span class="hljs-keyword">if</span> ($table !== <span class="hljs-string">'tt_content'</span>) {
+            <span class="hljs-keyword">return</span>;
+        }
+
+        <span class="hljs-keyword">foreach</span> ($fieldArray <span class="hljs-keyword">as</span> $field =&gt; $value) {
+            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">$this</span>-&gt;isRteField($table, $field)) {
+                <span class="hljs-keyword">continue</span>;
+            }
+
+            <span class="hljs-comment">// Find images in RTE content</span>
+            preg_match_all(<span class="hljs-string">'/data-htmlarea-file-uid="(\d+)"/'</span>, $value, $matches);
+
+            <span class="hljs-keyword">foreach</span> ($matches[<span class="hljs-number">1</span>] <span class="hljs-keyword">as</span> $fileUid) {
+                <span class="hljs-keyword">$this</span>-&gt;optimizeImage((int)$fileUid);
+            }
+        }
+    }
+
+    <span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isRteField</span><span class="hljs-params">(string $table, string $field)</span>: <span class="hljs-title">bool</span>
+    </span>{
+        $tcaConfig = $GLOBALS[<span class="hljs-string">'TCA'</span>][$table][<span class="hljs-string">'columns'</span>][$field][<span class="hljs-string">'config'</span>] ?? [];
+        <span class="hljs-keyword">return</span> ($tcaConfig[<span class="hljs-string">'enableRichtext'</span>] ?? <span class="hljs-keyword">false</span>) === <span class="hljs-keyword">true</span>;
+    }
+
+    <span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">optimizeImage</span><span class="hljs-params">(int $fileUid)</span>: <span class="hljs-title">void</span>
+    </span>{
+        $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
+
+        <span class="hljs-keyword">try</span> {
+            $file = $fileRepository-&gt;findByUid($fileUid);
+
+            <span class="hljs-comment">// Generate optimized variants</span>
+            $file-&gt;process(
+                \TYPO3\CMS\Core\Resource\ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
+                [<span class="hljs-string">'width'</span> =&gt; <span class="hljs-number">1920</span>, <span class="hljs-string">'height'</span> =&gt; <span class="hljs-number">1080</span>]
+            );
+
+            <span class="hljs-comment">// Generate WebP variant</span>
+            $file-&gt;process(
+                \TYPO3\CMS\Core\Resource\ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
+                [<span class="hljs-string">'width'</span> =&gt; <span class="hljs-number">1920</span>, <span class="hljs-string">'height'</span> =&gt; <span class="hljs-number">1080</span>, <span class="hljs-string">'fileExtension'</span> =&gt; <span class="hljs-string">'webp'</span>]
+            );
+        } <span class="hljs-keyword">catch</span> (\<span class="hljs-keyword">Exception</span> $e) {
+            <span class="hljs-comment">// Log error</span>
+        }
+    }
+}</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+    </section>
+            <section class="section" id="register-hook">
+            <h4>Register Hook<a class="headerlink" href="#register-hook" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h4>
+                <div class="code-block-caption">
+        <span class="caption-text">ext_localconf.php</span>
+    </div><div class="code-block-wrapper" translate="no">
+            
+    <pre class="code-block"><code class="hljs php">$GLOBALS[<span class="hljs-string">'TYPO3_CONF_VARS'</span>][<span class="hljs-string">'SC_OPTIONS'</span>][<span class="hljs-string">'t3lib/class.t3lib_tcemain.php'</span>][<span class="hljs-string">'processDatamapClass'</span>][]
+    = \MyVendor\MySite\Hooks\ImageOptimizationHook::class;</code></pre>
+    <div class="code-block-actions">        <button class="code-block-copy" title="Copy to clipboard">
+            <i class="icon fa-regular fa-copy code-block-copy-icon"></i>
+            <i class="fa-solid fa-check code-block-check-icon code-block-hide"></i>
+        </button>
+        <span class="code-block-check-tooltip code-block-hide" aria-live="polite">Copied!</span>
+    </div>
+</div>
+            
+    <p><strong>Result</strong>: Automatic optimization on save ✅</p>
+
+    </section>
+    </section>
+    </section>
+            <section class="section" id="related-documentation">
+            <h2>Related Documentation<a class="headerlink" href="#related-documentation" data-bs-toggle="modal" data-bs-target="#linkReferenceModal"  title="Reference this headline">&nbsp;<i class="fa-solid fa-link"></i></a></h2>
+            
+
+<ul>
+    <li class="dash"><a href="../CKEditor/Index.html#ckeditor-plugin-development">CKEditor Plugin Development</a> - Plugin development guide</li>
+    <li class="dash"><a href="../API/EventListeners.html#api-eventlisteners">Event Listeners API</a> - Event listener API</li>
+    <li class="dash"><a href="Testing.html#examples-testing">Testing Examples</a> - Testing examples</li>
+    <li class="dash"><a href="../Integration/Index.html#integration">Integration &amp; Configuration</a> - Configuration guide</li>
+</ul>
+
+    </section>
+    </section>
+        <!-- content end -->
+    </div>
+</article>
+                        
+            <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center"><li class="page-item">
+                            <a class="page-link" href="Advanced-Features.html"
+                               title="Accesskey Alt(+Shift)+p">
+                                <i class="fa-solid fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    <li class="page-item">
+                            <a class="page-link" href="Testing.html"
+                               title="Accesskey Alt(+Shift)+n">
+                                Next <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+        </nav>
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="linkReferenceModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="Examples/Custom-Extensions">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="linkReferenceModalLabel">Reference to the headline</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="permalink-alert-success" role="alert"></div>
+                <div class="mb-3">
+                    <label for="permalink-uri" class="col-form-label">URL</label>
+                    <div class="input-group">
+                        <input class="form-control code" id="permalink-uri" readonly>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-uri"><i class="far fa-clone"></i></button>
+                    </div>
+                    <div class="permalink-short-wrapper">
+                        <label for="permalink-short" class="col-form-label">Permalink (Shortlink)</label>
+                        <div class="input-group">
+                            <input class="form-control code" id="permalink-short" readonly>
+                            <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-short"><i class="far fa-clone"></i></button>
+                        </div>
+                        <p><em>Copy and freely share the link</em></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="alert alert-warning alert-permalink-rst" role="alert">This link target has no permanent anchor assigned.The link below can be used, but is prone to change if the page gets moved.
+                    </div>
+                    <label for="permalink-rst" class="col-form-label">Link in reStructuredText (reST)</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-rst" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-rst"><i class="far fa-clone"></i></button>
+                    </div>
+                    <p><em>Copy this link into your TYPO3 manual.</em></p>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-md" class="col-form-label">Link in Markdown</label>
+                    <div class="input-group">
+                        <textarea class="form-control code" id="permalink-md" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-md"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="permalink-html" class="col-form-label">Link in HTML</label>
+                                        <div class="input-group">
+                        <textarea class="form-control code" id="permalink-html" readonly></textarea>
+                        <button type="button" class="btn btn-outline-secondary copy-button" data-target="permalink-html"><i class="far fa-clone"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>    <div class="modal fade" id="generalModal" tabindex="-1" aria-labelledby="linkReferenceModalLabel"
+    aria-hidden="true" data-current-filename="Examples/Custom-Extensions"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generalModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success d-none" id="general-alert-success" role="alert"></div>
+                <div id="generalModalContent">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div id="generalModalCustomButtons"></div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-regular fa-circle-xmark"></i>&nbsp;Close</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+
+<footer class="page-footer">
+    <div class="frame frame-ruler-before frame-background-dark">
+        <div class="frame-container">
+            <div class="frame-inner">
+                                <div class="footer-additional">
+                    <p class="text-center">Last rendered: Oct 23, 2025 19:49</p>
+                </div>
+                <div class="footer-meta">
+                    <ul class="footer-meta-navigation">
+                        <li><a href="https://typo3.org/legal-notice" rel="nofollow" target="_blank" title="Legal Notice">Legal Notice</a></li>
+                        <li><a href="https://typo3.org/privacy-policy" rel="nofollow" target="_blank" title="Privacy Policy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<script src="../_resources/js/popper.min.js"></script>
+<script src="../_resources/js/bootstrap.min.js"></script>
+<script src="../_resources/js/theme.min.js"></script>
+
+<!--
+ Locally rendered. No tracking embedded.
+-->
+</body>
+</html>
