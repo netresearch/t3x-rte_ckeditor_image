@@ -13,6 +13,7 @@ services:
     tags: ['backend.controller']
     arguments:
       $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
+      $elementBrowserRegistry: '@TYPO3\CMS\Backend\ElementBrowser\ElementBrowserRegistry'
 
   Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController:
     public: true
