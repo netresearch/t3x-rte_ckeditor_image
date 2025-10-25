@@ -108,18 +108,25 @@ function getImageDialog(editor, img, attributes) {
             if (config.type === 'text') {
                 var startVal = value,
                     hasDefault = img[key] && img[key].trim(),
-                    cbox = $('<input type="checkbox">')
+                    cbox = $('<input type="checkbox" class="form-check-input">')
                         .attr('id', 'checkbox-' + key)
                         .prop('checked', !!value || !hasDefault)
                         .prop('disabled', !hasDefault),
-                    cboxLabel = $('<label></label>').text(
-                        hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault
-                    );
+                    cboxLabel = $('<label class="form-check-label"></label>')
+                        .attr('for', 'checkbox-' + key)
+                        .text(hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault);
+
+                // Add tooltip when checkbox is disabled (no default value from file)
+                if (!hasDefault) {
+                    cbox.attr('title', 'No default ' + key + ' available in file metadata. Cannot override empty value.');
+                    cboxLabel.css('cursor', 'not-allowed').attr('title', 'No default ' + key + ' available in file metadata. Cannot override empty value.');
+                }
 
                 $el.prop('disabled', hasDefault && !value);
-                cbox.prependTo(
-                    cboxLabel.appendTo($('<div class="checkbox" style="margin: 0 0 6px;">').appendTo($group))
-                );
+
+                var $checkboxContainer = $('<div class="form-check form-check-type-toggle" style="margin: 0 0 6px;">').appendTo($group);
+                cbox.appendTo($checkboxContainer);
+                cboxLabel.appendTo($checkboxContainer);
 
                 cboxLabel.on('click', function () {
                     $el.prop('disabled', !cbox.prop('checked'));
