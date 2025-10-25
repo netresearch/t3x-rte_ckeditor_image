@@ -97,7 +97,7 @@ function getImageDialog(editor, img, attributes) {
         $.each(this, function (key, config) {
             var $group = $('<div class="form-group">').appendTo($('<div class="col-xs-12 col-sm-6">').appendTo($row));
             var id = 'rteckeditorimage-' + key;
-            $('<label for="' + id + '">' + config.label + '</label>').appendTo($group);
+            $('<label class="form-label" for="' + id + '">' + config.label + '</label>').appendTo($group);
             var $el = $('<input type="' + config.type + '" id ="' + id + '" name="' + key + '" class="form-control">');
 
             var placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
@@ -108,18 +108,25 @@ function getImageDialog(editor, img, attributes) {
             if (config.type === 'text') {
                 var startVal = value,
                     hasDefault = img[key] && img[key].trim(),
-                    cbox = $('<input type="checkbox">')
+                    cbox = $('<input type="checkbox" class="form-check-input">')
                         .attr('id', 'checkbox-' + key)
                         .prop('checked', !!value || !hasDefault)
                         .prop('disabled', !hasDefault),
-                    cboxLabel = $('<label></label>').text(
-                        hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault
-                    );
+                    cboxLabel = $('<label class="form-check-label"></label>')
+                        .attr('for', 'checkbox-' + key)
+                        .text(hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault);
+
+                // Add tooltip when checkbox is disabled (no default value from file)
+                if (!hasDefault) {
+                    cbox.attr('title', 'No default ' + key + ' available in file metadata. Cannot override empty value.');
+                    cboxLabel.css('cursor', 'not-allowed').attr('title', 'No default ' + key + ' available in file metadata. Cannot override empty value.');
+                }
 
                 $el.prop('disabled', hasDefault && !value);
-                cbox.prependTo(
-                    cboxLabel.appendTo($('<div class="checkbox" style="margin: 0 0 6px;">').appendTo($group))
-                );
+
+                var $checkboxContainer = $('<div class="form-check form-check-type-toggle" style="margin: 0 0 6px;">').appendTo($group);
+                cbox.appendTo($checkboxContainer);
+                cboxLabel.appendTo($checkboxContainer);
 
                 cboxLabel.on('click', function () {
                     $el.prop('disabled', !cbox.prop('checked'));
@@ -206,17 +213,20 @@ function getImageDialog(editor, img, attributes) {
         $customRowCol1 = $('<div class="col-xs-12 col-sm-6">'),
         $customRowCol2 = $('<div class="col-xs-12 col-sm-6">');
 
-    $zoom.prependTo(
-        $('<label>').text(img.lang.zoom).appendTo(
-            $('<div class="checkbox" style="margin: -5px 0 15px;">').prependTo($customRowCol1)
-        )
-    );
+    // Create zoom checkbox following TYPO3 v13 backend conventions
+    var $zoomContainer = $('<div class="form-group">').prependTo($customRowCol1);
+    var $zoomTitle = $('<div class="form-label">').text('Click to Enlarge').appendTo($zoomContainer);
+    var $zoomFormCheck = $('<div class="form-check form-check-type-toggle">').appendTo($zoomContainer);
+    $zoom.addClass('form-check-input').appendTo($zoomFormCheck);
+    var $zoomLabel = $('<label class="form-check-label" for="checkbox-zoom">').text('Enabled').appendTo($zoomFormCheck);
+    var $helpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.">ℹ️</span>');
+    $zoomTitle.append($helpIcon);
 
     $inputCssClass
         .prependTo(
             $('<div class="form-group">').prependTo($customRowCol2)
         )
-        .before($('<label for="input-cssclass">').text(img.lang.cssClass));
+        .before($('<label class="form-label" for="input-cssclass">').text(img.lang.cssClass));
 
     $customRow.append($customRowCol1, $customRowCol2);
 
@@ -295,7 +305,18 @@ function askImageAttributes(editor, img, attributes, table) {
         content: dialog.$el,
         buttons: [
             {
-                text: 'Ok',
+                text: 'Cancel',
+                btnClass: 'btn-default',
+                icon: 'actions-close',
+                trigger: function () {
+                    modal.hideModal();
+                    deferred.reject();
+                }
+            },
+            {
+                text: 'Save',
+                btnClass: 'btn-primary',
+                icon: 'actions-document-save',
                 trigger: function () {
 
                     var dialogInfo = dialog.get(),
