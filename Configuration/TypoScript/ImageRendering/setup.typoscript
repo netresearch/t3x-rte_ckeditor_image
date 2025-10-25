@@ -27,3 +27,12 @@ lib.parseFunc_RTE {
 }
 
 lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img)
+
+#******************************************************
+# Native browser lazy loading support
+# Bridges the standard TYPO3 constant styles.content.image.lazyLoading
+# to the path expected by the image rendering controllers.
+# This makes the extension work independently of EXT:fluid_styled_content.
+# Set via constants: styles.content.image.lazyLoading = lazy|eager|auto
+#******************************************************
+lib.contentElement.settings.media.lazyLoading = {$styles.content.image.lazyLoading}
