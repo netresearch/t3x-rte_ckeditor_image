@@ -101,7 +101,7 @@ infoAction()
 getImage()
 ~~~~~~~~~~
 
-.. php:method:: getImage(int fileUid, string table)
+.. php:method:: getImage(int fileUid, string table): File|null
 
    Retrieves FAL File object.
 
@@ -114,7 +114,7 @@ getImage()
 processImage()
 ~~~~~~~~~~~~~~
 
-.. php:method:: processImage(File file, array processingInstructions)
+.. php:method:: processImage(File file, array processingInstructions): ProcessedFile|null
 
    Creates processed image variant with specified dimensions.
 
