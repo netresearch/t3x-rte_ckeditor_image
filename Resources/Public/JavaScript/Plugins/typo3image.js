@@ -305,7 +305,18 @@ function askImageAttributes(editor, img, attributes, table) {
         content: dialog.$el,
         buttons: [
             {
-                text: 'Ok',
+                text: 'Cancel',
+                btnClass: 'btn-default',
+                icon: 'actions-close',
+                trigger: function () {
+                    modal.hideModal();
+                    deferred.reject();
+                }
+            },
+            {
+                text: 'Save',
+                btnClass: 'btn-primary',
+                icon: 'actions-document-save',
                 trigger: function () {
 
                     var dialogInfo = dialog.get(),
