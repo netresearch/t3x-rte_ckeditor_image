@@ -109,6 +109,15 @@ Key Features
 - Lazy loading and performance optimization
 - Event-driven architecture for extensibility
 
+Visual Preview
+--------------
+
+.. figure:: /Images/demo.gif
+   :alt: RTE CKEditor Image extension demo
+   :class: with-shadow
+
+   Image insertion and configuration in CKEditor with TYPO3 file browser integration
+
 Version Information
 -------------------
 
@@ -164,32 +173,26 @@ Install via Composer:
 
    composer require netresearch/rte-ckeditor-image
 
-Activate the extension in the TYPO3 Extension Manager or via CLI:
+**That's it!** The extension works completely out-of-the-box with zero configuration:
 
-.. code-block:: bash
+- ✅ **Backend RTE**: Automatically registers the ``rteWithImages`` preset and configures the toolbar with ``insertimage`` button for all sites
+- ✅ **Frontend Rendering**: Automatically loads TypoScript for proper image rendering via ``lib.parseFunc_RTE``
+- ✅ **No Manual Steps**: No template inclusion, no TSConfig setup, no YAML configuration required
 
-   vendor/bin/typo3 extension:activate rte_ckeditor_image
+.. figure:: /Images/demo.gif
+   :alt: Image button in CKEditor toolbar
+   :class: with-shadow
+   :width: 600px
 
-Basic Configuration
--------------------
+   The ``insertimage`` button provides full image management capabilities with TYPO3 file browser integration
 
-Add the image button to your RTE configuration:
+Custom Configuration (Optional)
+--------------------------------
 
-.. code-block:: yaml
+If you need to customize the RTE configuration or create your own preset, see the
+:ref:`RTE Setup Guide <integration-configuration-rte-setup>` for detailed instructions.
 
-   editor:
-     config:
-       toolbar:
-         items:
-           - heading
-           - '|'
-           - typo3image
-           - link
-           - '|'
-           - bold
-           - italic
-
-For complete configuration options, see :ref:`Configuration Guide <integration-configuration>`.
+The extension provides a default preset that you can extend or override as needed.
 
 
 .. _navigation-by-role:

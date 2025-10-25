@@ -37,7 +37,6 @@ sed -i "/'deprecations'/,/^[[:space:]]*'disabled' => true,/s/'disabled' => true,
 
 vendor/bin/typo3 cache:flush
 
-# Auto-configure rte_ckeditor_image extension
 echo ""
-echo "🔧 Auto-configuring rte_ckeditor_image extension..."
-/mnt/ddev_config/commands/web/configure-rte $VERSION
+echo "✅ TYPO3 $VERSION installation complete!"
+echo "🎨 rte_ckeditor_image is auto-configured (zero-configuration installation)"

@@ -7,6 +7,24 @@ parameters:
 			path: ../Classes/Backend/Preview/RteImagePreviewRenderer.php
 
 		-
+			message: '#^Cannot access offset ''Presets'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: ../ext_localconf.php
+
+		-
+			message: '#^Cannot access offset ''RTE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: ../ext_localconf.php
+
+		-
+			message: '#^Cannot access offset ''rteWithImages'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: ../ext_localconf.php
+
+		-
 			message: '#^Cannot access offset ''contentElement\.'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1

@@ -8,6 +8,23 @@ Frontend Rendering
 
 TypoScript configuration for frontend image rendering, CSS classes, lazy loading, and lightbox integration.
 
+.. important::
+   **Zero-Configuration Installation (v13.0.0+)**
+
+   The extension automatically loads TypoScript for frontend rendering via ``ext_localconf.php``:
+
+   .. code-block:: bash
+
+      composer require netresearch/rte-ckeditor-image
+
+   **No manual static template inclusion needed!** The extension automatically loads:
+
+   - ✅ Image rendering hooks (``lib.parseFunc_RTE.tags.img``)
+   - ✅ Link rendering hooks (``lib.parseFunc_RTE.tags.a``)
+   - ✅ HTMLparser configuration for data attribute cleanup
+
+   This section is for **advanced users** who need to customize the default frontend rendering behavior.
+
 .. contents:: Table of Contents
    :depth: 3
    :local:
@@ -83,16 +100,26 @@ With fluid_styled_content:
 
    styles.content.textmedia.linkWrap.lightboxEnabled = 1
 
-Static Template
-===============
+Automatic TypoScript Loading
+=============================
 
-Include the static template for default TypoScript:
+.. versionadded:: 13.0.0
+   TypoScript is now loaded automatically via ``ext_localconf.php``.
+   Manual static template inclusion is no longer required.
 
-1. Go to **Template** → **Info/Modify**
-2. Edit whole template record
-3. Go to **Includes** tab
-4. Add ``CKEditor Image Support`` in **Include static (from extensions)**
-5. ⚠️ Add it **before** Fluid Styled Content
+The extension automatically loads frontend rendering configuration:
+
+.. code-block:: php
+
+   ExtensionManagementUtility::addTypoScript(
+       'rte_ckeditor_image',
+       'setup',
+       '@import "EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript"'
+   );
+
+.. note::
+   The static template ``CKEditor Image Support`` is still available for backward compatibility,
+   but is optional with automatic loading enabled.
 
 .. _typoscript-reference:
 

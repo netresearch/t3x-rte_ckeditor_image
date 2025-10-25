@@ -239,12 +239,12 @@ extractFromAttributeValueOrStyle()
 matchStyleAttribute()
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. php:method:: matchStyleAttribute(string $styleAttribute, string $imageAttribute): ?string
+.. php:method:: matchStyleAttribute(string styleAttribute, string imageAttribute): string|null
 
    Extracts dimension value from CSS style attribute.
 
-   :param string $styleAttribute: CSS style string
-   :param string $imageAttribute: Attribute name to extract
+   :param string styleAttribute: CSS style string
+   :param string imageAttribute: Attribute name to extract
    :returns: Extracted value or null
    :returntype: string|null
    :visibility: private

@@ -101,12 +101,12 @@ infoAction()
 getImage()
 ~~~~~~~~~~
 
-.. php:method:: getImage(int $fileUid, string $table): ?File
+.. php:method:: getImage(int fileUid, string table): File|null
 
    Retrieves FAL File object.
 
-   :param int $fileUid: File UID from FAL
-   :param string $table: Database table (sys_file)
+   :param int fileUid: File UID from FAL
+   :param string table: Database table (sys_file)
    :returns: File object or null if not found
    :returntype: TYPO3\\CMS\\Core\\Resource\\File|null
    :throws: Exception if file cannot be loaded
@@ -114,12 +114,12 @@ getImage()
 processImage()
 ~~~~~~~~~~~~~~
 
-.. php:method:: processImage(File $file, array $processingInstructions): ?ProcessedFile
+.. php:method:: processImage(File file, array processingInstructions): ProcessedFile|null
 
    Creates processed image variant with specified dimensions.
 
-   :param File $file: Original FAL file
-   :param array $processingInstructions: Array with ``width``, ``height``, ``crop``, etc.
+   :param File file: Original FAL file
+   :param array processingInstructions: Array with ``width``, ``height``, ``crop``, etc.
    :returns: Processed file or null
    :returntype: TYPO3\\CMS\\Core\\Resource\\ProcessedFile|null
 

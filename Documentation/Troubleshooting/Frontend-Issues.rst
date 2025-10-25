@@ -27,38 +27,38 @@ Issue: Images Not Appearing in Frontend
 
 **Causes:**
 
-1. Static template not included
-2. TypoScript rendering hooks missing
-3. Cached content
+1. TypoScript rendering hooks missing (rare with v13.0.0+)
+2. Cached content
+3. Custom TypoScript overriding automatic configuration
 
 **Solution:**
 
-1. **Include Static Template:**
+1. **Verify TypoScript is loaded (v13.0.0+ automatic):**
 
-   * Go to **Template** → **Info/Modify**
-   * Edit whole template record
-   * Include ``CKEditor Image Support`` before Fluid Styled Content
+   The extension automatically loads TypoScript. Verify it's present:
 
-2. **Verify TypoScript:**
+   .. code-block:: typoscript
 
-.. code-block:: typoscript
+      lib.parseFunc_RTE {
+          tags.img = TEXT
+          tags.img {
+              current = 1
+              preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+          }
+      }
 
-   lib.parseFunc_RTE {
-       tags.img = TEXT
-       tags.img {
-           current = 1
-           preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
-       }
-   }
+2. **Clear Caches:**
 
-3. **Clear Caches:**
+   .. code-block:: bash
 
-.. code-block:: bash
+      ./vendor/bin/typo3 cache:flush
 
-   ./vendor/bin/typo3 cache:flush
+3. **Check for TypoScript conflicts:**
 
-.. warning::
-   Always include the static template BEFORE Fluid Styled Content for proper rendering.
+   If you have custom ``lib.parseFunc_RTE`` configuration, ensure it doesn't override the image rendering hooks.
+
+.. note::
+   Since v13.0.0, TypoScript is automatically loaded. Manual static template inclusion is optional.
 
 ----
 

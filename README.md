@@ -50,27 +50,39 @@ importModules:
 
 ## Installation
 
-1. Install the extension
+### Quick Start
 
-    1. with composer from [packagist](https://packagist.org/packages/netresearch/rte-ckeditor-image)
+Install the extension via composer:
 
-        ```shell
-        composer req netresearch/rte-ckeditor-image
-        ```
-2. Add a preset for rte_ckeditor or override the default one (as below):
+```shell
+composer req netresearch/rte-ckeditor-image
+```
+
+**That's it!** The extension works completely out-of-the-box with zero configuration:
+
+- ✅ **Backend RTE**: Automatically registers the `rteWithImages` preset and configures the toolbar with `insertimage` button for all sites
+- ✅ **Frontend Rendering**: Automatically loads TypoScript for proper image rendering via `lib.parseFunc_RTE`
+- ✅ **No Manual Steps**: No template inclusion, no TSConfig setup, no YAML configuration required
+
+### Custom Configuration (Optional)
+
+If you need to customize the RTE configuration or create your own preset:
+
+1. Create a custom preset in your site extension:
 
     ```php
     <?php
-    // EXT:my_ext/ext_localconf.php`
-    $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'EXT:my_ext/Configuration/RTE/Default.yaml';
+    // EXT:my_ext/ext_localconf.php
+    $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['my_custom_preset']
+        = 'EXT:my_ext/Configuration/RTE/Default.yaml';
     ```
+
+2. Import the image plugin configuration:
 
     ```yaml
     # EXT:my_ext/Configuration/RTE/Default.yaml
     imports:
-      # Import default RTE config (for example)
       - { resource: "EXT:rte_ckeditor/Configuration/RTE/Default.yaml" }
-      # Import the image plugin configuration
       - { resource: "EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml" }
 
     editor:
@@ -86,17 +98,12 @@ importModules:
             - italic
     ```
 
-3. Enable RTE config preset (e.g. `default`)
+3. Enable your custom preset via Page TSConfig:
 
     ```
     # Page TSConfig
-    RTE.default.preset = default
-    ```
-
-4. Include extension Static Template file
-
-    1. go to Template » Info/Modify » Edit whole template record » Includes
-    2. choose `CKEditor Image Support` for `Include static (from extensions)` before the Fluid Styled content 
+    RTE.default.preset = my_custom_preset
+    ``` 
 
 ## Configuration
 
@@ -213,9 +220,8 @@ make up                      # Start DDEV + complete setup (ONE COMMAND!)
 
 # Individual commands
 make start                   # Start DDEV environment
-make setup                   # Complete setup (docs + install + configure)
+make setup                   # Complete setup (docs + install)
 make docs                    # Render extension documentation
-ddev configure-rte           # Configure RTE extension in TYPO3
 ```
 
 ### Local Development (No DDEV)

@@ -1,3 +1,7 @@
+# Enable RTE preset with image support
+RTE.default.preset = rteWithImages
+
+# Configure image processing
 RTE.default.proc.overruleMode := addToList(default)
 RTE.default.proc.overruleMode := addToList(rtehtmlarea_images_db)
 
