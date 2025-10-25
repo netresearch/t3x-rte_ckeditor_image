@@ -136,13 +136,14 @@ class SelectImageController extends ElementBrowserController
         $processedFile = $this->processImage($file, $params, $maxDimensions);
 
         return new JsonResponse([
-            'uid'       => $file->getUid(),
-            'alt'       => $file->getProperty('alternative') ?? '',
-            'title'     => $file->getProperty('title') ?? '',
-            'width'     => min($file->getProperty('width'), $maxDimensions['width']),
-            'height'    => min($file->getProperty('height'), $maxDimensions['height']),
-            'url'       => $file->getPublicUrl(),
-            'processed' => [
+            'uid'           => $file->getUid(),
+            'alt'           => $file->getProperty('alternative') ?? '',
+            'title'         => $file->getProperty('title') ?? '',
+            'width'         => min($file->getProperty('width'), $maxDimensions['width']),
+            'height'        => min($file->getProperty('height'), $maxDimensions['height']),
+            'url'           => $file->getPublicUrl(),
+            'storageDriver' => $file->getStorage()->getDriverType(),
+            'processed'     => [
                 'width'  => $processedFile->getProperty('width'),
                 'height' => $processedFile->getProperty('height'),
                 'url'    => $processedFile->getPublicUrl(),

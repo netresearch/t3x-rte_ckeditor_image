@@ -32,18 +32,26 @@ class DoubleClickObserver extends Engine.DomEventObserver {
 
 
 /**
+ * Convert URL to relative format for local storage only.
+ * Remote storage URLs (S3, Azure, CDN) must remain absolute.
  *
  * @param url
- * @return relativeUrl
+ * @param storageDriver The TYPO3 storage driver type (e.g., 'Local', 'S3')
+ * @return relativeUrl for local storage, absolute URL for remote storage
  */
-function urlToRelative(url) {
-
-    // check for absolute URL first
+function urlToRelative(url, storageDriver) {
 
     if (!url) {
         return;
     }
 
+    // Only convert to relative for Local storage
+    // Remote storages (S3, Azure, CDN) must remain absolute
+    if (storageDriver && storageDriver !== 'Local') {
+        return url;
+    }
+
+    // Convert local storage URLs to relative for site portability
     if (url.indexOf("http://") !== -1 || url.indexOf("https://") !== -1) {
         var u = new URL(url);
         return u.pathname + u.search;
@@ -310,7 +318,7 @@ function askImageAttributes(editor, img, attributes, table) {
                         .then(function (getImg) {
 
                             $.extend(filteredAttr, {
-                                src: urlToRelative(getImg.url),
+                                src: urlToRelative(getImg.url, getImg.storageDriver),
                                 width: getImg.processed.width || getImg.width,
                                 height: getImg.processed.height || getImg.height,
                                 fileUid: img.uid,
