@@ -91,10 +91,49 @@ Enable native browser lazy loading:
    styles.content.image.lazyLoading = lazy
    # Options: lazy, eager, auto
 
-Lightbox Integration
---------------------
+Lightbox/Popup Integration
+--------------------------
 
-With fluid_styled_content:
+.. versionadded:: 13.1.0
+   Default popup configuration is now provided automatically by the extension.
+   The "Enlarge on Click" feature works out-of-the-box without additional setup.
+
+The extension automatically configures ``lib.contentElement.settings.media.popup``
+with sensible defaults for click-to-enlarge functionality. When editors enable
+"Enlarge on Click" in the image dialog, images will open in a JavaScript popup window.
+
+**Default Configuration** (automatically loaded):
+
+.. code-block:: typoscript
+
+   lib.contentElement.settings.media.popup {
+       # Opens in popup window (800x600 max)
+       bodyTag = <body style="margin:0; background:#fff;">
+       wrap = <a href="javascript:close();"> | </a>
+       width = 800m
+       height = 600m
+       JSwindow = 1
+       JSwindow.newWindow = 1
+       directImageLink = 0
+   }
+
+**Using with Lightbox Libraries** (PhotoSwipe, GLightbox, etc.):
+
+Override the default configuration to use direct image links with custom CSS classes:
+
+.. code-block:: typoscript
+
+   lib.contentElement.settings.media.popup {
+       # Direct link to image for lightbox libraries
+       directImageLink = 1
+
+       # Add lightbox-specific classes and attributes
+       linkParams.ATagParams.dataWrap = class="lightbox" rel="lightbox-gallery"
+   }
+
+**Legacy fluid_styled_content Integration**:
+
+If using fluid_styled_content constants, enable lightbox mode:
 
 .. code-block:: typoscript
    :caption: Template Constants

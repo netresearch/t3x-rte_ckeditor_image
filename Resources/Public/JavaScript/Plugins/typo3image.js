@@ -206,8 +206,13 @@ function getImageDialog(editor, img, attributes) {
         $customRowCol1 = $('<div class="col-xs-12 col-sm-6">'),
         $customRowCol2 = $('<div class="col-xs-12 col-sm-6">');
 
+    // Create zoom checkbox with help icon and tooltip
+    var $zoomLabel = $('<label>').text(img.lang.zoom);
+    var $helpIcon = $('<span class="help-icon" style="margin-left: 5px; cursor: help;" title="Enables click-to-enlarge/lightbox functionality. Requires popup configuration in TypoScript (lib.contentElement.settings.media.popup). See documentation for setup instructions.">ℹ️</span>');
+    $zoomLabel.append($helpIcon);
+
     $zoom.prependTo(
-        $('<label>').text(img.lang.zoom).appendTo(
+        $zoomLabel.appendTo(
             $('<div class="checkbox" style="margin: -5px 0 15px;">').prependTo($customRowCol1)
         )
     );

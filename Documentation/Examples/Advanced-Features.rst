@@ -15,10 +15,19 @@ Examples for implementing lightbox functionality and lazy loading for performanc
 Lightbox Integration
 ====================
 
+.. versionchanged:: 13.1.0
+   Default popup configuration is now provided automatically.
+   The basic "Enlarge on Click" feature works out-of-the-box without additional setup.
+   See :ref:`integration-frontend-rendering` for details.
+
 PhotoSwipe Lightbox
 -------------------
 
-**Objective**: Add lightbox functionality to images
+**Objective**: Integrate PhotoSwipe lightbox library for advanced gallery features
+
+.. note::
+   For basic click-to-enlarge functionality, the extension provides default popup configuration.
+   PhotoSwipe integration is optional for advanced features like galleries, thumbnails, and touch gestures.
 
 Install PhotoSwipe
 ~~~~~~~~~~~~~~~~~~
