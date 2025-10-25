@@ -13,12 +13,14 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import { Core, UI, Engine } from '@typo3/ckeditor5-bundle.js';
+import { Plugin } from '@ckeditor/ckeditor5-core';
+import { ButtonView } from '@ckeditor/ckeditor5-ui';
+import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
 import { default as Modal } from '@typo3/backend/modal.js';
 import $ from 'jquery';
 
 
-class DoubleClickObserver extends Engine.DomEventObserver {
+class DoubleClickObserver extends DomEventObserver {
     constructor(view) {
         super(view);
 
@@ -475,7 +477,7 @@ function edit(selectedImage, editor, imageAttributes) {
 };
 
 
-export default class Typo3Image extends Core.Plugin {
+export default class Typo3Image extends Plugin {
     static pluginName = 'Typo3Image';
 
     static get requires() {
@@ -668,7 +670,7 @@ export default class Typo3Image extends Core.Plugin {
 
 
         editor.ui.componentFactory.add('insertimage', () => {
-            const button = new UI.ButtonView();
+            const button = new ButtonView();
 
             button.set({
                 label: 'Insert image',

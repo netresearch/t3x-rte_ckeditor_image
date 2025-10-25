@@ -67,18 +67,17 @@ export default class Typo3Image extends Core.Plugin {
 
 ### JavaScript Development
 ```bash
-# No npm tooling - pure ES6 modules
-# TYPO3 handles JavaScript bundling via @typo3/ckeditor5-bundle.js
+# No npm build required - pure ES6 modules
+# CKEditor packages provided by TYPO3 core
 
 # Code quality (PHP side affects structure)
 make lint                    # Includes structural validation
 ```
 
 ### Important Notes
-- **No npm commands:** This is NOT a Node.js project
-- **No package.json:** JavaScript managed by TYPO3
-- **ES6 modules:** Direct browser imports via TYPO3 backend
-- **CKEditor 5 bundle:** Provided by `@typo3/ckeditor5-bundle.js`
+- **CKEditor 5 packages:** Provided by TYPO3 core, imported directly via @ckeditor/* namespace
+- **TYPO3 integration:** JavaScript module loaded by TYPO3 backend
+- **ES6 modules:** Modern import syntax
 - **jQuery available:** For TYPO3 modal integration
 
 ## 📝 Code Style
@@ -87,8 +86,10 @@ make lint                    # Includes structural validation
 
 **1. Import Pattern**
 ```javascript
-// CKEditor 5 imports from TYPO3 bundle
-import { Core, UI, Engine } from '@typo3/ckeditor5-bundle.js';
+// CKEditor 5 imports - direct from npm packages
+import { Plugin } from '@ckeditor/ckeditor5-core';
+import { ButtonView } from '@ckeditor/ckeditor5-ui';
+import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
 
 // TYPO3 backend imports
 import { default as Modal } from '@typo3/backend/modal.js';
