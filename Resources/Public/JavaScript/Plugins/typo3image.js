@@ -97,7 +97,7 @@ function getImageDialog(editor, img, attributes) {
         $.each(this, function (key, config) {
             var $group = $('<div class="form-group">').appendTo($('<div class="col-xs-12 col-sm-6">').appendTo($row));
             var id = 'rteckeditorimage-' + key;
-            $('<label for="' + id + '">' + config.label + '</label>').appendTo($group);
+            $('<label class="form-label" for="' + id + '">' + config.label + '</label>').appendTo($group);
             var $el = $('<input type="' + config.type + '" id ="' + id + '" name="' + key + '" class="form-control">');
 
             var placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
@@ -219,7 +219,7 @@ function getImageDialog(editor, img, attributes) {
         .prependTo(
             $('<div class="form-group">').prependTo($customRowCol2)
         )
-        .before($('<label for="input-cssclass">').text(img.lang.cssClass));
+        .before($('<label class="form-label" for="input-cssclass">').text(img.lang.cssClass));
 
     $customRow.append($customRowCol1, $customRowCol2);
 
