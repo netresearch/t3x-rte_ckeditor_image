@@ -1,0 +1,4 @@
+name: netresearch/rte-ckeditor-image
+label: 'CKEditor Image Support'
+dependencies:
+  - typo3/fluid-styled-content

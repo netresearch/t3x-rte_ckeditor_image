@@ -98,21 +98,44 @@ Lightbox/Popup Integration
    Default popup configuration is now provided by the extension.
 
 .. important::
-   **Static Template Required for Click-to-Enlarge**
+   **Site Set Configuration for Click-to-Enlarge (TYPO3 v13+)**
 
-   To enable the "Enlarge on Click" feature, you must include the static template:
+   To enable the "Enlarge on Click" feature, include the extension's site set in your site configuration:
+
+   **Option 1: Via Backend (Recommended)**
+
+   1. Go to **Site Management > Sites** module
+   2. Edit your site
+   3. In **Sets** tab, add: **CKEditor Image Support**
+   4. Save
+
+   **Option 2: Via config.yaml**
+
+   Edit ``config/sites/<your-site>/config.yaml``:
+
+   .. code-block:: yaml
+
+      base: 'https://example.com/'
+      rootPageId: 1
+      dependencies:
+        - netresearch/rte-ckeditor-image
+
+   **Option 3: Static Template (Legacy, TYPO3 v12)**
+
+   For TYPO3 v12 or if not using site sets, include the static template:
 
    1. Go to **WEB > Template** module
    2. Select your root page
    3. Edit the template
    4. In **Includes** tab, add: **CKEditor Image Support (rte_ckeditor_image)**
 
-   **Why?** TYPO3 loads static templates after ``ext_localconf.php``, which ensures
-   the popup configuration is applied correctly and not overridden by ``fluid_styled_content``.
+   **Why Site Sets?** TYPO3 v13 site sets provide proper dependency ordering and automatic
+   TypoScript loading, ensuring configuration is applied correctly without being overridden
+   by ``fluid_styled_content``.
 
-   **What works without static template:** Basic image insertion and rendering.
+   **What works without site set:** Basic image insertion and rendering.
 
-   **What needs static template:** Click-to-enlarge popup functionality.
+   **What needs site set/static template:** Click-to-enlarge popup functionality.
 
 The extension provides ``lib.contentElement.settings.media.popup`` configuration
 with sensible defaults for click-to-enlarge functionality. When editors enable

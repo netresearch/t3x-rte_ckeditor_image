@@ -1,0 +1,8 @@
+####################################################
+# TypoScript Setup for RTE CKEditor Image Site Set
+####################################################
+# This file is automatically loaded when the site set
+# "netresearch/rte-ckeditor-image" is included in
+# a site configuration's dependencies.
+
+@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'

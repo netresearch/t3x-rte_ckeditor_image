@@ -39,15 +39,17 @@ sed -i "/'deprecations'/,/^[[:space:]]*'disabled' => true,/s/'disabled' => true,
 
 vendor/bin/typo3 extension:setup
 
-# Include rte_ckeditor_image static template for click-to-enlarge functionality
-mysql -h db -u root -p"root" -D $VERSION -e "
-UPDATE sys_template
-SET include_static_file = CONCAT(
-    include_static_file,
-    ',EXT:rte_ckeditor_image/Configuration/TypoScript/'
-)
-WHERE root = 1;
-"
+# Add rte_ckeditor_image site set to site configuration for click-to-enlarge functionality
+if [ -f config/sites/main/config.yaml ]; then
+    if ! grep -q "netresearch/rte-ckeditor-image" config/sites/main/config.yaml; then
+        # Add dependencies section if it doesn't exist
+        if ! grep -q "^dependencies:" config/sites/main/config.yaml; then
+            echo "dependencies:" >> config/sites/main/config.yaml
+        fi
+        # Add our site set to dependencies
+        sed -i '/^dependencies:/a\  - netresearch/rte-ckeditor-image' config/sites/main/config.yaml
+    fi
+fi
 
 vendor/bin/typo3 cache:flush
 
@@ -55,4 +57,4 @@ echo ""
 echo "✅ TYPO3 $VERSION installation complete!"
 echo "🎨 rte_ckeditor_image is auto-configured (zero-configuration installation)"
 echo "📐 TYPO3 Styleguide is available for UI pattern reference"
-echo "🖼️  Static template included - click-to-enlarge functionality enabled"
+echo "🖼️  Site set included - click-to-enlarge functionality enabled"
