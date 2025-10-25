@@ -1,0 +1,6 @@
+name: netresearch/rte-ckeditor-image
+label: 'CKEditor Image Support'
+# Optional dependency: ensures our TypoScript loads AFTER fluid_styled_content
+# if it's present, but doesn't require it if users have custom rendering
+optionalDependencies:
+  - typo3/fluid-styled-content

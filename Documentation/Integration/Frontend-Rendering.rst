@@ -57,8 +57,9 @@ The extension provides default configuration. You can customize it:
            allparams.unset = 1
            data-htmlarea-file-uid.unset = 1
            data-htmlarea-file-table.unset = 1
-           data-htmlarea-zoom.unset = 1
-           data-htmlarea-clickenlarge.unset = 1
+           # Keep zoom attributes for popup/lightbox rendering (ImageRenderingController.php)
+           # data-htmlarea-zoom.unset = 1
+           # data-htmlarea-clickenlarge.unset = 1
            data-title-override.unset = 1
            data-alt-override.unset = 1
        }
@@ -90,10 +91,94 @@ Enable native browser lazy loading:
    styles.content.image.lazyLoading = lazy
    # Options: lazy, eager, auto
 
-Lightbox Integration
---------------------
+Lightbox/Popup Integration
+--------------------------
 
-With fluid_styled_content:
+.. versionadded:: 13.1.0
+   Default popup configuration is now provided by the extension.
+
+.. note::
+   **Optional Site Set Configuration (TYPO3 v13+)**
+
+   The extension works out-of-the-box with zero configuration, including click-to-enlarge functionality.
+
+   **However**, for TYPO3 v13+ best practices, you can optionally include the extension's site set
+   to ensure proper loading order with ``fluid_styled_content`` if you use it:
+
+   **Option 1: Via Backend (Recommended for TYPO3 v13+)**
+
+   1. Go to **Site Management > Sites** module
+   2. Edit your site
+   3. In **Sets** tab, add: **CKEditor Image Support**
+   4. Save
+
+   **Option 2: Via config.yaml**
+
+   Edit ``config/sites/<your-site>/config.yaml``:
+
+   .. code-block:: yaml
+
+      base: 'https://example.com/'
+      rootPageId: 1
+      dependencies:
+        - netresearch/rte-ckeditor-image
+
+   **Option 3: Static Template (Legacy, TYPO3 v12)**
+
+   For TYPO3 v12, you can include the static template:
+
+   1. Go to **WEB > Template** module
+   2. Select your root page
+   3. Edit the template
+   4. In **Includes** tab, add: **CKEditor Image Support (rte_ckeditor_image)**
+
+   **Why use site sets?** While not required, TYPO3 v13 site sets provide proper dependency ordering
+   with ``fluid_styled_content``, ensuring TypoScript loads in the correct sequence.
+
+   **Everything works without site set/static template!** The extension automatically configures:
+
+   - ✅ Basic image insertion and rendering
+   - ✅ Click-to-enlarge popup functionality
+   - ✅ Image processing and lazy loading
+
+   Site sets are optional and only recommended for TYPO3 v13+ sites using ``fluid_styled_content``.
+
+The extension provides ``lib.contentElement.settings.media.popup`` configuration
+with sensible defaults for click-to-enlarge functionality. When editors enable
+"Enlarge on Click" in the image dialog, images will open in a JavaScript popup window.
+
+**Default Configuration** (automatically loaded via ``ext_localconf.php``):
+
+.. code-block:: typoscript
+
+   lib.contentElement.settings.media.popup {
+       # Opens in popup window (800x600 max)
+       bodyTag = <body style="margin:0; background:#fff;">
+       wrap = <a href="javascript:close();"> | </a>
+       width = 800m
+       height = 600m
+       JSwindow = 1
+       JSwindow.newWindow = 1
+       directImageLink = 0
+   }
+
+**Using with Lightbox Libraries** (PhotoSwipe, GLightbox, etc.):
+
+Override the default configuration to use direct image links with custom CSS classes:
+
+.. code-block:: typoscript
+
+   lib.contentElement.settings.media.popup {
+       # Direct link to image for lightbox libraries
+       directImageLink = 1
+
+       # Add lightbox-specific classes and attributes
+       linkParams.ATagParams.dataWrap = class="lightbox" rel="lightbox-gallery"
+   }
+
+**Legacy fluid_styled_content Integration**:
+
+If using fluid_styled_content constants, enable lightbox mode:
 
 .. code-block:: typoscript
    :caption: Template Constants
@@ -165,8 +250,9 @@ HTML Parser Configuration
            # Remove internal data attributes
            data-htmlarea-file-uid.unset = 1
            data-htmlarea-file-table.unset = 1
-           data-htmlarea-zoom.unset = 1
-           data-htmlarea-clickenlarge.unset = 1
+           # Keep zoom attributes for popup/lightbox rendering (ImageRenderingController.php)
+           # data-htmlarea-zoom.unset = 1
+           # data-htmlarea-clickenlarge.unset = 1
            data-title-override.unset = 1
            data-alt-override.unset = 1
        }

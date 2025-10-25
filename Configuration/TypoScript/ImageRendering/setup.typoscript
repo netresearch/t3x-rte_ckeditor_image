@@ -19,11 +19,48 @@ lib.parseFunc_RTE {
         allparams.unset = 1
         data-htmlarea-file-uid.unset = 1
         data-htmlarea-file-table.unset = 1
-        data-htmlarea-zoom.unset = 1
-        data-htmlarea-clickenlarge.unset = 1
+        # Keep zoom attributes for popup/lightbox rendering (see ImageRenderingController.php:202-231)
+        # data-htmlarea-zoom.unset = 1
+        # data-htmlarea-clickenlarge.unset = 1
         data-title-override.unset = 1
         data-alt-override.unset = 1
     }
 }
 
 lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img)
+
+#******************************************************
+# Default popup/lightbox configuration for RTE images with zoom enabled
+# This provides fallback configuration if lib.contentElement.settings.media.popup is not set
+# by fluid_styled_content or custom TypoScript
+#******************************************************
+lib.contentElement.settings.media.popup {
+    # Popup window body styling
+    bodyTag = <body style="margin:0; background:#fff;">
+
+    # Close link wrapper
+    wrap = <a href="javascript:close();"> | </a>
+
+    # Default popup dimensions (m = max, respects image size)
+    width = 800m
+    height = 600m
+
+    # Crop configuration
+    crop.data = file:current:crop
+
+    # JavaScript popup window configuration
+    JSwindow = 1
+    JSwindow {
+        # Open in new window by default
+        newWindow = 1
+        # Disable if lightbox library is enabled via constants
+        # if.isFalse = {$styles.content.textmedia.linkWrap.lightboxEnabled}
+    }
+
+    # Direct image link (for lightbox libraries like PhotoSwipe, GLightbox, etc.)
+    # Set to 1 if using a JavaScript lightbox library instead of popup window
+    directImageLink = 0
+
+    # Link parameters for lightbox libraries
+    # linkParams.ATagParams.dataWrap = class="{$styles.content.textmedia.linkWrap.lightboxCssClass}" rel="{$styles.content.textmedia.linkWrap.lightboxRelAttribute}"
+}

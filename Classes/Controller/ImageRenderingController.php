@@ -199,6 +199,8 @@ class ImageRenderingController
         $img = '<img ' . GeneralUtility::implodeAttributes($stringAttributes, true) . ' />';
 
         // Popup rendering (support new `zoom` and legacy `clickenlarge` attributes)
+        // Configuration is provided by Configuration/TypoScript/ImageRendering/setup.typoscript
+        // which defines lib.contentElement.settings.media.popup with sensible defaults
         if (
             (isset($imageAttributes['data-htmlarea-zoom'])
                 || isset($imageAttributes['data-htmlarea-clickenlarge']))
