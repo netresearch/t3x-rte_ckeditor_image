@@ -302,7 +302,8 @@ Issue: Data Attributes Visible in Frontend
    lib.parseFunc_RTE.nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
        data-htmlarea-file-uid.unset = 1
        data-htmlarea-file-table.unset = 1
-       data-htmlarea-zoom.unset = 1
+       # Keep zoom attributes for popup/lightbox rendering
+       # data-htmlarea-zoom.unset = 1
        data-title-override.unset = 1
        data-alt-override.unset = 1
    }
