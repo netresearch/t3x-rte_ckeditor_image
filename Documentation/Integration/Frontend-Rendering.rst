@@ -95,14 +95,30 @@ Lightbox/Popup Integration
 --------------------------
 
 .. versionadded:: 13.1.0
-   Default popup configuration is now provided automatically by the extension.
-   The "Enlarge on Click" feature works out-of-the-box without additional setup.
+   Default popup configuration is now provided by the extension.
 
-The extension automatically configures ``lib.contentElement.settings.media.popup``
+.. important::
+   **Static Template Required for Click-to-Enlarge**
+
+   To enable the "Enlarge on Click" feature, you must include the static template:
+
+   1. Go to **WEB > Template** module
+   2. Select your root page
+   3. Edit the template
+   4. In **Includes** tab, add: **CKEditor Image Support (rte_ckeditor_image)**
+
+   **Why?** TYPO3 loads static templates after ``ext_localconf.php``, which ensures
+   the popup configuration is applied correctly and not overridden by ``fluid_styled_content``.
+
+   **What works without static template:** Basic image insertion and rendering.
+
+   **What needs static template:** Click-to-enlarge popup functionality.
+
+The extension provides ``lib.contentElement.settings.media.popup`` configuration
 with sensible defaults for click-to-enlarge functionality. When editors enable
 "Enlarge on Click" in the image dialog, images will open in a JavaScript popup window.
 
-**Default Configuration** (automatically loaded):
+**Default Configuration** (requires static template):
 
 .. code-block:: typoscript
 

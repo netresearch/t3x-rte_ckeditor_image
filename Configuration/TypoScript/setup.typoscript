@@ -1,0 +1,4 @@
+## TypoScript Setup for RTE CKEditor Image Extension
+## This file is automatically imported by static template inclusion
+
+@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
