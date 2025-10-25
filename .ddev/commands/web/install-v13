@@ -14,6 +14,7 @@ composer config repositories.$EXTENSION_KEY path ../../$EXTENSION_KEY -d /var/ww
 composer config --no-plugins allow-plugins.typo3/cms-composer-installers true -d /var/www/html/$VERSION
 composer config --no-plugins allow-plugins.typo3/class-alias-loader true -d /var/www/html/$VERSION
 composer req t3/cms:'^13' $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
+composer req --dev typo3/cms-styleguide --no-progress -n -d /var/www/html/$VERSION
 
 cd /var/www/html/$VERSION
 
@@ -40,3 +41,4 @@ vendor/bin/typo3 cache:flush
 echo ""
 echo "✅ TYPO3 $VERSION installation complete!"
 echo "🎨 rte_ckeditor_image is auto-configured (zero-configuration installation)"
+echo "📐 TYPO3 Styleguide is available for UI pattern reference"
