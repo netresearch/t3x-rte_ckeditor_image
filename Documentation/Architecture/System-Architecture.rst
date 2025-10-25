@@ -147,7 +147,7 @@ Technology Stack
 - **PHP**: 8.2-8.9 with strict types
 - **TYPO3**: 13.4.x (Core, Backend, Frontend, Extbase, RTE CKEditor)
 - **JavaScript**: ES6 modules
-- **CKEditor**: 5.x with @typo3/ckeditor5-bundle.js
+- **CKEditor**: 5.x provided by TYPO3 core with direct imports from @ckeditor/* namespace
 - **Dependency Injection**: Symfony service container
 - **Standards**: PSR-12, PER-CS2.0
 
