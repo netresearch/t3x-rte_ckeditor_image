@@ -206,16 +206,14 @@ function getImageDialog(editor, img, attributes) {
         $customRowCol1 = $('<div class="col-xs-12 col-sm-6">'),
         $customRowCol2 = $('<div class="col-xs-12 col-sm-6">');
 
-    // Create zoom checkbox with help icon and tooltip
-    var $zoomLabel = $('<label>').text(img.lang.zoom);
-    var $helpIcon = $('<span class="help-icon" style="margin-left: 5px; cursor: help;" title="Enables click-to-enlarge/lightbox functionality. Requires popup configuration in TypoScript (lib.contentElement.settings.media.popup). See documentation for setup instructions.">ℹ️</span>');
-    $zoomLabel.append($helpIcon);
-
-    $zoom.prependTo(
-        $zoomLabel.appendTo(
-            $('<div class="checkbox" style="margin: -5px 0 15px;">').prependTo($customRowCol1)
-        )
-    );
+    // Create zoom checkbox following TYPO3 v13 backend conventions
+    var $zoomContainer = $('<div class="form-group">').prependTo($customRowCol1);
+    var $zoomTitle = $('<div class="form-label">').text('Click to Enlarge').appendTo($zoomContainer);
+    var $zoomFormCheck = $('<div class="form-check form-check-type-toggle">').appendTo($zoomContainer);
+    $zoom.addClass('form-check-input').appendTo($zoomFormCheck);
+    var $zoomLabel = $('<label class="form-check-label" for="checkbox-zoom">').text('Enabled').appendTo($zoomFormCheck);
+    var $helpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.">ℹ️</span>');
+    $zoomTitle.append($helpIcon);
 
     $inputCssClass
         .prependTo(
