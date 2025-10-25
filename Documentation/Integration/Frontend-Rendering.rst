@@ -97,12 +97,15 @@ Lightbox/Popup Integration
 .. versionadded:: 13.1.0
    Default popup configuration is now provided by the extension.
 
-.. important::
-   **Site Set Configuration for Click-to-Enlarge (TYPO3 v13+)**
+.. note::
+   **Optional Site Set Configuration (TYPO3 v13+)**
 
-   To enable the "Enlarge on Click" feature, include the extension's site set in your site configuration:
+   The extension works out-of-the-box with zero configuration, including click-to-enlarge functionality.
 
-   **Option 1: Via Backend (Recommended)**
+   **However**, for TYPO3 v13+ best practices, you can optionally include the extension's site set
+   to ensure proper loading order with ``fluid_styled_content`` if you use it:
+
+   **Option 1: Via Backend (Recommended for TYPO3 v13+)**
 
    1. Go to **Site Management > Sites** module
    2. Edit your site
@@ -122,26 +125,29 @@ Lightbox/Popup Integration
 
    **Option 3: Static Template (Legacy, TYPO3 v12)**
 
-   For TYPO3 v12 or if not using site sets, include the static template:
+   For TYPO3 v12, you can include the static template:
 
    1. Go to **WEB > Template** module
    2. Select your root page
    3. Edit the template
    4. In **Includes** tab, add: **CKEditor Image Support (rte_ckeditor_image)**
 
-   **Why Site Sets?** TYPO3 v13 site sets provide proper dependency ordering and automatic
-   TypoScript loading, ensuring configuration is applied correctly without being overridden
-   by ``fluid_styled_content``.
+   **Why use site sets?** While not required, TYPO3 v13 site sets provide proper dependency ordering
+   with ``fluid_styled_content``, ensuring TypoScript loads in the correct sequence.
 
-   **What works without site set:** Basic image insertion and rendering.
+   **Everything works without site set/static template!** The extension automatically configures:
 
-   **What needs site set/static template:** Click-to-enlarge popup functionality.
+   - ✅ Basic image insertion and rendering
+   - ✅ Click-to-enlarge popup functionality
+   - ✅ Image processing and lazy loading
+
+   Site sets are optional and only recommended for TYPO3 v13+ sites using ``fluid_styled_content``.
 
 The extension provides ``lib.contentElement.settings.media.popup`` configuration
 with sensible defaults for click-to-enlarge functionality. When editors enable
 "Enlarge on Click" in the image dialog, images will open in a JavaScript popup window.
 
-**Default Configuration** (requires static template):
+**Default Configuration** (automatically loaded via ``ext_localconf.php``):
 
 .. code-block:: typoscript
 
