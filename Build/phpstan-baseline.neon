@@ -217,12 +217,6 @@ parameters:
 			path: ../Classes/Controller/SelectImageController.php
 
 		-
-			message: '#^Netresearch\\RteCKEditorImage\\Controller\\SelectImageController\:\:__construct\(\) does not call parent constructor from TYPO3\\CMS\\Backend\\Controller\\ElementBrowserController\.$#'
-			identifier: constructor.missingParentCall
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
 			message: '#^Parameter \#1 \$params of method Netresearch\\RteCKEditorImage\\Controller\\SelectImageController\:\:getMaxDimensions\(\) expects array\<string\>, mixed given\.$#'
 			identifier: argument.type
 			count: 1

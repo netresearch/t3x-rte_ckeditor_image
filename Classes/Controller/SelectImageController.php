@@ -16,6 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use TYPO3\CMS\Backend\Controller\ElementBrowserController;
+use TYPO3\CMS\Backend\ElementBrowser\ElementBrowserRegistry;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
@@ -60,11 +61,15 @@ class SelectImageController extends ElementBrowserController
     /**
      * Constructor with dependency injection.
      *
-     * @param ResourceFactory $resourceFactory Factory for file resources
+     * @param ResourceFactory        $resourceFactory        Factory for file resources
+     * @param ElementBrowserRegistry $elementBrowserRegistry Registry for element browsers (required by parent)
      */
     public function __construct(
         private readonly ResourceFactory $resourceFactory,
-    ) {}
+        ElementBrowserRegistry $elementBrowserRegistry,
+    ) {
+        parent::__construct($elementBrowserRegistry);
+    }
 
     /**
      * Forward to infoAction if wanted.
