@@ -36,6 +36,7 @@ vendor/bin/typo3 configuration:set 'GFX/processor_path' '/usr/bin/'
 
 sed -i "/'deprecations'/,/^[[:space:]]*'disabled' => true,/s/'disabled' => true,/'disabled' => false,/" /var/www/html/$VERSION/config/system/settings.php
 
+vendor/bin/typo3 extension:setup
 vendor/bin/typo3 cache:flush
 
 echo ""
