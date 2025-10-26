@@ -627,7 +627,8 @@ export default class Typo3Image extends Plugin {
                         linkTarget: linkTarget,
                         linkTitle: linkTitle,
                     });
-                }
+                },
+                converterPriority: 'high'
             });
 
         editor.conversion
