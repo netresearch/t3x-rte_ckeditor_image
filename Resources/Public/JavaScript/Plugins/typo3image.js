@@ -20,7 +20,7 @@ import { default as Modal } from '@typo3/backend/modal.js';
 import $ from 'jquery';
 
 
-class DoubleClickObserver extends DomEventObserver {
+class Typo3ImageDoubleClickObserver extends DomEventObserver {
     constructor(view) {
         super(view);
 
@@ -28,7 +28,7 @@ class DoubleClickObserver extends DomEventObserver {
     }
 
     onDomEvent(domEvent) {
-        this.fire(domEvent.type, domEvent);
+        this.fire('dblclick:typo3image', domEvent);
     }
 }
 
@@ -552,7 +552,7 @@ export default class Typo3Image extends Plugin {
             }
         })
 
-        editor.editing.view.addObserver(DoubleClickObserver);
+        editor.editing.view.addObserver(Typo3ImageDoubleClickObserver);
 
         editor.model.schema.register('typo3image', {
             inheritAllFrom: '$blockObject',
@@ -723,7 +723,7 @@ export default class Typo3Image extends Plugin {
             }
         })
 
-        editor.listenTo(editor.editing.view.document, 'dblclick', (event, data) => {
+        editor.listenTo(editor.editing.view.document, 'dblclick:typo3image', (event, data) => {
             const modelElement = editor.editing.mapper.toModelElement(data.target);
             if (modelElement && modelElement.name === 'typo3image') {
                 // Select the clicked element
