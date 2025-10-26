@@ -469,9 +469,6 @@ function edit(selectedImage, editor, imageAttributes) {
                     altOverride: attributes['data-alt-override'],
                     enableZoom: attributes['data-htmlarea-zoom'] || false,
                     noScale: attributes['data-noscale'] || false,
-                    linkHref: attributes.linkHref || '',
-                    linkTarget: attributes.linkTarget || '',
-                    linkTitle: attributes.linkTitle || '',
                 });
 
                 editor.model.insertObject(newImage);
@@ -557,8 +554,6 @@ export default class Typo3Image extends Plugin {
 
         editor.editing.view.addObserver(DoubleClickObserver);
 
-        // Phase 1: Register typo3image schema with link attributes
-        // This enables manual link handling through custom converters
         editor.model.schema.register('typo3image', {
             inheritAllFrom: '$blockObject',
             allowIn: ['$text', '$block'],
@@ -582,15 +577,6 @@ export default class Typo3Image extends Plugin {
             ],
         });
 
-        // Phase 2: Integration with CKEditor's Link plugin (if available)
-        // This enables Link command (Ctrl+K) and Link UI to work with typo3image elements
-        // The Link plugin provides better UX through its toolbar button and balloon UI
-        if (editor.plugins.has('Link')) {
-            editor.model.schema.extend('typo3image', {
-                allowAttributes: ['linkHref']
-            });
-        }
-
         editor.conversion
             .for('upcast')
             .elementToElement({
@@ -602,14 +588,6 @@ export default class Typo3Image extends Plugin {
                     ]
                 },
                 model: (viewElement, { writer }) => {
-                    // Check if image is wrapped in a link element
-                    const linkElement = viewElement.parent?.name === 'a' ? viewElement.parent : null;
-
-                    // Extract link attributes if link wrapper exists
-                    const linkHref = linkElement?.getAttribute('href') || '';
-                    const linkTarget = linkElement?.getAttribute('target') || '';
-                    const linkTitle = linkElement?.getAttribute('title') || '';
-
                     return writer.createElement('typo3image', {
                         fileUid: viewElement.getAttribute('data-htmlarea-file-uid'),
                         fileTable: viewElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
@@ -623,12 +601,8 @@ export default class Typo3Image extends Plugin {
                         titleOverride: viewElement.getAttribute('data-title-override') || false,
                         enableZoom: viewElement.getAttribute('data-htmlarea-zoom') || false,
                         noScale: viewElement.getAttribute('data-noscale') || false,
-                        linkHref: linkHref,
-                        linkTarget: linkTarget,
-                        linkTitle: linkTitle,
                     });
-                },
-                converterPriority: 'high'
+                }
             });
 
         editor.conversion
@@ -670,31 +644,7 @@ export default class Typo3Image extends Plugin {
                         attributes['data-noscale'] = true
                     }
 
-                    const imgElement = writer.createEmptyElement('img', attributes);
-
-                    // Check if model has link attributes and wrap in <a> if present
-                    const linkHref = modelElement.getAttribute('linkHref');
-                    if (linkHref && linkHref.trim() !== '') {
-                        const linkAttributes = {
-                            href: linkHref
-                        };
-
-                        // Add optional link attributes only if they have values
-                        const linkTarget = modelElement.getAttribute('linkTarget');
-                        if (linkTarget && linkTarget.trim() !== '') {
-                            linkAttributes.target = linkTarget;
-                        }
-
-                        const linkTitle = modelElement.getAttribute('linkTitle');
-                        if (linkTitle && linkTitle.trim() !== '') {
-                            linkAttributes.title = linkTitle;
-                        }
-
-                        // Wrap image in link element
-                        return writer.createContainerElement('a', linkAttributes, imgElement);
-                    }
-
-                    return imgElement;
+                    return writer.createEmptyElement('img', attributes)
                 },
             });
 
@@ -750,9 +700,6 @@ export default class Typo3Image extends Plugin {
                             'data-noscale': selectedElement.getAttribute('noScale'),
                             'data-title-override': selectedElement.getAttribute('titleOverride'),
                             'data-alt-override': selectedElement.getAttribute('altOverride'),
-                            linkHref: selectedElement.getAttribute('linkHref'),
-                            linkTarget: selectedElement.getAttribute('linkTarget'),
-                            linkTitle: selectedElement.getAttribute('linkTitle'),
                         }
                     );
                 } else {
@@ -800,9 +747,6 @@ export default class Typo3Image extends Plugin {
                         'data-noscale': modelElement.getAttribute('noScale'),
                         'data-title-override': modelElement.getAttribute('titleOverride'),
                         'data-alt-override': modelElement.getAttribute('altOverride'),
-                        linkHref: modelElement.getAttribute('linkHref'),
-                        linkTarget: modelElement.getAttribute('linkTarget'),
-                        linkTitle: modelElement.getAttribute('linkTitle'),
                     }
                 );
             }
