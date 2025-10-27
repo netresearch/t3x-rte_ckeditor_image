@@ -857,10 +857,12 @@ export default class Typo3Image extends Plugin {
                     // IMPORTANT: Don't extract links from zoom wrappers (imageLinkWrap creates these in frontend)
                     // Zoom links are dynamic frontend features and should not be persisted to CKEditor model
                     // Only extract linkHref if the image does NOT have data-htmlarea-zoom attribute
+                    // Also treat "/" as "no link" since it's TYPO3 link browser default/placeholder value
                     const hasZoom = viewElement.getAttribute('data-htmlarea-zoom') || viewElement.getAttribute('data-htmlarea-clickenlarge');
-                    const linkHref = (linkElement && !hasZoom) ? (linkElement.getAttribute('href') || '') : '';
-                    const linkTarget = (linkElement && !hasZoom) ? (linkElement.getAttribute('target') || '') : '';
-                    const linkTitle = (linkElement && !hasZoom) ? (linkElement.getAttribute('title') || '') : '';
+                    let linkHref = (linkElement && !hasZoom) ? (linkElement.getAttribute('href') || '') : '';
+                    if (linkHref === '/') linkHref = '';  // Treat "/" as no link
+                    const linkTarget = (linkElement && !hasZoom && linkHref) ? (linkElement.getAttribute('target') || '') : '';
+                    const linkTitle = (linkElement && !hasZoom && linkHref) ? (linkElement.getAttribute('title') || '') : '';
 
                     return writer.createElement('typo3image', {
                         fileUid: viewElement.getAttribute('data-htmlarea-file-uid'),
@@ -921,8 +923,9 @@ export default class Typo3Image extends Plugin {
             const imgElement = writer.createEmptyElement('img', attributes);
 
             // Check if model has link attributes
+            // Treat "/" as "no link" since it's TYPO3 link browser default/placeholder value
             const linkHref = modelElement.getAttribute('linkHref');
-            const hasLink = linkHref && linkHref.trim() !== '';
+            const hasLink = linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/';
 
             // For editing view, always wrap in a container for toWidget
             // Link goes INSIDE the widget container, not outside
