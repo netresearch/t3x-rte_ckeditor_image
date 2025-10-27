@@ -91,8 +91,10 @@ function getImageDialog(editor, img, attributes) {
     ];
     
     // Get maxWidth and maxHeight from editor configuration (from TSConfig)
-    const maxConfigWidth = editor.config.get('style').typo3image.maxWidth || 1920;
-    const maxConfigHeight = editor.config.get('style').typo3image.maxHeight || 9999;
+    const styleConfig = editor.config.get('style') || {};
+    const typo3imageConfig = styleConfig.typo3image || {};
+    const maxConfigWidth = typo3imageConfig.maxWidth || 1920;
+    const maxConfigHeight = typo3imageConfig.maxHeight || 9999;
     
     // Check if the image is SVG
     const isSvg = img.url && (img.url.endsWith('.svg') || img.url.includes('.svg?')) || false;
