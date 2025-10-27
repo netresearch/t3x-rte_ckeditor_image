@@ -15,6 +15,7 @@ use Netresearch\RteCKEditorImage\Controller\ImageRenderingController;
 use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
+use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -30,13 +31,20 @@ class ImageRenderingControllerTest extends TestCase
     /**
      * Helper method to create controller with mocked dependencies.
      *
+     * @param bool $withLogger Whether to configure the logger mock
+     *
      * @return ImageRenderingController
      */
-    protected function createController(): ImageRenderingController
+    protected function createController(bool $withLogger = false): ImageRenderingController
     {
         $resourceFactory       = $this->createMock(ResourceFactory::class);
         $processedFilesHandler = $this->createMock(ProcessedFilesHandler::class);
         $logManager            = $this->createMock(LogManager::class);
+
+        if ($withLogger) {
+            $logger = $this->createMock(Logger::class);
+            $logManager->method('getLogger')->willReturn($logger);
+        }
 
         return new ImageRenderingController(
             $resourceFactory,
@@ -385,5 +393,30 @@ class ImageRenderingControllerTest extends TestCase
         ]);
 
         self::assertTrue($result, 'Should skip processing for SVG regardless of file size threshold');
+    }
+
+    /**
+     * Test getQualityMultiplier method with all quality options.
+     */
+    public function testGetQualityMultiplierReturnsCorrectValues(): void
+    {
+        $controller = $this->createController();
+
+        self::assertSame(1.0, $this->callProtectedMethod($controller, 'getQualityMultiplier', ['none']));
+        self::assertSame(1.0, $this->callProtectedMethod($controller, 'getQualityMultiplier', ['']));
+        self::assertSame(0.9, $this->callProtectedMethod($controller, 'getQualityMultiplier', ['low']));
+        self::assertSame(1.0, $this->callProtectedMethod($controller, 'getQualityMultiplier', ['standard']));
+        self::assertSame(2.0, $this->callProtectedMethod($controller, 'getQualityMultiplier', ['retina']));
+        self::assertSame(3.0, $this->callProtectedMethod($controller, 'getQualityMultiplier', ['ultra']));
+        self::assertSame(6.0, $this->callProtectedMethod($controller, 'getQualityMultiplier', ['print']));
+    }
+
+    public function testGetQualityMultiplierDefaultsToStandardForInvalidValues(): void
+    {
+        $controller = $this->createController(withLogger: true);
+
+        self::assertSame(1.0, $this->callProtectedMethod($controller, 'getQualityMultiplier', ['invalid']));
+        self::assertSame(1.0, $this->callProtectedMethod($controller, 'getQualityMultiplier', ['xyz']));
+        self::assertSame(1.0, $this->callProtectedMethod($controller, 'getQualityMultiplier', ['999']));
     }
 }

@@ -16,6 +16,7 @@
 import { Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
+import { toWidget } from '@ckeditor/ckeditor5-widget';
 import { default as Modal } from '@typo3/backend/modal.js';
 import $ from 'jquery';
 
@@ -81,11 +82,14 @@ function getImageDialog(editor, img, attributes) {
         elements = {};
     const fields = [
         {
-            width: { label: 'Width', type: 'number' },
-            height: { label: 'Height', type: 'number' }
+            width: { label: 'Display width in px', type: 'number' },
+            height: { label: 'Display height in px', type: 'number' },
+            quality: { label: 'Scaling', type: 'select' }
         },
         {
-            title: { label: 'Advisory Title', type: 'text' },
+            title: { label: 'Advisory Title', type: 'text' }
+        },
+        {
             alt: { label: 'Alternative Text', type: 'text' }
         }
     ];
@@ -106,15 +110,31 @@ function getImageDialog(editor, img, attributes) {
 
         $rows.push($row);
         $.each(this, function (key, config) {
-            var $group = $('<div class="form-group">').appendTo($('<div class="col-xs-12 col-sm-6">').appendTo($row));
+            // Use full width for title and alt fields, otherwise use col-sm-4
+            var colClass = (key === 'title' || key === 'alt') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
+            var $group = $('<div class="form-group">').appendTo($('<div class="' + colClass + '">').appendTo($row));
             var id = 'rteckeditorimage-' + key;
             $('<label class="form-label" for="' + id + '">' + config.label + '</label>').appendTo($group);
-            var $el = $('<input type="' + config.type + '" id ="' + id + '" name="' + key + '" class="form-control">');
+
+            var $el;
+            if (config.type === 'select') {
+                $el = $('<select id="' + id + '" name="' + key + '" class="form-select"></select>');
+            } else {
+                $el = $('<input type="' + config.type + '" id ="' + id + '" name="' + key + '" class="form-control">');
+            }
 
             var placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
             var value = ((attributes[key] || '') + '').trim();
-            $el.attr('placeholder', placeholder);
-            $el.val(value);
+
+            // For number inputs (width/height), if no value exists (new image), use placeholder as initial value
+            if (config.type === 'number' && value === '') {
+                value = placeholder;
+            }
+
+            if (config.type !== 'select') {
+                $el.attr('placeholder', placeholder);
+                $el.val(value);
+            }
 
             if (config.type === 'text') {
                 var startVal = value,
@@ -166,19 +186,17 @@ function getImageDialog(editor, img, attributes) {
                     }
                 }
             } else if (config.type === 'number') {
-                var ratio = img.width / img.height;
-                if (key === 'height') {
-                    ratio = 1 / ratio;
-                }
+                // Calculate aspect ratio from ORIGINAL image dimensions (not capped)
+                // img.width/img.height are now the original dimensions from backend
+                // img.processed.width/height are the suggested display dimensions (respecting aspect ratio)
+                var aspectRatio = img.width / img.height;
                 var opposite = 1;
-                
-                // For SVG images or when image dimensions are smaller than TSConfig max values,
-                // use the TSConfig max values instead
-                var max = img[key];
-                if (isSvg || (key === 'width' && img.width < maxConfigWidth) || (key === 'height' && img.height < maxConfigHeight)) {
-                    max = key === 'width' ? maxConfigWidth : maxConfigHeight;
-                }
-                
+
+                // Use TSConfig max values for display dimensions
+                // These are DISPLAY dimensions, not processing dimensions
+                // The backend will cap processing at original image size to prevent upscaling
+                var max = key === 'width' ? maxConfigWidth : maxConfigHeight;
+
                 var min = 1; // Allow minimum of 1px for all images
                 $el.attr('max', max);
                 $el.attr('min', min);
@@ -189,14 +207,20 @@ function getImageDialog(editor, img, attributes) {
                         value += delta;
                     }
                     value = Math.max(currentMin, Math.min(value, max));
-                    
+
                     // For SVG images, allow free-form sizing without ratio constraint
-                    if (!isSvg && ratio && ratio > 0) {
+                    if (!isSvg && aspectRatio && aspectRatio > 0) {
                         var $opposite = elements[key === 'width' ? 'height' : 'width'],
-                            oppositeMax = parseInt($opposite.attr('max')),
-                            oppositeRatio = key === 'width' ? (1 / ratio) : ratio;
-                        
-                        $opposite.val(Math.ceil(value * oppositeRatio));
+                            oppositeMax = parseInt($opposite.attr('max'));
+
+                        // Calculate opposite dimension based on which field is being edited
+                        // If editing width: height = width / aspectRatio
+                        // If editing height: width = height * aspectRatio
+                        var oppositeValue = key === 'width'
+                            ? Math.ceil(value / aspectRatio)  // Calculate height from width
+                            : Math.ceil(value * aspectRatio); // Calculate width from height
+
+                        $opposite.val(oppositeValue);
                     }
                     $el.val(value);
                 };
@@ -217,6 +241,35 @@ function getImageDialog(editor, img, attributes) {
                     e.stopPropagation();
                     e.stopImmediatePropagation();
                 });
+            } else if (config.type === 'select' && key === 'quality') {
+                // Image Processing quality dropdown - sorted by quality ascending
+                var qualityOptions = [
+                    { value: 'none', label: 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
+                    { value: 'low', label: 'Low (0.9x)', multiplier: 0.9, color: '#dc3545', marker: '●' },
+                    { value: 'standard', label: 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
+                    { value: 'retina', label: 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
+                    { value: 'ultra', label: 'Ultra (3.0x)', multiplier: 3.0, color: '#17a2b8', marker: '●' },
+                    { value: 'print', label: 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
+                ];
+
+                $.each(qualityOptions, function(i, option) {
+                    var $option = $('<option>')
+                        .val(option.value)
+                        .text(option.marker + ' ' + option.label)
+                        .data('multiplier', option.multiplier)
+                        .data('color', option.color)
+                        .css('color', option.color);
+                    $option.appendTo($el);
+                });
+
+                // Default to retina for normal images, print for SVG
+                var defaultQuality = isSvg ? 'print' : (attributes['data-quality'] || 'retina');
+                $el.val(defaultQuality);
+
+                // Disable for SVG
+                if (isSvg) {
+                    $el.prop('disabled', true);
+                }
             }
 
             $group.append($el);
@@ -232,11 +285,11 @@ function getImageDialog(editor, img, attributes) {
         $checkboxAlt = d.$el.find('#checkbox-alt'),
         $inputWidth = d.$el.find('#rteckeditorimage-width'),
         $inputHeight = d.$el.find('#rteckeditorimage-height'),
+        $qualityDropdown = d.$el.find('#rteckeditorimage-quality'),
         $zoom = $('<input id="checkbox-zoom" type="checkbox">'),
-        $noScale = $('<input id="checkbox-noscale" type="checkbox">'),
         cssClass = attributes.class || '',
         $inputCssClass = $('<input id="input-cssclass" type="text" class="form-control">').val(cssClass),
-        $customRow = $('<div class="row">').insertAfter($rows[0]),
+        $customRow = $('<div class="row">').insertAfter($rows[2]),
         $customRowCol1 = $('<div class="col-xs-12 col-sm-6">'),
         $customRowCol2 = $('<div class="col-xs-12 col-sm-6">');
 
@@ -248,15 +301,6 @@ function getImageDialog(editor, img, attributes) {
     var $zoomLabel = $('<label class="form-check-label" for="checkbox-zoom">').text('Enabled').appendTo($zoomFormCheck);
     var $helpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.">ℹ️</span>');
     $zoomTitle.append($helpIcon);
-
-    // Create noScale checkbox following TYPO3 v13 backend conventions
-    var $noScaleContainer = $('<div class="form-group">').appendTo($customRowCol1);
-    var $noScaleTitle = $('<div class="form-label">').text('Skip Image Processing').appendTo($noScaleContainer);
-    var $noScaleFormCheck = $('<div class="form-check form-check-type-toggle">').appendTo($noScaleContainer);
-    $noScale.addClass('form-check-input').appendTo($noScaleFormCheck);
-    var $noScaleLabel = $('<label class="form-check-label" for="checkbox-noscale">').text('Enabled').appendTo($noScaleFormCheck);
-    var $noScaleHelpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.">ℹ️</span>');
-    $noScaleTitle.append($noScaleHelpIcon);
 
     $inputCssClass
         .prependTo(
@@ -278,11 +322,6 @@ function getImageDialog(editor, img, attributes) {
         $zoom.prop('checked', true);
     }
 
-    // Check for existing noScale attribute
-    if (attributes['data-noscale']) {
-        $noScale.prop('checked', true);
-    }
-
     // Quality indicator functions
     function getQualityLevel(ratio) {
         if (ratio < 0.9) {
@@ -300,50 +339,145 @@ function getImageDialog(editor, img, attributes) {
         }
     }
 
+    /**
+     * Debounce utility function to delay execution
+     *
+     * @param {Function} func - Function to debounce
+     * @param {number} wait - Delay in milliseconds
+     * @return {Function} Debounced function
+     */
+    function debounce(func, wait) {
+        var timeout;
+        return function() {
+            var context = this;
+            var args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                func.apply(context, args);
+            }, wait);
+        };
+    }
+
     function renderQualityIndicator(displayWidth, displayHeight) {
         var intrinsicWidth = img.width;
         var intrinsicHeight = img.height;
 
-        // Handle SVG files
-        if (img.extension === 'svg') {
+        // Guard against zero dimensions to prevent division by zero
+        if (displayWidth === 0 || displayHeight === 0) {
             $qualityIndicator.html(
-                '<span style="color: #666;">Render quality:</span> ' +
-                '<span style="margin-left: 8px; color: #28a745; font-weight: 600;" title="Vector image - scales perfectly at any size">' +
-                '<span>●</span> SVG (Vector)' +
-                '</span>'
+                '<div style="color: #dc3545; font-size: 13px; line-height: 1.5;">' +
+                '<strong>Error:</strong> Display dimensions cannot be zero.' +
+                '</div>'
             ).show();
             return;
         }
 
-        // Calculate pixel ratio
-        var widthRatio = intrinsicWidth / displayWidth;
-        var heightRatio = intrinsicHeight / displayHeight;
-        var pixelRatio = Math.min(widthRatio, heightRatio);
-
-        // Get quality level
-        var quality = getQualityLevel(pixelRatio);
-
-        // Build HTML
-        var levels = ['low', 'standard', 'retina', 'ultra', 'print'];
-        var labels = ['Low', 'Standard', 'Retina', 'Ultra', 'Print'];
-        var colors = ['#dc3545', '#fd7e14', '#28a745', '#6f42c1', '#007bff'];
-
-        var detailedTooltip = 'Image: ' + intrinsicWidth + '×' + intrinsicHeight + ' px | Display: ' + displayWidth + '×' + displayHeight + ' px | Ratio: ' + pixelRatio.toFixed(2) + 'x';
-
-        var html = '<span style="color: #666;">Render quality:</span>';
-
-        for (var i = 0; i < levels.length; i++) {
-            var isActive = (quality.level === levels[i]);
-            var dot = isActive ? '●' : '○';
-            var weight = isActive ? 'font-weight: 600;' : '';
-            var tooltip = isActive ? quality.tooltip + ' | ' + detailedTooltip : labels[i] + ' quality';
-
-            html += '<span class="quality-level' + (isActive ? ' quality-active' : '') + '" ' +
-                    'style="margin-left: 8px; color: ' + colors[i] + '; cursor: help; ' + weight + '" ' +
-                    'title="' + tooltip + '">' +
-                    '<span>' + dot + '</span> ' + labels[i] +
-                    '</span>';
+        // Handle SVG files
+        if (img.extension === 'svg') {
+            $qualityIndicator.html(
+                '<div style="color: #666; font-size: 13px; line-height: 1.5;">' +
+                '<strong>Processing Info:</strong> Vector image will not be processed (scales perfectly at any resolution).' +
+                '</div>'
+            ).show();
+            return;
         }
+
+        // Get selected quality multiplier and color from dropdown
+        var selectedQuality = $qualityDropdown.val();
+        var $selectedOption = $qualityDropdown.find('option:selected');
+        var selectedMultiplier = $selectedOption.data('multiplier');
+        var selectedColor = $selectedOption.data('color');
+
+        // Calculate requested source dimensions for selected quality (BEFORE capping)
+        var requestedWidth = displayWidth * selectedMultiplier;
+        var requestedHeight = displayHeight * selectedMultiplier;
+
+        // Calculate required source dimensions (capped at original size)
+        // IMPORTANT: Never upscale beyond original image dimensions
+        var requiredWidth = Math.min(requestedWidth, intrinsicWidth);
+        var requiredHeight = Math.min(requestedHeight, intrinsicHeight);
+
+        // Check if dimensions match exactly
+        var dimensionsMatch = (displayWidth === intrinsicWidth && displayHeight === intrinsicHeight);
+
+        // Check if display size exceeds image size
+        var displayExceedsImage = (displayWidth > intrinsicWidth || displayHeight > intrinsicHeight);
+
+        // Calculate expected quality (ratio of image pixels to display pixels)
+        // Quality = Image / Display (higher = better quality)
+        var qualityRatio = Math.min(intrinsicWidth / displayWidth, intrinsicHeight / displayHeight);
+        var expectedQualityName = '';
+        var expectedQualityColor = '';
+
+        // Determine quality level based on ratio
+        if (qualityRatio >= 6.0) {
+            expectedQualityName = 'Print';
+            expectedQualityColor = '#007bff';
+        } else if (qualityRatio >= 3.0) {
+            expectedQualityName = 'Ultra';
+            expectedQualityColor = '#17a2b8';
+        } else if (qualityRatio >= 2.0) {
+            expectedQualityName = 'Retina';
+            expectedQualityColor = '#28a745';
+        } else if (qualityRatio >= 0.95) {
+            expectedQualityName = 'Standard';
+            expectedQualityColor = '#ffc107';
+        } else {
+            expectedQualityName = 'Poor';
+            expectedQualityColor = '#dc3545';
+        }
+
+        // Calculate actual achievable quality
+        // If requested processing size exceeds original, we can only achieve what the original provides
+        var actualQuality = Math.min(intrinsicWidth / displayWidth, intrinsicHeight / displayHeight);
+        var requestedQuality = selectedMultiplier;
+        // Check UNCAPPED requested size against original (not the capped requiredWidth/Height)
+        var canAchieveRequested = (requestedWidth <= intrinsicWidth && requestedHeight <= intrinsicHeight);
+
+        // Build processing info message
+        var message = '';
+        var messageColor = '#666';
+
+        // Handle "No Scaling" option
+        if (selectedQuality === 'none') {
+            // No processing - show actual quality based on image/display ratio
+            message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
+                      'will be displayed at ' + displayWidth + '×' + displayHeight + ' px = ' +
+                      '<span style="color: ' + expectedQualityColor + '; font-weight: bold;">● ' +
+                      expectedQualityName + ' Quality (' + qualityRatio.toFixed(1) + 'x scaling)</span>';
+            messageColor = expectedQualityColor;
+        } else if (!canAchieveRequested) {
+            // Cannot achieve requested quality - show what will actually happen
+            message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
+                      'will be displayed at ' + displayWidth + '×' + displayHeight + ' px = ' +
+                      '<span style="color: ' + expectedQualityColor + '; font-weight: bold;">● ' +
+                      expectedQualityName + ' Quality (' + actualQuality.toFixed(1) + 'x scaling)</span>';
+            messageColor = expectedQualityColor;
+        } else {
+            // Can achieve requested quality - normal processing
+            var qualityName = selectedQuality.charAt(0).toUpperCase() + selectedQuality.slice(1);
+
+            // Check if resized dimensions match original (no need to mention "resized to" if same size)
+            var resizeMatchesOriginal = (Math.round(requiredWidth) === intrinsicWidth && Math.round(requiredHeight) === intrinsicHeight);
+
+            if (resizeMatchesOriginal) {
+                // No need to mention resize when it matches original
+                message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
+                          'will be displayed at ' + displayWidth + '×' + displayHeight + ' px = ' +
+                          '<span style="color: ' + selectedColor + '; font-weight: bold;">● ' +
+                          qualityName + ' Quality (' + selectedMultiplier.toFixed(1) + 'x scaling)</span>';
+            } else {
+                // Different resize size - mention it
+                message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
+                          'will be resized to ' + Math.round(requiredWidth) + '×' + Math.round(requiredHeight) + ' px and displayed at ' +
+                          displayWidth + '×' + displayHeight + ' px = ' +
+                          '<span style="color: ' + selectedColor + '; font-weight: bold;">● ' +
+                          qualityName + ' Quality (' + selectedMultiplier.toFixed(1) + 'x scaling)</span>';
+            }
+            messageColor = selectedColor;
+        }
+
+        var html = '<div style="color: ' + messageColor + '; font-size: 13px; line-height: 1.5;">' + message + '</div>';
 
         $qualityIndicator.html(html).show();
     }
@@ -354,9 +488,14 @@ function getImageDialog(editor, img, attributes) {
         renderQualityIndicator(displayWidth, displayHeight);
     }
 
-    // Update quality indicator when dimensions change
-    $inputWidth.on('input change', updateQualityIndicator);
-    $inputHeight.on('input change', updateQualityIndicator);
+    // Update quality indicator when dimensions or quality selection change
+    // Use debounced version for input events to improve performance
+    var debouncedUpdateQualityIndicator = debounce(updateQualityIndicator, 250);
+    $inputWidth.on('input', debouncedUpdateQualityIndicator);
+    $inputHeight.on('input', debouncedUpdateQualityIndicator);
+    $inputWidth.on('change', updateQualityIndicator);
+    $inputHeight.on('change', updateQualityIndicator);
+    $qualityDropdown.on('change', updateQualityIndicator); // No debounce for dropdown
 
     // Initial update
     updateQualityIndicator();
@@ -380,11 +519,18 @@ function getImageDialog(editor, img, attributes) {
             delete attributes['data-htmlarea-clickenlarge'];
         }
 
-        // Save noScale attribute
-        if ($noScale.prop('checked')) {
-            attributes['data-noscale'] = true;
-        } else if (attributes['data-noscale']) {
-            delete attributes['data-noscale'];
+        // Save quality selection (except for SVG which is always 'print')
+        if (img.extension !== 'svg') {
+            var selectedQuality = $qualityDropdown.val();
+            attributes['data-quality'] = selectedQuality;
+
+            // Set data-noscale attribute when "No Scaling" is selected
+            if (selectedQuality === 'none') {
+                attributes['data-noscale'] = true;
+            } else {
+                // Remove data-noscale if another quality is selected
+                delete attributes['data-noscale'];
+            }
         }
 
         // Set and escape cssClass value
@@ -448,7 +594,7 @@ function askImageAttributes(editor, img, attributes, table) {
                     var dialogInfo = dialog.get(),
                         filteredAttr = {},
                         allowedAttributes = [
-                            '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-title-override', 'data-alt-override'
+                            '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-quality', 'data-title-override', 'data-alt-override'
                         ],
                         attributesNew = $.extend({}, img, dialogInfo);
 
@@ -571,6 +717,7 @@ function edit(selectedImage, editor, imageAttributes) {
                     altOverride: attributes['data-alt-override'],
                     enableZoom: attributes['data-htmlarea-zoom'] || false,
                     noScale: attributes['data-noscale'] || false,
+                    quality: attributes['data-quality'] || '',
                     linkHref: attributes.linkHref || '',
                     linkTarget: attributes.linkTarget || '',
                     linkTitle: attributes.linkTitle || '',
@@ -677,6 +824,7 @@ export default class Typo3Image extends Plugin {
                 'class',
                 'enableZoom',
                 'noScale',
+                'quality',
                 'width',
                 'height',
                 'htmlA',
@@ -701,9 +849,13 @@ export default class Typo3Image extends Plugin {
                     const linkElement = viewElement.parent?.name === 'a' ? viewElement.parent : null;
 
                     // Extract link attributes if link wrapper exists
-                    const linkHref = linkElement?.getAttribute('href') || '';
-                    const linkTarget = linkElement?.getAttribute('target') || '';
-                    const linkTitle = linkElement?.getAttribute('title') || '';
+                    // IMPORTANT: Don't extract links from zoom wrappers (imageLinkWrap creates these in frontend)
+                    // Zoom links are dynamic frontend features and should not be persisted to CKEditor model
+                    // Only extract linkHref if the image does NOT have data-htmlarea-zoom attribute
+                    const hasZoom = viewElement.getAttribute('data-htmlarea-zoom') || viewElement.getAttribute('data-htmlarea-clickenlarge');
+                    const linkHref = (linkElement && !hasZoom) ? (linkElement.getAttribute('href') || '') : '';
+                    const linkTarget = (linkElement && !hasZoom) ? (linkElement.getAttribute('target') || '') : '';
+                    const linkTitle = (linkElement && !hasZoom) ? (linkElement.getAttribute('title') || '') : '';
 
                     return writer.createElement('typo3image', {
                         fileUid: viewElement.getAttribute('data-htmlarea-file-uid'),
@@ -718,6 +870,7 @@ export default class Typo3Image extends Plugin {
                         titleOverride: viewElement.getAttribute('data-title-override') || false,
                         enableZoom: viewElement.getAttribute('data-htmlarea-zoom') || false,
                         noScale: viewElement.getAttribute('data-noscale') || false,
+                        quality: viewElement.getAttribute('data-quality') || '',
                         linkHref: linkHref,
                         linkTarget: linkTarget,
                         linkTitle: linkTitle,
@@ -726,8 +879,84 @@ export default class Typo3Image extends Plugin {
                 converterPriority: 'high'
             });
 
+        // Helper function to create the view structure for typo3image
+        function createImageViewElement(modelElement, writer, options = {}) {
+            const attributes = {
+                'src': modelElement.getAttribute('src'),
+                'data-htmlarea-file-uid': modelElement.getAttribute('fileUid'),
+                'data-htmlarea-file-table': modelElement.getAttribute('fileTable'),
+                'width': modelElement.getAttribute('width'),
+                'height': modelElement.getAttribute('height'),
+                'class': modelElement.getAttribute('class') || '',
+                'title': modelElement.getAttribute('title') || '',
+                'alt': modelElement.getAttribute('alt') || '',
+            }
+
+            if (modelElement.getAttribute('titleOverride') || false) {
+                attributes['data-title-override'] = true
+            }
+
+            if (modelElement.getAttribute('altOverride') || false) {
+                attributes['data-alt-override'] = true
+            }
+
+            if (modelElement.getAttribute('enableZoom') || false) {
+                attributes['data-htmlarea-zoom'] = true
+            }
+
+            if (modelElement.getAttribute('noScale') || false) {
+                attributes['data-noscale'] = true
+            }
+
+            const quality = modelElement.getAttribute('quality');
+            if (quality && quality.trim() !== '') {
+                attributes['data-quality'] = quality;
+            }
+
+            const imgElement = writer.createEmptyElement('img', attributes);
+
+            // Check if model has link attributes and wrap in <a> if present
+            const linkHref = modelElement.getAttribute('linkHref');
+            if (linkHref && linkHref.trim() !== '') {
+                const linkAttributes = {
+                    href: linkHref
+                };
+
+                // Add optional link attributes only if they have values
+                const linkTarget = modelElement.getAttribute('linkTarget');
+                if (linkTarget && linkTarget.trim() !== '') {
+                    linkAttributes.target = linkTarget;
+                }
+
+                const linkTitle = modelElement.getAttribute('linkTitle');
+                if (linkTitle && linkTitle.trim() !== '') {
+                    linkAttributes.title = linkTitle;
+                }
+
+                // Wrap image in link element (container element)
+                const linkElement = writer.createContainerElement('a', linkAttributes, imgElement);
+
+                // For editing view, wrap with toWidget to make selectable
+                if (options.asWidget) {
+                    return toWidget(linkElement, writer, { label: 'TYPO3 image widget' });
+                }
+
+                return linkElement;
+            }
+
+            // For editing view, img elements must be in a container for toWidget
+            if (options.asWidget) {
+                // Wrap img in span container, then apply toWidget
+                const container = writer.createContainerElement('span', { class: 'typo3-image-widget' }, imgElement);
+                return toWidget(container, writer, { label: 'TYPO3 image widget' });
+            }
+
+            return imgElement;
+        }
+
+        // Data downcast: Used for editor.getData() - returns plain HTML structure
         editor.conversion
-            .for('downcast')
+            .for('dataDowncast')
             .elementToElement({
                 model: {
                     name: 'typo3image',
@@ -738,58 +967,24 @@ export default class Typo3Image extends Plugin {
                     ]
                 },
                 view: (modelElement, { writer }) => {
-                    const attributes= {
-                        'src': modelElement.getAttribute('src'),
-                        'data-htmlarea-file-uid': modelElement.getAttribute('fileUid'),
-                        'data-htmlarea-file-table': modelElement.getAttribute('fileTable'),
-                        'width': modelElement.getAttribute('width'),
-                        'height': modelElement.getAttribute('height'),
-                        'class': modelElement.getAttribute('class') || '',
-                        'title': modelElement.getAttribute('title') || '',
-                        'alt': modelElement.getAttribute('alt') || '',
-                    }
+                    return createImageViewElement(modelElement, writer, { asWidget: false });
+                },
+            });
 
-                    if (modelElement.getAttribute('titleOverride') || false) {
-                        attributes['data-title-override'] = true
-                    }
-
-                    if (modelElement.getAttribute('altOverride') || false) {
-                        attributes['data-alt-override'] = true
-                    }
-
-                    if (modelElement.getAttribute('enableZoom') || false) {
-                        attributes['data-htmlarea-zoom'] = true
-                    }
-
-                    if (modelElement.getAttribute('noScale') || false) {
-                        attributes['data-noscale'] = true
-                    }
-
-                    const imgElement = writer.createEmptyElement('img', attributes);
-
-                    // Check if model has link attributes and wrap in <a> if present
-                    const linkHref = modelElement.getAttribute('linkHref');
-                    if (linkHref && linkHref.trim() !== '') {
-                        const linkAttributes = {
-                            href: linkHref
-                        };
-
-                        // Add optional link attributes only if they have values
-                        const linkTarget = modelElement.getAttribute('linkTarget');
-                        if (linkTarget && linkTarget.trim() !== '') {
-                            linkAttributes.target = linkTarget;
-                        }
-
-                        const linkTitle = modelElement.getAttribute('linkTitle');
-                        if (linkTitle && linkTitle.trim() !== '') {
-                            linkAttributes.title = linkTitle;
-                        }
-
-                        // Wrap image in link element
-                        return writer.createContainerElement('a', linkAttributes, imgElement);
-                    }
-
-                    return imgElement;
+        // Editing downcast: Used for editor UI - wraps with toWidget for selectability
+        editor.conversion
+            .for('editingDowncast')
+            .elementToElement({
+                model: {
+                    name: 'typo3image',
+                    attributes: [
+                        'fileUid',
+                        'fileTable',
+                        'src'
+                    ]
+                },
+                view: (modelElement, { writer }) => {
+                    return createImageViewElement(modelElement, writer, { asWidget: true });
                 },
             });
 
@@ -843,6 +1038,7 @@ export default class Typo3Image extends Plugin {
                             title: selectedElement.getAttribute('title'),
                             'data-htmlarea-zoom': selectedElement.getAttribute('enableZoom'),
                             'data-noscale': selectedElement.getAttribute('noScale'),
+                            'data-quality': selectedElement.getAttribute('quality'),
                             'data-title-override': selectedElement.getAttribute('titleOverride'),
                             'data-alt-override': selectedElement.getAttribute('altOverride'),
                             linkHref: selectedElement.getAttribute('linkHref'),
@@ -861,8 +1057,23 @@ export default class Typo3Image extends Plugin {
         });
 
         // Make image selectable with a single click
+        // With toWidget(), clicks on any part of the widget (img, span, or a wrapper) should work
         editor.listenTo(editor.editing.view.document, 'click', (event, data) => {
-            const modelElement = editor.editing.mapper.toModelElement(data.target);
+            // Try to get model element from click target
+            let modelElement = editor.editing.mapper.toModelElement(data.target);
+
+            // If not found, traverse up the view hierarchy to find the widget
+            if (!modelElement || modelElement.name !== 'typo3image') {
+                let viewElement = data.target.parent;
+                while (viewElement) {
+                    modelElement = editor.editing.mapper.toModelElement(viewElement);
+                    if (modelElement && modelElement.name === 'typo3image') {
+                        break;
+                    }
+                    viewElement = viewElement.parent;
+                }
+            }
+
             if (modelElement && modelElement.name === 'typo3image') {
                 // Select the clicked element
                 editor.model.change(writer => {
@@ -872,7 +1083,21 @@ export default class Typo3Image extends Plugin {
         })
 
         editor.listenTo(editor.editing.view.document, 'dblclick:typo3image', (event, data) => {
-            const modelElement = editor.editing.mapper.toModelElement(data.target);
+            // Try to get model element from double-click target
+            let modelElement = editor.editing.mapper.toModelElement(data.target);
+
+            // If not found, traverse up the view hierarchy to find the widget
+            if (!modelElement || modelElement.name !== 'typo3image') {
+                let viewElement = data.target.parent;
+                while (viewElement) {
+                    modelElement = editor.editing.mapper.toModelElement(viewElement);
+                    if (modelElement && modelElement.name === 'typo3image') {
+                        break;
+                    }
+                    viewElement = viewElement.parent;
+                }
+            }
+
             if (modelElement && modelElement.name === 'typo3image') {
                 // Select the clicked element
                 editor.model.change(writer => {
@@ -893,6 +1118,7 @@ export default class Typo3Image extends Plugin {
                         title: modelElement.getAttribute('title'),
                         'data-htmlarea-zoom': modelElement.getAttribute('enableZoom'),
                         'data-noscale': modelElement.getAttribute('noScale'),
+                        'data-quality': modelElement.getAttribute('quality'),
                         'data-title-override': modelElement.getAttribute('titleOverride'),
                         'data-alt-override': modelElement.getAttribute('altOverride'),
                         linkHref: modelElement.getAttribute('linkHref'),
