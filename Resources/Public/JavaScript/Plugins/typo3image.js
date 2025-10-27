@@ -469,6 +469,9 @@ function edit(selectedImage, editor, imageAttributes) {
                     altOverride: attributes['data-alt-override'],
                     enableZoom: attributes['data-htmlarea-zoom'] || false,
                     noScale: attributes['data-noscale'] || false,
+                    linkHref: attributes.linkHref || '',
+                    linkTarget: attributes.linkTarget || '',
+                    linkTitle: attributes.linkTitle || '',
                 });
 
                 editor.model.insertObject(newImage);
@@ -554,6 +557,10 @@ export default class Typo3Image extends Plugin {
 
         editor.editing.view.addObserver(Typo3ImageDoubleClickObserver);
 
+        // Register typo3image schema with link attributes
+        // Link handling is done through custom upcast/downcast converters
+        // Note: CKEditor's LinkImage plugin cannot be used due to conflict with TYPO3's Typo3LinkEditing
+        // See: Documentation/ADR/001-native-ckeditor-architecture-linkimage-incompatibility.md
         editor.model.schema.register('typo3image', {
             inheritAllFrom: '$blockObject',
             allowIn: ['$text', '$block'],
@@ -588,6 +595,14 @@ export default class Typo3Image extends Plugin {
                     ]
                 },
                 model: (viewElement, { writer }) => {
+                    // Check if image is wrapped in a link element
+                    const linkElement = viewElement.parent?.name === 'a' ? viewElement.parent : null;
+
+                    // Extract link attributes if link wrapper exists
+                    const linkHref = linkElement?.getAttribute('href') || '';
+                    const linkTarget = linkElement?.getAttribute('target') || '';
+                    const linkTitle = linkElement?.getAttribute('title') || '';
+
                     return writer.createElement('typo3image', {
                         fileUid: viewElement.getAttribute('data-htmlarea-file-uid'),
                         fileTable: viewElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
@@ -601,8 +616,12 @@ export default class Typo3Image extends Plugin {
                         titleOverride: viewElement.getAttribute('data-title-override') || false,
                         enableZoom: viewElement.getAttribute('data-htmlarea-zoom') || false,
                         noScale: viewElement.getAttribute('data-noscale') || false,
+                        linkHref: linkHref,
+                        linkTarget: linkTarget,
+                        linkTitle: linkTitle,
                     });
-                }
+                },
+                converterPriority: 'high'
             });
 
         editor.conversion
@@ -644,7 +663,31 @@ export default class Typo3Image extends Plugin {
                         attributes['data-noscale'] = true
                     }
 
-                    return writer.createEmptyElement('img', attributes)
+                    const imgElement = writer.createEmptyElement('img', attributes);
+
+                    // Check if model has link attributes and wrap in <a> if present
+                    const linkHref = modelElement.getAttribute('linkHref');
+                    if (linkHref && linkHref.trim() !== '') {
+                        const linkAttributes = {
+                            href: linkHref
+                        };
+
+                        // Add optional link attributes only if they have values
+                        const linkTarget = modelElement.getAttribute('linkTarget');
+                        if (linkTarget && linkTarget.trim() !== '') {
+                            linkAttributes.target = linkTarget;
+                        }
+
+                        const linkTitle = modelElement.getAttribute('linkTitle');
+                        if (linkTitle && linkTitle.trim() !== '') {
+                            linkAttributes.title = linkTitle;
+                        }
+
+                        // Wrap image in link element
+                        return writer.createContainerElement('a', linkAttributes, imgElement);
+                    }
+
+                    return imgElement;
                 },
             });
 
@@ -700,6 +743,9 @@ export default class Typo3Image extends Plugin {
                             'data-noscale': selectedElement.getAttribute('noScale'),
                             'data-title-override': selectedElement.getAttribute('titleOverride'),
                             'data-alt-override': selectedElement.getAttribute('altOverride'),
+                            linkHref: selectedElement.getAttribute('linkHref'),
+                            linkTarget: selectedElement.getAttribute('linkTarget'),
+                            linkTitle: selectedElement.getAttribute('linkTitle'),
                         }
                     );
                 } else {
@@ -747,6 +793,9 @@ export default class Typo3Image extends Plugin {
                         'data-noscale': modelElement.getAttribute('noScale'),
                         'data-title-override': modelElement.getAttribute('titleOverride'),
                         'data-alt-override': modelElement.getAttribute('altOverride'),
+                        linkHref: modelElement.getAttribute('linkHref'),
+                        linkTarget: modelElement.getAttribute('linkTarget'),
+                        linkTitle: modelElement.getAttribute('linkTitle'),
                     }
                 );
             }
