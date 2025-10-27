@@ -610,10 +610,15 @@ function askImageAttributes(editor, img, attributes, table) {
                     getImageInfo(editor, table, img.uid, filteredAttr)
                         .then(function (getImg) {
 
+                            // Use user-entered dimensions from dialog (filteredAttr.width/height)
+                            // Fall back to processed dimensions only if user didn't specify
+                            const userWidth = filteredAttr.width;
+                            const userHeight = filteredAttr.height;
+
                             $.extend(filteredAttr, {
                                 src: urlToRelative(getImg.url, getImg.storageDriver),
-                                width: getImg.processed.width || getImg.width,
-                                height: getImg.processed.height || getImg.height,
+                                width: userWidth || getImg.processed.width || getImg.width,
+                                height: userHeight || getImg.processed.height || getImg.height,
                                 fileUid: img.uid,
                                 fileTable: table
                             });
