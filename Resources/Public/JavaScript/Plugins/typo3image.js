@@ -1103,6 +1103,10 @@ export default class Typo3Image extends Plugin {
             }
 
             if (modelElement && modelElement.name === 'typo3image') {
+                // Prevent link navigation in editing view
+                event.preventDefault();
+                data.domEvent.preventDefault();
+
                 // Select the clicked element
                 editor.model.change(writer => {
                     writer.setSelection(modelElement, 'on');
@@ -1127,6 +1131,10 @@ export default class Typo3Image extends Plugin {
             }
 
             if (modelElement && modelElement.name === 'typo3image') {
+                // Prevent link navigation in editing view
+                event.preventDefault();
+                data.domEvent.preventDefault();
+
                 // Select the clicked element
                 editor.model.change(writer => {
                     writer.setSelection(modelElement, 'on');
