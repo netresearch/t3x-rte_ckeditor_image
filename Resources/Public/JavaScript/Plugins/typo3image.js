@@ -222,6 +222,10 @@ function getImageDialog(editor, img, attributes) {
         });
     });
 
+    // Create quality indicator container
+    var $qualityIndicator = $('<div class="image-quality-indicator" style="margin: 12px 0; font-size: 13px; line-height: 1.6;">');
+    $qualityIndicator.insertAfter($rows[0]);
+
     var $checkboxTitle = d.$el.find('#checkbox-title'),
         $checkboxAlt = d.$el.find('#checkbox-alt'),
         $inputWidth = d.$el.find('#rteckeditorimage-width'),
@@ -276,6 +280,84 @@ function getImageDialog(editor, img, attributes) {
     if (attributes['data-noscale']) {
         $noScale.prop('checked', true);
     }
+
+    // Quality indicator functions
+    function getQualityLevel(ratio) {
+        if (ratio < 0.9) {
+            return { level: 'low', label: 'Low', color: '#dc3545', tooltip: 'Low quality (' + ratio.toFixed(1) + 'x) - Image may appear blurry' };
+        } else if (ratio < 1.5) {
+            return { level: 'standard', label: 'Standard', color: '#fd7e14', tooltip: 'Standard quality (' + ratio.toFixed(1) + 'x) - Sharp on basic displays' };
+        } else if (ratio < 3.0) {
+            return { level: 'retina', label: 'Retina', color: '#28a745', tooltip: 'Retina quality (' + ratio.toFixed(1) + 'x) - Optimal for modern displays' };
+        } else if (ratio < 6.0) {
+            return { level: 'ultra', label: 'Ultra', color: '#6f42c1', tooltip: 'Ultra quality (' + ratio.toFixed(1) + 'x) - For ultra-high DPI or small print' };
+        } else if (ratio <= 10.0) {
+            return { level: 'print', label: 'Print', color: '#007bff', tooltip: 'Print quality (' + ratio.toFixed(1) + 'x) - Suitable for high-quality printing (300 DPI)' };
+        } else {
+            return { level: 'excessive', label: 'Excessive', color: '#6c757d', tooltip: 'Excessive resolution (' + ratio.toFixed(1) + 'x) - Unnecessarily high' };
+        }
+    }
+
+    function renderQualityIndicator(displayWidth, displayHeight) {
+        var intrinsicWidth = img.width;
+        var intrinsicHeight = img.height;
+
+        // Handle SVG files
+        if (img.extension === 'svg') {
+            $qualityIndicator.html(
+                '<span style="color: #666;">Render quality:</span> ' +
+                '<span style="margin-left: 8px; color: #28a745; font-weight: 600;" title="Vector image - scales perfectly at any size">' +
+                '<span>●</span> SVG (Vector)' +
+                '</span>'
+            ).show();
+            return;
+        }
+
+        // Calculate pixel ratio
+        var widthRatio = intrinsicWidth / displayWidth;
+        var heightRatio = intrinsicHeight / displayHeight;
+        var pixelRatio = Math.min(widthRatio, heightRatio);
+
+        // Get quality level
+        var quality = getQualityLevel(pixelRatio);
+
+        // Build HTML
+        var levels = ['low', 'standard', 'retina', 'ultra', 'print'];
+        var labels = ['Low', 'Standard', 'Retina', 'Ultra', 'Print'];
+        var colors = ['#dc3545', '#fd7e14', '#28a745', '#6f42c1', '#007bff'];
+
+        var detailedTooltip = 'Image: ' + intrinsicWidth + '×' + intrinsicHeight + ' px | Display: ' + displayWidth + '×' + displayHeight + ' px | Ratio: ' + pixelRatio.toFixed(2) + 'x';
+
+        var html = '<span style="color: #666;">Render quality:</span>';
+
+        for (var i = 0; i < levels.length; i++) {
+            var isActive = (quality.level === levels[i]);
+            var dot = isActive ? '●' : '○';
+            var weight = isActive ? 'font-weight: 600;' : '';
+            var tooltip = isActive ? quality.tooltip + ' | ' + detailedTooltip : labels[i] + ' quality';
+
+            html += '<span class="quality-level' + (isActive ? ' quality-active' : '') + '" ' +
+                    'style="margin-left: 8px; color: ' + colors[i] + '; cursor: help; ' + weight + '" ' +
+                    'title="' + tooltip + '">' +
+                    '<span>' + dot + '</span> ' + labels[i] +
+                    '</span>';
+        }
+
+        $qualityIndicator.html(html).show();
+    }
+
+    function updateQualityIndicator() {
+        var displayWidth = parseInt($inputWidth.val()) || img.width;
+        var displayHeight = parseInt($inputHeight.val()) || img.height;
+        renderQualityIndicator(displayWidth, displayHeight);
+    }
+
+    // Update quality indicator when dimensions change
+    $inputWidth.on('input change', updateQualityIndicator);
+    $inputHeight.on('input change', updateQualityIndicator);
+
+    // Initial update
+    updateQualityIndicator();
 
     d.get = function () {
         $.each(fields, function () {
