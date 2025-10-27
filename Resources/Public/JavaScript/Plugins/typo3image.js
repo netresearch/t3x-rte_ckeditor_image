@@ -915,14 +915,52 @@ export default class Typo3Image extends Plugin {
 
             const imgElement = writer.createEmptyElement('img', attributes);
 
-            // Check if model has link attributes and wrap in <a> if present
+            // Check if model has link attributes
             const linkHref = modelElement.getAttribute('linkHref');
-            if (linkHref && linkHref.trim() !== '') {
+            const hasLink = linkHref && linkHref.trim() !== '';
+
+            // For editing view, always wrap in a container for toWidget
+            // Link goes INSIDE the widget container, not outside
+            if (options.asWidget) {
+                let innerElement;
+
+                if (hasLink) {
+                    // Create link wrapper for the image
+                    const linkAttributes = {
+                        href: linkHref
+                    };
+
+                    const linkTarget = modelElement.getAttribute('linkTarget');
+                    if (linkTarget && linkTarget.trim() !== '') {
+                        linkAttributes.target = linkTarget;
+                    }
+
+                    const linkTitle = modelElement.getAttribute('linkTitle');
+                    if (linkTitle && linkTitle.trim() !== '') {
+                        linkAttributes.title = linkTitle;
+                    }
+
+                    // Link wraps the img
+                    innerElement = writer.createContainerElement('a', linkAttributes, imgElement);
+                } else {
+                    // No link, just the img
+                    innerElement = imgElement;
+                }
+
+                // Widget container wraps everything (img or link+img)
+                const widgetContainer = writer.createContainerElement('span', {
+                    class: 'typo3-image-widget'
+                }, innerElement);
+
+                return toWidget(widgetContainer, writer, { label: 'TYPO3 image widget' });
+            }
+
+            // For data view, return plain structure
+            if (hasLink) {
                 const linkAttributes = {
                     href: linkHref
                 };
 
-                // Add optional link attributes only if they have values
                 const linkTarget = modelElement.getAttribute('linkTarget');
                 if (linkTarget && linkTarget.trim() !== '') {
                     linkAttributes.target = linkTarget;
@@ -933,22 +971,7 @@ export default class Typo3Image extends Plugin {
                     linkAttributes.title = linkTitle;
                 }
 
-                // Wrap image in link element (container element)
-                const linkElement = writer.createContainerElement('a', linkAttributes, imgElement);
-
-                // For editing view, wrap with toWidget to make selectable
-                if (options.asWidget) {
-                    return toWidget(linkElement, writer, { label: 'TYPO3 image widget' });
-                }
-
-                return linkElement;
-            }
-
-            // For editing view, img elements must be in a container for toWidget
-            if (options.asWidget) {
-                // Wrap img in span container, then apply toWidget
-                const container = writer.createContainerElement('span', { class: 'typo3-image-widget' }, imgElement);
-                return toWidget(container, writer, { label: 'TYPO3 image widget' });
+                return writer.createContainerElement('a', linkAttributes, imgElement);
             }
 
             return imgElement;
