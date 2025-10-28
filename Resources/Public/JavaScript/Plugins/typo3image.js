@@ -81,12 +81,12 @@ function getImageDialog(editor, img, attributes) {
         elements = {};
     const fields = [
         {
-            width: { label: 'Width', type: 'number' },
-            height: { label: 'Height', type: 'number' }
+            width: { label: img.lang.width, type: 'number' },
+            height: { label: img.lang.height, type: 'number' }
         },
         {
-            title: { label: 'Advisory Title', type: 'text' },
-            alt: { label: 'Alternative Text', type: 'text' }
+            title: { label: img.lang.title, type: 'text' },
+            alt: { label: img.lang.alt, type: 'text' }
         }
     ];
 

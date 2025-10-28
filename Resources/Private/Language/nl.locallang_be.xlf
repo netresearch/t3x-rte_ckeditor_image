@@ -1,25 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.0">
-    <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image">
+    <file source-language="en" target-language="nl" datatype="plaintext" product-name="rte_ckeditor_image">
         <header/>
         <body>
             <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
 				<source>Custom CSS class</source>
+				<target>Aangepaste CSS-klasse</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
+				<target>Breedte</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.height" xml:space="preserve">
 				<source>Height</source>
+				<target>Hoogte</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
+				<target>Adviserende titel</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
+				<target>Alternatieve tekst</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
+				<target>Afbeelding invoegen</target>
 			</trans-unit>
         </body>
     </file>
