@@ -23,10 +23,6 @@
 				<source>Alternative Text</source>
 				<target>Alternativer Text</target>
 			</trans-unit>
-            <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
-				<source>Insert image</source>
-				<target>Bild einfügen</target>
-			</trans-unit>
         </body>
     </file>
 </xliff>

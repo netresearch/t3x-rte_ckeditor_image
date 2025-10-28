@@ -199,10 +199,6 @@ class SelectImageController extends ElementBrowserController
                     'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
                     . 'locallang_be.xlf:labels.ckeditor.alt',
                 ),
-                'insertImage' => LocalizationUtility::translate(
-                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                    . 'locallang_be.xlf:labels.ckeditor.insertimage',
-                ),
                 'zoom' => LocalizationUtility::translate(
                     'LLL:EXT:frontend/Resources/Private/Language/'
                     . 'locallang_ttc.xlf:image_zoom_formlabel',

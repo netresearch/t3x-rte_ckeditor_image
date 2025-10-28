@@ -18,9 +18,6 @@
             <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
 			</trans-unit>
-            <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
-				<source>Insert image</source>
-			</trans-unit>
         </body>
     </file>
 </xliff>
