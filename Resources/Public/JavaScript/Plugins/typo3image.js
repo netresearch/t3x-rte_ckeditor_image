@@ -120,8 +120,9 @@ function getImageDialog(editor, img, attributes) {
 
                 // Add tooltip when checkbox is disabled (no default value from file)
                 if (!hasDefault) {
-                    cbox.attr('title', 'No default ' + key + ' available in file metadata. Cannot override empty value.');
-                    cboxLabel.css('cursor', 'not-allowed').attr('title', 'No default ' + key + ' available in file metadata. Cannot override empty value.');
+                    const noDefaultMsg = img.lang.noDefaultMetadata.replace('%s', key);
+                    cbox.attr('title', noDefaultMsg);
+                    cboxLabel.css('cursor', 'not-allowed').attr('title', noDefaultMsg);
                 }
 
                 $el.prop('disabled', hasDefault && !value);
@@ -218,20 +219,20 @@ function getImageDialog(editor, img, attributes) {
 
     // Create zoom checkbox following TYPO3 v13 backend conventions
     var $zoomContainer = $('<div class="form-group">').prependTo($customRowCol1);
-    var $zoomTitle = $('<div class="form-label">').text('Click to Enlarge').appendTo($zoomContainer);
+    var $zoomTitle = $('<div class="form-label">').text(img.lang.clickToEnlarge).appendTo($zoomContainer);
     var $zoomFormCheck = $('<div class="form-check form-check-type-toggle">').appendTo($zoomContainer);
     $zoom.addClass('form-check-input').appendTo($zoomFormCheck);
-    var $zoomLabel = $('<label class="form-check-label" for="checkbox-zoom">').text('Enabled').appendTo($zoomFormCheck);
-    var $helpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.">ℹ️</span>');
+    var $zoomLabel = $('<label class="form-check-label" for="checkbox-zoom">').text(img.lang.enabled).appendTo($zoomFormCheck);
+    var $helpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="' + img.lang.zoomHelp + '">ℹ️</span>');
     $zoomTitle.append($helpIcon);
 
     // Create noScale checkbox following TYPO3 v13 backend conventions
     var $noScaleContainer = $('<div class="form-group">').appendTo($customRowCol1);
-    var $noScaleTitle = $('<div class="form-label">').text('Skip Image Processing').appendTo($noScaleContainer);
+    var $noScaleTitle = $('<div class="form-label">').text(img.lang.skipImageProcessing).appendTo($noScaleContainer);
     var $noScaleFormCheck = $('<div class="form-check form-check-type-toggle">').appendTo($noScaleContainer);
     $noScale.addClass('form-check-input').appendTo($noScaleFormCheck);
-    var $noScaleLabel = $('<label class="form-check-label" for="checkbox-noscale">').text('Enabled').appendTo($noScaleFormCheck);
-    var $noScaleHelpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.">ℹ️</span>');
+    var $noScaleLabel = $('<label class="form-check-label" for="checkbox-noscale">').text(img.lang.enabled).appendTo($noScaleFormCheck);
+    var $noScaleHelpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="' + img.lang.noScaleHelp + '">ℹ️</span>');
     $noScaleTitle.append($noScaleHelpIcon);
 
     $inputCssClass
@@ -325,11 +326,11 @@ function askImageAttributes(editor, img, attributes, table) {
     var dialog = getImageDialog(editor, img, $.extend({}, img.processed, attributes));
 
     const modal = Modal.advanced({
-        title: 'Image Properties',
+        title: img.lang.imageProperties,
         content: dialog.$el,
         buttons: [
             {
-                text: 'Cancel',
+                text: img.lang.cancel,
                 btnClass: 'btn-default',
                 icon: 'actions-close',
                 trigger: function () {
@@ -338,7 +339,7 @@ function askImageAttributes(editor, img, attributes, table) {
                 }
             },
             {
-                text: 'Save',
+                text: img.lang.save,
                 btnClass: 'btn-primary',
                 icon: 'actions-document-save',
                 trigger: function () {

@@ -199,6 +199,46 @@ class SelectImageController extends ElementBrowserController
                     'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
                     . 'locallang_be.xlf:labels.ckeditor.alt',
                 ),
+                'clickToEnlarge' => LocalizationUtility::translate(
+                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                    . 'locallang_be.xlf:labels.ckeditor.clicktoenlarge',
+                ),
+                'enabled' => LocalizationUtility::translate(
+                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                    . 'locallang_be.xlf:labels.ckeditor.enabled',
+                ),
+                'skipImageProcessing' => LocalizationUtility::translate(
+                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                    . 'locallang_be.xlf:labels.ckeditor.skipimageprocessing',
+                ),
+                'imageProperties' => LocalizationUtility::translate(
+                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                    . 'locallang_be.xlf:labels.ckeditor.imageproperties',
+                ),
+                'cancel' => LocalizationUtility::translate(
+                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                    . 'locallang_be.xlf:labels.ckeditor.cancel',
+                ),
+                'save' => LocalizationUtility::translate(
+                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                    . 'locallang_be.xlf:labels.ckeditor.save',
+                ),
+                'insertImage' => LocalizationUtility::translate(
+                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                    . 'locallang_be.xlf:labels.ckeditor.insertimage',
+                ),
+                'noDefaultMetadata' => LocalizationUtility::translate(
+                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                    . 'locallang_be.xlf:labels.ckeditor.nodefaultmetadata',
+                ),
+                'zoomHelp' => LocalizationUtility::translate(
+                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                    . 'locallang_be.xlf:labels.ckeditor.zoomhelp',
+                ),
+                'noScaleHelp' => LocalizationUtility::translate(
+                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                    . 'locallang_be.xlf:labels.ckeditor.noscalehelp',
+                ),
                 'zoom' => LocalizationUtility::translate(
                     'LLL:EXT:frontend/Resources/Private/Language/'
                     . 'locallang_ttc.xlf:image_zoom_formlabel',
