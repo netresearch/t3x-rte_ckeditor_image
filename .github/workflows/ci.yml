@@ -62,42 +62,14 @@ jobs:
                     composer require typo3/cms-backend:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-extbase:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-extensionmanager:${{ matrix.typo3 }} --no-progress --no-update
-                    composer install --no-interaction || composer install --no-interaction --ignore-platform-reqs || composer install --no-interaction --prefer-source
+                    composer install --no-interaction --prefer-dist
                     git checkout composer.json
-
-            -   id: install-tools
-                name: Install development tools manually if needed
-                if: ${{ always() && steps.install.conclusion == 'success' }}
-                run: |
-                    # Create bin directory if it doesn't exist
-                    mkdir -p .Build/bin
-                    
-                    # Install PHP-CS-Fixer if not available
-                    if [ ! -f .Build/bin/php-cs-fixer ]; then
-                        curl -L https://cs.symfony.com/download/php-cs-fixer-v3.phar -o .Build/bin/php-cs-fixer && chmod +x .Build/bin/php-cs-fixer || echo "Failed to download PHP-CS-Fixer"
-                    fi
-                    
-                    # Install PHPStan if not available
-                    if [ ! -f .Build/bin/phpstan ]; then
-                        curl -L https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar -o .Build/bin/phpstan && chmod +x .Build/bin/phpstan || echo "Failed to download PHPStan"
-                    fi
-                    
-                    # Install phplint if not available
-                    if [ ! -f .Build/bin/phplint ]; then
-                        composer global require overtrue/phplint || echo "Failed to install phplint"
-                        ln -sf ~/.composer/vendor/bin/phplint .Build/bin/phplint 2>/dev/null || echo "phplint not available globally"
-                    fi
 
             -   id: lint
                 name: Lint
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
-                    if [ -f .Build/bin/phplint ]; then
-                        composer ci:test:php:lint
-                    else
-                        echo "phplint not available, using basic PHP syntax check"
-                        find Classes Configuration ext_*.php -name '*.php' -print0 | xargs -0 -n1 php -l
-                    fi
+                    composer ci:test:php:lint
 
             -   id: generate-php-cs-fixer-config
                 name: Generate .php-cs-fixer.php
@@ -109,42 +81,25 @@ jobs:
                 name: CGL
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
-                    if [ -f .Build/bin/php-cs-fixer ]; then
-                        .Build/bin/php-cs-fixer fix --dry-run --verbose --config Build/.php-cs-fixer.dist.php
-                    else
-                        echo "PHP-CS-Fixer not available, using basic syntax check"
-                        find Classes Configuration ext_*.php -name '*.php' -print0 | xargs -0 -n1 php -l
-                    fi
+                    php-cs-fixer fix --dry-run --verbose --config Build/.php-cs-fixer.dist.php
 
             -   id: phpstan
                 name: PHPStan
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
-                    if [ -f .Build/bin/phpstan ]; then
-                        .Build/bin/phpstan analyze --configuration Build/phpstan.neon --memory-limit=-1 --error-format=github
-                    else
-                        echo "PHPStan not available, skipping static analysis"
-                    fi
+                    composer ci:test:php:phpstan -- --error-format=github
 
             -   id: rector
                 name: Rector
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
-                    if [ -f .Build/vendor/rector/rector/bin/rector ]; then
-                        composer ci:test:php:rector
-                    else
-                        echo "Rector not available, skipping PHP modernization check"
-                    fi
+                    composer ci:test:php:rector
 
             -   id: unit
                 name: Unit Tests
                 if: ${{ always() && steps.install.conclusion == 'success' }}
                 run: |
-                    if [ -f .Build/bin/phpunit ]; then
-                        composer ci:test:php:unit
-                    else
-                        echo "PHPUnit not available, skipping unit tests"
-                    fi
+                    composer ci:test:php:unit
 
             -   id: functional
                 name: Functional Tests
@@ -152,11 +107,7 @@ jobs:
                 env:
                     typo3DatabaseDriver: pdo_sqlite
                 run: |
-                    if [ -f .Build/bin/phpunit ]; then
-                        composer ci:test:php:functional
-                    else
-                        echo "PHPUnit not available, skipping functional tests"
-                    fi
+                    composer ci:test:php:functional
 
             -   id: coverage
                 name: Generate Coverage Report
