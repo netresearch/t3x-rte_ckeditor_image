@@ -493,6 +493,42 @@ parameters:
 			path: ../Configuration/TCA/Overrides/tt_content.php
 
 		-
+			message: '#^Cannot access offset ''bodytext'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: ../Configuration/TCA/Overrides/tx_news_domain_model_news.php
+
+		-
+			message: '#^Cannot access offset ''columns'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: ../Configuration/TCA/Overrides/tx_news_domain_model_news.php
+
+		-
+			message: '#^Cannot access offset ''config'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: ../Configuration/TCA/Overrides/tx_news_domain_model_news.php
+
+		-
+			message: '#^Cannot access offset ''softref'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: ../Configuration/TCA/Overrides/tx_news_domain_model_news.php
+
+		-
+			message: '#^Cannot access offset ''tx_news_domain_model_news'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: ../Configuration/TCA/Overrides/tx_news_domain_model_news.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: ../Configuration/TCA/Overrides/tx_news_domain_model_news.php
+
+		-
 			message: '#^Binary operation "\*" between mixed and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1

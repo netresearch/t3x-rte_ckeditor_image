@@ -265,6 +265,190 @@ Maintenance
 - Keep documentation of custom configurations
 - Test after TYPO3 core or extension updates
 
+.. _integration-configuration-third-party:
+
+Using with Third-Party Extensions
+==================================
+
+This extension automatically configures RTE image support for TYPO3's built-in ``tt_content`` table. However, third-party extensions like EXT:news require additional TCA configuration.
+
+.. _integration-configuration-news:
+
+EXT:news Support
+----------------
+
+**Automatic Configuration (v13.1+)**
+
+Starting with version 13.1.0, this extension automatically configures RTE image support for EXT:news when the extension is installed. No manual configuration is required.
+
+**Manual Configuration (if needed)**
+
+If you're using an older version or need to configure another extension, you can manually add the soft reference configuration:
+
+.. code-block:: php
+   :caption: EXT:site_package/Configuration/TCA/Overrides/tx_news_domain_model_news.php
+
+   <?php
+
+   declare(strict_types=1);
+
+   defined('TYPO3') || exit;
+
+   call_user_func(
+       static function (): void {
+           // Only configure if EXT:news is installed
+           if (!isset($GLOBALS['TCA']['tx_news_domain_model_news'])) {
+               return;
+           }
+
+           // Only configure if bodytext field exists
+           if (!isset($GLOBALS['TCA']['tx_news_domain_model_news']['columns']['bodytext'])) {
+               return;
+           }
+
+           $cleanSoftReferences = explode(
+               ',',
+               (string) ($GLOBALS['TCA']['tx_news_domain_model_news']['columns']['bodytext']['config']['softref'] ?? ''),
+           );
+
+           // Add rtehtmlarea_images soft reference
+           $cleanSoftReferences = array_diff($cleanSoftReferences, ['images']);
+           $cleanSoftReferences[] = 'rtehtmlarea_images';
+
+           $GLOBALS['TCA']['tx_news_domain_model_news']['columns']['bodytext']['config']['softref'] = implode(
+               ',',
+               $cleanSoftReferences,
+           );
+       },
+   );
+
+.. _integration-configuration-custom-tables:
+
+Custom Tables and Other Extensions
+-----------------------------------
+
+To enable RTE image support for custom tables or other third-party extensions:
+
+**Step 1: Identify the RTE Field**
+
+Find the table and field name in your extension's TCA configuration:
+
+.. code-block:: php
+
+   // Example: tx_myext_domain_model_article with bodytext field
+   $GLOBALS['TCA']['tx_myext_domain_model_article']['columns']['bodytext']
+
+**Step 2: Add Soft Reference Configuration**
+
+Create a TCA override file in your extension:
+
+.. code-block:: php
+   :caption: EXT:my_extension/Configuration/TCA/Overrides/tx_myext_domain_model_article.php
+
+   <?php
+
+   declare(strict_types=1);
+
+   defined('TYPO3') || exit;
+
+   call_user_func(
+       static function (): void {
+           $table = 'tx_myext_domain_model_article';
+           $field = 'bodytext';
+
+           // Only configure if table and field exist
+           if (!isset($GLOBALS['TCA'][$table]['columns'][$field])) {
+               return;
+           }
+
+           $cleanSoftReferences = explode(
+               ',',
+               (string) ($GLOBALS['TCA'][$table]['columns'][$field]['config']['softref'] ?? ''),
+           );
+
+           // Add rtehtmlarea_images soft reference
+           $cleanSoftReferences = array_diff($cleanSoftReferences, ['images']);
+           $cleanSoftReferences[] = 'rtehtmlarea_images';
+
+           $GLOBALS['TCA'][$table]['columns'][$field]['config']['softref'] = implode(
+               ',',
+               $cleanSoftReferences,
+           );
+       },
+   );
+
+**Step 3: Clear Caches**
+
+After adding the TCA override:
+
+.. code-block:: bash
+
+   # Clear all caches
+   ./vendor/bin/typo3 cache:flush
+
+   # Or via backend
+   Admin Tools > Maintenance > Flush TYPO3 and PHP Cache
+
+.. _integration-configuration-troubleshooting-third-party:
+
+Troubleshooting Third-Party Extension Issues
+---------------------------------------------
+
+Images Disappear When Saving
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Symptom:** Images inserted in RTE fields disappear after saving the record.
+
+**Cause:** Missing soft reference configuration for the table's RTE field.
+
+**Solution:** Add the soft reference configuration as described above.
+
+**How to Verify:**
+
+1. Check if soft reference is configured:
+
+   .. code-block:: php
+
+      // In TYPO3 backend console or debug output
+      debug($GLOBALS['TCA']['your_table']['columns']['your_field']['config']['softref']);
+      // Should output: "rtehtmlarea_images" or include it in comma-separated list
+
+2. Check if ``data-htmlarea-file-uid`` attribute is preserved:
+
+   .. code-block:: sql
+
+      -- Check database content
+      SELECT bodytext FROM tx_news_domain_model_news WHERE uid = 123;
+      -- Should contain: data-htmlarea-file-uid="456"
+
+data-htmlarea-file-uid Attribute Missing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Symptom:** Images render but the ``data-htmlarea-file-uid`` attribute is missing from saved content.
+
+**Cause:** Soft reference parser not registered or not being invoked.
+
+**Solution:**
+
+1. Verify soft reference is registered in Services.yaml (already done by this extension)
+2. Add soft reference to TCA configuration (see above)
+3. Clear all caches
+
+Images Not Processed in Frontend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Symptom:** Images appear as ``<img>`` tags with ``data-htmlarea-file-uid`` in frontend HTML.
+
+**Cause:** TypoScript configuration missing or incorrect.
+
+**Solution:** Ensure TypoScript static template is included:
+
+.. code-block:: typoscript
+
+   # Include static template in your root template
+   # Template > Info/Modify > Edit whole template record > Includes
+   # Select: "CKEditor Image Support" for "Include static (from extensions)"
+
 Related Documentation
 =====================
 
