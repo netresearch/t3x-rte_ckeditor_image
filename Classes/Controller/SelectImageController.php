@@ -157,17 +157,30 @@ class SelectImageController extends ElementBrowserController
         $maxDimensions = $this->getMaxDimensions($params);
         $processedFile = $this->processImage($file, $params, $maxDimensions);
 
+        // Get original dimensions (uncapped)
+        $originalWidth  = (int) $file->getProperty('width');
+        $originalHeight = (int) $file->getProperty('height');
+
+        // Calculate display dimensions that respect aspect ratio
+        $displayDimensions = $this->calculateDisplayDimensions(
+            $originalWidth,
+            $originalHeight,
+            $maxDimensions['width'],
+            $maxDimensions['height'],
+        );
+
         return new JsonResponse([
             'uid'           => $file->getUid(),
             'alt'           => $file->getProperty('alternative') ?? '',
             'title'         => $file->getProperty('title') ?? '',
-            'width'         => min($file->getProperty('width'), $maxDimensions['width']),
-            'height'        => min($file->getProperty('height'), $maxDimensions['height']),
+            'width'         => $originalWidth,  // ORIGINAL width (uncapped)
+            'height'        => $originalHeight, // ORIGINAL height (uncapped)
             'url'           => $file->getPublicUrl(),
+            'extension'     => strtolower($file->getExtension()),
             'storageDriver' => $file->getStorage()->getDriverType(),
             'processed'     => [
-                'width'  => $processedFile->getProperty('width'),
-                'height' => $processedFile->getProperty('height'),
+                'width'  => $displayDimensions['width'],  // Suggested display width (respects aspect ratio)
+                'height' => $displayDimensions['height'], // Suggested display height (respects aspect ratio)
                 'url'    => $processedFile->getPublicUrl(),
             ],
             'lang' => [
@@ -281,6 +294,47 @@ class SelectImageController extends ElementBrowserController
                 'height' => $height,
             ],
         );
+    }
+
+    /**
+     * Calculate display dimensions that respect aspect ratio within max limits.
+     *
+     * When original image dimensions exceed TSConfig max limits, this method
+     * scales the image down proportionally to fit within the limits while
+     * preserving the aspect ratio.
+     *
+     * Example: 2000×1500 original with 1920×5000 max → 1920×1440 (4:3 ratio preserved)
+     *
+     * @param int $originalWidth  Original image width
+     * @param int $originalHeight Original image height
+     * @param int $maxWidth       Maximum allowed width from TSConfig
+     * @param int $maxHeight      Maximum allowed height from TSConfig
+     *
+     * @return array<string, int> Array with 'width' and 'height' keys for display dimensions
+     */
+    protected function calculateDisplayDimensions(
+        int $originalWidth,
+        int $originalHeight,
+        int $maxWidth,
+        int $maxHeight,
+    ): array {
+        // If image fits within limits, use original dimensions
+        if ($originalWidth <= $maxWidth && $originalHeight <= $maxHeight) {
+            return ['width' => $originalWidth, 'height' => $originalHeight];
+        }
+
+        // Calculate scaling factors for both dimensions
+        $widthScale  = $maxWidth / $originalWidth;
+        $heightScale = $maxHeight / $originalHeight;
+
+        // Use the smaller scale to ensure both dimensions fit
+        $scale = min($widthScale, $heightScale);
+
+        // Calculate new dimensions (round down to avoid exceeding limits)
+        $displayWidth  = (int) floor($originalWidth * $scale);
+        $displayHeight = (int) floor($originalHeight * $scale);
+
+        return ['width' => $displayWidth, 'height' => $displayHeight];
     }
 
     /**

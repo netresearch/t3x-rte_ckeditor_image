@@ -369,4 +369,76 @@ final class SelectImageControllerTest extends UnitTestCase
 
     // Note: isFileAccessibleByUser tests with getFileStorageRecords() require functional test setup
     // The BackendUserAuthentication mock doesn't support this method properly in unit tests
+
+    #[Test]
+    public function calculateDisplayDimensionsReturnsOriginalWhenWithinLimits(): void
+    {
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [1920, 1080, 1920, 9999]);
+
+        self::assertSame(['width' => 1920, 'height' => 1080], $result);
+    }
+
+    #[Test]
+    public function calculateDisplayDimensionsScalesDownPreservingAspectRatioWhenWidthExceeded(): void
+    {
+        // 2000×1500 original (4:3 ratio) with 1920×5000 max → should return 1920×1440 (4:3 preserved)
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [2000, 1500, 1920, 5000]);
+
+        self::assertSame(['width' => 1920, 'height' => 1440], $result);
+    }
+
+    #[Test]
+    public function calculateDisplayDimensionsScalesDownPreservingAspectRatioWhenHeightExceeded(): void
+    {
+        // 1500×2000 original (3:4 ratio) with 5000×1500 max → should return 1125×1500 (3:4 preserved)
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [1500, 2000, 5000, 1500]);
+
+        self::assertSame(['width' => 1125, 'height' => 1500], $result);
+    }
+
+    #[Test]
+    public function calculateDisplayDimensionsScalesDownPreservingAspectRatioWhenBothExceeded(): void
+    {
+        // 5000×3000 original with 1920×1080 max → should scale to fit within both limits
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [5000, 3000, 1920, 1080]);
+
+        // Aspect ratio: 5000/3000 = 1.6667
+        // Width scale: 1920/5000 = 0.384
+        // Height scale: 1080/3000 = 0.36 (smaller, so use this)
+        // Result: floor(5000 * 0.36) = 1800, floor(3000 * 0.36) = 1080
+        self::assertSame(['width' => 1800, 'height' => 1080], $result);
+    }
+
+    #[Test]
+    public function calculateDisplayDimensionsHandlesSquareImages(): void
+    {
+        // 2000×2000 square with 1920×1920 max → should return 1920×1920
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [2000, 2000, 1920, 1920]);
+
+        self::assertSame(['width' => 1920, 'height' => 1920], $result);
+    }
+
+    #[Test]
+    public function calculateDisplayDimensionsHandlesWideImages(): void
+    {
+        // 3000×1000 wide image (3:1 ratio) with 1920×1080 max
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [3000, 1000, 1920, 1080]);
+
+        // Width scale: 1920/3000 = 0.64
+        // Height scale: 1080/1000 = 1.08 (image fits height, constrained by width)
+        // Result: floor(3000 * 0.64) = 1920, floor(1000 * 0.64) = 640
+        self::assertSame(['width' => 1920, 'height' => 640], $result);
+    }
+
+    #[Test]
+    public function calculateDisplayDimensionsHandlesTallImages(): void
+    {
+        // 1000×3000 tall image (1:3 ratio) with 1920×1080 max
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [1000, 3000, 1920, 1080]);
+
+        // Width scale: 1920/1000 = 1.92
+        // Height scale: 1080/3000 = 0.36 (smaller, so use this)
+        // Result: floor(1000 * 0.36) = 360, floor(3000 * 0.36) = 1080
+        self::assertSame(['width' => 360, 'height' => 1080], $result);
+    }
 }

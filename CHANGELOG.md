@@ -25,6 +25,7 @@
 
 ## BUGFIX
 
+- [BUGFIX] Fix SVG image dimension handling and respect TSConfig maxWidth/maxHeight settings
 - [BUGFIX] Fix incorrect toolbar button name in README and DDEV setup (insertimage not typo3image)
 
 - [BUGFIX] Fixes #186: Add timestamp to force the javascript change d6b0e6c
