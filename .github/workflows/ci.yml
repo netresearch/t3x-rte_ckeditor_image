@@ -62,7 +62,7 @@ jobs:
                     composer require typo3/cms-backend:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-extbase:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-extensionmanager:${{ matrix.typo3 }} --no-progress --no-update
-                    composer install
+                    composer install --no-interaction --prefer-dist
                     git checkout composer.json
 
             -   id: lint
