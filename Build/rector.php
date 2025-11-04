@@ -64,7 +64,5 @@ return static function (RectorConfig $rectorConfig): void {
         RemoveUselessReturnTagRector::class,
         RemoveUselessVarTagRector::class,
         RemoveUnusedPrivateMethodParameterRector::class,
-        // Skip deprecated rules
-        Rector\Transform\Rector\Assign\PropertyFetchToMethodCallRector::class,
     ]);
 };

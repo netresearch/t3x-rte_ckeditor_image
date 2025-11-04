@@ -141,13 +141,13 @@ class SelectImageController extends ElementBrowserController
 
         // Special case: translations-only request (no file ID required)
         // This allows fetching translations for button labels during plugin initialization
-        if (in_array($id, [null, '', 'translations'], true)) {
+        if ($id === 'translations') {
             return new JsonResponse([
                 'lang' => $this->getTranslations(),
             ]);
         }
 
-        if (!is_numeric($id)) {
+        if (!$id || !is_numeric($id)) {
             return (new Response())->withStatus(412, 'Precondition Failed');
         }
 
