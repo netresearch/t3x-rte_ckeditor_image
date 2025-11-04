@@ -134,10 +134,18 @@ class SelectImageController extends ElementBrowserController
      */
     public function infoAction(ServerRequestInterface $request): ResponseInterface
     {
-        $id              = $request->getQueryParams()['fileId'];
-        $table           = $request->getQueryParams()['table'];
+        $id              = $request->getQueryParams()['fileId'] ?? null;
+        $table           = $request->getQueryParams()['table'] ?? null;
         $params          = $request->getQueryParams()['P'] ?? [];
         $params['table'] = $table;
+
+        // Special case: translations-only request (no file ID required)
+        // This allows fetching translations for button labels during plugin initialization
+        if ($id === 'translations') {
+            return new JsonResponse([
+                'lang' => $this->getTranslations(),
+            ]);
+        }
 
         if (!$id || !is_numeric($id)) {
             return (new Response())->withStatus(412, 'Precondition Failed');
@@ -170,25 +178,91 @@ class SelectImageController extends ElementBrowserController
                 'height' => $processedFile->getProperty('height'),
                 'url'    => $processedFile->getPublicUrl(),
             ],
-            'lang' => [
-                'override' => LocalizationUtility::translate(
-                    'LLL:EXT:core/Resources/Private/Language/'
-                    . 'locallang_core.xlf:labels.placeholder.override',
-                ),
-                'overrideNoDefault' => LocalizationUtility::translate(
-                    'LLL:EXT:core/Resources/Private/Language/'
-                    . 'locallang_core.xlf:labels.placeholder.override_not_available',
-                ),
-                'cssClass' => LocalizationUtility::translate(
-                    'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                    . 'locallang_be.xlf:labels.ckeditor.cssclass',
-                ),
-                'zoom' => LocalizationUtility::translate(
-                    'LLL:EXT:frontend/Resources/Private/Language/'
-                    . 'locallang_ttc.xlf:image_zoom_formlabel',
-                ),
-            ],
+            'lang' => $this->getTranslations(),
         ]);
+    }
+
+    /**
+     * Get all translations used by the image plugin.
+     *
+     * @return array<string, string|null> Array of translation keys and values
+     */
+    protected function getTranslations(): array
+    {
+        return [
+            'override' => LocalizationUtility::translate(
+                'LLL:EXT:core/Resources/Private/Language/'
+                . 'locallang_core.xlf:labels.placeholder.override',
+            ),
+            'overrideNoDefault' => LocalizationUtility::translate(
+                'LLL:EXT:core/Resources/Private/Language/'
+                . 'locallang_core.xlf:labels.placeholder.override_not_available',
+            ),
+            'cssClass' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.cssclass',
+            ),
+            'width' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.width',
+            ),
+            'height' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.height',
+            ),
+            'title' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.title',
+            ),
+            'alt' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.alt',
+            ),
+            'clickToEnlarge' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.clicktoenlarge',
+            ),
+            'enabled' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.enabled',
+            ),
+            'skipImageProcessing' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.skipimageprocessing',
+            ),
+            'imageProperties' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.imageproperties',
+            ),
+            'cancel' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.cancel',
+            ),
+            'save' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.save',
+            ),
+            'insertImage' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.insertimage',
+            ),
+            'noDefaultMetadata' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.nodefaultmetadata',
+            ),
+            'zoomHelp' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.zoomhelp',
+            ),
+            'noScaleHelp' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.noscalehelp',
+            ),
+            'zoom' => LocalizationUtility::translate(
+                'LLL:EXT:frontend/Resources/Private/Language/'
+                . 'locallang_ttc.xlf:image_zoom_formlabel',
+            ),
+        ];
     }
 
     /**

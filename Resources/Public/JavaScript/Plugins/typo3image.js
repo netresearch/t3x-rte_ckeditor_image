@@ -81,12 +81,12 @@ function getImageDialog(editor, img, attributes) {
         elements = {};
     const fields = [
         {
-            width: { label: 'Width', type: 'number' },
-            height: { label: 'Height', type: 'number' }
+            width: { label: img.lang.width, type: 'number' },
+            height: { label: img.lang.height, type: 'number' }
         },
         {
-            title: { label: 'Advisory Title', type: 'text' },
-            alt: { label: 'Alternative Text', type: 'text' }
+            title: { label: img.lang.title, type: 'text' },
+            alt: { label: img.lang.alt, type: 'text' }
         }
     ];
 
@@ -120,8 +120,9 @@ function getImageDialog(editor, img, attributes) {
 
                 // Add tooltip when checkbox is disabled (no default value from file)
                 if (!hasDefault) {
-                    cbox.attr('title', 'No default ' + key + ' available in file metadata. Cannot override empty value.');
-                    cboxLabel.css('cursor', 'not-allowed').attr('title', 'No default ' + key + ' available in file metadata. Cannot override empty value.');
+                    const noDefaultMsg = img.lang.noDefaultMetadata.replace('%s', key);
+                    cbox.attr('title', noDefaultMsg);
+                    cboxLabel.css('cursor', 'not-allowed').attr('title', noDefaultMsg);
                 }
 
                 $el.prop('disabled', hasDefault && !value);
@@ -218,20 +219,20 @@ function getImageDialog(editor, img, attributes) {
 
     // Create zoom checkbox following TYPO3 v13 backend conventions
     var $zoomContainer = $('<div class="form-group">').prependTo($customRowCol1);
-    var $zoomTitle = $('<div class="form-label">').text('Click to Enlarge').appendTo($zoomContainer);
+    var $zoomTitle = $('<div class="form-label">').text(img.lang.clickToEnlarge).appendTo($zoomContainer);
     var $zoomFormCheck = $('<div class="form-check form-check-type-toggle">').appendTo($zoomContainer);
     $zoom.addClass('form-check-input').appendTo($zoomFormCheck);
-    var $zoomLabel = $('<label class="form-check-label" for="checkbox-zoom">').text('Enabled').appendTo($zoomFormCheck);
-    var $helpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.">ℹ️</span>');
+    var $zoomLabel = $('<label class="form-check-label" for="checkbox-zoom">').text(img.lang.enabled).appendTo($zoomFormCheck);
+    var $helpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="' + img.lang.zoomHelp + '">ℹ️</span>');
     $zoomTitle.append($helpIcon);
 
     // Create noScale checkbox following TYPO3 v13 backend conventions
     var $noScaleContainer = $('<div class="form-group">').appendTo($customRowCol1);
-    var $noScaleTitle = $('<div class="form-label">').text('Skip Image Processing').appendTo($noScaleContainer);
+    var $noScaleTitle = $('<div class="form-label">').text(img.lang.skipImageProcessing).appendTo($noScaleContainer);
     var $noScaleFormCheck = $('<div class="form-check form-check-type-toggle">').appendTo($noScaleContainer);
     $noScale.addClass('form-check-input').appendTo($noScaleFormCheck);
-    var $noScaleLabel = $('<label class="form-check-label" for="checkbox-noscale">').text('Enabled').appendTo($noScaleFormCheck);
-    var $noScaleHelpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.">ℹ️</span>');
+    var $noScaleLabel = $('<label class="form-check-label" for="checkbox-noscale">').text(img.lang.enabled).appendTo($noScaleFormCheck);
+    var $noScaleHelpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="' + img.lang.noScaleHelp + '">ℹ️</span>');
     $noScaleTitle.append($noScaleHelpIcon);
 
     $inputCssClass
@@ -325,11 +326,11 @@ function askImageAttributes(editor, img, attributes, table) {
     var dialog = getImageDialog(editor, img, $.extend({}, img.processed, attributes));
 
     const modal = Modal.advanced({
-        title: 'Image Properties',
+        title: img.lang.imageProperties,
         content: dialog.$el,
         buttons: [
             {
-                text: 'Cancel',
+                text: img.lang.cancel,
                 btnClass: 'btn-default',
                 icon: 'actions-close',
                 trigger: function () {
@@ -338,7 +339,7 @@ function askImageAttributes(editor, img, attributes, table) {
                 }
             },
             {
-                text: 'Save',
+                text: img.lang.save,
                 btnClass: 'btn-primary',
                 icon: 'actions-document-save',
                 trigger: function () {
@@ -489,6 +490,36 @@ export default class Typo3Image extends Plugin {
 
     init() {
         const editor = this.editor;
+
+        // Cache for translations to avoid multiple AJAX calls
+        let translationsCache = null;
+
+        /**
+         * Fetch translations from the server.
+         * Uses caching to avoid multiple AJAX calls.
+         *
+         * @return {Promise} Promise that resolves with translations object
+         */
+        const getTranslations = async function() {
+            if (translationsCache) {
+                return translationsCache;
+            }
+
+            const routeUrl = editor.config.get('typo3image').routeUrl;
+            const url = routeUrl + '&action=info&fileId=translations&contentsLanguage=en&editorId=123';
+
+            try {
+                const response = await $.getJSON(url);
+                translationsCache = response.lang;
+                return translationsCache;
+            } catch (error) {
+                // Fallback to English if translation fetch fails
+                console.error('Failed to fetch translations:', error);
+                return {
+                    insertImage: 'Insert image'
+                };
+            }
+        };
 
         const styleUtils = editor.plugins.get('StyleUtils');
         // Add listener to allow style sets for `img` element, when a `typo3image` element is selected
@@ -715,11 +746,21 @@ export default class Typo3Image extends Plugin {
         editor.ui.componentFactory.add('insertimage', () => {
             const button = new ButtonView();
 
+            // Initialize with English label, will be updated with translation
             button.set({
                 label: 'Insert image',
                 icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M6.91 10.54c.26-.23.64-.21.88.03l3.36 3.14 2.23-2.06a.64.64 0 0 1 .87 0l2.52 2.97V4.5H3.2v10.12l3.71-4.08zm10.27-7.51c.6 0 1.09.47 1.09 1.05v11.84c0 .59-.49 1.06-1.09 1.06H2.79c-.6 0-1.09-.47-1.09-1.06V4.08c0-.58.49-1.05 1.1-1.05h14.38zm-5.22 5.56a1.96 1.96 0 1 1 3.4-1.96 1.96 1.96 0 0 1-3.4 1.96z"/></svg>',
                 tooltip: true,
                 withText: false,
+            });
+
+            // Fetch and apply translated label
+            getTranslations().then(translations => {
+                if (translations.insertImage) {
+                    button.set({
+                        label: translations.insertImage
+                    });
+                }
             });
 
             button.on('execute', () => {
