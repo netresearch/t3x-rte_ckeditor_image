@@ -491,6 +491,36 @@ export default class Typo3Image extends Plugin {
     init() {
         const editor = this.editor;
 
+        // Cache for translations to avoid multiple AJAX calls
+        let translationsCache = null;
+
+        /**
+         * Fetch translations from the server.
+         * Uses caching to avoid multiple AJAX calls.
+         *
+         * @return {Promise} Promise that resolves with translations object
+         */
+        const getTranslations = async function() {
+            if (translationsCache) {
+                return translationsCache;
+            }
+
+            const routeUrl = editor.config.get('typo3image').routeUrl;
+            const url = routeUrl + '&action=info&fileId=translations&contentsLanguage=en&editorId=123';
+
+            try {
+                const response = await $.getJSON(url);
+                translationsCache = response.lang;
+                return translationsCache;
+            } catch (error) {
+                // Fallback to English if translation fetch fails
+                console.error('Failed to fetch translations:', error);
+                return {
+                    insertImage: 'Insert image'
+                };
+            }
+        };
+
         const styleUtils = editor.plugins.get('StyleUtils');
         // Add listener to allow style sets for `img` element, when a `typo3image` element is selected
         this.listenTo(styleUtils, 'isStyleEnabledForBlock', (event, [style, element]) => {
@@ -716,11 +746,21 @@ export default class Typo3Image extends Plugin {
         editor.ui.componentFactory.add('insertimage', () => {
             const button = new ButtonView();
 
+            // Initialize with English label, will be updated with translation
             button.set({
                 label: 'Insert image',
                 icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M6.91 10.54c.26-.23.64-.21.88.03l3.36 3.14 2.23-2.06a.64.64 0 0 1 .87 0l2.52 2.97V4.5H3.2v10.12l3.71-4.08zm10.27-7.51c.6 0 1.09.47 1.09 1.05v11.84c0 .59-.49 1.06-1.09 1.06H2.79c-.6 0-1.09-.47-1.09-1.06V4.08c0-.58.49-1.05 1.1-1.05h14.38zm-5.22 5.56a1.96 1.96 0 1 1 3.4-1.96 1.96 1.96 0 0 1-3.4 1.96z"/></svg>',
                 tooltip: true,
                 withText: false,
+            });
+
+            // Fetch and apply translated label
+            getTranslations().then(translations => {
+                if (translations.insertImage) {
+                    button.set({
+                        label: translations.insertImage
+                    });
+                }
             });
 
             button.on('execute', () => {
