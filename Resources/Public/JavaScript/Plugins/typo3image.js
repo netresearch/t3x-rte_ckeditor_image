@@ -16,6 +16,7 @@
 import { Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
+import { toWidget } from '@ckeditor/ckeditor5-widget';
 import { default as Modal } from '@typo3/backend/modal.js';
 import $ from 'jquery';
 
@@ -496,7 +497,7 @@ export default class Typo3Image extends Plugin {
     static pluginName = 'Typo3Image';
 
     static get requires() {
-        return ['StyleUtils', 'GeneralHtmlSupport'];
+        return ['Widget', 'StyleUtils', 'GeneralHtmlSupport'];
     }
 
     init() {
@@ -679,8 +680,65 @@ export default class Typo3Image extends Plugin {
                 converterPriority: 'high'
             });
 
+        // Helper function to create view element for typo3image
+        const createImageViewElement = (modelElement, writer) => {
+            const attributes= {
+                'src': modelElement.getAttribute('src'),
+                'data-htmlarea-file-uid': modelElement.getAttribute('fileUid'),
+                'data-htmlarea-file-table': modelElement.getAttribute('fileTable'),
+                'width': modelElement.getAttribute('width'),
+                'height': modelElement.getAttribute('height'),
+                'class': modelElement.getAttribute('class') || '',
+                'title': modelElement.getAttribute('title') || '',
+                'alt': modelElement.getAttribute('alt') || '',
+            }
+
+            if (modelElement.getAttribute('titleOverride') || false) {
+                attributes['data-title-override'] = true
+            }
+
+            if (modelElement.getAttribute('altOverride') || false) {
+                attributes['data-alt-override'] = true
+            }
+
+            if (modelElement.getAttribute('enableZoom') || false) {
+                attributes['data-htmlarea-zoom'] = true
+            }
+
+            if (modelElement.getAttribute('noScale') || false) {
+                attributes['data-noscale'] = true
+            }
+
+            const imgElement = writer.createEmptyElement('img', attributes);
+
+            // Check if model has link attributes and wrap in <a> if present
+            const linkHref = modelElement.getAttribute('linkHref');
+            if (linkHref && linkHref.trim() !== '') {
+                const linkAttributes = {
+                    href: linkHref
+                };
+
+                // Add optional link attributes only if they have values
+                const linkTarget = modelElement.getAttribute('linkTarget');
+                if (linkTarget && linkTarget.trim() !== '') {
+                    linkAttributes.target = linkTarget;
+                }
+
+                const linkTitle = modelElement.getAttribute('linkTitle');
+                if (linkTitle && linkTitle.trim() !== '') {
+                    linkAttributes.title = linkTitle;
+                }
+
+                // Wrap image in link element
+                return writer.createContainerElement('a', linkAttributes, imgElement);
+            }
+
+            return imgElement;
+        };
+
+        // Editing downcast - wraps with toWidget for editor UI (yellow border, block toolbar)
         editor.conversion
-            .for('downcast')
+            .for('editingDowncast')
             .elementToElement({
                 model: {
                     name: 'typo3image',
@@ -691,58 +749,39 @@ export default class Typo3Image extends Plugin {
                     ]
                 },
                 view: (modelElement, { writer }) => {
-                    const attributes= {
-                        'src': modelElement.getAttribute('src'),
-                        'data-htmlarea-file-uid': modelElement.getAttribute('fileUid'),
-                        'data-htmlarea-file-table': modelElement.getAttribute('fileTable'),
-                        'width': modelElement.getAttribute('width'),
-                        'height': modelElement.getAttribute('height'),
-                        'class': modelElement.getAttribute('class') || '',
-                        'title': modelElement.getAttribute('title') || '',
-                        'alt': modelElement.getAttribute('alt') || '',
-                    }
+                    const imageElement = createImageViewElement(modelElement, writer);
 
-                    if (modelElement.getAttribute('titleOverride') || false) {
-                        attributes['data-title-override'] = true
-                    }
+                    // toWidget() requires a ContainerElement, not EmptyElement
+                    // Use inline-block span wrapper to keep image inline while enabling widget functionality
+                    const widgetWrapper = writer.createContainerElement('span', {
+                        class: 'ck-widget ck-widget_with-resizer',
+                        style: 'display: inline-block;'
+                    });
 
-                    if (modelElement.getAttribute('altOverride') || false) {
-                        attributes['data-alt-override'] = true
-                    }
+                    // Insert the image element into the wrapper
+                    writer.insert(writer.createPositionAt(widgetWrapper, 0), imageElement);
 
-                    if (modelElement.getAttribute('enableZoom') || false) {
-                        attributes['data-htmlarea-zoom'] = true
-                    }
+                    return toWidget(widgetWrapper, writer, {
+                        label: 'image widget',
+                        hasSelectionHandle: true
+                    });
+                },
+            });
 
-                    if (modelElement.getAttribute('noScale') || false) {
-                        attributes['data-noscale'] = true
-                    }
-
-                    const imgElement = writer.createEmptyElement('img', attributes);
-
-                    // Check if model has link attributes and wrap in <a> if present
-                    const linkHref = modelElement.getAttribute('linkHref');
-                    if (linkHref && linkHref.trim() !== '') {
-                        const linkAttributes = {
-                            href: linkHref
-                        };
-
-                        // Add optional link attributes only if they have values
-                        const linkTarget = modelElement.getAttribute('linkTarget');
-                        if (linkTarget && linkTarget.trim() !== '') {
-                            linkAttributes.target = linkTarget;
-                        }
-
-                        const linkTitle = modelElement.getAttribute('linkTitle');
-                        if (linkTitle && linkTitle.trim() !== '') {
-                            linkAttributes.title = linkTitle;
-                        }
-
-                        // Wrap image in link element
-                        return writer.createContainerElement('a', linkAttributes, imgElement);
-                    }
-
-                    return imgElement;
+        // Data downcast - outputs clean HTML for saving (no widget wrapper)
+        editor.conversion
+            .for('dataDowncast')
+            .elementToElement({
+                model: {
+                    name: 'typo3image',
+                    attributes: [
+                        'fileUid',
+                        'fileTable',
+                        'src'
+                    ]
+                },
+                view: (modelElement, { writer }) => {
+                    return createImageViewElement(modelElement, writer);
                 },
             });
 
@@ -825,7 +864,25 @@ export default class Typo3Image extends Plugin {
 
         // Make image selectable with a single click
         editor.listenTo(editor.editing.view.document, 'click', (event, data) => {
-            const modelElement = editor.editing.mapper.toModelElement(data.target);
+            // Find the widget wrapper - traverse UP if we clicked the inner img/link
+            let targetElement = data.target;
+
+            // If clicked on img or link inside wrapper, find the parent wrapper
+            if (targetElement.name === 'img' || targetElement.name === 'a') {
+                const parent = targetElement.parent;
+                if (parent && parent.name === 'span' && parent.hasClass('ck-widget')) {
+                    targetElement = parent;
+                }
+                // Handle img inside link inside wrapper: img -> a -> span
+                else if (targetElement.name === 'img' && parent && parent.name === 'a') {
+                    const grandparent = parent.parent;
+                    if (grandparent && grandparent.name === 'span' && grandparent.hasClass('ck-widget')) {
+                        targetElement = grandparent;
+                    }
+                }
+            }
+
+            const modelElement = editor.editing.mapper.toModelElement(targetElement);
             if (modelElement && modelElement.name === 'typo3image') {
                 // Select the clicked element
                 editor.model.change(writer => {
@@ -835,7 +892,25 @@ export default class Typo3Image extends Plugin {
         })
 
         editor.listenTo(editor.editing.view.document, 'dblclick:typo3image', (event, data) => {
-            const modelElement = editor.editing.mapper.toModelElement(data.target);
+            // Find the widget wrapper - traverse UP if we clicked the inner img/link
+            let targetElement = data.target;
+
+            // If clicked on img or link inside wrapper, find the parent wrapper
+            if (targetElement.name === 'img' || targetElement.name === 'a') {
+                const parent = targetElement.parent;
+                if (parent && parent.name === 'span' && parent.hasClass('ck-widget')) {
+                    targetElement = parent;
+                }
+                // Handle img inside link inside wrapper: img -> a -> span
+                else if (targetElement.name === 'img' && parent && parent.name === 'a') {
+                    const grandparent = parent.parent;
+                    if (grandparent && grandparent.name === 'span' && grandparent.hasClass('ck-widget')) {
+                        targetElement = grandparent;
+                    }
+                }
+            }
+
+            const modelElement = editor.editing.mapper.toModelElement(targetElement);
             if (modelElement && modelElement.name === 'typo3image') {
                 // Select the clicked element
                 editor.model.change(writer => {
