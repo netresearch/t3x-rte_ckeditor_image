@@ -236,6 +236,114 @@ Issue: Static Template Not Included
 
 ----
 
+Issue: Click-to-Enlarge Not Working with sys_template Records (TYPO3 v13)
+--------------------------------------------------------------------------
+
+.. versionadded:: 13.0.0
+   TYPO3 v13 introduced site sets as a modern alternative to sys_template records.
+   When sys_template records exist, site sets are bypassed, which affects extensions
+   that rely on site set dependencies.
+
+**Symptoms:**
+
+* Images display correctly in frontend
+* Click-to-enlarge functionality doesn't work
+* Data attributes still visible in HTML output (``data-htmlarea-zoom``, ``data-htmlarea-file-uid``)
+* Image processing hooks not executed
+
+**Cause:**
+
+In TYPO3 v13, **sys_template records prevent site sets from loading**. Legacy installations
+like the Introduction Package use sys_template records instead of modern site sets. When
+a sys_template exists on a page, TYPO3 ignores site set dependencies, so the extension's
+TypoScript configuration is never loaded.
+
+**Detection:**
+
+Check if your site uses sys_template records:
+
+.. code-block:: sql
+
+   SELECT uid, pid, title, include_static_file
+   FROM sys_template
+   WHERE deleted=0 AND hidden=0;
+
+If records exist and ``data-htmlarea-*`` attributes appear in frontend HTML, the extension's
+TypoScript is not being loaded.
+
+**Solution 1: Manual TypoScript Include (Quick Fix)**
+
+Add TypoScript directly to the sys_template record:
+
+1. Go to **WEB > Template** module
+2. Select page with sys_template record
+3. Click **Edit the whole template record**
+4. In **Setup** field, add:
+
+.. code-block:: typoscript
+
+   # Include RTE CKEditor Image TypoScript
+   <INCLUDE_TYPOSCRIPT: source="FILE:EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript">
+
+5. Save template
+6. Clear all caches:
+
+.. code-block:: bash
+
+   ./vendor/bin/typo3 cache:flush
+
+**Solution 2: Migrate to Site Sets (Recommended for TYPO3 v13)**
+
+Modern TYPO3 v13 approach:
+
+1. **Remove sys_template records** from pages (or set them to deleted/hidden)
+
+2. **Enable site set dependencies** in ``config/sites/<site>/config.yaml``:
+
+.. code-block:: yaml
+
+   base: 'https://example.com/'
+   rootPageId: 1
+   dependencies:
+     - typo3/fluid-styled-content
+     - netresearch/rte-ckeditor-image
+
+3. **Clear caches:**
+
+.. code-block:: bash
+
+   ./vendor/bin/typo3 cache:flush
+
+4. **Verify in frontend** - data attributes should be removed and click-to-enlarge should work
+
+**Why This Happens:**
+
+* **Zero-config installation** (via ``ext_localconf.php``) loads TypoScript globally
+* **sys_template records override** global TypoScript for their page tree
+* **Bootstrap Package** in sys_template clears ``lib.parseFunc_RTE`` hooks
+* **Site sets are ignored** when sys_template exists
+
+**Verification:**
+
+After applying fix, check frontend HTML:
+
+.. code-block:: html
+
+   <!-- Before (BROKEN): -->
+   <img src="..." data-htmlarea-zoom="true" data-htmlarea-file-uid="2" />
+
+   <!-- After (WORKING): -->
+   <a href="/index.php?eID=tx_cms_showpic&file=2&...">
+       <img src="..." />
+   </a>
+
+.. important::
+   sys_template records are legacy. TYPO3 v13 prefers site sets for better
+   dependency management and proper load order control. Migrating to site sets
+   is recommended for long-term maintainability.
+
+----
+
 Image Processing Configuration
 ===============================
 

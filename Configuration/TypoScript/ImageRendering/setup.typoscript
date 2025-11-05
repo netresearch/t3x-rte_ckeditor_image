@@ -5,6 +5,7 @@
 #******************************************************
 
 lib.parseFunc_RTE {
+    tags.img >
     tags.img = TEXT
     tags.img {
         current = 1

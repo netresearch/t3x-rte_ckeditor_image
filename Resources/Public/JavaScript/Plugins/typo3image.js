@@ -457,7 +457,7 @@ function edit(selectedImage, editor, imageAttributes) {
             editor.model.change(writer => {
                 // SECURITY: Removed console.log to prevent information disclosure in production
 
-                const newImage = writer.createElement('typo3image', {
+                const imageAttributes = {
                     fileUid: attributes.fileUid,
                     fileTable: attributes.fileTable,
                     src: attributes.src,
@@ -470,10 +470,21 @@ function edit(selectedImage, editor, imageAttributes) {
                     altOverride: attributes['data-alt-override'],
                     enableZoom: attributes['data-htmlarea-zoom'] || false,
                     noScale: attributes['data-noscale'] || false,
-                    linkHref: attributes.linkHref || '',
-                    linkTarget: attributes.linkTarget || '',
-                    linkTitle: attributes.linkTitle || '',
-                });
+                };
+
+                // Only set link attributes if they have non-empty values
+                // IMPORTANT: Don't set empty strings to prevent unwanted link wrappers
+                if (attributes.linkHref && attributes.linkHref.trim() !== '') {
+                    imageAttributes.linkHref = attributes.linkHref;
+                }
+                if (attributes.linkTarget && attributes.linkTarget.trim() !== '') {
+                    imageAttributes.linkTarget = attributes.linkTarget;
+                }
+                if (attributes.linkTitle && attributes.linkTitle.trim() !== '') {
+                    imageAttributes.linkTitle = attributes.linkTitle;
+                }
+
+                const newImage = writer.createElement('typo3image', imageAttributes);
 
                 editor.model.insertObject(newImage);
             });
@@ -630,11 +641,12 @@ export default class Typo3Image extends Plugin {
                     const linkElement = viewElement.parent?.name === 'a' ? viewElement.parent : null;
 
                     // Extract link attributes if link wrapper exists
+                    // Only extract non-empty values to prevent unwanted link wrappers
                     const linkHref = linkElement?.getAttribute('href') || '';
                     const linkTarget = linkElement?.getAttribute('target') || '';
                     const linkTitle = linkElement?.getAttribute('title') || '';
 
-                    return writer.createElement('typo3image', {
+                    const imageAttributes = {
                         fileUid: viewElement.getAttribute('data-htmlarea-file-uid'),
                         fileTable: viewElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
                         src: viewElement.getAttribute('src'),
@@ -647,10 +659,22 @@ export default class Typo3Image extends Plugin {
                         titleOverride: viewElement.getAttribute('data-title-override') || false,
                         enableZoom: viewElement.getAttribute('data-htmlarea-zoom') || false,
                         noScale: viewElement.getAttribute('data-noscale') || false,
-                        linkHref: linkHref,
-                        linkTarget: linkTarget,
-                        linkTitle: linkTitle,
-                    });
+                    };
+
+                    // Only set link attributes if they have non-empty values
+                    // IMPORTANT: Don't set empty strings to prevent unwanted link wrappers
+                    if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+                        imageAttributes.linkHref = linkHref;
+                        // Only set target/title if there's an actual link
+                        if (linkTarget && linkTarget.trim() !== '') {
+                            imageAttributes.linkTarget = linkTarget;
+                        }
+                        if (linkTitle && linkTitle.trim() !== '') {
+                            imageAttributes.linkTitle = linkTitle;
+                        }
+                    }
+
+                    return writer.createElement('typo3image', imageAttributes);
                 },
                 converterPriority: 'high'
             });
