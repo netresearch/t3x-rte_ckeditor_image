@@ -37,6 +37,10 @@ class ImageRenderingControllerTest extends TestCase
         $resourceFactory       = $this->createMock(ResourceFactory::class);
         $processedFilesHandler = $this->createMock(ProcessedFilesHandler::class);
         $logManager            = $this->createMock(LogManager::class);
+        $logger                = $this->createMock(\TYPO3\CMS\Core\Log\Logger::class);
+
+        // Mock LogManager to return proper Logger instance
+        $logManager->method('getLogger')->willReturn($logger);
 
         return new ImageRenderingController(
             $resourceFactory,
@@ -385,5 +389,86 @@ class ImageRenderingControllerTest extends TestCase
         ]);
 
         self::assertTrue($result, 'Should skip processing for SVG regardless of file size threshold');
+    }
+
+    public function testGetQualityMultiplierReturnsCorrectValueForNone(): void
+    {
+        $controller = $this->createController();
+
+        $result = $this->callProtectedMethod($controller, 'getQualityMultiplier', ['none']);
+
+        self::assertSame(1.0, $result);
+    }
+
+    public function testGetQualityMultiplierReturnsCorrectValueForLow(): void
+    {
+        $controller = $this->createController();
+
+        $result = $this->callProtectedMethod($controller, 'getQualityMultiplier', ['low']);
+
+        self::assertSame(0.9, $result);
+    }
+
+    public function testGetQualityMultiplierReturnsCorrectValueForStandard(): void
+    {
+        $controller = $this->createController();
+
+        $result = $this->callProtectedMethod($controller, 'getQualityMultiplier', ['standard']);
+
+        self::assertSame(1.0, $result);
+    }
+
+    public function testGetQualityMultiplierReturnsCorrectValueForRetina(): void
+    {
+        $controller = $this->createController();
+
+        $result = $this->callProtectedMethod($controller, 'getQualityMultiplier', ['retina']);
+
+        self::assertSame(2.0, $result);
+    }
+
+    public function testGetQualityMultiplierReturnsCorrectValueForUltra(): void
+    {
+        $controller = $this->createController();
+
+        $result = $this->callProtectedMethod($controller, 'getQualityMultiplier', ['ultra']);
+
+        self::assertSame(3.0, $result);
+    }
+
+    public function testGetQualityMultiplierReturnsCorrectValueForPrint(): void
+    {
+        $controller = $this->createController();
+
+        $result = $this->callProtectedMethod($controller, 'getQualityMultiplier', ['print']);
+
+        self::assertSame(6.0, $result);
+    }
+
+    public function testGetQualityMultiplierReturnsDefaultForEmptyString(): void
+    {
+        $controller = $this->createController();
+
+        $result = $this->callProtectedMethod($controller, 'getQualityMultiplier', ['']);
+
+        self::assertSame(1.0, $result);
+    }
+
+    public function testGetQualityMultiplierReturnsDefaultForInvalidValue(): void
+    {
+        $controller = $this->createController();
+
+        $result = $this->callProtectedMethod($controller, 'getQualityMultiplier', ['invalid']);
+
+        self::assertSame(1.0, $result, 'Should return default 1.0 for invalid quality value');
+    }
+
+    public function testGetQualityMultiplierHandlesNumericStrings(): void
+    {
+        $controller = $this->createController();
+
+        $result = $this->callProtectedMethod($controller, 'getQualityMultiplier', ['2']);
+
+        self::assertSame(1.0, $result, 'Should return default 1.0 for numeric string that is not a valid quality level');
     }
 }
