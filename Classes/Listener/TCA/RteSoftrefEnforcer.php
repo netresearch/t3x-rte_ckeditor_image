@@ -78,10 +78,12 @@ final readonly class RteSoftrefEnforcer
             if ($includedTablesOnly === [] && in_array($tableName, $excludedTables, true)) {
                 continue;
             }
+
             // Process each column in the table
             if (!isset($tableConfig['columns'])) {
                 continue;
             }
+
             if (!is_array($tableConfig['columns'])) {
                 continue;
             }

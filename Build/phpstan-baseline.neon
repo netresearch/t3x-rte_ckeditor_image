@@ -595,44 +595,14 @@ parameters:
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Access to an undefined property TYPO3\\CMS\\Core\\Configuration\\Event\\AfterTcaCompilationEvent\:\:\$capturedTca\.$#'
-			identifier: property.notFound
-			count: 1
-			path: ../Tests/Unit/Listener/TCA/RteSoftrefEnforcerTest.php
-
-		-
-			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertNull\(\) with array will always evaluate to false\.$#'
-			identifier: staticMethod.impossibleType
-			count: 1
-			path: ../Tests/Unit/Listener/TCA/RteSoftrefEnforcerTest.php
-
-		-
-			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
 			identifier: staticMethod.alreadyNarrowedType
 			count: 1
 			path: ../Tests/Unit/Listener/TCA/RteSoftrefEnforcerTest.php
 
 		-
-			message: '#^Cannot call method willReturn\(\) on mixed\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: ../Tests/Unit/Listener/TCA/RteSoftrefEnforcerTest.php
-
-		-
-			message: '#^Cannot call method willReturnCallback\(\) on mixed\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: ../Tests/Unit/Listener/TCA/RteSoftrefEnforcerTest.php
-
-		-
-			message: '#^Method Netresearch\\RteCKEditorImage\\Tests\\Unit\\Listener\\TCA\\RteSoftrefEnforcerTest\:\:getCapturedTca\(\) should return array\<string, mixed\> but returns mixed\.$#'
+			message: '#^Method Netresearch\\RteCKEditorImage\\Tests\\Unit\\Listener\\TCA\\RteSoftrefEnforcerTest\:\:invokeListenerAndGetTca\(\) should return array\<string, mixed\> but returns array\.$#'
 			identifier: return.type
-			count: 1
-			path: ../Tests/Unit/Listener/TCA/RteSoftrefEnforcerTest.php
-
-		-
-			message: '#^Return type of call to method PHPUnit\\Framework\\TestCase\:\:createMock\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
 			count: 1
 			path: ../Tests/Unit/Listener/TCA/RteSoftrefEnforcerTest.php
 

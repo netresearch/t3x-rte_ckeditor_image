@@ -28,6 +28,7 @@ final class RteSoftrefEnforcerTest extends UnitTestCase
      *
      * @param array<string, mixed> $tca
      * @param array<string, mixed> $config
+     *
      * @return array<string, mixed>
      */
     private function invokeListenerAndGetTca(array $tca, array $config = ['enableAutomaticRteSoftref' => true]): array
