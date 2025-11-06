@@ -140,7 +140,7 @@ class ImageRenderingController
                     elseif (isset($imageAttributes['data-noscale'])) {
                         // Handle string values properly: 'false' and '0' should be false
                         $noScaleValue = $imageAttributes['data-noscale'];
-                        $noScale      = !(in_array($noScaleValue, ['false', '0', false], true));
+                        $noScale      = !in_array($noScaleValue, ['false', '0', false], true);
                     }
                     // Priority 3: TypoScript site-wide default
                     else {
