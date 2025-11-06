@@ -7,26 +7,22 @@ ENV EXTENSION_TITLE "RTE CKEditor Image"
 ENV EXTENSION_DESCRIPTION "Image support in CKEditor for the TYPO3 ecosystem"
 ENV GITHUB_URL "https://github.com/netresearch/t3x-rte_ckeditor_image"
 
-# Create PHP-based landing page with dynamic git info
-RUN cat > /var/www/html/index.php << 'PHPEOF'
+# Get git info from build context (runs on host during build)
+ARG GIT_BRANCH="unknown"
+ARG GIT_COMMIT="unknown"
+ARG GIT_PR="unknown"
+
+# Create PHP-based landing page with git info from build args
+RUN cat > /var/www/html/index.php << PHPEOF
 <?php
-// Get git info dynamically
-$gitBranch = trim(shell_exec('cd /var/www/html && git rev-parse --abbrev-ref HEAD 2>/dev/null') ?: 'main');
-$gitCommit = trim(shell_exec('cd /var/www/html && git rev-parse --short HEAD 2>/dev/null') ?: 'unknown');
+// Get git info from environment (set during build)
+\$gitBranch = '${GIT_BRANCH}';
+\$gitCommit = '${GIT_COMMIT}';
+\$prNumber = '${GIT_PR}' !== 'unknown' ? '${GIT_PR}' : null;
 
-// Try to get PR number from gh CLI
-$prNumber = null;
-if (preg_match('/^(fix|feature|feat)\//', $gitBranch)) {
-    $prInfo = shell_exec('cd /var/www/html && gh pr view --json number 2>/dev/null');
-    if ($prInfo) {
-        $prData = json_decode($prInfo, true);
-        $prNumber = $prData['number'] ?? null;
-    }
-}
-
-$githubUrl = 'https://github.com/netresearch/t3x-rte_ckeditor_image';
-$branchUrl = $githubUrl . '/tree/' . urlencode($gitBranch);
-$prUrl = $prNumber ? $githubUrl . '/pull/' . $prNumber : null;
+\$githubUrl = 'https://github.com/netresearch/t3x-rte_ckeditor_image';
+\$branchUrl = \$githubUrl . '/tree/' . urlencode(\$gitBranch);
+\$prUrl = \$prNumber ? \$githubUrl . '/pull/' . \$prNumber : null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -56,13 +52,13 @@ $prUrl = $prNumber ? $githubUrl . '/pull/' . $prNumber : null;
                 <h1>RTE CKEditor Image</h1>
                 <p>Image support in CKEditor for the TYPO3 ecosystem</p>
                 <div class="git-info">
-                    <a href="<?= htmlspecialchars($branchUrl) ?>" target="_blank" title="View branch on GitHub">
-                        🌿 <?= htmlspecialchars($gitBranch) ?> @ <?= htmlspecialchars($gitCommit) ?>
+                    <a href="<?= htmlspecialchars(\$branchUrl) ?>" target="_blank" title="View branch on GitHub">
+                        🌿 <?= htmlspecialchars(\$gitBranch) ?> @ <?= htmlspecialchars(\$gitCommit) ?>
                     </a>
-                    <?php if ($prUrl): ?>
+                    <?php if (\$prUrl): ?>
                         <span class="separator">|</span>
-                        <a href="<?= htmlspecialchars($prUrl) ?>" target="_blank" title="View pull request">
-                            🔀 PR #<?= htmlspecialchars($prNumber) ?>
+                        <a href="<?= htmlspecialchars(\$prUrl) ?>" target="_blank" title="View pull request">
+                            🔀 PR #<?= htmlspecialchars(\$prNumber) ?>
                         </a>
                     <?php endif; ?>
                 </div>
@@ -101,7 +97,7 @@ $prUrl = $prNumber ? $githubUrl . '/pull/' . $prNumber : null;
         </div>
     </div>
     <div class="footer">
-        <p>Developed by <a href="https://www.netresearch.de/" target="_blank">Netresearch GmbH &amp; Co. KG</a></p>
+        <p>Developed by <a href="https://www.netresearch.de/" target="_blank">Netresearch DTT GmbH</a></p>
         <p style="margin-top:10px;opacity:.8">License: AGPL-3.0-or-later</p>
     </div>
 </div>

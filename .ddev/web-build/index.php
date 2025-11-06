@@ -127,7 +127,7 @@ $prUrl = $prNumber ? $githubUrl . '/pull/' . $prNumber : null;
     </div>
 
     <div class="footer">
-        <p>Developed by <a href="https://www.netresearch.de/" target="_blank">Netresearch GmbH &amp; Co. KG</a></p>
+        <p>Developed by <a href="https://www.netresearch.de/" target="_blank">Netresearch DTT GmbH</a></p>
         <p style="margin-top:10px;opacity:.8">License: AGPL-3.0-or-later</p>
     </div>
 </div>
