@@ -307,7 +307,7 @@ final class RteSoftrefEnforcerTest extends UnitTestCase
     }
 
     #[Test]
-    public function listenerWhitelistModeProcessesOnlyIncludedTables(): void
+    public function listenerInclusionListModeProcessesOnlyIncludedTables(): void
     {
         $tca = [
             'tt_content' => [
@@ -365,7 +365,7 @@ final class RteSoftrefEnforcerTest extends UnitTestCase
     }
 
     #[Test]
-    public function listenerWhitelistOverridesBlacklist(): void
+    public function listenerInclusionListOverridesExclusionList(): void
     {
         $tca = [
             'tt_content' => [
@@ -383,10 +383,10 @@ final class RteSoftrefEnforcerTest extends UnitTestCase
         $modifiedTca = $this->invokeListenerAndGetTca($tca, [
             'enableAutomaticRteSoftref' => true,
             'includedTablesOnly'        => 'tt_content',
-            'excludedTables'            => 'tt_content', // Should be ignored due to whitelist
+            'excludedTables'            => 'tt_content', // Should be ignored due to inclusion list
         ]);
 
-        // tt_content should be processed because whitelist overrides blacklist
+        // tt_content should be processed because inclusion list overrides exclusion list
         self::assertSame(
             'rtehtmlarea_images',
             $modifiedTca['tt_content']['columns']['bodytext']['config']['softref'],

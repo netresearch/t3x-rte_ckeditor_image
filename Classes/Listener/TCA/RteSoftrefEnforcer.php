@@ -22,9 +22,9 @@ use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
  * reference index, preventing data loss when records are moved, copied, or deleted.
  *
  * Configuration options (via Extension Configuration):
- * - enableAutomaticRteSoftref: Master switch to enable/disable automatic processing
- * - includedTablesOnly: Whitelist mode - only process specified tables
- * - excludedTables: Blacklist mode - exclude specified tables from processing
+ * - enableAutomaticRteSoftref: Primary toggle to enable/disable automatic processing
+ * - includedTablesOnly: Inclusion list mode - only process specified tables
+ * - excludedTables: Exclusion list mode - exclude specified tables from processing
  *
  * @author Sebastian Mendel <sebastian.mendel@netresearch.de>
  */
@@ -69,12 +69,12 @@ final readonly class RteSoftrefEnforcer
 
         // Process each table
         foreach ($tca as $tableName => &$tableConfig) {
-            // Apply whitelist filter (if configured)
+            // Apply inclusion list filter (if configured)
             if ($includedTablesOnly !== [] && !in_array($tableName, $includedTablesOnly, true)) {
                 continue;
             }
 
-            // Apply blacklist filter (only if whitelist is not configured)
+            // Apply exclusion list filter (only if inclusion list is not configured)
             if ($includedTablesOnly === [] && in_array($tableName, $excludedTables, true)) {
                 continue;
             }
