@@ -15,6 +15,7 @@ use Netresearch\RteCKEditorImage\Listener\TCA\RteSoftrefEnforcer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
@@ -33,8 +34,14 @@ final class RteSoftrefEnforcerTest extends UnitTestCase
      */
     private function invokeListenerAndGetTca(array $tca, array $config = ['enableAutomaticRteSoftref' => true]): array
     {
+        $extensionConfiguration = $this->createMock(ExtensionConfiguration::class);
+        $extensionConfiguration
+            ->method('get')
+            ->with('rte_ckeditor_image')
+            ->willReturn($config);
+
         $event    = new AfterTcaCompilationEvent($tca);
-        $listener = new RteSoftrefEnforcer($config);
+        $listener = new RteSoftrefEnforcer($extensionConfiguration);
 
         $listener($event);
 

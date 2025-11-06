@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Listener\TCA;
 
 use TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 
 /**
  * Event listener that automatically adds rtehtmlarea_images soft reference
@@ -36,12 +37,11 @@ final readonly class RteSoftrefEnforcer
      */
     private array $extensionConfiguration;
 
-    /**
-     * @param array<string, mixed> $extensionConfiguration
-     */
-    public function __construct(array $extensionConfiguration = [])
+    public function __construct(ExtensionConfiguration $extensionConfiguration)
     {
-        $this->extensionConfiguration = $extensionConfiguration;
+        $config = $extensionConfiguration->get('rte_ckeditor_image');
+        /** @var array<string, mixed> $config */
+        $this->extensionConfiguration = is_array($config) ? $config : [];
     }
 
     /**

@@ -54,7 +54,7 @@ services:
   # Event listener for automatic RTE softref enforcement
   Netresearch\RteCKEditorImage\Listener\TCA\RteSoftrefEnforcer:
     arguments:
-      $extensionConfiguration: '%env(TYPO3:configKey:EXTENSIONS/rte_ckeditor_image)%'
+      $extensionConfiguration: '@TYPO3\CMS\Core\Configuration\ExtensionConfiguration'
     tags:
       - name: event.listener
         identifier: 'nr-rte-softref-enforcer'
