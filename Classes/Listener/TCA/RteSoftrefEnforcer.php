@@ -118,7 +118,7 @@ final readonly class RteSoftrefEnforcer
         }
 
         return array_filter(
-            array_map('trim', explode(',', $tableList)),
+            array_map(trim(...), explode(',', $tableList)),
             static fn (string $tableName): bool => $tableName !== '',
         );
     }
@@ -155,7 +155,7 @@ final readonly class RteSoftrefEnforcer
 
         // Parse into array
         $softrefs = array_filter(
-            array_map('trim', explode(',', $softrefString)),
+            array_map(trim(...), explode(',', $softrefString)),
             static fn (string $ref): bool => $ref !== '',
         );
 
