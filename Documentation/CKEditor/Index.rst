@@ -46,6 +46,13 @@ Plugin Components
         ..  card-footer:: :ref:`Read more <ckeditor-conversions>`
             :button-style: btn btn-primary stretched-link
 
+    ..  card:: 🎚️ Image Quality Selector
+
+        Quality multipliers, SVG support, and dimension handling
+
+        ..  card-footer:: :ref:`Read more <ckeditor-image-quality-selector>`
+            :button-style: btn btn-primary stretched-link
+
 Quick Links
 ===========
 
@@ -96,3 +103,4 @@ Related Documentation
    Model-Element
    Style-Integration
    Conversions
+   Image-Quality-Selector

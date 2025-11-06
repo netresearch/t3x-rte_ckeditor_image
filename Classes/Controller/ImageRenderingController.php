@@ -120,8 +120,7 @@ class ImageRenderingController
                         throw new FileDoesNotExistException();
                     }
 
-                    // Read noScale configuration from TypoScript (site-wide)
-                    $noScale            = (bool) ($conf['noScale'] ?? false);
+                    // Read maxFileSizeForAuto configuration from TypoScript
                     $maxFileSizeForAuto = 0;
 
                     if (isset($conf['noScale.']) && is_array($conf['noScale.'])) {
@@ -132,15 +131,44 @@ class ImageRenderingController
                         }
                     }
 
-                    // Per-image noScale override: data-noscale attribute takes precedence
-                    if (isset($imageAttributes['data-noscale'])) {
-                        $noScale = (bool) $imageAttributes['data-noscale'];
+                    // Determine noScale with proper priority order:
+                    // Priority 1: data-quality="none" (quality dropdown "No Scaling" option)
+                    if (($imageAttributes['data-quality'] ?? '') === 'none') {
+                        $noScale = true;
+                    }
+                    // Priority 2: data-noscale attribute (backward compatibility with existing content)
+                    elseif (isset($imageAttributes['data-noscale'])) {
+                        // Handle string values properly: 'false' and '0' should be false
+                        $noScaleValue = $imageAttributes['data-noscale'];
+                        $noScale      = !in_array($noScaleValue, ['false', '0', false], true);
+                    }
+                    // Priority 3: TypoScript site-wide default
+                    else {
+                        $noScale = (bool) ($conf['noScale'] ?? false);
                     }
 
-                    // Prepare image configuration
+                    // Get display dimensions from HTML attributes
+                    $displayWidth  = (int) ($imageAttributes['width'] ?? ((int) $systemImage->getProperty('width')));
+                    $displayHeight = (int) ($imageAttributes['height'] ?? ((int) $systemImage->getProperty('height')));
+
+                    // Get quality multiplier from data-quality attribute
+                    $qualityMultiplier = $this->getQualityMultiplier($imageAttributes['data-quality'] ?? '');
+
+                    // Calculate processing dimensions: display × quality multiplier
+                    // This is what TYPO3 will process the image to
+                    $processingWidth  = (int) round($displayWidth * $qualityMultiplier);
+                    $processingHeight = (int) round($displayHeight * $qualityMultiplier);
+
+                    // Cap processing dimensions at original image size (never upscale)
+                    $originalWidth    = (int) $systemImage->getProperty('width');
+                    $originalHeight   = (int) $systemImage->getProperty('height');
+                    $processingWidth  = min($processingWidth, $originalWidth);
+                    $processingHeight = min($processingHeight, $originalHeight);
+
+                    // Prepare image configuration for TYPO3 image processor
                     $imageConfiguration = [
-                        'width'  => (int) ($imageAttributes['width'] ?? ((int) $systemImage->getProperty('width'))),
-                        'height' => (int) ($imageAttributes['height'] ?? ((int) $systemImage->getProperty('height'))),
+                        'width'  => $processingWidth,
+                        'height' => $processingHeight,
                     ];
 
                     // Check if we should skip processing and use original file
@@ -156,8 +184,8 @@ class ImageRenderingController
                             'src'    => $imageSource,
                             'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
                             'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
-                            'width'  => $imageConfiguration['width'] !== 0 ? $imageConfiguration['width'] : ((int) $systemImage->getProperty('width')),
-                            'height' => $imageConfiguration['height'] !== 0 ? $imageConfiguration['height'] : ((int) $systemImage->getProperty('height')),
+                            'width'  => $displayWidth !== 0 ? $displayWidth : ((int) $systemImage->getProperty('width')),
+                            'height' => $displayHeight !== 0 ? $displayHeight : ((int) $systemImage->getProperty('height')),
                         ];
                     } else {
                         // Process image to create variant
@@ -169,12 +197,14 @@ class ImageRenderingController
                             throw new FileDoesNotExistException();
                         }
 
+                        // Always use display dimensions in HTML output, not processing dimensions
+                        // This ensures the browser scales the high-quality processed image to the desired display size
                         $additionalAttributes = [
                             'src'    => $imageSource,
                             'title'  => $this->getAttributeValue('title', $imageAttributes, $systemImage),
                             'alt'    => $this->getAttributeValue('alt', $imageAttributes, $systemImage),
-                            'width'  => $processedFile->getProperty('width') ?? $imageConfiguration['width'],
-                            'height' => $processedFile->getProperty('height') ?? $imageConfiguration['height'],
+                            'width'  => $displayWidth,
+                            'height' => $displayHeight,
                         ];
                     }
 
@@ -230,7 +260,7 @@ class ImageRenderingController
         }
 
         // Ensure all attributes are strings for implodeAttributes
-        $stringAttributes = array_map(fn ($value): string => (string) $value, $imageAttributes);
+        $stringAttributes = array_map(fn (int|string $value): string => (string) $value, $imageAttributes);
 
         // Image template; empty attributes are removed by 3rd param 'false'
         $img = '<img ' . GeneralUtility::implodeAttributes($stringAttributes, true) . ' />';
@@ -407,5 +437,45 @@ class ImageRenderingController
 
         // Different dimensions requested - processing needed
         return false;
+    }
+
+    /**
+     * Get quality multiplier from data-quality attribute.
+     *
+     * Maps quality setting to processing multiplier:
+     * - none: 1.0 (but triggers noScale processing skip)
+     * - low: 0.9
+     * - standard: 1.0
+     * - retina: 2.0
+     * - ultra: 3.0
+     * - print: 6.0
+     *
+     * @param string $quality Quality setting from data-quality attribute
+     *
+     * @return float Quality multiplier for image processing
+     */
+    private function getQualityMultiplier(string $quality): float
+    {
+        $multiplier = match ($quality) {
+            'none', '' => 1.0, // No scaling option or empty
+            'low'      => 0.9,
+            'standard' => 1.0,
+            'retina'   => 2.0,
+            'ultra'    => 3.0,
+            'print'    => 6.0,
+            default    => null, // Invalid value - will log and default
+        };
+
+        if ($multiplier === null) {
+            $this->getLogger()->log(
+                PsrLogLevel::WARNING,
+                'Invalid data-quality value received, defaulting to standard (1.0x)',
+                ['qualityValue' => $quality],
+            );
+
+            return 1.0;
+        }
+
+        return $multiplier;
     }
 }

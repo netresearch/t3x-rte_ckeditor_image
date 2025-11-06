@@ -2,6 +2,19 @@
 
 ## FEATURE
 
+- [FEATURE] Add SVG dimension support and quality-based image processing (resolves #331, NEXT-89)
+  - **Backend**: SVG dimension extraction from viewBox and width/height attributes
+  - **Backend**: Quality multiplier support for optimized image processing (No Scaling, Standard 1.0x, Retina 2.0x, Ultra 3.0x, Print 6.0x)
+  - **Backend**: Automatic aspect ratio preservation during dimension calculations
+  - **Frontend**: Quality selector dropdown in image dialog with visual color-coded indicators
+  - **Frontend**: Improved dialog layout - Display width/height/quality in single row
+  - **Frontend**: Quality selection persists via data-quality HTML attribute
+  - **Frontend**: Backward compatibility with data-noscale attribute
+  - **Frontend**: User dimensions preserved (not overwritten by backend suggestions)
+  - **Testing**: Comprehensive unit tests for SVG dimensions, quality multipliers, and dimension calculations
+  - **Testing**: 77 total tests with 204 assertions (all passing)
+  - Use cases: High-DPI displays (Retina), print-quality images (Print), responsive scaling (Standard)
+
 - [FEATURE] Add noScale support to skip image processing and use original files (resolves #77)
   - Implements TYPO3's standard `noScale` parameter for RTE images
   - Enables use of original files without creating processed variants in typo3temp/

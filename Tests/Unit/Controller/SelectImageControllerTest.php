@@ -268,6 +268,70 @@ final class SelectImageControllerTest extends UnitTestCase
     // These are better tested in functional tests
 
     #[Test]
+    public function calculateDisplayDimensionsReturnsOriginalWhenWithinLimits(): void
+    {
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [800, 600, 1920, 1080]);
+
+        self::assertSame(['width' => 800, 'height' => 600], $result);
+    }
+
+    #[Test]
+    public function calculateDisplayDimensionsScalesDownWhenWidthExceedsLimit(): void
+    {
+        // 2400x1800 image with 1920x1080 max dimensions
+        // widthScale = 1920/2400 = 0.8, heightScale = 1080/1800 = 0.6
+        // Uses min(0.8, 0.6) = 0.6 (height is more limiting!)
+        // Width: 2400 * 0.6 = 1440, Height: 1800 * 0.6 = 1080
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [2400, 1800, 1920, 1080]);
+
+        self::assertSame(['width' => 1440, 'height' => 1080], $result);
+    }
+
+    #[Test]
+    public function calculateDisplayDimensionsScalesDownWhenHeightExceedsLimit(): void
+    {
+        // 1600x1200 image with 1920x1080 max dimensions
+        // Height is limiting factor: 1200 -> 1080 (scale = 0.9)
+        // Width: 1600 * 0.9 = 1440
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [1600, 1200, 1920, 1080]);
+
+        self::assertSame(['width' => 1440, 'height' => 1080], $result);
+    }
+
+    #[Test]
+    public function calculateDisplayDimensionsPreservesAspectRatio(): void
+    {
+        // 3000x2000 image with 1920x1080 max dimensions
+        // widthScale = 1920/3000 = 0.64, heightScale = 1080/2000 = 0.54
+        // Uses min(0.64, 0.54) = 0.54 (height is more limiting!)
+        // Width: 3000 * 0.54 = 1620, Height: 2000 * 0.54 = 1080
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [3000, 2000, 1920, 1080]);
+
+        self::assertSame(['width' => 1620, 'height' => 1080], $result);
+        // Verify aspect ratio is preserved: 3000/2000 = 1.5, 1620/1080 = 1.5
+        self::assertEqualsWithDelta(3000 / 2000, $result['width'] / $result['height'], 0.01);
+    }
+
+    #[Test]
+    public function calculateDisplayDimensionsHandlesSmallImages(): void
+    {
+        // Small 200x150 image with 1920x1080 max dimensions - should return original
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [200, 150, 1920, 1080]);
+
+        self::assertSame(['width' => 200, 'height' => 150], $result);
+    }
+
+    #[Test]
+    public function calculateDisplayDimensionsHandlesSvgScenarios(): void
+    {
+        // SVG with small dimensions (100x100) should be allowed to scale up to max
+        // This is handled by returning original dimensions and letting frontend scale
+        $result = $this->callProtectedMethod('calculateDisplayDimensions', [100, 100, 1920, 1080]);
+
+        self::assertSame(['width' => 100, 'height' => 100], $result);
+    }
+
+    #[Test]
     public function infoActionReturns412WhenFileIdIsMissing(): void
     {
         /** @var ServerRequestInterface&MockObject $requestMock */

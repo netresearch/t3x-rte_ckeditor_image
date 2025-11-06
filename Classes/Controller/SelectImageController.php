@@ -165,17 +165,30 @@ class SelectImageController extends ElementBrowserController
         $maxDimensions = $this->getMaxDimensions($params);
         $processedFile = $this->processImage($file, $params, $maxDimensions);
 
+        // Get original dimensions (uncapped) - allows SVGs and small images to scale up
+        $originalWidth  = (int) $file->getProperty('width');
+        $originalHeight = (int) $file->getProperty('height');
+
+        // Calculate suggested display dimensions that respect aspect ratio
+        $displayDimensions = $this->calculateDisplayDimensions(
+            $originalWidth,
+            $originalHeight,
+            $maxDimensions['width'],
+            $maxDimensions['height'],
+        );
+
         return new JsonResponse([
             'uid'           => $file->getUid(),
             'alt'           => $file->getProperty('alternative') ?? '',
             'title'         => $file->getProperty('title') ?? '',
-            'width'         => min($file->getProperty('width'), $maxDimensions['width']),
-            'height'        => min($file->getProperty('height'), $maxDimensions['height']),
+            'width'         => $originalWidth,  // Original width (uncapped) - allows scaling up
+            'height'        => $originalHeight, // Original height (uncapped) - allows scaling up
             'url'           => $file->getPublicUrl(),
+            'extension'     => strtolower($file->getExtension()), // For SVG detection in frontend
             'storageDriver' => $file->getStorage()->getDriverType(),
             'processed'     => [
-                'width'  => $processedFile->getProperty('width'),
-                'height' => $processedFile->getProperty('height'),
+                'width'  => $displayDimensions['width'],  // Suggested display width (respects aspect ratio)
+                'height' => $displayDimensions['height'], // Suggested display height (respects aspect ratio)
                 'url'    => $processedFile->getPublicUrl(),
             ],
             'lang' => $this->getTranslations(),
@@ -355,6 +368,44 @@ class SelectImageController extends ElementBrowserController
                 'height' => $height,
             ],
         );
+    }
+
+    /**
+     * Calculate display dimensions that fit within max limits while preserving aspect ratio.
+     *
+     * Allows small images and SVGs to scale up to TSConfig max dimensions.
+     * For larger images, scales down proportionally to fit within limits.
+     *
+     * @param int $originalWidth  Original image width in pixels
+     * @param int $originalHeight Original image height in pixels
+     * @param int $maxWidth       Maximum allowed width from TSConfig
+     * @param int $maxHeight      Maximum allowed height from TSConfig
+     *
+     * @return array<string, int> Array with 'width' and 'height' keys for suggested display dimensions
+     */
+    protected function calculateDisplayDimensions(
+        int $originalWidth,
+        int $originalHeight,
+        int $maxWidth,
+        int $maxHeight,
+    ): array {
+        // If image fits within limits, use original dimensions
+        if ($originalWidth <= $maxWidth && $originalHeight <= $maxHeight) {
+            return ['width' => $originalWidth, 'height' => $originalHeight];
+        }
+
+        // Calculate scaling factors for both dimensions
+        $widthScale  = $maxWidth / $originalWidth;
+        $heightScale = $maxHeight / $originalHeight;
+
+        // Use the smaller scale to ensure both dimensions fit
+        $scale = min($widthScale, $heightScale);
+
+        // Calculate new dimensions (round down to avoid exceeding limits)
+        $displayWidth  = (int) floor($originalWidth * $scale);
+        $displayHeight = (int) floor($originalHeight * $scale);
+
+        return ['width' => $displayWidth, 'height' => $displayHeight];
     }
 
     /**

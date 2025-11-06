@@ -26,6 +26,8 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
 - **TYPO3 FAL Integration**: Native file browser with full File Abstraction Layer support
 - **Magic Images**: Same image processing as rtehtmlarea (cropping, scaling, TSConfig supported)
 - **Image Dialog**: Configure width, height, alt, and title (aspect ratio automatically maintained)
+- **Quality Selector**: Quality multipliers for optimal display (Standard 1.0x, Retina 2.0x, Ultra 3.0x, Print 6.0x)
+- **SVG Support**: Intelligent dimension extraction from viewBox and width/height attributes
 - **Custom Styles**: Configurable image styles with CKEditor 5 style system
 - **Lazy Loading**: TYPO3 native browser lazyload support
 - **Event-Driven**: PSR-14 events for extensibility
@@ -159,16 +161,28 @@ The extension supports [TYPO3 lazyload handling](https://docs.typo3.org/c/typo3/
 styles.content.image.lazyLoading = lazy
 ```
 
-### Using original images without processing (noScale)
+### Image Quality Selector (v13.1.0+)
 
-To use original images without processing (useful for newsletters, PDFs, or retina displays):
+The image dialog includes a quality selector dropdown for optimal image processing:
+
+**Quality Options:**
+- **No Scaling** (1.0x) - Original file, no processing (best for newsletters, PDFs, SVG files)
+- **Standard** (1.0x) - Match display dimensions exactly
+- **Retina** (2.0x) - High-DPI displays (default, recommended for modern devices)
+- **Ultra** (3.0x) - Very sharp images for hero images and key visuals
+- **Print** (6.0x) - Print-quality output and professional photography
+
+Quality selection persists via `data-quality` HTML attribute. The selector automatically handles SVG dimension extraction from viewBox or width/height attributes.
+
+**See:** [Image Quality Selector Documentation](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/CKEditor/Image-Quality-Selector.html) for complete technical details, use cases, and migration guide.
+
+### Using original images without processing (noScale) - Legacy Configuration
+
+For backward compatibility, you can still configure noScale globally via TypoScript:
 
 ```typoscript
 # TypoScript Setup - Enable globally for all RTE images
 lib.parseFunc_RTE.tags.img.noScale = 1
-
-# Or enable for linked images
-lib.parseFunc_RTE.tags.a.noScale = 1
 
 # Optional: Set file size threshold for auto-optimization
 lib.parseFunc_RTE.tags.img {
@@ -181,17 +195,12 @@ lib.parseFunc_RTE.tags.img {
 }
 ```
 
-When `noScale = 1`:
-- Original image files are used (no processed variants in typo3temp/)
-- Image quality is preserved at maximum resolution
-- Width and height attributes are still calculated and applied
-- Ideal for newsletters, PDFs, and high-resolution displays
+**Modern Approach:** Use the quality selector dropdown in the image dialog for per-image control. The `data-quality="none"` attribute provides the same functionality as `noScale = 1` with better user experience.
 
-**Auto-Optimization:** Even with `noScale = 0` (default), the extension automatically skips processing when:
+**Auto-Optimization:** The extension automatically skips processing when:
 - Requested dimensions match the original image dimensions
 - SVG files are detected (vector graphics always use original)
-
-**File Size Threshold:** Control auto-optimization for large files using `maxFileSizeForAuto` (in bytes). When set, files exceeding this size will be processed even if dimensions match, preventing oversized originals from being served.
+- Quality selector is set to "No Scaling"
 
 ### Allowed extensions
 
