@@ -1,0 +1,9 @@
+version: '3.6'
+
+services:
+  web:
+    build:
+      args:
+        GIT_BRANCH: "fix/NEXT-89-svg-dimensions-v13"
+        GIT_COMMIT: "bfbf444"
+        GIT_PR: "388"
