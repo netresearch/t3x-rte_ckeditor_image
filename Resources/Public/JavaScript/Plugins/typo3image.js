@@ -80,16 +80,29 @@ function getImageDialog(editor, img, attributes) {
     var d = {},
         $rows = [],
         elements = {};
+
     const fields = [
         {
-            width: { label: img.lang.width, type: 'number' },
-            height: { label: img.lang.height, type: 'number' }
+            width: { label: 'Display width in px', type: 'number' },
+            height: { label: 'Display height in px', type: 'number' },
+            quality: { label: 'Scaling', type: 'select' }
         },
         {
-            title: { label: img.lang.title, type: 'text' },
-            alt: { label: img.lang.alt, type: 'text' }
+            title: { label: 'Advisory Title', type: 'text' }
+        },
+        {
+            alt: { label: 'Alternative Text', type: 'text' }
         }
     ];
+
+    // Get maxWidth and maxHeight from editor configuration (from TSConfig)
+    const styleConfig = editor.config.get('style') || {};
+    const typo3imageConfig = styleConfig.typo3image || {};
+    const maxConfigWidth = typo3imageConfig.maxWidth || 1920;
+    const maxConfigHeight = typo3imageConfig.maxHeight || 9999;
+
+    // Check if the image is SVG
+    const isSvg = img.url && (img.url.endsWith('.svg') || img.url.includes('.svg?')) || false;
 
     d.$el = $('<div class="rteckeditorimage">');
 
@@ -98,15 +111,26 @@ function getImageDialog(editor, img, attributes) {
 
         $rows.push($row);
         $.each(this, function (key, config) {
-            var $group = $('<div class="form-group">').appendTo($('<div class="col-xs-12 col-sm-6">').appendTo($row));
+            // Use full width for title and alt fields, otherwise use col-sm-4
+            var colClass = (key === 'title' || key === 'alt') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
+            var $group = $('<div class="form-group">').appendTo($('<div class="' + colClass + '">').appendTo($row));
             var id = 'rteckeditorimage-' + key;
             $('<label class="form-label" for="' + id + '">' + config.label + '</label>').appendTo($group);
-            var $el = $('<input type="' + config.type + '" id ="' + id + '" name="' + key + '" class="form-control">');
+
+            var $el;
+            if (config.type === 'select') {
+                $el = $('<select id="' + id + '" name="' + key + '" class="form-select"></select>');
+            } else {
+                $el = $('<input type="' + config.type + '" id ="' + id + '" name="' + key + '" class="form-control">');
+            }
 
             var placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
             var value = ((attributes[key] || '') + '').trim();
-            $el.attr('placeholder', placeholder);
-            $el.val(value);
+
+            if (config.type !== 'select') {
+                $el.attr('placeholder', placeholder);
+                $el.val(value);
+            }
 
             if (config.type === 'text') {
                 var startVal = value,
@@ -199,6 +223,45 @@ function getImageDialog(editor, img, attributes) {
                     e.stopPropagation();
                     e.stopImmediatePropagation();
                 });
+            } else if (config.type === 'select' && key === 'quality') {
+                // Image Processing quality dropdown - sorted by quality ascending
+                var qualityOptions = [
+                    { value: 'none', label: 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
+                    { value: 'standard', label: 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
+                    { value: 'retina', label: 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
+                    { value: 'ultra', label: 'Ultra (3.0x)', multiplier: 3.0, color: '#17a2b8', marker: '●' },
+                    { value: 'print', label: 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
+                ];
+
+                $.each(qualityOptions, function(i, option) {
+                    var $option = $('<option>')
+                        .val(option.value)
+                        .text(option.marker + ' ' + option.label)
+                        .data('multiplier', option.multiplier)
+                        .data('color', option.color)
+                        .css('color', option.color);
+                    $option.appendTo($el);
+                });
+
+                // Determine default quality based on image type and existing attributes
+                // Priority: 1) data-quality 2) data-noscale→'none' 3) SVG→'print' 4) default→'retina'
+                var defaultQuality;
+                if (attributes['data-quality']) {
+                    defaultQuality = attributes['data-quality'];
+                } else if (attributes['data-noscale']) {
+                    // Backward compatibility: data-noscale should map to 'none' quality
+                    defaultQuality = 'none';
+                } else if (isSvg) {
+                    defaultQuality = 'print';
+                } else {
+                    defaultQuality = 'retina';
+                }
+                $el.val(defaultQuality);
+
+                // Disable for SVG (vector images don't need quality processing)
+                if (isSvg) {
+                    $el.prop('disabled', true);
+                }
             }
 
             $group.append($el);
@@ -206,15 +269,20 @@ function getImageDialog(editor, img, attributes) {
         });
     });
 
+    // Create quality indicator container (inserted after first row with dimensions)
+    var $qualityIndicator = $('<div class="image-quality-indicator" style="margin: 12px 0; font-size: 13px; line-height: 1.6;">');
+    $qualityIndicator.insertAfter($rows[0]);
+
     var $checkboxTitle = d.$el.find('#checkbox-title'),
         $checkboxAlt = d.$el.find('#checkbox-alt'),
         $inputWidth = d.$el.find('#rteckeditorimage-width'),
         $inputHeight = d.$el.find('#rteckeditorimage-height'),
+        $qualityDropdown = d.$el.find('#rteckeditorimage-quality'),
         $zoom = $('<input id="checkbox-zoom" type="checkbox">'),
         $noScale = $('<input id="checkbox-noscale" type="checkbox">'),
         cssClass = attributes.class || '',
         $inputCssClass = $('<input id="input-cssclass" type="text" class="form-control">').val(cssClass),
-        $customRow = $('<div class="row">').insertAfter($rows[0]),
+        $customRow = $('<div class="row">').insertAfter($rows[2]),
         $customRowCol1 = $('<div class="col-xs-12 col-sm-6">'),
         $customRowCol2 = $('<div class="col-xs-12 col-sm-6">');
 
@@ -227,14 +295,9 @@ function getImageDialog(editor, img, attributes) {
     var $helpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="' + img.lang.zoomHelp + '">ℹ️</span>');
     $zoomTitle.append($helpIcon);
 
-    // Create noScale checkbox following TYPO3 v13 backend conventions
-    var $noScaleContainer = $('<div class="form-group">').appendTo($customRowCol1);
-    var $noScaleTitle = $('<div class="form-label">').text(img.lang.skipImageProcessing).appendTo($noScaleContainer);
-    var $noScaleFormCheck = $('<div class="form-check form-check-type-toggle">').appendTo($noScaleContainer);
-    $noScale.addClass('form-check-input').appendTo($noScaleFormCheck);
-    var $noScaleLabel = $('<label class="form-check-label" for="checkbox-noscale">').text(img.lang.enabled).appendTo($noScaleFormCheck);
-    var $noScaleHelpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="' + img.lang.noScaleHelp + '">ℹ️</span>');
-    $noScaleTitle.append($noScaleHelpIcon);
+    // noScale checkbox is now replaced by quality dropdown "No Scaling" option
+    // Keep the $noScale variable for backward compatibility with existing code
+    // The checkbox UI is hidden since quality dropdown provides "No Scaling" option
 
     $inputCssClass
         .prependTo(
@@ -261,6 +324,183 @@ function getImageDialog(editor, img, attributes) {
         $noScale.prop('checked', true);
     }
 
+    // Quality indicator functions
+    function getQualityLevel(ratio) {
+        if (ratio < 0.9) {
+            return { level: 'low', label: 'Low', color: '#dc3545', tooltip: 'Low quality (' + ratio.toFixed(1) + 'x) - Image may appear blurry' };
+        } else if (ratio < 1.5) {
+            return { level: 'standard', label: 'Standard', color: '#fd7e14', tooltip: 'Standard quality (' + ratio.toFixed(1) + 'x) - Sharp on basic displays' };
+        } else if (ratio < 3.0) {
+            return { level: 'retina', label: 'Retina', color: '#28a745', tooltip: 'Retina quality (' + ratio.toFixed(1) + 'x) - Optimal for modern displays' };
+        } else if (ratio < 6.0) {
+            return { level: 'ultra', label: 'Ultra', color: '#6f42c1', tooltip: 'Ultra quality (' + ratio.toFixed(1) + 'x) - For ultra-high DPI or small print' };
+        } else if (ratio <= 10.0) {
+            return { level: 'print', label: 'Print', color: '#007bff', tooltip: 'Print quality (' + ratio.toFixed(1) + 'x) - Suitable for high-quality printing (300 DPI)' };
+        } else {
+            return { level: 'excessive', label: 'Excessive', color: '#6c757d', tooltip: 'Excessive resolution (' + ratio.toFixed(1) + 'x) - Unnecessarily high' };
+        }
+    }
+
+    /**
+     * Debounce utility function to delay execution
+     *
+     * @param {Function} func - Function to debounce
+     * @param {number} wait - Delay in milliseconds
+     * @return {Function} Debounced function
+     */
+    function debounce(func, wait) {
+        var timeout;
+        return function() {
+            var context = this;
+            var args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                func.apply(context, args);
+            }, wait);
+        };
+    }
+
+    function renderQualityIndicator(displayWidth, displayHeight) {
+        var intrinsicWidth = img.width;
+        var intrinsicHeight = img.height;
+
+        // Guard against zero dimensions to prevent division by zero
+        if (displayWidth === 0 || displayHeight === 0) {
+            $qualityIndicator.html(
+                '<div style="color: #dc3545; font-size: 13px; line-height: 1.5;">' +
+                '<strong>Error:</strong> Display dimensions cannot be zero.' +
+                '</div>'
+            ).show();
+            return;
+        }
+
+        // Handle SVG files
+        if (img.extension === 'svg') {
+            $qualityIndicator.html(
+                '<div style="color: #666; font-size: 13px; line-height: 1.5;">' +
+                '<strong>Processing Info:</strong> Vector image will not be processed (scales perfectly at any resolution).' +
+                '</div>'
+            ).show();
+            return;
+        }
+
+        // Get selected quality multiplier and color from dropdown
+        var selectedQuality = $qualityDropdown.val();
+        var $selectedOption = $qualityDropdown.find('option:selected');
+        var selectedMultiplier = $selectedOption.data('multiplier');
+        var selectedColor = $selectedOption.data('color');
+
+        // Calculate requested source dimensions for selected quality (BEFORE capping)
+        var requestedWidth = displayWidth * selectedMultiplier;
+        var requestedHeight = displayHeight * selectedMultiplier;
+
+        // Calculate required source dimensions (capped at original size)
+        // IMPORTANT: Never upscale beyond original image dimensions
+        var requiredWidth = Math.min(requestedWidth, intrinsicWidth);
+        var requiredHeight = Math.min(requestedHeight, intrinsicHeight);
+
+        // Check if dimensions match exactly
+        var dimensionsMatch = (displayWidth === intrinsicWidth && displayHeight === intrinsicHeight);
+
+        // Check if display size exceeds image size
+        var displayExceedsImage = (displayWidth > intrinsicWidth || displayHeight > intrinsicHeight);
+
+        // Calculate expected quality (ratio of image pixels to display pixels)
+        // Quality = Image / Display (higher = better quality)
+        var qualityRatio = Math.min(intrinsicWidth / displayWidth, intrinsicHeight / displayHeight);
+        var expectedQualityName = '';
+        var expectedQualityColor = '';
+
+        // Determine quality level based on ratio
+        if (qualityRatio >= 6.0) {
+            expectedQualityName = 'Print';
+            expectedQualityColor = '#007bff';
+        } else if (qualityRatio >= 3.0) {
+            expectedQualityName = 'Ultra';
+            expectedQualityColor = '#17a2b8';
+        } else if (qualityRatio >= 2.0) {
+            expectedQualityName = 'Retina';
+            expectedQualityColor = '#28a745';
+        } else if (qualityRatio >= 0.95) {
+            expectedQualityName = 'Standard';
+            expectedQualityColor = '#ffc107';
+        } else {
+            expectedQualityName = 'Poor';
+            expectedQualityColor = '#dc3545';
+        }
+
+        // Calculate actual achievable quality
+        // If requested processing size exceeds original, we can only achieve what the original provides
+        var actualQuality = Math.min(intrinsicWidth / displayWidth, intrinsicHeight / displayHeight);
+        var requestedQuality = selectedMultiplier;
+        // Check UNCAPPED requested size against original (not the capped requiredWidth/Height)
+        var canAchieveRequested = (requestedWidth <= intrinsicWidth && requestedHeight <= intrinsicHeight);
+
+        // Build processing info message
+        var message = '';
+        var messageColor = '#666';
+
+        // Handle "No Scaling" option
+        if (selectedQuality === 'none') {
+            // No processing - show actual quality based on image/display ratio
+            message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
+                      'will be displayed at ' + displayWidth + '×' + displayHeight + ' px = ' +
+                      '<span style="color: ' + expectedQualityColor + '; font-weight: bold;">● ' +
+                      expectedQualityName + ' Quality (' + qualityRatio.toFixed(1) + 'x scaling)</span>';
+            messageColor = expectedQualityColor;
+        } else if (!canAchieveRequested) {
+            // Cannot achieve requested quality - show what will actually happen
+            message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
+                      'will be displayed at ' + displayWidth + '×' + displayHeight + ' px = ' +
+                      '<span style="color: ' + expectedQualityColor + '; font-weight: bold;">● ' +
+                      expectedQualityName + ' Quality (' + actualQuality.toFixed(1) + 'x scaling)</span>';
+            messageColor = expectedQualityColor;
+        } else {
+            // Can achieve requested quality - normal processing
+            var qualityName = selectedQuality.charAt(0).toUpperCase() + selectedQuality.slice(1);
+
+            // Check if resized dimensions match original (no need to mention "resized to" if same size)
+            var resizeMatchesOriginal = (Math.round(requiredWidth) === intrinsicWidth && Math.round(requiredHeight) === intrinsicHeight);
+
+            if (resizeMatchesOriginal) {
+                // No need to mention resize when it matches original
+                message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
+                          'will be displayed at ' + displayWidth + '×' + displayHeight + ' px = ' +
+                          '<span style="color: ' + selectedColor + '; font-weight: bold;">● ' +
+                          qualityName + ' Quality (' + selectedMultiplier.toFixed(1) + 'x scaling)</span>';
+            } else {
+                // Different resize size - mention it
+                message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
+                          'will be resized to ' + Math.round(requiredWidth) + '×' + Math.round(requiredHeight) + ' px and displayed at ' +
+                          displayWidth + '×' + displayHeight + ' px = ' +
+                          '<span style="color: ' + selectedColor + '; font-weight: bold;">● ' +
+                          qualityName + ' Quality (' + selectedMultiplier.toFixed(1) + 'x scaling)</span>';
+            }
+            messageColor = selectedColor;
+        }
+
+        var html = '<div style="color: ' + messageColor + '; font-size: 13px; line-height: 1.5;">' + message + '</div>';
+
+        $qualityIndicator.html(html).show();
+    }
+
+    function updateQualityIndicator() {
+        var displayWidth = parseInt($inputWidth.val(), 10) || 0;
+        var displayHeight = parseInt($inputHeight.val(), 10) || 0;
+        renderQualityIndicator(displayWidth, displayHeight);
+    }
+
+    // Wire up quality indicator event handlers
+    var debouncedUpdateQualityIndicator = debounce(updateQualityIndicator, 250);
+    $inputWidth.on('input', debouncedUpdateQualityIndicator);
+    $inputHeight.on('input', debouncedUpdateQualityIndicator);
+    $inputWidth.on('change', updateQualityIndicator);
+    $inputHeight.on('change', updateQualityIndicator);
+    $qualityDropdown.on('change', updateQualityIndicator);
+
+    // Initial quality indicator update
+    updateQualityIndicator();
+
     d.get = function () {
         $.each(fields, function () {
             $.each(this, function (key) {
@@ -280,10 +520,19 @@ function getImageDialog(editor, img, attributes) {
             delete attributes['data-htmlarea-clickenlarge'];
         }
 
-        // Save noScale attribute
-        if ($noScale.prop('checked')) {
-            attributes['data-noscale'] = true;
-        } else if (attributes['data-noscale']) {
+        // Save quality attribute and sync with noScale
+        var qualityValue = $qualityDropdown.val();
+        if (qualityValue && qualityValue !== '') {
+            attributes['data-quality'] = qualityValue;
+            // Sync noScale attribute: set to true when quality is 'none' (No Scaling)
+            if (qualityValue === 'none') {
+                attributes['data-noscale'] = true;
+            } else {
+                // Remove noScale when using quality processing
+                delete attributes['data-noscale'];
+            }
+        } else if (attributes['data-quality']) {
+            delete attributes['data-quality'];
             delete attributes['data-noscale'];
         }
 
@@ -348,7 +597,7 @@ function askImageAttributes(editor, img, attributes, table) {
                     var dialogInfo = dialog.get(),
                         filteredAttr = {},
                         allowedAttributes = [
-                            '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-title-override', 'data-alt-override'
+                            '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-quality', 'data-title-override', 'data-alt-override'
                         ],
                         attributesNew = $.extend({}, img, dialogInfo);
 
@@ -364,10 +613,14 @@ function askImageAttributes(editor, img, attributes, table) {
                     getImageInfo(editor, table, img.uid, filteredAttr)
                         .then(function (getImg) {
 
+                            // Preserve user-entered dimensions instead of overwriting with backend suggestions
+                            const userWidth = filteredAttr.width;
+                            const userHeight = filteredAttr.height;
+
                             $.extend(filteredAttr, {
                                 src: urlToRelative(getImg.url, getImg.storageDriver),
-                                width: getImg.processed.width || getImg.width,
-                                height: getImg.processed.height || getImg.height,
+                                width: userWidth || getImg.processed.width || getImg.width,
+                                height: userHeight || getImg.processed.height || getImg.height,
                                 fileUid: img.uid,
                                 fileTable: table
                             });
@@ -402,6 +655,10 @@ function getImageInfo(editor, table, uid, params) {
 
     if (typeof params.height !== 'undefined' && params.height.length) {
         url += '&P[height]=' + encodeURIComponent(params.height);
+    }
+
+    if (typeof params['data-quality'] !== 'undefined' && params['data-quality']) {
+        url += '&P[quality]=' + encodeURIComponent(params['data-quality']);
     }
 
     return $.getJSON(url);
@@ -471,6 +728,7 @@ function edit(selectedImage, editor, imageAttributes) {
                     altOverride: attributes['data-alt-override'],
                     enableZoom: attributes['data-htmlarea-zoom'] || false,
                     noScale: attributes['data-noscale'] || false,
+                    quality: attributes['data-quality'] || '',
                 };
 
                 // Only set link attributes if they have non-empty values
@@ -620,6 +878,7 @@ export default class Typo3Image extends Plugin {
                 'noScale',
                 'width',
                 'height',
+                'quality',
                 'htmlA',
                 'linkHref',
                 'linkTarget',
@@ -660,6 +919,7 @@ export default class Typo3Image extends Plugin {
                         titleOverride: viewElement.getAttribute('data-title-override') || false,
                         enableZoom: viewElement.getAttribute('data-htmlarea-zoom') || false,
                         noScale: viewElement.getAttribute('data-noscale') || false,
+                        quality: viewElement.getAttribute('data-quality') || '',
                     };
 
                     // Only set link attributes if they have non-empty values
@@ -709,11 +969,17 @@ export default class Typo3Image extends Plugin {
                 attributes['data-noscale'] = true
             }
 
+            const quality = modelElement.getAttribute('quality') || '';
+            if (quality) {
+                attributes['data-quality'] = quality
+            }
+
             const imgElement = writer.createEmptyElement('img', attributes);
 
             // Check if model has link attributes and wrap in <a> if present
+            // Treat "/" as "no link" since it's TYPO3 link browser default/placeholder value
             const linkHref = modelElement.getAttribute('linkHref');
-            if (linkHref && linkHref.trim() !== '') {
+            if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
                 const linkAttributes = {
                     href: linkHref
                 };
@@ -845,6 +1111,7 @@ export default class Typo3Image extends Plugin {
                             title: selectedElement.getAttribute('title'),
                             'data-htmlarea-zoom': selectedElement.getAttribute('enableZoom'),
                             'data-noscale': selectedElement.getAttribute('noScale'),
+                            'data-quality': selectedElement.getAttribute('quality'),
                             'data-title-override': selectedElement.getAttribute('titleOverride'),
                             'data-alt-override': selectedElement.getAttribute('altOverride'),
                             linkHref: selectedElement.getAttribute('linkHref'),
@@ -931,6 +1198,7 @@ export default class Typo3Image extends Plugin {
                         title: modelElement.getAttribute('title'),
                         'data-htmlarea-zoom': modelElement.getAttribute('enableZoom'),
                         'data-noscale': modelElement.getAttribute('noScale'),
+                        'data-quality': modelElement.getAttribute('quality'),
                         'data-title-override': modelElement.getAttribute('titleOverride'),
                         'data-alt-override': modelElement.getAttribute('altOverride'),
                         linkHref: modelElement.getAttribute('linkHref'),
