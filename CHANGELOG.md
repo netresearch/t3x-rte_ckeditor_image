@@ -1,21 +1,20 @@
-# Unreleased
+## [Unreleased]
 
-## FEATURE
+### Added
 
-- [FEATURE] Add SVG dimension support and quality-based image processing (resolves #331, NEXT-89)
-  - **Backend**: SVG dimension extraction from viewBox and width/height attributes
-  - **Backend**: Quality multiplier support for optimized image processing (No Scaling, Standard 1.0x, Retina 2.0x, Ultra 3.0x, Print 6.0x)
-  - **Backend**: Automatic aspect ratio preservation during dimension calculations
-  - **Frontend**: Quality selector dropdown in image dialog with visual color-coded indicators
-  - **Frontend**: Improved dialog layout - Display width/height/quality in single row
-  - **Frontend**: Quality selection persists via data-quality HTML attribute
-  - **Frontend**: Backward compatibility with data-noscale attribute
-  - **Frontend**: User dimensions preserved (not overwritten by backend suggestions)
-  - **Testing**: Comprehensive unit tests for SVG dimensions, quality multipliers, and dimension calculations
-  - **Testing**: 77 total tests with 204 assertions (all passing)
+- Add SVG dimension support and quality-based image processing (#331, NEXT-89)
+  - SVG dimension extraction from viewBox and width/height attributes
+  - Quality multiplier support (No Scaling, Standard 1.0x, Retina 2.0x, Ultra 3.0x, Print 6.0x)
+  - Automatic aspect ratio preservation during dimension calculations
+  - Quality selector dropdown in image dialog with visual color-coded indicators
+  - Improved dialog layout - Display width/height/quality in single row
+  - Quality selection persists via data-quality HTML attribute
+  - Backward compatibility with data-noscale attribute
+  - User dimensions preserved (not overwritten by backend suggestions)
+  - Comprehensive unit tests for SVG dimensions, quality multipliers, and dimension calculations
   - Use cases: High-DPI displays (Retina), print-quality images (Print), responsive scaling (Standard)
 
-- [FEATURE] Add noScale support to skip image processing and use original files (resolves #77)
+- Add noScale support to skip image processing and use original files (#77)
   - Implements TYPO3's standard `noScale` parameter for RTE images
   - Enables use of original files without creating processed variants in typo3temp/
   - Use cases: newsletters, PDFs, retina displays, performance optimization
@@ -27,424 +26,340 @@
   - Maintains backward compatibility (default: `noScale = 0`)
   - Comprehensive unit test coverage (14 tests) for shouldSkipProcessing() logic
 
-# 13.0.0
+## [13.0.0] - 2024-12-XX
 
-## TASK
+### Changed
 
-- [TASK] Update author in ext_emconf.php c474bbc
-- [TASK] Update Contributors.md 97ac62c
-- [TASK] Remove PHP 8.3 in testing.yml 2277e12
-- [TASK]  Update ext_emconf.php for TYPO3 v12 686083f
+- Update author in ext_emconf.php
+- Update Contributors.md
+- Remove PHP 8.3 in testing.yml
+- Update ext_emconf.php for TYPO3 v12
+- Update GitHub actions dependencies
+- Update dev/test packages and tools for TYPO3 v13 only
+- Update main branch alias
+- Remove MagicImageService
+- Remove PHP 8.1 from workflows
+- Migrate phpunit configuration
+- Update test suite with latest PHP and TYPO3 versions
+- Update runtests.sh script
+- Replace obsolete recordlist extension (#282)
+- Replace obsolete friendsoftypo3/phpstan-typo3
+- Remove deprecated usage of ExtensionManagementUtility::addPageTSConfig()
+- Replace deprecated TYPO3_MODE
+- Remove access to non-existent property (removed in TYPO3 v10)
 
-## BUGFIX
+### Fixed
 
-- [BUGFIX] Fix incorrect toolbar button name in README and DDEV setup (insertimage not typo3image)
+- Fix incorrect toolbar button name in README and DDEV setup (insertimage not typo3image)
+- Fix #186: Add timestamp to force the javascript change
+- Fix #186: Inline image with link sometimes causes incorrect ordering of double
+- Regenerate images in backend view
+- Fix #244: RteImagePreviewRenderer throws warning with invalid HTML
+- Fix #242: Call to a member function count() on null
+- Add missing property transformationKey to RteImagesDbHook
+- Fix onclick event for select image modal
+- Fix loading RTE throws PHP Runtime Deprecation Notice
+- Fix missing TSFE method
+- Fix missing TextPreviewRenderer
+- Fix visibility
+- Fix support for 13.4
+- Fix incorrect parse indexes leading to dynamic image URL not to be resolved
+- Fix #270: Circumvent PHP < 7.4.4 bug with childNodes being NULL
+- Validate imageSource only if not NULL
+- Call to undefined method - GeneralUtility::shortMD5() was removed in TYPO3 v12
+- Ensure $imageSource is valid before working with it
+- Fix #286: Issue with image processing
+- Fix createProcessedFile method description
+- Fix functional tests
 
-- [BUGFIX] Fixes #186: Add timestamp to force the javascript change d6b0e6c
-- [BUGFIX] Fixes #186: Inline image with link sometimes causes incorrect ordering of double 3efd3d5
-- [BUGFIX] Regenerate images in backend view 56e64f8
-- [BUGFIX] Fixes #244: RteImagePreviewRenderer throws warning with invalid HTML 9fb0b0e
-- [BUGFIX] Fixes #242: Call to a member function count() on null 5aaef60
-- [BUGFIX] Add missing property transformationKey to RteImagesDbHook 7074226
-- [BUGFIX] Fix onclick event for select image modal 838610a
-- [BUGFIX] Loading RTE throws PHP Runtime Deprecation Notice 4d3be6a
+### Maintenance
 
-## MISC
+- PHPStan findings and code quality improvements
+- PHP CodeSniffer findings and fixes
+- Rector findings and updates
+- Coding style improvements
+- Configure devcontainer with vscode extensions, PHP, composer, and gh cli
+- Add docker and compose to devcontainer
+- Add rector configuration
+- Configure GitHub codespace environment container to PHP 8.2
+- Update pipeline/action for updated test suite
+- Update phpstan configuration
+- Ignore rector folder created in devcontainer
+- Allow inline images
+- TYPO3 v12 Support
+- Add TYPO3 badges to README
+- Update README.md for TYPO3 v12
 
-- upgrade github actions c6da5a1
-- chore: fix phpstan reportings e44763e
-- chore: disable usage of obsolete friendsoftypo3/phpstan-typo3 0bfcaab
-- chore: remove deprecated usage of ExtensionManagementUtility::addPageTSConfig() a58c4d4
-- chore: update dev/test packages and tools for TYPO3 v13 only 9b87941
-- chore: update main branch alias 88a474a
-- Change version and depends 5fe4b8b
-- Fix CS d9f3f90
-- Fix CS 9bb93dc
-- Remove php 8.1 from workflows 6179fd8
-- Remove MagicImageService d308230
-- Remove MagicImageService 7c18c7b
-- Fix missing TSFE method 96c9f2a
-- Fix missing TSFE method 77618d8
-- Fix missing TextPreviewRenderer 41af4fa
-- Fix visibility 3fe4022
-- Fix support for 13.4 44fb084
-- Update composer.json b01a7a1
-- chore: PHP CodeSniffer finding 2096580
-- chore: add some more required PHP extensions a627d85
-- chore: tweak phpstan configruation 93e87eb
-- chore: phpstan findings 579894a
-- chore: cs 94cdee2
-- chore: PHP CodeSniffer findings 2e65460
-- chore: fix composer.json syntax 5054cc8
-- chore: fix test setup b5deef1
-- chore: replace obsolete recordlist extension - fixes #282 6cdd264
-- chore: update phpstan test a655a7f
-- chore: fix test by declaring what extenions are required - even if not really required by the test itself. 0279e1f
-- chore: update phpunit xml scheme dd6e6e1
-- chore: rector findings eb85962
-- chore: update pipeline/action for updated test suite bfb6f30
-- chore: update test suite e6790eb
-- chore: ignore rector folder created in devcontainer 23492e8
-- chore: add docker and compose to devcontainer c6c0b8c
-- chore: add rector configuration and add rector to devcontainer e5f6066
-- chore: configure devcontainer with vscode extension gh actions, PHP ext-intl, composer and gh cli and run composer install dc07d74
-- Update ext_emconf.php a372489
-- Update README.md for V12 28c5552
-- fix issue #286 a4461bb
-- fix createProcessedFile method description 2915c34
-- fix naming ec29a4c
-- fix comments b9b56ee
-- remove unnecessary check 6e86925
-- fix more phpstan issues. 69f6f43
-- fix phpstan findings 52a370b
-- fix phpcs findings 8f41b9a
-- refactor check / creation of processed file f345873
-- Frontend: Try new way to check if a file has a processed variant cad2a75
-- Allow inline images 0316b33
-- Ignore .cache and composer.json.testing which are created during running the test suites, because they do not need to beeing tracked in the repository. 8978558
-- chore: update actions to fix Node.js 16 actions are deprecated. db31a83
-- Show more information in functional tests e673dcc
-- fix previous test changes 300ba5d
-- make test compatible with TYPO3 > v12 3f98798
-- improve functional test job name ec3dfc1
-- chore: exclude TYPO3 v13 + PHP 8.1 from test matrix due to 'typo3/cms-core v13.0.1 requires php ^8.2' 5cf301d
-- chore: migrate composeUpdate step for supporting TYPO3 v12 as default and TYPO3 v13 ae7b4b1
-- use Postgres as default DBMS in tests - it's image is smaller and the tests therefore faster 462deec
-- chore: update test suite with latest PHP and TYPO3 versions a392215
-- chore: give the action job a meaningful name d882e78
-- chore: fix package name for cms_rte_ckeditor in ext_emconf.php 5cff197
-- chore: migrate phpunit configuration bb2e525
-- fix: functional tests adb9c9c
-- fix: do not override TYPO3_SITE_URL 2b8c79a
-- chore: fix CS 10e2bb2
-- fix: validate imageSource only if not NULL 753b3fc
-- fix: call to undefined method - GeneralUtility::shortMD5() was removed in TYPO3 v12 e89e844
-- fix: remove access to non existant property It was removed long ago and requested configuration option does not exists anymore since TYPO3 v10 f5ce607
-- chore: fix function name case a370ff7
-- chore: remove dead code a096121
-- fix: ensure $imageSource is valid before working with it. 41d67f8
-- chore: remove obsolete phpstan ignore error patterns dc80f2e
-- set GitHub codespace environment container to PHP (8.2) 3d74578
-- fix #270: circumvent PHP < 7.4.4 bug with childNodes being NULL 36201ef
-- Apply class to  bacbd45
-- chore: coding style 962dd48
-- chore: fix coding style 9f8628a
-- chore: ignore camelCaps rule for hook method name 7bb3554
-- chore: also update test container setup for updated runtests.sh fa54fe0
-- chore: update runtests.sh from https://github.com/lolli42/enetcache/blob/main/Build/Scripts/runTests.sh 6577644
-- chore: fix coding style 9e40429
-- chore: update branch aliases fe9bb80
-- Update typo3/testing-framework requirement from ^7.0.2 to ^8.0.7 21567a5
-- TYPO3 v12 Support 1cfe7a7
-- Update testing.yml 8211115
-- Update phpstan.yml 2d971f8
-- Update phpcs.yml dde6fdd
-- add TYPO3 badges to README 9a578b5
-- style: remove superfluous null check 34bd1ae
-- style: fix superfluous space before closing parenthesis 000703e
-- tests: fix PHP Fatal error:  Type of  testExtensionsToLoad must be array bc30427
-- chore: remove superfluous is null check 9dee49b
-- GH-247: Unnecessary check for "data-*-override" removed, as these are only used within Javascript to document the checkbox state. 60b55a4
-- GH-112: Fix regex to find images 65663ac
-- Rework ImageLinkRenderingController to match ImageRenderingController 601e732
-- GH-244: Sanitize HTML 908d149
-- Fix class member variable name 720933a
-- Update typo3/testing-framework requirement from ^6.16.7 to ^7.0.2 f78ae0e
-- bugfix: incorrect parse indexes leading to dynamic image URL not to be resolved 7307574
-- OPS-461: Update TER release info 913bed4
-- NRS-2875: Update var name 5153eb4
-- OPS-461: Change trigger and add infos to TER upload comment d12e7fc
-- OPS-461: Adapt action to our version syntax 14b96f4
-- OPS-461: Create Github action for publishing to TER 8a17e56
-- Fix phpstan warnings ca9d0e2
-- Optimize code 721f9e4
-- Fix CGL 7136225
-- Do not prepend site URL to embedded image in RTE 4761fe2
-- Do not prepend slash for data:image 4fb6205
-- Cleanup: remove commented out code f4136ef
-- Fix name of testing.yml 6c9c5c3
-- Fix RteImageSoftReferenceParser 67d86b3
-- Add functional tests 24321b7
+## [11.0.11] - 2023-XX-XX
 
-# 11.0.11
+### Changed
 
-## TASK
+- Configure .gitignore
+- Extend from AbstractSoftReferenceIndexParser
+- Implement interface instead of deprecated extension of SoftReferenceIndexParser
+- Allow installation on TYPO3 v11
 
-- [TASK] Configure .gitignore 20297bb
-- [TASK] Extend from AbstractSoftReferenceIndexParser 64e178e
-- [TASK] Implement interface instead of deprecated extension of SoftReferenceIndexParser de7f013
-- [TASK] Allow installation on TYPO3 v11 a89ebe1
+### Fixed
 
-## BUGFIX
+- Set version in github action add-to-pipeline
+- Generate publicUrl from originalImageFile storage
+- Do not append "0" to getFileObject
+- Clean up ext_emconf to upload manual in TER
+- Fix fileadmin doesn't start with slash in 11LTS
+- Prevent undefined array key
+- Fix misuse of 11LTS BE processing middleware URLs
+- Catch exception when fetching external image
+- Make fetching of external image configurable
+- Check if array index exist by wrapping with null coalescing operator and set reasonable default value
+- Preserve important image attributes on initialization
+- Fix broken images in RTEs inside flexform elements
+- Fix multiple PHP 8.0 warnings
+- Fix #126: Wrong link in image, #142: Wrong backwards compatibility
+- Fix #112: Remove wrapping p-tag from images via TypoScript
+- Fix #112: Remove wrapping p-tag from images
+- Fix #122: Fix jquery requirement to not crash the ckeditor
+- Fix override detection for title/alt attributes; allow empty values for alt/title
+- Revert "[BUGFIX] use parseFunc_RTE for processing"
+- Use parseFunc_RTE for processing
+- Fix #56: Rework preview in backend
+- Override preview for ctype text; show dummy images in preview
+- Fix output of alt and title attribute when overriden
+- Ensure the file processing is not deferred
+- Fix #205: PHP Warning: Undefined array key "plainImageMode" when insert a SVG Image
 
-- [BUGFIX] Set version in github action add-to-pipeline 7bd5aa1
-- [BUGFIX] generate publicUrl from originalImageFile storage f4d3741
-- [BUGFIX] do not append "0" to getFileObject 1ceccac
-- [BUGFIX] Clean up ext_emconf to upload manual in TER ca7d660
-- [BUGFIX] fileadmin doesn't start with slash in 11LTS 7addfa7
-- [BUGFIX] Prevent undefined array key 82a13eb
-- [BUGFIX] fix misuse of 11LTS BE processing middleware URLs b111bca
-- [BUGFIX] Catch exception when fetching external image 8f9fc92
-- [BUGFIX] Make fetching of external image configurable a374f43
-- [BUGFIX] check if array index exist by wrapping with null coalescing operator and set reasonable default value 904a8c6
-- [BUGFIX] Preserve important image attributes on initialization 2118c00
-- [BUGFIX] Fix broken images in RTEs inside flexform elements 65bd60b
-- [BUGFIX] Fix multiple PHP 8.0 warnings 43c11c6
-- [BUGFIX] #126 Wrong link in image, #142 Wrong backwards compatibility ef9164e
-- [BUGFIX] #112: Remove wrapping p-tag from images via TS 4b3fdd2
-- [BUGFIX] #112: Remove wrapping p-tag from images c21cb85
-- [BUGFIX] #122: Fix jquery requirement to not crash the ckeditor 971ff69
-- [BUGFIX] Fix override detection for title/alt attributes; allow empty values for alt/title a0289a7
-- Revert "[BUGFIX] use parseFunc_RTE for processing" 42ab413
-- [BUGFIX] use parseFunc_RTE for processing faf7060
+### Documentation
 
-## MISC
+- Update SECURITY.md
+- Correction of typo + list indentation
+- Change README
+- Fix invalid typoscript in README, comments not allowed behind values
+- Fix license link in doc blocks to match actual LICENSE file
 
-- OPS-461: Update TER release info 58389ac
-- NRS-2875: Update var name 85f9fea
-- OPS-461: Change trigger and add infos to TER upload comment 02386b2
-- OPS-461: Adapt action to our version syntax f0fe8ee
-- OPS-461: Create Github action for publishing to TER 586aaa5
-- Fix phpstan warnings 3c54089
-- Optimize code 243f1ef
-- Fix CGL 6dcf4e9
-- Do not prepend site URL to embedded image in RTE edff497
-- Do not prepend slash for data:image 0486a61
-- Fixes #56: Rework preview in backend 8377ce8
-- [FEAT] #56: Override preview for ctype text; show dummy images in preview c5d053e
-- Add .attributes 4040155
-- Fix output of alt and title attribute when overriden 1b06623
-- ensure the file processing is not deferred ed2dbd1
-- Update SECURITY.md 1f95028
-- Correction of typo + list indentation c4255c5
-- Create pull_request_template.md 708d944
-- Delete pull_request_template.md e39bad0
-- Delete pull_request_template.md b20221e
-- Create pull_request_template.md 62a4b88
-- Create pull_request_template.md c9115fd
-- [DOCS] Change readme 8024855
-- Fix invalid typoscript in README, comments not allowed behind values b889d34
-- Fix license link in doc blocks to match actual LICENSE file 636dc11
-- Fix invalid subclassing of hook, use given object instance instead eb87c47
-- #217: Fix invalid return type of method "getLazyLoadingConfiguration" cc50d04
-- OPS-406: Add initial security policy ea12133
-- #212: Remove deprecated call to GeneralUtility::rmFromList 4eb8d4e
-- Added search params to url, if available. Necessary when filestorage is not public 8215830
-- Update typo3image.js 2bb5534
-- Fix some possible php errors 802f908
-- OPS-401: Create contributing guide (initial version) e5a9c6f
-- Fix phpcs issues 4ddb62d
-- Fix some phpstan issue, raise level to 8 0a0f100
-- Replace deprecated TYPO3_MODE 73a603b
-- Remove assignment of"mode" as this is already passed by the root to the parent 03033cb
-- Prevent undefined array key warning in ImageRenderingController 1851aab
-- Check for array key 3d6453f
-- Rework SelectImageController e62ef73
-- Drop useless method 7892e82
-- Clear doc blocks e092ceb
-- Remove unused use statement 7d74fc8
-- Rework method to extract image width/height from attributes to return single value instead of array 046f985
-- Rename soft reference parser in order to match the core structure and logic 6cdcf8b
-- Rework RteImagesSoftReferenceIndex to fix phpstan issues 2d1a136
-- Fix returning wrong value from array 3706e5b
-- Add psr/log to composer.json 66fecda
-- Fix return type of getImageAttributes c4f7f18
-- Avoid duplicate is_array check 9f394ed
-- Remove obsolete code due previous changes a7449eb
-- Fix boolean comparison in if condition 49f4fa8
-- Fix wrong variable name usage, prevents setting of lazyloading attribute af5a301
-- Fix invalid usage of short ternary operator 6060897
-- Prevent phpstan warning "call to method of object" 73f8247
-- Use only boolean comparison in if conditions 0a1cb07
-- Prevent NULL pointer access 5d7594f
-- Remove redeclaration of parent class variable db1d464
-- Avoid usage of empty, use more strict comparison 70abb5c
-- Updated composer.json, add missing TYPO3 dependencies 5de3d5d
-- Reorder use statements 9a918d6
-- Fix class variable types 71532e8
-- Fix parameters of preUserFunc calls 86bf2a5
-- Fix call to makeTokenID 3d61050
-- Add missing doc blocks dd59ff6
-- Remove deprecated call to HttpUtility::setResponseCodeAndExit b2c08f8
-- Replace qualifier with an import a35a65b
-- Inline variable b85d1ff
-- Remove redundant arguments 29a36d1
-- Use constant from base class 19a64f3
-- Add missing @throws annotation fe15c5c
-- Use merge unset calls a07fa64
-- Rework not required switch construct e4cd0f3
-- Use strpos/stripos instead of substr 6d981dd
-- Use short hand ternary operator a9952af
-- Add missing parent constructor call 04ce0ee
-- Replace qualifier with an import c6e7315
-- Add missing method return and parameter types 925ec98
-- Use null coalescing operator 774439e
-- Fix wording 3e39f1c
-- Add strict_types 8a009d3
-- Fix repository name in order to display badges 2b141e5
-- Update composer.json 3ebb12d
-- Update composer.json, add allowed plugins 6034734
-- Add badges to README b6cc3f0
-- Fix path in phpcs workflow c8d579b
-- Add github workflows for phpcs, phpstan and codeql a203fed
-- #205: Drop obsolete use statement e5702f9
-- #205: Add deprecation notice for hook, will be removed in TYPO3 v12 5dd4ca2
-- #205: Fix double slash in URL path 2164d14
-- #205: Change order of conditions, starting with least expensive 76b6eb9
-- #205: Move URL comparsion to separate variable for easier reading the condition 1435455
-- #205: Use strict comparison b7d251b
-- #205: Invert if condition to drop empty then part 5151fdc
-- #205: Drop obsolete "plainImageMode" handling f38be91
-- #205: Fix PHP warning about undefined array key access 8972df3
-- OPS-398: Create Github issue templates (initial version) 20f1150
-- Create add-to-project.yml 73507eb
-- set version for next release 67b5ab6
-- Fix undefined array key access 1cf5854
-- Update install instructions db6f864
-- v11.0.5 a119120
-- fix syntax 9395ff3
-- Update namelesscoder/typo3-repository-client requirement 4f259b5
-- add alternate dev version s 216fb41
-- Create dependabot.yml e8acb23
-- fix homepage 3a55e95
-- 11.0.4 52aaf57
-- fix package replacement 3f6c40d
-- Version 11.0.3 edf6d18
-- Update typo3image.js, Fix Pull request #137 7b3038b
-- Make extension error-free on PHPStan level 8 5afa012
-- Make extension error-free on PHPStan level 7 9bcda48
-- Make extension error-free on PHPStan level 6 eb6aa86
-- Make extension error-free on PHPStan level 4 d541a2f
-- Make extension error-free on PHPStan level 3 693a8d4
-- Make extension error-free on PHPStan level 2 e1401e1
-- Make extension error-free on PHPStan level 1 4f928c2
-- Make extension error-free on PHPStan level 0 6894d51
-- Explicitly require PHP 7.4 or newer eb2fe99
-- Check for $pI['scheme'] with isset() instead 3240e37
-- Make renderImageAttributes() arguments optional 70655f4
-- Required parameter after optional parameter is deprecated edcd3e8
-- drop version from install instructions f862655
-- fix version in ext_emconf.php f7a246c
-- [bugfix/145]Fix disabled button. Solution is parsing of every toolbars, then checking if the command is 'image'. If yes, put the button state at 'off' since button.getState returns undefined 13b5c00
-- Update composer.json 415a05f
-- [Task] Make installable in 11.5 via Composer 97f4c0a
-- TYPO3 11.5LTS support 29947f5
-- Add MichelHolz to Contributors list 7fc0013
-- implement missing processed file resolve 1a1e87f
-- Added extension-key to composer.json 62704d5
-- [FEAT] #82: TYPO3 fluid_styled_content lazyload support 733fb9e
-- [REFACTOR] Add brackets 58e8b6a
-- guard clause if jQuery is not present 4968470
-- Update typo3image.js b1ba3fd
-- Wrapping innerText to avoid js error 48b1a4a
-- [FEAT] #88: Add custom class field for each image e2fe9ff
+### Maintenance
 
-# 10.1.0
+- Update TER release info
+- Create Github action for publishing to TER
+- Add initial security policy
+- Create contributing guide (initial version)
+- Create pull request template
+- Fix phpstan warnings and issues
+- Optimize code
+- Fix CGL
+- Do not prepend site URL to embedded image in RTE
+- Do not prepend slash for data:image
+- Fix invalid subclassing of hook, use given object instance instead
+- Fix invalid return type of method "getLazyLoadingConfiguration" (#217)
+- Remove deprecated call to GeneralUtility::rmFromList (#212)
+- Add search params to url, if available (necessary when filestorage is not public)
+- Update typo3image.js
+- Fix some possible php errors
+- Fix phpcs issues
+- Fix some phpstan issue, raise level to 8
+- Prevent undefined array key warning in ImageRenderingController
+- Check for array key
+- Rework SelectImageController
+- Drop useless method
+- Clear doc blocks
+- Remove unused use statement
+- Rework method to extract image width/height from attributes to return single value instead of array
+- Rename soft reference parser in order to match the core structure and logic
+- Rework RteImagesSoftReferenceIndex to fix phpstan issues
+- Fix returning wrong value from array
+- Add psr/log to composer.json
+- Fix return type of getImageAttributes
+- Avoid duplicate is_array check
+- Remove obsolete code due previous changes
+- Fix boolean comparison in if condition
+- Fix wrong variable name usage, prevents setting of lazyloading attribute
+- Fix invalid usage of short ternary operator
+- Prevent phpstan warning "call to method of object"
+- Use only boolean comparison in if conditions
+- Prevent NULL pointer access
+- Remove redeclaration of parent class variable
+- Avoid usage of empty, use more strict comparison
+- Updated composer.json, add missing TYPO3 dependencies
+- Reorder use statements
+- Fix class variable types
+- Fix parameters of preUserFunc calls
+- Fix call to makeTokenID
+- Add missing doc blocks
+- Remove deprecated call to HttpUtility::setResponseCodeAndExit
+- Replace qualifier with an import
+- Inline variable
+- Remove redundant arguments
+- Use constant from base class
+- Add missing @throws annotation
+- Use merge unset calls
+- Rework not required switch construct
+- Use strpos/stripos instead of substr
+- Use short hand ternary operator
+- Add missing parent constructor call
+- Add missing method return and parameter types
+- Use null coalescing operator
+- Fix wording
+- Add strict_types
+- Fix repository name in order to display badges
+- Update composer.json
+- Update composer.json, add allowed plugins
+- Add badges to README
+- Fix path in phpcs workflow
+- Add github workflows for phpcs, phpstan and codeql
+- Create Github issue templates (initial version)
+- Create add-to-project.yml
+- Set version for next release
+- Fix undefined array key access
+- Update install instructions
 
-## FEATURE
+## [11.0.5] - 2023-XX-XX
 
-- [FEATURE] Refactor linked image renderer (#42) 3508ce2
-- [FEATURE] Render images within links via regex (#42) 7d72975
-- [FEATURE] #35: Remove empty image attributes ada62e2
+### Changed
 
-## TASK
+- Update namelesscoder/typo3-repository-client requirement
+- Add alternate dev versions
+- Create dependabot.yml
+- Fix homepage
+- Fix syntax
 
-- [TASK] Include lower TYPO3 core versions 3d6306d
-- [TASK] Fix extensionscanner and cleanup code b686b70
-- [TASK] Add TYPO3 10 compatibility 728ab64
-- [TASK] #45: Update image reference index (#62) 8005c8b
-- [TASK] Release 9.0.3 - Process image on first selection fd6a165
-- [TASK] Release 9.0.2 - Bugfix for image attributes fd9af08
-- [TASK] Update dependencies and deployment infos e72714f
-- [TASK] Update branch alias ee02bd3
-- [TASK] Compatibility with CMS 9.x (thommyhh) 32587ed
-- [TASK] Release 8.7.8 - Fix DOM element count e5e651a
-- [TASK] Release 8.7.7 - Fix output of link content d0f8fe4
-- [TASK] Release 8.7.6 2b1c88a
+## [11.0.4] - 2023-XX-XX
 
-## BUGFIX
+### Fixed
 
-- [BUGFIX] Respect zoom and attrubute checkbox values 0c754f7
-- [BUGFIX] #61: Respect max width and height configuration for images when saving element 19e0602
-- [BUGFIX] #69: Consider override checkbox for title and alt attributes 412767b
-- [BUGFIX] #69: Remove zoom attributes when checkbox is disabled 3161388
-- [BUGFIX] Allow single quotes in image attributes (#74) 711e152
-- [BUGFIX] Use original files width and height for ratio and max (#70) e1d46d9
-- [BUGFIX] Add IE11 support by removing arrow functions (#66) 5cadf04
-- [BUGFIX] Use customised width and height on first selection 465116b
-- [BUGFIX] Prevent value null for title and alt attributes eaa4c90
-- [BUGFIX] #25: Regenerate missing magic image on rendering images within links (#57) 7ad1bdd
-- [BUGFIX] Avoid loosing existing attributes when editing image (#54) 1cb1cd2
-- [BUGFIX] Support legacy `clickenlarge` attribute for image zoom 782462b
-- [BUGFIX] Keep data attributes for zoom images cf21345
-- [BUGFIX] #42: Refactor linked image renderer 6e52ddf
-- [BUGFIX] Keep data attributes for zoom images 401a1d4
-- [BUGFIX] `Image properties` not working inside table cell (#41) fb5ee23
-- [BUGFIX] Fix DOM element count 3d70322
-- [BUGFIX] Use proper condition for empty DomDocuments b70dbaa
-- [BUGFIX] Convert parsed link content to HTML encoding 8de2841
-- [BUGFIX] Fix for custom popup attributes aa75060
-- [BUGFIX] Replace broken TS variables in popup; enable custom popup configuration 0bbca15
-- [BUGFIX] Add custom image link handler to get fallback image values; Remove empty style attr 52d608b
-- [BUGFIX] Use $.extend for compatibility with IE11 faae207
-- [BUGFIX] Fix TER package replacement 772548d
+- Fix package replacement
 
-## MISC
+## [11.0.3] - 2023-XX-XX
 
-- [DOC] Update Readme a88d4e9
-- [REFACTOR] Cleanup & refactor after rebase 966451c
-- [REFACTOR] Get TsConfig for image rendering fbac0e1
-- [REFACTOR] Update documentation and composer specs b9f49bd
-- Update composer.json 911dedc
-- Change $eventDispatcher to protected 1c8428b
-- Add RteImagesDbHook to service.yaml 585ab6b
-- RteImagesDbHook 694857a
-- Add old transformation ba50233
-- Change _updateMetaDataProperties to updateProperties a328851
-- Update README.md a8f7a1b
-- Add checkbox filelist, importSelection 9f5332f
-- Add use EventDispatcherInterface 58eb14a
-- Add service for eventDispatcher 0149ac9
-- Add EventDispatcher 190a313
-- Remove outdated replace instruction 33e1b3a
-- Update requirements and branch-alias 3a94223
-- Fix deprecation log about locallang_core.xlf 8984ffd
-- [FEAT] #78: Regenerate missing processed images 9193b03
-- [REFACTOR] #71: Use underscores in package name 1694d7a
-- [FIX] #71: Add vendor name to composer replace to prevent validation warnings 0b8e1f5
-- Create LICENSE 98eaca7
-- Add another important person to authors 0e8e8eb
-- [DOCUMENTATION] #68: Usage of config according to t3 bug 743e5ba
-- [REFACTOR] #63: Use correct image path 5ac910c
-- suggestion for reformat code (#58) c57651e
-- [REFACTOR] #38: Process image on first selection (#55) c0a4474
-- [Fix] Update dev branch naming 85cd35b
-- [REFACTOR] #29: Process backend image url savely f9c47cb
-- Dev typo3 9.x refactor 29 backend image url (#48) 85b4ea9
-- Update branch alias version 5b83715
-- [REVIEW] #43: Cleanup JS 8a15098
-- [DOCS] Add info for RTE config 2ac2146
-- Convert indents to spaces 1bd03e8
-- #RELEASE - Update to version 8.7.5 95135bd
-- Update to version 8.7.5 5f322af
-- #BUGFIX - Add fallback for image dimensions; clean code 17056f8
-- Update documentation c2ec5d7
-- Update URLs 6135741
-- Depend on typo3/cms-core instead of typo3/cms 12aaef7
-- Set current file before calling imageLinkWrap (refs #10) 1e8d1b8
-- Updating version 4fbdf06
-- Fixed package replacee leading to wrongly inferred extension key 25fe482
-- Implemented click enlarge feature (fixes #2) d1e4274
-- Replace CKEditor image dialog with TYPO3 image dialog on image double click (fixes #6) 719eb4c
-- Added installation instructions 3b754ab
-- Fixed travis build bbed6b8
-- Set current version 1d173b8
-- Added travis build 71180b4
-- Updated docs with demo gif d78feec
-- Fixed events on dialog obviously being removed after modal close by rerendering the dialog e46b9ac
-- Added docs df87bb3
-- Several bug fixes 3f4d028
-- Added frontend image rendering 4f0badb
-- Implemented image selection fd49121
-- Initial import 74071f2
+### Changed
+
+- Update typo3image.js, Fix Pull request #137
+- Make extension error-free on PHPStan levels 0-8
+- Explicitly require PHP 7.4 or newer
+- Drop version from install instructions
+- Fix version in ext_emconf.php
+- Update composer.json
+- Make installable in 11.5 via Composer
+
+### Fixed
+
+- Fix #145: Fix disabled button - solution is parsing of every toolbars, then checking if the command is 'image'
+- Check for $pI['scheme'] with isset() instead
+- Make renderImageAttributes() arguments optional
+- Fix required parameter after optional parameter is deprecated
+
+### Added
+
+- TYPO3 11.5LTS support
+- Add MichelHolz to Contributors list
+- Implement missing processed file resolve
+- Added extension-key to composer.json
+- Add #82: TYPO3 fluid_styled_content lazyload support
+- Add #88: Add custom class field for each image
+- Add guard clause if jQuery is not present
+- Wrapping innerText to avoid js error
+
+## [10.1.0] - 2021-XX-XX
+
+### Added
+
+- Refactor linked image renderer (#42)
+- Render images within links via regex (#42)
+- Add #35: Remove empty image attributes
+- Add #78: Regenerate missing processed images
+- Add #82: TYPO3 fluid_styled_content lazyload support
+
+### Changed
+
+- Include lower TYPO3 core versions
+- Fix extensionscanner and cleanup code
+- Add TYPO3 10 compatibility
+- Update #45: Update image reference index (#62)
+- Update dependencies and deployment infos
+- Update branch alias
+- Compatibility with CMS 9.x
+
+### Fixed
+
+- Respect zoom and attribute checkbox values
+- Fix #61: Respect max width and height configuration for images when saving element
+- Fix #69: Consider override checkbox for title and alt attributes
+- Fix #69: Remove zoom attributes when checkbox is disabled
+- Allow single quotes in image attributes (#74)
+- Use original files width and height for ratio and max (#70)
+- Add IE11 support by removing arrow functions (#66)
+- Use customised width and height on first selection
+- Prevent value null for title and alt attributes
+- Fix #25: Regenerate missing magic image on rendering images within links (#57)
+- Avoid losing existing attributes when editing image (#54)
+- Support legacy `clickenlarge` attribute for image zoom
+- Keep data attributes for zoom images
+- Fix #42: Refactor linked image renderer
+- Fix `Image properties` not working inside table cell (#41)
+- Fix DOM element count
+- Use proper condition for empty DomDocuments
+- Convert parsed link content to HTML encoding
+- Fix for custom popup attributes
+- Replace broken TS variables in popup; enable custom popup configuration
+- Add custom image link handler to get fallback image values; Remove empty style attr
+- Use $.extend for compatibility with IE11
+- Fix TER package replacement
+
+### Documentation
+
+- Update Readme
+- Update documentation and composer specs
+- Usage of config according to t3 bug (#68)
+
+### Maintenance
+
+- Cleanup & refactor after rebase
+- Get TsConfig for image rendering
+- Update composer.json
+- Change $eventDispatcher to protected
+- Add RteImagesDbHook to service.yaml
+- Add old transformation
+- Change _updateMetaDataProperties to updateProperties
+- Add checkbox filelist, importSelection
+- Add use EventDispatcherInterface
+- Add service for eventDispatcher
+- Add EventDispatcher
+- Remove outdated replace instruction
+- Update requirements and branch-alias
+- Fix deprecation log about locallang_core.xlf
+- Refactor #71: Use underscores in package name
+- Fix #71: Add vendor name to composer replace to prevent validation warnings
+- Create LICENSE
+- Add another important person to authors
+- Refactor #63: Use correct image path
+- Suggestion for reformat code (#58)
+- Refactor #38: Process image on first selection (#55)
+- Fix: Update dev branch naming
+- Refactor #29: Process backend image url safely
+- Update branch alias version
+- Review #43: Cleanup JS
+- Add info for RTE config
+- Convert indents to spaces
+- Release 9.0.3 - Process image on first selection
+- Release 9.0.2 - Bugfix for image attributes
+- Release 8.7.8 - Fix DOM element count
+- Release 8.7.7 - Fix output of link content
+- Release 8.7.6
+- Release 8.7.5 - Add fallback for image dimensions; clean code
+- Update documentation
+- Update URLs
+- Depend on typo3/cms-core instead of typo3/cms
+- Set current file before calling imageLinkWrap (refs #10)
+- Updating version
+- Fixed package replacee leading to wrongly inferred extension key
+- Implemented click enlarge feature (fixes #2)
+- Replace CKEditor image dialog with TYPO3 image dialog on image double click (fixes #6)
+- Added installation instructions
+- Fixed travis build
+- Set current version
+- Added travis build
+- Updated docs with demo gif
+- Fixed events on dialog obviously being removed after modal close by rerendering the dialog
+- Added docs
+- Several bug fixes
+- Added frontend image rendering
+- Implemented image selection
+- Initial import
 
