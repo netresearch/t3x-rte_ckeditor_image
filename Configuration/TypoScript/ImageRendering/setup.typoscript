@@ -105,3 +105,12 @@ lib.contentElement.settings.media.popup {
     # Link parameters for lightbox libraries
     # linkParams.ATagParams.dataWrap = class="{$styles.content.textmedia.linkWrap.lightboxCssClass}" rel="{$styles.content.textmedia.linkWrap.lightboxRelAttribute}"
 }
+
+#******************************************************
+# Native browser lazy loading support
+# Bridges the standard TYPO3 constant styles.content.image.lazyLoading
+# to the path expected by the image rendering controllers.
+# This makes the extension work independently of EXT:fluid_styled_content.
+# Set via constants: styles.content.image.lazyLoading = lazy|eager|auto
+#******************************************************
+lib.contentElement.settings.media.lazyLoading = {$styles.content.image.lazyLoading}
