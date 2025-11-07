@@ -124,10 +124,10 @@ class ImageRenderingController extends AbstractImageRenderingController
                     }
 
                     // Get display dimensions from HTML attributes with type guards
-                    $widthValue = $imageAttributes['width'] ?? $systemImage->getProperty('width');
+                    $widthValue   = $imageAttributes['width'] ?? $systemImage->getProperty('width');
                     $displayWidth = is_numeric($widthValue) ? (int) $widthValue : 0;
 
-                    $heightValue = $imageAttributes['height'] ?? $systemImage->getProperty('height');
+                    $heightValue   = $imageAttributes['height'] ?? $systemImage->getProperty('height');
                     $displayHeight = is_numeric($heightValue) ? (int) $heightValue : 0;
 
                     // Get quality multiplier from data-quality attribute
@@ -140,10 +140,10 @@ class ImageRenderingController extends AbstractImageRenderingController
 
                     // Cap processing dimensions at original image size (never upscale) with type guards
                     $originalWidthProperty = $systemImage->getProperty('width');
-                    $originalWidth = is_numeric($originalWidthProperty) ? (int) $originalWidthProperty : 0;
+                    $originalWidth         = is_numeric($originalWidthProperty) ? (int) $originalWidthProperty : 0;
 
                     $originalHeightProperty = $systemImage->getProperty('height');
-                    $originalHeight = is_numeric($originalHeightProperty) ? (int) $originalHeightProperty : 0;
+                    $originalHeight         = is_numeric($originalHeightProperty) ? (int) $originalHeightProperty : 0;
 
                     $processingWidth  = min($processingWidth, $originalWidth);
                     $processingHeight = min($processingHeight, $originalHeight);
@@ -275,7 +275,7 @@ class ImageRenderingController extends AbstractImageRenderingController
                 $popupConfig = $setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'];
             }
 
-            $config = $popupConfig;
+            $config           = $popupConfig;
             $config['enable'] = 1;
 
             $systemImage->updateProperties([

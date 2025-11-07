@@ -143,16 +143,16 @@ abstract class AbstractImageRenderingController
 
         // Auto-optimization: Get original dimensions with type guards
         $originalWidthProperty = $originalFile->getProperty('width');
-        $originalWidth = is_numeric($originalWidthProperty) ? (int) $originalWidthProperty : 0;
+        $originalWidth         = is_numeric($originalWidthProperty) ? (int) $originalWidthProperty : 0;
 
         $originalHeightProperty = $originalFile->getProperty('height');
-        $originalHeight = is_numeric($originalHeightProperty) ? (int) $originalHeightProperty : 0;
+        $originalHeight         = is_numeric($originalHeightProperty) ? (int) $originalHeightProperty : 0;
 
         $requestedWidthValue = $imageConfiguration['width'] ?? 0;
-        $requestedWidth = is_numeric($requestedWidthValue) ? (int) $requestedWidthValue : 0;
+        $requestedWidth      = is_numeric($requestedWidthValue) ? (int) $requestedWidthValue : 0;
 
         $requestedHeightValue = $imageConfiguration['height'] ?? 0;
-        $requestedHeight = is_numeric($requestedHeightValue) ? (int) $requestedHeightValue : 0;
+        $requestedHeight      = is_numeric($requestedHeightValue) ? (int) $requestedHeightValue : 0;
 
         // If no dimensions requested, use original file
         if ($requestedWidth === 0 && $requestedHeight === 0) {
