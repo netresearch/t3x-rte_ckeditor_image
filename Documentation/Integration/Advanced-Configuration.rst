@@ -265,6 +265,227 @@ Maintenance
 - Keep documentation of custom configurations
 - Test after TYPO3 core or extension updates
 
+.. _integration-configuration-third-party:
+
+Using with Third-Party Extensions
+==================================
+
+**Automatic Support for ALL Extensions (v13.x+)**
+
+This extension automatically configures RTE image support for **all tables** with RTE-enabled text fields, including:
+
+- TYPO3 core tables (``tt_content``, ``sys_template``)
+- Third-party extensions (``tx_news_domain_model_news``, etc.)
+- Custom extension tables
+
+**No manual configuration is required.** The extension uses a PSR-14 event listener that automatically adds the ``rtehtmlarea_images`` soft reference to all RTE fields during TCA compilation.
+
+.. _integration-configuration-extension-settings:
+
+Extension Configuration
+-----------------------
+
+You can customize the automatic behavior via Extension Configuration:
+
+**Admin Tools > Settings > Extension Configuration > rte_ckeditor_image**
+
+.. confval:: enableAutomaticRteSoftref
+
+   :type: boolean
+   :Default: 1 (enabled)
+
+   Master switch to enable or disable automatic RTE softref processing.
+
+   When enabled, the extension automatically adds ``rtehtmlarea_images`` soft reference to all RTE-enabled text fields across all tables.
+
+.. confval:: excludedTables
+
+   :type: string (comma-separated)
+   :Default: (empty)
+
+   Comma-separated list of table names to exclude from automatic processing.
+
+   **Example:** ``tx_form_formframework,sys_template``
+
+   Use this if specific tables should not have automatic softref processing.
+
+.. confval:: includedTablesOnly
+
+   :type: string (comma-separated)
+   :Default: (empty)
+
+   Whitelist mode: If set, ONLY these tables will be processed.
+
+   **Example:** ``tt_content,tx_news_domain_model_news,tx_myext_article``
+
+   This overrides the ``excludedTables`` setting. Leave empty to process all tables (recommended).
+
+Configuration Examples
+~~~~~~~~~~~~~~~~~~~~~~
+
+**Exclude Specific Tables:**
+
+.. code-block:: php
+   :caption: settings.php or LocalConfiguration.php
+
+   $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['rte_ckeditor_image'] = [
+       'enableAutomaticRteSoftref' => true,
+       'excludedTables' => 'tx_form_formframework,sys_template',
+   ];
+
+**Whitelist Mode (Only Specific Tables):**
+
+.. code-block:: php
+   :caption: settings.php or LocalConfiguration.php
+
+   $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['rte_ckeditor_image'] = [
+       'enableAutomaticRteSoftref' => true,
+       'includedTablesOnly' => 'tt_content,tx_news_domain_model_news',
+   ];
+
+**Disable Automatic Processing:**
+
+.. code-block:: php
+   :caption: settings.php or LocalConfiguration.php
+
+   $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['rte_ckeditor_image'] = [
+       'enableAutomaticRteSoftref' => false,
+   ];
+
+.. note::
+   After changing extension configuration, clear all caches:
+
+   .. code-block:: bash
+
+      ./vendor/bin/typo3 cache:flush
+
+.. _integration-configuration-troubleshooting-third-party:
+
+Troubleshooting Third-Party Extension Issues
+---------------------------------------------
+
+Images Disappear When Saving
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Symptom:** Images inserted in RTE fields disappear after saving the record.
+
+**Cause:** Automatic softref processing may be disabled, or the table is excluded.
+
+**Solution:**
+
+1. Verify automatic processing is enabled:
+
+   .. code-block:: php
+
+      // Check extension configuration
+      $config = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['rte_ckeditor_image'];
+      // enableAutomaticRteSoftref should be true (default)
+
+2. Check if the table is excluded:
+
+   .. code-block:: php
+
+      // Check excludedTables and includedTablesOnly settings
+      debug($config['excludedTables']);
+      debug($config['includedTablesOnly']);
+
+3. Verify soft reference is configured in TCA:
+
+   .. code-block:: php
+
+      // In TYPO3 backend console or debug output
+      debug($GLOBALS['TCA']['your_table']['columns']['your_field']['config']['softref']);
+      // Should output: "rtehtmlarea_images" or include it in comma-separated list
+
+4. Check if ``data-htmlarea-file-uid`` attribute is preserved:
+
+   .. code-block:: sql
+
+      -- Check database content
+      SELECT bodytext FROM tx_news_domain_model_news WHERE uid = 123;
+      -- Should contain: data-htmlarea-file-uid="456"
+
+5. Clear all caches and retry:
+
+   .. code-block:: bash
+
+      ./vendor/bin/typo3 cache:flush
+
+Automatic Processing Not Working
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Symptom:** RTE images are not tracked automatically in custom tables.
+
+**Cause:** Event listener not registered, caches not cleared, or configuration issue.
+
+**Solution:**
+
+1. Verify the event listener is registered:
+
+   .. code-block:: bash
+
+      # Check if RteSoftrefEnforcer class exists
+      ls Classes/Listener/TCA/RteSoftrefEnforcer.php
+
+2. Verify Services.yaml configuration:
+
+   .. code-block:: bash
+
+      # Check listener registration
+      grep -A 5 "RteSoftrefEnforcer" Configuration/Services.yaml
+
+3. Clear all caches:
+
+   .. code-block:: bash
+
+      ./vendor/bin/typo3 cache:flush
+
+4. Check if the field is RTE-enabled:
+
+   .. code-block:: php
+
+      // Field must have type='text' AND enableRichtext=true
+      debug($GLOBALS['TCA']['your_table']['columns']['your_field']['config']);
+
+data-htmlarea-file-uid Attribute Missing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Symptom:** Images render but the ``data-htmlarea-file-uid`` attribute is missing from saved content.
+
+**Cause:** Soft reference parser not registered or not being invoked.
+
+**Solution:**
+
+1. Verify soft reference parser is registered:
+
+   .. code-block:: bash
+
+      # Check Services.yaml for softreference.parser
+      grep -A 3 "softreference.parser" Configuration/Services.yaml
+
+2. Verify soft reference is in TCA (see "Images Disappear When Saving" above)
+
+3. Clear all caches:
+
+   .. code-block:: bash
+
+      ./vendor/bin/typo3 cache:flush
+
+Images Not Processed in Frontend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Symptom:** Images appear as ``<img>`` tags with ``data-htmlarea-file-uid`` in frontend HTML.
+
+**Cause:** TypoScript configuration missing or incorrect.
+
+**Solution:** Ensure TypoScript static template is included:
+
+.. code-block:: typoscript
+
+   # Include static template in your root template
+   # Template > Info/Modify > Edit whole template record > Includes
+   # Select: "CKEditor Image Support" for "Include static (from extensions)"
+
 Related Documentation
 =====================
 
