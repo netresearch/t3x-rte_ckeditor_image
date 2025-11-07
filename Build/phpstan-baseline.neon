@@ -261,7 +261,7 @@ parameters:
 		-
 			message: '#^Cannot access offset ''alt'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
+			count: 2
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
@@ -303,7 +303,7 @@ parameters:
 		-
 			message: '#^Cannot access offset ''src'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 9
+			count: 6
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
@@ -351,7 +351,7 @@ parameters:
 		-
 			message: '#^Cannot cast mixed to string\.$#'
 			identifier: cast.string
-			count: 5
+			count: 3
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
@@ -363,7 +363,7 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$arr of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:implodeAttributes\(\) expects array\<string, int\|string\>, mixed given\.$#'
 			identifier: argument.type
-			count: 2
+			count: 1
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
@@ -387,7 +387,7 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$tag of method TYPO3\\CMS\\Core\\Html\\HtmlParser\:\:get_tag_attributes\(\) expects string, mixed given\.$#'
 			identifier: argument.type
-			count: 2
+			count: 1
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
