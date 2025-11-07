@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- [TASK] Extract shared controller logic to AbstractImageRenderingController (resolves #378)
+  - **Architecture**: Eliminate 66 lines of code duplication between ImageRenderingController and ImageLinkRenderingController
+  - **New Abstract Base**: AbstractImageRenderingController with shared methods (getLazyLoadingConfiguration, getLogger, getAttributeValue, shouldSkipProcessing, validateFileVisibility)
+  - **Security Enhancement**: Dedicated validateFileVisibility() method for consistent file visibility validation
+  - **Type Safety**: Comprehensive type guards for TypoScript array access and File property handling
+  - **PHPStan Excellence**: Baseline reduced from 650 to 188 errors (71.1% improvement) while maintaining level 10 (maximum strictness)
+  - **Quality Metrics**: All 92 unit tests pass, code standards compliant (PSR-12/PER-CS2.0), Rector clean
+  - **Impact**: Improved maintainability, centralized shared logic, enhanced security, reduced technical debt
+  - **API Compatibility**: No breaking changes to public API or behavior
+
 ### Added
 
 - SVG dimension support and quality-based image processing (#331, #388)
