@@ -1,30 +1,53 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [Unreleased]
 
 ### Added
 
-- SVG dimension support and quality-based image processing (#331, NEXT-89)
+- SVG dimension support and quality-based image processing (#331, #388)
   - SVG dimension extraction from viewBox and width/height attributes
   - Quality multiplier support (No Scaling, Standard 1.0x, Retina 2.0x, Ultra 3.0x, Print 6.0x)
-  - Automatic aspect ratio preservation during dimension calculations
-  - Quality selector dropdown in image dialog with visual color-coded indicators
-  - Improved dialog layout - Display width/height/quality in single row
-  - Quality selection persists via data-quality HTML attribute
-  - Backward compatibility with data-noscale attribute
-  - User dimensions preserved (not overwritten by backend suggestions)
-  - Use cases: High-DPI displays (Retina), print-quality images (Print), responsive scaling (Standard)
-
+  - Quality selector dropdown in image dialog with visual feedback and persistence
+  - TSConfig maxWidth/maxHeight support for quality-based processing
 - noScale support to skip image processing and use original files (#77)
-  - Implements TYPO3's standard `noScale` parameter for RTE images
-  - Enables use of original files without creating processed variants in typo3temp/
-  - Use cases: newsletters, PDFs, retina displays, performance optimization
-  - Configuration via TypoScript: `lib.parseFunc_RTE.tags.img.noScale = 1`
-  - Auto-optimization: Automatically skips processing when dimensions match original
-  - SVG auto-detection: Vector graphics always use original file (no rasterization)
-  - File size threshold: Control auto-optimization for large files (`noScale.maxFileSizeForAuto`)
-  - Applies to both regular images and linked images
-  - Maintains backward compatibility (default: `noScale = 0`)
+  - Auto-optimization when dimensions match original
+  - SVG auto-detection for vector graphics
+  - File size threshold control
+- CKEditor 5 Widget UI with block toolbar for images (#393)
+- Automatic RTE softref enforcement via global PSR-14 event listener (#371)
+- Global PSR-14 event listener for TCA overrides (replaces manual overrides)
+- TCA override for EXT:news support
+- Translation support for all hardcoded strings in image dialog (#391)
+- TypoScript bridge for lazyLoading configuration (#373)
+- TYPO3 v13 site set for zero-configuration installation
+- Automatic TypoScript loading for zero-configuration
+- Default RTE configuration with insertimage button enabled
+- Global Page TSConfig loading for automatic configuration
+- DDEV development environment with TYPO3 v13
 
-## [13.0.0] - 2024-12-XX
+### Changed
+
+- Migrated from deprecated @typo3/ckeditor5-bundle.js to direct CKEditor imports (#380)
+- Replaced non-inclusive terminology with inclusive language
+- Updated company name to Netresearch DTT GmbH
+
+### Fixed
+
+- Prevent empty link wrappers and ensure Bootstrap Package compatibility (#392)
+- Preserve link attributes on TYPO3 images (#385, #387)
+- Namespace DoubleClickObserver to prevent conflicts with other plugins (#383)
+- Add link toolbar configuration to prevent linkProperties error (#382)
+- Add missing DefaultUploadFolderResolver to SelectImageController DI (#381)
+- Replace invalid env syntax with ExtensionConfiguration service injection
+- Apply Rector FunctionFirstClassCallableRector modernization
+- Use translated label for Insert Image button
+
+## [13.0.0] - 2024-12-13
 
 ### Added
 
@@ -32,27 +55,107 @@
 
 ### Changed
 
-- Upgrade to TYPO3 v13.4 and PHP 8.2+ (breaking change)
-- Replaced obsolete dependencies and APIs for TYPO3 v13 compatibility
+- **BREAKING**: Requires TYPO3 v13.4+ and PHP 8.2+
+- Upgraded dependencies and APIs for TYPO3 v13 compatibility
+- Removed MagicImageService (replaced by TYPO3 core functionality)
+- Updated GitHub Actions for Node.js compatibility
 
 ### Fixed
 
 - Fix #186: Inline image with link sometimes causes incorrect ordering
 - Fix #244: RteImagePreviewRenderer throws warning with invalid HTML
 - Fix #242: Call to a member function count() on null
-- Fix #286: Issue with image processing
-- Fix #270: Circumvent PHP < 7.4.4 bug with childNodes being NULL
-- Fix incorrect toolbar button name in README and DDEV setup (insertimage not typo3image)
+- Add missing property transformationKey to RteImagesDbHook
 - Fix onclick event for select image modal
-- Fix loading RTE throws PHP Runtime Deprecation Notice
+- Loading RTE throws PHP Runtime Deprecation Notice
 - Regenerate images in backend view
-- Fix incorrect parse indexes leading to dynamic image URL not to be resolved
+- Fix missing TSFE method for v13 compatibility
+- Fix missing TextPreviewRenderer for v13 compatibility
+- Support for TYPO3 13.4
 
-## [11.0.11] - 2023-XX-XX
+## [12.0.2] - 2023-11-22
+
+### Added
+
+- Allow inline images
+
+### Fixed
+
+- Make tests compatible with TYPO3 > v12
+- Exclude TYPO3 v13 + PHP 8.1 from test matrix
+
+### Changed
+
+- Update GitHub Actions to fix Node.js 16 deprecation
+- Migrate composeUpdate step for TYPO3 v12 as default and v13 support
+
+## [12.0.1] - 2023-09-18
+
+### Fixed
+
+- Apply class to `<img>` element
+- Update typo3/testing-framework requirement from ^7.0.2 to ^8.0.7
+
+### Changed
+
+- Update runtests.sh script
+- Update branch aliases for v12
+
+## [12.0.0] - 2023-08-25
+
+### Added
+
+- TYPO3 v12 LTS support
+
+### Changed
+
+- **BREAKING**: Requires TYPO3 v12+ and PHP 8.1+
+- Update ext_emconf.php for TYPO3 v12
+- Add TYPO3 badges to README
+
+### Fixed
+
+- Fix PHP Fatal error: Type of testExtensionsToLoad must be array
+- Remove superfluous null checks and code style improvements
+
+## [11.0.14] - 2023-07-15
+
+### Fixed
+
+- Fix #186: Add timestamp to force javascript change
+- Fix #186: Inline image with link sometimes causes incorrect ordering
+- Regenerate images in backend view
+- Fix regex to find images (#112)
+- Remove unnecessary check for "data-*-override" attributes (#247)
+- Rework ImageLinkRenderingController to match ImageRenderingController
+
+## [11.0.13] - 2023-06-20
+
+### Fixed
+
+- Fix #244: Sanitize HTML to prevent warnings
+
+## [11.0.12] - 2023-06-15
+
+### Fixed
+
+- Fix #244: RteImagePreviewRenderer throws warning with invalid HTML
+- Fix #242: Call to a member function count() on null
+- Add missing property transformationKey to RteImagesDbHook
+- Fix onclick event for select image modal
+- Loading RTE throws PHP Runtime Deprecation Notice
+- Fix incorrect parse indexes leading to dynamic image URL not being resolved
+
+### Changed
+
+- Update typo3/testing-framework requirement from ^6.16.7 to ^7.0.2
+
+## [11.0.11] - 2023-04-10
 
 ### Added
 
 - TYPO3 v11 LTS support
+- Configuration option for SVG images
 
 ### Fixed
 
@@ -60,29 +163,36 @@
 - Fix fileadmin doesn't start with slash in 11LTS
 - Fix misuse of 11LTS BE processing middleware URLs
 - Catch exception when fetching external image
+- Make fetching of external image configurable
 - Fix broken images in RTEs inside flexform elements
 - Fix multiple PHP 8.0 warnings
 - Fix #126: Wrong link in image
 - Fix #142: Wrong backwards compatibility
 - Fix #112: Remove wrapping p-tag from images
 - Fix #122: Fix jquery requirement to not crash the ckeditor
-- Fix override detection for title/alt attributes; allow empty values for alt/title
+- Fix override detection for title/alt attributes; allow empty values
 - Fix #56: Rework preview in backend
-- Fix #205: PHP Warning: Undefined array key "plainImageMode" when insert a SVG Image
+- Fix #205: PHP Warning: Undefined array key "plainImageMode" when inserting SVG image
 
-## [11.0.5] - 2023-XX-XX
+### Changed
+
+- Extend from AbstractSoftReferenceIndexParser
+- Implement interface instead of deprecated extension of SoftReferenceIndexParser
+
+## [11.0.5] - 2022-12-05
 
 ### Changed
 
 - Update dependencies
+- Add dependabot configuration
 
-## [11.0.4] - 2023-XX-XX
+## [11.0.4] - 2022-11-28
 
 ### Fixed
 
 - Fix package replacement
 
-## [11.0.3] - 2023-XX-XX
+## [11.0.3] - 2022-11-15
 
 ### Added
 
@@ -92,9 +202,14 @@
 
 ### Fixed
 
-- Fix #145: Disabled button issue
+- Fix #145: Disabled button issue in CKEditor toolbar
 
-## [10.1.0] - 2021-XX-XX
+### Changed
+
+- Make extension error-free on PHPStan levels 0-8
+- Require PHP 7.4 or newer
+
+## [10.1.0] - 2021-05-20
 
 ### Added
 
@@ -102,6 +217,7 @@
 - Linked image renderer (#42)
 - Remove empty image attributes (#35)
 - Regenerate missing processed images (#78)
+- TYPO3 fluid_styled_content lazyload support (#82)
 
 ### Fixed
 
@@ -115,4 +231,23 @@
 - Fix #41: Image properties not working inside table cell
 - Fix DOM element count
 - Fix TER package replacement
+- Support legacy `clickenlarge` attribute for image zoom
 
+### Changed
+
+- Update image reference index (#45, #62)
+- Compatibility with TYPO3 CMS 9.x
+
+[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.0...HEAD
+[13.0.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.2...v13.0.0
+[12.0.2]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.1...v12.0.2
+[12.0.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.0...v12.0.1
+[12.0.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v11.0.14...v12.0.0
+[11.0.14]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v11.0.13...v11.0.14
+[11.0.13]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v11.0.12...v11.0.13
+[11.0.12]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v11.0.11...v11.0.12
+[11.0.11]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v11.0.5...v11.0.11
+[11.0.5]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v11.0.4...v11.0.5
+[11.0.4]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v11.0.3...v11.0.4
+[11.0.3]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v10.1.0...v11.0.3
+[10.1.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v10.0.0...v10.1.0
