@@ -7,42 +7,6 @@ parameters:
 			path: ../Classes/Backend/Preview/RteImagePreviewRenderer.php
 
 		-
-			message: '#^Cannot access offset ''contentElement\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/AbstractImageRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''lazyLoading'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/AbstractImageRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''media\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/AbstractImageRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''settings\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/AbstractImageRenderingController.php
-
-		-
-			message: '#^Cannot cast mixed to int\.$#'
-			identifier: cast.int
-			count: 4
-			path: ../Classes/Controller/AbstractImageRenderingController.php
-
-		-
-			message: '#^Cannot cast mixed to string\.$#'
-			identifier: cast.string
-			count: 1
-			path: ../Classes/Controller/AbstractImageRenderingController.php
-
-		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
 			count: 4
@@ -67,33 +31,9 @@ parameters:
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
-			message: '#^Cannot access offset ''contentElement\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''media\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''popup\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''settings\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
-			count: 6
+			count: 2
 			path: ../Classes/Controller/ImageRenderingController.php
 
 		-

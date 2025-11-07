@@ -123,9 +123,12 @@ class ImageRenderingController extends AbstractImageRenderingController
                         $noScale = (bool) ($conf['noScale'] ?? false);
                     }
 
-                    // Get display dimensions from HTML attributes
-                    $displayWidth  = (int) ($imageAttributes['width'] ?? ((int) $systemImage->getProperty('width')));
-                    $displayHeight = (int) ($imageAttributes['height'] ?? ((int) $systemImage->getProperty('height')));
+                    // Get display dimensions from HTML attributes with type guards
+                    $widthValue = $imageAttributes['width'] ?? $systemImage->getProperty('width');
+                    $displayWidth = is_numeric($widthValue) ? (int) $widthValue : 0;
+
+                    $heightValue = $imageAttributes['height'] ?? $systemImage->getProperty('height');
+                    $displayHeight = is_numeric($heightValue) ? (int) $heightValue : 0;
 
                     // Get quality multiplier from data-quality attribute
                     $qualityMultiplier = $this->getQualityMultiplier($imageAttributes['data-quality'] ?? '');
@@ -135,9 +138,13 @@ class ImageRenderingController extends AbstractImageRenderingController
                     $processingWidth  = (int) round($displayWidth * $qualityMultiplier);
                     $processingHeight = (int) round($displayHeight * $qualityMultiplier);
 
-                    // Cap processing dimensions at original image size (never upscale)
-                    $originalWidth    = (int) $systemImage->getProperty('width');
-                    $originalHeight   = (int) $systemImage->getProperty('height');
+                    // Cap processing dimensions at original image size (never upscale) with type guards
+                    $originalWidthProperty = $systemImage->getProperty('width');
+                    $originalWidth = is_numeric($originalWidthProperty) ? (int) $originalWidthProperty : 0;
+
+                    $originalHeightProperty = $systemImage->getProperty('height');
+                    $originalHeight = is_numeric($originalHeightProperty) ? (int) $originalHeightProperty : 0;
+
                     $processingWidth  = min($processingWidth, $originalWidth);
                     $processingHeight = min($processingHeight, $originalHeight);
 
@@ -254,9 +261,21 @@ class ImageRenderingController extends AbstractImageRenderingController
                 return $img;
             }
 
-            $setupArray       = $frontendTyposcript->getSetupArray();
-            $popupConfig      = $setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
-            $config           = is_array($popupConfig) ? $popupConfig : [];
+            $setupArray = $frontendTyposcript->getSetupArray();
+
+            // Type-safe TypoScript array access for popup configuration
+            $popupConfig = [];
+            if (
+                is_array($setupArray['lib.'] ?? null)
+                && is_array($setupArray['lib.']['contentElement.'] ?? null)
+                && is_array($setupArray['lib.']['contentElement.']['settings.'] ?? null)
+                && is_array($setupArray['lib.']['contentElement.']['settings.']['media.'] ?? null)
+                && is_array($setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? null)
+            ) {
+                $popupConfig = $setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'];
+            }
+
+            $config = $popupConfig;
             $config['enable'] = 1;
 
             $systemImage->updateProperties([

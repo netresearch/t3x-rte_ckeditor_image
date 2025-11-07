@@ -66,6 +66,16 @@ abstract class AbstractImageRenderingController
 
         $setupArray = $frontendTyposcript->getSetupArray();
 
+        // Type-safe TypoScript array access with nested isset checks
+        if (
+            !is_array($setupArray['lib.'] ?? null)
+            || !is_array($setupArray['lib.']['contentElement.'] ?? null)
+            || !is_array($setupArray['lib.']['contentElement.']['settings.'] ?? null)
+            || !is_array($setupArray['lib.']['contentElement.']['settings.']['media.'] ?? null)
+        ) {
+            return null;
+        }
+
         $lazyLoading = $setupArray['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
 
         return is_string($lazyLoading) ? $lazyLoading : null;
@@ -90,7 +100,10 @@ abstract class AbstractImageRenderingController
      */
     protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
-        return (string) ($attributes[$attributeName] ?? $image->getProperty($attributeName));
+        // Type-safe attribute value resolution
+        $value = $attributes[$attributeName] ?? $image->getProperty($attributeName);
+
+        return is_string($value) || is_int($value) ? (string) $value : '';
     }
 
     /**
@@ -128,11 +141,18 @@ abstract class AbstractImageRenderingController
             return true;
         }
 
-        // Auto-optimization: Get original dimensions
-        $originalWidth   = (int) ($originalFile->getProperty('width') ?? 0);
-        $originalHeight  = (int) ($originalFile->getProperty('height') ?? 0);
-        $requestedWidth  = (int) ($imageConfiguration['width'] ?? 0);
-        $requestedHeight = (int) ($imageConfiguration['height'] ?? 0);
+        // Auto-optimization: Get original dimensions with type guards
+        $originalWidthProperty = $originalFile->getProperty('width');
+        $originalWidth = is_numeric($originalWidthProperty) ? (int) $originalWidthProperty : 0;
+
+        $originalHeightProperty = $originalFile->getProperty('height');
+        $originalHeight = is_numeric($originalHeightProperty) ? (int) $originalHeightProperty : 0;
+
+        $requestedWidthValue = $imageConfiguration['width'] ?? 0;
+        $requestedWidth = is_numeric($requestedWidthValue) ? (int) $requestedWidthValue : 0;
+
+        $requestedHeightValue = $imageConfiguration['height'] ?? 0;
+        $requestedHeight = is_numeric($requestedHeightValue) ? (int) $requestedHeightValue : 0;
 
         // If no dimensions requested, use original file
         if ($requestedWidth === 0 && $requestedHeight === 0) {
