@@ -215,6 +215,9 @@ class ImageRenderingController extends AbstractImageRenderingController
             }
         }
 
+        // Extract caption before cleanup (caption should not appear in img attributes)
+        $caption = (string) ($imageAttributes['data-caption'] ?? '');
+
         // Cleanup attributes
         if (
             !isset($imageAttributes['data-htmlarea-zoom'])
@@ -226,9 +229,13 @@ class ImageRenderingController extends AbstractImageRenderingController
                 'data-htmlarea-file-table',
                 'data-htmlarea-zoom',
                 'data-htmlarea-clickenlarge', // Legacy zoom property
+                'data-caption', // Remove caption from img attributes
             ];
 
             $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
+        } else {
+            // Even when zoom is enabled, remove caption from img attributes
+            unset($imageAttributes['data-caption']);
         }
 
         // Add a leading slash if only a path is given
@@ -258,7 +265,7 @@ class ImageRenderingController extends AbstractImageRenderingController
         ) {
             $frontendTyposcript = $request->getAttribute('frontend.typoscript');
             if ($frontendTyposcript === null) {
-                return $img;
+                return $this->wrapImageWithCaption($img, $caption);
             }
 
             $setupArray = $frontendTyposcript->getSetupArray();
@@ -286,15 +293,17 @@ class ImageRenderingController extends AbstractImageRenderingController
                 $this->cObj->setCurrentFile($systemImage);
 
                 // Use $this->cObject to have access to all parameters from the image tag
-                return $this->cObj->imageLinkWrap(
+                $imgWithLink = $this->cObj->imageLinkWrap(
                     $img,
                     $systemImage,
                     $config,
                 );
+
+                return $this->wrapImageWithCaption($imgWithLink, $caption);
             }
         }
 
-        return $img;
+        return $this->wrapImageWithCaption($img, $caption);
     }
 
     /**
@@ -365,5 +374,36 @@ class ImageRenderingController extends AbstractImageRenderingController
         }
 
         return $multiplier;
+    }
+
+    /**
+     * Wrap image HTML in figure/figcaption structure when caption exists.
+     *
+     * SECURITY: Caption is sanitized with htmlspecialchars to prevent XSS attacks.
+     * Uses ENT_QUOTES | ENT_HTML5 to encode both single and double quotes and
+     * handle HTML5 entities properly.
+     *
+     * @param string $imageHtml Image HTML (may include link wrapper from imageLinkWrap)
+     * @param string $caption   Caption text from data-caption attribute
+     *
+     * @return string Image HTML wrapped in figure/figcaption when caption exists, otherwise unchanged
+     */
+    private function wrapImageWithCaption(string $imageHtml, string $caption): string
+    {
+        // Only wrap if caption is non-empty after trimming
+        if ($caption === '' || trim($caption) === '') {
+            return $imageHtml;
+        }
+
+        // SECURITY: Prevent XSS by encoding caption text
+        // ENT_QUOTES ensures both ' and " are encoded
+        // ENT_HTML5 handles HTML5 entities properly
+        $sanitizedCaption = htmlspecialchars($caption, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        return sprintf(
+            '<figure class="image">%s<figcaption>%s</figcaption></figure>',
+            $imageHtml,
+            $sanitizedCaption,
+        );
     }
 }

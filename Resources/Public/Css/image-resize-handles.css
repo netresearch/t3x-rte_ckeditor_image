@@ -1,0 +1,113 @@
+/**
+ * Image Resize Handles Styles for TYPO3 CKEditor Image Plugin
+ *
+ * These styles are applied by the WidgetResize plugin
+ * to enable visual drag-to-resize functionality.
+ */
+
+/* Widget with resizer state */
+.ck-widget_with-resizer {
+    position: relative;
+}
+
+/* Resizer container */
+.ck-widget__resizer {
+    position: absolute;
+    pointer-events: none;
+    left: 0;
+    top: 0;
+}
+
+/* Resize handle base styles */
+.ck-widget__resizer__handle {
+    position: absolute;
+    pointer-events: all;
+    width: 10px;
+    height: 10px;
+    background: #FFFFFF;
+    border: 1px solid #0275d8;
+    border-radius: 50%;
+    cursor: nwse-resize;
+}
+
+/* Top-left corner handle */
+.ck-widget__resizer__handle-top-left {
+    top: -5px;
+    left: -5px;
+    cursor: nwse-resize;
+}
+
+/* Top-right corner handle */
+.ck-widget__resizer__handle-top-right {
+    top: -5px;
+    right: -5px;
+    cursor: nesw-resize;
+}
+
+/* Bottom-right corner handle */
+.ck-widget__resizer__handle-bottom-right {
+    bottom: -5px;
+    right: -5px;
+    cursor: nwse-resize;
+}
+
+/* Bottom-left corner handle */
+.ck-widget__resizer__handle-bottom-left {
+    bottom: -5px;
+    left: -5px;
+    cursor: nesw-resize;
+}
+
+/* Handle hover state */
+.ck-widget__resizer__handle:hover {
+    background: #0275d8;
+    border-color: #014c8c;
+}
+
+/* Handle active state during resize */
+.ck-widget__resizer__handle:active {
+    background: #014c8c;
+    border-color: #013764;
+}
+
+/* Hidden state */
+.ck-widget__resizer.ck-hidden {
+    display: none;
+}
+
+/* Image resized state marker */
+.image_resized {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Resizer visual feedback during drag */
+.ck-widget__resizer:after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 1px dashed #0275d8;
+    pointer-events: none;
+    left: 0;
+    top: 0;
+}
+
+/* Remove dashed border when not resizing */
+.ck-widget:not(.ck-widget_selected) .ck-widget__resizer:after {
+    display: none;
+}
+
+/* Dimension tooltip during resize */
+.ck-size-view {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-family: monospace;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 10000;
+}

@@ -71,6 +71,15 @@ lib.parseFunc_RTE {
 lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img)
 
 #******************************************************
+# External blocks configuration for figure elements
+# Prevents p-tag insertion inside figure elements for proper semantic HTML structure
+#******************************************************
+lib.parseFunc_RTE.externalBlocks := addToList(figure)
+lib.parseFunc_RTE.externalBlocks.figure.callRecursive = 1
+lib.parseFunc_RTE.externalBlocks.figure.callRecursive.tagStdWrap.HTMLparser = 1
+lib.parseFunc_RTE.externalBlocks.figure.callRecursive.tagStdWrap.HTMLparser.tags.figcaption.fixAttrib.class.default = image-caption
+
+#******************************************************
 # Default popup/lightbox configuration for RTE images with zoom enabled
 # This provides fallback configuration if lib.contentElement.settings.media.popup is not set
 # by fluid_styled_content or custom TypoScript
