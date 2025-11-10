@@ -7,39 +7,15 @@ parameters:
 			path: ../Classes/Backend/Preview/RteImagePreviewRenderer.php
 
 		-
-			message: '#^Cannot access offset ''contentElement\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''lazyLoading'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''media\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''settings\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
-			count: 8
+			count: 4
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
 			message: '#^Cannot cast mixed to string\.$#'
 			identifier: cast.string
-			count: 4
+			count: 3
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
@@ -49,63 +25,15 @@ parameters:
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
-			message: '#^Parameter \#1 \$arr of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:implodeAttributes\(\) expects array\<string, int\|string\>, array\<string\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
-			message: '#^Parameter \#2 \$attributes of method Netresearch\\RteCKEditorImage\\Controller\\ImageLinkRenderingController\:\:getAttributeValue\(\) expects array\<string, string\>, array\<string\> given\.$#'
-			identifier: argument.type
-			count: 4
-			path: ../Classes/Controller/ImageLinkRenderingController.php
-
-		-
 			message: '#^Parameter \#3 \$subject of function str_replace expects array\<string\>\|string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: ../Classes/Controller/ImageLinkRenderingController.php
 
 		-
-			message: '#^Cannot access offset ''contentElement\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''lazyLoading'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''media\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''popup\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Cannot access offset ''settings\.'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
-			count: 10
-			path: ../Classes/Controller/ImageRenderingController.php
-
-		-
-			message: '#^Cannot cast mixed to string\.$#'
-			identifier: cast.string
-			count: 1
+			count: 2
 			path: ../Classes/Controller/ImageRenderingController.php
 
 		-

@@ -14,10 +14,8 @@ namespace Netresearch\RteCKEditorImage\Controller;
 use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LogLevel as PsrLogLevel;
-use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
-use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -30,7 +28,7 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  *
  * @see    https://www.netresearch.de
  */
-class ImageRenderingController
+class ImageRenderingController extends AbstractImageRenderingController
 {
     /**
      * Same as class name.
@@ -53,8 +51,6 @@ class ImageRenderingController
      */
     public $extKey = 'rte_ckeditor_image';
 
-    protected ?ContentObjectRenderer $cObj = null;
-
     /**
      * Constructor with dependency injection.
      *
@@ -65,13 +61,9 @@ class ImageRenderingController
     public function __construct(
         private readonly ResourceFactory $resourceFactory,
         private readonly ProcessedFilesHandler $processedFilesHandler,
-        private readonly LogManager $logManager,
-    ) {}
-
-    public function setContentObjectRenderer(
-        ContentObjectRenderer $cObj,
-    ): void {
-        $this->cObj = $cObj;
+        LogManager $logManager,
+    ) {
+        parent::__construct($logManager);
     }
 
     /**
@@ -99,24 +91,8 @@ class ImageRenderingController
                 try {
                     $systemImage = $this->resourceFactory->getFileObject($fileUid);
 
-                    // SECURITY: Prevent privilege escalation by checking file visibility
-                    // Only process public files in frontend rendering. Non-public files must
-                    // use TYPO3's protected file delivery (eID_dumpFile) which performs
-                    // proper authentication checks for the current frontend user.
-                    // This prevents low-privilege backend editors from exposing files
-                    // outside their Filemount restrictions by manipulating file UIDs.
-                    if (!$systemImage->getStorage()->isPublic()) {
-                        $this->getLogger()->log(
-                            PsrLogLevel::WARNING,
-                            'Blocked rendering of non-public file in frontend context',
-                            [
-                                'fileUid'     => $fileUid,
-                                'storage'     => $systemImage->getStorage()->getUid(),
-                                'storageName' => $systemImage->getStorage()->getName(),
-                            ],
-                        );
-
-                        // Skip processing and continue with cleanup
+                    // SECURITY: Validate file visibility to prevent privilege escalation
+                    if (!$this->validateFileVisibility($systemImage, $fileUid, 'frontend context')) {
                         throw new FileDoesNotExistException();
                     }
 
@@ -147,9 +123,12 @@ class ImageRenderingController
                         $noScale = (bool) ($conf['noScale'] ?? false);
                     }
 
-                    // Get display dimensions from HTML attributes
-                    $displayWidth  = (int) ($imageAttributes['width'] ?? ((int) $systemImage->getProperty('width')));
-                    $displayHeight = (int) ($imageAttributes['height'] ?? ((int) $systemImage->getProperty('height')));
+                    // Get display dimensions from HTML attributes with type guards
+                    $widthValue   = $imageAttributes['width'] ?? $systemImage->getProperty('width');
+                    $displayWidth = is_numeric($widthValue) ? (int) $widthValue : 0;
+
+                    $heightValue   = $imageAttributes['height'] ?? $systemImage->getProperty('height');
+                    $displayHeight = is_numeric($heightValue) ? (int) $heightValue : 0;
 
                     // Get quality multiplier from data-quality attribute
                     $qualityMultiplier = $this->getQualityMultiplier($imageAttributes['data-quality'] ?? '');
@@ -159,9 +138,13 @@ class ImageRenderingController
                     $processingWidth  = (int) round($displayWidth * $qualityMultiplier);
                     $processingHeight = (int) round($displayHeight * $qualityMultiplier);
 
-                    // Cap processing dimensions at original image size (never upscale)
-                    $originalWidth    = (int) $systemImage->getProperty('width');
-                    $originalHeight   = (int) $systemImage->getProperty('height');
+                    // Cap processing dimensions at original image size (never upscale) with type guards
+                    $originalWidthProperty = $systemImage->getProperty('width');
+                    $originalWidth         = is_numeric($originalWidthProperty) ? (int) $originalWidthProperty : 0;
+
+                    $originalHeightProperty = $systemImage->getProperty('height');
+                    $originalHeight         = is_numeric($originalHeightProperty) ? (int) $originalHeightProperty : 0;
+
                     $processingWidth  = min($processingWidth, $originalWidth);
                     $processingHeight = min($processingHeight, $originalHeight);
 
@@ -278,9 +261,21 @@ class ImageRenderingController
                 return $img;
             }
 
-            $setupArray       = $frontendTyposcript->getSetupArray();
-            $popupConfig      = $setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? [];
-            $config           = is_array($popupConfig) ? $popupConfig : [];
+            $setupArray = $frontendTyposcript->getSetupArray();
+
+            // Type-safe TypoScript array access for popup configuration
+            $popupConfig = [];
+            if (
+                is_array($setupArray['lib.'] ?? null)
+                && is_array($setupArray['lib.']['contentElement.'] ?? null)
+                && is_array($setupArray['lib.']['contentElement.']['settings.'] ?? null)
+                && is_array($setupArray['lib.']['contentElement.']['settings.']['media.'] ?? null)
+                && is_array($setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'] ?? null)
+            ) {
+                $popupConfig = $setupArray['lib.']['contentElement.']['settings.']['media.']['popup.'];
+            }
+
+            $config           = $popupConfig;
             $config['enable'] = 1;
 
             $systemImage->updateProperties([
@@ -300,25 +295,6 @@ class ImageRenderingController
         }
 
         return $img;
-    }
-
-    /**
-     * Returns the lazy loading configuration.
-     *
-     * @return string|null
-     */
-    private function getLazyLoadingConfiguration(ServerRequestInterface $request): ?string
-    {
-        $frontendTyposcript = $request->getAttribute('frontend.typoscript');
-        if ($frontendTyposcript === null) {
-            return null;
-        }
-
-        $setupArray = $frontendTyposcript->getSetupArray();
-
-        $lazyLoading = $setupArray['lib.']['contentElement.']['settings.']['media.']['lazyLoading'] ?? null;
-
-        return is_string($lazyLoading) ? $lazyLoading : null;
     }
 
     /**
@@ -349,94 +325,6 @@ class ImageRenderingController
         // Source starts with "http(s)" or a double slash
         return (strncasecmp($imageSource, 'http', 4) === 0)
             || str_starts_with($imageSource, '//');
-    }
-
-    /**
-     * @return Logger
-     */
-    protected function getLogger(): Logger
-    {
-        return $this->logManager->getLogger(static::class);
-    }
-
-    /**
-     * Returns attributes value or even empty string when override mode is enabled.
-     *
-     * @param non-empty-string      $attributeName
-     * @param array<string, string> $attributes
-     * @param File                  $image
-     *
-     * @return string
-     */
-    protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
-    {
-        return (string) ($attributes[$attributeName] ?? $image->getProperty($attributeName));
-    }
-
-    /**
-     * Determine if image processing should be skipped.
-     *
-     * Skips processing when:
-     * 1. SVG files (vector graphics don't benefit from raster processing)
-     * 2. noScale is explicitly enabled in TypoScript configuration
-     * 3. Auto-optimization: Requested dimensions match original file dimensions exactly
-     * 4. No dimensions requested (use original)
-     *
-     * Auto-optimization respects file size threshold to prevent serving oversized originals.
-     *
-     * @param File    $originalFile       The original file
-     * @param mixed[] $imageConfiguration Requested image configuration (width, height)
-     * @param bool    $noScale            noScale setting from TypoScript configuration
-     * @param int     $maxFileSizeForAuto Maximum file size in bytes for auto-optimization (0 = no limit)
-     *
-     * @return bool True if processing should be skipped and original file used
-     */
-    protected function shouldSkipProcessing(
-        File $originalFile,
-        array $imageConfiguration,
-        bool $noScale,
-        int $maxFileSizeForAuto = 0,
-    ): bool {
-        // SVG files: Always skip processing (vector graphics don't need raster processing)
-        // SVG scaling is handled by the browser, and ImageMagick would rasterize them
-        if (strtolower($originalFile->getExtension()) === 'svg') {
-            return true;
-        }
-
-        // Explicit noScale = 1 in TypoScript configuration
-        if ($noScale) {
-            return true;
-        }
-
-        // Auto-optimization: Get original dimensions
-        $originalWidth   = (int) ($originalFile->getProperty('width') ?? 0);
-        $originalHeight  = (int) ($originalFile->getProperty('height') ?? 0);
-        $requestedWidth  = (int) ($imageConfiguration['width'] ?? 0);
-        $requestedHeight = (int) ($imageConfiguration['height'] ?? 0);
-
-        // If no dimensions requested, use original file
-        if ($requestedWidth === 0 && $requestedHeight === 0) {
-            return true;
-        }
-
-        // If dimensions match exactly, check file size threshold before auto-optimizing
-        if ($requestedWidth === $originalWidth && $requestedHeight === $originalHeight) {
-            // Check file size threshold if configured
-            if ($maxFileSizeForAuto > 0) {
-                $fileSize = $originalFile->getSize();
-
-                // If file exceeds threshold, process it to potentially reduce size
-                if ($fileSize > $maxFileSizeForAuto) {
-                    return false;
-                }
-            }
-
-            // Dimensions match and within size threshold - skip processing
-            return true;
-        }
-
-        // Different dimensions requested - processing needed
-        return false;
     }
 
     /**
