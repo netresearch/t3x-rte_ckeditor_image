@@ -1,0 +1,77 @@
+name: Crowdin Translation Sync
+
+on:
+  # Manual trigger
+  workflow_dispatch:
+
+  # Automatic trigger on source file changes
+  push:
+    branches:
+      - main
+    paths:
+      - 'Resources/Private/Language/locallang_be.xlf'
+
+  # Daily sync to pull translations from Crowdin
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+jobs:
+  upload-sources:
+    name: Upload source files to Crowdin
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Upload sources to Crowdin
+        uses: crowdin/github-action@v2
+        with:
+          upload_sources: true
+          upload_translations: false
+          download_translations: false
+          crowdin_branch_name: main
+          config: '.crowdin.yml'
+        env:
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+
+  download-translations:
+    name: Download translations from Crowdin
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download translations from Crowdin
+        uses: crowdin/github-action@v2
+        with:
+          upload_sources: false
+          upload_translations: false
+          download_translations: true
+          crowdin_branch_name: main
+          config: '.crowdin.yml'
+          create_pull_request: true
+          pull_request_title: '[i18n] New translations from Crowdin'
+          pull_request_body: |
+            This PR contains updated translations from Crowdin.
+
+            **Review checklist:**
+            - [ ] All translation keys present
+            - [ ] No syntax errors in XLIFF files
+            - [ ] Translations contextually appropriate
+
+            Generated automatically by Crowdin integration.
+          pull_request_labels: i18n,translations,crowdin
+          pull_request_base_branch_name: main
+          commit_message: '[i18n] Update translations from Crowdin'
+          localization_branch_name: i18n/crowdin-translations
+          github_user_name: 'github-actions[bot]'
+          github_user_email: '41898282+github-actions[bot]@users.noreply.github.com'
+        env:
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

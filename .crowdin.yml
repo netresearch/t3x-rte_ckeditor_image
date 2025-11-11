@@ -1,0 +1,90 @@
+# Crowdin Configuration for rte_ckeditor_image
+# https://crowdin.com/project/typo3-extension-rte-ckeditor-image
+#
+# This file configures automatic synchronization between the TYPO3 extension
+# translation files (XLIFF format) and the Crowdin translation management platform.
+
+# Crowdin project identifier
+project_id_env: CROWDIN_PROJECT_ID
+
+# API token for authentication (stored in environment variable)
+api_token_env: CROWDIN_PERSONAL_TOKEN
+
+# Preserve file hierarchy in Crowdin
+preserve_hierarchy: true
+
+# File management configuration
+files:
+  # Backend translations (CKEditor image dialog)
+  - source: /Resources/Private/Language/locallang_be.xlf
+    translation: /Resources/Private/Language/%two_letters_code%.locallang_be.xlf
+    languages_mapping:
+      two_letters_code:
+        de: de
+        es: es
+        fr: fr
+        it: it
+        nl: nl
+        # Additional languages can be added here
+        # pl: pl    # Polish
+        # pt: pt    # Portuguese
+        # ru: ru    # Russian
+        # ja: ja    # Japanese
+        # zh-CN: zh # Chinese (Simplified)
+
+    # XLIFF-specific configuration
+    type: xliff
+
+    # Translation update options
+    update_option: update_as_unapproved
+
+    # Export options
+    export_approved_only: false
+
+    # Content segmentation (split by trans-unit)
+    content_segmentation: true
+
+    # Translation memory
+    save_translations: true
+
+# Commit message template for automated PRs
+commit_message: '[i18n] Update %language% translations from Crowdin'
+
+# Pull request configuration (if using GitHub integration)
+pull_request_title: '[i18n] New translations from Crowdin'
+pull_request_body: |
+  ## Translation Updates from Crowdin
+
+  This PR contains updated translations from the Crowdin platform.
+
+  **Updated languages:**
+  - %language%
+
+  **Review checklist:**
+  - [ ] All translation keys present
+  - [ ] No syntax errors in XLIFF files
+  - [ ] Translations contextually appropriate
+  - [ ] No untranslated strings (unless intentional)
+
+  Generated automatically by Crowdin integration.
+
+# Branch configuration
+pull_request_labels:
+  - i18n
+  - translations
+  - crowdin
+
+# Upload options
+skip_untranslated_strings: false
+skip_untranslated_files: false
+
+# Download options
+export_languages:
+  - de
+  - es
+  - fr
+  - it
+  - nl
+
+# Append translations to existing files
+append_translations: false
