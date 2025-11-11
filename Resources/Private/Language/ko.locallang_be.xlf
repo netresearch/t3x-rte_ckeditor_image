@@ -1,140 +1,107 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <xliff version="1.0">
-    <file source-language="en" target-language="ko" datatype="plaintext" product-name="rte_ckeditor_image">
-        <header/>
-        <body>
-            <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
+  <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image" target-language="ko">
+    <header/>
+    <body>
+      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
 				<source>Custom CSS class</source>
-				<target>사용자 정의 CSS 클래스</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.width" xml:space="preserve">
+			<target state="translated">사용자 정의 CSS 클래스</target></trans-unit>
+      <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
-				<target>너비</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+			<target state="translated">너비</target></trans-unit>
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
 				<source>Height</source>
-				<target>높이</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.title" xml:space="preserve">
+			<target state="translated">높이</target></trans-unit>
+      <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
-				<target>권고 제목</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+			<target state="translated">권고 제목</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
-				<target>대체 텍스트</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
+			<target state="translated">대체 텍스트</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
-				<target>클릭하여 확대</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+			<target state="translated">클릭하여 확대</target></trans-unit>
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
 				<source>Enabled</source>
-				<target>활성화됨</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
+			<target state="translated">활성화됨</target></trans-unit>
+      <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
-				<target>이미지 처리 건너뛰기</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
+			<target state="translated">이미지 처리 건너뛰기</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
 				<source>Image Properties</source>
-				<target>이미지 속성</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
+			<target state="translated">이미지 속성</target></trans-unit>
+      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
 				<source>Cancel</source>
-				<target>취소</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.save" xml:space="preserve">
+			<target state="translated">취소</target></trans-unit>
+      <trans-unit id="labels.ckeditor.save" xml:space="preserve">
 				<source>Save</source>
-				<target>저장</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
+			<target state="translated">저장</target></trans-unit>
+      <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
-				<target>이미지 삽입</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
+			<target state="translated">이미지 삽입</target></trans-unit>
+      <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-				<target>파일 메타데이터에 기본 %s를 사용할 수 없습니다. 빈 값을 재정의할 수 없습니다.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
+			<target state="translated">파일 메타데이터에 기본 %s를 사용할 수 없습니다. 빈 값을 재정의할 수 없습니다.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-				<target>클릭하여 확대/라이트박스 기능을 활성화합니다. 기본 팝업 구성이 자동으로 제공됩니다. 사용자 정의 라이트박스 라이브러리 통합은 문서를 참조하십시오.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
+			<target state="translated">클릭하여 확대/라이트박스 기능을 활성화합니다. 기본 팝업 구성이 자동으로 제공됩니다. 사용자 정의 라이트박스 라이브러리 통합은 문서를 참조하십시오.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-				<target>이미지 처리를 건너뛰고 원본 파일을 사용합니다. 뉴스레터, PDF, 최대 해상도 디스플레이 및 SVG 그래픽에 유용합니다. TypoScript를 통해 전역으로 구성하거나 이미지별로 활성화합니다.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
+			<target state="translated">이미지 처리를 건너뛰고 원본 파일을 사용합니다. 뉴스레터, PDF, 최대 해상도 디스플레이 및 SVG 그래픽에 유용합니다. TypoScript를 통해 전역으로 구성하거나 이미지별로 활성화합니다.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
 				<source>Image Quality</source>
-				<target>이미지 품질</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
+			<target state="translated">이미지 품질</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
 				<source>No Scaling</source>
-				<target>배율 없음</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
+			<target state="translated">배율 없음</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
 				<source>Standard (1.0x)</source>
-				<target>표준 (1.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
+			<target state="translated">표준 (1.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
 				<source>Retina (2.0x)</source>
-				<target>Retina (2.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
+			<target state="needs-translation">Retina (2.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
 				<source>Ultra (3.0x)</source>
-				<target>울트라 (3.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
+			<target state="translated">울트라 (3.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
-				<target>인쇄 (6.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
+			<target state="translated">인쇄 (6.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
 				<source>Low</source>
-				<target>낮음</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
+			<target state="translated">낮음</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-				<target>낮은 품질 (%sx) - 이미지가 흐릿하게 보일 수 있습니다</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+			<target state="translated">낮은 품질 (%sx) - 이미지가 흐릿하게 보일 수 있습니다</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
 				<source>Standard</source>
-				<target>표준</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
+			<target state="translated">표준</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-				<target>표준 품질 (%sx) - 기본 디스플레이에서 선명함</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
+			<target state="translated">표준 품질 (%sx) - 기본 디스플레이에서 선명함</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
 				<source>Retina</source>
-				<target>Retina</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
+			<target state="needs-translation">Retina</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-				<target>Retina 품질 (%sx) - 최신 디스플레이에 최적</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
+			<target state="translated">Retina 품질 (%sx) - 최신 디스플레이에 최적</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
 				<source>Ultra</source>
-				<target>울트라</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
+			<target state="translated">울트라</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-				<target>울트라 품질 (%sx) - 초고DPI 또는 소형 인쇄용</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+			<target state="translated">울트라 품질 (%sx) - 초고DPI 또는 소형 인쇄용</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
 				<source>Print</source>
-				<target>인쇄</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
+			<target state="translated">인쇄</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-				<target>인쇄 품질 (%sx) - 고품질 인쇄에 적합 (300 DPI)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
+			<target state="translated">인쇄 품질 (%sx) - 고품질 인쇄에 적합 (300 DPI)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
 				<source>Excessive</source>
-				<target>과도함</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
+			<target state="translated">과도함</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-				<target>과도한 해상도 (%sx) - 불필요하게 높음</target>
-			</trans-unit>
-        </body>
-    </file>
+			<target state="translated">과도한 해상도 (%sx) - 불필요하게 높음</target></trans-unit>
+    </body>
+  </file>
 </xliff>
