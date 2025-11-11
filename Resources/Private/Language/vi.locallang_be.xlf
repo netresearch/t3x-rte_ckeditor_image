@@ -1,140 +1,107 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <xliff version="1.0">
-    <file source-language="en" target-language="vi" datatype="plaintext" product-name="rte_ckeditor_image">
-        <header/>
-        <body>
-            <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
+  <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image" target-language="vi">
+    <header/>
+    <body>
+      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
 				<source>Custom CSS class</source>
-				<target>Lớp CSS tùy chỉnh</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.width" xml:space="preserve">
+			<target state="translated">Lớp CSS tùy chỉnh</target></trans-unit>
+      <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
-				<target>Chiều rộng</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+			<target state="translated">Chiều rộng</target></trans-unit>
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
 				<source>Height</source>
-				<target>Chiều cao</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.title" xml:space="preserve">
+			<target state="translated">Chiều cao</target></trans-unit>
+      <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
-				<target>Tiêu đề tư vấn</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+			<target state="translated">Tiêu đề tư vấn</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
-				<target>Văn bản thay thế</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
+			<target state="translated">Văn bản thay thế</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
-				<target>Nhấp để phóng to</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+			<target state="translated">Nhấp để phóng to</target></trans-unit>
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
 				<source>Enabled</source>
-				<target>Đã bật</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
+			<target state="translated">Đã bật</target></trans-unit>
+      <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
-				<target>Bỏ qua xử lý hình ảnh</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
+			<target state="translated">Bỏ qua xử lý hình ảnh</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
 				<source>Image Properties</source>
-				<target>Thuộc tính hình ảnh</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
+			<target state="translated">Thuộc tính hình ảnh</target></trans-unit>
+      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
 				<source>Cancel</source>
-				<target>Hủy</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.save" xml:space="preserve">
+			<target state="translated">Hủy</target></trans-unit>
+      <trans-unit id="labels.ckeditor.save" xml:space="preserve">
 				<source>Save</source>
-				<target>Lưu</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
+			<target state="translated">Lưu</target></trans-unit>
+      <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
-				<target>Chèn hình ảnh</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
+			<target state="translated">Chèn hình ảnh</target></trans-unit>
+      <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-				<target>Không có %s mặc định trong metadata tệp. Không thể ghi đè giá trị trống.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
+			<target state="translated">Không có %s mặc định trong metadata tệp. Không thể ghi đè giá trị trống.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-				<target>Kích hoạt chức năng nhấp-để-phóng-to/lightbox. Cấu hình popup mặc định được cung cấp tự động. Xem tài liệu để tích hợp thư viện lightbox tùy chỉnh.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
+			<target state="translated">Kích hoạt chức năng nhấp-để-phóng-to/lightbox. Cấu hình popup mặc định được cung cấp tự động. Xem tài liệu để tích hợp thư viện lightbox tùy chỉnh.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-				<target>Bỏ qua xử lý hình ảnh và sử dụng tệp gốc. Hữu ích cho bản tin, PDF, màn hình độ phân giải tối đa và đồ họa SVG. Cấu hình toàn cục qua TypoScript hoặc bật cho từng hình ảnh.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
+			<target state="translated">Bỏ qua xử lý hình ảnh và sử dụng tệp gốc. Hữu ích cho bản tin, PDF, màn hình độ phân giải tối đa và đồ họa SVG. Cấu hình toàn cục qua TypoScript hoặc bật cho từng hình ảnh.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
 				<source>Image Quality</source>
-				<target>Chất lượng hình ảnh</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
+			<target state="translated">Chất lượng hình ảnh</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
 				<source>No Scaling</source>
-				<target>Không chia tỷ lệ</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
+			<target state="translated">Không chia tỷ lệ</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
 				<source>Standard (1.0x)</source>
-				<target>Tiêu chuẩn (1.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
+			<target state="translated">Tiêu chuẩn (1.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
 				<source>Retina (2.0x)</source>
-				<target>Retina (2.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
+			<target state="needs-translation">Retina (2.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
 				<source>Ultra (3.0x)</source>
-				<target>Siêu (3.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
+			<target state="translated">Siêu (3.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
-				<target>In (6.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
+			<target state="translated">In (6.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
 				<source>Low</source>
-				<target>Thấp</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
+			<target state="translated">Thấp</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-				<target>Chất lượng thấp (%sx) - Hình ảnh có thể bị mờ</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+			<target state="translated">Chất lượng thấp (%sx) - Hình ảnh có thể bị mờ</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
 				<source>Standard</source>
-				<target>Tiêu chuẩn</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
+			<target state="translated">Tiêu chuẩn</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-				<target>Chất lượng tiêu chuẩn (%sx) - Sắc nét trên màn hình cơ bản</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
+			<target state="translated">Chất lượng tiêu chuẩn (%sx) - Sắc nét trên màn hình cơ bản</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
 				<source>Retina</source>
-				<target>Retina</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
+			<target state="needs-translation">Retina</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-				<target>Chất lượng Retina (%sx) - Tối ưu cho màn hình hiện đại</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
+			<target state="translated">Chất lượng Retina (%sx) - Tối ưu cho màn hình hiện đại</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
 				<source>Ultra</source>
-				<target>Siêu</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
+			<target state="translated">Siêu</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-				<target>Chất lượng siêu (%sx) - Cho DPI cực cao hoặc in nhỏ</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+			<target state="translated">Chất lượng siêu (%sx) - Cho DPI cực cao hoặc in nhỏ</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
 				<source>Print</source>
-				<target>In</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
+			<target state="translated">In</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-				<target>Chất lượng in (%sx) - Phù hợp cho in chất lượng cao (300 DPI)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
+			<target state="translated">Chất lượng in (%sx) - Phù hợp cho in chất lượng cao (300 DPI)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
 				<source>Excessive</source>
-				<target>Quá mức</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
+			<target state="translated">Quá mức</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-				<target>Độ phân giải quá mức (%sx) - Cao không cần thiết</target>
-			</trans-unit>
-        </body>
-    </file>
+			<target state="translated">Độ phân giải quá mức (%sx) - Cao không cần thiết</target></trans-unit>
+    </body>
+  </file>
 </xliff>
