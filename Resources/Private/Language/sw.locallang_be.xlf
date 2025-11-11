@@ -81,7 +81,7 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
 				<source>Ultra (3.0x)</source>
-				<target>Ultra (3.0x)</target>
+				<target>Namba moja (3.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
@@ -113,7 +113,7 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
 				<source>Ultra</source>
-				<target>Ultra</target>
+				<target>Namba moja</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
