@@ -303,6 +303,11 @@ files:
     translation: /%original_path%/%two_letters_code%.%original_file_name%
     ignore:
       - /**/%two_letters_code%.%original_file_name%
+    # Export options to minimize formatting changes
+    export_options:
+      export_quotes: none
+      export_pattern: default
+      export_approved_only: false
 ```
 
 **Key Requirements:**
@@ -310,7 +315,33 @@ files:
 - Wildcard pattern `*.xlf` - Supports multiple translation files (NOT hardcoded filenames)
 - Translation pattern uses variables: `%original_path%`, `%two_letters_code%`, `%original_file_name%`
 - Ignore directive prevents re-uploading translations as sources
+- `export_options` - Minimizes formatting differences in Crowdin PRs
 - NO project_id_env, api_token_env, languages_mapping, or other complex fields
+
+**Minimizing Crowdin PR Noise:**
+
+To reduce whitespace/formatting changes in Crowdin PRs:
+
+1. **.editorconfig** - Define XLIFF formatting rules:
+```ini
+[*.{xlf,xml}]
+indent_style = tab
+indent_size = 4
+trim_trailing_whitespace = true
+```
+
+2. **.gitattributes** - Ensure consistent line endings:
+```
+*.xlf text eol=lf linguist-language=XML
+*.xml text eol=lf
+```
+
+3. **crowdin.yml export_options** - Control Crowdin export formatting (see above)
+
+**Note:** Some formatting differences are unavoidable:
+- Crowdin may reorder XML attributes (e.g., `target-language` position)
+- Crowdin adds `state="translated"` attributes to track translation status
+- These are cosmetic changes that don't affect functionality
 
 ### GitHub Actions Workflow
 

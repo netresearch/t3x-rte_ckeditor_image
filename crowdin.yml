@@ -4,3 +4,9 @@ files:
     translation: /%original_path%/%two_letters_code%.%original_file_name%
     ignore:
       - /**/%two_letters_code%.%original_file_name%
+    # Export options to minimize formatting changes
+    export_options:
+      export_quotes: none
+      export_pattern: default
+      # Preserve original formatting
+      export_approved_only: false
