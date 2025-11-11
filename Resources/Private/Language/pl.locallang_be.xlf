@@ -5,75 +5,75 @@
         <body>
             <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
 				<source>Custom CSS class</source>
-				<target>Custom CSS class</target>
+				<target>Niestandardowa klasa CSS</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
-				<target>Width</target>
+				<target>Szerokość</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.height" xml:space="preserve">
 				<source>Height</source>
-				<target>Height</target>
+				<target>Wysokość</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
-				<target>Advisory Title</target>
+				<target>Tytuł doradczy</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
-				<target>Alternative Text</target>
+				<target>Tekst alternatywny</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
-				<target>Click to Enlarge</target>
+				<target>Kliknij aby powiększyć</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
 				<source>Enabled</source>
-				<target>Enabled</target>
+				<target>Włączone</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
-				<target>Skip Image Processing</target>
+				<target>Pomiń przetwarzanie obrazu</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
 				<source>Image Properties</source>
-				<target>Image Properties</target>
+				<target>Właściwości obrazu</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
 				<source>Cancel</source>
-				<target>Cancel</target>
+				<target>Anuluj</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.save" xml:space="preserve">
 				<source>Save</source>
-				<target>Save</target>
+				<target>Zapisz</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
-				<target>Insert image</target>
+				<target>Wstaw obraz</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-				<target>No default %s available in file metadata. Cannot override empty value.</target>
+				<target>Brak domyślnego %s w metadanych pliku. Nie można nadpisać pustej wartości.</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-				<target>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</target>
+				<target>Włącza funkcję powiększania po kliknięciu/lightbox. Domyślna konfiguracja popup jest dostarczona automatycznie. Zobacz dokumentację dla niestandardowej integracji biblioteki lightbox.</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-				<target>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</target>
+				<target>Pomija przetwarzanie obrazu i używa oryginalnego pliku. Przydatne dla newsletterów, PDF-ów, wyświetlaczy o maksymalnej rozdzielczości i grafiki SVG. Skonfiguruj globalnie przez TypoScript lub włącz dla pojedynczego obrazu.</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
 				<source>Image Quality</source>
-				<target>Image Quality</target>
+				<target>Jakość obrazu</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
 				<source>No Scaling</source>
-				<target>No Scaling</target>
+				<target>Bez skalowania</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
 				<source>Standard (1.0x)</source>
-				<target>Standard (1.0x)</target>
+				<target>Standardowa (1.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
 				<source>Retina (2.0x)</source>
@@ -85,23 +85,23 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
-				<target>Print (6.0x)</target>
+				<target>Druk (6.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
 				<source>Low</source>
-				<target>Low</target>
+				<target>Niska</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-				<target>Low quality (%sx) - Image may appear blurry</target>
+				<target>Niska jakość (%sx) - Obraz może być niewyraźny</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
 				<source>Standard</source>
-				<target>Standard</target>
+				<target>Standardowa</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-				<target>Standard quality (%sx) - Sharp on basic displays</target>
+				<target>Standardowa jakość (%sx) - Ostry na podstawowych wyświetlaczach</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
 				<source>Retina</source>
@@ -109,7 +109,7 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-				<target>Retina quality (%sx) - Optimal for modern displays</target>
+				<target>Jakość Retina (%sx) - Optymalna dla nowoczesnych wyświetlaczy</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
 				<source>Ultra</source>
@@ -117,23 +117,23 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-				<target>Ultra quality (%sx) - For ultra-high DPI or small print</target>
+				<target>Jakość Ultra (%sx) - Dla ultra-wysokiego DPI lub małego druku</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
 				<source>Print</source>
-				<target>Print</target>
+				<target>Druk</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-				<target>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</target>
+				<target>Jakość druku (%sx) - Odpowiednia dla druku wysokiej jakości (300 DPI)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
 				<source>Excessive</source>
-				<target>Excessive</target>
+				<target>Nadmierna</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-				<target>Excessive resolution (%sx) - Unnecessarily high</target>
+				<target>Nadmierna rozdzielczość (%sx) - Niepotrzebnie wysoka</target>
 			</trans-unit>
         </body>
     </file>
