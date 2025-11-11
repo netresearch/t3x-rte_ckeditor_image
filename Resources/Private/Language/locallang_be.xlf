@@ -48,6 +48,60 @@
             <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
 			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
+				<source>Image Quality</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
+				<source>No Scaling</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
+				<source>Standard (1.0x)</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
+				<source>Retina (2.0x)</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
+				<source>Ultra (3.0x)</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
+				<source>Print (6.0x)</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
+				<source>Low</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
+				<source>Low quality (%sx) - Image may appear blurry</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+				<source>Standard</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
+				<source>Standard quality (%sx) - Sharp on basic displays</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
+				<source>Retina</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
+				<source>Retina quality (%sx) - Optimal for modern displays</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
+				<source>Ultra</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
+				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+				<source>Print</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
+				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
+				<source>Excessive</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
+				<source>Excessive resolution (%sx) - Unnecessarily high</source>
+			</trans-unit>
         </body>
     </file>
 </xliff>

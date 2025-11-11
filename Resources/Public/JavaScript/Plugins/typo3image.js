@@ -226,11 +226,11 @@ function getImageDialog(editor, img, attributes) {
             } else if (config.type === 'select' && key === 'quality') {
                 // Image Processing quality dropdown - sorted by quality ascending
                 var qualityOptions = [
-                    { value: 'none', label: 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
-                    { value: 'standard', label: 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
-                    { value: 'retina', label: 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
-                    { value: 'ultra', label: 'Ultra (3.0x)', multiplier: 3.0, color: '#17a2b8', marker: '●' },
-                    { value: 'print', label: 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
+                    { value: 'none', label: lang.qualityNone || 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
+                    { value: 'standard', label: lang.qualityStandard || 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
+                    { value: 'retina', label: lang.qualityRetina || 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
+                    { value: 'ultra', label: lang.qualityUltra || 'Ultra (3.0x)', multiplier: 3.0, color: '#17a2b8', marker: '●' },
+                    { value: 'print', label: lang.qualityPrint || 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
                 ];
 
                 $.each(qualityOptions, function(i, option) {
@@ -325,19 +325,25 @@ function getImageDialog(editor, img, attributes) {
     }
 
     // Quality indicator functions
-    function getQualityLevel(ratio) {
+    function getQualityLevel(ratio, lang) {
         if (ratio < 0.9) {
-            return { level: 'low', label: 'Low', color: '#dc3545', tooltip: 'Low quality (' + ratio.toFixed(1) + 'x) - Image may appear blurry' };
+            var tooltip = (lang.qualityLowTooltip || 'Low quality (%sx) - Image may appear blurry').replace('%s', ratio.toFixed(1));
+            return { level: 'low', label: lang.qualityLowLabel || 'Low', color: '#dc3545', tooltip: tooltip };
         } else if (ratio < 1.5) {
-            return { level: 'standard', label: 'Standard', color: '#fd7e14', tooltip: 'Standard quality (' + ratio.toFixed(1) + 'x) - Sharp on basic displays' };
+            var tooltip = (lang.qualityStandardTooltip || 'Standard quality (%sx) - Sharp on basic displays').replace('%s', ratio.toFixed(1));
+            return { level: 'standard', label: lang.qualityStandardLabel || 'Standard', color: '#fd7e14', tooltip: tooltip };
         } else if (ratio < 3.0) {
-            return { level: 'retina', label: 'Retina', color: '#28a745', tooltip: 'Retina quality (' + ratio.toFixed(1) + 'x) - Optimal for modern displays' };
+            var tooltip = (lang.qualityRetinaTooltip || 'Retina quality (%sx) - Optimal for modern displays').replace('%s', ratio.toFixed(1));
+            return { level: 'retina', label: lang.qualityRetinaLabel || 'Retina', color: '#28a745', tooltip: tooltip };
         } else if (ratio < 6.0) {
-            return { level: 'ultra', label: 'Ultra', color: '#6f42c1', tooltip: 'Ultra quality (' + ratio.toFixed(1) + 'x) - For ultra-high DPI or small print' };
+            var tooltip = (lang.qualityUltraTooltip || 'Ultra quality (%sx) - For ultra-high DPI or small print').replace('%s', ratio.toFixed(1));
+            return { level: 'ultra', label: lang.qualityUltraLabel || 'Ultra', color: '#6f42c1', tooltip: tooltip };
         } else if (ratio <= 10.0) {
-            return { level: 'print', label: 'Print', color: '#007bff', tooltip: 'Print quality (' + ratio.toFixed(1) + 'x) - Suitable for high-quality printing (300 DPI)' };
+            var tooltip = (lang.qualityPrintTooltip || 'Print quality (%sx) - Suitable for high-quality printing (300 DPI)').replace('%s', ratio.toFixed(1));
+            return { level: 'print', label: lang.qualityPrintLabel || 'Print', color: '#007bff', tooltip: tooltip };
         } else {
-            return { level: 'excessive', label: 'Excessive', color: '#6c757d', tooltip: 'Excessive resolution (' + ratio.toFixed(1) + 'x) - Unnecessarily high' };
+            var tooltip = (lang.qualityExcessiveTooltip || 'Excessive resolution (%sx) - Unnecessarily high').replace('%s', ratio.toFixed(1));
+            return { level: 'excessive', label: lang.qualityExcessiveLabel || 'Excessive', color: '#6c757d', tooltip: tooltip };
         }
     }
 
