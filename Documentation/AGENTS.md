@@ -147,6 +147,28 @@ Link to :ref:`my-label`
    :returntype: string
 ```
 
+**Return Type Strategy (Hybrid Rule):**
+
+1. **Simple types:** Include in signature only
+   ```rst
+   .. php:method:: isEnabled(): bool
+   ```
+
+2. **TYPO3 types:** Include in signature + `:returntype:` for FQN
+   ```rst
+   .. php:method:: getFile(int $uid): File|null
+
+      :returntype: ``\\TYPO3\\CMS\\Core\\Resource\\File|null``
+   ```
+
+3. **Complex union types (>2 types or long FQNs):** Use `:returntype:` field only
+   ```rst
+   .. php:method:: processImage(File $file, array $options)
+
+      :returns: Processed file, original file if unchanged, or null on error
+      :returntype: ``\\TYPO3\\CMS\\Core\\Resource\\ProcessedFile|\\TYPO3\\CMS\\Core\\Resource\\File|null``
+   ```
+
 **Card Grids (Visual Layouts):**
 ```rst
 .. card-grid::
@@ -212,6 +234,59 @@ find Documentation -name "*.rst" -exec rst2html.py --strict {} \; > /dev/null
 
 **Published Manual:** https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/
 
+## Documentation Coverage and Gap Analysis
+
+**Using AI Skills:**
+
+If the `typo3-docs` skill is available, it provides tools for:
+- Extracting documentation data from code and configs
+- Analyzing documentation coverage
+- Identifying undocumented APIs and configuration options
+- Generating gap analysis reports
+
+**Without the skill:**
+- Manually review `Classes/**/*.php` for undocumented public APIs
+- Check `ext_conf_template.txt` and `Configuration/` for undocumented settings
+- Compare `Documentation/API/` against actual class implementations
+- Verify all public controllers, services, and utilities are documented
+
+**Recommendation:** Enable the `typo3-docs` skill for systematic documentation coverage analysis.
+
+## Documentation Synchronization
+
+**Critical Rule:** README.md and Documentation/ must stay synchronized.
+
+**Common sync points:**
+- Installation instructions → README.md + Documentation/Introduction/
+- Configuration examples → README.md + Documentation/Integration/
+- Button names and UI elements → Verify consistency across all docs
+- Feature descriptions → README.md + Documentation/Index.rst
+
+**Synchronization checklist:**
+1. ✅ Installation steps match between README.md and Documentation/Introduction/
+2. ✅ Feature descriptions consistent between README.md and Documentation/Index.rst
+3. ✅ Code examples identical (button names, configuration, TypoScript)
+4. ✅ Version numbers consistent (README.md badges match Documentation/Settings.cfg)
+5. ✅ Links to external resources point to same destinations
+
+**Example from real bug:**
+```markdown
+# README.md (WRONG)
+toolbar: [typo3image]  # Wrong button name
+
+# Documentation/Integration/RTE-Setup.rst (WRONG)
+toolbar: [typo3image]  # Wrong button name
+
+# Actual JavaScript code (CORRECT)
+editor.ui.componentFactory.add('insertimage', ...)  # Correct button name
+```
+
+**Fix approach:**
+1. Find source of truth (usually the actual code)
+2. Update README.md with correct information
+3. Update all Documentation/*.rst files with same information
+4. Commit both in same atomic commit
+
 ## Working with Documentation/*.rst Files
 
 ### AI Agent Guidelines
@@ -233,6 +308,7 @@ find Documentation -name "*.rst" -exec rst2html.py --strict {} \; > /dev/null
 - Use external links for internal documentation (use :ref: instead)
 - Skip local rendering (always verify before commit)
 - Mix documentation formats (RST in Documentation/, Markdown in claudedocs/)
+- Update README.md without updating Documentation/ (or vice versa)
 
 ### Common Tasks
 
@@ -322,5 +398,5 @@ Study this project to understand TYPO3 extension best practices.
 ---
 
 **Version:** 13.0.0
-**Last Updated:** 2025-10-18
+**Last Updated:** 2025-11-10
 **Maintained By:** Netresearch DTT GmbH
