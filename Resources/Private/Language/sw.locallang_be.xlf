@@ -1,140 +1,113 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-    <file source-language="en" target-language="sw" datatype="plaintext" product-name="rte_ckeditor_image">
-        <header/>
-        <body>
-            <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image" target-language="sw">
+    <header/>
+    <body>
+      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
 				<source>Custom CSS class</source>
-				<target state="translated">Darasa la CSS maalum</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.width" xml:space="preserve">
+			<target state="translated">Darasa la CSS maalum</target></trans-unit>
+      <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
-				<target state="translated">Upana</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+			<target state="translated">Upana</target></trans-unit>
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
 				<source>Height</source>
-				<target state="translated">Urefu</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.title" xml:space="preserve">
+			<target state="translated">Urefu</target></trans-unit>
+      <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
-				<target state="translated">Kichwa cha ushauri</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+			<target state="translated">Kichwa cha ushauri</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
-				<target state="translated">Maandishi mbadala</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
+			<target state="translated">Maandishi mbadala</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
-				<target state="translated">Bofya ili kuongeza</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+			<target state="translated">Bofya ili kuongeza</target></trans-unit>
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
 				<source>Enabled</source>
-				<target state="translated">Imewezeshwa</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
+			<target state="translated">Imewezeshwa</target></trans-unit>
+      <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
-				<target state="translated">Ruka usindikaji wa picha</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
+			<target state="translated">Ruka usindikaji wa picha</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
 				<source>Image Properties</source>
-				<target state="translated">Sifa za picha</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
+			<target state="translated">Sifa za picha</target></trans-unit>
+      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
 				<source>Cancel</source>
-				<target state="translated">Ghairi</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.save" xml:space="preserve">
+			<target state="translated">Ghairi</target></trans-unit>
+      <trans-unit id="labels.ckeditor.save" xml:space="preserve">
 				<source>Save</source>
-				<target state="translated">Hifadhi</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
+			<target state="translated">Hifadhi</target></trans-unit>
+      <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
-				<target state="translated">Ingiza picha</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
+			<target state="translated">Ingiza picha</target></trans-unit>
+      <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-				<target state="translated">Hakuna %s chaguo-msingi katika metadata ya faili. Haiwezi kubadilisha thamani tupu.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
+			<target state="translated">Hakuna %s chaguo-msingi katika metadata ya faili. Haiwezi kubadilisha thamani tupu.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-				<target state="translated">Huwezesha kitendakazi cha kubofya-ili-kuongeza/sanduku la taa. Usanidi wa chaguo-msingi wa dirisha unatolewa moja kwa moja. Tazama nyaraka za kuunganisha maktaba ya sanduku la taa maalum.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
+			<target state="translated">Huwezesha kitendakazi cha kubofya-ili-kuongeza/sanduku la taa. Usanidi wa chaguo-msingi wa dirisha unatolewa moja kwa moja. Tazama nyaraka za kuunganisha maktaba ya sanduku la taa maalum.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-				<target state="translated">Huruka usindikaji wa picha na hutumia faili asili. Inafaa kwa majarida, PDF, maonyesho ya azimio la juu zaidi, na michoro ya SVG. Sanidi kimataifa kupitia TypoScript au wezesha kwa kila picha.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
+			<target state="translated">Huruka usindikaji wa picha na hutumia faili asili. Inafaa kwa majarida, PDF, maonyesho ya azimio la juu zaidi, na michoro ya SVG. Sanidi kimataifa kupitia TypoScript au wezesha kwa kila picha.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
 				<source>Image Quality</source>
-				<target state="translated">Ubora wa picha</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
+			<target state="translated">Ubora wa picha</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
 				<source>No Scaling</source>
-				<target state="translated">Hakuna kupima</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
+			<target state="translated">Hakuna kupima</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
 				<source>Standard (1.0x)</source>
-				<target state="translated">Kawaida (1.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
+				
+			<target state="translated">Kawaida (1.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
 				<source>Retina (2.0x)</source>
-				<target state="translated">Retina (2.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
+				
+			<target state="needs-translation">Retina (2.0x)</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
 				<source>Ultra (3.0x)</source>
-				<target state="translated">Namba moja (3.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
+				
+			<target state="translated">Namba moja (3.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
-				<target state="translated">Chapa (6.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
+			<target state="translated">Chapa (6.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
 				<source>Low</source>
-				<target state="translated">Chini</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
+			<target state="translated">Chini</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-				<target state="translated">Ubora wa chini (%sx) - Picha inaweza kuonekana isiyo dhahiri</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+			<target state="translated">Ubora wa chini (%sx) - Picha inaweza kuonekana isiyo dhahiri</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
 				<source>Standard</source>
-				<target state="translated">Kawaida</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
+				
+			<target state="translated">Kawaida</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-				<target state="translated">Ubora wa kawaida (%sx) - Kali kwenye maonyesho ya kimsingi</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
+			<target state="translated">Ubora wa kawaida (%sx) - Kali kwenye maonyesho ya kimsingi</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
 				<source>Retina</source>
-				<target state="translated">Retina</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
+				
+			<target state="needs-translation">Retina</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-				<target state="translated">Ubora wa Retina (%sx) - Bora kwa maonyesho ya kisasa</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
+			<target state="translated">Ubora wa Retina (%sx) - Bora kwa maonyesho ya kisasa</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
 				<source>Ultra</source>
-				<target state="translated">Namba moja</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
+				
+			<target state="translated">Namba moja</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-				<target state="translated">Ubora wa Ultra (%sx) - Kwa DPI ya juu sana au chapa ndogo</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+			<target state="translated">Ubora wa Ultra (%sx) - Kwa DPI ya juu sana au chapa ndogo</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
 				<source>Print</source>
-				<target state="translated">Chapa</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
+			<target state="translated">Chapa</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-				<target state="translated">Ubora wa kuchapisha (%sx) - Inafaa kwa uchapishaji wa ubora wa juu (300 DPI)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
+			<target state="translated">Ubora wa kuchapisha (%sx) - Inafaa kwa uchapishaji wa ubora wa juu (300 DPI)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
 				<source>Excessive</source>
-				<target state="translated">Kupita kiasi</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
+			<target state="translated">Kupita kiasi</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-				<target state="translated">Azimio la kupita kiasi (%sx) - Juu bila sababu</target>
-			</trans-unit>
-        </body>
-    </file>
+			<target state="translated">Azimio la kupita kiasi (%sx) - Juu bila sababu</target></trans-unit>
+    </body>
+  </file>
 </xliff>
