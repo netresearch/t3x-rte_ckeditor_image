@@ -309,6 +309,54 @@ editor.ui.componentFactory.add('insertimage', ...)  # Correct button name
 - Skip local rendering (always verify before commit)
 - Mix documentation formats (RST in Documentation/, Markdown in claudedocs/)
 - Update README.md without updating Documentation/ (or vice versa)
+- Create bloated single-file documentation (see page size guidelines below)
+
+### Page Size Guidelines
+
+**CRITICAL RULE:** Follow TYPO3 documentation best practices for page organization.
+
+**Index.rst (Landing Page):**
+- **Target:** 80-150 lines
+- **Purpose:** Entry point with metadata, brief description, and navigation
+- **Contains:** Extension metadata, card-grid for navigation, toctree, license
+- **Anti-pattern:** ❌ Embedding all content (introduction, requirements, contributing, etc.)
+- **Example:** TYPO3 tea extension - concise landing page with toctree navigation
+
+**Content Pages:**
+- **Target:** 100-300 lines per file
+- **Optimal:** 150-200 lines
+- **Maximum:** 400 lines (consider splitting if larger)
+- **Structure:** Focused on single topic or related concepts
+- **Split Strategy:** Create subdirectories for complex topics
+
+**Directory Structure:**
+```
+Documentation/
+├── Index.rst              # Landing page (80-150 lines)
+├── Introduction/          # Getting started content
+│   └── Index.rst         # Introduction, requirements, quick start
+├── Integration/          # Configuration guides
+│   └── Index.rst
+├── Contributing/         # Contribution guidelines
+│   └── Index.rst         # Code contributions, translations, credits
+├── Examples/             # Usage examples
+├── Troubleshooting/      # Problem solving
+├── Architecture/         # System design
+└── API/                  # Developer reference
+```
+
+**Red Flags:**
+- ❌ Index.rst >200 lines → Extract content to separate files
+- ❌ Single file >400 lines → Split into multiple focused pages
+- ❌ All content in Index.rst → Create proper section directories
+- ❌ Navigation by scrolling → Create card-grid + toctree structure
+
+**Benefits of Proper Structure:**
+- ✅ Better user experience (focused pages)
+- ✅ Easier maintenance (smaller files)
+- ✅ Improved search results (specific pages)
+- ✅ Clear information architecture
+- ✅ Follows TYPO3 documentation standards
 
 ### Common Tasks
 
