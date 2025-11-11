@@ -1,140 +1,107 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <xliff version="1.0">
-    <file source-language="en" target-language="ru" datatype="plaintext" product-name="rte_ckeditor_image">
-        <header/>
-        <body>
-            <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
+  <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image" target-language="ru">
+    <header/>
+    <body>
+      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
 				<source>Custom CSS class</source>
-				<target>Пользовательский CSS класс</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.width" xml:space="preserve">
+			<target state="translated">Пользовательский CSS класс</target></trans-unit>
+      <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
-				<target>Ширина</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+			<target state="translated">Ширина</target></trans-unit>
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
 				<source>Height</source>
-				<target>Высота</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.title" xml:space="preserve">
+			<target state="translated">Высота</target></trans-unit>
+      <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
-				<target>Консультативный заголовок</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+			<target state="translated">Консультативный заголовок</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
-				<target>Альтернативный текст</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
+			<target state="translated">Альтернативный текст</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
-				<target>Нажмите, чтобы увеличить</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+			<target state="translated">Нажмите, чтобы увеличить</target></trans-unit>
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
 				<source>Enabled</source>
-				<target>Включено</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
+			<target state="translated">Включено</target></trans-unit>
+      <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
-				<target>Пропустить обработку изображения</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
+			<target state="translated">Пропустить обработку изображения</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
 				<source>Image Properties</source>
-				<target>Свойства изображения</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
+			<target state="translated">Свойства изображения</target></trans-unit>
+      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
 				<source>Cancel</source>
-				<target>Отмена</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.save" xml:space="preserve">
+			<target state="translated">Отмена</target></trans-unit>
+      <trans-unit id="labels.ckeditor.save" xml:space="preserve">
 				<source>Save</source>
-				<target>Сохранить</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
+			<target state="translated">Сохранить</target></trans-unit>
+      <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
-				<target>Вставить изображение</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
+			<target state="translated">Вставить изображение</target></trans-unit>
+      <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-				<target>Нет значения по умолчанию %s в метаданных файла. Невозможно переопределить пустое значение.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
+			<target state="translated">Нет значения по умолчанию %s в метаданных файла. Невозможно переопределить пустое значение.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-				<target>Включает функцию увеличения по клику/lightbox. Конфигурация всплывающего окна по умолчанию предоставляется автоматически. См. документацию для интеграции пользовательской библиотеки lightbox.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
+			<target state="translated">Включает функцию увеличения по клику/lightbox. Конфигурация всплывающего окна по умолчанию предоставляется автоматически. См. документацию для интеграции пользовательской библиотеки lightbox.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-				<target>Пропускает обработку изображения и использует исходный файл. Полезно для рассылок, PDF, дисплеев с максимальным разрешением и графики SVG. Настройте глобально через TypoScript или включите для каждого изображения.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
+			<target state="translated">Пропускает обработку изображения и использует исходный файл. Полезно для рассылок, PDF, дисплеев с максимальным разрешением и графики SVG. Настройте глобально через TypoScript или включите для каждого изображения.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
 				<source>Image Quality</source>
-				<target>Качество изображения</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
+			<target state="translated">Качество изображения</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
 				<source>No Scaling</source>
-				<target>Без масштабирования</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
+			<target state="translated">Без масштабирования</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
 				<source>Standard (1.0x)</source>
-				<target>Стандартное (1.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
+			<target state="translated">Стандартное (1.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
 				<source>Retina (2.0x)</source>
-				<target>Retina (2.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
+			<target state="needs-translation">Retina (2.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
 				<source>Ultra (3.0x)</source>
-				<target>Ультра (3.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
+			<target state="translated">Ультра (3.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
-				<target>Печать (6.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
+			<target state="translated">Печать (6.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
 				<source>Low</source>
-				<target>Низкое</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
+			<target state="translated">Низкое</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-				<target>Низкое качество (%sx) - Изображение может быть размытым</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+			<target state="translated">Низкое качество (%sx) - Изображение может быть размытым</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
 				<source>Standard</source>
-				<target>Стандартное</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
+			<target state="translated">Стандартное</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-				<target>Стандартное качество (%sx) - Четкое на базовых дисплеях</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
+			<target state="translated">Стандартное качество (%sx) - Четкое на базовых дисплеях</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
 				<source>Retina</source>
-				<target>Retina</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
+			<target state="needs-translation">Retina</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-				<target>Качество Retina (%sx) - Оптимально для современных дисплеев</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
+			<target state="translated">Качество Retina (%sx) - Оптимально для современных дисплеев</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
 				<source>Ultra</source>
-				<target>Ультра</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
+			<target state="translated">Ультра</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-				<target>Ультра качество (%sx) - Для сверхвысокого DPI или мелкой печати</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+			<target state="translated">Ультра качество (%sx) - Для сверхвысокого DPI или мелкой печати</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
 				<source>Print</source>
-				<target>Печать</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
+			<target state="translated">Печать</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-				<target>Качество печати (%sx) - Подходит для высококачественной печати (300 DPI)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
+			<target state="translated">Качество печати (%sx) - Подходит для высококачественной печати (300 DPI)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
 				<source>Excessive</source>
-				<target>Избыточное</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
+			<target state="translated">Избыточное</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-				<target>Избыточное разрешение (%sx) - Излишне высокое</target>
-			</trans-unit>
-        </body>
-    </file>
+			<target state="translated">Избыточное разрешение (%sx) - Излишне высокое</target></trans-unit>
+    </body>
+  </file>
 </xliff>
