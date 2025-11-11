@@ -65,6 +65,12 @@ jobs:
                     composer install --no-interaction --prefer-dist
                     git checkout composer.json
 
+            -   id: xliff
+                name: Validate XLIFF Translation Files
+                if: ${{ always() && steps.checkout.conclusion == 'success' }}
+                run: |
+                    bash Build/Scripts/validate-xliff.sh
+
             -   id: lint
                 name: Lint
                 if: ${{ always() && steps.install.conclusion == 'success' }}
