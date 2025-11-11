@@ -275,6 +275,78 @@ class SelectImageController extends ElementBrowserController
                 'LLL:EXT:frontend/Resources/Private/Language/'
                 . 'locallang_ttc.xlf:image_zoom_formlabel',
             ),
+            'quality' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality',
+            ),
+            'qualityNone' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.none',
+            ),
+            'qualityStandard' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.standard',
+            ),
+            'qualityRetina' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.retina',
+            ),
+            'qualityUltra' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.ultra',
+            ),
+            'qualityPrint' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.print',
+            ),
+            'qualityLowLabel' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.low.label',
+            ),
+            'qualityLowTooltip' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.low.tooltip',
+            ),
+            'qualityStandardLabel' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.standard.label',
+            ),
+            'qualityStandardTooltip' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.standard.tooltip',
+            ),
+            'qualityRetinaLabel' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.retina.label',
+            ),
+            'qualityRetinaTooltip' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.retina.tooltip',
+            ),
+            'qualityUltraLabel' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.ultra.label',
+            ),
+            'qualityUltraTooltip' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.ultra.tooltip',
+            ),
+            'qualityPrintLabel' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.print.label',
+            ),
+            'qualityPrintTooltip' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.print.tooltip',
+            ),
+            'qualityExcessiveLabel' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.excessive.label',
+            ),
+            'qualityExcessiveTooltip' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.excessive.tooltip',
+            ),
         ];
     }
 

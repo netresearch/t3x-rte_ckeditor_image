@@ -1,67 +1,67 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.0">
-    <file source-language="en" target-language="nl" datatype="plaintext" product-name="rte_ckeditor_image">
+    <file source-language="en" target-language="th" datatype="plaintext" product-name="rte_ckeditor_image">
         <header/>
         <body>
             <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
 				<source>Custom CSS class</source>
-				<target>Aangepaste CSS-klasse</target>
+				<target>Custom CSS class</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
-				<target>Breedte</target>
+				<target>Width</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.height" xml:space="preserve">
 				<source>Height</source>
-				<target>Hoogte</target>
+				<target>Height</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
-				<target>Adviserende titel</target>
+				<target>Advisory Title</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
-				<target>Alternatieve tekst</target>
+				<target>Alternative Text</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
-				<target>Klik om te vergroten</target>
+				<target>Click to Enlarge</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
 				<source>Enabled</source>
-				<target>Ingeschakeld</target>
+				<target>Enabled</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
-				<target>Afbeeldingsverwerking overslaan</target>
+				<target>Skip Image Processing</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
 				<source>Image Properties</source>
-				<target>Afbeeldingseigenschappen</target>
+				<target>Image Properties</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
 				<source>Cancel</source>
-				<target>Annuleren</target>
+				<target>Cancel</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.save" xml:space="preserve">
 				<source>Save</source>
-				<target>Opslaan</target>
+				<target>Save</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
-				<target>Afbeelding invoegen</target>
+				<target>Insert image</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-				<target>Geen standaard %s beschikbaar in bestandsmetadata. Kan lege waarde niet overschrijven.</target>
+				<target>No default %s available in file metadata. Cannot override empty value.</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-				<target>Schakelt klik-om-te-vergroten/lightbox functionaliteit in. Standaard popup configuratie wordt automatisch geleverd. Zie documentatie voor aangepaste lightbox bibliotheek integratie.</target>
+				<target>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-				<target>Slaat afbeeldingsverwerking over en gebruikt het originele bestand. Nuttig voor nieuwsbrieven, PDF's, maximale resolutie displays en SVG graphics. Configureer globaal via TypoScript of schakel per afbeelding in.</target>
+				<target>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
 				<source>Image Quality</source>

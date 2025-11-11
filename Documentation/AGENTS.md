@@ -147,6 +147,28 @@ Link to :ref:`my-label`
    :returntype: string
 ```
 
+**Return Type Strategy (Hybrid Rule):**
+
+1. **Simple types:** Include in signature only
+   ```rst
+   .. php:method:: isEnabled(): bool
+   ```
+
+2. **TYPO3 types:** Include in signature + `:returntype:` for FQN
+   ```rst
+   .. php:method:: getFile(int $uid): File|null
+
+      :returntype: ``\\TYPO3\\CMS\\Core\\Resource\\File|null``
+   ```
+
+3. **Complex union types (>2 types or long FQNs):** Use `:returntype:` field only
+   ```rst
+   .. php:method:: processImage(File $file, array $options)
+
+      :returns: Processed file, original file if unchanged, or null on error
+      :returntype: ``\\TYPO3\\CMS\\Core\\Resource\\ProcessedFile|\\TYPO3\\CMS\\Core\\Resource\\File|null``
+   ```
+
 **Card Grids (Visual Layouts):**
 ```rst
 .. card-grid::
@@ -212,6 +234,157 @@ find Documentation -name "*.rst" -exec rst2html.py --strict {} \; > /dev/null
 
 **Published Manual:** https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/
 
+## Documentation Coverage and Gap Analysis
+
+**Using AI Skills:**
+
+If the `typo3-docs` skill is available, it provides tools for:
+- Extracting documentation data from code and configs
+- Analyzing documentation coverage
+- Identifying undocumented APIs and configuration options
+- Generating gap analysis reports
+
+**Without the skill:**
+- Manually review `Classes/**/*.php` for undocumented public APIs
+- Check `ext_conf_template.txt` and `Configuration/` for undocumented settings
+- Compare `Documentation/API/` against actual class implementations
+- Verify all public controllers, services, and utilities are documented
+
+**Recommendation:** Enable the `typo3-docs` skill for systematic documentation coverage analysis.
+
+## Documentation Synchronization
+
+**Critical Rule:** README.md and Documentation/ must stay synchronized.
+
+**Common sync points:**
+- Installation instructions → README.md + Documentation/Introduction/
+- Configuration examples → README.md + Documentation/Integration/
+- Button names and UI elements → Verify consistency across all docs
+- Feature descriptions → README.md + Documentation/Index.rst
+
+**Synchronization checklist:**
+1. ✅ Installation steps match between README.md and Documentation/Introduction/
+2. ✅ Feature descriptions consistent between README.md and Documentation/Index.rst
+3. ✅ Code examples identical (button names, configuration, TypoScript)
+4. ✅ Version numbers consistent (README.md badges match Documentation/Settings.cfg)
+5. ✅ Links to external resources point to same destinations
+
+**Example from real bug:**
+```markdown
+# README.md (WRONG)
+toolbar: [typo3image]  # Wrong button name
+
+# Documentation/Integration/RTE-Setup.rst (WRONG)
+toolbar: [typo3image]  # Wrong button name
+
+# Actual JavaScript code (CORRECT)
+editor.ui.componentFactory.add('insertimage', ...)  # Correct button name
+```
+
+**Fix approach:**
+1. Find source of truth (usually the actual code)
+2. Update README.md with correct information
+3. Update all Documentation/*.rst files with same information
+4. Commit both in same atomic commit
+
+## Crowdin Translation Integration
+
+**TYPO3 Standard:** Extensions must use TYPO3's centralized translation server, not standalone Crowdin projects.
+
+**Reference:** https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Localization/TranslationServer/Crowdin/ExtensionIntegration.html
+
+### TYPO3-Compliant Configuration
+
+**.crowdin.yml (Required format):**
+```yaml
+preserve_hierarchy: 1
+files:
+  - source: /Resources/Private/Language/*.xlf
+    translation: /%original_path%/%two_letters_code%.%original_file_name%
+    ignore:
+      - /**/%two_letters_code%.%original_file_name%
+```
+
+**Key Requirements:**
+- `preserve_hierarchy: 1` - Maintains directory structure
+- Wildcard pattern `*.xlf` - Supports multiple translation files (NOT hardcoded filenames)
+- Translation pattern uses variables: `%original_path%`, `%two_letters_code%`, `%original_file_name%`
+- Ignore directive prevents re-uploading translations as sources
+- NO project_id_env, api_token_env, languages_mapping, or other complex fields
+
+### GitHub Actions Workflow
+
+**.github/workflows/crowdin.yml (Upload only):**
+```yaml
+name: Crowdin
+on:
+  push:
+    branches: [main]
+jobs:
+  sync:
+    name: Synchronize with Crowdin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload sources
+        uses: crowdin/github-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          config: '.crowdin.yml'
+          project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
+          token: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+```
+
+**Important:** NO download job or cron schedule. TYPO3 uses Crowdin's native GitHub integration to create translation PRs automatically via service branch (e.g., `l10n_main`).
+
+### Setup Process
+
+1. **Contact TYPO3 Localization Team:**
+   - Slack channel: `#typo3-localization-team`
+   - Provide: Extension name, maintainer email
+   - Request: Add extension to TYPO3's Crowdin organization
+
+2. **Configure Secrets (after TYPO3 team adds extension):**
+   - `CROWDIN_PROJECT_ID` - Project ID from TYPO3's Crowdin
+   - `CROWDIN_PERSONAL_TOKEN` - Personal access token
+
+3. **Enable Crowdin's Native GitHub Integration:**
+   - Crowdin creates PRs automatically
+   - Service branch: `l10n_main` (or similar)
+   - Review and merge translation PRs
+
+### Translation File Structure
+
+**Source files (English):**
+```
+Resources/Private/Language/locallang.xlf
+Resources/Private/Language/locallang_be.xlf
+```
+
+**Translation files:**
+```
+Resources/Private/Language/de.locallang.xlf
+Resources/Private/Language/de.locallang_be.xlf
+```
+
+Pattern: `{two_letter_code}.{original_filename}.xlf`
+
+**Critical:** Translation files MUST include both `<source>` and `<target>` elements for optimal Crowdin import.
+
+### Common Mistakes to Avoid
+
+❌ Creating standalone Crowdin project (use TYPO3's centralized org)
+❌ Hardcoded filename like `locallang_be.xlf` (use wildcard `*.xlf`)
+❌ Download job in GitHub Actions (handled by Crowdin's native integration)
+❌ Complex configuration with languages_mapping, type, etc. (use simple TYPO3 standard)
+❌ Cron schedule for translation downloads (Crowdin creates PRs automatically)
+
+✅ Contact #typo3-localization-team first
+✅ Use simple 6-line .crowdin.yml with wildcards
+✅ Single upload job in GitHub Actions
+✅ Let Crowdin's native integration handle downloads
+
 ## Working with Documentation/*.rst Files
 
 ### AI Agent Guidelines
@@ -233,6 +406,7 @@ find Documentation -name "*.rst" -exec rst2html.py --strict {} \; > /dev/null
 - Use external links for internal documentation (use :ref: instead)
 - Skip local rendering (always verify before commit)
 - Mix documentation formats (RST in Documentation/, Markdown in claudedocs/)
+- Update README.md without updating Documentation/ (or vice versa)
 
 ### Common Tasks
 
@@ -322,5 +496,5 @@ Study this project to understand TYPO3 extension best practices.
 ---
 
 **Version:** 13.0.0
-**Last Updated:** 2025-10-18
+**Last Updated:** 2025-11-10
 **Maintained By:** Netresearch DTT GmbH
