@@ -1,140 +1,107 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <xliff version="1.0">
-    <file source-language="en" target-language="ar" datatype="plaintext" product-name="rte_ckeditor_image">
-        <header/>
-        <body>
-            <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
+  <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image" target-language="ar">
+    <header/>
+    <body>
+      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
 				<source>Custom CSS class</source>
-				<target>فئة CSS مخصصة</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.width" xml:space="preserve">
+			<target state="translated">فئة CSS مخصصة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
-				<target>العرض</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+			<target state="translated">العرض</target></trans-unit>
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
 				<source>Height</source>
-				<target>الارتفاع</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.title" xml:space="preserve">
+			<target state="translated">الارتفاع</target></trans-unit>
+      <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
-				<target>العنوان الاستشاري</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+			<target state="translated">العنوان الاستشاري</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
-				<target>نص بديل</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
+			<target state="translated">نص بديل</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
-				<target>انقر للتكبير</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+			<target state="translated">انقر للتكبير</target></trans-unit>
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
 				<source>Enabled</source>
-				<target>مفعّل</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
+			<target state="translated">مفعّل</target></trans-unit>
+      <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
-				<target>تخطي معالجة الصورة</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
+			<target state="translated">تخطي معالجة الصورة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
 				<source>Image Properties</source>
-				<target>خصائص الصورة</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
+			<target state="translated">خصائص الصورة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
 				<source>Cancel</source>
-				<target>إلغاء</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.save" xml:space="preserve">
+			<target state="translated">إلغاء</target></trans-unit>
+      <trans-unit id="labels.ckeditor.save" xml:space="preserve">
 				<source>Save</source>
-				<target>حفظ</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
+			<target state="translated">حفظ</target></trans-unit>
+      <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
-				<target>إدراج صورة</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
+			<target state="translated">إدراج صورة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-				<target>لا يوجد %s افتراضي متاح في بيانات الملف. لا يمكن تجاوز القيمة الفارغة.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
+			<target state="translated">لا يوجد %s افتراضي متاح في بيانات الملف. لا يمكن تجاوز القيمة الفارغة.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-				<target>يتيح وظيفة النقر للتكبير/صندوق الإضاءة. يتم توفير تكوين النافذة المنبثقة الافتراضية تلقائيًا. راجع الوثائق لدمج مكتبة صندوق الإضاءة المخصصة.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
+			<target state="translated">يتيح وظيفة النقر للتكبير/صندوق الإضاءة. يتم توفير تكوين النافذة المنبثقة الافتراضية تلقائيًا. راجع الوثائق لدمج مكتبة صندوق الإضاءة المخصصة.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-				<target>يتخطى معالجة الصورة ويستخدم الملف الأصلي. مفيد للنشرات الإخبارية وملفات PDF وشاشات الدقة القصوى ورسومات SVG. قم بالتكوين عالميًا عبر TypoScript أو قم بالتمكين لكل صورة.</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
+			<target state="translated">يتخطى معالجة الصورة ويستخدم الملف الأصلي. مفيد للنشرات الإخبارية وملفات PDF وشاشات الدقة القصوى ورسومات SVG. قم بالتكوين عالميًا عبر TypoScript أو قم بالتمكين لكل صورة.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
 				<source>Image Quality</source>
-				<target>جودة الصورة</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
+			<target state="translated">جودة الصورة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
 				<source>No Scaling</source>
-				<target>بدون تحجيم</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
+			<target state="translated">بدون تحجيم</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
 				<source>Standard (1.0x)</source>
-				<target>قياسي (1.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
+			<target state="translated">قياسي (1.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
 				<source>Retina (2.0x)</source>
-				<target>ريتينا (2.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
+			<target state="translated">ريتينا (2.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
 				<source>Ultra (3.0x)</source>
-				<target>فائق (3.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
+			<target state="translated">فائق (3.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
-				<target>طباعة (6.0x)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
+			<target state="translated">طباعة (6.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
 				<source>Low</source>
-				<target>منخفض</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
+			<target state="translated">منخفض</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-				<target>جودة منخفضة (%sx) - قد تظهر الصورة غير واضحة</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+			<target state="translated">جودة منخفضة (%sx) - قد تظهر الصورة غير واضحة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
 				<source>Standard</source>
-				<target>قياسي</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
+			<target state="translated">قياسي</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-				<target>جودة قياسية (%sx) - واضح على الشاشات الأساسية</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
+			<target state="translated">جودة قياسية (%sx) - واضح على الشاشات الأساسية</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
 				<source>Retina</source>
-				<target>ريتينا</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
+			<target state="translated">ريتينا</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-				<target>جودة ريتينا (%sx) - مثالية للشاشات الحديثة</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
+			<target state="translated">جودة ريتينا (%sx) - مثالية للشاشات الحديثة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
 				<source>Ultra</source>
-				<target>فائق</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
+			<target state="translated">فائق</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-				<target>جودة فائقة (%sx) - لنقاط DPI فائقة العالية أو الطباعة الصغيرة</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+			<target state="translated">جودة فائقة (%sx) - لنقاط DPI فائقة العالية أو الطباعة الصغيرة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
 				<source>Print</source>
-				<target>طباعة</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
+			<target state="translated">طباعة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-				<target>جودة الطباعة (%sx) - مناسبة للطباعة عالية الجودة (300 نقطة لكل بوصة)</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
+			<target state="translated">جودة الطباعة (%sx) - مناسبة للطباعة عالية الجودة (300 نقطة لكل بوصة)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
 				<source>Excessive</source>
-				<target>مفرط</target>
-			</trans-unit>
-            <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
+			<target state="translated">مفرط</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-				<target>دقة مفرطة (%sx) - عالية بشكل غير ضروري</target>
-			</trans-unit>
-        </body>
-    </file>
+			<target state="translated">دقة مفرطة (%sx) - عالية بشكل غير ضروري</target></trans-unit>
+    </body>
+  </file>
 </xliff>
