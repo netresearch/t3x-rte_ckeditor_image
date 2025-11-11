@@ -2,7 +2,7 @@ services:
   # Valkey for TYPO3 caching (open source, wire-compatible with Redis)
   valkey:
     container_name: ddev-${DDEV_SITENAME}-valkey
-    image: valkey/valkey:8-alpine
+    image: valkey/valkey:9-alpine
     restart: unless-stopped
     ports:
       - "6379"
