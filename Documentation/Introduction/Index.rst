@@ -1,0 +1,110 @@
+.. include:: /Includes.rst.txt
+
+.. _introduction:
+
+============
+Introduction
+============
+
+The RTE CKEditor Image extension provides comprehensive image handling capabilities
+for TYPO3's CKEditor Rich Text Editor. This extension enables editors to insert,
+configure, and style images directly within the CKEditor interface, with full
+integration into TYPO3's File Abstraction Layer (FAL).
+
+Key Features
+============
+
+- Native CKEditor 5 plugin integration
+- Full TYPO3 FAL support with file browser integration
+- Advanced image processing (magic images, cropping, scaling)
+- Custom image style configuration
+- Responsive image support
+- Lazy loading and performance optimization
+- Event-driven architecture for extensibility
+
+Visual Preview
+==============
+
+.. figure:: /Images/demo.gif
+   :alt: RTE CKEditor Image extension demo
+   :class: with-shadow
+
+   Image insertion and configuration in CKEditor with TYPO3 file browser integration
+
+Version Information
+===================
+
+:Version: 13.0.x for TYPO3 13.4+
+:License: AGPL-3.0-or-later
+:Repository: `github.com/netresearch/t3x-rte_ckeditor_image <https://github.com/netresearch/t3x-rte_ckeditor_image>`__
+
+
+.. _requirements:
+
+============
+Requirements
+============
+
+System Requirements
+===================
+
+- **TYPO3:** 13.4 or later
+- **PHP:** 8.2, 8.3, or 8.4
+- **Extensions:** cms-rte-ckeditor (included in TYPO3 core)
+
+Critical Dependencies
+=====================
+
+.. versionadded:: 13.0.0
+   The CKEditor plugin now requires ``StyleUtils`` and ``GeneralHtmlSupport``
+   dependencies for style functionality. Previous versions did not have this requirement.
+
+The CKEditor plugin requires these dependencies for style functionality:
+
+.. code-block:: javascript
+
+   static get requires() {
+       return ['StyleUtils', 'GeneralHtmlSupport'];
+   }
+
+.. important::
+
+   Missing either plugin will disable the style dropdown for images.
+   See :ref:`Style Integration <ckeditor-style-integration>` for details.
+
+
+.. _quick-start:
+
+===========
+Quick Start
+===========
+
+Installation
+============
+
+Install via Composer:
+
+.. code-block:: bash
+
+   composer require netresearch/rte-ckeditor-image
+
+**That's it!** The extension works completely out-of-the-box with zero configuration:
+
+- ✅ **Backend RTE**: Automatically registers the ``rteWithImages`` preset and configures the toolbar with ``insertimage`` button for all sites
+- ✅ **Frontend Rendering**: Automatically loads TypoScript for proper image rendering via ``lib.parseFunc_RTE``
+- ✅ **No Manual Steps**: No template inclusion, no TSConfig setup, no YAML configuration required
+
+.. figure:: /Images/demo.gif
+   :alt: Image button in CKEditor toolbar
+   :class: with-shadow
+   :width: 600px
+
+   The ``insertimage`` button provides full image management capabilities with TYPO3 file browser integration
+
+Custom Configuration (Optional)
+================================
+
+If you need to customize the RTE configuration or create your own preset, see the
+:ref:`RTE Setup Guide <integration-configuration-rte-setup>` for detailed instructions.
+
+The extension provides a default preset that you can extend or override as needed.
