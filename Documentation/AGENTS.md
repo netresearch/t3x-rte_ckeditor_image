@@ -295,7 +295,7 @@ editor.ui.componentFactory.add('insertimage', ...)  # Correct button name
 
 ### TYPO3-Compliant Configuration
 
-**.crowdin.yml (Required format):**
+**crowdin.yml (Required format):**
 ```yaml
 preserve_hierarchy: 1
 files:
@@ -331,7 +331,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          config: '.crowdin.yml'
+          config: 'crowdin.yml'
           project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
           token: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
 ```
@@ -381,7 +381,7 @@ Pattern: `{two_letter_code}.{original_filename}.xlf`
 ❌ Cron schedule for translation downloads (Crowdin creates PRs automatically)
 
 ✅ Contact #typo3-localization-team first
-✅ Use simple 6-line .crowdin.yml with wildcards
+✅ Use simple 6-line crowdin.yml with wildcards
 ✅ Single upload job in GitHub Actions
 ✅ Let Crowdin's native integration handle downloads
 
