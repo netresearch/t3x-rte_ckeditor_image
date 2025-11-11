@@ -287,16 +287,6 @@ editor.ui.componentFactory.add('insertimage', ...)  # Correct button name
 3. Update all Documentation/*.rst files with same information
 4. Commit both in same atomic commit
 
-## Crowdin Translation Integration
-
-**TYPO3 Standard:** Extensions must use TYPO3's centralized translation server.
-
-**Reference:** https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Localization/TranslationServer/Crowdin/ExtensionIntegration.html
-
-**Setup:** Contact `#typo3-localization-team` on TYPO3 Slack
-
-**Configuration:** See typo3-conformance skill for complete Crowdin integration requirements and best practices.
-
 ## Working with Documentation/*.rst Files
 
 ### AI Agent Guidelines
