@@ -108,3 +108,10 @@ If you need to customize the RTE configuration or create your own preset, see th
 :ref:`RTE Setup Guide <integration-configuration-rte-setup>` for detailed instructions.
 
 The extension provides a default preset that you can extend or override as needed.
+
+
+.. important::
+
+   **Before using this extension**, please read :ref:`TYPO3 Core Removal & Design Decision <core-removal>`
+   to understand why TYPO3 intentionally removed this functionality and whether this extension
+   is the right choice for your project.
