@@ -5,135 +5,135 @@
         <body>
             <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
 				<source>Custom CSS class</source>
-				<target>カスタムCSSクラス</target>
+				<target state="translated">カスタムCSSクラス</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
-				<target>幅</target>
+				<target state="translated">幅</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.height" xml:space="preserve">
 				<source>Height</source>
-				<target>高さ</target>
+				<target state="translated">高さ</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
-				<target>アドバイザリータイトル</target>
+				<target state="translated">アドバイザリータイトル</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
-				<target>代替テキスト</target>
+				<target state="translated">代替テキスト</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
-				<target>クリックして拡大</target>
+				<target state="translated">クリックして拡大</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
 				<source>Enabled</source>
-				<target>有効</target>
+				<target state="translated">有効</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
-				<target>画像処理をスキップ</target>
+				<target state="translated">画像処理をスキップ</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
 				<source>Image Properties</source>
-				<target>画像プロパティ</target>
+				<target state="translated">画像プロパティ</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
 				<source>Cancel</source>
-				<target>キャンセル</target>
+				<target state="translated">キャンセル</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.save" xml:space="preserve">
 				<source>Save</source>
-				<target>保存</target>
+				<target state="translated">保存</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
-				<target>画像を挿入</target>
+				<target state="translated">画像を挿入</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-				<target>ファイルメタデータにデフォルトの%sがありません。空の値を上書きできません。</target>
+				<target state="translated">ファイルメタデータにデフォルトの%sがありません。空の値を上書きできません。</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-				<target>クリック拡大/ライトボックス機能を有効にします。デフォルトのポップアップ設定は自動的に提供されます。カスタムライトボックスライブラリ統合については、ドキュメントを参照してください。</target>
+				<target state="translated">クリック拡大/ライトボックス機能を有効にします。デフォルトのポップアップ設定は自動的に提供されます。カスタムライトボックスライブラリ統合については、ドキュメントを参照してください。</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-				<target>画像処理をスキップして元のファイルを使用します。ニュースレター、PDF、最大解像度ディスプレイ、およびSVGグラフィックスに役立ちます。TypoScriptでグローバルに設定するか、画像ごとに有効にします。</target>
+				<target state="translated">画像処理をスキップして元のファイルを使用します。ニュースレター、PDF、最大解像度ディスプレイ、およびSVGグラフィックスに役立ちます。TypoScriptでグローバルに設定するか、画像ごとに有効にします。</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
 				<source>Image Quality</source>
-				<target>画像品質</target>
+				<target state="translated">画像品質</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
 				<source>No Scaling</source>
-				<target>スケーリングなし</target>
+				<target state="translated">スケーリングなし</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
 				<source>Standard (1.0x)</source>
-				<target>標準 (1.0x)</target>
+				<target state="translated">標準 (1.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
 				<source>Retina (2.0x)</source>
-				<target>Retina (2.0x)</target>
+				<target state="translated">Retina (2.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
 				<source>Ultra (3.0x)</source>
-				<target>ウルトラ (3.0x)</target>
+				<target state="translated">ウルトラ (3.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
-				<target>印刷 (6.0x)</target>
+				<target state="translated">印刷 (6.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
 				<source>Low</source>
-				<target>低</target>
+				<target state="translated">低</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-				<target>低品質 (%sx) - 画像がぼやけて見える場合があります</target>
+				<target state="translated">低品質 (%sx) - 画像がぼやけて見える場合があります</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
 				<source>Standard</source>
-				<target>標準</target>
+				<target state="translated">標準</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-				<target>標準品質 (%sx) - 基本ディスプレイで鮮明</target>
+				<target state="translated">標準品質 (%sx) - 基本ディスプレイで鮮明</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
 				<source>Retina</source>
-				<target>Retina</target>
+				<target state="translated">Retina</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-				<target>Retina品質 (%sx) - 最新ディスプレイに最適</target>
+				<target state="translated">Retina品質 (%sx) - 最新ディスプレイに最適</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
 				<source>Ultra</source>
-				<target>ウルトラ</target>
+				<target state="translated">ウルトラ</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-				<target>ウルトラ品質 (%sx) - 超高DPIまたは小さな印刷用</target>
+				<target state="translated">ウルトラ品質 (%sx) - 超高DPIまたは小さな印刷用</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
 				<source>Print</source>
-				<target>印刷</target>
+				<target state="translated">印刷</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-				<target>印刷品質 (%sx) - 高品質印刷に適しています (300 DPI)</target>
+				<target state="translated">印刷品質 (%sx) - 高品質印刷に適しています (300 DPI)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
 				<source>Excessive</source>
-				<target>過剰</target>
+				<target state="translated">過剰</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-				<target>過剰な解像度 (%sx) - 不必要に高い</target>
+				<target state="translated">過剰な解像度 (%sx) - 不必要に高い</target>
 			</trans-unit>
         </body>
     </file>

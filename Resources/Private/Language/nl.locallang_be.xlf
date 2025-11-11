@@ -5,135 +5,135 @@
         <body>
             <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
 				<source>Custom CSS class</source>
-				<target>Aangepaste CSS-klasse</target>
+				<target state="translated">Aangepaste CSS-klasse</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
-				<target>Breedte</target>
+				<target state="translated">Breedte</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.height" xml:space="preserve">
 				<source>Height</source>
-				<target>Hoogte</target>
+				<target state="translated">Hoogte</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
-				<target>Adviserende titel</target>
+				<target state="translated">Adviserende titel</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
-				<target>Alternatieve tekst</target>
+				<target state="translated">Alternatieve tekst</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
-				<target>Klik om te vergroten</target>
+				<target state="translated">Klik om te vergroten</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
 				<source>Enabled</source>
-				<target>Ingeschakeld</target>
+				<target state="translated">Ingeschakeld</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
-				<target>Afbeeldingsverwerking overslaan</target>
+				<target state="translated">Afbeeldingsverwerking overslaan</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
 				<source>Image Properties</source>
-				<target>Afbeeldingseigenschappen</target>
+				<target state="translated">Afbeeldingseigenschappen</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
 				<source>Cancel</source>
-				<target>Annuleren</target>
+				<target state="translated">Annuleren</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.save" xml:space="preserve">
 				<source>Save</source>
-				<target>Opslaan</target>
+				<target state="translated">Opslaan</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
-				<target>Afbeelding invoegen</target>
+				<target state="translated">Afbeelding invoegen</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-				<target>Geen standaard %s beschikbaar in bestandsmetadata. Kan lege waarde niet overschrijven.</target>
+				<target state="translated">Geen standaard %s beschikbaar in bestandsmetadata. Kan lege waarde niet overschrijven.</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-				<target>Schakelt klik-om-te-vergroten/lightbox functionaliteit in. Standaard popup configuratie wordt automatisch geleverd. Zie documentatie voor aangepaste lightbox bibliotheek integratie.</target>
+				<target state="translated">Schakelt klik-om-te-vergroten/lightbox functionaliteit in. Standaard popup configuratie wordt automatisch geleverd. Zie documentatie voor aangepaste lightbox bibliotheek integratie.</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-				<target>Slaat afbeeldingsverwerking over en gebruikt het originele bestand. Nuttig voor nieuwsbrieven, PDF's, maximale resolutie displays en SVG graphics. Configureer globaal via TypoScript of schakel per afbeelding in.</target>
+				<target state="translated">Slaat afbeeldingsverwerking over en gebruikt het originele bestand. Nuttig voor nieuwsbrieven, PDF's, maximale resolutie displays en SVG graphics. Configureer globaal via TypoScript of schakel per afbeelding in.</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
 				<source>Image Quality</source>
-				<target>Afbeeldingskwaliteit</target>
+				<target state="translated">Afbeeldingskwaliteit</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
 				<source>No Scaling</source>
-				<target>Geen schalen</target>
+				<target state="translated">Geen schalen</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
 				<source>Standard (1.0x)</source>
-				<target>Standaard (1.0x)</target>
+				<target state="translated">Standaard (1.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
 				<source>Retina (2.0x)</source>
-				<target>Retina (2.0x)</target>
+				<target state="translated">Retina (2.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
 				<source>Ultra (3.0x)</source>
-				<target>Ultra (3.0x)</target>
+				<target state="translated">Ultra (3.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
-				<target>Afdrukken (6.0x)</target>
+				<target state="translated">Afdrukken (6.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
 				<source>Low</source>
-				<target>Laag</target>
+				<target state="translated">Laag</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-				<target>Lage kwaliteit (%sx) - Afbeelding kan wazig lijken</target>
+				<target state="translated">Lage kwaliteit (%sx) - Afbeelding kan wazig lijken</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
 				<source>Standard</source>
-				<target>Standaard</target>
+				<target state="translated">Standaard</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-				<target>Standaardkwaliteit (%sx) - Scherp op standaardschermen</target>
+				<target state="translated">Standaardkwaliteit (%sx) - Scherp op standaardschermen</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
 				<source>Retina</source>
-				<target>Retina</target>
+				<target state="translated">Retina</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-				<target>Retina-kwaliteit (%sx) - Optimaal voor moderne schermen</target>
+				<target state="translated">Retina-kwaliteit (%sx) - Optimaal voor moderne schermen</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
 				<source>Ultra</source>
-				<target>Ultra</target>
+				<target state="translated">Ultra</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-				<target>Ultra-kwaliteit (%sx) - Voor ultra-hoge DPI of kleine afdruk</target>
+				<target state="translated">Ultra-kwaliteit (%sx) - Voor ultra-hoge DPI of kleine afdruk</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
 				<source>Print</source>
-				<target>Afdrukken</target>
+				<target state="translated">Afdrukken</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-				<target>Afdrukkwaliteit (%sx) - Geschikt voor hoogwaardige afdruk (300 DPI)</target>
+				<target state="translated">Afdrukkwaliteit (%sx) - Geschikt voor hoogwaardige afdruk (300 DPI)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
 				<source>Excessive</source>
-				<target>Buitensporig</target>
+				<target state="translated">Buitensporig</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-				<target>Buitensporige resolutie (%sx) - Onnodig hoog</target>
+				<target state="translated">Buitensporige resolutie (%sx) - Onnodig hoog</target>
 			</trans-unit>
         </body>
     </file>

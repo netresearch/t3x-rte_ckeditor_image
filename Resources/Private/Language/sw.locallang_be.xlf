@@ -5,135 +5,135 @@
         <body>
             <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
 				<source>Custom CSS class</source>
-				<target>Darasa la CSS maalum</target>
+				<target state="translated">Darasa la CSS maalum</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
-				<target>Upana</target>
+				<target state="translated">Upana</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.height" xml:space="preserve">
 				<source>Height</source>
-				<target>Urefu</target>
+				<target state="translated">Urefu</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
-				<target>Kichwa cha ushauri</target>
+				<target state="translated">Kichwa cha ushauri</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
-				<target>Maandishi mbadala</target>
+				<target state="translated">Maandishi mbadala</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
-				<target>Bofya ili kuongeza</target>
+				<target state="translated">Bofya ili kuongeza</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
 				<source>Enabled</source>
-				<target>Imewezeshwa</target>
+				<target state="translated">Imewezeshwa</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
-				<target>Ruka usindikaji wa picha</target>
+				<target state="translated">Ruka usindikaji wa picha</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
 				<source>Image Properties</source>
-				<target>Sifa za picha</target>
+				<target state="translated">Sifa za picha</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
 				<source>Cancel</source>
-				<target>Ghairi</target>
+				<target state="translated">Ghairi</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.save" xml:space="preserve">
 				<source>Save</source>
-				<target>Hifadhi</target>
+				<target state="translated">Hifadhi</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
-				<target>Ingiza picha</target>
+				<target state="translated">Ingiza picha</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-				<target>Hakuna %s chaguo-msingi katika metadata ya faili. Haiwezi kubadilisha thamani tupu.</target>
+				<target state="translated">Hakuna %s chaguo-msingi katika metadata ya faili. Haiwezi kubadilisha thamani tupu.</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-				<target>Huwezesha kitendakazi cha kubofya-ili-kuongeza/sanduku la taa. Usanidi wa chaguo-msingi wa dirisha unatolewa moja kwa moja. Tazama nyaraka za kuunganisha maktaba ya sanduku la taa maalum.</target>
+				<target state="translated">Huwezesha kitendakazi cha kubofya-ili-kuongeza/sanduku la taa. Usanidi wa chaguo-msingi wa dirisha unatolewa moja kwa moja. Tazama nyaraka za kuunganisha maktaba ya sanduku la taa maalum.</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-				<target>Huruka usindikaji wa picha na hutumia faili asili. Inafaa kwa majarida, PDF, maonyesho ya azimio la juu zaidi, na michoro ya SVG. Sanidi kimataifa kupitia TypoScript au wezesha kwa kila picha.</target>
+				<target state="translated">Huruka usindikaji wa picha na hutumia faili asili. Inafaa kwa majarida, PDF, maonyesho ya azimio la juu zaidi, na michoro ya SVG. Sanidi kimataifa kupitia TypoScript au wezesha kwa kila picha.</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
 				<source>Image Quality</source>
-				<target>Ubora wa picha</target>
+				<target state="translated">Ubora wa picha</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
 				<source>No Scaling</source>
-				<target>Hakuna kupima</target>
+				<target state="translated">Hakuna kupima</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
 				<source>Standard (1.0x)</source>
-				<target>Kawaida (1.0x)</target>
+				<target state="translated">Kawaida (1.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
 				<source>Retina (2.0x)</source>
-				<target>Retina (2.0x)</target>
+				<target state="translated">Retina (2.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
 				<source>Ultra (3.0x)</source>
-				<target>Namba moja (3.0x)</target>
+				<target state="translated">Namba moja (3.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
-				<target>Chapa (6.0x)</target>
+				<target state="translated">Chapa (6.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
 				<source>Low</source>
-				<target>Chini</target>
+				<target state="translated">Chini</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-				<target>Ubora wa chini (%sx) - Picha inaweza kuonekana isiyo dhahiri</target>
+				<target state="translated">Ubora wa chini (%sx) - Picha inaweza kuonekana isiyo dhahiri</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
 				<source>Standard</source>
-				<target>Kawaida</target>
+				<target state="translated">Kawaida</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-				<target>Ubora wa kawaida (%sx) - Kali kwenye maonyesho ya kimsingi</target>
+				<target state="translated">Ubora wa kawaida (%sx) - Kali kwenye maonyesho ya kimsingi</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
 				<source>Retina</source>
-				<target>Retina</target>
+				<target state="translated">Retina</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-				<target>Ubora wa Retina (%sx) - Bora kwa maonyesho ya kisasa</target>
+				<target state="translated">Ubora wa Retina (%sx) - Bora kwa maonyesho ya kisasa</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
 				<source>Ultra</source>
-				<target>Namba moja</target>
+				<target state="translated">Namba moja</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-				<target>Ubora wa Ultra (%sx) - Kwa DPI ya juu sana au chapa ndogo</target>
+				<target state="translated">Ubora wa Ultra (%sx) - Kwa DPI ya juu sana au chapa ndogo</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
 				<source>Print</source>
-				<target>Chapa</target>
+				<target state="translated">Chapa</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-				<target>Ubora wa kuchapisha (%sx) - Inafaa kwa uchapishaji wa ubora wa juu (300 DPI)</target>
+				<target state="translated">Ubora wa kuchapisha (%sx) - Inafaa kwa uchapishaji wa ubora wa juu (300 DPI)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
 				<source>Excessive</source>
-				<target>Kupita kiasi</target>
+				<target state="translated">Kupita kiasi</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-				<target>Azimio la kupita kiasi (%sx) - Juu bila sababu</target>
+				<target state="translated">Azimio la kupita kiasi (%sx) - Juu bila sababu</target>
 			</trans-unit>
         </body>
     </file>
