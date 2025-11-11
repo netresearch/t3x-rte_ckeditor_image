@@ -65,15 +65,15 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
 				<source>Image Quality</source>
-				<target>Image Quality</target>
+				<target>Calidad de imagen</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
 				<source>No Scaling</source>
-				<target>No Scaling</target>
+				<target>Sin escalado</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
 				<source>Standard (1.0x)</source>
-				<target>Standard (1.0x)</target>
+				<target>Estándar (1.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
 				<source>Retina (2.0x)</source>
@@ -85,23 +85,23 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
-				<target>Print (6.0x)</target>
+				<target>Impresión (6.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
 				<source>Low</source>
-				<target>Low</target>
+				<target>Baja</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-				<target>Low quality (%sx) - Image may appear blurry</target>
+				<target>Baja calidad (%sx) - La imagen puede aparecer borrosa</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
 				<source>Standard</source>
-				<target>Standard</target>
+				<target>Estándar</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-				<target>Standard quality (%sx) - Sharp on basic displays</target>
+				<target>Calidad estándar (%sx) - Nítida en pantallas básicas</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
 				<source>Retina</source>
@@ -109,7 +109,7 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-				<target>Retina quality (%sx) - Optimal for modern displays</target>
+				<target>Calidad Retina (%sx) - Óptima para pantallas modernas</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
 				<source>Ultra</source>
@@ -117,23 +117,23 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-				<target>Ultra quality (%sx) - For ultra-high DPI or small print</target>
+				<target>Calidad Ultra (%sx) - Para DPI ultra-alto o impresión pequeña</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
 				<source>Print</source>
-				<target>Print</target>
+				<target>Impresión</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-				<target>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</target>
+				<target>Calidad de impresión (%sx) - Adecuada para impresión de alta calidad (300 DPI)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
 				<source>Excessive</source>
-				<target>Excessive</target>
+				<target>Excesiva</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-				<target>Excessive resolution (%sx) - Unnecessarily high</target>
+				<target>Resolución excesiva (%sx) - Innecesariamente alta</target>
 			</trans-unit>
         </body>
     </file>
