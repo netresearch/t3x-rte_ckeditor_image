@@ -85,7 +85,7 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
-				<target>Print (6.0x)</target>
+				<target>Udskriv (6.0x)</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
 				<source>Low</source>
@@ -121,7 +121,7 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
 				<source>Print</source>
-				<target>Print</target>
+				<target>Udskriv</target>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
