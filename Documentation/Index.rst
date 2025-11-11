@@ -56,6 +56,14 @@ Image support in CKEditor for the TYPO3 ecosystem.
         ..  card-footer:: :ref:`Read more <quick-start>`
             :button-style: btn btn-primary stretched-link
 
+    ..  card:: ⚠️ Core Removal Notice
+
+        **Important:** TYPO3 intentionally removed RTE image handling in v10.
+        Understand the design decision before using this extension.
+
+        ..  card-footer:: :ref:`Read more <core-removal>`
+            :button-style: btn btn-warning stretched-link
+
     ..  card:: ⚙️ Configuration
 
         Learn how to configure custom image styles, processing options,
@@ -110,6 +118,7 @@ This extension is licensed under `AGPL-3.0-or-later <https://www.gnu.org/license
    :caption: Getting Started
 
    Introduction/Index
+   Introduction/CoreRemoval
    Contributing/Index
 
 .. toctree::
