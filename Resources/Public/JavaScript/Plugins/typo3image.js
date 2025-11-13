@@ -231,11 +231,11 @@ function getImageDialog(editor, img, attributes) {
             } else if (config.type === 'select' && key === 'quality') {
                 // Image Processing quality dropdown - sorted by quality ascending
                 var qualityOptions = [
-                    { value: 'none', label: lang.qualityNone || 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
-                    { value: 'standard', label: lang.qualityStandard || 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
-                    { value: 'retina', label: lang.qualityRetina || 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
-                    { value: 'ultra', label: lang.qualityUltra || 'Ultra (3.0x)', multiplier: 3.0, color: '#17a2b8', marker: '●' },
-                    { value: 'print', label: lang.qualityPrint || 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
+                    { value: 'none', label: img.lang.qualityNone || 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
+                    { value: 'standard', label: img.lang.qualityStandard || 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
+                    { value: 'retina', label: img.lang.qualityRetina || 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
+                    { value: 'ultra', label: img.lang.qualityUltra || 'Ultra (3.0x)', multiplier: 3.0, color: '#17a2b8', marker: '●' },
+                    { value: 'print', label: img.lang.qualityPrint || 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
                 ];
 
                 $.each(qualityOptions, function(i, option) {
@@ -330,25 +330,25 @@ function getImageDialog(editor, img, attributes) {
     }
 
     // Quality indicator functions
-    function getQualityLevel(ratio, lang) {
+    function getQualityLevel(ratio, langObj) {
         if (ratio < 0.9) {
-            var tooltip = (lang.qualityLowTooltip || 'Low quality (%sx) - Image may appear blurry').replace('%s', ratio.toFixed(1));
-            return { level: 'low', label: lang.qualityLowLabel || 'Low', color: '#dc3545', tooltip: tooltip };
+            var tooltip = (langObj.qualityLowTooltip || 'Low quality (%sx) - Image may appear blurry').replace('%s', ratio.toFixed(1));
+            return { level: 'low', label: langObj.qualityLowLabel || 'Low', color: '#dc3545', tooltip: tooltip };
         } else if (ratio < 1.5) {
-            var tooltip = (lang.qualityStandardTooltip || 'Standard quality (%sx) - Sharp on basic displays').replace('%s', ratio.toFixed(1));
-            return { level: 'standard', label: lang.qualityStandardLabel || 'Standard', color: '#fd7e14', tooltip: tooltip };
+            var tooltip = (langObj.qualityStandardTooltip || 'Standard quality (%sx) - Sharp on basic displays').replace('%s', ratio.toFixed(1));
+            return { level: 'standard', label: langObj.qualityStandardLabel || 'Standard', color: '#fd7e14', tooltip: tooltip };
         } else if (ratio < 3.0) {
-            var tooltip = (lang.qualityRetinaTooltip || 'Retina quality (%sx) - Optimal for modern displays').replace('%s', ratio.toFixed(1));
-            return { level: 'retina', label: lang.qualityRetinaLabel || 'Retina', color: '#28a745', tooltip: tooltip };
+            var tooltip = (langObj.qualityRetinaTooltip || 'Retina quality (%sx) - Optimal for modern displays').replace('%s', ratio.toFixed(1));
+            return { level: 'retina', label: langObj.qualityRetinaLabel || 'Retina', color: '#28a745', tooltip: tooltip };
         } else if (ratio < 6.0) {
-            var tooltip = (lang.qualityUltraTooltip || 'Ultra quality (%sx) - For ultra-high DPI or small print').replace('%s', ratio.toFixed(1));
-            return { level: 'ultra', label: lang.qualityUltraLabel || 'Ultra', color: '#6f42c1', tooltip: tooltip };
+            var tooltip = (langObj.qualityUltraTooltip || 'Ultra quality (%sx) - For ultra-high DPI or small print').replace('%s', ratio.toFixed(1));
+            return { level: 'ultra', label: langObj.qualityUltraLabel || 'Ultra', color: '#6f42c1', tooltip: tooltip };
         } else if (ratio <= 10.0) {
-            var tooltip = (lang.qualityPrintTooltip || 'Print quality (%sx) - Suitable for high-quality printing (300 DPI)').replace('%s', ratio.toFixed(1));
-            return { level: 'print', label: lang.qualityPrintLabel || 'Print', color: '#007bff', tooltip: tooltip };
+            var tooltip = (langObj.qualityPrintTooltip || 'Print quality (%sx) - Suitable for high-quality printing (300 DPI)').replace('%s', ratio.toFixed(1));
+            return { level: 'print', label: langObj.qualityPrintLabel || 'Print', color: '#007bff', tooltip: tooltip };
         } else {
-            var tooltip = (lang.qualityExcessiveTooltip || 'Excessive resolution (%sx) - Unnecessarily high').replace('%s', ratio.toFixed(1));
-            return { level: 'excessive', label: lang.qualityExcessiveLabel || 'Excessive', color: '#6c757d', tooltip: tooltip };
+            var tooltip = (langObj.qualityExcessiveTooltip || 'Excessive resolution (%sx) - Unnecessarily high').replace('%s', ratio.toFixed(1));
+            return { level: 'excessive', label: langObj.qualityExcessiveLabel || 'Excessive', color: '#6c757d', tooltip: tooltip };
         }
     }
 
@@ -722,10 +722,7 @@ function edit(selectedImage, editor, imageAttributes) {
             return askImageAttributes(editor, img, imageAttributes, selectedImage.table);
         })
         .then(function (attributes) {
-
             editor.model.change(writer => {
-                // SECURITY: Removed console.log to prevent information disclosure in production
-
                 const imageAttributes = {
                     fileUid: attributes.fileUid,
                     fileTable: attributes.fileTable,
@@ -756,7 +753,6 @@ function edit(selectedImage, editor, imageAttributes) {
                 }
 
                 const newImage = writer.createElement('typo3image', imageAttributes);
-
                 editor.model.insertObject(newImage);
             });
         });
@@ -909,10 +905,20 @@ export default class Typo3Image extends Plugin {
                 'imageStyle:image-block'
             ],
             getRelatedElement: selection => {
-                const element = selection.getSelectedElement();
-                if (element && element.name === 'typo3image') {
-                    return element;
+                // Get the selected element from the view
+                const viewElement = selection.getSelectedElement();
+
+                if (!viewElement) {
+                    return null;
                 }
+
+                // Map view element to model element to check if it's a typo3image
+                const modelElement = editor.editing.mapper.toModelElement(viewElement);
+
+                if (modelElement && modelElement.name === 'typo3image') {
+                    return viewElement; // Return view element for toolbar positioning
+                }
+
                 return null;
             }
         });
@@ -1354,7 +1360,6 @@ export default class Typo3Image extends Plugin {
             });
 
             button.on('execute', () => {
-                // SECURITY: Removed console.log to prevent configuration disclosure
                 const selectedElement = editor.model.document.selection.getSelectedElement();
 
                 if (selectedElement && selectedElement.name === 'typo3image') {
