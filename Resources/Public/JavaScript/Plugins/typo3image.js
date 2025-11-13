@@ -16,7 +16,7 @@
 import { Plugin, Command } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
-import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
+import { toWidget, toWidgetEditable, WidgetToolbarRepository } from '@ckeditor/ckeditor5-widget';
 import { default as Modal } from '@typo3/backend/modal.js';
 import $ from 'jquery';
 
@@ -858,9 +858,9 @@ export default class Typo3Image extends Plugin {
     static pluginName = 'Typo3Image';
 
     static get requires() {
-        // StyleUtils and GeneralHtmlSupport are loaded by TYPO3
-        // NOTE: Widget plugins (WidgetToolbar, WidgetResize) are NOT available in TYPO3's CKEditor 5 build
-        return ['StyleUtils', 'GeneralHtmlSupport'];
+        // TYPO3's CKEditor 5 build includes these plugins
+        // WidgetResize is also available but requires custom integration for typo3image model
+        return ['StyleUtils', 'GeneralHtmlSupport', 'WidgetToolbarRepository'];
     }
 
     init() {
@@ -895,6 +895,27 @@ export default class Typo3Image extends Plugin {
                 };
             }
         };
+
+        // Configure contextual balloon toolbar for typo3image widget
+        const widgetToolbarRepository = editor.plugins.get('WidgetToolbarRepository');
+        widgetToolbarRepository.register('typo3image', {
+            ariaLabel: 'Image toolbar',
+            items: [
+                'editTypo3Image',
+                '|',
+                'imageStyle:image-left',
+                'imageStyle:image-center',
+                'imageStyle:image-right',
+                'imageStyle:image-block'
+            ],
+            getRelatedElement: selection => {
+                const element = selection.getSelectedElement();
+                if (element && element.name === 'typo3image') {
+                    return element;
+                }
+                return null;
+            }
+        });
 
         const styleUtils = editor.plugins.get('StyleUtils');
         // Add listener to allow style sets for `img` element, when a `typo3image` element is selected
@@ -1481,6 +1502,34 @@ export default class Typo3Image extends Plugin {
                 editor.model.change(writer => {
                     writer.setSelection(modelElement, 'on');
                 });
+
+                // If figcaption was clicked, open edit dialog
+                if (checkElement && checkElement.name === 'figcaption') {
+                    // Open edit dialog for caption editing
+                    edit(
+                        {
+                            uid: modelElement.getAttribute('fileUid'),
+                            table: modelElement.getAttribute('fileTable'),
+                        },
+                        editor,
+                        {
+                            width: modelElement.getAttribute('width'),
+                            height: modelElement.getAttribute('height'),
+                            class: modelElement.getAttribute('class'),
+                            alt: modelElement.getAttribute('alt'),
+                            title: modelElement.getAttribute('title'),
+                            caption: modelElement.getAttribute('caption'),
+                            'data-htmlarea-zoom': modelElement.getAttribute('enableZoom'),
+                            'data-noscale': modelElement.getAttribute('noScale'),
+                            'data-quality': modelElement.getAttribute('quality'),
+                            'data-title-override': modelElement.getAttribute('titleOverride'),
+                            'data-alt-override': modelElement.getAttribute('altOverride'),
+                            linkHref: modelElement.getAttribute('linkHref'),
+                            linkTarget: modelElement.getAttribute('linkTarget'),
+                            linkTitle: modelElement.getAttribute('linkTitle'),
+                        }
+                    );
+                }
             }
         }, { priority: 'highest' })
 
