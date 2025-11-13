@@ -1,0 +1,23 @@
+# RTE preset with image support
+# This preset imports the default configuration and adds the typo3image plugin
+
+imports:
+  - { resource: "EXT:rte_ckeditor_image/Configuration/RTE/Default.yaml" }
+
+# Configure TYPO3 Image plugin toolbar
+editor:
+  config:
+    # Load CSS for editor content (captions, alignment styles)
+    contentsCss:
+      - 'EXT:rte_ckeditor_image/Resources/Public/Css/image-alignment.css'
+
+    typo3image:
+      toolbar:
+        - 'editTypo3Image'
+        - '|'
+        - 'imageStyle:image-left'
+        - 'imageStyle:image-center'
+        - 'imageStyle:image-right'
+        - '|'
+        - 'imageStyle:image-inline'
+        - 'imageStyle:image-block'

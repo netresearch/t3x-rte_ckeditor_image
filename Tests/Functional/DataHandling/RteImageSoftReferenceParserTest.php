@@ -41,4 +41,19 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
 
         $this->assertCSVDataSet(__DIR__ . '/Fixtures/ReferenceIndex/UpdateReferenceIndexResult.csv');
     }
+
+    #[Test]
+    public function updateReferenceIndexAddsIndexEntryForImageWithCaption(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/Fixtures/ReferenceIndex/UpdateReferenceIndexWithCaptionImport.csv');
+
+        $versionInformation = GeneralUtility::makeInstance(Typo3Version::class);
+        if ($versionInformation->getMajorVersion() < 13) {
+            GeneralUtility::makeInstance(ReferenceIndex::class)->updateIndex(false);
+        } else {
+            $this->get(ReferenceIndex::class)->updateIndex(false);
+        }
+
+        $this->assertCSVDataSet(__DIR__ . '/Fixtures/ReferenceIndex/UpdateReferenceIndexWithCaptionResult.csv');
+    }
 }

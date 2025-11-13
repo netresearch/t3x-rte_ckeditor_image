@@ -17,3 +17,8 @@ editor:
 processing:
   allowTagsOutside:
     - img
+  allowTags:
+    - figure
+    - figcaption
+  allowAttributes:
+    - 'figure[class]'

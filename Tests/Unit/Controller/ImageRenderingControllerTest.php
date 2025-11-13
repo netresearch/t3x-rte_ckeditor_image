@@ -471,4 +471,157 @@ class ImageRenderingControllerTest extends TestCase
 
         self::assertSame(1.0, $result, 'Should return default 1.0 for numeric string that is not a valid quality level');
     }
+
+    public function testWrapImageWithCaptionReturnsUnchangedWhenCaptionEmpty(): void
+    {
+        $controller = $this->createController();
+        $imageHtml  = '<img src="/test.jpg" alt="Test" />';
+
+        $result = $this->callProtectedMethod($controller, 'wrapImageWithCaption', [
+            $imageHtml,
+            '',
+        ]);
+
+        self::assertSame($imageHtml, $result, 'Should return unchanged HTML when caption is empty');
+    }
+
+    public function testWrapImageWithCaptionReturnsUnchangedWhenCaptionOnlyWhitespace(): void
+    {
+        $controller = $this->createController();
+        $imageHtml  = '<img src="/test.jpg" alt="Test" />';
+
+        $result = $this->callProtectedMethod($controller, 'wrapImageWithCaption', [
+            $imageHtml,
+            '   ',
+        ]);
+
+        self::assertSame($imageHtml, $result, 'Should return unchanged HTML when caption is only whitespace');
+    }
+
+    public function testWrapImageWithCaptionWrapsFigureWithCaption(): void
+    {
+        $controller = $this->createController();
+        $imageHtml  = '<img src="/test.jpg" alt="Test" />';
+        $caption    = 'My image caption';
+
+        $result = $this->callProtectedMethod($controller, 'wrapImageWithCaption', [
+            $imageHtml,
+            $caption,
+        ]);
+
+        $expected = '<figure class="image"><img src="/test.jpg" alt="Test" /><figcaption>My image caption</figcaption></figure>';
+        self::assertSame($expected, $result, 'Should wrap image in figure/figcaption structure');
+    }
+
+    public function testWrapImageWithCaptionSanitizesHtmlEntities(): void
+    {
+        $controller = $this->createController();
+        $imageHtml  = '<img src="/test.jpg" alt="Test" />';
+        $caption    = 'Caption with <script>alert("XSS")</script> tags';
+
+        $result = $this->callProtectedMethod($controller, 'wrapImageWithCaption', [
+            $imageHtml,
+            $caption,
+        ]);
+        self::assertIsString($result);
+
+        // htmlspecialchars with ENT_QUOTES | ENT_HTML5 should encode < > " '
+        self::assertStringContainsString('&lt;script&gt;', $result, 'Should encode < as &lt;');
+        self::assertStringContainsString('&lt;/script&gt;', $result, 'Should encode </ as &lt;/');
+        self::assertStringNotContainsString('<script>', $result, 'Should not contain unencoded script tag');
+    }
+
+    public function testWrapImageWithCaptionEncodesQuotes(): void
+    {
+        $controller = $this->createController();
+        $imageHtml  = '<img src="/test.jpg" alt="Test" />';
+        $caption    = 'Caption with "double" and \'single\' quotes';
+
+        $result = $this->callProtectedMethod($controller, 'wrapImageWithCaption', [
+            $imageHtml,
+            $caption,
+        ]);
+        self::assertIsString($result);
+
+        // ENT_QUOTES should encode both " and '
+        self::assertStringContainsString('&quot;', $result, 'Should encode double quotes');
+        // ENT_HTML5 uses &apos; for single quotes (PHP 8.4+), older versions use &#039;
+        self::assertTrue(
+            str_contains($result, '&apos;') || str_contains($result, '&#039;'),
+            'Should encode single quotes as &apos; or &#039;',
+        );
+        self::assertStringNotContainsString('"double"', $result, 'Should not contain unencoded double quotes');
+    }
+
+    public function testWrapImageWithCaptionHandlesLinkWrapper(): void
+    {
+        $controller = $this->createController();
+        $imageHtml  = '<a href="/large.jpg"><img src="/test.jpg" alt="Test" /></a>';
+        $caption    = 'Linked image caption';
+
+        $result = $this->callProtectedMethod($controller, 'wrapImageWithCaption', [
+            $imageHtml,
+            $caption,
+        ]);
+        self::assertIsString($result);
+
+        // Should preserve the entire link structure and wrap with figure
+        self::assertStringContainsString('<figure class="image">', $result, 'Should start with figure tag');
+        self::assertStringContainsString('<a href="/large.jpg">', $result, 'Should preserve link wrapper');
+        self::assertStringContainsString('<figcaption>Linked image caption</figcaption>', $result, 'Should include figcaption');
+        self::assertStringContainsString('</figure>', $result, 'Should end with closing figure tag');
+    }
+
+    public function testWrapImageWithCaptionHandlesUnicodeCharacters(): void
+    {
+        $controller = $this->createController();
+        $imageHtml  = '<img src="/test.jpg" alt="Test" />';
+        $caption    = 'Café mit Müller & Søn';
+
+        $result = $this->callProtectedMethod($controller, 'wrapImageWithCaption', [
+            $imageHtml,
+            $caption,
+        ]);
+        self::assertIsString($result);
+
+        // htmlspecialchars with UTF-8 should preserve unicode characters
+        self::assertStringContainsString('Café', $result, 'Should preserve é');
+        self::assertStringContainsString('Müller', $result, 'Should preserve ü');
+        self::assertStringContainsString('Søn', $result, 'Should preserve ø');
+        self::assertStringContainsString('&amp;', $result, 'Should encode & as &amp;');
+    }
+
+    public function testWrapImageWithCaptionHandlesMultilineCaption(): void
+    {
+        $controller = $this->createController();
+        $imageHtml  = '<img src="/test.jpg" alt="Test" />';
+        $caption    = "Line 1\nLine 2\nLine 3";
+
+        $result = $this->callProtectedMethod($controller, 'wrapImageWithCaption', [
+            $imageHtml,
+            $caption,
+        ]);
+        self::assertIsString($result);
+
+        // Should preserve newlines in caption
+        self::assertStringContainsString("Line 1\nLine 2\nLine 3", $result, 'Should preserve newlines in caption');
+        self::assertStringContainsString('<figcaption>', $result, 'Should wrap in figcaption');
+    }
+
+    public function testWrapImageWithCaptionHandlesHtml5Entities(): void
+    {
+        $controller = $this->createController();
+        $imageHtml  = '<img src="/test.jpg" alt="Test" />';
+        $caption    = 'Price: € 100 – special offer';
+
+        $result = $this->callProtectedMethod($controller, 'wrapImageWithCaption', [
+            $imageHtml,
+            $caption,
+        ]);
+        self::assertIsString($result);
+
+        // ENT_HTML5 should handle € and – properly
+        self::assertStringContainsString('€', $result, 'Should preserve euro symbol');
+        self::assertStringContainsString('–', $result, 'Should preserve en-dash');
+    }
 }

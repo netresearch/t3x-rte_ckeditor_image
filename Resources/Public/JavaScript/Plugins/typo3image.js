@@ -13,10 +13,10 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import { Plugin } from '@ckeditor/ckeditor5-core';
+import { Plugin, Command } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
-import { toWidget } from '@ckeditor/ckeditor5-widget';
+import { toWidget, toWidgetEditable, WidgetToolbarRepository } from '@ckeditor/ckeditor5-widget';
 import { default as Modal } from '@typo3/backend/modal.js';
 import $ from 'jquery';
 
@@ -92,6 +92,9 @@ function getImageDialog(editor, img, attributes) {
         },
         {
             alt: { label: 'Alternative Text', type: 'text' }
+        },
+        {
+            caption: { label: 'Caption', type: 'textarea', rows: 2 }
         }
     ];
 
@@ -111,8 +114,8 @@ function getImageDialog(editor, img, attributes) {
 
         $rows.push($row);
         $.each(this, function (key, config) {
-            // Use full width for title and alt fields, otherwise use col-sm-4
-            var colClass = (key === 'title' || key === 'alt') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
+            // Use full width for title, alt, and caption fields, otherwise use col-sm-4
+            var colClass = (key === 'title' || key === 'alt' || key === 'caption') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
             var $group = $('<div class="form-group">').appendTo($('<div class="' + colClass + '">').appendTo($row));
             var id = 'rteckeditorimage-' + key;
             $('<label class="form-label" for="' + id + '">' + config.label + '</label>').appendTo($group);
@@ -120,6 +123,8 @@ function getImageDialog(editor, img, attributes) {
             var $el;
             if (config.type === 'select') {
                 $el = $('<select id="' + id + '" name="' + key + '" class="form-select"></select>');
+            } else if (config.type === 'textarea') {
+                $el = $('<textarea id="' + id + '" name="' + key + '" class="form-control" rows="' + (config.rows || 3) + '"></textarea>');
             } else {
                 $el = $('<input type="' + config.type + '" id ="' + id + '" name="' + key + '" class="form-control">');
             }
@@ -132,7 +137,7 @@ function getImageDialog(editor, img, attributes) {
                 $el.val(value);
             }
 
-            if (config.type === 'text') {
+            if (config.type === 'text' || config.type === 'textarea') {
                 var startVal = value,
                     hasDefault = img[key] && img[key].trim(),
                     cbox = $('<input type="checkbox" class="form-check-input">')
@@ -226,11 +231,11 @@ function getImageDialog(editor, img, attributes) {
             } else if (config.type === 'select' && key === 'quality') {
                 // Image Processing quality dropdown - sorted by quality ascending
                 var qualityOptions = [
-                    { value: 'none', label: lang.qualityNone || 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
-                    { value: 'standard', label: lang.qualityStandard || 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
-                    { value: 'retina', label: lang.qualityRetina || 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
-                    { value: 'ultra', label: lang.qualityUltra || 'Ultra (3.0x)', multiplier: 3.0, color: '#17a2b8', marker: '●' },
-                    { value: 'print', label: lang.qualityPrint || 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
+                    { value: 'none', label: img.lang.qualityNone || 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
+                    { value: 'standard', label: img.lang.qualityStandard || 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
+                    { value: 'retina', label: img.lang.qualityRetina || 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
+                    { value: 'ultra', label: img.lang.qualityUltra || 'Ultra (3.0x)', multiplier: 3.0, color: '#17a2b8', marker: '●' },
+                    { value: 'print', label: img.lang.qualityPrint || 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
                 ];
 
                 $.each(qualityOptions, function(i, option) {
@@ -325,25 +330,25 @@ function getImageDialog(editor, img, attributes) {
     }
 
     // Quality indicator functions
-    function getQualityLevel(ratio, lang) {
+    function getQualityLevel(ratio, langObj) {
         if (ratio < 0.9) {
-            var tooltip = (lang.qualityLowTooltip || 'Low quality (%sx) - Image may appear blurry').replace('%s', ratio.toFixed(1));
-            return { level: 'low', label: lang.qualityLowLabel || 'Low', color: '#dc3545', tooltip: tooltip };
+            var tooltip = (langObj.qualityLowTooltip || 'Low quality (%sx) - Image may appear blurry').replace('%s', ratio.toFixed(1));
+            return { level: 'low', label: langObj.qualityLowLabel || 'Low', color: '#dc3545', tooltip: tooltip };
         } else if (ratio < 1.5) {
-            var tooltip = (lang.qualityStandardTooltip || 'Standard quality (%sx) - Sharp on basic displays').replace('%s', ratio.toFixed(1));
-            return { level: 'standard', label: lang.qualityStandardLabel || 'Standard', color: '#fd7e14', tooltip: tooltip };
+            var tooltip = (langObj.qualityStandardTooltip || 'Standard quality (%sx) - Sharp on basic displays').replace('%s', ratio.toFixed(1));
+            return { level: 'standard', label: langObj.qualityStandardLabel || 'Standard', color: '#fd7e14', tooltip: tooltip };
         } else if (ratio < 3.0) {
-            var tooltip = (lang.qualityRetinaTooltip || 'Retina quality (%sx) - Optimal for modern displays').replace('%s', ratio.toFixed(1));
-            return { level: 'retina', label: lang.qualityRetinaLabel || 'Retina', color: '#28a745', tooltip: tooltip };
+            var tooltip = (langObj.qualityRetinaTooltip || 'Retina quality (%sx) - Optimal for modern displays').replace('%s', ratio.toFixed(1));
+            return { level: 'retina', label: langObj.qualityRetinaLabel || 'Retina', color: '#28a745', tooltip: tooltip };
         } else if (ratio < 6.0) {
-            var tooltip = (lang.qualityUltraTooltip || 'Ultra quality (%sx) - For ultra-high DPI or small print').replace('%s', ratio.toFixed(1));
-            return { level: 'ultra', label: lang.qualityUltraLabel || 'Ultra', color: '#6f42c1', tooltip: tooltip };
+            var tooltip = (langObj.qualityUltraTooltip || 'Ultra quality (%sx) - For ultra-high DPI or small print').replace('%s', ratio.toFixed(1));
+            return { level: 'ultra', label: langObj.qualityUltraLabel || 'Ultra', color: '#6f42c1', tooltip: tooltip };
         } else if (ratio <= 10.0) {
-            var tooltip = (lang.qualityPrintTooltip || 'Print quality (%sx) - Suitable for high-quality printing (300 DPI)').replace('%s', ratio.toFixed(1));
-            return { level: 'print', label: lang.qualityPrintLabel || 'Print', color: '#007bff', tooltip: tooltip };
+            var tooltip = (langObj.qualityPrintTooltip || 'Print quality (%sx) - Suitable for high-quality printing (300 DPI)').replace('%s', ratio.toFixed(1));
+            return { level: 'print', label: langObj.qualityPrintLabel || 'Print', color: '#007bff', tooltip: tooltip };
         } else {
-            var tooltip = (lang.qualityExcessiveTooltip || 'Excessive resolution (%sx) - Unnecessarily high').replace('%s', ratio.toFixed(1));
-            return { level: 'excessive', label: lang.qualityExcessiveLabel || 'Excessive', color: '#6c757d', tooltip: tooltip };
+            var tooltip = (langObj.qualityExcessiveTooltip || 'Excessive resolution (%sx) - Unnecessarily high').replace('%s', ratio.toFixed(1));
+            return { level: 'excessive', label: langObj.qualityExcessiveLabel || 'Excessive', color: '#6c757d', tooltip: tooltip };
         }
     }
 
@@ -603,7 +608,7 @@ function askImageAttributes(editor, img, attributes, table) {
                     var dialogInfo = dialog.get(),
                         filteredAttr = {},
                         allowedAttributes = [
-                            '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-quality', 'data-title-override', 'data-alt-override'
+                            '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-quality', 'data-title-override', 'data-alt-override', 'caption'
                         ],
                         attributesNew = $.extend({}, img, dialogInfo);
 
@@ -717,10 +722,7 @@ function edit(selectedImage, editor, imageAttributes) {
             return askImageAttributes(editor, img, imageAttributes, selectedImage.table);
         })
         .then(function (attributes) {
-
             editor.model.change(writer => {
-                // SECURITY: Removed console.log to prevent information disclosure in production
-
                 const imageAttributes = {
                     fileUid: attributes.fileUid,
                     fileTable: attributes.fileTable,
@@ -735,6 +737,7 @@ function edit(selectedImage, editor, imageAttributes) {
                     enableZoom: attributes['data-htmlarea-zoom'] || false,
                     noScale: attributes['data-noscale'] || false,
                     quality: attributes['data-quality'] || '',
+                    caption: attributes.caption || '',
                 };
 
                 // Only set link attributes if they have non-empty values
@@ -750,18 +753,110 @@ function edit(selectedImage, editor, imageAttributes) {
                 }
 
                 const newImage = writer.createElement('typo3image', imageAttributes);
-
                 editor.model.insertObject(newImage);
             });
         });
 };
 
 
+/**
+ * Command to resize typo3image by updating width/height attributes
+ * Integrates with WidgetResize plugin for visual drag handles
+ */
+class ResizeImageCommand extends Command {
+    execute(options) {
+        const model = this.editor.model;
+        const imageElement = model.document.selection.getSelectedElement();
+
+        if (!imageElement || !imageElement.is('element', 'typo3image')) {
+            return;
+        }
+
+        model.change(writer => {
+            // Update width attribute (height will be auto-calculated by aspect ratio)
+            writer.setAttribute('width', options.width, imageElement);
+
+            // Optionally update height if provided
+            if (options.height) {
+                writer.setAttribute('height', options.height, imageElement);
+            }
+        });
+    }
+
+    refresh() {
+        const model = this.editor.model;
+        const imageElement = model.document.selection.getSelectedElement();
+
+        this.isEnabled = !!(imageElement && imageElement.is('element', 'typo3image'));
+    }
+}
+
+
+/**
+ * Command to set image style (alignment and display)
+ * Handles image-left, image-right, image-center, image-inline, image-block classes
+ */
+class SetImageStyleCommand extends Command {
+    constructor(editor, styleDefinitions) {
+        super(editor);
+        this._styleDefinitions = styleDefinitions;
+    }
+
+    execute(options) {
+        const { value } = options;
+        const model = this.editor.model;
+        const imageElement = model.document.selection.getSelectedElement();
+
+        if (!imageElement || !imageElement.is('element', 'typo3image')) {
+            return;
+        }
+
+        model.change(writer => {
+            // Remove all style classes first
+            const currentClass = imageElement.getAttribute('class') || '';
+            const cleanedClass = currentClass
+                .split(' ')
+                .filter(cls => !cls.startsWith('image-'))
+                .join(' ');
+
+            // Add new style class
+            const newClass = cleanedClass
+                ? `${cleanedClass} ${value}`
+                : value;
+
+            writer.setAttribute('class', newClass.trim(), imageElement);
+        });
+    }
+
+    refresh() {
+        const model = this.editor.model;
+        const imageElement = model.document.selection.getSelectedElement();
+
+        this.isEnabled = !!(imageElement && imageElement.is('element', 'typo3image'));
+
+        if (this.isEnabled) {
+            const currentClass = imageElement.getAttribute('class') || '';
+            this.value = this._getCurrentStyle(currentClass);
+        } else {
+            this.value = null;
+        }
+    }
+
+    _getCurrentStyle(classString) {
+        const classes = classString.split(' ');
+        const styleClass = classes.find(cls => cls.startsWith('image-'));
+        return styleClass || 'image-block';
+    }
+}
+
+
 export default class Typo3Image extends Plugin {
     static pluginName = 'Typo3Image';
 
     static get requires() {
-        return ['Widget', 'StyleUtils', 'GeneralHtmlSupport'];
+        // TYPO3's CKEditor 5 build includes these plugins
+        // WidgetResize is also available but requires custom integration for typo3image model
+        return ['StyleUtils', 'GeneralHtmlSupport', 'WidgetToolbarRepository'];
     }
 
     init() {
@@ -796,6 +891,37 @@ export default class Typo3Image extends Plugin {
                 };
             }
         };
+
+        // Configure contextual balloon toolbar for typo3image widget
+        const widgetToolbarRepository = editor.plugins.get('WidgetToolbarRepository');
+        widgetToolbarRepository.register('typo3image', {
+            ariaLabel: 'Image toolbar',
+            items: [
+                'editTypo3Image',
+                '|',
+                'imageStyle:image-left',
+                'imageStyle:image-center',
+                'imageStyle:image-right',
+                'imageStyle:image-block'
+            ],
+            getRelatedElement: selection => {
+                // Get the selected element from the view
+                const viewElement = selection.getSelectedElement();
+
+                if (!viewElement) {
+                    return null;
+                }
+
+                // Map view element to model element to check if it's a typo3image
+                const modelElement = editor.editing.mapper.toModelElement(viewElement);
+
+                if (modelElement && modelElement.name === 'typo3image') {
+                    return viewElement; // Return view element for toolbar positioning
+                }
+
+                return null;
+            }
+        });
 
         const styleUtils = editor.plugins.get('StyleUtils');
         // Add listener to allow style sets for `img` element, when a `typo3image` element is selected
@@ -888,10 +1014,93 @@ export default class Typo3Image extends Plugin {
                 'htmlA',
                 'linkHref',
                 'linkTarget',
-                'linkTitle'
+                'linkTitle',
+                'caption'
             ],
         });
 
+        // Upcast converter for figure with caption (higher priority)
+        // Handles: <figure class="image"><img data-htmlarea-file-uid="..."><figcaption>Caption text</figcaption></figure>
+        editor.conversion
+            .for('upcast')
+            .elementToElement({
+                view: {
+                    name: 'figure',
+                    classes: ['image']
+                },
+                model: (viewFigure, { writer }) => {
+                    // Find img and figcaption elements within figure
+                    let imgElement = null;
+                    let figcaptionElement = null;
+
+                    for (const child of viewFigure.getChildren()) {
+                        if (child.is('element', 'img')) {
+                            imgElement = child;
+                        } else if (child.is('element', 'figcaption')) {
+                            figcaptionElement = child;
+                        }
+                    }
+
+                    // Figure must contain an img with data-htmlarea-file-uid
+                    if (!imgElement || !imgElement.getAttribute('data-htmlarea-file-uid')) {
+                        return null;
+                    }
+
+                    // Extract caption text from figcaption
+                    let captionText = '';
+                    if (figcaptionElement) {
+                        const textNodes = [];
+                        for (const node of figcaptionElement.getChildren()) {
+                            if (node.is('$text')) {
+                                textNodes.push(node.data);
+                            }
+                        }
+                        captionText = textNodes.join('');
+                    }
+
+                    // Check if image is wrapped in a link element (inside figure)
+                    const linkElement = imgElement.parent?.name === 'a' ? imgElement.parent : null;
+
+                    // Extract link attributes if link wrapper exists
+                    const linkHref = linkElement?.getAttribute('href') || '';
+                    const linkTarget = linkElement?.getAttribute('target') || '';
+                    const linkTitle = linkElement?.getAttribute('title') || '';
+
+                    const imageAttributes = {
+                        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
+                        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
+                        src: imgElement.getAttribute('src'),
+                        width: imgElement.getAttribute('width') || '',
+                        height: imgElement.getAttribute('height') || '',
+                        class: imgElement.getAttribute('class') || '',
+                        alt: imgElement.getAttribute('alt') || '',
+                        altOverride: imgElement.getAttribute('data-alt-override') || false,
+                        title: imgElement.getAttribute('title') || '',
+                        titleOverride: imgElement.getAttribute('data-title-override') || false,
+                        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
+                        noScale: imgElement.getAttribute('data-noscale') || false,
+                        quality: imgElement.getAttribute('data-quality') || '',
+                        caption: captionText
+                    };
+
+                    // Only set link attributes if they have non-empty values
+                    if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+                        imageAttributes.linkHref = linkHref;
+                        if (linkTarget && linkTarget.trim() !== '') {
+                            imageAttributes.linkTarget = linkTarget;
+                        }
+                        if (linkTitle && linkTitle.trim() !== '') {
+                            imageAttributes.linkTitle = linkTitle;
+                        }
+                    }
+
+                    return writer.createElement('typo3image', imageAttributes);
+                },
+                converterPriority: 'highest'
+            });
+
+        // Upcast converter for standalone img (backward compatibility)
+        // Handles: <img data-htmlarea-file-uid="..." src="...">
         editor.conversion
             .for('upcast')
             .elementToElement({
@@ -926,6 +1135,7 @@ export default class Typo3Image extends Plugin {
                         enableZoom: viewElement.getAttribute('data-htmlarea-zoom') || false,
                         noScale: viewElement.getAttribute('data-noscale') || false,
                         quality: viewElement.getAttribute('data-quality') || '',
+                        caption: ''
                     };
 
                     // Only set link attributes if they have non-empty values
@@ -1009,9 +1219,10 @@ export default class Typo3Image extends Plugin {
         };
 
         // Editing downcast - wraps with toWidget for editor UI (yellow border, block toolbar)
+        // Creates figure/figcaption structure when caption exists
         editor.conversion
             .for('editingDowncast')
-            .elementToElement({
+            .elementToStructure({
                 model: {
                     name: 'typo3image',
                     attributes: [
@@ -1022,28 +1233,57 @@ export default class Typo3Image extends Plugin {
                 },
                 view: (modelElement, { writer }) => {
                     const imageElement = createImageViewElement(modelElement, writer);
+                    const caption = modelElement.getAttribute('caption') || '';
 
-                    // toWidget() requires a ContainerElement, not EmptyElement
-                    // Use inline-block span wrapper to keep image inline while enabling widget functionality
-                    const widgetWrapper = writer.createContainerElement('span', {
-                        class: 'ck-widget ck-widget_with-resizer',
-                        style: 'display: inline-block;'
-                    });
+                    // Hybrid approach: use figure with caption, span without caption
+                    if (caption && caption.trim() !== '') {
+                        // Use figure with inline-block style for images with caption
+                        const figure = writer.createContainerElement('figure', {
+                            class: 'image ck-widget ck-widget_with-resizer',
+                            style: 'display: inline-block;'
+                        });
 
-                    // Insert the image element into the wrapper
-                    writer.insert(writer.createPositionAt(widgetWrapper, 0), imageElement);
+                        // Insert image into figure
+                        writer.insert(writer.createPositionAt(figure, 0), imageElement);
 
-                    return toWidget(widgetWrapper, writer, {
-                        label: 'image widget',
-                        hasSelectionHandle: true
-                    });
+                        // Create non-editable figcaption (caption can only be edited via dialog)
+                        // Note: Making figcaption editable requires caption to be a model element, not an attribute
+                        // Use RawElement which is non-interactive and prevents selection inside it
+                        const figcaption = writer.createRawElement('figcaption', {
+                            class: 'ck-image-caption'
+                        }, function(domElement) {
+                            domElement.textContent = caption;
+                        });
+
+                        writer.insert(writer.createPositionAt(figure, 'end'), figcaption);
+
+                        return toWidget(figure, writer, {
+                            label: 'image widget',
+                            hasSelectionHandle: true
+                        });
+                    } else {
+                        // Use span wrapper for images without caption (original approach)
+                        const widgetWrapper = writer.createContainerElement('span', {
+                            class: 'ck-widget ck-widget_with-resizer',
+                            style: 'display: inline-block;'
+                        });
+
+                        // Insert the image element into the wrapper
+                        writer.insert(writer.createPositionAt(widgetWrapper, 0), imageElement);
+
+                        return toWidget(widgetWrapper, writer, {
+                            label: 'image widget',
+                            hasSelectionHandle: true
+                        });
+                    }
                 },
             });
 
         // Data downcast - outputs clean HTML for saving (no widget wrapper)
+        // Creates figure/figcaption structure when caption exists
         editor.conversion
             .for('dataDowncast')
-            .elementToElement({
+            .elementToStructure({
                 model: {
                     name: 'typo3image',
                     attributes: [
@@ -1053,7 +1293,28 @@ export default class Typo3Image extends Plugin {
                     ]
                 },
                 view: (modelElement, { writer }) => {
-                    return createImageViewElement(modelElement, writer);
+                    const imageElement = createImageViewElement(modelElement, writer);
+                    const caption = modelElement.getAttribute('caption') || '';
+
+                    // If caption exists, wrap in figure with figcaption
+                    if (caption && caption.trim() !== '') {
+                        const figure = writer.createContainerElement('figure', {
+                            class: 'image'
+                        });
+
+                        // Insert image into figure
+                        writer.insert(writer.createPositionAt(figure, 0), imageElement);
+
+                        // Create figcaption with caption text
+                        const figcaption = writer.createContainerElement('figcaption');
+                        writer.insert(writer.createPositionAt(figcaption, 0), writer.createText(caption));
+                        writer.insert(writer.createPositionAt(figure, 'end'), figcaption);
+
+                        return figure;
+                    }
+
+                    // No caption: return plain image element
+                    return imageElement;
                 },
             });
 
@@ -1099,7 +1360,6 @@ export default class Typo3Image extends Plugin {
             });
 
             button.on('execute', () => {
-                // SECURITY: Removed console.log to prevent configuration disclosure
                 const selectedElement = editor.model.document.selection.getSelectedElement();
 
                 if (selectedElement && selectedElement.name === 'typo3image') {
@@ -1135,21 +1395,103 @@ export default class Typo3Image extends Plugin {
             return button;
         });
 
+        // Register edit button for balloon toolbar
+        editor.ui.componentFactory.add('editTypo3Image', () => {
+            const button = new ButtonView();
+
+            button.set({
+                label: 'Edit image',
+                icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="m11.077 15 .991-1.416a.75.75 0 1 1 1.229.86l-1.148 1.64a.748.748 0 0 1-.217.206 5.251 5.251 0 0 1-8.503-5.955.741.741 0 0 1 .12-.274l1.147-1.639a.75.75 0 1 1 1.228.86L4.933 10.7l.006.003a3.75 3.75 0 0 0 6.132 4.294l.006.004zm5.494-5.335a.748.748 0 0 1-.12.274l-1.147 1.639a.75.75 0 1 1-1.228-.86l.86-1.23a3.75 3.75 0 0 0-6.144-4.301l-.86 1.229a.75.75 0 0 1-1.229-.86l1.148-1.64a.748.748 0 0 1 .217-.206 5.251 5.251 0 0 1 8.503 5.955zm-4.563-2.532a.75.75 0 0 1 .184 1.045l-3.155 4.505a.75.75 0 1 1-1.229-.86l3.155-4.506a.75.75 0 0 1 1.045-.184z"/></svg>',
+                tooltip: true,
+                withText: false,
+            });
+
+            // Fetch and apply translated label
+            getTranslations().then(translations => {
+                if (translations.editImage) {
+                    button.set({
+                        label: translations.editImage
+                    });
+                }
+            });
+
+            button.on('execute', () => {
+                const selectedElement = editor.model.document.selection.getSelectedElement();
+
+                if (selectedElement && selectedElement.name === 'typo3image') {
+                    edit(
+                        {
+                            uid: selectedElement.getAttribute('fileUid'),
+                            table: selectedElement.getAttribute('fileTable'),
+                        },
+                        editor,
+                        {
+                            width: selectedElement.getAttribute('width'),
+                            height: selectedElement.getAttribute('height'),
+                            class: selectedElement.getAttribute('class'),
+                            alt: selectedElement.getAttribute('alt'),
+                            title: selectedElement.getAttribute('title'),
+                            caption: selectedElement.getAttribute('caption'),
+                            'data-htmlarea-zoom': selectedElement.getAttribute('enableZoom'),
+                            'data-noscale': selectedElement.getAttribute('noScale'),
+                            'data-quality': selectedElement.getAttribute('quality'),
+                            'data-title-override': selectedElement.getAttribute('titleOverride'),
+                            'data-alt-override': selectedElement.getAttribute('altOverride'),
+                            linkHref: selectedElement.getAttribute('linkHref'),
+                            linkTarget: selectedElement.getAttribute('linkTarget'),
+                            linkTitle: selectedElement.getAttribute('linkTitle'),
+                        }
+                    );
+                }
+            });
+
+            return button;
+        });
+
         // Make image selectable with a single click
+        // Use highest priority to handle figcaption clicks before ANY default selection behavior
         editor.listenTo(editor.editing.view.document, 'click', (event, data) => {
             // Find the widget wrapper - traverse UP if we clicked the inner img/link
             let targetElement = data.target;
 
-            // If clicked on img or link inside wrapper, find the parent wrapper
-            if (targetElement.name === 'img' || targetElement.name === 'a') {
-                const parent = targetElement.parent;
-                if (parent && parent.name === 'span' && parent.hasClass('ck-widget')) {
+            // If we clicked on text inside figcaption, traverse up to find the widget
+            // Check if we're inside a figcaption
+            let checkElement = targetElement;
+            while (checkElement && checkElement.name !== 'figcaption') {
+                checkElement = checkElement.parent;
+            }
+
+            if (checkElement && checkElement.name === 'figcaption') {
+                // Stop event completely to prevent any CKEditor default handlers from running
+                event.stop();
+                data.preventDefault();
+                data.stopPropagation();
+
+                // We're inside figcaption, find the parent figure widget
+                const parent = checkElement.parent;
+                if (parent && parent.name === 'figure' && parent.hasClass('ck-widget')) {
+                    // Don't try to setSelection here - just stop the event
+                    // The widget will be selected by the normal flow below
                     targetElement = parent;
                 }
-                // Handle img inside link inside wrapper: img -> a -> span
+            }
+            // If clicked on img, link, or figcaption inside wrapper, find the parent wrapper (span or figure)
+            else if (targetElement.name === 'img' || targetElement.name === 'a' || targetElement.name === 'figcaption') {
+                // Stop event completely for figcaption clicks
+                if (targetElement.name === 'figcaption') {
+                    event.stop();
+                    data.preventDefault();
+                    data.stopPropagation();
+                }
+
+                const parent = targetElement.parent;
+                if (parent && (parent.name === 'span' || parent.name === 'figure') && parent.hasClass('ck-widget')) {
+                    targetElement = parent;
+                }
+                // Handle img inside link inside wrapper: img -> a -> span/figure
                 else if (targetElement.name === 'img' && parent && parent.name === 'a') {
                     const grandparent = parent.parent;
-                    if (grandparent && grandparent.name === 'span' && grandparent.hasClass('ck-widget')) {
+                    if (grandparent && (grandparent.name === 'span' || grandparent.name === 'figure') && grandparent.hasClass('ck-widget')) {
                         targetElement = grandparent;
                     }
                 }
@@ -1157,27 +1499,135 @@ export default class Typo3Image extends Plugin {
 
             const modelElement = editor.editing.mapper.toModelElement(targetElement);
             if (modelElement && modelElement.name === 'typo3image') {
+                // Prevent default link behavior in editor
+                data.preventDefault();
+                data.stopPropagation();
+
                 // Select the clicked element
                 editor.model.change(writer => {
                     writer.setSelection(modelElement, 'on');
                 });
+
+                // If figcaption was clicked, open edit dialog
+                if (checkElement && checkElement.name === 'figcaption') {
+                    // Open edit dialog for caption editing
+                    edit(
+                        {
+                            uid: modelElement.getAttribute('fileUid'),
+                            table: modelElement.getAttribute('fileTable'),
+                        },
+                        editor,
+                        {
+                            width: modelElement.getAttribute('width'),
+                            height: modelElement.getAttribute('height'),
+                            class: modelElement.getAttribute('class'),
+                            alt: modelElement.getAttribute('alt'),
+                            title: modelElement.getAttribute('title'),
+                            caption: modelElement.getAttribute('caption'),
+                            'data-htmlarea-zoom': modelElement.getAttribute('enableZoom'),
+                            'data-noscale': modelElement.getAttribute('noScale'),
+                            'data-quality': modelElement.getAttribute('quality'),
+                            'data-title-override': modelElement.getAttribute('titleOverride'),
+                            'data-alt-override': modelElement.getAttribute('altOverride'),
+                            linkHref: modelElement.getAttribute('linkHref'),
+                            linkTarget: modelElement.getAttribute('linkTarget'),
+                            linkTitle: modelElement.getAttribute('linkTitle'),
+                        }
+                    );
+                }
             }
-        })
+        }, { priority: 'highest' })
+
+        // Define image style options with SVG icons
+        const styleDefinitions = {
+            'image-left': {
+                title: 'Align left',
+                icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 3h16v2H2zm0 12h16v2H2zm0-6h7v2H2zm9 0h7v2h-7z"/></svg>',
+                className: 'image-left'
+            },
+            'image-center': {
+                title: 'Align center',
+                icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 3h16v2H2zm0 12h16v2H2zm3-6h10v2H5z"/></svg>',
+                className: 'image-center'
+            },
+            'image-right': {
+                title: 'Align right',
+                icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 3h16v2H2zm0 12h16v2H2zm11-6h7v2h-7zm-9 0h7v2H4z"/></svg>',
+                className: 'image-right'
+            },
+            'image-inline': {
+                title: 'Inline',
+                icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 3h16v2H2zm0 4h4v4H2zm6 0h10v2H8zm0 2h10v2H8zm-6 4h16v2H2zm0 4h16v2H2z"/></svg>',
+                className: 'image-inline'
+            },
+            'image-block': {
+                title: 'Block',
+                icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 3h16v2H2zm0 12h16v2H2zm0-8h16v4H2z"/></svg>',
+                className: 'image-block'
+            }
+        };
+
+        // Register SetImageStyleCommand
+        editor.commands.add('setImageStyle', new SetImageStyleCommand(editor, styleDefinitions));
+
+        // Register UI buttons for each style
+        for (const [styleName, definition] of Object.entries(styleDefinitions)) {
+            editor.ui.componentFactory.add(`imageStyle:${styleName}`, () => {
+                const command = editor.commands.get('setImageStyle');
+                const buttonView = new ButtonView();
+
+                buttonView.set({
+                    label: definition.title,
+                    icon: definition.icon,
+                    tooltip: true
+                });
+
+                buttonView.bind('isEnabled').to(command, 'isEnabled');
+                buttonView.bind('isOn').to(command, 'value', value => value === styleName);
+
+                buttonView.on('execute', () => {
+                    editor.execute('setImageStyle', { value: styleName });
+                    editor.editing.view.focus();
+                });
+
+                return buttonView;
+            });
+        }
+
+        // NOTE: WidgetToolbar and WidgetResize are NOT available in TYPO3's CKEditor 5 build
+        // Balloon toolbar and visual resize features cannot be implemented without these plugins
+        // Alternative approaches would require custom UI implementation
+
+        // Keeping the commands registered for potential future use
+        editor.commands.add('resizeImage', new ResizeImageCommand(editor));
 
         editor.listenTo(editor.editing.view.document, 'dblclick:typo3image', (event, data) => {
             // Find the widget wrapper - traverse UP if we clicked the inner img/link
             let targetElement = data.target;
 
-            // If clicked on img or link inside wrapper, find the parent wrapper
-            if (targetElement.name === 'img' || targetElement.name === 'a') {
-                const parent = targetElement.parent;
-                if (parent && parent.name === 'span' && parent.hasClass('ck-widget')) {
+            // If we clicked on text inside figcaption, traverse up to find the widget
+            let checkElement = targetElement;
+            while (checkElement && checkElement.name !== 'figcaption') {
+                checkElement = checkElement.parent;
+            }
+
+            if (checkElement && checkElement.name === 'figcaption') {
+                // We're inside figcaption, find the parent figure widget
+                const parent = checkElement.parent;
+                if (parent && parent.name === 'figure' && parent.hasClass('ck-widget')) {
                     targetElement = parent;
                 }
-                // Handle img inside link inside wrapper: img -> a -> span
+            }
+            // If clicked on img, link, or figcaption inside wrapper, find the parent wrapper (span or figure)
+            else if (targetElement.name === 'img' || targetElement.name === 'a' || targetElement.name === 'figcaption') {
+                const parent = targetElement.parent;
+                if (parent && (parent.name === 'span' || parent.name === 'figure') && parent.hasClass('ck-widget')) {
+                    targetElement = parent;
+                }
+                // Handle img inside link inside wrapper: img -> a -> span/figure
                 else if (targetElement.name === 'img' && parent && parent.name === 'a') {
                     const grandparent = parent.parent;
-                    if (grandparent && grandparent.name === 'span' && grandparent.hasClass('ck-widget')) {
+                    if (grandparent && (grandparent.name === 'span' || grandparent.name === 'figure') && grandparent.hasClass('ck-widget')) {
                         targetElement = grandparent;
                     }
                 }
@@ -1210,6 +1660,7 @@ export default class Typo3Image extends Plugin {
                         linkHref: modelElement.getAttribute('linkHref'),
                         linkTarget: modelElement.getAttribute('linkTarget'),
                         linkTitle: modelElement.getAttribute('linkTitle'),
+                        caption: modelElement.getAttribute('caption'),
                     }
                 );
             }
