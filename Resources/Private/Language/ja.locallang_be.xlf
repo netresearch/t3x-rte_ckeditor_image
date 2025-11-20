@@ -21,9 +21,9 @@
       <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
 			<target state="translated">クリックして拡大</target></trans-unit>
-      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve" approved="yes">
 				<source>Enabled</source>
-			<target state="translated">有効</target></trans-unit>
+			<target state="final">利用可</target></trans-unit>
       <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
 			<target state="translated">画像処理をスキップ</target></trans-unit>
