@@ -9,30 +9,30 @@
       <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
 			<target state="translated">चौड़ाई</target></trans-unit>
-      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve" approved="yes">
 				<source>Height</source>
-			<target state="translated">ऊंचाई</target></trans-unit>
+			<target state="final">ऊँचाई</target></trans-unit>
       <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
 			<target state="translated">सलाहकार शीर्षक</target></trans-unit>
-      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve" approved="yes">
 				<source>Alternative Text</source>
-			<target state="translated">वैकल्पिक पाठ</target></trans-unit>
+			<target state="final">अल्टरनेटिव टेक्स्ट</target></trans-unit>
       <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
 			<target state="translated">बड़ा करने के लिए क्लिक करें</target></trans-unit>
-      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve" approved="yes">
 				<source>Enabled</source>
-			<target state="translated">सक्षम</target></trans-unit>
+			<target state="final">सक्षम, सक्रिय</target></trans-unit>
       <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
 			<target state="translated">छवि प्रसंस्करण छोड़ें</target></trans-unit>
       <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
 				<source>Image Properties</source>
 			<target state="translated">छवि गुण</target></trans-unit>
-      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve" approved="yes">
 				<source>Cancel</source>
-			<target state="translated">रद्द करें</target></trans-unit>
+			<target state="final">कुल सक्रिय किए गए प्रदाताओं को प्रयोंक्ता %s के लिए सफलतापूर्वक निष्क्रिय किया गया</target></trans-unit>
       <trans-unit id="labels.ckeditor.save" xml:space="preserve">
 				<source>Save</source>
 			<target state="translated">सहेजें</target></trans-unit>
@@ -96,9 +96,9 @@
       <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
 			<target state="translated">अल्ट्रा गुणवत्ता (%sx) - अल्ट्रा-हाई डीपीआई या छोटे प्रिंट के लिए</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve" approved="yes">
 				<source>Print</source>
-			<target state="translated">प्रिंट</target></trans-unit>
+			<target state="final">प्रिन्ट</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
 			<target state="translated">प्रिंट गुणवत्ता (%sx) - उच्च गुणवत्ता वाले मुद्रण के लिए उपयुक्त (300 DPI)</target></trans-unit>
