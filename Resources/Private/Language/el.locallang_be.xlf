@@ -6,12 +6,12 @@
       <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
 				<source>Custom CSS class</source>
 			<target state="needs-translation">Custom CSS class</target></trans-unit>
-      <trans-unit id="labels.ckeditor.width" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.width" xml:space="preserve" approved="yes">
 				<source>Width</source>
-			<target state="needs-translation">Width</target></trans-unit>
-      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+			<target state="final">Πλάτος</target></trans-unit>
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve" approved="yes">
 				<source>Height</source>
-			<target state="needs-translation">Height</target></trans-unit>
+			<target state="final">Ύψος</target></trans-unit>
       <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
 			<target state="needs-translation">Advisory Title</target></trans-unit>
@@ -21,21 +21,21 @@
       <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
 			<target state="needs-translation">Click to Enlarge</target></trans-unit>
-      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve" approved="yes">
 				<source>Enabled</source>
-			<target state="needs-translation">Enabled</target></trans-unit>
+			<target state="final">Ενεργοποιημένο</target></trans-unit>
       <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
 			<target state="needs-translation">Skip Image Processing</target></trans-unit>
       <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
 				<source>Image Properties</source>
 			<target state="needs-translation">Image Properties</target></trans-unit>
-      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve" approved="yes">
 				<source>Cancel</source>
-			<target state="needs-translation">Cancel</target></trans-unit>
-      <trans-unit id="labels.ckeditor.save" xml:space="preserve">
+			<target state="final">Ακύρωση</target></trans-unit>
+      <trans-unit id="labels.ckeditor.save" xml:space="preserve" approved="yes">
 				<source>Save</source>
-			<target state="needs-translation">Save</target></trans-unit>
+			<target state="final">Αποθήκευση</target></trans-unit>
       <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
 			<target state="needs-translation">Insert image</target></trans-unit>
@@ -75,10 +75,10 @@
       <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
 			<target state="needs-translation">Low quality (%sx) - Image may appear blurry</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve" approved="yes">
 				<source>Standard</source>
 				
-			<target state="needs-translation">Standard</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+			<target state="final">Τυπική</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
 			<target state="needs-translation">Standard quality (%sx) - Sharp on basic displays</target></trans-unit>
@@ -96,9 +96,9 @@
       <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
 			<target state="needs-translation">Ultra quality (%sx) - For ultra-high DPI or small print</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve" approved="yes">
 				<source>Print</source>
-			<target state="needs-translation">Print</target></trans-unit>
+			<target state="final">Εκτύπωση</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
 			<target state="needs-translation">Print quality (%sx) - Suitable for high-quality printing (300 DPI)</target></trans-unit>
