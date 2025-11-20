@@ -33,9 +33,9 @@
       <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
 				<source>Cancel</source>
 			<target state="translated">Cancelar</target></trans-unit>
-      <trans-unit id="labels.ckeditor.save" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.save" xml:space="preserve" approved="yes">
 				<source>Save</source>
-			<target state="translated">Salvar</target></trans-unit>
+			<target state="final">Guardar</target></trans-unit>
       <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
 			<target state="translated">Inserir imagem</target></trans-unit>
