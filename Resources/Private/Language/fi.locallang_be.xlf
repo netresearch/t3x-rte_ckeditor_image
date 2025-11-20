@@ -15,9 +15,9 @@
       <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
 			<target state="translated">Neuvoa-antava otsikko</target></trans-unit>
-      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve" approved="yes">
 				<source>Alternative Text</source>
-			<target state="translated">Vaihtoehtoinen teksti</target></trans-unit>
+			<target state="final">Kuvan vaihtoehtoinen teksti (alt-teksti)</target></trans-unit>
       <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
 			<target state="translated">Napsauta suurentaaksesi</target></trans-unit>
@@ -69,16 +69,16 @@
       <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
 			<target state="translated">Tulostus (6.0x)</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve" approved="yes">
 				<source>Low</source>
-			<target state="translated">Matala</target></trans-unit>
+			<target state="final">alhainen</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
 			<target state="translated">Matala laatu (%sx) - Kuva voi näyttää epäterävältä</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve" approved="yes">
 				<source>Standard</source>
 				
-			<target state="translated">Standardi</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+			<target state="final">Vakio</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
 			<target state="translated">Standardi laatu (%sx) - Terävä perusnäytöillä</target></trans-unit>
@@ -96,9 +96,9 @@
       <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
 			<target state="translated">Ultra-laatu (%sx) - Erittäin korkealle DPI:lle tai pienelle tulosteelle</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve" approved="yes">
 				<source>Print</source>
-			<target state="translated">Tulostus</target></trans-unit>
+			<target state="final">Tulosta</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
 			<target state="translated">Tulostuslaatu (%sx) - Sopii korkealaatuiseen tulostukseen (300 DPI)</target></trans-unit>
