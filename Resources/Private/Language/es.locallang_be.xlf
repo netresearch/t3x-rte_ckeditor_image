@@ -9,9 +9,9 @@
       <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
 			<target state="translated">Ancho</target></trans-unit>
-      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve" approved="yes">
 				<source>Height</source>
-			<target state="translated">Alto</target></trans-unit>
+			<target state="final">Altura</target></trans-unit>
       <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
 			<target state="translated">Título consultivo</target></trans-unit>
@@ -21,9 +21,9 @@
       <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
 			<target state="translated">Clic para ampliar</target></trans-unit>
-      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve" approved="yes">
 				<source>Enabled</source>
-			<target state="translated">Habilitado</target></trans-unit>
+			<target state="final">Activado</target></trans-unit>
       <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
 			<target state="translated">Omitir procesamiento de imagen</target></trans-unit>
@@ -96,9 +96,9 @@
       <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
 			<target state="translated">Calidad Ultra (%sx) - Para DPI ultra-alto o impresión pequeña</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve" approved="yes">
 				<source>Print</source>
-			<target state="translated">Impresión</target></trans-unit>
+			<target state="final">Imprimir</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
 			<target state="translated">Calidad de impresión (%sx) - Adecuada para impresión de alta calidad (300 DPI)</target></trans-unit>
