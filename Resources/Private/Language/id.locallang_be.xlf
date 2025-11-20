@@ -3,61 +3,61 @@
   <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image" target-language="id">
     <header/>
     <body>
-      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve" approved="yes">
 				<source>Custom CSS class</source>
-			<target state="translated">Kelas CSS kustom</target></trans-unit>
-      <trans-unit id="labels.ckeditor.width" xml:space="preserve">
+			<target state="final">Kelas CSS kustom</target></trans-unit>
+      <trans-unit id="labels.ckeditor.width" xml:space="preserve" approved="yes">
 				<source>Width</source>
-			<target state="translated">Lebar</target></trans-unit>
-      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+			<target state="final">Lebar</target></trans-unit>
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve" approved="yes">
 				<source>Height</source>
-			<target state="translated">Tinggi</target></trans-unit>
-      <trans-unit id="labels.ckeditor.title" xml:space="preserve">
+			<target state="final">Tinggi</target></trans-unit>
+      <trans-unit id="labels.ckeditor.title" xml:space="preserve" approved="yes">
 				<source>Advisory Title</source>
-			<target state="translated">Judul penasihat</target></trans-unit>
-      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+			<target state="final">Judul penasihat</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve" approved="yes">
 				<source>Alternative Text</source>
-			<target state="translated">Teks alternatif</target></trans-unit>
-      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
+			<target state="final">Teks alternatif</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve" approved="yes">
 				<source>Click to Enlarge</source>
-			<target state="translated">Klik untuk memperbesar</target></trans-unit>
-      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+			<target state="final">Klik untuk memperbesar</target></trans-unit>
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve" approved="yes">
 				<source>Enabled</source>
-			<target state="translated">Diaktifkan</target></trans-unit>
-      <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
+			<target state="final">Diaktifkan</target></trans-unit>
+      <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve" approved="yes">
 				<source>Skip Image Processing</source>
-			<target state="translated">Lewati pemrosesan gambar</target></trans-unit>
-      <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
+			<target state="final">Lewati pemrosesan gambar</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve" approved="yes">
 				<source>Image Properties</source>
-			<target state="translated">Properti gambar</target></trans-unit>
-      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
+			<target state="final">Properti gambar</target></trans-unit>
+      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve" approved="yes">
 				<source>Cancel</source>
-			<target state="translated">Batal</target></trans-unit>
-      <trans-unit id="labels.ckeditor.save" xml:space="preserve">
+			<target state="final">Batal</target></trans-unit>
+      <trans-unit id="labels.ckeditor.save" xml:space="preserve" approved="yes">
 				<source>Save</source>
-			<target state="translated">Simpan</target></trans-unit>
-      <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
+			<target state="final">Simpan</target></trans-unit>
+      <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve" approved="yes">
 				<source>Insert image</source>
-			<target state="translated">Sisipkan gambar</target></trans-unit>
-      <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
+			<target state="final">Sisipkan gambar</target></trans-unit>
+      <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve" approved="yes">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-			<target state="translated">Tidak ada %s default tersedia dalam metadata file. Tidak dapat menimpa nilai kosong.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
+			<target state="final">Tidak ada %s default tersedia dalam metadata file. Tidak dapat menimpa nilai kosong.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve" approved="yes">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-			<target state="translated">Mengaktifkan fungsi klik-untuk-memperbesar/lightbox. Konfigurasi popup default disediakan secara otomatis. Lihat dokumentasi untuk integrasi perpustakaan lightbox kustom.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
+			<target state="final">Mengaktifkan fungsi klik-untuk-memperbesar/lightbox. Konfigurasi popup default disediakan secara otomatis. Lihat dokumentasi untuk integrasi perpustakaan lightbox kustom.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve" approved="yes">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-			<target state="translated">Melewati pemrosesan gambar dan menggunakan file asli. Berguna untuk newsletter, PDF, tampilan resolusi maksimum, dan grafik SVG. Konfigurasi secara global melalui TypoScript atau aktifkan per gambar.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
+			<target state="final">Melewati pemrosesan gambar dan menggunakan file asli. Berguna untuk newsletter, PDF, tampilan resolusi maksimum, dan grafik SVG. Konfigurasi secara global melalui TypoScript atau aktifkan per gambar.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality" xml:space="preserve" approved="yes">
 				<source>Image Quality</source>
-			<target state="translated">Kualitas gambar</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
+			<target state="final">Kualitas gambar</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve" approved="yes">
 				<source>No Scaling</source>
-			<target state="translated">Tanpa penskalaan</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
+			<target state="final">Tanpa penskalaan</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve" approved="yes">
 				<source>Standard (1.0x)</source>
 				
-			<target state="translated">Standar (1.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+			<target state="final">Standar (1.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve" approved="yes">
 				<source>Retina (2.0x)</source>
 				
@@ -66,48 +66,48 @@
 				<source>Ultra (3.0x)</source>
 				
 			<target state="final">Ultra (3.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve" approved="yes">
 				<source>Print (6.0x)</source>
-			<target state="translated">Cetak (6.0x)</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
+			<target state="final">Cetak (6.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve" approved="yes">
 				<source>Low</source>
-			<target state="translated">Rendah</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
+			<target state="final">Rendah</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve" approved="yes">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-			<target state="translated">Kualitas rendah (%sx) - Gambar mungkin tampak buram</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+			<target state="final">Kualitas rendah (%sx) - Gambar mungkin tampak buram</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve" approved="yes">
 				<source>Standard</source>
 				
-			<target state="translated">Standar</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
+			<target state="final">Standar</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve" approved="yes">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-			<target state="translated">Kualitas standar (%sx) - Tajam pada tampilan dasar</target></trans-unit>
+			<target state="final">Kualitas standar (%sx) - Tajam pada tampilan dasar</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve" approved="yes">
 				<source>Retina</source>
 				
 			<target state="final">Retina</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve" approved="yes">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-			<target state="translated">Kualitas Retina (%sx) - Optimal untuk tampilan modern</target></trans-unit>
+			<target state="final">Kualitas Retina (%sx) - Optimal untuk tampilan modern</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve" approved="yes">
 				<source>Ultra</source>
 				
 			<target state="final">Ultra</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve" approved="yes">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-			<target state="translated">Kualitas Ultra (%sx) - Untuk DPI ultra-tinggi atau cetakan kecil</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+			<target state="final">Kualitas Ultra (%sx) - Untuk DPI ultra-tinggi atau cetakan kecil</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve" approved="yes">
 				<source>Print</source>
-			<target state="translated">Cetak</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
+			<target state="final">Cetak</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve" approved="yes">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-			<target state="translated">Kualitas cetak (%sx) - Cocok untuk pencetakan berkualitas tinggi (300 DPI)</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
+			<target state="final">Kualitas cetak (%sx) - Cocok untuk pencetakan berkualitas tinggi (300 DPI)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve" approved="yes">
 				<source>Excessive</source>
-			<target state="translated">Berlebihan</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
+			<target state="final">Berlebihan</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve" approved="yes">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-			<target state="translated">Resolusi berlebihan (%sx) - Terlalu tinggi</target></trans-unit>
+			<target state="final">Resolusi berlebihan (%sx) - Terlalu tinggi</target></trans-unit>
     </body>
   </file>
 </xliff>
