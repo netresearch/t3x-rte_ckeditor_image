@@ -54,18 +54,18 @@
       <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve" approved="yes">
 				<source>No Scaling</source>
 			<target state="final">Keine Skalierung</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve" approved="yes">
 				<source>Standard (1.0x)</source>
 				
-			<target state="translated">Standard (1.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
+			<target state="final">Standard (1.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve" approved="yes">
 				<source>Retina (2.0x)</source>
 				
-			<target state="translated">Retina (2.0x)</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
+			<target state="final">Retina (2.0x)</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve" approved="yes">
 				<source>Ultra (3.0x)</source>
 				
-			<target state="translated">Ultra (3.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+			<target state="final">Ultra (3.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve" approved="yes">
 				<source>Print (6.0x)</source>
 			<target state="final">Druck (6.0x)</target></trans-unit>
@@ -82,17 +82,17 @@
       <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve" approved="yes">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
 			<target state="final">Standardqualität (%sx) - Scharf auf einfachen Displays</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve" approved="yes">
 				<source>Retina</source>
 				
-			<target state="translated">Retina</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
+			<target state="final">Retina</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve" approved="yes">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
 			<target state="final">Retina-Qualität (%sx) - Optimal für moderne Displays</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve" approved="yes">
 				<source>Ultra</source>
 				
-			<target state="translated">Ultra</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+			<target state="final">Ultra</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve" approved="yes">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
 			<target state="final">Ultra-Qualität (%sx) - Für ultra-hohe DPI oder kleinen Druck</target></trans-unit>
