@@ -3,9 +3,9 @@
   <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image" target-language="ro">
     <header/>
     <body>
-      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve" approved="yes">
 				<source>Custom CSS class</source>
-			<target state="translated">Custom CSS class</target></trans-unit>
+			<target state="final">Custom CSS class</target></trans-unit>
       <trans-unit id="labels.ckeditor.width" xml:space="preserve" approved="yes">
 				<source>Width</source>
 			<target state="final">Lățime</target></trans-unit>
