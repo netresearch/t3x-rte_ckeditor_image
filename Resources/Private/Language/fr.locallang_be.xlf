@@ -69,16 +69,16 @@
       <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
 			<target state="translated">Impression (6.0x)</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve" approved="yes">
 				<source>Low</source>
-			<target state="translated">Faible</target></trans-unit>
+			<target state="final">Basse</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
 			<target state="translated">Qualité faible (%sx) - L'image peut apparaître floue</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve" approved="yes">
 				<source>Standard</source>
 				
-			<target state="needs-translation">Standard</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+			<target state="final">Standard</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
 			<target state="translated">Qualité standard (%sx) - Net sur les écrans de base</target></trans-unit>
@@ -96,9 +96,9 @@
       <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
 			<target state="translated">Qualité Ultra (%sx) - Pour DPI ultra-élevé ou petite impression</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve" approved="yes">
 				<source>Print</source>
-			<target state="translated">Impression</target></trans-unit>
+			<target state="final">Imprimer</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
 			<target state="translated">Qualité d'impression (%sx) - Adapté pour impression haute qualité (300 DPI)</target></trans-unit>
