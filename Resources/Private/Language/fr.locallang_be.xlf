@@ -3,111 +3,111 @@
   <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image" target-language="fr">
     <header/>
     <body>
-      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve" approved="yes">
 				<source>Custom CSS class</source>
-			<target state="translated">Classe CSS personnalisée</target></trans-unit>
-      <trans-unit id="labels.ckeditor.width" xml:space="preserve">
+			<target state="final">Classe CSS personnalisée</target></trans-unit>
+      <trans-unit id="labels.ckeditor.width" xml:space="preserve" approved="yes">
 				<source>Width</source>
-			<target state="translated">Largeur</target></trans-unit>
-      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+			<target state="final">Largeur</target></trans-unit>
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve" approved="yes">
 				<source>Height</source>
-			<target state="translated">Hauteur</target></trans-unit>
-      <trans-unit id="labels.ckeditor.title" xml:space="preserve">
+			<target state="final">Hauteur</target></trans-unit>
+      <trans-unit id="labels.ckeditor.title" xml:space="preserve" approved="yes">
 				<source>Advisory Title</source>
-			<target state="translated">Titre consultatif</target></trans-unit>
-      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+			<target state="final">Titre consultatif</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve" approved="yes">
 				<source>Alternative Text</source>
-			<target state="translated">Texte alternatif</target></trans-unit>
-      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
+			<target state="final">Texte alternatif</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve" approved="yes">
 				<source>Click to Enlarge</source>
-			<target state="translated">Cliquer pour agrandir</target></trans-unit>
-      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+			<target state="final">Cliquer pour agrandir</target></trans-unit>
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve" approved="yes">
 				<source>Enabled</source>
-			<target state="translated">Activé</target></trans-unit>
-      <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
+			<target state="final">Activé</target></trans-unit>
+      <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve" approved="yes">
 				<source>Skip Image Processing</source>
-			<target state="translated">Ignorer le traitement d'image</target></trans-unit>
-      <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
+			<target state="final">Ignorer le traitement d'image</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve" approved="yes">
 				<source>Image Properties</source>
-			<target state="translated">Propriétés de l'image</target></trans-unit>
-      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
+			<target state="final">Propriétés de l'image</target></trans-unit>
+      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve" approved="yes">
 				<source>Cancel</source>
-			<target state="translated">Annuler</target></trans-unit>
-      <trans-unit id="labels.ckeditor.save" xml:space="preserve">
+			<target state="final">Annuler</target></trans-unit>
+      <trans-unit id="labels.ckeditor.save" xml:space="preserve" approved="yes">
 				<source>Save</source>
-			<target state="translated">Enregistrer</target></trans-unit>
-      <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
+			<target state="final">Enregistrer</target></trans-unit>
+      <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve" approved="yes">
 				<source>Insert image</source>
-			<target state="translated">Insérer une image</target></trans-unit>
-      <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
+			<target state="final">Insérer une image</target></trans-unit>
+      <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve" approved="yes">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-			<target state="translated">Aucune valeur par défaut %s disponible dans les métadonnées du fichier. Impossible de remplacer une valeur vide.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
+			<target state="final">Aucune valeur par défaut %s disponible dans les métadonnées du fichier. Impossible de remplacer une valeur vide.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve" approved="yes">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-			<target state="translated">Active la fonctionnalité de clic pour agrandir/lightbox. La configuration de popup par défaut est fournie automatiquement. Consultez la documentation pour l'intégration de bibliothèque lightbox personnalisée.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
+			<target state="final">Active la fonctionnalité de clic pour agrandir/lightbox. La configuration de popup par défaut est fournie automatiquement. Consultez la documentation pour l'intégration de bibliothèque lightbox personnalisée.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve" approved="yes">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-			<target state="translated">Ignore le traitement d'image et utilise le fichier original. Utile pour les newsletters, PDF, affichages haute résolution et graphiques SVG. Configurez globalement via TypoScript ou activez par image.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
+			<target state="final">Ignore le traitement d'image et utilise le fichier original. Utile pour les newsletters, PDF, affichages haute résolution et graphiques SVG. Configurez globalement via TypoScript ou activez par image.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality" xml:space="preserve" approved="yes">
 				<source>Image Quality</source>
-			<target state="translated">Qualité d'image</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
+			<target state="final">Qualité d'image</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve" approved="yes">
 				<source>No Scaling</source>
-			<target state="translated">Pas de mise à l'échelle</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
+			<target state="final">Pas de mise à l'échelle</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve" approved="yes">
 				<source>Standard (1.0x)</source>
 				
-			<target state="needs-translation">Standard (1.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
+			<target state="final">Standard (1.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve" approved="yes">
 				<source>Retina (2.0x)</source>
 				
-			<target state="needs-translation">Retina (2.0x)</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
+			<target state="final">Retina (2.0x)</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve" approved="yes">
 				<source>Ultra (3.0x)</source>
 				
-			<target state="needs-translation">Ultra (3.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
+			<target state="final">Ultra (3.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve" approved="yes">
 				<source>Print (6.0x)</source>
-			<target state="translated">Impression (6.0x)</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
+			<target state="final">Impression (6.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve" approved="yes">
 				<source>Low</source>
-			<target state="translated">Faible</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
+			<target state="final">Basse</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve" approved="yes">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-			<target state="translated">Qualité faible (%sx) - L'image peut apparaître floue</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+			<target state="final">Qualité faible (%sx) - L'image peut apparaître floue</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve" approved="yes">
 				<source>Standard</source>
 				
-			<target state="needs-translation">Standard</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
+			<target state="final">Standard</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve" approved="yes">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-			<target state="translated">Qualité standard (%sx) - Net sur les écrans de base</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
+			<target state="final">Qualité standard (%sx) - Net sur les écrans de base</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve" approved="yes">
 				<source>Retina</source>
 				
-			<target state="needs-translation">Retina</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
+			<target state="final">Retina</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve" approved="yes">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-			<target state="translated">Qualité Retina (%sx) - Optimal pour les écrans modernes</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
+			<target state="final">Qualité Retina (%sx) - Optimal pour les écrans modernes</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve" approved="yes">
 				<source>Ultra</source>
 				
-			<target state="needs-translation">Ultra</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
+			<target state="final">Ultra</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve" approved="yes">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-			<target state="translated">Qualité Ultra (%sx) - Pour DPI ultra-élevé ou petite impression</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+			<target state="final">Qualité Ultra (%sx) - Pour DPI ultra-élevé ou petite impression</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve" approved="yes">
 				<source>Print</source>
-			<target state="translated">Impression</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
+			<target state="final">Imprimer</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve" approved="yes">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-			<target state="translated">Qualité d'impression (%sx) - Adapté pour impression haute qualité (300 DPI)</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
+			<target state="final">Qualité d'impression (%sx) - Adapté pour impression haute qualité (300 DPI)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve" approved="yes">
 				<source>Excessive</source>
-			<target state="translated">Excessif</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
+			<target state="final">Excessif</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve" approved="yes">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-			<target state="translated">Résolution excessive (%sx) - Inutilement élevée</target></trans-unit>
+			<target state="final">Résolution excessive (%sx) - Inutilement élevée</target></trans-unit>
     </body>
   </file>
 </xliff>
