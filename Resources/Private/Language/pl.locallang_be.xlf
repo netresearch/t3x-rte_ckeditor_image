@@ -58,10 +58,10 @@
 				<source>Standard (1.0x)</source>
 				
 			<target state="translated">Standardowa (1.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve" approved="yes">
 				<source>Retina (2.0x)</source>
 				
-			<target state="needs-translation">Retina (2.0x)</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
+			<target state="final">Retina (2.0x)</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
 				<source>Ultra (3.0x)</source>
 				
@@ -82,10 +82,10 @@
       <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
 			<target state="translated">Standardowa jakość (%sx) - Ostry na podstawowych wyświetlaczach</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve" approved="yes">
 				<source>Retina</source>
 				
-			<target state="needs-translation">Retina</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
+			<target state="final">Retina</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
 			<target state="translated">Jakość Retina (%sx) - Optymalna dla nowoczesnych wyświetlaczy</target></trans-unit>
