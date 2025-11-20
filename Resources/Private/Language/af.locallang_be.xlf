@@ -3,24 +3,24 @@
   <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image" target-language="af">
     <header/>
     <body>
-      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve" approved="yes">
 				<source>Custom CSS class</source>
-			<target state="translated">Aangepaste CSS-klas</target></trans-unit>
-      <trans-unit id="labels.ckeditor.width" xml:space="preserve">
+			<target state="final">Aangepaste CSS-klas</target></trans-unit>
+      <trans-unit id="labels.ckeditor.width" xml:space="preserve" approved="yes">
 				<source>Width</source>
-			<target state="translated">Wydte</target></trans-unit>
-      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+			<target state="final">Wydte</target></trans-unit>
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve" approved="yes">
 				<source>Height</source>
-			<target state="translated">Hoogte</target></trans-unit>
-      <trans-unit id="labels.ckeditor.title" xml:space="preserve">
+			<target state="final">Hoogte</target></trans-unit>
+      <trans-unit id="labels.ckeditor.title" xml:space="preserve" approved="yes">
 				<source>Advisory Title</source>
-			<target state="translated">Adviserende titel</target></trans-unit>
-      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+			<target state="final">Adviserende titel</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve" approved="yes">
 				<source>Alternative Text</source>
-			<target state="translated">Alternatiewe teks</target></trans-unit>
-      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
+			<target state="final">Alternatiewe teks</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve" approved="yes">
 				<source>Click to Enlarge</source>
-			<target state="translated">Klik om te vergroot</target></trans-unit>
+			<target state="final">Klik om te vergroot</target></trans-unit>
       <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
 				<source>Enabled</source>
 			<target state="translated">Geaktiveer</target></trans-unit>
