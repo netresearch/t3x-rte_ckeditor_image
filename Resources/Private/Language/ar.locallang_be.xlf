@@ -9,21 +9,21 @@
       <trans-unit id="labels.ckeditor.width" xml:space="preserve">
 				<source>Width</source>
 			<target state="translated">العرض</target></trans-unit>
-      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve" approved="yes">
 				<source>Height</source>
-			<target state="translated">الارتفاع</target></trans-unit>
+			<target state="final">الإرتفاع</target></trans-unit>
       <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
 			<target state="translated">العنوان الاستشاري</target></trans-unit>
-      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve" approved="yes">
 				<source>Alternative Text</source>
-			<target state="translated">نص بديل</target></trans-unit>
+			<target state="final">النص البديل</target></trans-unit>
       <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
 				<source>Click to Enlarge</source>
 			<target state="translated">انقر للتكبير</target></trans-unit>
-      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve" approved="yes">
 				<source>Enabled</source>
-			<target state="translated">مفعّل</target></trans-unit>
+			<target state="final">تفعيل</target></trans-unit>
       <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
 			<target state="translated">تخطي معالجة الصورة</target></trans-unit>
