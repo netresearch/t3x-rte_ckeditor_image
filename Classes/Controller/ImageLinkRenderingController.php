@@ -79,7 +79,8 @@ class ImageLinkRenderingController extends AbstractImageRenderingController
 
         // Find all images with file-uid attribute
         // SECURITY: Use atomic groups to prevent ReDoS attacks via catastrophic backtracking
-        $imgSearchPattern = '/<p[^>]*+>\s*+<img(?>[^>]*)src(?>[^>]*)\/>\s*+<\/p>/';
+        // Support both <p><img /></p> (old format) and standalone <img /> (new format for figure/caption)
+        $imgSearchPattern = '/(?:<p[^>]*+>\s*+)?<img(?>[^>]*)src(?>[^>]*)\/>\s*+(?:<\/p>)?/';
         $passedImages     = [];
         $parsedImages     = [];
 
