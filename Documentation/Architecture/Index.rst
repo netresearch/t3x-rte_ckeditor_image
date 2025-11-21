@@ -40,6 +40,14 @@ Architecture Topics
         ..  card-footer:: :ref:`Read more <architecture-design-patterns>`
             :button-style: btn btn-primary stretched-link
 
+    ..  card:: 📋 Architecture Decision Records
+
+        Key architectural decisions, their context, rationale, and consequences
+        for the extension design and implementation
+
+        ..  card-footer:: :ref:`Read more <adr-001-image-scaling>`
+            :button-style: btn btn-primary stretched-link
+
 Quick Links
 ===========
 
@@ -71,3 +79,5 @@ Related Documentation
 
    System-Architecture
    Design-Patterns
+   ADR-001-Image-Scaling
+   ADR-002-CKEditor-Integration
