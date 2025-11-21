@@ -2,3 +2,10 @@
 ## This file is automatically imported by static template inclusion
 
 @import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
+
+# Include CSS for image alignment styles
+page {
+    includeCSS {
+        rte_ckeditor_image_alignment = EXT:rte_ckeditor_image/Resources/Public/Css/image-alignment.css
+    }
+}

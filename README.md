@@ -249,7 +249,7 @@ Comprehensive technical knowledge base including:
 ### DDEV Environment (Complete Testing Setup)
 
 ```bash
-# Quick start with DDEV (includes TYPO3 + Introduction package)
+# Quick start with DDEV (includes TYPO3 + Bootstrap Package)
 git clone https://github.com/netresearch/t3x-rte_ckeditor_image.git
 cd t3x-rte_ckeditor_image
 make up                      # Start DDEV + complete setup (ONE COMMAND!)
@@ -266,6 +266,15 @@ make start                   # Start DDEV environment
 make setup                   # Complete setup (docs + install)
 make docs                    # Render extension documentation
 ```
+
+**Included Packages:**
+- **Bootstrap Package** (v15.0+) - Automatically installed to provide frontend rendering infrastructure
+- **TYPO3 Styleguide** - UI pattern reference for testing
+- All packages configured with zero-configuration for immediate testing of:
+  - Image insertion and editing in RTE
+  - Click-to-enlarge functionality on frontend
+  - Caption editing (WYSIWYG mode)
+  - Image alignment and styling
 
 ### Local Development (No DDEV)
 

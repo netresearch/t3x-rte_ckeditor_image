@@ -1,0 +1,45 @@
+/**
+ * CKEditor Image Widget Styles
+ *
+ * Fixes for widget sizing and display in the TYPO3 CKEditor
+ */
+
+/* Fix figure widget to fit image size exactly (no extra whitespace) */
+.ck-editor__editable .ck-widget.image,
+.ck-editor__editable figure.ck-widget.image {
+    display: table;
+    clear: both;
+    text-align: center;
+    margin: 0.9em auto;
+    min-width: 50px;
+}
+
+/* Make the figure fit the image width precisely */
+.ck-editor__editable figure.ck-widget.image:not(.image-inline) {
+    display: table;
+}
+
+/* Inline images should not have table display */
+.ck-editor__editable figure.ck-widget.image.image-inline {
+    display: inline-table;
+}
+
+/* Ensure image fills the figure width */
+.ck-editor__editable figure.ck-widget.image > img {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    min-width: 100%;
+}
+
+/* Caption should match image width */
+.ck-editor__editable figure.ck-widget.image > figcaption {
+    display: table-caption;
+    caption-side: bottom;
+    word-wrap: break-word;
+    color: var(--ck-color-image-caption-text);
+    background-color: var(--ck-color-image-caption-background);
+    padding: 0.6em;
+    font-size: 0.75em;
+    outline-offset: -1px;
+}

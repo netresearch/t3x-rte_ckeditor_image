@@ -35,6 +35,9 @@ call_user_func(
             $cleanSoftReferences,
         );
 
+        // Override RTE configuration for bodytext field to use our preset with image support
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config']['richtextConfiguration'] = 'rteWithImages';
+
         // Register preview renderer
         $GLOBALS['TCA']['tt_content']['types']['text']['previewRenderer']
             = RteImagePreviewRenderer::class;

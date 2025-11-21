@@ -15,7 +15,7 @@ composer config --no-plugins allow-plugins.typo3/cms-composer-installers true -d
 composer config --no-plugins allow-plugins.typo3/class-alias-loader true -d /var/www/html/$VERSION
 composer req t3/cms:'^13' $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
 composer req typo3/cms-extensionmanager --no-progress -n -d /var/www/html/$VERSION
-composer req --dev typo3/cms-styleguide --no-progress -n -d /var/www/html/$VERSION
+composer req --dev typo3/cms-styleguide bk2k/bootstrap-package:'^15.0' --no-progress -n -d /var/www/html/$VERSION
 
 cd /var/www/html/$VERSION
 
@@ -39,16 +39,17 @@ sed -i "/'deprecations'/,/^[[:space:]]*'disabled' => true,/s/'disabled' => true,
 
 vendor/bin/typo3 extension:setup
 
-# Add rte_ckeditor_image site set to site configuration for click-to-enlarge functionality
+# Add site sets to site configuration (TYPO3 v13 approach)
+# This configures Bootstrap Package + rte_ckeditor_image via site sets instead of static templates
 if [ -f config/sites/main/config.yaml ]; then
-    if ! grep -q "netresearch/rte-ckeditor-image" config/sites/main/config.yaml; then
-        # Add dependencies section if it doesn't exist
-        if ! grep -q "^dependencies:" config/sites/main/config.yaml; then
-            echo "dependencies:" >> config/sites/main/config.yaml
-        fi
-        # Add our site set to dependencies
-        sed -i '/^dependencies:/a\  - netresearch/rte-ckeditor-image' config/sites/main/config.yaml
-    fi
+    # Remove any existing dependencies section
+    sed -i '/^dependencies:/d' config/sites/main/config.yaml
+    sed -i '/^  - /d' config/sites/main/config.yaml
+
+    # Add dependencies section with both Bootstrap Package and rte_ckeditor_image
+    echo "dependencies:" >> config/sites/main/config.yaml
+    echo "  - bootstrap-package/full" >> config/sites/main/config.yaml
+    echo "  - netresearch/rte-ckeditor-image" >> config/sites/main/config.yaml
 fi
 
 vendor/bin/typo3 cache:flush
@@ -58,3 +59,5 @@ echo "✅ TYPO3 $VERSION installation complete!"
 echo "🎨 rte_ckeditor_image is auto-configured (zero-configuration installation)"
 echo "📐 TYPO3 Styleguide is available for UI pattern reference"
 echo "🖼️  Site set included - click-to-enlarge functionality enabled"
+echo "🎁 Bootstrap Package installed for frontend rendering"
+echo "🔍 Test click-to-enlarge: https://${VERSION}.rte-ckeditor-image.ddev.site/"

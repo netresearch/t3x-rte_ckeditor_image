@@ -1,0 +1,102 @@
+/**
+ * Image Alignment Styles for TYPO3 CKEditor Image Plugin
+ *
+ * These classes are applied by the CKEditor image style command
+ * to control image positioning and display behavior.
+ */
+
+/* Image aligned to the left with text wrapping */
+.image-left,
+img.image-left,
+figure.image-left {
+    float: left;
+    margin: 0 1rem 1rem 0;
+    clear: left;
+}
+
+/* Image aligned to the right with text wrapping */
+.image-right,
+img.image-right,
+figure.image-right {
+    float: right;
+    margin: 0 0 1rem 1rem;
+    clear: right;
+}
+
+/* Image centered as block element */
+.image-center,
+img.image-center,
+figure.image-center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1rem;
+}
+
+/* Image displayed inline with text */
+.image-inline,
+img.image-inline {
+    display: inline;
+    vertical-align: middle;
+    margin: 0 0.25rem;
+}
+
+/* Image displayed as block element (full width) */
+.image-block,
+img.image-block,
+figure.image-block {
+    display: block;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+/* Clear floats after floated images */
+.image-left:after,
+.image-right:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .image-left,
+    .image-right {
+        float: none;
+        display: block;
+        margin: 1rem auto;
+    }
+}
+
+/* Image Caption Styles */
+figure.image figcaption,
+figure figcaption {
+    display: block;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    background-color: transparent;
+}
+
+/* Caption for left/right aligned images */
+figure.image-left figcaption,
+figure.image-right figcaption {
+    text-align: left;
+}
+
+/* Caption for centered images */
+figure.image-center figcaption {
+    text-align: center;
+}
+
+/* Dark mode caption support */
+@media (prefers-color-scheme: dark) {
+    figure.image figcaption,
+    figure figcaption {
+        color: #aaa;
+    }
+}
