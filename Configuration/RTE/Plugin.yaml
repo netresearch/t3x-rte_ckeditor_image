@@ -4,6 +4,9 @@ editor:
     importModules:
       -  '@netresearch/rte-ckeditor-image/Plugins/typo3image.js'
 
+    contentsCss:
+      - 'EXT:rte_ckeditor_image/Resources/Public/Css/editor-image-widget.css'
+
     # Fix linkProperties error: CKEditor 5 default includes 'linkProperties'
     # but TYPO3's Typo3Link plugin doesn't provide it
     link:
@@ -17,3 +20,8 @@ editor:
 processing:
   allowTagsOutside:
     - img
+  allowTags:
+    - figure
+    - figcaption
+  allowAttributes:
+    - 'figure[class]'
