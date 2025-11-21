@@ -1,0 +1,17 @@
+####################################################
+# Page TSconfig for RTE CKEditor Image Site Set
+####################################################
+# This configures the Rich Text Editor to use our
+# custom preset with image caption support
+
+# Enable RTE preset with image support
+RTE.default.preset = rteWithImages
+
+# Configure image processing
+RTE.default.proc.overruleMode := addToList(default)
+RTE.default.proc.overruleMode := addToList(rtehtmlarea_images_db)
+
+RTE.default.buttons.image.options.magic {
+    maxWidth = 1920
+    maxHeight = 9999
+}

@@ -20,7 +20,7 @@ call_user_func(static function (): void {
 
     // Register default RTE preset with image support
     $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['rteWithImages']
-        = 'EXT:rte_ckeditor_image/Configuration/RTE/Default.yaml';
+        = 'EXT:rte_ckeditor_image/Configuration/RTE/rteWithImages.yaml';
 
     // Automatically load TypoScript for frontend image rendering
     ExtensionManagementUtility::addTypoScript(
