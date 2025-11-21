@@ -42,7 +42,8 @@
         "phpstan/phpstan": "^2.0",
         "phpstan/phpstan-strict-rules": "^2.0",
         "phpstan/phpstan-deprecation-rules": "^2.0",
-        "ssch/typo3-rector": "^3.0"
+        "ssch/typo3-rector": "^3.0",
+        "bk2k/bootstrap-package": "^15.0"
     },
     "autoload": {
         "psr-4": {

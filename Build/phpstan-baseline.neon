@@ -427,6 +427,12 @@ parameters:
 			path: ../Configuration/TCA/Overrides/tt_content.php
 
 		-
+			message: '#^Cannot access offset ''richtextConfiguration'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: ../Configuration/TCA/Overrides/tt_content.php
+
+		-
 			message: '#^Cannot access offset ''softref'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 2
