@@ -3,111 +3,111 @@
   <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image" target-language="sr">
     <header/>
     <body>
-      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
+      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve" approved="yes">
 				<source>Custom CSS class</source>
-			<target state="needs-translation">Custom CSS class</target></trans-unit>
-      <trans-unit id="labels.ckeditor.width" xml:space="preserve">
+			<target state="final">Прилагођена CSS класа</target></trans-unit>
+      <trans-unit id="labels.ckeditor.width" xml:space="preserve" approved="yes">
 				<source>Width</source>
-			<target state="needs-translation">Width</target></trans-unit>
-      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+			<target state="final">Ширина</target></trans-unit>
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve" approved="yes">
 				<source>Height</source>
-			<target state="needs-translation">Height</target></trans-unit>
-      <trans-unit id="labels.ckeditor.title" xml:space="preserve">
+			<target state="final">Висина</target></trans-unit>
+      <trans-unit id="labels.ckeditor.title" xml:space="preserve" approved="yes">
 				<source>Advisory Title</source>
-			<target state="needs-translation">Advisory Title</target></trans-unit>
-      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+			<target state="final">Саветодавни наслов</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve" approved="yes">
 				<source>Alternative Text</source>
-			<target state="needs-translation">Alternative Text</target></trans-unit>
-      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
+			<target state="final">Алтернативни текст</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve" approved="yes">
 				<source>Click to Enlarge</source>
-			<target state="needs-translation">Click to Enlarge</target></trans-unit>
-      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+			<target state="final">Кликните да увећате</target></trans-unit>
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve" approved="yes">
 				<source>Enabled</source>
-			<target state="needs-translation">Enabled</target></trans-unit>
-      <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
+			<target state="final">Омогућено</target></trans-unit>
+      <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve" approved="yes">
 				<source>Skip Image Processing</source>
-			<target state="needs-translation">Skip Image Processing</target></trans-unit>
-      <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
+			<target state="final">Прескочи обраду слике</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve" approved="yes">
 				<source>Image Properties</source>
-			<target state="needs-translation">Image Properties</target></trans-unit>
-      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
+			<target state="final">Својства слике</target></trans-unit>
+      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve" approved="yes">
 				<source>Cancel</source>
-			<target state="needs-translation">Cancel</target></trans-unit>
-      <trans-unit id="labels.ckeditor.save" xml:space="preserve">
+			<target state="final">Откажи</target></trans-unit>
+      <trans-unit id="labels.ckeditor.save" xml:space="preserve" approved="yes">
 				<source>Save</source>
-			<target state="needs-translation">Save</target></trans-unit>
-      <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
+			<target state="final">Сачувај</target></trans-unit>
+      <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve" approved="yes">
 				<source>Insert image</source>
-			<target state="needs-translation">Insert image</target></trans-unit>
-      <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
+			<target state="final">Уметни слику</target></trans-unit>
+      <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve" approved="yes">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-			<target state="needs-translation">No default %s available in file metadata. Cannot override empty value.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
+			<target state="final">Нема подразумеваног %s доступног у метаподацима датотеке. Није могуће заменити празну вредност.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve" approved="yes">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
-			<target state="needs-translation">Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
+			<target state="final">Омогућава функционалност кликни-да-увећаш/lightbox. Подразумевана конфигурација искачућег прозора је аутоматски обезбеђена. Погледајте документацију за интеграцију прилагођене lightbox библиотеке.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve" approved="yes">
 				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
-			<target state="needs-translation">Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
+			<target state="final">Прескаче обраду слике и користи оригиналну датотеку. Корисно за билтене, PDF-ове, приказе максималне резолуције и SVG графику. Конфигуришите глобално преко TypoScript-а или омогућите по слици.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality" xml:space="preserve" approved="yes">
 				<source>Image Quality</source>
-			<target state="needs-translation">Image Quality</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
+			<target state="final">Квалитет слике</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve" approved="yes">
 				<source>No Scaling</source>
-			<target state="needs-translation">No Scaling</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
+			<target state="final">Без скалирања</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve" approved="yes">
 				<source>Standard (1.0x)</source>
 				
-			<target state="needs-translation">Standard (1.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
+			<target state="final">Standard (1.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve" approved="yes">
 				<source>Retina (2.0x)</source>
 				
-			<target state="needs-translation">Retina (2.0x)</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
+			<target state="final">Retina (2.0x)</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve" approved="yes">
 				<source>Ultra (3.0x)</source>
 				
-			<target state="needs-translation">Ultra (3.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
+			<target state="final">Ultra (3.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve" approved="yes">
 				<source>Print (6.0x)</source>
-			<target state="needs-translation">Print (6.0x)</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
+			<target state="final">Штампа (6.0x)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve" approved="yes">
 				<source>Low</source>
-			<target state="needs-translation">Low</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
+			<target state="final">Низак</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve" approved="yes">
 				<source>Low quality (%sx) - Image may appear blurry</source>
-			<target state="needs-translation">Low quality (%sx) - Image may appear blurry</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+			<target state="final">Низак квалитет (%sx) - Слика може изгледати замућено</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve" approved="yes">
 				<source>Standard</source>
 				
-			<target state="needs-translation">Standard</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
+			<target state="final">Standard</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve" approved="yes">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
-			<target state="needs-translation">Standard quality (%sx) - Sharp on basic displays</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
+			<target state="final">Стандардни квалитет (%sx) - Оштро на основним екранима</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve" approved="yes">
 				<source>Retina</source>
 				
-			<target state="needs-translation">Retina</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
+			<target state="final">Retina</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve" approved="yes">
 				<source>Retina quality (%sx) - Optimal for modern displays</source>
-			<target state="needs-translation">Retina quality (%sx) - Optimal for modern displays</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
+			<target state="final">Retina квалитет (%sx) - Оптималан за савремене екране</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve" approved="yes">
 				<source>Ultra</source>
 				
-			<target state="needs-translation">Ultra</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
+			<target state="final">Ultra</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve" approved="yes">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
-			<target state="needs-translation">Ultra quality (%sx) - For ultra-high DPI or small print</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+			<target state="final">Ultra квалитет (%sx) - За ултра-високи DPI или малу штампу</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve" approved="yes">
 				<source>Print</source>
-			<target state="needs-translation">Print</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
+			<target state="final">Штампа</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve" approved="yes">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
-			<target state="needs-translation">Print quality (%sx) - Suitable for high-quality printing (300 DPI)</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
+			<target state="final">Квалитет штампе (%sx) - Погодно за високо-квалитетну штампу (300 DPI)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve" approved="yes">
 				<source>Excessive</source>
-			<target state="needs-translation">Excessive</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
+			<target state="final">Прекомерна</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve" approved="yes">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
-			<target state="needs-translation">Excessive resolution (%sx) - Unnecessarily high</target></trans-unit>
+			<target state="final">Прекомерна резолуција (%sx) - Непотребно висока</target></trans-unit>
     </body>
   </file>
 </xliff>
