@@ -1,0 +1,20 @@
+<svg id="ff9f1127-f95e-4bc9-93ad-3960cfa941f0" data-name="Ebene 1" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 300">
+    <defs>
+        <style>
+            .f4097b67-2213-40bd-9c3a-94cf64be6239{fill:none;}.ac0374ef-26de-4333-a951-e8ab8d27f8bd{clip-path:url(#b89874de-42cc-4a08-a445-73aac157aa7c);}.bbf856c7-1511-45c6-8eda-8aee74e5919c{fill:#2999a4;}.f2146b65-50d1-4dbc-ac26-007b4f3da77c{fill:#595a62;}
+        </style>
+        <clipPath id="b89874de-42cc-4a08-a445-73aac157aa7c" transform="translate(-0.39 -0.04)">
+            <rect class="f4097b67-2213-40bd-9c3a-94cf64be6239" x="0.39" y="0.04" width="300" height="300"/>
+        </clipPath>
+    </defs>
+    <title>Netresearch Logo</title>
+    <g class="ac0374ef-26de-4333-a951-e8ab8d27f8bd">
+        <path class="bbf856c7-1511-45c6-8eda-8aee74e5919c"
+              d="M209.6,0V31.62h32.77a26.38,26.38,0,0,1,26.44,26.43V242a26.38,26.38,0,0,1-26.44,26.44H209.6V300h47.93a42.77,42.77,0,0,0,42.86-42.86V42.89A42.76,42.76,0,0,0,257.53,0ZM43.25,0A42.76,42.76,0,0,0,.39,42.89V257.18A42.76,42.76,0,0,0,43.25,300H91.18V268.46H58.4A26.38,26.38,0,0,1,32,242v-184A26.37,26.37,0,0,1,58.4,31.62H91.18V0Z"
+              transform="translate(-0.39 -0.04)"/>
+        <path class="f2146b65-50d1-4dbc-ac26-007b4f3da77c"
+              d="M221.44,120.41c0-34.48-13.94-57.82-48.93-57.82-26.62,0-48.54,7.74-64.17,26.56l-.7-22.06-28.31.06V232.94h31.59V124.69c7.14-18.38,32.14-34.8,53-34.5,27.38.4,25.2,26.24,26,45.81v96.94h31.58"
+              transform="translate(-0.39 -0.04)"/>
+    </g>
+</svg>
