@@ -32,7 +32,7 @@
 			<target state="final">छवि गुण</target></trans-unit>
       <trans-unit id="labels.ckeditor.cancel" xml:space="preserve" approved="yes">
 				<source>Cancel</source>
-			<target state="final">कुल सक्रिय किए गए प्रदाताओं को प्रयोंक्ता %s के लिए सफलतापूर्वक निष्क्रिय किया गया</target></trans-unit>
+			<target state="final">रद्द करें</target></trans-unit>
       <trans-unit id="labels.ckeditor.save" xml:space="preserve" approved="yes">
 				<source>Save</source>
 			<target state="final">सहेजें</target></trans-unit>
