@@ -65,7 +65,7 @@
       <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve" approved="yes">
 				<source>Ultra (3.0x)</source>
 				
-			<target state="final">Namba moja (3.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+			<target state="final">Ultra (3.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve" approved="yes">
 				<source>Print (6.0x)</source>
 			<target state="final">Chapa (6.0x)</target></trans-unit>
@@ -92,7 +92,7 @@
       <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve" approved="yes">
 				<source>Ultra</source>
 				
-			<target state="final">Namba moja</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+			<target state="final">Ultra</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve" approved="yes">
 				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
 			<target state="final">Ubora wa Ultra (%sx) - Kwa DPI ya juu sana au chapa ndogo</target></trans-unit>
