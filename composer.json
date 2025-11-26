@@ -1,9 +1,29 @@
 {
     "name": "netresearch/rte-ckeditor-image",
     "type": "typo3-cms-extension",
-    "description": "Image support in CKEditor for the TYPO3 ecosystem",
+    "description": "Image support in CKEditor for TYPO3 - by Netresearch",
     "homepage": "https://github.com/netresearch/t3x-rte_ckeditor_image",
     "license": "AGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Sebastian Koschel",
+            "email": "sebastian.koschel@netresearch.de",
+            "role": "Developer",
+            "homepage": "https://www.netresearch.de/"
+        },
+        {
+            "name": "Sebastian Mendel",
+            "email": "sebastian.mendel@netresearch.de",
+            "role": "Developer",
+            "homepage": "https://www.netresearch.de/"
+        },
+        {
+            "name": "Rico Sonntag",
+            "email": "rico.sonntag@netresearch.de",
+            "role": "Developer",
+            "homepage": "https://www.netresearch.de/"
+        }
+    ],
     "require": {
         "ext-dom": "*",
         "ext-libxml": "*",
