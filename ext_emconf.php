@@ -7,8 +7,6 @@
  * LICENSE file that was distributed with this source code.
  */
 
-declare(strict_types=1);
-
 $EM_CONF['rte_ckeditor_image'] = [
     'title'          => 'CKEditor Rich Text Editor Image Support',
     'description'    => 'Adds FAL image support to CKEditor for TYPO3.',
