@@ -14,7 +14,7 @@ composer config repositories.$EXTENSION_KEY path ../../$EXTENSION_KEY -d /var/ww
 composer config --no-plugins allow-plugins.typo3/cms-composer-installers true -d /var/www/html/$VERSION
 composer config --no-plugins allow-plugins.typo3/class-alias-loader true -d /var/www/html/$VERSION
 composer req t3/cms:'^13' $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
-composer req typo3/cms-extensionmanager --no-progress -n -d /var/www/html/$VERSION
+composer req typo3/cms-extensionmanager typo3/cms-dashboard typo3/cms-reports --no-progress -n -d /var/www/html/$VERSION
 composer req --dev typo3/cms-styleguide bk2k/bootstrap-package:'^15.0' --no-progress -n -d /var/www/html/$VERSION
 
 cd /var/www/html/$VERSION
