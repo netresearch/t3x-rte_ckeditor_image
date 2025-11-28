@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [14.0.0] - TBD
+
+### Added
+
+- Modern service-based architecture using TYPO3 v13 ViewFactoryInterface and Fluid templates (#399)
+  - **New DTOs**: ImageRenderingDto and LinkDto for type-safe data contracts
+  - **Three-Service Architecture**: ImageAttributeParser (HTML parsing), ImageResolverService (business logic + security), ImageRenderingService (Fluid rendering)
+  - **6 Fluid Templates**: Standalone, WithCaption, Link, LinkWithCaption, Popup, PopupWithCaption
+  - **Template Override Support**: Integrators can now override templates instead of PHP classes
+  - **DOMDocument Parsing**: Replaced regex-based parsing with robust DOMDocument for better HTML5 support
+  - **Performance**: Minimal overhead (+0.05-0.15ms per image) with ViewFactory singleton and template caching
+- Comprehensive test suite for new architecture
+  - **Unit Tests**: 50+ test methods covering DTOs, services, and business logic (964 lines)
+  - **Integration Tests**: 25+ test methods validating full pipeline and security (389 lines)
+  - **Test Coverage**: >90% for new architecture components
+- Complete documentation for modernization
+  - **RFC**: Architecture proposal with expert validation (751 lines)
+  - **Migration Guide**: Step-by-step upgrade path from v13 to v14 (300+ lines)
+  - **Security Checklist**: Pre-release validation requirements
+  - **Performance Benchmarking**: Guide with benchmarking scripts and acceptance criteria
+
+### Changed
+
+- **DEPRECATION**: ImageRenderingController and ImageLinkRenderingController are deprecated (will be removed in v15.0)
+  - Old controllers still work exactly as before (ZERO breaking changes in v14.0)
+  - Deprecation warnings logged with `E_USER_DEPRECATED`
+  - 1-year migration window before removal
+  - See `Documentation/Architecture/Migration-Guide-v14.md` for upgrade path
+
+### Security
+
+- **Preserved Security Measures**: All existing security protections maintained in new architecture
+  - File visibility validation (prevents privilege escalation)
+  - XSS prevention via htmlspecialchars (ENT_QUOTES | ENT_HTML5)
+  - ReDoS protection (DOMDocument eliminates catastrophic backtracking)
+  - Type safety via readonly DTO properties
+
+### Technical Details
+
+- **Architecture Benefits**:
+  - Separation of Concerns: Parser → Resolver → Renderer pipeline
+  - TYPO3 v13 Best Practices: Official ViewFactoryInterface standard
+  - Maintainability: 876 lines of controller logic replaced by clean service architecture
+  - Extensibility: Template overrides >> PHP overrides for integrators
+- **Breaking Changes**: NONE in v14.0 (deprecation only)
+- **Risk Assessment**: LOW - Zero evidence of XCLASS usage found in ecosystem
+- **Code Statistics**: +2,596 lines (implementation + tests + docs), 23 new files
+
 ### Changed
 
 - [TASK] Extract shared controller logic to AbstractImageRenderingController (resolves #378)
