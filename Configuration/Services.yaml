@@ -60,3 +60,10 @@ services:
         identifier: 'nr-rte-softref-enforcer'
         event: TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent
         after: '*'
+
+  # Event listener for zero-configuration TypoScript injection
+  # Ensures our lib.parseFunc_RTE.tags.img loads AFTER Bootstrap Package
+  # Registration is done via #[AsEventListener] PHP attribute in the class itself
+  # which specifies proper ordering via 'after' parameter
+  Netresearch\RteCKEditorImage\EventListener\AddTypoScriptAfterTemplatesListener:
+    public: true

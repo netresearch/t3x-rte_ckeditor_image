@@ -45,3 +45,9 @@ claudedocs/
 
 # Documentation rendering
 Documentation-GENERATED-temp/
+
+# E2E test artifacts
+Tests/E2E/node_modules/
+Tests/E2E/package-lock.json
+Tests/E2E/playwright-report/
+Tests/E2E/test-results/
