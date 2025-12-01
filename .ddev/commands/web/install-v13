@@ -74,11 +74,19 @@ EOSQL
 mkdir -p public/fileadmin/user_upload
 # Create a test image using ImageMagick (pre-installed in DDEV web container)
 if command -v convert &> /dev/null; then
-    convert -size ${TEST_IMAGE_WIDTH}x${TEST_IMAGE_HEIGHT} xc:blue -pointsize 48 -fill white -gravity center -annotate +0+0 'Test Image\nfor E2E Tests' public/fileadmin/user_upload/example.jpg
+    convert -size ${TEST_IMAGE_WIDTH}x${TEST_IMAGE_HEIGHT} \
+        xc:blue \
+        -pointsize 48 \
+        -fill white \
+        -gravity center \
+        -annotate +0+0 'Test Image\nfor E2E Tests' \
+        public/fileadmin/user_upload/example.jpg
 else
-    echo "Warning: ImageMagick not found, creating placeholder image"
-    # Fallback: Create a minimal valid JPEG if convert is not available
-    echo -e "Warning: E2E tests may fail without a valid test image"
+    echo "Warning: ImageMagick not found, creating minimal placeholder image"
+    # Fallback: Create a minimal 1x1 blue pixel JPEG using base64
+    # This ensures the file exists so E2E tests can at least find the image reference
+    echo '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9/KKKKAP/2Q==' | base64 -d > public/fileadmin/user_upload/example.jpg
+    echo "Warning: E2E tests will use a minimal 1x1 placeholder image"
 fi
 
 # Add site sets to site configuration (TYPO3 v13 approach)
