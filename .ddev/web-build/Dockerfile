@@ -13,17 +13,18 @@ ARG GIT_COMMIT="unknown"
 ARG GIT_PR="unknown"
 
 # Create PHP-based landing page with git info from build args
-RUN cat > /var/www/html/index.php << PHPEOF
-<?php
-// Get git info from environment (set during build)
-\$gitBranch = '${GIT_BRANCH}';
-\$gitCommit = '${GIT_COMMIT}';
-\$prNumber = '${GIT_PR}' !== 'unknown' ? '${GIT_PR}' : null;
-
-\$githubUrl = 'https://github.com/netresearch/t3x-rte_ckeditor_image';
-\$branchUrl = \$githubUrl . '/tree/' . urlencode(\$gitBranch);
-\$prUrl = \$prNumber ? \$githubUrl . '/pull/' . \$prNumber : null;
-?>
+RUN rm -f /var/www/html/index.html && \
+    echo '<?php' > /var/www/html/index.php && \
+    echo '// Get git info from environment (set during build)' >> /var/www/html/index.php && \
+    echo '$gitBranch = '\''${GIT_BRANCH}'\'';' >> /var/www/html/index.php && \
+    echo '$gitCommit = '\''${GIT_COMMIT}'\'';' >> /var/www/html/index.php && \
+    echo '$prNumber = '\''${GIT_PR}'\'' !== '\''unknown'\'' ? '\''${GIT_PR}'\'' : null;' >> /var/www/html/index.php && \
+    echo '' >> /var/www/html/index.php && \
+    echo '$githubUrl = '\''https://github.com/netresearch/t3x-rte_ckeditor_image'\'';' >> /var/www/html/index.php && \
+    echo '$branchUrl = $githubUrl . '\''/tree/'\'' . urlencode($gitBranch);' >> /var/www/html/index.php && \
+    echo '$prUrl = $prNumber ? $githubUrl . '\''/pull/'\'' . $prNumber : null;' >> /var/www/html/index.php && \
+    echo '?>' >> /var/www/html/index.php && \
+    cat >> /var/www/html/index.php << 'HTML_EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,13 +53,13 @@ RUN cat > /var/www/html/index.php << PHPEOF
                 <h1>RTE CKEditor Image</h1>
                 <p>Image support in CKEditor for the TYPO3 ecosystem</p>
                 <div class="git-info">
-                    <a href="<?= htmlspecialchars(\$branchUrl) ?>" target="_blank" title="View branch on GitHub">
-                        🌿 <?= htmlspecialchars(\$gitBranch) ?> @ <?= htmlspecialchars(\$gitCommit) ?>
+                    <a href="<?= htmlspecialchars($branchUrl) ?>" target="_blank" title="View branch on GitHub">
+                        🌿 <?= htmlspecialchars($gitBranch) ?> @ <?= htmlspecialchars($gitCommit) ?>
                     </a>
-                    <?php if (\$prUrl): ?>
+                    <?php if ($prUrl): ?>
                         <span class="separator">|</span>
-                        <a href="<?= htmlspecialchars(\$prUrl) ?>" target="_blank" title="View pull request">
-                            🔀 PR #<?= htmlspecialchars(\$prNumber) ?>
+                        <a href="<?= htmlspecialchars($prUrl) ?>" target="_blank" title="View pull request">
+                            🔀 PR #<?= htmlspecialchars($prNumber) ?>
                         </a>
                     <?php endif; ?>
                 </div>
@@ -103,7 +104,7 @@ RUN cat > /var/www/html/index.php << PHPEOF
 </div>
 </body>
 </html>
-PHPEOF
+HTML_EOF
 
 # Setup TYPO3 v13 placeholder pages
 RUN mkdir -p /var/www/html/v13/public/typo3
