@@ -23,6 +23,10 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 /**
  * Controller to render the linked images in frontend.
  *
+ * @deprecated since v14.0, will be removed in v15.0
+ *             Use ImageRenderingService with ViewFactoryInterface instead.
+ *             See Documentation/Architecture/RFC-Fluid-Templates-Refactoring.md
+ *
  * @author  Mathias Uhlmann <mathias.uhlmann@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  *
@@ -67,6 +71,8 @@ class ImageLinkRenderingController extends AbstractImageRenderingController
     /**
      * Returns a processed image to be displayed on the Frontend.
      *
+     * @deprecated since v14.0, will be removed in v15.0
+     *
      * @param string|null $content Content input (not used)
      * @param mixed[]     $conf    TypoScript configuration
      *
@@ -74,6 +80,14 @@ class ImageLinkRenderingController extends AbstractImageRenderingController
      */
     public function renderImages(?string $content, array $conf, ServerRequestInterface $request): string
     {
+        // DEPRECATION WARNING: This controller will be removed in v15.0
+        trigger_error(
+            'ImageLinkRenderingController is deprecated since v14.0 and will be removed in v15.0. '
+            . 'Use ImageRenderingService with ViewFactoryInterface instead. '
+            . 'See Documentation/Architecture/RFC-Fluid-Templates-Refactoring.md for migration guide.',
+            E_USER_DEPRECATED,
+        );
+
         // Get link inner HTML
         $linkContent = $this->cObj instanceof ContentObjectRenderer ? $this->cObj->getCurrentVal() : null;
 

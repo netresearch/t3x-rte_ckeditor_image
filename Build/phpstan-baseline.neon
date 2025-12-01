@@ -463,6 +463,17 @@ parameters:
 			path: ../Configuration/TCA/Overrides/tt_content.php
 
 		-
+			message: '''
+				#^Access to constant on deprecated class Netresearch\\RteCKEditorImage\\Controller\\ImageRenderingController\:
+				since v14\.0, will be removed in v15\.0
+				            Use ImageRenderingService with ViewFactoryInterface instead\.
+				            See Documentation/Architecture/RFC\-Fluid\-Templates\-Refactoring\.md$#
+			'''
+			identifier: classConstant.deprecatedClass
+			count: 1
+			path: ../Tests/Functional/Controller/ImageRenderingControllerTest.php
+
+		-
 			message: '#^Binary operation "\*" between mixed and mixed results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1
@@ -527,6 +538,72 @@ parameters:
 			identifier: argument.type
 			count: 9
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: '''
+				#^Access to constant on deprecated class Netresearch\\RteCKEditorImage\\Controller\\ImageLinkRenderingController\:
+				since v14\.0, will be removed in v15\.0
+				            Use ImageRenderingService with ViewFactoryInterface instead\.
+				            See Documentation/Architecture/RFC\-Fluid\-Templates\-Refactoring\.md$#
+			'''
+			identifier: classConstant.deprecatedClass
+			count: 1
+			path: ../Tests/Unit/Controller/ImageLinkRenderingControllerTest.php
+
+		-
+			message: '''
+				#^Call to method __construct\(\) of deprecated class Netresearch\\RteCKEditorImage\\Controller\\ImageLinkRenderingController\:
+				since v14\.0, will be removed in v15\.0
+				            Use ImageRenderingService with ViewFactoryInterface instead\.
+				            See Documentation/Architecture/RFC\-Fluid\-Templates\-Refactoring\.md$#
+			'''
+			identifier: method.deprecatedClass
+			count: 1
+			path: ../Tests/Unit/Controller/ImageLinkRenderingControllerTest.php
+
+		-
+			message: '''
+				#^Instantiation of deprecated class Netresearch\\RteCKEditorImage\\Controller\\ImageLinkRenderingController\:
+				since v14\.0, will be removed in v15\.0
+				            Use ImageRenderingService with ViewFactoryInterface instead\.
+				            See Documentation/Architecture/RFC\-Fluid\-Templates\-Refactoring\.md$#
+			'''
+			identifier: new.deprecatedClass
+			count: 1
+			path: ../Tests/Unit/Controller/ImageLinkRenderingControllerTest.php
+
+		-
+			message: '''
+				#^Call to method __construct\(\) of deprecated class Netresearch\\RteCKEditorImage\\Controller\\ImageRenderingController\:
+				since v14\.0, will be removed in v15\.0
+				            Use ImageRenderingService with ViewFactoryInterface instead\.
+				            See Documentation/Architecture/RFC\-Fluid\-Templates\-Refactoring\.md$#
+			'''
+			identifier: method.deprecatedClass
+			count: 1
+			path: ../Tests/Unit/Controller/ImageRenderingControllerTest.php
+
+		-
+			message: '''
+				#^Instantiation of deprecated class Netresearch\\RteCKEditorImage\\Controller\\ImageRenderingController\:
+				since v14\.0, will be removed in v15\.0
+				            Use ImageRenderingService with ViewFactoryInterface instead\.
+				            See Documentation/Architecture/RFC\-Fluid\-Templates\-Refactoring\.md$#
+			'''
+			identifier: new.deprecatedClass
+			count: 1
+			path: ../Tests/Unit/Controller/ImageRenderingControllerTest.php
+
+		-
+			message: '''
+				#^Return type of method Netresearch\\RteCKEditorImage\\Tests\\Unit\\Controller\\ImageRenderingControllerTest\:\:createController\(\) has typehint with deprecated class Netresearch\\RteCKEditorImage\\Controller\\ImageRenderingController\:
+				since v14\.0, will be removed in v15\.0
+				            Use ImageRenderingService with ViewFactoryInterface instead\.
+				            See Documentation/Architecture/RFC\-Fluid\-Templates\-Refactoring\.md$#
+			'''
+			identifier: return.deprecatedClass
+			count: 2
+			path: ../Tests/Unit/Controller/ImageRenderingControllerTest.php
 
 		-
 			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'

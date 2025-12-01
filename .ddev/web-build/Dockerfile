@@ -12,8 +12,9 @@ ARG GIT_BRANCH="unknown"
 ARG GIT_COMMIT="unknown"
 ARG GIT_PR="unknown"
 
-# Create PHP-based landing page with git info from build args
-RUN cat > /var/www/html/index.php << PHPEOF
+# Remove any stale index.html (Debian default page) that might exist in volume
+# and create PHP-based landing page with git info from build args
+RUN rm -f /var/www/html/index.html && cat > /var/www/html/index.php << PHPEOF
 <?php
 // Get git info from environment (set during build)
 \$gitBranch = '${GIT_BRANCH}';

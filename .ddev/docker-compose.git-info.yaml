@@ -1,9 +1,7 @@
-version: '3.6'
-
 services:
   web:
     build:
       args:
-        GIT_BRANCH: "fix/NEXT-89-svg-dimensions-v13"
-        GIT_COMMIT: "bfbf444"
-        GIT_PR: "388"
+        GIT_BRANCH: "feature/fluid-templates-refactoring-planning"
+        GIT_COMMIT: "ec13a71"
+        GIT_PR: "418"

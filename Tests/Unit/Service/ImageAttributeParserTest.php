@@ -1,0 +1,248 @@
+<?php
+
+/*
+ * This file is part of the package netresearch/rte-ckeditor-image.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+namespace Netresearch\RteCKEditorImage\Tests\Unit\Service;
+
+use Netresearch\RteCKEditorImage\Service\ImageAttributeParser;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * Test case for ImageAttributeParser.
+ *
+ * @author  Netresearch DTT GmbH <info@netresearch.de>
+ * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ */
+class ImageAttributeParserTest extends TestCase
+{
+    private ImageAttributeParser $parser;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->parser = new ImageAttributeParser();
+    }
+
+    public function testParseImageAttributesWithBasicImage(): void
+    {
+        $html = '<img src="/path/to/image.jpg" alt="Alt text" width="800" height="600" />';
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertSame('/path/to/image.jpg', $attributes['src']);
+        self::assertSame('Alt text', $attributes['alt']);
+        self::assertSame('800', $attributes['width']);
+        self::assertSame('600', $attributes['height']);
+    }
+
+    public function testParseImageAttributesWithDataAttributes(): void
+    {
+        $html = '<img src="/image.jpg" data-htmlarea-file-uid="123" data-quality="retina" data-caption="Caption text" />';
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertSame('/image.jpg', $attributes['src']);
+        self::assertSame('123', $attributes['data-htmlarea-file-uid']);
+        self::assertSame('retina', $attributes['data-quality']);
+        self::assertSame('Caption text', $attributes['data-caption']);
+    }
+
+    public function testParseImageAttributesReturnsEmptyArrayForEmptyString(): void
+    {
+        $attributes = $this->parser->parseImageAttributes('');
+
+        self::assertEmpty($attributes);
+    }
+
+    public function testParseImageAttributesReturnsEmptyArrayForWhitespace(): void
+    {
+        $attributes = $this->parser->parseImageAttributes('   ');
+
+        self::assertEmpty($attributes);
+    }
+
+    public function testParseImageAttributesReturnsEmptyArrayForNoImage(): void
+    {
+        $html = '<p>Some text without an image</p>';
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertEmpty($attributes);
+    }
+
+    public function testParseImageAttributesWithSingleQuotes(): void
+    {
+        $html = "<img src='/image.jpg' alt='Alt text' />";
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertSame('/image.jpg', $attributes['src']);
+        self::assertSame('Alt text', $attributes['alt']);
+    }
+
+    public function testParseImageAttributesWithMixedQuotes(): void
+    {
+        $html = '<img src="/image.jpg" alt=\'Alt text\' title="Title" />';
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertSame('/image.jpg', $attributes['src']);
+        self::assertSame('Alt text', $attributes['alt']);
+        self::assertSame('Title', $attributes['title']);
+    }
+
+    public function testParseImageAttributesWithSpecialCharacters(): void
+    {
+        $html = '<img src="/image.jpg" alt="Text with &quot;quotes&quot; and &amp; ampersand" />';
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertSame('/image.jpg', $attributes['src']);
+        // DOMDocument decodes HTML entities
+        self::assertSame('Text with "quotes" and & ampersand', $attributes['alt']);
+    }
+
+    public function testParseImageAttributesFindsFirstImageOnly(): void
+    {
+        $html = '<img src="/first.jpg" alt="First" /><img src="/second.jpg" alt="Second" />';
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertSame('/first.jpg', $attributes['src']);
+        self::assertSame('First', $attributes['alt']);
+    }
+
+    public function testParseImageAttributesWithClass(): void
+    {
+        $html = '<img src="/image.jpg" class="img-fluid rounded" />';
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertSame('img-fluid rounded', $attributes['class']);
+    }
+
+    public function testParseImageAttributesWithStyle(): void
+    {
+        $html = '<img src="/image.jpg" style="max-width: 100%; height: auto;" />';
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertSame('max-width: 100%; height: auto;', $attributes['style']);
+    }
+
+    public function testParseLinkWithImagesBasicStructure(): void
+    {
+        $html = '<a href="https://example.com"><img src="/image.jpg" alt="Alt" /></a>';
+
+        $result = $this->parser->parseLinkWithImages($html);
+
+        self::assertArrayHasKey('link', $result);
+        self::assertArrayHasKey('images', $result);
+        self::assertSame('https://example.com', $result['link']['href']);
+        self::assertCount(1, $result['images']);
+        self::assertSame('/image.jpg', $result['images'][0]['src']);
+        self::assertSame('Alt', $result['images'][0]['alt']);
+    }
+
+    public function testParseLinkWithImagesMultipleImages(): void
+    {
+        $html = '<a href="/page"><img src="/first.jpg" /><img src="/second.jpg" /></a>';
+
+        $result = $this->parser->parseLinkWithImages($html);
+
+        self::assertCount(2, $result['images']);
+        self::assertSame('/first.jpg', $result['images'][0]['src']);
+        self::assertSame('/second.jpg', $result['images'][1]['src']);
+    }
+
+    public function testParseLinkWithImagesLinkAttributes(): void
+    {
+        $html = '<a href="https://example.com" target="_blank" class="external-link" rel="noopener">
+                    <img src="/image.jpg" />
+                </a>';
+
+        $result = $this->parser->parseLinkWithImages($html);
+
+        self::assertSame('https://example.com', $result['link']['href']);
+        self::assertSame('_blank', $result['link']['target']);
+        self::assertSame('external-link', $result['link']['class']);
+        self::assertSame('noopener', $result['link']['rel']);
+    }
+
+    public function testParseLinkWithImagesReturnsEmptyForNoLink(): void
+    {
+        $html = '<img src="/image.jpg" />';
+
+        $result = $this->parser->parseLinkWithImages($html);
+
+        self::assertEmpty($result['link']);
+        self::assertEmpty($result['images']);
+    }
+
+    public function testParseLinkWithImagesReturnsEmptyForEmptyString(): void
+    {
+        $result = $this->parser->parseLinkWithImages('');
+
+        self::assertEmpty($result['link']);
+        self::assertEmpty($result['images']);
+    }
+
+    public function testParseLinkWithImagesHandlesNestedStructure(): void
+    {
+        $html = '<p><a href="/page"><img src="/image.jpg" alt="Image" /></a></p>';
+
+        $result = $this->parser->parseLinkWithImages($html);
+
+        self::assertSame('/page', $result['link']['href']);
+        self::assertSame('/image.jpg', $result['images'][0]['src']);
+    }
+
+    public function testParseImageAttributesWithLoadingAttribute(): void
+    {
+        $html = '<img src="/image.jpg" loading="lazy" />';
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertSame('lazy', $attributes['loading']);
+    }
+
+    public function testParseImageAttributesPreservesAttributeOrder(): void
+    {
+        $html = '<img id="test-id" src="/image.jpg" class="test-class" />';
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertArrayHasKey('id', $attributes);
+        self::assertArrayHasKey('src', $attributes);
+        self::assertArrayHasKey('class', $attributes);
+        self::assertSame('test-id', $attributes['id']);
+    }
+
+    public function testParseImageAttributesWithEmptyAttributes(): void
+    {
+        $html = '<img src="/image.jpg" alt="" title="" />';
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertSame('/image.jpg', $attributes['src']);
+        self::assertSame('', $attributes['alt']);
+        self::assertSame('', $attributes['title']);
+    }
+
+    public function testParseLinkWithImagesLinkWithoutImages(): void
+    {
+        $html = '<a href="/page">Click here</a>';
+
+        $result = $this->parser->parseLinkWithImages($html);
+
+        self::assertSame('/page', $result['link']['href']);
+        self::assertEmpty($result['images']);
+    }
+}
