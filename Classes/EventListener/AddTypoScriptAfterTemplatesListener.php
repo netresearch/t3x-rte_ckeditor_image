@@ -40,8 +40,12 @@ final class AddTypoScriptAfterTemplatesListener
 
         // Check if our TypoScript is already included via static template
         foreach ($templateRows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
             $includeStaticFile = $row['include_static_file'] ?? '';
-            if (str_contains($includeStaticFile, 'rte_ckeditor_image')) {
+            if (is_string($includeStaticFile) && str_contains($includeStaticFile, 'rte_ckeditor_image')) {
                 // Already included manually, don't add again
                 return;
             }
@@ -50,17 +54,17 @@ final class AddTypoScriptAfterTemplatesListener
         // Add a virtual template row that includes our TypoScript
         // This loads AFTER all other templates, ensuring proper override order
         $templateRows[] = [
-            'uid' => 'rte_ckeditor_image_auto',
-            'pid' => 0,
-            'title' => 'RTE CKEditor Image (auto-injected)',
-            'root' => 0,
-            'clear' => 0,
-            'include_static_file' => 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/',
-            'constants' => '',
-            'config' => '',
-            'basedOn' => '',
+            'uid'                       => 'rte_ckeditor_image_auto',
+            'pid'                       => 0,
+            'title'                     => 'RTE CKEditor Image (auto-injected)',
+            'root'                      => 0,
+            'clear'                     => 0,
+            'include_static_file'       => 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/',
+            'constants'                 => '',
+            'config'                    => '',
+            'basedOn'                   => '',
             'includeStaticAfterBasedOn' => 0,
-            'static_file_mode' => 0,
+            'static_file_mode'          => 0,
         ];
 
         $event->setTemplateRows($templateRows);

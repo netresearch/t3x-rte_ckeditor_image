@@ -57,9 +57,9 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
     {
         $templateRows = [
             [
-                'uid' => 1,
-                'pid' => 0,
-                'title' => 'Main Template',
+                'uid'                 => 1,
+                'pid'                 => 0,
+                'title'               => 'Main Template',
                 'include_static_file' => '',
             ],
         ];
@@ -72,6 +72,7 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
         self::assertCount(2, $result);
         self::assertSame('rte_ckeditor_image_auto', $result[1]['uid']);
         self::assertSame('RTE CKEditor Image (auto-injected)', $result[1]['title']);
+        self::assertIsString($result[1]['include_static_file']);
         self::assertStringContainsString(
             'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/',
             $result[1]['include_static_file'],
@@ -94,9 +95,9 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
     {
         $templateRows = [
             [
-                'uid' => 1,
-                'pid' => 0,
-                'title' => 'Main Template',
+                'uid'                 => 1,
+                'pid'                 => 0,
+                'title'               => 'Main Template',
                 'include_static_file' => 'EXT:rte_ckeditor_image/Configuration/TypoScript/',
             ],
         ];
@@ -115,15 +116,15 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
     {
         $templateRows = [
             [
-                'uid' => 1,
-                'pid' => 0,
-                'title' => 'Bootstrap Package',
+                'uid'                 => 1,
+                'pid'                 => 0,
+                'title'               => 'Bootstrap Package',
                 'include_static_file' => 'EXT:bootstrap_package/Configuration/TypoScript/',
             ],
             [
-                'uid' => 2,
-                'pid' => 0,
-                'title' => 'Custom Template',
+                'uid'                 => 2,
+                'pid'                 => 0,
+                'title'               => 'Custom Template',
                 'include_static_file' => 'EXT:fluid_styled_content/,EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/',
             ],
         ];
@@ -142,15 +143,15 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
     {
         $templateRows = [
             [
-                'uid' => 1,
-                'pid' => 0,
-                'title' => 'Bootstrap Package Full',
+                'uid'                 => 1,
+                'pid'                 => 0,
+                'title'               => 'Bootstrap Package Full',
                 'include_static_file' => 'EXT:bootstrap_package/Configuration/TypoScript/',
             ],
             [
-                'uid' => 2,
-                'pid' => 0,
-                'title' => 'Site Template',
+                'uid'                 => 2,
+                'pid'                 => 0,
+                'title'               => 'Site Template',
                 'include_static_file' => 'EXT:my_site/Configuration/TypoScript/',
             ],
         ];
@@ -176,9 +177,9 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
         // Our listener should inject AFTER this to override
         $templateRows = [
             [
-                'uid' => 'bootstrap-package/full',
-                'pid' => 0,
-                'title' => 'Bootstrap Package (Site Set)',
+                'uid'                 => 'bootstrap-package/full',
+                'pid'                 => 0,
+                'title'               => 'Bootstrap Package (Site Set)',
                 'include_static_file' => 'EXT:bootstrap_package/Configuration/TypoScript/',
             ],
         ];
@@ -198,9 +199,9 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
     {
         $templateRows = [
             [
-                'uid' => 'typo3/fluid-styled-content',
-                'pid' => 0,
-                'title' => 'Fluid Styled Content',
+                'uid'                 => 'typo3/fluid-styled-content',
+                'pid'                 => 0,
+                'title'               => 'Fluid Styled Content',
                 'include_static_file' => 'EXT:fluid_styled_content/Configuration/TypoScript/',
             ],
         ];
@@ -219,15 +220,15 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
     {
         $templateRows = [
             [
-                'uid' => 'typo3/fluid-styled-content',
-                'pid' => 0,
-                'title' => 'Fluid Styled Content',
+                'uid'                 => 'typo3/fluid-styled-content',
+                'pid'                 => 0,
+                'title'               => 'Fluid Styled Content',
                 'include_static_file' => 'EXT:fluid_styled_content/Configuration/TypoScript/',
             ],
             [
-                'uid' => 'bootstrap-package/full',
-                'pid' => 0,
-                'title' => 'Bootstrap Package',
+                'uid'                 => 'bootstrap-package/full',
+                'pid'                 => 0,
+                'title'               => 'Bootstrap Package',
                 'include_static_file' => 'EXT:bootstrap_package/Configuration/TypoScript/',
             ],
         ];
@@ -247,9 +248,9 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
     {
         $templateRows = [
             [
-                'uid' => 1,
-                'pid' => 0,
-                'title' => 'Root',
+                'uid'                 => 1,
+                'pid'                 => 0,
+                'title'               => 'Root',
                 'include_static_file' => '',
             ],
         ];
@@ -257,8 +258,8 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
         $event = $this->createEvent($templateRows);
         ($this->listener)($event);
 
-        $result    = $event->getTemplateRows();
-        $injected  = $result[1];
+        $result   = $event->getTemplateRows();
+        $injected = $result[1];
 
         self::assertSame('rte_ckeditor_image_auto', $injected['uid']);
         self::assertSame(0, $injected['pid']);
@@ -281,8 +282,8 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
     {
         $templateRows = [
             [
-                'uid' => 1,
-                'pid' => 0,
+                'uid'   => 1,
+                'pid'   => 0,
                 'title' => 'Template without include_static_file',
                 // Note: include_static_file key is missing
             ],
@@ -303,9 +304,9 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
     {
         $templateRows = [
             [
-                'uid' => 1,
-                'pid' => 0,
-                'title' => 'Template with null',
+                'uid'                 => 1,
+                'pid'                 => 0,
+                'title'               => 'Template with null',
                 'include_static_file' => null,
             ],
         ];
@@ -325,9 +326,9 @@ final class AddTypoScriptAfterTemplatesListenerTest extends UnitTestCase
         // Ensure we detect 'rte_ckeditor_image' even in comma-separated lists
         $templateRows = [
             [
-                'uid' => 1,
-                'pid' => 0,
-                'title' => 'Combined Template',
+                'uid'                 => 1,
+                'pid'                 => 0,
+                'title'               => 'Combined Template',
                 'include_static_file' => 'EXT:fluid_styled_content/,EXT:rte_ckeditor_image/Configuration/TypoScript/,EXT:my_site/',
             ],
         ];
