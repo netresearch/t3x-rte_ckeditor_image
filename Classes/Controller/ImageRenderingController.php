@@ -23,6 +23,10 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 /**
  * Controller to render the image tag in frontend.
  *
+ * @deprecated since v14.0, will be removed in v15.0
+ *             Use ImageRenderingService with ViewFactoryInterface instead.
+ *             See Documentation/Architecture/RFC-Fluid-Templates-Refactoring.md
+ *
  * @author  Christian Opitz <christian.opitz@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  *
@@ -69,6 +73,8 @@ class ImageRenderingController extends AbstractImageRenderingController
     /**
      * Returns a processed image to be displayed on the Frontend.
      *
+     * @deprecated since v14.0, will be removed in v15.0
+     *
      * @param string|null            $content Content input (not used)
      * @param mixed[]                $conf    TypoScript configuration
      * @param ServerRequestInterface $request
@@ -77,6 +83,14 @@ class ImageRenderingController extends AbstractImageRenderingController
      */
     public function renderImageAttributes(?string $content, array $conf, ServerRequestInterface $request): string
     {
+        // DEPRECATION WARNING: This controller will be removed in v15.0
+        trigger_error(
+            'ImageRenderingController is deprecated since v14.0 and will be removed in v15.0. '
+            . 'Use ImageRenderingService with ViewFactoryInterface instead. '
+            . 'See Documentation/Architecture/RFC-Fluid-Templates-Refactoring.md for migration guide.',
+            E_USER_DEPRECATED,
+        );
+
         $imageAttributes = $this->getImageAttributes();
         $imageSource     = $imageAttributes['src'] ?? '';
         $systemImage     = null; // Initialize to prevent undefined variable in popup rendering check

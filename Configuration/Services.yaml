@@ -29,6 +29,25 @@ services:
       $processedFilesHandler: '@Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler'
       $logManager: '@TYPO3\CMS\Core\Log\LogManager'
 
+  # New service architecture (Phase 1 - Foundation)
+  # These services implement the modern TYPO3 v13 ViewFactoryInterface pattern
+  # Services are public to allow testing framework access via $this->get()
+  Netresearch\RteCKEditorImage\Service\ImageAttributeParser:
+    public: true
+    # Pure HTML parsing - no dependencies needed
+
+  Netresearch\RteCKEditorImage\Service\ImageResolverService:
+    public: true
+    arguments:
+      $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
+      $processedFilesHandler: '@Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler'
+      $logManager: '@TYPO3\CMS\Core\Log\LogManager'
+
+  Netresearch\RteCKEditorImage\Service\ImageRenderingService:
+    public: true
+    arguments:
+      $viewFactory: '@TYPO3\CMS\Core\View\ViewFactoryInterface'
+
   # Utility classes with dependencies
   Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler:
     arguments:

@@ -20,9 +20,7 @@ $repoRoot = __DIR__ . '/..';
 
 $finder = PhpCsFixer\Finder::create()
     ->in($repoRoot)
-    ->exclude(['.Build', 'config', 'node_modules', 'var'])
-    // ext_emconf.php must remain plain for TER compatibility (no strict_types, no header)
-    ->notPath('ext_emconf.php');
+    ->exclude(['.Build', 'config', 'node_modules', 'var']);
 
 $config = new PhpCsFixer\Config();
 $config

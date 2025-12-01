@@ -71,7 +71,7 @@
 			<target state="final">Druk (6.0x)</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve" approved="yes">
 				<source>Low</source>
-			<target state="final">Niski</target></trans-unit>
+			<target state="final">Niski:</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve" approved="yes">
 				<source>Low quality (%sx) - Image may appear blurry</source>
 			<target state="final">Niska jakość (%sx) - Obraz może być niewyraźny</target></trans-unit>
