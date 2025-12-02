@@ -1,13 +1,16 @@
 <?php
-// Get git info dynamically
-$gitBranch = trim(shell_exec('cd /var/www/html && git rev-parse --abbrev-ref HEAD 2>/dev/null') ?: 'main');
-$gitCommit = trim(shell_exec('cd /var/www/html && git rev-parse --short HEAD 2>/dev/null') ?: 'unknown');
+// Extension is mounted at /var/www/rte_ckeditor_image
+$extDir = '/var/www/rte_ckeditor_image';
+
+// Get git info dynamically from extension directory
+$gitBranch = trim(shell_exec("cd $extDir && git rev-parse --abbrev-ref HEAD 2>/dev/null") ?: 'main');
+$gitCommit = trim(shell_exec("cd $extDir && git rev-parse --short HEAD 2>/dev/null") ?: 'unknown');
 
 // Try to get PR number from branch name (e.g., fix/NEXT-89-svg-dimensions-v13 -> check if PR exists)
 $prNumber = null;
 if (preg_match('/^(fix|feature|feat)\//', $gitBranch)) {
     // Try to get PR number from gh CLI
-    $prInfo = shell_exec('cd /var/www/html && gh pr view --json number 2>/dev/null');
+    $prInfo = shell_exec("cd $extDir && gh pr view --json number 2>/dev/null");
     if ($prInfo) {
         $prData = json_decode($prInfo, true);
         $prNumber = $prData['number'] ?? null;
