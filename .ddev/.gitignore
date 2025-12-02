@@ -1,0 +1,31 @@
+# DDEV gitignore - manually maintained for project consistency
+# See: typo3-ddev skill documentation for rationale
+
+/**/*.example
+/docker-compose.git-info.yaml
+/.dbimageBuild
+/.ddev-docker-*.yaml
+/.*downloads
+/.homeadditions
+/.importdb*
+/.sshimageBuild
+/.webimageBuild
+/commands/.gitattributes
+/config.local.y*ml
+/config.*.local.y*ml
+/db_snapshots
+/mutagen/mutagen.yml
+/mutagen/.start-synced
+/nginx_full/nginx-site.conf
+/postgres/postgresql.conf
+/providers/acquia.yaml
+/providers/lagoon.yaml
+/providers/pantheon.yaml
+/providers/platform.yaml
+/providers/upsun.yaml
+/sequelpro.spf
+/traefik/config/rte-ckeditor-image.yaml
+/traefik/certs/rte-ckeditor-image.crt
+/traefik/certs/rte-ckeditor-image.key
+/xhprof/xhprof_prepend.php
+/**/README.*

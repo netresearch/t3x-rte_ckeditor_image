@@ -1,0 +1,26 @@
+#!/bin/bash
+
+## Description: Run E2E tests using Playwright in Docker
+## Usage: test-e2e
+## Example: ddev test-e2e
+
+set -e
+
+E2E_DIR="$(dirname "$0")/../../../Tests/E2E"
+cd "$E2E_DIR"
+
+echo "Running E2E tests for RTE CKEditor Image..."
+echo "Target: https://v13.rte-ckeditor-image.ddev.site"
+echo ""
+
+# Run Playwright tests in official container
+docker run --rm \
+  --network=ddev_default \
+  -v "$(pwd)":/app \
+  -w /app \
+  -e BASE_URL=https://v13.rte-ckeditor-image.ddev.site \
+  mcr.microsoft.com/playwright:v1.52.0-noble \
+  /bin/bash -c "npm install && npx playwright test"
+
+echo ""
+echo "E2E tests completed!"

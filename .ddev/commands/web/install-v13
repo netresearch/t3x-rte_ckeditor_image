@@ -6,6 +6,10 @@
 
 VERSION=v13
 
+# Test image dimensions for E2E tests
+TEST_IMAGE_WIDTH=800
+TEST_IMAGE_HEIGHT=600
+
 rm -rf /var/www/html/$VERSION/*
 mkdir -p /var/www/html/$VERSION/
 echo "{}" > /var/www/html/$VERSION/composer.json
@@ -42,25 +46,72 @@ sed -i "/'deprecations'/,/^[[:space:]]*'disabled' => true,/s/'disabled' => true,
 
 vendor/bin/typo3 extension:setup
 
+# Generate styleguide demo content for E2E tests
+# This creates pages with various content elements including images
+vendor/bin/typo3 styleguide:generate
+
+# Add test content to homepage for E2E tests
+# The styleguide creates demo content, but E2E tests need content on the root page
+# Add a text content element with an image in the bodytext
+# NOTE: MySQL credentials are hardcoded for DDEV local development only
+mysql -h db -u root -p"root" $VERSION << EOSQL
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (
+    1,
+    'text',
+    'Welcome to RTE CKEditor Image Demo',
+    '<p>This is a test page with an image:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Example image" width="$TEST_IMAGE_WIDTH" height="$TEST_IMAGE_HEIGHT" /></p><p>Click the image to see the click-to-enlarge functionality.</p>',
+    0,
+    0,
+    UNIX_TIMESTAMP(),
+    UNIX_TIMESTAMP(),
+    0,
+    256
+);
+EOSQL
+
+# Create a dummy image file for the test
+mkdir -p public/fileadmin/user_upload
+# Create a test image using ImageMagick (pre-installed in DDEV web container)
+if command -v convert &> /dev/null; then
+    convert -size ${TEST_IMAGE_WIDTH}x${TEST_IMAGE_HEIGHT} \
+        xc:blue \
+        -pointsize 48 \
+        -fill white \
+        -gravity center \
+        -annotate +0+0 'Test Image\nfor E2E Tests' \
+        public/fileadmin/user_upload/example.jpg
+else
+    echo "Warning: ImageMagick not found, creating minimal placeholder image"
+    # Fallback: Create a minimal 1x1 blue pixel JPEG using base64
+    # This ensures the file exists so E2E tests can at least find the image reference
+    echo '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9/KKKKAP/2Q==' | base64 -d > public/fileadmin/user_upload/example.jpg
+    echo "Warning: E2E tests will use a minimal 1x1 placeholder image"
+fi
+
 # Add site sets to site configuration (TYPO3 v13 approach)
-# This configures Bootstrap Package + rte_ckeditor_image via site sets instead of static templates
+# Bootstrap Package is added for frontend rendering demo
+# Note: rte_ckeditor_image uses an event listener for true zero-configuration,
+# so adding it to dependencies is optional (but recommended for clarity)
 if [ -f config/sites/main/config.yaml ]; then
     # Remove any existing dependencies section
     sed -i '/^dependencies:/d' config/sites/main/config.yaml
     sed -i '/^  - /d' config/sites/main/config.yaml
 
-    # Add dependencies section with both Bootstrap Package and rte_ckeditor_image
+    # Add dependencies section with Bootstrap Package
+    # rte_ckeditor_image uses AfterTemplatesHaveBeenDeterminedEvent for auto-injection
     echo "dependencies:" >> config/sites/main/config.yaml
     echo "  - bootstrap-package/full" >> config/sites/main/config.yaml
-    echo "  - netresearch/rte-ckeditor-image" >> config/sites/main/config.yaml
 fi
 
 vendor/bin/typo3 cache:flush
 
 echo ""
-echo "✅ TYPO3 $VERSION installation complete!"
-echo "🎨 rte_ckeditor_image is auto-configured (zero-configuration installation)"
-echo "📐 TYPO3 Styleguide is available for UI pattern reference"
-echo "🖼️  Site set included - click-to-enlarge functionality enabled"
-echo "🎁 Bootstrap Package installed for frontend rendering"
-echo "🔍 Test click-to-enlarge: https://${VERSION}.rte-ckeditor-image.ddev.site/"
+echo "TYPO3 $VERSION installation complete!"
+echo ""
+echo "rte_ckeditor_image is auto-configured (true zero-configuration)"
+echo "- TypoScript automatically injected via AfterTemplatesHaveBeenDeterminedEvent"
+echo "- Works with Bootstrap Package without manual sys_template configuration"
+echo "- Test content with images added to homepage for E2E testing"
+echo ""
+echo "Test click-to-enlarge: https://${VERSION}.rte-ckeditor-image.ddev.site/"
