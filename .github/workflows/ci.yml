@@ -145,7 +145,7 @@ jobs:
 
             -   name: Upload E2E Test Results
                 if: always()
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v5
                 with:
                     name: e2e-test-results
                     path: Build/test-results/
