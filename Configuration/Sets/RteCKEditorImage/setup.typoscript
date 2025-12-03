@@ -4,5 +4,11 @@
 # This file is automatically loaded when the site set
 # "netresearch/rte-ckeditor-image" is included in
 # a site configuration's dependencies.
+#
+# Note: In TYPO3 v13, site sets provide configuration that is
+# merged with sys_template records. For proper TypoScript loading
+# order (after Bootstrap Package), the extension's TypoScript
+# should also be included in the sys_template record.
 
+# Import the actual TypoScript from the standard location
 @import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'

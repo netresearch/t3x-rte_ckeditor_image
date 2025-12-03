@@ -170,6 +170,7 @@ Options:
             - composerInstallHighest: "composer update", handy if host has no PHP
             - coveralls: Generate coverage
             - docsGenerate: Renders the extension ReST documentation.
+            - e2e: Playwright E2E tests (TYPO3 Core pattern, no DDEV)
             - functional: functional tests
             - lint: PHP linting
             - unit: PHP unit tests
@@ -294,6 +295,12 @@ Examples:
 
     # Run functional tests on postgres 11
     ./Build/Scripts/runTests.sh -s functional -d postgres -i 11
+
+    # Run E2E Playwright tests with PHP 8.3
+    ./Build/Scripts/runTests.sh -s e2e -p 8.3
+
+    # Run specific E2E test file
+    ./Build/Scripts/runTests.sh -s e2e -- tests/click-to-enlarge.spec.ts
 EOF
 }
 
@@ -323,7 +330,8 @@ CGLCHECK_DRY_RUN=0
 DATABASE_DRIVER=""
 CONTAINER_BIN=""
 COMPOSER_ROOT_VERSION="11.4.3-dev"
-CONTAINER_INTERACTIVE="-it --init"
+# Default to non-interactive; detect TTY below
+CONTAINER_INTERACTIVE="--init"
 HOST_UID=$(id -u)
 HOST_PID=$(id -g)
 USERSET=""
@@ -418,6 +426,11 @@ handleDbmsOptions
 if [ "${CI}" == "true" ]; then
     IS_CI=1
     CONTAINER_INTERACTIVE=""
+# Detect TTY availability for interactive mode (allows running from scripts/pipes)
+# Note: Use -i (interactive) but NOT -t (tty) since -t fails in non-TTY contexts
+# even when [ -t 0 ] returns true (e.g., when running from CI tools)
+elif [ -t 0 ] && [ -t 1 ]; then
+    CONTAINER_INTERACTIVE="-i --init"
 fi
 
 # determine default container binary to use: 1. podman 2. docker
@@ -449,6 +462,9 @@ IMAGE_DOCS="ghcr.io/typo3-documentation/render-guides:latest"
 IMAGE_MARIADB="docker.io/mariadb:${DBMS_VERSION}"
 IMAGE_MYSQL="docker.io/mysql:${DBMS_VERSION}"
 IMAGE_POSTGRES="docker.io/postgres:${DBMS_VERSION}-alpine"
+# E2E testing images (TYPO3 Core pattern)
+IMAGE_APACHE="ghcr.io/typo3/core-testing-apache24:1.7"
+IMAGE_PLAYWRIGHT="mcr.microsoft.com/playwright:v1.52.0-noble"
 
 # Set $1 to first mass argument, this is the optional test file or test directory to execute
 shift $((OPTIND - 1))
@@ -570,6 +586,356 @@ case ${TEST_SUITE} in
         COMMAND=(--config=Documentation --fail-on-log ${EXTRA_TEST_OPTIONS} "$@")
         ${CONTAINER_BIN} run ${CONTAINER_INTERACTIVE} --rm --pull always ${USERSET} -v "${ROOT_DIR}":/project ${IMAGE_DOCS} "${COMMAND[@]}"
         SUITE_EXIT_CODE=$?
+        ;;
+    e2e)
+        # E2E tests using TYPO3 Core pattern: PHP + MariaDB + Playwright
+        # No DDEV dependency - lightweight containers only
+        # Uses MariaDB because SQLite doesn't work with TYPO3's database:updateschema
+        E2E_ROOT="${ROOT_DIR}/.Build/e2e-typo3"
+        E2E_WEB_PORT=8080
+        E2E_SCRIPTS="${ROOT_DIR}/.Build/e2e-scripts"
+
+        echo "Setting up E2E test environment..."
+
+        # Clean and create E2E TYPO3 instance
+        rm -rf "${E2E_ROOT}"
+        rm -rf "${E2E_SCRIPTS}"
+        mkdir -p "${E2E_ROOT}"
+        mkdir -p "${E2E_SCRIPTS}"
+        mkdir -p "${ROOT_DIR}/Build/test-results"
+
+        # Create helper scripts on host (to avoid heredoc-in-double-quotes bash parsing issues)
+        # These will be mounted into the container
+
+        # additional.php - TYPO3 system configuration with verbose error output
+        cat > "${E2E_SCRIPTS}/additional.php" << 'ADDITIONAL_EOF'
+<?php
+return [
+    'BE' => ['debug' => true],
+    'FE' => [
+        'debug' => true,
+        'debugExceptionHandler' => \TYPO3\CMS\Core\Error\DebugExceptionHandler::class,
+    ],
+    'SYS' => [
+        'devIPmask' => '*',
+        'displayErrors' => 1,
+        'exceptionalErrors' => E_WARNING | E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE,
+        'trustedHostsPattern' => '.*',
+        'debugExceptionHandler' => \TYPO3\CMS\Core\Error\DebugExceptionHandler::class,
+        'productionExceptionHandler' => \TYPO3\CMS\Core\Error\DebugExceptionHandler::class,
+    ],
+];
+ADDITIONAL_EOF
+
+        # db-setup.php - Insert required database records (tables are created by database:updateschema)
+        cat > "${E2E_SCRIPTS}/db-setup.php" << 'DBSETUP_EOF'
+<?php
+// Connect to MariaDB
+$pdo = new PDO(
+    'mysql:host=mariadb-e2e;port=3306;dbname=e2e_test',
+    'root',
+    'root',
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
+$now = time();
+
+// Debug: List existing tables to verify schema was created by TYPO3's database:updateschema
+echo "Checking existing tables...\n";
+$tables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+echo "Found " . count($tables) . " tables\n";
+if (count($tables) < 10) {
+    echo "WARNING: Expected many tables from database:updateschema, but found only " . count($tables) . "\n";
+}
+
+// Insert default file storage if not exists
+// CRITICAL: is_public = 1 is required for click-to-enlarge to work (imageLinkWrap)
+$pdo->exec("INSERT IGNORE INTO sys_file_storage (uid, name, driver, configuration, is_default, is_public, tstamp, crdate) VALUES (1, 'fileadmin', 'Local', '{\"basePath\":\"fileadmin/\",\"pathType\":\"relative\"}', 1, 1, $now, $now)");
+echo "Default file storage ensured\n";
+
+// Insert root page
+$pdo->exec("INSERT IGNORE INTO pages (uid, pid, title, slug, doktype, is_siteroot, hidden, deleted, tstamp, crdate) VALUES (1, 0, 'Home', '/', 1, 1, 0, 0, $now, $now)");
+echo "Pages record inserted\n";
+
+// TypoScript CONSTANTS - defines default values used by setup
+// fluid_styled_content needs these constants for proper operation
+$tsConstants = <<<'TYPOSCRIPT'
+@import 'EXT:fluid_styled_content/Configuration/TypoScript/constants.typoscript'
+
+# Image lazy loading setting
+styles.content.image.lazyLoading = lazy
+TYPOSCRIPT;
+
+// TypoScript SETUP configuration for PAGE rendering
+// IMPORTANT: Load fluid_styled_content FIRST to define lib.parseFunc_RTE base
+// Then load our extension to add the tags.img.preUserFunc for click-to-enlarge
+$tsConfig = <<<'TYPOSCRIPT'
+@import 'EXT:fluid_styled_content/Configuration/TypoScript/setup.typoscript'
+@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
+
+# Ensure lib.contentElement.settings.media.popup is set for click-to-enlarge
+# This path MUST exist for ImageRenderingController to find popup config
+lib.contentElement.settings.media.popup {
+    bodyTag = <body style="margin:0; background:#fff;">
+    wrap = <a href="javascript:close();"> | </a>
+    width = 800m
+    height = 600m
+    crop.data = file:current:crop
+    JSwindow = 1
+    JSwindow.newWindow = 1
+    directImageLink = 0
+}
+
+page = PAGE
+page.typeNum = 0
+page.10 < styles.content.get
+TYPOSCRIPT;
+
+// Insert sys_template with BOTH constants and config
+$stmt = $pdo->prepare("INSERT IGNORE INTO sys_template (uid, pid, root, title, clear, constants, config, hidden, deleted, tstamp, crdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->execute([1, 1, 1, 'Root', 1, $tsConstants, $tsConfig, 0, 0, $now, $now]);
+echo "sys_template record inserted with constants and config\n";
+DBSETUP_EOF
+
+        # site-config.yaml - Site configuration
+        cat > "${E2E_SCRIPTS}/site-config.yaml" << 'SITECONFIG_EOF'
+rootPageId: 1
+base: /
+languages:
+  - title: English
+    enabled: true
+    languageId: 0
+    base: /
+    locale: en_US.UTF-8
+    navigationTitle: English
+    flag: us
+dependencies:
+  - typo3/fluid-styled-content
+# Note: Site Sets for mounted extensions aren't auto-discovered
+# TypoScript loading is handled via @import in sys_template instead
+SITECONFIG_EOF
+
+        # create-test-content.php - Create test image and content records
+        cat > "${E2E_SCRIPTS}/create-test-content.php" << 'CONTENT_EOF'
+<?php
+// Create test image
+$im = imagecreatetruecolor(800, 600);
+$blue = imagecolorallocate($im, 0, 100, 200);
+$white = imagecolorallocate($im, 255, 255, 255);
+imagefill($im, 0, 0, $blue);
+imagestring($im, 5, 300, 280, 'E2E Test Image', $white);
+imagejpeg($im, 'public/fileadmin/user_upload/example.jpg', 90);
+imagedestroy($im);
+echo "Test image created\n";
+
+// Connect to MariaDB
+$pdo = new PDO(
+    'mysql:host=mariadb-e2e;port=3306;dbname=e2e_test',
+    'root',
+    'root',
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
+$now = time();
+
+// Create sys_file entry
+$identifierHash = sha1('/user_upload/example.jpg');
+$folderHash = sha1('/user_upload/');
+$pdo->exec("INSERT IGNORE INTO sys_file (uid, storage, identifier, identifier_hash, folder_hash, name, extension, mime_type, size, tstamp, creation_date)
+            VALUES (1, 1, '/user_upload/example.jpg', '$identifierHash', '$folderHash', 'example.jpg', 'jpg', 'image/jpeg', 48000, $now, $now)");
+echo "sys_file record created\n";
+
+// Insert test content with RTE image
+$bodytext = '<p>This is a test page with an RTE image:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Example" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>Click the image to see click-to-enlarge.</p>';
+$stmt = $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->execute([1, 'text', 'RTE CKEditor Image Demo', $bodytext, 0, 0, $now, $now, 0, 256]);
+echo "tt_content record created\n";
+CONTENT_EOF
+
+        # Start MariaDB container for E2E tests
+        # TYPO3's database:updateschema works properly with MariaDB (not SQLite)
+        # Use network alias so PHP scripts can use a fixed hostname
+        echo "Starting MariaDB container..."
+        # Set default MariaDB version for E2E (DBMS_VERSION is only set for functional tests)
+        E2E_MARIADB_IMAGE="docker.io/mariadb:10.11"
+        ${CONTAINER_BIN} run -d --rm ${CI_PARAMS} \
+            --name mariadb-e2e-${SUFFIX} \
+            --network ${NETWORK} \
+            --network-alias mariadb-e2e \
+            -e MYSQL_ROOT_PASSWORD=root \
+            -e MYSQL_DATABASE=e2e_test \
+            ${E2E_MARIADB_IMAGE} \
+            --character-set-server=utf8mb4 \
+            --collation-server=utf8mb4_unicode_ci
+
+        # Wait for MariaDB to be ready (use network alias since waitFor runs in a container)
+        waitFor mariadb-e2e 3306
+
+        # Install TYPO3 v13 with the extension FIRST (before starting services)
+        echo "Installing TYPO3 v13 for E2E tests..."
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name e2e-setup-${SUFFIX} \
+            -v ${E2E_ROOT}:/var/www/html \
+            -v ${E2E_SCRIPTS}:/e2e-scripts:ro \
+            -v ${ROOT_DIR}:/extension:ro \
+            -w /var/www/html \
+            -e COMPOSER_CACHE_DIR=/.cache/composer \
+            ${IMAGE_PHP} /bin/bash -c "
+                # Create TYPO3 project (--no-scripts to prevent DB access before setup)
+                composer create-project typo3/cms-base-distribution:^13.4 . --no-interaction --no-progress --no-scripts
+
+                # Install ALL packages with --no-scripts FIRST, so database:updateschema knows about all tables
+                # Mount extension at /extension and use that path for composer
+                composer config repositories.local path /extension
+                composer require netresearch/rte-ckeditor-image:@dev --no-interaction --no-progress --no-scripts
+                composer require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
+
+                # Install typo3-console for database:updateschema command (not in TYPO3 Core)
+                composer require helhum/typo3-console --no-interaction --no-progress --no-scripts
+
+                # NOW run composer install to execute ALL Composer scripts
+                # This registers TYPO3 commands, sets up autoloading, and configures extensions
+                # Must be done AFTER all packages are added but BEFORE TYPO3 setup
+                echo 'Running Composer scripts to register TYPO3 commands...'
+                composer install --no-interaction --no-progress
+
+                # Use TYPO3 setup command for proper installation with MariaDB
+                # All env vars prevent interactive prompts
+                # Use network alias 'mariadb-e2e' for database host
+                TYPO3_SETUP_ADMIN_USERNAME=admin \
+                TYPO3_SETUP_ADMIN_PASSWORD='Password:joh316' \
+                TYPO3_SETUP_ADMIN_EMAIL='admin@example.com' \
+                vendor/bin/typo3 setup \
+                    --driver=mysqli \
+                    --host=mariadb-e2e \
+                    --port=3306 \
+                    --dbname=e2e_test \
+                    --username=root \
+                    --password=root \
+                    --server-type=other \
+                    --no-interaction \
+                    --force || exit 1
+
+                # Copy configuration files from mounted scripts
+                mkdir -p config/system
+                cp /e2e-scripts/additional.php config/system/additional.php
+
+                # CRITICAL: Inject trustedHostsPattern directly into settings.php
+                # This MUST be done because TYPO3 checks trustedHostsPattern BEFORE
+                # loading additional.php or environment variables
+                echo \"Injecting trustedHostsPattern into settings.php...\"
+                sed -i \"s/'SYS' => \\[/'SYS' => [\\n        'trustedHostsPattern' => '.*',/\" config/system/settings.php
+
+                # Verify the change was applied
+                grep -q \"trustedHostsPattern\" config/system/settings.php && echo \"trustedHostsPattern injected successfully\" || echo \"WARNING: trustedHostsPattern injection failed\"
+
+                # Setup extensions (configures extensions, doesn't create tables)
+                vendor/bin/typo3 extension:setup || exit 1
+
+                # Create database tables - this works correctly with MariaDB
+                echo 'Creating database tables...'
+                vendor/bin/typo3 database:updateschema '*' --verbose 2>&1 || exit 1
+
+                # Create site configuration (needed for frontend rendering)
+                mkdir -p config/sites/main
+                cp /e2e-scripts/site-config.yaml config/sites/main/config.yaml
+
+                # Insert required database records (pages, sys_template)
+                php /e2e-scripts/db-setup.php || exit 1
+
+                # Create test content (sys_file, tt_content)
+                mkdir -p public/fileadmin/user_upload
+                php /e2e-scripts/create-test-content.php || exit 1
+
+                # Set permissions BEFORE cache operations
+                chmod -R 777 var/ public/typo3temp/ public/fileadmin/
+
+                echo '[DEBUG] Setup container finishing'
+            "
+
+        # Run cache operations in a SEPARATE container to isolate any issues
+        echo "Running cache warmup in separate container..."
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name e2e-cache-${SUFFIX} \
+            -v ${E2E_ROOT}:/var/www/html \
+            -w /var/www/html \
+            ${IMAGE_PHP} /bin/bash -c "
+                echo '[CACHE] Flushing caches...'
+                vendor/bin/typo3 cache:flush || echo '[CACHE] cache:flush failed'
+                echo '[CACHE] Warming up caches (rebuilds DI container)...'
+                vendor/bin/typo3 cache:warmup || echo '[CACHE] cache:warmup failed'
+                echo '[CACHE] Checking DI cache...'
+                ls var/cache/code/di/ || echo '[CACHE] DI cache not found'
+                echo '[SITE] Listing configured sites...'
+                vendor/bin/typo3 site:list || echo '[SITE] site:list failed'
+                echo '[SITE] Site configuration details...'
+                vendor/bin/typo3 site:show main 2>/dev/null || echo '[SITE] No site named main found'
+                echo '[CACHE] Done'
+            "
+
+        # Start PHP built-in web server (simpler than Apache + PHP-FPM)
+        # This is the approach used by TYPO3 Core for functional testing
+        # trustedHostsPattern is set directly in settings.php during setup
+        echo "Starting PHP built-in web server..."
+        ${CONTAINER_BIN} run -d --rm ${CI_PARAMS} \
+            --name webserver-e2e-${SUFFIX} \
+            --network ${NETWORK} \
+            -v ${E2E_ROOT}:/var/www/html \
+            -v ${ROOT_DIR}:/ext-rte-ckeditor-image \
+            -w /var/www/html \
+            ${IMAGE_PHP} php -S 0.0.0.0:80 -t public/
+
+        # Wait for web server to be ready
+        waitFor webserver-e2e-${SUFFIX} 80
+
+        # Give services a moment to stabilize
+        sleep 2
+
+        # Debug: check what's in the document root
+        echo "DEBUG: Checking document root contents..."
+        ${CONTAINER_BIN} exec webserver-e2e-${SUFFIX} ls -la /var/www/html/public/ | head -20
+
+        echo ""
+        echo "DEBUG: Checking if index.php exists..."
+        ${CONTAINER_BIN} exec webserver-e2e-${SUFFIX} head -5 /var/www/html/public/index.php || echo "index.php not found!"
+
+        echo ""
+        echo "DEBUG: Fetching page content to check rendering..."
+        ${CONTAINER_BIN} run --rm ${CI_PARAMS} \
+            --name curl-debug-${SUFFIX} \
+            --network ${NETWORK} \
+            ${IMAGE_PHP} curl -sS -v http://webserver-e2e-${SUFFIX}:80/ 2>&1 | head -100
+
+        echo ""
+        echo "DEBUG: Checking TYPO3 error logs..."
+        ${CONTAINER_BIN} exec webserver-e2e-${SUFFIX} /bin/bash -c "if [ -f var/log/typo3_*.log ]; then tail -100 var/log/typo3_*.log; else echo 'No TYPO3 log files found'; fi" 2>/dev/null || true
+
+        echo ""
+        echo "DEBUG: Checking PHP built-in server stderr for errors..."
+        ${CONTAINER_BIN} logs webserver-e2e-${SUFFIX} 2>&1 | tail -50 || true
+
+        echo "Running Playwright E2E tests..."
+
+        # Run Playwright tests
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name playwright-e2e-${SUFFIX} \
+            -v ${ROOT_DIR}/Tests/E2E:/app \
+            -v ${ROOT_DIR}/Build/test-results:/app/test-results \
+            -w /app \
+            -e BASE_URL=http://webserver-e2e-${SUFFIX}:80 \
+            -e CI=true \
+            ${IMAGE_PLAYWRIGHT} /bin/bash -c "
+                npm install --no-save
+                npx playwright test ${EXTRA_TEST_OPTIONS} $@
+            "
+        SUITE_EXIT_CODE=$?
+
+        # Stop containers
+        ${CONTAINER_BIN} kill webserver-e2e-${SUFFIX} >/dev/null 2>&1 || true
+        ${CONTAINER_BIN} kill mariadb-e2e-${SUFFIX} >/dev/null 2>&1 || true
+
+        # Clean up E2E directories (keep for debugging if failed)
+        if [[ ${SUITE_EXIT_CODE} -eq 0 ]]; then
+            rm -rf "${E2E_ROOT}"
+            rm -rf "${E2E_SCRIPTS}"
+        else
+            echo "E2E test environment preserved at ${E2E_ROOT} for debugging"
+        fi
         ;;
     coveralls)
         COMMAND=(php -dxdebug.mode=coverage ./.Build/bin/php-coveralls --coverage_clover=./.Build/logs/clover.xml --json_path=./.Build/logs/coveralls-upload.json -v)

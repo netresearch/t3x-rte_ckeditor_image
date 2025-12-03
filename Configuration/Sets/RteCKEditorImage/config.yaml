@@ -4,4 +4,6 @@ label: 'CKEditor Image Support'
 # if they're present, but doesn't require them if users have custom rendering
 optionalDependencies:
   - typo3/fluid-styled-content
-  - bk2k/bootstrap-package
+  # Bootstrap Package site set names (not composer package name)
+  - bootstrap-package/content-elements
+  - bootstrap-package/full
