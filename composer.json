@@ -120,7 +120,7 @@
             "@ci:test:php:functional"
         ],
         "ci:test:e2e": [
-            "cd Tests/E2E && docker run --rm --network=ddev_default -v $(pwd):/app -w /app -e BASE_URL=https://v13.rte-ckeditor-image.ddev.site mcr.microsoft.com/playwright:v1.52.0-noble /bin/bash -c 'npm install && npx playwright test'"
+            "cd Tests/E2E && docker run --rm --network=ddev_default -v $(pwd):/app -w /app -e BASE_URL=https://v13.rte-ckeditor-image.ddev.site mcr.microsoft.com/playwright:v1.57.0-noble /bin/bash -c 'npm install && npx playwright test'"
         ]
     }
 }
