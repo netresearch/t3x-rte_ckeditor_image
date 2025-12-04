@@ -1,18 +1,24 @@
-name: Add issues to netreseach TYPO3 board
+name: Add issues to Netresearch TYPO3 board
 
 on:
-  issues:
-    types:
-      - opened
+    issues:
+        types: [opened]
+    pull_request_target:
+        types: [opened]
+
+permissions:
+    contents: read
 
 jobs:
-  add-to-project:
-    name: Add issue to project
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/add-to-project@v1
-        with:
-          # You can target a repository in a different organization
-          # to the issue
-          project-url: https://github.com/orgs/netresearch/projects/4
-          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
+    add-to-project:
+        name: Add issue or PR to project
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: read
+
+        steps:
+            - uses: actions/add-to-project@244f685bbc3b7adfa8466e08b698b5577571133e # v1.0.2
+              with:
+                  project-url: https://github.com/orgs/netresearch/projects/4
+                  github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
