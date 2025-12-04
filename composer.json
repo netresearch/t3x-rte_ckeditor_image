@@ -43,7 +43,8 @@
         "phpstan/phpstan-strict-rules": "^2.0",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "ssch/typo3-rector": "^3.0",
-        "bk2k/bootstrap-package": "^15.0 || ^16.0"
+        "bk2k/bootstrap-package": "^15.0 || ^16.0",
+        "nikic/php-fuzzer": "^0.0.11"
     },
     "autoload": {
         "psr-4": {
@@ -121,6 +122,16 @@
         ],
         "ci:test:e2e": [
             "cd Tests/E2E && docker run --rm --network=ddev_default -v $(pwd):/app -w /app -e BASE_URL=https://v13.rte-ckeditor-image.ddev.site mcr.microsoft.com/playwright:v1.57.0-noble /bin/bash -c 'npm install && npx playwright test'"
+        ],
+        "ci:fuzz:image-parser": [
+            ".Build/bin/php-fuzzer fuzz Tests/Fuzz/ImageAttributeParserTarget.php Tests/Fuzz/corpus/image-parser --max-runs 10000"
+        ],
+        "ci:fuzz:softref-parser": [
+            ".Build/bin/php-fuzzer fuzz Tests/Fuzz/RteImageSoftReferenceParserTarget.php Tests/Fuzz/corpus/softref-parser --max-runs 10000"
+        ],
+        "ci:fuzz": [
+            "@ci:fuzz:image-parser",
+            "@ci:fuzz:softref-parser"
         ]
     }
 }

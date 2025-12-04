@@ -1,0 +1,1 @@
+<img src="/image.jpg" alt="Ümläuts änd spëcîäl €haracters 日本語" />

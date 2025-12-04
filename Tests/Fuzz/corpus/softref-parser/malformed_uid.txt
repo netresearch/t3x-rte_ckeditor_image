@@ -1,0 +1,1 @@
+<img data-htmlarea-file-uid="not-a-number" src="/broken.jpg" /><img data-htmlarea-file-uid="" src="/empty.jpg" />

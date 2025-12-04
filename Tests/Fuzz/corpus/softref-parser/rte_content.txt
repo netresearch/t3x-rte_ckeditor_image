@@ -1,0 +1,1 @@
+<p>Text before image</p><img src="/fileadmin/user_upload/test.jpg" data-htmlarea-file-uid="456" width="800" height="600" /><p>Text after image</p>

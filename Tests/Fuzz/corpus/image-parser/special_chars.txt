@@ -1,0 +1,1 @@
+<img src="/image.jpg" alt="Text with &quot;quotes&quot; and &amp; ampersand" title="<script>alert('xss')</script>" />
