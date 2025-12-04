@@ -1,7 +1,7 @@
 {
     "name": "netresearch/rte-ckeditor-image",
     "type": "typo3-cms-extension",
-    "description": "Image support in CKEditor for the TYPO3 ecosystem",
+    "description": "Image support in CKEditor for the TYPO3 ecosystem - by Netresearch",
     "homepage": "https://github.com/netresearch/t3x-rte_ckeditor_image",
     "license": "AGPL-3.0-or-later",
     "authors": [

@@ -298,3 +298,7 @@ See [AGENTS.md](AGENTS.md) for complete development guide, code standards, and P
 - [Composer repository](https://packagist.org/packages/netresearch/rte-ckeditor-image)
 - [TYPO3 Extension Repository](https://extensions.typo3.org/extension/rte_ckeditor_image)
 - New versions automatically uploaded to TER via GitHub Action when creating a release
+
+## About
+
+Developed and maintained by [Netresearch DTT GmbH](https://www.netresearch.de/).

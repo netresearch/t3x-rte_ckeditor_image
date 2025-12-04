@@ -37,6 +37,7 @@ Version Information
 :Version: 13.0.x for TYPO3 13.4+
 :License: AGPL-3.0-or-later
 :Repository: `github.com/netresearch/t3x-rte_ckeditor_image <https://github.com/netresearch/t3x-rte_ckeditor_image>`__
+:Maintainer: `Netresearch DTT GmbH <https://www.netresearch.de/>`__
 
 
 .. _requirements:

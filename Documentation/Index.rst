@@ -29,7 +29,7 @@ RTE CKEditor Image
 :Rendered:
    |today|
 
-Image support in CKEditor for the TYPO3 ecosystem.
+Image support in CKEditor for the TYPO3 ecosystem - by Netresearch.
 
 ----
 

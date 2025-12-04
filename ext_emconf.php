@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 $EM_CONF['rte_ckeditor_image'] = [
     'title'          => 'CKEditor Rich Text Editor Image Support',
-    'description'    => 'Adds FAL image support to CKEditor for TYPO3.',
+    'description'    => 'Adds FAL image support to CKEditor for TYPO3 - by Netresearch.',
     'category'       => 'be',
     'author'         => 'Sebastian Koschel, Sebastian Mendel, Rico Sonntag',
     'author_email'   => 'sebastian.koschel@netresearch.de, sebastian.mendel@netresearch.de, rico.sonntag@netresearch.de',
