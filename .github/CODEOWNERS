@@ -1,0 +1,16 @@
+# CODEOWNERS for netresearch/t3x-rte_ckeditor_image
+# These owners will be requested for review when someone opens a pull request.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @netresearch/typo3
+
+# GitHub Actions and CI/CD configuration
+.github/ @netresearch/typo3
+
+# Security-sensitive files
+SECURITY.md @netresearch/sec @netresearch/typo3
+
+# Documentation
+Documentation/ @netresearch/typo3
+*.md @netresearch/typo3
