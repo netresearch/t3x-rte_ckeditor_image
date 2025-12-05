@@ -5,7 +5,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  /* Allow parallel workers in CI - improves speed for larger test suites */
+  workers: process.env.CI ? 2 : undefined,
   reporter: 'html',
   use: {
     baseURL: process.env.BASE_URL || 'https://v13.rte-ckeditor-image.ddev.site',
