@@ -1,0 +1,1 @@
+<img src="/image.jpg" data-htmlarea-file-uid="123" data-quality="retina" />

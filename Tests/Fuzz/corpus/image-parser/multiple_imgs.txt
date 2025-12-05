@@ -1,0 +1,1 @@
+<img src="/first.jpg" /><img src="/second.jpg" /><img src="/third.jpg" />

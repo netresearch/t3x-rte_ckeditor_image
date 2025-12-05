@@ -1,0 +1,1 @@
+<p><img data-htmlarea-file-uid="1" src="/a.jpg" /><img data-htmlarea-file-uid="2" src="/b.jpg" /></p>

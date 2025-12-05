@@ -172,6 +172,7 @@ Options:
             - docsGenerate: Renders the extension ReST documentation.
             - e2e: Playwright E2E tests (TYPO3 Core pattern, no DDEV)
             - functional: functional tests
+            - fuzz: Run fuzz tests with php-fuzzer
             - lint: PHP linting
             - unit: PHP unit tests
 
@@ -976,6 +977,26 @@ CONTENT_EOF
                 SUITE_EXIT_CODE=$?
                 ;;
         esac
+        ;;
+    fuzz)
+        # Run fuzz tests using php-fuzzer
+        # Default: run ImageAttributeParser fuzzer for 60 seconds
+        FUZZ_TARGET="${1:-Tests/Fuzz/ImageAttributeParserTarget.php}"
+        FUZZ_CORPUS="Tests/Fuzz/corpus/image-parser"
+        FUZZ_MAX_RUNS="${2:-10000}"
+
+        # Determine corpus based on target
+        if [[ "${FUZZ_TARGET}" == *"SoftReference"* ]]; then
+            FUZZ_CORPUS="Tests/Fuzz/corpus/softref-parser"
+        fi
+
+        echo "Fuzzing target: ${FUZZ_TARGET}"
+        echo "Corpus: ${FUZZ_CORPUS}"
+        echo "Max runs: ${FUZZ_MAX_RUNS}"
+
+        COMMAND=(.Build/bin/php-fuzzer fuzz "${FUZZ_TARGET}" "${FUZZ_CORPUS}" --max-runs "${FUZZ_MAX_RUNS}")
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name fuzz-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${IMAGE_PHP} "${COMMAND[@]}"
+        SUITE_EXIT_CODE=$?
         ;;
     lint)
         COMMAND="php -v | grep '^PHP'; find . -name '*.php' ! -path '*.Build/*' -print0 | xargs -0 -n1 -P4 php -dxdebug.mode=off -l >/dev/null"
