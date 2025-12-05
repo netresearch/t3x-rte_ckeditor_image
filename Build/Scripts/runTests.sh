@@ -174,6 +174,7 @@ Options:
             - functional: functional tests
             - fuzz: Run fuzz tests with php-fuzzer
             - lint: PHP linting
+            - mutation: Run mutation tests with Infection
             - unit: PHP unit tests
 
     -a <mysqli|pdo_mysql>
@@ -997,6 +998,24 @@ CONTENT_EOF
         COMMAND=(.Build/bin/php-fuzzer fuzz "${FUZZ_TARGET}" "${FUZZ_CORPUS}" --max-runs "${FUZZ_MAX_RUNS}")
         ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name fuzz-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${IMAGE_PHP} "${COMMAND[@]}"
         SUITE_EXIT_CODE=$?
+        ;;
+    mutation)
+        # Run mutation tests using Infection
+        # First run unit tests with coverage, then run mutation testing
+        echo "Running unit tests with coverage for mutation testing..."
+        COMMAND=(.Build/bin/phpunit -c Build/phpunit/UnitTests.xml --coverage-xml=.Build/logs/coverage-xml --log-junit=.Build/logs/coverage-xml/junit.xml)
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name unit-coverage-${SUFFIX} -e XDEBUG_MODE=coverage -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${IMAGE_PHP} "${COMMAND[@]}"
+        UNIT_EXIT_CODE=$?
+
+        if [ ${UNIT_EXIT_CODE} -ne 0 ]; then
+            echo "Unit tests failed, skipping mutation testing"
+            SUITE_EXIT_CODE=${UNIT_EXIT_CODE}
+        else
+            echo "Running mutation tests..."
+            COMMAND=(.Build/bin/infection --configuration=infection.json5 --threads=4 --coverage=.Build/logs/coverage-xml --skip-initial-tests "$@")
+            ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name mutation-${SUFFIX} ${IMAGE_PHP} "${COMMAND[@]}"
+            SUITE_EXIT_CODE=$?
+        fi
         ;;
     lint)
         COMMAND="php -v | grep '^PHP'; find . -name '*.php' ! -path '*.Build/*' -print0 | xargs -0 -n1 -P4 php -dxdebug.mode=off -l >/dev/null"
