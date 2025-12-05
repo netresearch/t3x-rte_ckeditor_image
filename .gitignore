@@ -33,6 +33,8 @@ clover-unit.xml
 # Node.js
 node_modules/
 package-lock.json
+# Allow E2E package-lock for npm caching
+!Tests/E2E/package-lock.json
 
 # Serena MCP
 .serena/
@@ -48,7 +50,6 @@ Documentation-GENERATED-temp/
 
 # E2E test artifacts
 Tests/E2E/node_modules/
-Tests/E2E/package-lock.json
 Tests/E2E/playwright-report/
 Tests/E2E/test-results/
 Build/test-results/

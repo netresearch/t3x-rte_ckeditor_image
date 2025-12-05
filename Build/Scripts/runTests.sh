@@ -922,7 +922,10 @@ CONTENT_EOF
             -e BASE_URL=http://webserver-e2e-${SUFFIX}:80 \
             -e CI=true \
             ${IMAGE_PLAYWRIGHT} /bin/bash -c "
-                npm install --no-save
+                # Skip npm install if node_modules exists (pre-cached in CI)
+                if [ ! -d node_modules ] || [ ! -f node_modules/.package-lock.json ]; then
+                    npm ci --ignore-scripts 2>/dev/null || npm install --no-save
+                fi
                 npx playwright test ${EXTRA_TEST_OPTIONS} $@
             "
         SUITE_EXIT_CODE=$?
