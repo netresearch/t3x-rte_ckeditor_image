@@ -44,7 +44,8 @@
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "ssch/typo3-rector": "^3.0",
         "bk2k/bootstrap-package": "^15.0 || ^16.0",
-        "nikic/php-fuzzer": "^0.0.11"
+        "nikic/php-fuzzer": "^0.0.11",
+        "infection/infection": "^0.29"
     },
     "autoload": {
         "psr-4": {
@@ -63,7 +64,8 @@
         },
         "allow-plugins": {
             "typo3/cms-composer-installers": true,
-            "typo3/class-alias-loader": true
+            "typo3/class-alias-loader": true,
+            "infection/extension-installer": true
         }
     },
     "extra": {
@@ -132,6 +134,13 @@
         "ci:fuzz": [
             "@ci:fuzz:image-parser",
             "@ci:fuzz:softref-parser"
+        ],
+        "ci:mutation": [
+            "@ci:test:php:unit",
+            ".Build/bin/infection --configuration=infection.json5 --threads=4"
+        ],
+        "ci:mutation:quick": [
+            ".Build/bin/infection --configuration=infection.json5 --threads=4 --only-covered --skip-initial-tests"
         ]
     }
 }

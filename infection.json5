@@ -1,0 +1,29 @@
+{
+    "$schema": "https://raw.githubusercontent.com/infection/infection/master/resources/schema.json",
+    "source": {
+        "directories": [
+            "Classes"
+        ],
+        "excludes": [
+            // Skip simple DTOs and value objects with no logic
+            "Domain/Model"
+        ]
+    },
+    "logs": {
+        "html": ".Build/logs/infection.html",
+        "text": ".Build/logs/infection.log",
+        "summary": ".Build/logs/infection-summary.log",
+        "perMutator": ".Build/logs/infection-per-mutator.md"
+    },
+    "mutators": {
+        "@default": true,
+        // Disable noisy mutators that often create equivalent mutants
+        "TrueValue": false,
+        "FalseValue": false
+    },
+    "minMsi": 25,
+    "minCoveredMsi": 90,
+    "testFramework": "phpunit",
+    "testFrameworkOptions": "-c Build/phpunit/UnitTests.xml",
+    "tmpDir": ".Build/infection-tmp"
+}
