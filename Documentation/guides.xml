@@ -16,7 +16,7 @@
                project-contact="https://github.com/netresearch/t3x-rte_ckeditor_image/discussions"
                project-repository="https://github.com/netresearch/t3x-rte_ckeditor_image"
                project-issues="https://github.com/netresearch/t3x-rte_ckeditor_image/issues"
-               project-discussions="https://github.com/netresearch/t3x-rte_ckeditor_image/discussions"
+               report-issue="https://github.com/netresearch/t3x-rte_ckeditor_image/issues"
                typo3-core-preferred="13.4"/>
 
     <!-- Project Metadata -->
