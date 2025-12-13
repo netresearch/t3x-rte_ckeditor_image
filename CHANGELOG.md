@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Remove TCA `richtextConfiguration` override that blocked TSconfig preset overrides (#464)
+
 ## [14.0.0] - TBD
 
 ### Added
