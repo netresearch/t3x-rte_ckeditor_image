@@ -7,15 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- Remove TCA `richtextConfiguration` override that blocked TSconfig preset overrides (#464)
-
 ## [13.1.0] - TBD
 
 ### Added
 
-- Modern service-based architecture using TYPO3 v13 ViewFactoryInterface and Fluid templates (#399)
+- Modern service-based architecture using TYPO3 v13 ViewFactoryInterface and Fluid templates ([#399](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/399))
   - **New DTOs**: ImageRenderingDto and LinkDto for type-safe data contracts
   - **Three-Service Architecture**: ImageAttributeParser (HTML parsing), ImageResolverService (business logic + security), ImageRenderingService (Fluid rendering)
   - **6 Fluid Templates**: Standalone, WithCaption, Link, LinkWithCaption, Popup, PopupWithCaption
@@ -31,6 +27,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Migration Guide**: Step-by-step upgrade path for service architecture (300+ lines)
   - **Security Checklist**: Pre-release validation requirements
   - **Performance Benchmarking**: Guide with benchmarking scripts and acceptance criteria
+- SVG dimension support and quality-based image processing ([#331](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/331), [#388](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/388))
+  - SVG dimension extraction from viewBox and width/height attributes
+  - Quality multiplier support (No Scaling, Standard 1.0x, Retina 2.0x, Ultra 3.0x, Print 6.0x)
+  - Quality selector dropdown in image dialog with visual feedback and persistence
+  - TSConfig maxWidth/maxHeight support for quality-based processing
+- noScale support to skip image processing and use original files ([#77](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/77))
+  - Auto-optimization when dimensions match original
+  - SVG auto-detection for vector graphics
+  - File size threshold control
+- CKEditor 5 Widget UI with block toolbar for images ([#393](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/393))
+- Automatic RTE softref enforcement via global PSR-14 event listener ([#371](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/371))
+- Global PSR-14 event listener for TCA overrides (replaces manual overrides)
+- TCA override for EXT:news support
+- Translation support for all hardcoded strings in image dialog ([#391](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/391))
+- TypoScript bridge for lazyLoading configuration ([#373](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/373))
+- TYPO3 v13 site set for zero-configuration installation
+- Automatic TypoScript loading for zero-configuration
+- Default RTE configuration with insertimage button enabled
+- Global Page TSConfig loading for automatic configuration
+- DDEV development environment with TYPO3 v13
 
 ### Changed
 
@@ -39,6 +55,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deprecation warnings logged with `E_USER_DEPRECATED`
   - 1-year migration window before removal
   - See `Documentation/Architecture/Migration-Guide.md` for upgrade path
+- Extract shared controller logic to AbstractImageRenderingController ([#378](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/378))
+  - **Architecture**: Eliminate 66 lines of code duplication between ImageRenderingController and ImageLinkRenderingController
+  - **New Abstract Base**: AbstractImageRenderingController with shared methods (getLazyLoadingConfiguration, getLogger, getAttributeValue, shouldSkipProcessing, validateFileVisibility)
+  - **Security Enhancement**: Dedicated validateFileVisibility() method for consistent file visibility validation
+  - **Type Safety**: Comprehensive type guards for TypoScript array access and File property handling
+  - **PHPStan Excellence**: Baseline reduced from 650 → 205 → 188 errors (71.1% total improvement, -462 errors) while maintaining level 10 (maximum strictness)
+  - **Quality Metrics**: All 92 unit tests pass, code standards compliant (PSR-12/PER-CS2.0), Rector clean
+  - **Impact**: Improved maintainability, centralized shared logic, enhanced security, reduced technical debt, prevents runtime type errors
+  - **API Compatibility**: No breaking changes to public API or behavior
+- Migrated from deprecated @typo3/ckeditor5-bundle.js to direct CKEditor imports ([#380](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/380))
+- Replaced non-inclusive terminology with inclusive language
+- Updated company name to Netresearch DTT GmbH
+
+### Fixed
+
+- Remove TCA `richtextConfiguration` override that blocked TSconfig preset overrides ([#464](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/464))
+- Prevent empty link wrappers and ensure Bootstrap Package compatibility ([#392](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/392))
+- Preserve link attributes on TYPO3 images ([#385](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/385), [#387](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/387))
+- Namespace DoubleClickObserver to prevent conflicts with other plugins ([#383](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/383))
+- Add link toolbar configuration to prevent linkProperties error ([#382](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/382))
+- Add missing DefaultUploadFolderResolver to SelectImageController DI ([#381](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/381))
+- Replace invalid env syntax with ExtensionConfiguration service injection
+- Apply Rector FunctionFirstClassCallableRector modernization
+- Use translated label for Insert Image button
 
 ### Security
 
@@ -59,64 +99,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Risk Assessment**: LOW - Zero evidence of XCLASS usage found in ecosystem
 - **Code Statistics**: +2,596 lines (implementation + tests + docs), 23 new files
 
-### Changed
-
-- [TASK] Extract shared controller logic to AbstractImageRenderingController (resolves #378)
-  - **Architecture**: Eliminate 66 lines of code duplication between ImageRenderingController and ImageLinkRenderingController
-  - **New Abstract Base**: AbstractImageRenderingController with shared methods (getLazyLoadingConfiguration, getLogger, getAttributeValue, shouldSkipProcessing, validateFileVisibility)
-  - **Security Enhancement**: Dedicated validateFileVisibility() method for consistent file visibility validation
-  - **Type Safety**: Comprehensive type guards for TypoScript array access and File property handling
-  - **PHPStan Excellence**: Baseline reduced from 650 → 205 → 188 errors (71.1% total improvement, -462 errors) while maintaining level 10 (maximum strictness)
-  - **Quality Metrics**: All 92 unit tests pass, code standards compliant (PSR-12/PER-CS2.0), Rector clean
-  - **Impact**: Improved maintainability, centralized shared logic, enhanced security, reduced technical debt, prevents runtime type errors
-  - **API Compatibility**: No breaking changes to public API or behavior
-
-### Added
-
-- SVG dimension support and quality-based image processing (#331, #388)
-  - SVG dimension extraction from viewBox and width/height attributes
-  - Quality multiplier support (No Scaling, Standard 1.0x, Retina 2.0x, Ultra 3.0x, Print 6.0x)
-  - Quality selector dropdown in image dialog with visual feedback and persistence
-  - TSConfig maxWidth/maxHeight support for quality-based processing
-- noScale support to skip image processing and use original files (#77)
-  - Auto-optimization when dimensions match original
-  - SVG auto-detection for vector graphics
-  - File size threshold control
-- CKEditor 5 Widget UI with block toolbar for images (#393)
-- Automatic RTE softref enforcement via global PSR-14 event listener (#371)
-- Global PSR-14 event listener for TCA overrides (replaces manual overrides)
-- TCA override for EXT:news support
-- Translation support for all hardcoded strings in image dialog (#391)
-- TypoScript bridge for lazyLoading configuration (#373)
-- TYPO3 v13 site set for zero-configuration installation
-- Automatic TypoScript loading for zero-configuration
-- Default RTE configuration with insertimage button enabled
-- Global Page TSConfig loading for automatic configuration
-- DDEV development environment with TYPO3 v13
-
-### Changed
-
-- Migrated from deprecated @typo3/ckeditor5-bundle.js to direct CKEditor imports (#380)
-- Replaced non-inclusive terminology with inclusive language
-- Updated company name to Netresearch DTT GmbH
-
-### Fixed
-
-- Prevent empty link wrappers and ensure Bootstrap Package compatibility (#392)
-- Preserve link attributes on TYPO3 images (#385, #387)
-- Namespace DoubleClickObserver to prevent conflicts with other plugins (#383)
-- Add link toolbar configuration to prevent linkProperties error (#382)
-- Add missing DefaultUploadFolderResolver to SelectImageController DI (#381)
-- Replace invalid env syntax with ExtensionConfiguration service injection
-- Apply Rector FunctionFirstClassCallableRector modernization
-- Use translated label for Insert Image button
-
 ## [13.0.1] - 2025-11-26
 
 ### Changed
 
-- Change extension icon to Netresearch logo (#419)
-- TER compatibility and branding updates (#427)
+- Change extension icon to Netresearch logo ([#419](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/419))
+- TER compatibility and branding updates ([#427](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/427))
   - Updated descriptions in `composer.json` and `ext_emconf.php` to mention Netresearch
 
 ## [13.0.0] - 2025-01-08
@@ -134,9 +122,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix #186: Inline image with link sometimes causes incorrect ordering
-- Fix #244: RteImagePreviewRenderer throws warning with invalid HTML
-- Fix #242: Call to a member function count() on null
+- Inline image with link sometimes causes incorrect ordering ([#186](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/186))
+- RteImagePreviewRenderer throws warning with invalid HTML ([#244](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/244))
+- Call to a member function count() on null ([#242](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/242))
 - Add missing property transformationKey to RteImagesDbHook
 - Fix onclick event for select image modal
 - Loading RTE throws PHP Runtime Deprecation Notice
@@ -149,13 +137,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix creation of processed files for frontend pages (#285)
+- Fix creation of processed files for frontend pages ([#285](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/285))
 
 ### Changed
 
-- Update README.md for v12 (#289)
-- Revert the change "fix package name for cms_rte_ckeditor in ext_emconf.php" (#280)
-- Upgrade/fix test suite (#294)
+- Update README.md for v12 ([#289](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/289))
+- Revert the change "fix package name for cms_rte_ckeditor in ext_emconf.php" ([#280](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/280))
+- Upgrade/fix test suite ([#294](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/294))
 
 ## [12.0.2] - 2023-11-22
 
@@ -206,25 +194,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix #186: Add timestamp to force javascript change
-- Fix #186: Inline image with link sometimes causes incorrect ordering
+- Add timestamp to force javascript change ([#186](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/186))
+- Inline image with link sometimes causes incorrect ordering ([#186](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/186))
 - Regenerate images in backend view
-- Fix regex to find images (#112)
-- Remove unnecessary check for "data-*-override" attributes (#247)
+- Fix regex to find images ([#112](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/112))
+- Remove unnecessary check for "data-*-override" attributes ([#247](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/247))
 - Rework ImageLinkRenderingController to match ImageRenderingController
 
 ## [11.0.13] - 2023-06-20
 
 ### Fixed
 
-- Fix #244: Sanitize HTML to prevent warnings
+- Sanitize HTML to prevent warnings ([#244](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/244))
 
 ## [11.0.12] - 2023-06-15
 
 ### Fixed
 
-- Fix #244: RteImagePreviewRenderer throws warning with invalid HTML
-- Fix #242: Call to a member function count() on null
+- RteImagePreviewRenderer throws warning with invalid HTML ([#244](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/244))
+- Call to a member function count() on null ([#242](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/242))
 - Add missing property transformationKey to RteImagesDbHook
 - Fix onclick event for select image modal
 - Loading RTE throws PHP Runtime Deprecation Notice
@@ -250,13 +238,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make fetching of external image configurable
 - Fix broken images in RTEs inside flexform elements
 - Fix multiple PHP 8.0 warnings
-- Fix #126: Wrong link in image
-- Fix #142: Wrong backwards compatibility
-- Fix #112: Remove wrapping p-tag from images
-- Fix #122: Fix jquery requirement to not crash the ckeditor
+- Wrong link in image ([#126](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/126))
+- Wrong backwards compatibility ([#142](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/142))
+- Remove wrapping p-tag from images ([#112](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/112))
+- Fix jquery requirement to not crash the ckeditor ([#122](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/122))
 - Fix override detection for title/alt attributes; allow empty values
-- Fix #56: Rework preview in backend
-- Fix #205: PHP Warning: Undefined array key "plainImageMode" when inserting SVG image
+- Rework preview in backend ([#56](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/56))
+- PHP Warning: Undefined array key "plainImageMode" when inserting SVG image ([#205](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/205))
 
 ### Changed
 
@@ -281,12 +269,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - TYPO3 11.5 LTS support
-- Custom class field for each image (#88)
-- Lazyload support (#82)
+- Custom class field for each image ([#88](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/88))
+- Lazyload support ([#82](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/82))
 
 ### Fixed
 
-- Fix #145: Disabled button issue in CKEditor toolbar
+- Disabled button issue in CKEditor toolbar ([#145](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/145))
 
 ### Changed
 
@@ -298,28 +286,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - TYPO3 10 LTS support
-- Linked image renderer (#42)
-- Remove empty image attributes (#35)
-- Regenerate missing processed images (#78)
-- TYPO3 fluid_styled_content lazyload support (#82)
+- Linked image renderer ([#42](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/42))
+- Remove empty image attributes ([#35](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/35))
+- Regenerate missing processed images ([#78](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/78))
+- TYPO3 fluid_styled_content lazyload support ([#82](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/82))
 
 ### Fixed
 
-- Fix #61: Respect max width and height configuration for images when saving element
-- Fix #69: Consider override checkbox for title and alt attributes
-- Fix #74: Allow single quotes in image attributes
-- Fix #70: Use original files width and height for ratio and max
-- Fix #66: Add IE11 support by removing arrow functions
-- Fix #57: Regenerate missing magic image on rendering images within links (#25)
-- Fix #54: Avoid losing existing attributes when editing image
-- Fix #41: Image properties not working inside table cell
+- Respect max width and height configuration for images when saving element ([#61](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/61))
+- Consider override checkbox for title and alt attributes ([#69](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/69))
+- Allow single quotes in image attributes ([#74](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/74))
+- Use original files width and height for ratio and max ([#70](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/70))
+- Add IE11 support by removing arrow functions ([#66](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/66))
+- Regenerate missing magic image on rendering images within links ([#57](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/57), [#25](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/25))
+- Avoid losing existing attributes when editing image ([#54](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/54))
+- Image properties not working inside table cell ([#41](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/41))
 - Fix DOM element count
 - Fix TER package replacement
 - Support legacy `clickenlarge` attribute for image zoom
 
 ### Changed
 
-- Update image reference index (#45, #62)
+- Update image reference index ([#45](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/45), [#62](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/62))
 - Compatibility with TYPO3 CMS 9.x
 
 [Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.0-rc1...HEAD
