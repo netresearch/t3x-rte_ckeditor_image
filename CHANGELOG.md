@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove TCA `richtextConfiguration` override that blocked TSconfig preset overrides (#464)
 
-## [14.0.0] - TBD
+## [13.1.0] - TBD
 
 ### Added
 
@@ -28,17 +28,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Test Coverage**: >90% for new architecture components
 - Complete documentation for modernization
   - **RFC**: Architecture proposal with expert validation (751 lines)
-  - **Migration Guide**: Step-by-step upgrade path from v13 to v14 (300+ lines)
+  - **Migration Guide**: Step-by-step upgrade path for service architecture (300+ lines)
   - **Security Checklist**: Pre-release validation requirements
   - **Performance Benchmarking**: Guide with benchmarking scripts and acceptance criteria
 
 ### Changed
 
-- **DEPRECATION**: ImageRenderingController and ImageLinkRenderingController are deprecated (will be removed in v15.0)
-  - Old controllers still work exactly as before (ZERO breaking changes in v14.0)
+- **DEPRECATION**: ImageRenderingController and ImageLinkRenderingController are deprecated (will be removed in v14.0)
+  - Old controllers still work exactly as before (ZERO breaking changes in v13.1)
   - Deprecation warnings logged with `E_USER_DEPRECATED`
   - 1-year migration window before removal
-  - See `Documentation/Architecture/Migration-Guide-v14.md` for upgrade path
+  - See `Documentation/Architecture/Migration-Guide.md` for upgrade path
 
 ### Security
 
@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - TYPO3 v13 Best Practices: Official ViewFactoryInterface standard
   - Maintainability: 876 lines of controller logic replaced by clean service architecture
   - Extensibility: Template overrides >> PHP overrides for integrators
-- **Breaking Changes**: NONE in v14.0 (deprecation only)
+- **Breaking Changes**: NONE in v13.1 (deprecation only)
 - **Risk Assessment**: LOW - Zero evidence of XCLASS usage found in ecosystem
 - **Code Statistics**: +2,596 lines (implementation + tests + docs), 23 new files
 
@@ -111,7 +111,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Apply Rector FunctionFirstClassCallableRector modernization
 - Use translated label for Insert Image button
 
-## [13.0.0] - 2024-12-13
+## [13.0.1] - 2025-11-26
+
+### Changed
+
+- Change extension icon to Netresearch logo (#419)
+- TER compatibility and branding updates (#427)
+  - Updated descriptions in `composer.json` and `ext_emconf.php` to mention Netresearch
+
+## [13.0.0] - 2025-01-08
 
 ### Added
 
@@ -136,6 +144,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix missing TSFE method for v13 compatibility
 - Fix missing TextPreviewRenderer for v13 compatibility
 - Support for TYPO3 13.4
+
+## [12.0.4] - 2024-11-21
+
+### Fixed
+
+- Fix creation of processed files for frontend pages (#285)
+
+### Changed
+
+- Update README.md for v12 (#289)
+- Revert the change "fix package name for cms_rte_ckeditor in ext_emconf.php" (#280)
+- Upgrade/fix test suite (#294)
 
 ## [12.0.2] - 2023-11-22
 
@@ -302,8 +322,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update image reference index (#45, #62)
 - Compatibility with TYPO3 CMS 9.x
 
-[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.0...HEAD
-[13.0.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.2...v13.0.0
+[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.0-rc1...HEAD
+[13.1.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.1...v13.1.0
+[13.0.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.0...v13.0.1
+[13.0.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.4...v13.0.0
+[12.0.4]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.2...v12.0.4
 [12.0.2]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.1...v12.0.2
 [12.0.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.0...v12.0.1
 [12.0.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v11.0.14...v12.0.0
