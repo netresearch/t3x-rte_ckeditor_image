@@ -67,7 +67,6 @@ Processing Modes
 .. code-block:: typoscript
 
    RTE.default.proc.overruleMode := addToList(default)
-   RTE.default.proc.overruleMode := addToList(rtehtmlarea_images_db)
 
 .. _integration-configuration-upload-folder:
 

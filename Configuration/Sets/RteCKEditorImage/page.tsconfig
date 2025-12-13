@@ -9,7 +9,6 @@ RTE.default.preset = rteWithImages
 
 # Configure image processing
 RTE.default.proc.overruleMode := addToList(default)
-RTE.default.proc.overruleMode := addToList(rtehtmlarea_images_db)
 
 RTE.default.buttons.image.options.magic {
     maxWidth = 1920
