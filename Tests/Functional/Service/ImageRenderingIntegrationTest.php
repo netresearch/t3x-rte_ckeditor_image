@@ -244,7 +244,7 @@ final class ImageRenderingIntegrationTest extends FunctionalTestCase
         self::assertSame('https://example.com', $result['link']['href']);
         self::assertSame('_blank', $result['link']['target']);
         self::assertCount(1, $result['images']);
-        self::assertSame('/image.jpg', $result['images'][0]['src']);
+        self::assertSame('/image.jpg', $result['images'][0]['attributes']['src']);
     }
 
     #[Test]

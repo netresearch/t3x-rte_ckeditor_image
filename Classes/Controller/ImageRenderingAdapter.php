@@ -147,7 +147,11 @@ class ImageRenderingAdapter
         // Process each image and build replacement map
         $replacements = [];
 
-        foreach ($parsed['images'] as $imageAttributes) {
+        foreach ($parsed['images'] as $imageData) {
+            // Extract attributes and original HTML from parsed data
+            $imageAttributes = $imageData['attributes'] ?? [];
+            $originalHtml    = $imageData['originalHtml'] ?? '';
+
             // Skip images without file UID (external images)
             $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
 
@@ -171,11 +175,9 @@ class ImageRenderingAdapter
             // Render just the <img> tag (no link wrapper)
             $renderedImg = $this->renderingService->render($dto, $request);
 
-            // Build original <img> tag pattern for replacement
-            $originalImg = $this->buildOriginalImgTag($imageAttributes);
-
-            if ($originalImg !== '') {
-                $replacements[$originalImg] = $renderedImg;
+            // Use original HTML from parser for accurate replacement
+            if ($originalHtml !== '') {
+                $replacements[$originalHtml] = $renderedImg;
             }
         }
 
@@ -189,28 +191,5 @@ class ImageRenderingAdapter
         }
 
         return is_string($linkContent) ? $linkContent : '';
-    }
-
-    /**
-     * Build original <img> tag pattern for string replacement.
-     *
-     * @param array<string,string> $attributes Image attributes
-     *
-     * @return string Original <img> tag HTML
-     */
-    private function buildOriginalImgTag(array $attributes): string
-    {
-        // Build attribute string preserving original order
-        $attrParts = [];
-
-        foreach ($attributes as $name => $value) {
-            $attrParts[] = sprintf('%s="%s"', $name, htmlspecialchars($value, ENT_QUOTES));
-        }
-
-        if ($attrParts === []) {
-            return '';
-        }
-
-        return '<img ' . implode(' ', $attrParts) . ' />';
     }
 }

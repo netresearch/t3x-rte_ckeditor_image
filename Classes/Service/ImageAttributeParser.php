@@ -72,7 +72,7 @@ class ImageAttributeParser
      *
      * @param string $html HTML string containing <a><img /></a>
      *
-     * @return array{link: array<string,string>, images: array<int,array<string,string>>}
+     * @return array{link: array<string,string>, images: array<int,array{attributes: array<string,string>, originalHtml: string}>}
      */
     public function parseLinkWithImages(string $html): array
     {
@@ -112,7 +112,10 @@ class ImageAttributeParser
         if ($images !== false) {
             foreach ($images as $img) {
                 if ($img instanceof DOMElement) {
-                    $imageAttributes[] = $this->extractAttributes($img);
+                    $imageAttributes[] = [
+                        'attributes'   => $this->extractAttributes($img),
+                        'originalHtml' => $this->getOuterHtml($img),
+                    ];
                 }
             }
         }
@@ -121,6 +124,26 @@ class ImageAttributeParser
             'link'   => $linkAttributes,
             'images' => $imageAttributes,
         ];
+    }
+
+    /**
+     * Get the outer HTML of a DOM element.
+     *
+     * @param DOMElement $element DOM element
+     *
+     * @return string Outer HTML string
+     */
+    private function getOuterHtml(DOMElement $element): string
+    {
+        $doc = $element->ownerDocument;
+
+        if (!$doc instanceof DOMDocument) {
+            return '';
+        }
+
+        $html = $doc->saveHTML($element);
+
+        return $html !== false ? $html : '';
     }
 
     /**
