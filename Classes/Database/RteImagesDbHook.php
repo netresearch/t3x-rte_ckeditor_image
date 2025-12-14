@@ -21,7 +21,6 @@ use function is_string;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 
 use function strlen;
 
@@ -378,14 +377,16 @@ class RteImagesDbHook
                 $attribArray['width']  = $imageWidth;
                 $attribArray['height'] = $imageHeight;
 
-                // Determine application type - fail secure: require backend context
+                // Skip processing in non-backend contexts
+                // DataHandler can be triggered from frontend (e.g., frontend editing, TypoScript)
+                // In such cases, skip image processing rather than crash the request
                 if (!(($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface)) {
-                    throw new RuntimeException('Invalid request context: ServerRequest required', 1734278400);
+                    return $value; // No request context available, skip processing
                 }
 
                 $applicationType = ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST']);
                 if (!$applicationType->isBackend()) {
-                    throw new RuntimeException('Backend context required for image processing', 1734278401);
+                    return $value; // Frontend context, skip processing gracefully
                 }
 
                 if ($originalImageFile instanceof File) {
