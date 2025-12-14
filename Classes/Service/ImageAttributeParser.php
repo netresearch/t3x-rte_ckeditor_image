@@ -137,7 +137,7 @@ class ImageAttributeParser
     {
         $doc = $element->ownerDocument;
 
-        if ($doc === null) {
+        if (!$doc instanceof DOMDocument) {
             return '';
         }
 
