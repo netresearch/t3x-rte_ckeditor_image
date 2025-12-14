@@ -24,6 +24,9 @@
     "minMsi": 25,
     "minCoveredMsi": 90,
     "testFramework": "phpunit",
-    "testFrameworkOptions": "-c Build/phpunit/UnitTests.xml",
+    "phpUnit": {
+        "customPath": ".Build/bin/phpunit",
+        "configDir": "Build/phpunit"
+    },
     "tmpDir": ".Build/infection-tmp"
 }
