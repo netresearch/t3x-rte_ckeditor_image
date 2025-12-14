@@ -1,10 +1,15 @@
 # RFC: Fluid Templates Refactoring for Image Rendering
 
-**Status:** Proposed
+**Status:** Implemented ✅
 **Created:** 2025-11-24
-**Target Version:** v14.0
+**Implemented:** 2025-12-14
+**Target Version:** v13.1.0
 **Issue:** #399
 **Consensus:** 9/10 confidence (unanimous recommendation)
+
+> **Note:** The original RFC proposed a deprecation phase in v14.0 with removal in v15.0.
+> After review, the decision was made to complete the migration directly in v13.1.0
+> without deprecation, as this extension is not typically extended by third parties.
 
 ## Executive Summary
 

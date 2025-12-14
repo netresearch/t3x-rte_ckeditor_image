@@ -1,1 +1,0 @@
-<img src="/fileadmin/image.jpg" data-htmlarea-file-uid="123" alt="Test" />

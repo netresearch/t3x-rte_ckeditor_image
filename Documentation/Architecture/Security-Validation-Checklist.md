@@ -2,7 +2,7 @@
 
 **Created:** 2025-11-24
 **Related RFC:** RFC-Fluid-Templates-Refactoring.md
-**Security Review Required:** YES (Before v14.0 release)
+**Security Review Required:** YES (Before v13.1.0 release)
 
 ## Overview
 
@@ -328,4 +328,4 @@ $this->assertStringContainsString('&quot;', $html);
 
 ---
 
-**CRITICAL:** This refactoring touches security-critical code. **All items must be validated** before v14.0 release. No exceptions.
+**CRITICAL:** This refactoring touches security-critical code. **All items must be validated** before v13.1.0 release. No exceptions.
