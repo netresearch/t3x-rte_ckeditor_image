@@ -312,13 +312,6 @@ function getImageDialog(editor, img, attributes) {
 
     $customRow.append($customRowCol1, $customRowCol2);
 
-    // Check for existing noresize attribute
-    if (attributes['data-htmlarea-noresize']) {
-        $checkboxNoResize.prop('checked', true);
-        $inputWidth.prop('disabled', true);
-        $inputHeight.prop('disabled', true);
-    }
-
     // Support new `zoom` and legacy `clickenlarge` attributes
     if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
         $zoom.prop('checked', true);
