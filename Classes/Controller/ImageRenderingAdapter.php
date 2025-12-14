@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Controller;
 
+use Netresearch\RteCKEditorImage\Domain\Model\ImageRenderingDto;
 use Netresearch\RteCKEditorImage\Service\ImageAttributeParser;
 use Netresearch\RteCKEditorImage\Service\ImageRenderingService;
 use Netresearch\RteCKEditorImage\Service\ImageResolverService;
@@ -102,7 +103,7 @@ class ImageRenderingAdapter
         // Resolve image to validated DTO
         $dto = $this->resolverService->resolve($attributes, $conf, $request);
 
-        if ($dto === null) {
+        if (!$dto instanceof ImageRenderingDto) {
             // Resolution failed - return original content
             return $this->cObj instanceof ContentObjectRenderer
                 ? ($this->cObj->getCurrentVal() ?? '')
@@ -163,7 +164,7 @@ class ImageRenderingAdapter
             // Resolve image to DTO (no link attributes - image is already in a link)
             $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
 
-            if ($dto === null) {
+            if (!$dto instanceof ImageRenderingDto) {
                 continue;
             }
 
