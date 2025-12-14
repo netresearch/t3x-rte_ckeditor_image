@@ -50,20 +50,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING (Internal Only)**: Old ImageRenderingController and ImageLinkRenderingController replaced with ImageRenderingAdapter
-  - New adapter uses modern service architecture internally
-  - TypoScript interface remains 100% compatible
-  - No user-facing changes or action required
-  - See `Documentation/Architecture/Migration-Guide-v14.md` for details
-- Extract shared controller logic to AbstractImageRenderingController ([#378](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/378))
-  - **Architecture**: Eliminate 66 lines of code duplication between ImageRenderingController and ImageLinkRenderingController
-  - **New Abstract Base**: AbstractImageRenderingController with shared methods (getLazyLoadingConfiguration, getLogger, getAttributeValue, shouldSkipProcessing, validateFileVisibility)
-  - **Security Enhancement**: Dedicated validateFileVisibility() method for consistent file visibility validation
-  - **Type Safety**: Comprehensive type guards for TypoScript array access and File property handling
-  - **PHPStan Excellence**: Baseline reduced from 650 → 205 → 188 errors (71.1% total improvement, -462 errors) while maintaining level 10 (maximum strictness)
-  - **Quality Metrics**: All 92 unit tests pass, code standards compliant (PSR-12/PER-CS2.0), Rector clean
-  - **Impact**: Improved maintainability, centralized shared logic, enhanced security, reduced technical debt, prevents runtime type errors
-  - **API Compatibility**: No breaking changes to public API or behavior
+- **BREAKING (Internal Only)**: Legacy controllers removed and replaced with ImageRenderingAdapter ([#471](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/471))
+  - Removed: `ImageRenderingController`, `ImageLinkRenderingController`, `AbstractImageRenderingController`
+  - New: `ImageRenderingAdapter` bridges TypoScript to modern service architecture
+  - TypoScript interface remains 100% compatible - no user-facing changes
+  - ~1,300 lines of legacy controller code removed
+  - See `Documentation/Architecture/Migration-Guide-v14.md` for architecture details
 - Migrated from deprecated @typo3/ckeditor5-bundle.js to direct CKEditor imports ([#380](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/380))
 - Replaced non-inclusive terminology with inclusive language
 - Updated company name to Netresearch DTT GmbH
@@ -95,7 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - TYPO3 v13 Best Practices: Official ViewFactoryInterface standard
   - Maintainability: 876 lines of controller logic replaced by clean service architecture
   - Extensibility: Template overrides >> PHP overrides for integrators
-- **Breaking Changes**: NONE in v13.1 (deprecation only)
+- **Breaking Changes**: Internal only - legacy controllers removed without deprecation period (no XCLASS usage found in ecosystem)
 - **Risk Assessment**: LOW - Zero evidence of XCLASS usage found in ecosystem
 - **Code Statistics**: +2,596 lines (implementation + tests + docs), 23 new files
 
