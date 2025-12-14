@@ -81,3 +81,4 @@ Related Documentation
    Design-Patterns
    ADR-001-Image-Scaling
    ADR-002-CKEditor-Integration
+   ADR-003-Security-Responsibility-Boundaries

@@ -9,6 +9,3 @@ includedTablesOnly =
 
 # cat=basic; type=boolean; label=Fetch external images and load them into the user default upload folder (default is on)
 fetchExternalImages = 1
-
-# cat=basic; type=boolean; label=Allow SVG images from external sources (SECURITY WARNING: SVG files can contain JavaScript and pose XSS risks. Only enable if you trust the image sources and have additional sanitization in place. Default is off for security)
-allowSvgImages = 0

@@ -45,7 +45,7 @@ class Typo3ImageDoubleClickObserver extends DomEventObserver {
 function urlToRelative(url, storageDriver) {
 
     if (!url) {
-        return;
+        return '';
     }
 
     // Only convert to relative for Local storage

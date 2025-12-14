@@ -2,7 +2,25 @@
 
 We take security very seriously and are always grateful for reports about potential problems or vulnerabilities.
 
-If you think you have found a security problem in this project, please follow the steps below.
+## Security Measures
+
+This extension implements the following security measures:
+
+- **Caption XSS Prevention**: All user-editable captions are sanitized with `htmlspecialchars()`
+- **File Visibility Validation**: Images from non-public storages are blocked
+- **Dangerous Protocol Blocking**: `javascript:`, `vbscript:`, `data:text/html` URLs are rejected
+- **SSRF Protection**: External image fetching includes DNS rebinding and private IP blocking
+- **Style Attribute Exclusion**: CSS injection via style attributes is prevented
+
+## Responsibility Boundaries
+
+Some security aspects are handled by TYPO3 Core, not this extension:
+
+- **SVG sanitization** → TYPO3 FAL responsibility
+- **File extension/MIME validation** → TYPO3 FAL responsibility
+- **Image processing security** → TYPO3 GraphicalFunctions responsibility
+
+For details, see [ADR-003: Security Responsibility Boundaries](Documentation/Architecture/ADR-003-Security-Responsibility-Boundaries.rst).
 
 ## Reporting a security problem
 

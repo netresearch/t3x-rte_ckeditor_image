@@ -73,6 +73,7 @@ class ImageResolverService
         'javascript:',
         'data:text/html',
         'vbscript:',
+        'file:',
     ];
 
     private readonly LoggerInterface $logger;
