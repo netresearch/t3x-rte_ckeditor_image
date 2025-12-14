@@ -89,7 +89,6 @@ final class RteImagesDbHookTest extends UnitTestCase
                 if ($extension === 'rte_ckeditor_image') {
                     return match ($key) {
                         'fetchExternalImages' => false,
-                        'allowSvgImages'      => false,
                         default               => null,
                     };
                 }
@@ -136,45 +135,10 @@ final class RteImagesDbHookTest extends UnitTestCase
         /** @var ExtensionConfiguration&MockObject $configMock */
         $configMock = $this->createMock(ExtensionConfiguration::class);
         $configMock
-            ->expects(self::exactly(2))
+            ->expects(self::once())
             ->method('get')
-            ->willReturnCallback(function ($extension, $key) {
-                self::assertSame('rte_ckeditor_image', $extension);
-
-                return match ($key) {
-                    'fetchExternalImages' => true,
-                    'allowSvgImages'      => false,
-                    default               => null,
-                };
-            });
-
-        new RteImagesDbHook(
-            $configMock,
-            $this->logManagerMock,
-            $this->resourceFactoryMock,
-            $this->contextMock,
-            $this->requestFactoryMock,
-            $this->uploadFolderResolverMock,
-        );
-    }
-
-    #[Test]
-    public function constructorLoadsExtensionConfigurationForAllowSvgImages(): void
-    {
-        /** @var ExtensionConfiguration&MockObject $configMock */
-        $configMock = $this->createMock(ExtensionConfiguration::class);
-        $configMock
-            ->expects(self::exactly(2))
-            ->method('get')
-            ->willReturnCallback(function ($extension, $key) {
-                self::assertSame('rte_ckeditor_image', $extension);
-
-                return match ($key) {
-                    'fetchExternalImages' => false,
-                    'allowSvgImages'      => true,
-                    default               => null,
-                };
-            });
+            ->with('rte_ckeditor_image', 'fetchExternalImages')
+            ->willReturn(true);
 
         new RteImagesDbHook(
             $configMock,
