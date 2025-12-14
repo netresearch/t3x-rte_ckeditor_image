@@ -80,6 +80,35 @@ In Scope (This Extension's Responsibility)
    - Style attributes are explicitly excluded from ``htmlAttributes``
    - Location: ``ImageResolverService::buildHtmlAttributes()``
 
+Known Boundaries & Limitations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. **Data URI Handling**
+
+   Data URIs (``data:image/*``) bypass FAL upload validation entirely since they are
+   embedded inline rather than uploaded as files. This creates a security boundary:
+
+   - **Blocked**: ``data:text/html``, ``javascript:``, ``vbscript:``, ``file:`` protocols
+   - **Allowed**: ``data:image/*`` for legitimate inline images (Base64-encoded)
+   - **Risk**: ``data:image/svg+xml`` can contain embedded JavaScript but is not blocked
+
+   **Rationale**: Blocking all data URIs would break legitimate use cases (copy/paste
+   images from clipboard). The ``data:text/html`` variant is the primary XSS vector
+   and is blocked. SVG data URIs are a known vector but require user action to create.
+
+   **Mitigation**: Sites requiring strict security should configure CKEditor to strip
+   data URIs via custom ``removePlugins`` or ``htmlSupport`` configuration.
+
+2. **Frontend Context Processing**
+
+   The ``RteImagesDbHook`` skips processing in frontend contexts rather than throwing
+   exceptions. This ensures DataHandler operations triggered from frontend (e.g.,
+   frontend editing extensions, TypoScript-based content manipulation) do not crash.
+
+   - Images in frontend-saved content retain their original URLs
+   - Magic image processing only occurs during backend saves
+   - This is intentional to prevent breaking frontend editing workflows
+
 Consequences
 ------------
 
