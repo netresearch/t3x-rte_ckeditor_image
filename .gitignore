@@ -53,3 +53,4 @@ Tests/E2E/node_modules/
 Tests/E2E/playwright-report/
 Tests/E2E/test-results/
 Build/test-results/
+render-output.log
