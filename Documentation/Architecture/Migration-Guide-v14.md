@@ -1,27 +1,22 @@
-# Migration Guide: v14.0 Fluid Templates Refactoring
+# Migration Guide: v13.1.0 Fluid Templates Refactoring
 
 ## Overview
 
-Version 14.0 introduces a modern service-based architecture using TYPO3 v13 ViewFactoryInterface and Fluid templates. The old controller-based approach is deprecated and will be removed in v15.0.
+Version 13.1.0 introduces a modern service-based architecture using TYPO3 v13 ViewFactoryInterface and Fluid templates. The old controller-based approach has been replaced with a new adapter that uses the service architecture internally.
 
 ## For 99.9% of Users: No Action Required ✅
 
 If you are using this extension without any custom PHP code or XCLASS, **you don't need to do anything**. Everything continues to work exactly as before.
 
-The deprecation warnings in your TYPO3 logs are informational only and indicate that the extension is preparing for future architectural improvements.
+The internal architecture has been modernized, but the TypoScript interface remains the same.
 
 ## Breaking Changes
 
-### v14.0: ZERO Breaking Changes
-- Old controllers still work exactly as before
+### v13.1.0: Internal Architecture Migration
+- Old controllers (`ImageRenderingController`, `ImageLinkRenderingController`) removed
+- New `ImageRenderingAdapter` uses service architecture internally
 - TypoScript configuration unchanged
-- Template overrides still supported
-- Deprecation warnings logged but functionality preserved
-
-### v15.0: Removal of Deprecated Controllers (Expected: 2026)
-- `ImageRenderingController` removed
-- `ImageLinkRenderingController` removed
-- Direct service usage required (see below)
+- Template overrides via Fluid templates now possible
 
 ## For Advanced Users: Migration Path
 
@@ -169,62 +164,43 @@ All existing security measures are preserved:
 
 ## TypoScript Configuration
 
-### No Changes Required (v14.0)
+### No Changes Required (v13.1.0)
 
-Your existing TypoScript continues to work:
+Your existing TypoScript continues to work. The extension automatically configures:
 
 ```typoscript
 lib.parseFunc_RTE {
     tags.img {
-        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
     }
     tags.a {
-        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController->renderImages
+        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImages
     }
 }
 ```
 
-### Optional: Direct Service Usage (v14.0+)
-
-You can optionally use the new services directly:
-
-```typoscript
-lib.parseFunc_RTE {
-    tags.img {
-        preUserFunc = Netresearch\RteCKEditorImage\Service\ImageRenderingService->render
-    }
-}
-```
-
-**Note:** Full service integration will be documented in Phase 3.
+The new `ImageRenderingAdapter` internally uses the modern service architecture while maintaining full backward compatibility with the TypoScript interface.
 
 ## Common Questions
 
-### Q: Will my images stop working after upgrading to v14.0?
-**A:** No. Everything works exactly as before. Deprecation warnings are informational only.
+### Q: Will my images stop working after upgrading to v13.1.0?
+**A:** No. Everything works exactly as before. The internal implementation has changed but the interface remains identical.
 
 ### Q: Do I need to change my TypoScript?
 **A:** No. Existing TypoScript configuration is fully supported.
 
-### Q: What if I extended the controllers with XCLASS?
-**A:** You have until v15.0 (expected 2026) to migrate to Fluid template overrides or PSR-14 events. The migration path is straightforward and better maintains upgrade compatibility.
+### Q: What if I extended the old controllers with XCLASS?
+**A:** The old controllers have been removed in v13.1.0. You should migrate to Fluid template overrides (recommended) or use the new service architecture directly.
 
-### Q: When will the controllers be removed?
-**A:** Version 15.0, expected approximately 1 year after v14.0 release. You will have ample time to migrate.
-
-### Q: How do I stop seeing deprecation warnings in logs?
-**A:** Either:
-1. Ignore them (functionality still works)
-2. Migrate to direct service usage (documentation coming in Phase 3)
-3. Suppress E_USER_DEPRECATED in your php.ini (not recommended)
+### Q: Can I customize the HTML output?
+**A:** Yes! Override Fluid templates in your site package (see "Override Fluid Templates" section above).
 
 ## Timeline
 
 | Version | Release | Status | Action Required |
 |---------|---------|--------|----------------|
-| v13.x | Current | Legacy architecture | None |
-| v14.0 | 2025 Q1 | Deprecation phase | None (warnings only) |
-| v15.0 | 2026 Q1 | Removal | Migrate if extended controllers |
+| v13.0.x | Previous | Legacy controller architecture | None |
+| v13.1.0 | 2025 Q1 | Modern service architecture | None (automatic) |
 
 ## Support
 

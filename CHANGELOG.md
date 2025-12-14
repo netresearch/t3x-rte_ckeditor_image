@@ -50,11 +50,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **DEPRECATION**: ImageRenderingController and ImageLinkRenderingController are deprecated (will be removed in v14.0)
-  - Old controllers still work exactly as before (ZERO breaking changes in v13.1)
-  - Deprecation warnings logged with `E_USER_DEPRECATED`
-  - 1-year migration window before removal
-  - See `Documentation/Architecture/Migration-Guide.md` for upgrade path
+- **BREAKING (Internal Only)**: Old ImageRenderingController and ImageLinkRenderingController replaced with ImageRenderingAdapter
+  - New adapter uses modern service architecture internally
+  - TypoScript interface remains 100% compatible
+  - No user-facing changes or action required
+  - See `Documentation/Architecture/Migration-Guide-v14.md` for details
 - Extract shared controller logic to AbstractImageRenderingController ([#378](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/378))
   - **Architecture**: Eliminate 66 lines of code duplication between ImageRenderingController and ImageLinkRenderingController
   - **New Abstract Base**: AbstractImageRenderingController with shared methods (getLazyLoadingConfiguration, getLogger, getAttributeValue, shouldSkipProcessing, validateFileVisibility)

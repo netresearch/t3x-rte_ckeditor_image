@@ -2,17 +2,17 @@
 
 ## Overview
 
-Version 14.0 introduces ViewFactoryInterface and Fluid templates for image rendering. This document provides guidance for performance validation before release.
+Version 13.1.0 introduces ViewFactoryInterface and Fluid templates for image rendering. This document provides guidance for performance validation before release.
 
 ## Expected Performance Impact
 
-### Old Architecture (v13)
+### Old Architecture (v13.0.x)
 ```
 Controller String Concatenation: ~0.01ms per image
 Memory: Minimal (direct string operations)
 ```
 
-### New Architecture (v14)
+### New Architecture (v13.1.0+)
 ```
 ViewFactory Instantiation: ~0.05ms (singleton/cached)
 Template Compilation: ~0.1ms (cached after first render)
@@ -266,14 +266,14 @@ ab -n 100 -c 10 https://your-site.local/page-with-images
    - Record memory usage
    - Note cache warmup time
 
-2. **New Version (v14.0):**
+2. **New Version (v13.1.0):**
    - Same test content
    - Same server configuration
    - Same PHP/TYPO3 versions
 
 3. **Comparison:**
    ```
-   Overhead = (v14_time - v13_time) / v13_time * 100%
+   Overhead = (v13.1_time - v13.0_time) / v13.0_time * 100%
 
    Acceptable: < 20% increase
    Warning: 20-50% increase
@@ -397,4 +397,4 @@ The new architecture introduces minimal overhead (+0.05-0.15ms per image) while 
 
 **Performance Status:** ✅ **ACCEPTABLE** for production release
 
-**Recommendation:** Proceed with v14.0 release with standard deployment monitoring.
+**Recommendation:** Proceed with v13.1.0 release with standard deployment monitoring.

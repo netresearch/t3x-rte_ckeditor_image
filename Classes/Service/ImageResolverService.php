@@ -173,8 +173,15 @@ class ImageResolverService
             // CRITICAL: Caption XSS prevention
             $caption = $this->sanitizeCaption($attributes['data-caption'] ?? '');
 
-            // Build link DTO if link attributes provided
-            $link = $linkAttributes !== null ? $this->buildLinkDto($linkAttributes, $attributes, $systemImage, $conf, $request) : null;
+            // Build link DTO if link attributes provided OR if popup attributes are present
+            $link = null;
+
+            if ($linkAttributes !== null) {
+                $link = $this->buildLinkDto($linkAttributes, $attributes, $systemImage, $conf, $request);
+            } elseif ($this->isPopupAttributeSet($attributes)) {
+                // Auto-generate popup link for standalone images with zoom attributes
+                $link = $this->buildPopupLinkDto($systemImage, $attributes, $conf, $request);
+            }
 
             return new ImageRenderingDto(
                 src: $src,
@@ -557,6 +564,44 @@ class ImageResolverService
             target: $linkAttributes['target'] ?? null,
             class: $linkAttributes['class'] ?? null,
             isPopup: $isPopup,
+            jsConfig: $jsConfig,
+        );
+    }
+
+    /**
+     * Build popup link DTO for standalone images with zoom attributes.
+     *
+     * Auto-generates a popup link pointing to the full-size original image
+     * when zoom/clickenlarge attributes are present but no explicit link.
+     *
+     * @param File                   $systemImage System image file
+     * @param array<string,string>   $attributes  Image attributes
+     * @param array<string,mixed>    $conf        TypoScript configuration
+     * @param ServerRequestInterface $request     Current request
+     *
+     * @return LinkDto|null Popup link DTO or null
+     */
+    private function buildPopupLinkDto(
+        File $systemImage,
+        array $attributes,
+        array $conf,
+        ServerRequestInterface $request,
+    ): ?LinkDto {
+        // Get the full-size original image URL for popup
+        $url = $systemImage->getPublicUrl();
+
+        if ($url === null || $url === '') {
+            return null;
+        }
+
+        // Get popup configuration from TypoScript
+        $jsConfig = $this->getPopupConfiguration($request);
+
+        return new LinkDto(
+            url: $url,
+            target: '_blank', // Popup opens in new window
+            class: 'popup-link', // Default class for popup links
+            isPopup: true,
             jsConfig: $jsConfig,
         );
     }

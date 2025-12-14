@@ -16,20 +16,16 @@ services:
       $uploadFolderResolver: '@TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver'
       $elementBrowserRegistry: '@TYPO3\CMS\Backend\ElementBrowser\ElementBrowserRegistry'
 
-  Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController:
+  # TypoScript adapter for frontend image rendering
+  # Bridges TypoScript preUserFunc to modern service architecture
+  Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter:
     public: true
     arguments:
-      $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
-      $logManager: '@TYPO3\CMS\Core\Log\LogManager'
+      $resolverService: '@Netresearch\RteCKEditorImage\Service\ImageResolverService'
+      $renderingService: '@Netresearch\RteCKEditorImage\Service\ImageRenderingService'
+      $attributeParser: '@Netresearch\RteCKEditorImage\Service\ImageAttributeParser'
 
-  Netresearch\RteCKEditorImage\Controller\ImageRenderingController:
-    public: true
-    arguments:
-      $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
-      $processedFilesHandler: '@Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler'
-      $logManager: '@TYPO3\CMS\Core\Log\LogManager'
-
-  # New service architecture (Phase 1 - Foundation)
+  # Service architecture for frontend image rendering
   # These services implement the modern TYPO3 v13 ViewFactoryInterface pattern
   # Services are public to allow testing framework access via $this->get()
   Netresearch\RteCKEditorImage\Service\ImageAttributeParser:

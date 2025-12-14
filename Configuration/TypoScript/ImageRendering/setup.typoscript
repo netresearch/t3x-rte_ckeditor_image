@@ -9,7 +9,7 @@ lib.parseFunc_RTE {
     tags.img = TEXT
     tags.img {
         current = 1
-        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
 
         #******************************************************
         # noScale: Skip image processing and use original file
@@ -47,7 +47,7 @@ lib.parseFunc_RTE {
     tags.a = TEXT
     tags.a {
         current = 1
-        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController->renderImages
+        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImages
 
         # noScale also available for linked images
         # Same configuration options as tags.img above
