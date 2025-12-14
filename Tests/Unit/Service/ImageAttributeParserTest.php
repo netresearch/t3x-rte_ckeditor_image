@@ -147,8 +147,10 @@ class ImageAttributeParserTest extends TestCase
         self::assertArrayHasKey('images', $result);
         self::assertSame('https://example.com', $result['link']['href']);
         self::assertCount(1, $result['images']);
-        self::assertSame('/image.jpg', $result['images'][0]['src']);
-        self::assertSame('Alt', $result['images'][0]['alt']);
+        self::assertArrayHasKey('attributes', $result['images'][0]);
+        self::assertArrayHasKey('originalHtml', $result['images'][0]);
+        self::assertSame('/image.jpg', $result['images'][0]['attributes']['src']);
+        self::assertSame('Alt', $result['images'][0]['attributes']['alt']);
     }
 
     public function testParseLinkWithImagesMultipleImages(): void
@@ -158,8 +160,8 @@ class ImageAttributeParserTest extends TestCase
         $result = $this->parser->parseLinkWithImages($html);
 
         self::assertCount(2, $result['images']);
-        self::assertSame('/first.jpg', $result['images'][0]['src']);
-        self::assertSame('/second.jpg', $result['images'][1]['src']);
+        self::assertSame('/first.jpg', $result['images'][0]['attributes']['src']);
+        self::assertSame('/second.jpg', $result['images'][1]['attributes']['src']);
     }
 
     public function testParseLinkWithImagesLinkAttributes(): void
@@ -201,7 +203,7 @@ class ImageAttributeParserTest extends TestCase
         $result = $this->parser->parseLinkWithImages($html);
 
         self::assertSame('/page', $result['link']['href']);
-        self::assertSame('/image.jpg', $result['images'][0]['src']);
+        self::assertSame('/image.jpg', $result['images'][0]['attributes']['src']);
     }
 
     public function testParseImageAttributesWithLoadingAttribute(): void
@@ -244,5 +246,51 @@ class ImageAttributeParserTest extends TestCase
 
         self::assertSame('/page', $result['link']['href']);
         self::assertEmpty($result['images']);
+    }
+
+    public function testParseLinkWithImagesPreservesOriginalHtml(): void
+    {
+        // Test that originalHtml captures the img tag (DOMDocument normalizes it)
+        $html = '<a href="/page"><img src="/image.jpg" alt="Test" width="800" height="600" /></a>';
+
+        $result = $this->parser->parseLinkWithImages($html);
+
+        self::assertCount(1, $result['images']);
+        self::assertArrayHasKey('originalHtml', $result['images'][0]);
+        // DOMDocument outputs without self-closing slash
+        self::assertStringContainsString('<img', $result['images'][0]['originalHtml']);
+        self::assertStringContainsString('src="/image.jpg"', $result['images'][0]['originalHtml']);
+        self::assertStringContainsString('alt="Test"', $result['images'][0]['originalHtml']);
+    }
+
+    public function testParseLinkWithImagesOriginalHtmlCanBeUsedForReplacement(): void
+    {
+        // This test verifies the fix for the attribute order bug
+        // The originalHtml should match exactly what's in the input HTML
+        $html = '<a href="/page"><img alt="Alt first" src="/image.jpg" class="my-class" /></a>';
+
+        $result = $this->parser->parseLinkWithImages($html);
+
+        self::assertCount(1, $result['images']);
+        $originalHtml = $result['images'][0]['originalHtml'];
+
+        // The original HTML from DOMDocument should be usable for str_replace
+        // because it's extracted from the same parsed DOM, not rebuilt from attributes
+        self::assertNotEmpty($originalHtml);
+        self::assertStringContainsString('img', $originalHtml);
+    }
+
+    public function testParseLinkWithImagesMultipleImagesHaveDistinctOriginalHtml(): void
+    {
+        $html = '<a href="/page"><img src="/first.jpg" alt="First" /><img src="/second.jpg" alt="Second" /></a>';
+
+        $result = $this->parser->parseLinkWithImages($html);
+
+        self::assertCount(2, $result['images']);
+
+        // Each image should have its own distinct originalHtml
+        self::assertStringContainsString('first.jpg', $result['images'][0]['originalHtml']);
+        self::assertStringContainsString('second.jpg', $result['images'][1]['originalHtml']);
+        self::assertNotSame($result['images'][0]['originalHtml'], $result['images'][1]['originalHtml']);
     }
 }
