@@ -102,10 +102,15 @@ class SelectImageController extends ElementBrowserController
                 $queryParams['bparams'] = implode('|', $bparams);
             }
 
-            // Resolve default upload folder for non-admin users
+            // Resolve default upload folder for users WITHOUT explicit folder context
             // This fixes issue #290: non-admin users need explicit folder context
             // to avoid InsufficientFolderAccessPermissionsException
-            if (isset($GLOBALS['BE_USER']) && $GLOBALS['BE_USER'] instanceof BackendUserAuthentication) {
+            // IMPORTANT: Only set if NOT already provided - allows folder browsing navigation
+            if (
+                !isset($queryParams['expandFolder'])
+                && isset($GLOBALS['BE_USER'])
+                && $GLOBALS['BE_USER'] instanceof BackendUserAuthentication
+            ) {
                 try {
                     $folder = $this->uploadFolderResolver->resolve($GLOBALS['BE_USER']);
                     if ($folder instanceof Folder) {
@@ -378,6 +383,11 @@ class SelectImageController extends ElementBrowserController
      * Verifies if the current backend user can access the given file.
      * Implements IDOR protection by checking file mount permissions.
      *
+     * Uses TYPO3's built-in permission system which correctly checks:
+     * - User action permissions (readFile)
+     * - File extension restrictions
+     * - File mount boundaries (isWithinFileMountBoundaries)
+     *
      * @param File $file The file to check access for
      *
      * @return bool True if user can access the file
@@ -397,26 +407,12 @@ class SelectImageController extends ElementBrowserController
             return false;
         }
 
-        // Admin users have access to all files
-        if ($backendUser->isAdmin()) {
-            return true;
-        }
-
-        // Check if file storage is within user's file mounts
-        $storage       = $file->getStorage();
-        $storageRecord = $storage->getStorageRecord();
-
-        // Get user's file mounts
-        $fileMounts = $backendUser->getFileStorageRecords();
-
-        // Check if storage is in user's accessible storages
-        foreach ($fileMounts as $fileMount) {
-            if ((int) $fileMount['uid'] === (int) $storageRecord['uid']) {
-                return true;
-            }
-        }
-
-        return false;
+        // Use TYPO3's built-in permission check which handles:
+        // - Admin users (automatic full access)
+        // - File mount boundaries
+        // - User group permissions
+        // This replaces the broken getFileStorageRecords() approach
+        return $file->checkActionPermission('read');
     }
 
     /**

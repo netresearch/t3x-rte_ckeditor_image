@@ -415,22 +415,73 @@ final class SelectImageControllerTest extends UnitTestCase
     }
 
     #[Test]
-    public function isFileAccessibleByUserReturnsTrueForAdminUsers(): void
+    public function isFileAccessibleByUserReturnsTrueWhenFilePermitsRead(): void
     {
         $backendUserMock = $this->createMock(\TYPO3\CMS\Core\Authentication\BackendUserAuthentication::class);
         $backendUserMock->method('check')->with('tables_select', 'sys_file')->willReturn(true);
-        $backendUserMock->method('isAdmin')->willReturn(true);
 
         $GLOBALS['BE_USER'] = $backendUserMock;
 
         /** @var File&MockObject $fileMock */
         $fileMock = $this->createMock(File::class);
+        // File::checkActionPermission('read') uses TYPO3's built-in permission system
+        // which internally checks admin status, file mounts, and user permissions
+        $fileMock->method('checkActionPermission')->with('read')->willReturn(true);
 
         $result = $this->callProtectedMethod('isFileAccessibleByUser', [$fileMock]);
 
         self::assertTrue($result);
     }
 
-    // Note: isFileAccessibleByUser tests with getFileStorageRecords() require functional test setup
-    // The BackendUserAuthentication mock doesn't support this method properly in unit tests
+    #[Test]
+    public function isFileAccessibleByUserReturnsFalseWhenFileDeniesRead(): void
+    {
+        $backendUserMock = $this->createMock(\TYPO3\CMS\Core\Authentication\BackendUserAuthentication::class);
+        $backendUserMock->method('check')->with('tables_select', 'sys_file')->willReturn(true);
+
+        $GLOBALS['BE_USER'] = $backendUserMock;
+
+        /** @var File&MockObject $fileMock */
+        $fileMock = $this->createMock(File::class);
+        // Non-admin user without proper file mount access
+        $fileMock->method('checkActionPermission')->with('read')->willReturn(false);
+
+        $result = $this->callProtectedMethod('isFileAccessibleByUser', [$fileMock]);
+
+        self::assertFalse($result);
+    }
+
+    #[Test]
+    public function isFileAccessibleByUserDelegatesToFilePermissionCheck(): void
+    {
+        // This test verifies that we correctly delegate to TYPO3's built-in
+        // File::checkActionPermission() which internally handles:
+        // - Admin user detection (admins always have access)
+        // - File mount boundary checks (isWithinFileMountBoundaries)
+        // - User group permissions
+        // This replaces the broken getFileStorageRecords() approach from issue #290
+
+        $backendUserMock = $this->createMock(\TYPO3\CMS\Core\Authentication\BackendUserAuthentication::class);
+        $backendUserMock->method('check')->with('tables_select', 'sys_file')->willReturn(true);
+
+        $GLOBALS['BE_USER'] = $backendUserMock;
+
+        /** @var File&MockObject $fileMock */
+        $fileMock = $this->createMock(File::class);
+        // Verify checkActionPermission is called with 'read' action
+        $fileMock->expects(self::once())
+            ->method('checkActionPermission')
+            ->with('read')
+            ->willReturn(true);
+
+        $result = $this->callProtectedMethod('isFileAccessibleByUser', [$fileMock]);
+
+        self::assertTrue($result);
+    }
+
+    // Note: mainAction() expandFolder logic is tested via E2E tests because:
+    // 1. It requires mocking parent ElementBrowserController which is complex
+    // 2. The fix ensures expandFolder is only set when NOT already provided,
+    //    allowing folder navigation to work (issue #290 follow-up)
+    // 3. E2E tests verify real user interaction with folder browser
 }
