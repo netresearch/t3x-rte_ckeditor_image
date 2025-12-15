@@ -49,12 +49,6 @@ parameters:
 			path: ../Classes/Controller/ImageRenderingAdapter.php
 
 		-
-			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
 			message: '#^Cannot access offset ''GFX'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -109,12 +103,6 @@ parameters:
 			path: ../Classes/Controller/SelectImageController.php
 
 		-
-			message: '#^Cannot access offset ''uid'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
 			message: '#^Cannot access offset non\-falsy\-string on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -127,21 +115,9 @@ parameters:
 			path: ../Classes/Controller/SelectImageController.php
 
 		-
-			message: '#^Cannot call method getFileStorageRecords\(\) on mixed\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Cannot call method isAdmin\(\) on mixed\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
-			count: 8
+			count: 6
 			path: ../Classes/Controller/SelectImageController.php
 
 		-
