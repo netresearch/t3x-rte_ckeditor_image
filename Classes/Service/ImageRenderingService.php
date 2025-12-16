@@ -91,7 +91,7 @@ class ImageRenderingService
         // Example: <a href="..."\n   target="..."> becomes <a href="..." target="...">
         $output = (string) preg_replace_callback(
             '/<[a-zA-Z][^>]*>/s',
-            static fn(array $match): string => (string) preg_replace('/\s+/', ' ', $match[0]),
+            static fn (array $match): string => (string) preg_replace('/\s+/', ' ', $match[0]),
             $output,
         );
 
