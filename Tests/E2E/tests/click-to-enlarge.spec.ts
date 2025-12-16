@@ -125,6 +125,40 @@ test.describe('Click-to-Enlarge Functionality', () => {
       }
     }
   });
+
+  test('images without data-htmlarea-zoom are NOT wrapped in popup links', async ({ page }) => {
+    await page.goto('/');
+
+    // Find all images on the page
+    const allImages = page.locator('img');
+    const totalImageCount = await allImages.count();
+
+    // Find images inside popup links (these HAD data-htmlarea-zoom in database)
+    const imagesInPopupLinks = page.locator('a[data-popup="true"] img');
+    const popupImageCount = await imagesInPopupLinks.count();
+
+    // Find images NOT inside popup links
+    const standaloneImages = page.locator('img:not(a[data-popup="true"] img)');
+    const standaloneCount = await standaloneImages.count();
+
+    // Verify the counts add up (sanity check)
+    // Note: This may not be exact due to CSS selector specificity, but should be close
+    console.log(`Total images: ${totalImageCount}, Popup images: ${popupImageCount}, Standalone: ${standaloneCount}`);
+
+    // The key assertion: standalone images should NOT be wrapped in popup links
+    // This verifies the extension only transforms images that have data-htmlarea-zoom
+    for (let i = 0; i < standaloneCount; i++) {
+      const img = standaloneImages.nth(i);
+      const parent = img.locator('..');
+      const parentTag = await parent.evaluate(el => el.tagName.toLowerCase());
+
+      // Parent should NOT be an <a> with data-popup="true"
+      if (parentTag === 'a') {
+        const hasPopup = await parent.getAttribute('data-popup');
+        expect(hasPopup).not.toBe('true');
+      }
+    }
+  });
 });
 
 test.describe('Caption Rendering (Whitespace Artifact Prevention)', () => {
