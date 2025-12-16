@@ -745,11 +745,17 @@ $pdo->exec("INSERT IGNORE INTO sys_file (uid, storage, identifier, identifier_ha
             VALUES (1, 1, '/user_upload/example.jpg', '$identifierHash', '$folderHash', 'example.jpg', 'jpg', 'image/jpeg', 48000, $now, $now)");
 echo "sys_file record created\n";
 
-// Insert test content with RTE image
+// Insert test content with RTE image (no caption)
 $bodytext = '<p>This is a test page with an RTE image:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Example" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>Click the image to see click-to-enlarge.</p>';
 $stmt = $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 $stmt->execute([1, 'text', 'RTE CKEditor Image Demo', $bodytext, 0, 0, $now, $now, 0, 256]);
 echo "tt_content record created\n";
+
+// Insert test content with RTE image WITH CAPTION (to test for <p>&nbsp;</p> artifacts)
+// This triggers the WithCaption.html template which has internal whitespace between img and figcaption
+$bodytextCaption = '<p>Image with caption test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Caption Test" width="400" height="300" data-htmlarea-file-uid="1" data-caption="Test Caption Text" /></p>';
+$stmt->execute([1, 'text', 'Caption Test', $bodytextCaption, 0, 0, $now, $now, 0, 512]);
+echo "tt_content record with caption created\n";
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests

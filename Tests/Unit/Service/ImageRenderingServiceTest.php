@@ -15,8 +15,10 @@ use Netresearch\RteCKEditorImage\Domain\Model\ImageRenderingDto;
 use Netresearch\RteCKEditorImage\Domain\Model\LinkDto;
 use Netresearch\RteCKEditorImage\Service\ImageRenderingService;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 use ReflectionMethod;
 use TYPO3\CMS\Core\View\ViewFactoryInterface;
+use TYPO3\CMS\Core\View\ViewInterface;
 
 /**
  * Test case for ImageRenderingService.
@@ -27,6 +29,8 @@ use TYPO3\CMS\Core\View\ViewFactoryInterface;
 class ImageRenderingServiceTest extends TestCase
 {
     private ImageRenderingService $service;
+
+    /** @var ViewFactoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private ViewFactoryInterface $viewFactoryMock;
 
     protected function setUp(): void
@@ -376,5 +380,118 @@ class ImageRenderingServiceTest extends TestCase
             'Image/Standalone',
             $this->callProtectedMethod($this->service, 'selectTemplate', [$dto6]),
         );
+    }
+
+    /**
+     * Test that render() trims whitespace from Fluid template output.
+     *
+     * This prevents parseFunc_RTE from converting newlines into <p>&nbsp;</p>.
+     */
+    public function testRenderTrimsWhitespace(): void
+    {
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->expects(self::once())
+            ->method('render')
+            ->willReturn("\n<figure><img src=\"test.jpg\"/></figure>\n\n");
+
+        $this->viewFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->willReturn($viewMock);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: 'Title',
+            htmlAttributes: [],
+            caption: 'Caption',
+            link: null,
+            isMagicImage: true,
+        );
+
+        $result = $this->service->render($dto, $requestMock);
+
+        // Should be trimmed - no leading/trailing whitespace
+        self::assertSame('<figure><img src="test.jpg"/></figure>', $result);
+    }
+
+    /**
+     * Test that render() normalizes multi-line attributes within HTML tags.
+     *
+     * Fluid templates use multi-line formatting for readability:
+     *   <a href="..."
+     *      target="_blank"
+     *      class="popup">
+     *
+     * This must be normalized to single-line to prevent parseFunc_RTE issues.
+     */
+    public function testRenderNormalizesMultiLineAttributes(): void
+    {
+        // Simulate Fluid output with multi-line attributes (readable template format)
+        $multiLineOutput = <<<HTML
+            <figure class="image">
+                <a href="/fileadmin/image.jpg"
+                   target="_blank"
+                   class="popup-link"
+                   data-popup="true">
+                    <img src="/fileadmin/image.jpg"
+                         alt="Test"
+                         width="800"
+                         height="600" />
+                </a>
+                <figcaption>Caption text</figcaption>
+            </figure>
+            HTML;
+
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->expects(self::once())
+            ->method('render')
+            ->willReturn($multiLineOutput);
+
+        $this->viewFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->willReturn($viewMock);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+
+        $dto = new ImageRenderingDto(
+            src: '/fileadmin/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: '',
+            htmlAttributes: [],
+            caption: 'Caption text',
+            link: new LinkDto(
+                url: '/fileadmin/image.jpg',
+                target: '_blank',
+                class: 'popup-link',
+                isPopup: true,
+                jsConfig: null,
+            ),
+            isMagicImage: true,
+        );
+
+        $result = $this->service->render($dto, $requestMock);
+
+        // Verify multi-line attributes are collapsed to single line
+        self::assertStringNotContainsString("\n", $result);
+
+        // Verify all attributes are preserved (just on single line)
+        self::assertStringContainsString('href="/fileadmin/image.jpg"', $result);
+        self::assertStringContainsString('target="_blank"', $result);
+        self::assertStringContainsString('class="popup-link"', $result);
+        self::assertStringContainsString('data-popup="true"', $result);
+        self::assertStringContainsString('alt="Test"', $result);
+        self::assertStringContainsString('width="800"', $result);
+
+        // Verify no whitespace between tags (prevents <p>&nbsp;</p> artifacts)
+        self::assertStringNotContainsString('> <', $result);
+        self::assertStringContainsString('><', $result);
     }
 }
