@@ -178,12 +178,14 @@ test.describe('Caption Rendering (Whitespace Artifact Prevention)', () => {
     const figuresWithCaption = page.locator('figure:has(figcaption)');
     const count = await figuresWithCaption.count();
 
-    if (count > 0) {
-      // Verify figcaption contains text
-      const firstCaption = figuresWithCaption.first().locator('figcaption');
-      const captionText = await firstCaption.textContent();
-      expect(captionText?.trim().length).toBeGreaterThan(0);
-    }
+    // Skip test if no captioned images exist in test page
+    // This ensures test doesn't silently pass without validating anything
+    test.skip(count === 0, 'No figures with captions found on test page - add captioned images to validate');
+
+    // Verify figcaption contains text
+    const firstCaption = figuresWithCaption.first().locator('figcaption');
+    const captionText = await firstCaption.textContent();
+    expect(captionText?.trim().length).toBeGreaterThan(0);
   });
 });
 

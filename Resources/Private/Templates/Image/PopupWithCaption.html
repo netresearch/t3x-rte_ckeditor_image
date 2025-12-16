@@ -1,7 +1,15 @@
 <figure class="image{f:if(condition: image.htmlAttributes.class, then: ' {image.htmlAttributes.class}')}">
-<a href="{image.link.url}"{f:if(condition: image.link.target, then: ' target="{image.link.target}"')}{f:if(condition: image.link.class, then: ' class="{image.link.class}"')} data-popup="true"><img src="{image.src}"
-     alt="{image.alt}"
-     width="{image.width}"
-     height="{image.height}"{f:if(condition: image.title, then: ' title="{image.title}"')}{f:if(condition: image.htmlAttributes.style, then: ' style="{image.htmlAttributes.style}"')}{f:if(condition: image.htmlAttributes.loading, then: ' loading="{image.htmlAttributes.loading}"')} /></a>
-<figcaption>{image.caption}</figcaption>
+    <a href="{image.link.url}"
+       {f:if(condition: image.link.target, then: 'target="{image.link.target}"')}
+       {f:if(condition: image.link.class, then: 'class="{image.link.class}"')}
+       data-popup="true">
+        <img src="{image.src}"
+             alt="{image.alt}"
+             width="{image.width}"
+             height="{image.height}"
+             {f:if(condition: image.title, then: 'title="{image.title}"')}
+             {f:if(condition: image.htmlAttributes.style, then: 'style="{image.htmlAttributes.style}"')}
+             {f:if(condition: image.htmlAttributes.loading, then: 'loading="{image.htmlAttributes.loading}"')} />
+    </a>
+    <figcaption>{image.caption}</figcaption>
 </figure>

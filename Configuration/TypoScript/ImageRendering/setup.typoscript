@@ -73,26 +73,22 @@ lib.parseFunc_RTE {
 # around block-level image elements. This fixes <p>&nbsp;</p>
 # artifacts between <img> and <figcaption> elements.
 # See: https://github.com/netresearch/t3x-rte_ckeditor_image/pull/482
+#
+# Note: 'a' is included for linked images (<a><img></a>) rendered
+# by this extension's templates. Standard inline anchors within
+# paragraph text are unaffected since they're already wrapped
+# in their parent paragraph content.
 #******************************************************
 lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img,figure,figcaption,a)
 
 #******************************************************
 # Figure element configuration
-# Processes figure elements while preserving semantic HTML structure and attributes
-# Using HTMLparser to keep the tag while allowing recursive processing of content
+# Allow figure tags to pass through HTMLparser without re-processing.
+# ImageRenderingService templates already output complete figure elements
+# with proper structure - re-processing would add unwanted <p> tags.
 #******************************************************
-lib.parseFunc_RTE.tags.figure = TEXT
-lib.parseFunc_RTE.tags.figure {
-    current = 1
-    htmlSpecialChars = 0
-    # Preserve figure wrapper with its class attribute for alignment
-    # The content (current) contains the processed img and figcaption
-    wrap = <figure class="image"> | </figure>
-}
-
-# Ensure figure tags are allowed in HTMLparser
-lib.parseFunc_RTE.allowTags := addToList(figure)
-lib.parseFunc_RTE.denyTags := removeFromList(figure)
+lib.parseFunc_RTE.allowTags := addToList(figure,figcaption)
+lib.parseFunc_RTE.denyTags := removeFromList(figure,figcaption)
 
 #******************************************************
 # Default popup/lightbox configuration for RTE images with zoom enabled

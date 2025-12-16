@@ -81,9 +81,25 @@ class ImageRenderingService
         // 3. Assign variables (DTO data already validated/sanitized)
         $view->assign('image', $imageData);
 
-        // 4. Render template (TYPO3 v13 ViewInterface accepts template name in render())
-        // trim() prevents whitespace from templates causing <p>&nbsp;</p> in parseFunc_RTE
-        return trim($view->render($templatePath));
+        // 4. Render template and normalize whitespace
+        $output = $view->render($templatePath);
+
+        // Normalize whitespace to prevent parseFunc_RTE from creating <p>&nbsp;</p> artifacts.
+        // This allows templates to use readable multi-line formatting.
+        //
+        // Step 1: Collapse whitespace within HTML tags (handles multi-line attributes)
+        // Example: <a href="..."\n   target="..."> becomes <a href="..." target="...">
+        $output = (string) preg_replace_callback(
+            '/<[a-zA-Z][^>]*>/s',
+            static fn(array $match): string => (string) preg_replace('/\s+/', ' ', $match[0]),
+            $output,
+        );
+
+        // Step 2: Remove whitespace between HTML tags
+        // Example: </a>\n    <figcaption> becomes </a><figcaption>
+        $output = preg_replace('/>\s+</', '><', $output) ?? $output;
+
+        return trim($output);
     }
 
     /**

@@ -1,7 +1,10 @@
 <figure class="image{f:if(condition: image.htmlAttributes.class, then: ' {image.htmlAttributes.class}')}">
-<img src="{image.src}"
-     alt="{image.alt}"
-     width="{image.width}"
-     height="{image.height}"{f:if(condition: image.title, then: ' title="{image.title}"')}{f:if(condition: image.htmlAttributes.style, then: ' style="{image.htmlAttributes.style}"')}{f:if(condition: image.htmlAttributes.loading, then: ' loading="{image.htmlAttributes.loading}"')} />
-<figcaption>{image.caption}</figcaption>
+    <img src="{image.src}"
+         alt="{image.alt}"
+         width="{image.width}"
+         height="{image.height}"
+         {f:if(condition: image.title, then: 'title="{image.title}"')}
+         {f:if(condition: image.htmlAttributes.style, then: 'style="{image.htmlAttributes.style}"')}
+         {f:if(condition: image.htmlAttributes.loading, then: 'loading="{image.htmlAttributes.loading}"')} />
+    <figcaption>{image.caption}</figcaption>
 </figure>
