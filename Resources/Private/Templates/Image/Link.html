@@ -1,12 +1,4 @@
-<a href="{image.link.url}"
-   f:if="{image.link.target}" target="{image.link.target}"
-   f:if="{image.link.class}" class="{image.link.class}">
-    <img src="{image.src}"
-         alt="{image.alt}"
-         width="{image.width}"
-         height="{image.height}"
-         f:if="{image.title}" title="{image.title}"
-         f:if="{image.htmlAttributes.class}" class="{image.htmlAttributes.class}"
-         f:if="{image.htmlAttributes.style}" style="{image.htmlAttributes.style}"
-         f:if="{image.htmlAttributes.loading}" loading="{image.htmlAttributes.loading}" />
-</a>
+<a href="{image.link.url}"{f:if(condition: image.link.target, then: ' target="{image.link.target}"')}{f:if(condition: image.link.class, then: ' class="{image.link.class}"')}><img src="{image.src}"
+     alt="{image.alt}"
+     width="{image.width}"
+     height="{image.height}"{f:if(condition: image.title, then: ' title="{image.title}"')}{f:if(condition: image.htmlAttributes.class, then: ' class="{image.htmlAttributes.class}"')}{f:if(condition: image.htmlAttributes.style, then: ' style="{image.htmlAttributes.style}"')}{f:if(condition: image.htmlAttributes.loading, then: ' loading="{image.htmlAttributes.loading}"')} /></a>
