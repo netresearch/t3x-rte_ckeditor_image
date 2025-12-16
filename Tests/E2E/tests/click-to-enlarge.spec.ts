@@ -121,6 +121,72 @@ test.describe('Click-to-Enlarge Functionality', () => {
   });
 });
 
+test.describe('Caption Rendering (Whitespace Artifact Prevention)', () => {
+  /**
+   * Regression test for parseFunc whitespace artifacts.
+   *
+   * Bug: When Fluid templates have whitespace between <img> and <figcaption>,
+   * parseFunc_RTE converts this to <p>&nbsp;</p> artifacts.
+   *
+   * Fix: Added figure,figcaption to encapsTagList in TypoScript,
+   *   and applied trim() in ImageRenderingService.php to remove whitespace.
+   *
+   * @see https://github.com/netresearch/t3x-rte_ckeditor_image/pull/482
+   */
+  test('figure elements do not contain p nbsp artifacts', async ({ page }) => {
+    await page.goto('/');
+
+    // Find all figure elements (images with captions)
+    const figures = page.locator('figure');
+    const figureCount = await figures.count();
+
+    if (figureCount === 0) {
+      console.log('No figure elements found - caption test skipped');
+      return;
+    }
+
+    // Check each figure for <p>&nbsp;</p> artifacts
+    for (let i = 0; i < figureCount; i++) {
+      const figure = figures.nth(i);
+      const figureHtml = await figure.innerHTML();
+
+      // Should NOT contain <p>&nbsp;</p> or <p> </p> artifacts
+      expect(figureHtml).not.toMatch(/<p[^>]*>\s*&nbsp;\s*<\/p>/i);
+      expect(figureHtml).not.toMatch(/<p[^>]*>\s*<\/p>/i);
+
+      // Should have img and figcaption without p tags between them
+      const hasImg = await figure.locator('img').count() > 0;
+      const hasFigcaption = await figure.locator('figcaption').count() > 0;
+
+      if (hasImg && hasFigcaption) {
+        // Verify clean structure: figure > img + figcaption (no p between)
+        const directChildren = await figure.evaluate(el => {
+          return Array.from(el.children).map(child => child.tagName.toLowerCase());
+        });
+
+        // p tags should not appear as direct children of figure
+        const hasParagraphChild = directChildren.includes('p');
+        expect(hasParagraphChild).toBe(false);
+      }
+    }
+  });
+
+  test('images with captions render with figcaption', async ({ page }) => {
+    await page.goto('/');
+
+    // Find figures with figcaption
+    const figuresWithCaption = page.locator('figure:has(figcaption)');
+    const count = await figuresWithCaption.count();
+
+    if (count > 0) {
+      // Verify figcaption contains text
+      const firstCaption = figuresWithCaption.first().locator('figcaption');
+      const captionText = await firstCaption.textContent();
+      expect(captionText?.trim().length).toBeGreaterThan(0);
+    }
+  });
+});
+
 test.describe('Zero-Configuration Verification', () => {
   test('page renders without TypoScript errors', async ({ page }) => {
     const response = await page.goto('/');

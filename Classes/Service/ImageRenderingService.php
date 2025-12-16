@@ -82,7 +82,8 @@ class ImageRenderingService
         $view->assign('image', $imageData);
 
         // 4. Render template (TYPO3 v13 ViewInterface accepts template name in render())
-        return $view->render($templatePath);
+        // trim() prevents whitespace from templates causing <p>&nbsp;</p> in parseFunc_RTE
+        return trim($view->render($templatePath));
     }
 
     /**
