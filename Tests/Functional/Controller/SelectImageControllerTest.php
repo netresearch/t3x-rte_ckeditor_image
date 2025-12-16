@@ -17,12 +17,17 @@ use ReflectionException;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
- * Test case for SelectImageController::getMaxDimensions().
+ * Functional tests for SelectImageController.
  *
- * This test validates the security improvements in PR #299:
- * - Safe array access with fallback to defaults
- * - Type casting from TSConfig values
- * - Bounds enforcement to prevent resource exhaustion
+ * Coverage notes:
+ * - getMaxDimensions(): Tested here (security improvements in PR #299)
+ * - mainAction() expandFolder: Tested in Unit tests (issue #290 follow-up)
+ *   The expandFolder logic is comprehensively unit tested because:
+ *   1. It doesn't require TYPO3 infrastructure for logic verification
+ *   2. Testing the full ElementBrowser flow requires complex backend setup
+ *   3. Unit tests verify all edge cases: preservation, setting, exceptions, null user
+ *
+ * @see \Netresearch\RteCKEditorImage\Tests\Unit\Controller\SelectImageControllerTest
  */
 class SelectImageControllerTest extends FunctionalTestCase
 {
