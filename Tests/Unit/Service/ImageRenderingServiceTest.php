@@ -433,19 +433,19 @@ class ImageRenderingServiceTest extends TestCase
     {
         // Simulate Fluid output with multi-line attributes (readable template format)
         $multiLineOutput = <<<HTML
-<figure class="image">
-    <a href="/fileadmin/image.jpg"
-       target="_blank"
-       class="popup-link"
-       data-popup="true">
-        <img src="/fileadmin/image.jpg"
-             alt="Test"
-             width="800"
-             height="600" />
-    </a>
-    <figcaption>Caption text</figcaption>
-</figure>
-HTML;
+            <figure class="image">
+                <a href="/fileadmin/image.jpg"
+                   target="_blank"
+                   class="popup-link"
+                   data-popup="true">
+                    <img src="/fileadmin/image.jpg"
+                         alt="Test"
+                         width="800"
+                         height="600" />
+                </a>
+                <figcaption>Caption text</figcaption>
+            </figure>
+            HTML;
 
         $viewMock = $this->createMock(ViewInterface::class);
         $viewMock->expects(self::once())
