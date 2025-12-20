@@ -23,6 +23,15 @@ jobs:
             matrix:
                 typo3: [ '^13.4', '^14.0' ]
                 php: [ '8.2', '8.3', '8.4', '8.5' ]
+                include:
+                    # Run CGL only on PHP 8.2 (minimum version) - code style is PHP version independent
+                    - php: '8.2'
+                      typo3: '^13.4'
+                      run_cgl: true
+                    # Run coverage only on PHP 8.4 + TYPO3 14.0
+                    - php: '8.4'
+                      typo3: '^14.0'
+                      run_coverage: true
 
         steps:
             -   id: checkout
@@ -99,13 +108,13 @@ jobs:
 
             -   id: generate-php-cs-fixer-config
                 name: Generate .php-cs-fixer.php
-                if: ${{ always() && steps.install.conclusion == 'success' }}
+                if: ${{ always() && steps.install.conclusion == 'success' && matrix.run_cgl }}
                 run: |
                     cp Build/.php-cs-fixer.dist.php .php-cs-fixer.php
 
             -   id: cgl
                 name: CGL
-                if: ${{ always() && steps.install.conclusion == 'success' }}
+                if: ${{ always() && steps.install.conclusion == 'success' && matrix.run_cgl }}
                 run: |
                     php-cs-fixer fix --dry-run --verbose --config Build/.php-cs-fixer.dist.php
 
@@ -137,7 +146,7 @@ jobs:
 
             -   id: coverage
                 name: Generate Coverage Report
-                if: ${{ always() && steps.functional.conclusion == 'success' && matrix.php == '8.4' && matrix.typo3 == '^14.0' }}
+                if: ${{ always() && steps.functional.conclusion == 'success' && matrix.run_coverage }}
                 env:
                     typo3DatabaseDriver: pdo_sqlite
                 run: |
@@ -145,7 +154,7 @@ jobs:
 
             -   id: upload-coverage
                 name: Upload Coverage to Codecov
-                if: ${{ always() && steps.coverage.conclusion == 'success' && matrix.php == '8.4' }}
+                if: ${{ always() && steps.coverage.conclusion == 'success' && matrix.run_coverage }}
                 uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
                 with:
                     files: .Build/logs/clover.xml
