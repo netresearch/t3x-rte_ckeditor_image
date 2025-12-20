@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [13.1.0] - TBD
+## [13.1.0] - 2025-12-20
 
 ### Added
 
@@ -47,6 +47,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Default RTE configuration with insertimage button enabled
 - Global Page TSConfig loading for automatic configuration
 - DDEV development environment with TYPO3 v13
+- E2E tests with Playwright for click-to-enlarge functionality ([#455](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/455))
+- Mutation testing with Infection for code quality validation ([#452](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/452))
+- Fuzz testing for HTML parsing security ([#451](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/451))
+- 18+ language translations via Crowdin integration
 
 ### Changed
 
@@ -62,7 +66,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Remove TCA `richtextConfiguration` override that blocked TSconfig preset overrides ([#464](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/464))
+- Prevent parseFunc whitespace artifacts in image rendering ([#482](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/482))
+- Folder navigation and file permission check ([#480](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/480), [#290](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/290))
+- Resolve attribute order mismatch in linked image replacement ([#477](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/477))
+- Remove dead code referencing undefined $checkboxNoResize ([#470](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/470))
+- Remove TCA `richtextConfiguration` override that blocked TSconfig preset overrides ([#464](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/464), [#467](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/467))
 - Prevent empty link wrappers and ensure Bootstrap Package compatibility ([#392](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/392))
 - Preserve link attributes on TYPO3 images ([#385](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/385), [#387](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/387))
 - Namespace DoubleClickObserver to prevent conflicts with other plugins ([#383](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/383))
@@ -74,6 +82,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- Add file: protocol blocking to prevent local file access ([#478](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/478))
+- Remove allowSvgImages option (security risk without proper sanitization) ([#478](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/478))
+- Graceful frontend context handling to prevent information disclosure ([#479](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/479))
+- Fix GitHub Actions workflow permissions (Scorecard alert) ([#484](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/484))
 - **Preserved Security Measures**: All existing security protections maintained in new architecture
   - File visibility validation (prevents privilege escalation)
   - XSS prevention via htmlspecialchars (ENT_QUOTES | ENT_HTML5)
@@ -302,7 +314,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update image reference index ([#45](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/45), [#62](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/62))
 - Compatibility with TYPO3 CMS 9.x
 
-[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.0-rc1...HEAD
+[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.0...HEAD
 [13.1.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.1...v13.1.0
 [13.0.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.0...v13.0.1
 [13.0.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.4...v13.0.0

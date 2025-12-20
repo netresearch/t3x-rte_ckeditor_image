@@ -76,7 +76,6 @@ final class SelectImageControllerTest extends UnitTestCase
     private function callProtectedMethod(string $methodName, array $args): mixed
     {
         $reflection = new ReflectionMethod($this->subject, $methodName);
-        $reflection->setAccessible(true);
 
         return $reflection->invokeArgs($this->subject, $args);
     }

@@ -52,7 +52,6 @@ class ImageRenderingServiceTest extends TestCase
     protected function callProtectedMethod(object $object, string $methodName, array $parameters = []): mixed
     {
         $reflection = new ReflectionMethod($object::class, $methodName);
-        $reflection->setAccessible(true);
 
         return $reflection->invokeArgs($object, $parameters);
     }
