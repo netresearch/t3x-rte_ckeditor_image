@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [13.1.1] - 2025-12-20
+## [13.1.2] - 2025-12-20
 
 ### Added
 
@@ -314,8 +314,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update image reference index ([#45](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/45), [#62](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/62))
 - Compatibility with TYPO3 CMS 9.x
 
-[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.1...HEAD
-[13.1.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.1...v13.1.1
+[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.2...HEAD
+[13.1.2]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.1...v13.1.2
 [13.0.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.0...v13.0.1
 [13.0.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.4...v13.0.0
 [12.0.4]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.2...v12.0.4
