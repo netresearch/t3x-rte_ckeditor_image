@@ -178,7 +178,6 @@ final class RteImagesDbHookTest extends UnitTestCase
         // TYPO3 v14+ requires TcaSchemaFactory in DI container for BackendUtility::getTCAtypeValue()
         // Unit tests don't have proper DI setup, so skip on v14+
         // Detection: GridColumnItem::getRow() was added in v14
-        // @phpstan-ignore function.alreadyNarrowedType (v14 detection - evaluates differently per TYPO3 version)
         if (method_exists(\TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem::class, 'getRow')) {
             self::markTestSkipped('Test requires functional test setup for TYPO3 v14+ (TcaSchemaFactory needs DI container)');
         }

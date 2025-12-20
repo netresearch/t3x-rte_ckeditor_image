@@ -48,6 +48,11 @@ parameters:
           path: %currentWorkingDirectory%/Classes/Backend/Preview/RteImagePreviewRenderer.php
           message: '#getRow#'
           reportUnmatched: false
+        # Same compatibility pattern in unit tests
+        - identifier: function.alreadyNarrowedType
+          path: %currentWorkingDirectory%/Tests/Unit/Database/RteImagesDbHookTest.php
+          message: '#method_exists.*getRow#'
+          reportUnmatched: false
         # Ignore GeneralUtility::makeInstance() return type issues in functional tests
         # These are correct but PHPStan can't infer types without phpstan-typo3 extension
         # makeInstance() returns mixed which causes argument.type, assign.propertyType, method.nonObject errors
