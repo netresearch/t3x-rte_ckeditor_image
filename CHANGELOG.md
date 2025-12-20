@@ -9,12 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [13.1.5] - 2025-12-20
 
-### Fixed
-
-- TER publishing compatibility: ext_emconf.php no longer includes strict_types declaration ([#489](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/489))
-- CI workflow now validates ext_emconf.php for TER compatibility
-
-## [13.1.3] - 2025-12-20
+> **Note:** Versions 13.1.0-13.1.4 were blocked by GitHub's immutable releases feature during release troubleshooting. This is the first published release of the 13.1.x series.
 
 ### Added
 
@@ -25,11 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Template Override Support**: Integrators can now override templates instead of PHP classes
   - **DOMDocument Parsing**: Replaced regex-based parsing with robust DOMDocument for better HTML5 support
   - **Performance**: Minimal overhead (+0.05-0.15ms per image) with ViewFactory singleton and template caching
-- Comprehensive test suite for new architecture
+- Comprehensive test suite for new architecture ([#399](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/399))
   - **Unit Tests**: 50+ test methods covering DTOs, services, and business logic (964 lines)
   - **Integration Tests**: 25+ test methods validating full pipeline and security (389 lines)
   - **Test Coverage**: >90% for new architecture components
-- Complete documentation for modernization
+- Complete documentation for modernization ([#399](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/399))
   - **RFC**: Architecture proposal with expert validation (751 lines)
   - **Migration Guide**: Step-by-step upgrade path for service architecture (300+ lines)
   - **Security Checklist**: Pre-release validation requirements
@@ -45,19 +40,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - File size threshold control
 - CKEditor 5 Widget UI with block toolbar for images ([#393](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/393))
 - Automatic RTE softref enforcement via global PSR-14 event listener ([#371](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/371))
-- Global PSR-14 event listener for TCA overrides (replaces manual overrides)
-- TCA override for EXT:news support
 - Translation support for all hardcoded strings in image dialog ([#391](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/391))
 - TypoScript bridge for lazyLoading configuration ([#373](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/373))
-- TYPO3 v13 site set for zero-configuration installation
-- Automatic TypoScript loading for zero-configuration
-- Default RTE configuration with insertimage button enabled
-- Global Page TSConfig loading for automatic configuration
-- DDEV development environment with TYPO3 v13
+- Zero-configuration installation via TYPO3 v13 site sets ([#429](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/429))
+  - Automatic TypoScript loading
+  - Default RTE configuration with insertimage button enabled
+  - Global Page TSConfig loading
+- DDEV development environment with TYPO3 v13 ([#394](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/394))
 - E2E tests with Playwright for click-to-enlarge functionality ([#455](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/455))
 - Mutation testing with Infection for code quality validation ([#452](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/452))
 - Fuzz testing for HTML parsing security ([#451](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/451))
-- 18+ language translations via Crowdin integration
+- 18+ language translations via Crowdin integration ([#405](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/405))
 
 ### Changed
 
@@ -68,11 +61,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ~1,300 lines of legacy controller code removed
   - See `Documentation/Architecture/Migration-Guide-v14.md` for architecture details
 - Migrated from deprecated @typo3/ckeditor5-bundle.js to direct CKEditor imports ([#380](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/380))
-- Replaced non-inclusive terminology with inclusive language
-- Updated company name to Netresearch DTT GmbH
+- Replaced non-inclusive terminology with inclusive language ([#371](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/371))
+- Updated company name to Netresearch DTT GmbH ([#442](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/442))
 
 ### Fixed
 
+- TER publishing compatibility: ext_emconf.php no longer includes strict_types declaration ([#489](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/489))
+- CI workflow now validates ext_emconf.php for TER compatibility ([#489](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/489))
 - Prevent parseFunc whitespace artifacts in image rendering ([#482](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/482))
 - Folder navigation and file permission check ([#480](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/480), [#290](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/290))
 - Resolve attribute order mismatch in linked image replacement ([#477](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/477))
@@ -83,9 +78,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Namespace DoubleClickObserver to prevent conflicts with other plugins ([#383](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/383))
 - Add link toolbar configuration to prevent linkProperties error ([#382](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/382))
 - Add missing DefaultUploadFolderResolver to SelectImageController DI ([#381](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/381))
-- Replace invalid env syntax with ExtensionConfiguration service injection
-- Apply Rector FunctionFirstClassCallableRector modernization
-- Use translated label for Insert Image button
+- Replace invalid env syntax with ExtensionConfiguration service injection ([#371](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/371))
+- Apply Rector FunctionFirstClassCallableRector modernization ([#371](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/371))
+- Use translated label for Insert Image button ([#391](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/391))
 
 ### Security
 
@@ -322,8 +317,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compatibility with TYPO3 CMS 9.x
 
 [Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.5...HEAD
-[13.1.5]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.3...v13.1.5
-[13.1.3]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.1...v13.1.3
+[13.1.5]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.1...v13.1.5
 [13.0.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.0...v13.0.1
 [13.0.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.4...v13.0.0
 [12.0.4]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.2...v12.0.4
