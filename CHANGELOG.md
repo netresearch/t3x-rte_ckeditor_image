@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.1.5] - 2025-12-20
+
+### Fixed
+
+- TER publishing compatibility: ext_emconf.php no longer includes strict_types declaration ([#489](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/489))
+- CI workflow now validates ext_emconf.php for TER compatibility
+
 ## [13.1.3] - 2025-12-20
 
 ### Added
@@ -314,7 +321,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update image reference index ([#45](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/45), [#62](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/62))
 - Compatibility with TYPO3 CMS 9.x
 
-[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.3...HEAD
+[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.5...HEAD
+[13.1.5]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.3...v13.1.5
 [13.1.3]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.1...v13.1.3
 [13.0.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.0...v13.0.1
 [13.0.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.4...v13.0.0
