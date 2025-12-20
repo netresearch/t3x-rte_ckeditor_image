@@ -28,8 +28,8 @@ jobs:
                     - php: '8.2'
                       typo3: '^13.4'
                       run_cgl: true
-                    # Run coverage only on PHP 8.4 + TYPO3 14.0
-                    - php: '8.4'
+                    # Run coverage on PHP 8.5 + TYPO3 14.0 (latest versions)
+                    - php: '8.5'
                       typo3: '^14.0'
                       run_coverage: true
 
@@ -195,6 +195,7 @@ jobs:
                     cd Tests/E2E && npm ci --ignore-scripts
 
             -   name: Run E2E Tests (TYPO3 Core pattern)
+                # E2E tests run once on PHP 8.4 - they test browser behavior, not PHP version compatibility
                 run: |
                     Build/Scripts/runTests.sh -s e2e -p 8.4
 
