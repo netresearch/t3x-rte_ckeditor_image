@@ -32,8 +32,9 @@ jobs:
             -   id: ter-compatibility
                 name: TER Compatibility Check
                 run: |
-                    # ext_emconf.php must NOT contain strict_types - TER cannot parse it
-                    if grep -q "declare(strict_types" ext_emconf.php; then
+                    # ext_emconf.php must NOT contain strict_types declaration - TER cannot parse it
+                    # Use regex to match actual declaration (not comments mentioning it)
+                    if grep -qE "^[[:space:]]*declare\(strict_types" ext_emconf.php; then
                         echo "::error file=ext_emconf.php::ext_emconf.php contains strict_types declaration which breaks TER publishing"
                         exit 1
                     fi
