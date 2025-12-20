@@ -5,14 +5,18 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
     # Only run for bot accounts
     if: github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]'
+
+    permissions:
+      contents: write
+      pull-requests: write
+
     steps:
       - name: Approve PR
         env:
