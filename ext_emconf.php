@@ -1,15 +1,14 @@
 <?php
 
-/*
- * This file is part of the package netresearch/rte-ckeditor-image.
+/**
+ * Extension Manager configuration for rte_ckeditor_image.
  *
- * For the full copyright and license information, please read the
- * LICENSE file that was distributed with this source code.
+ * IMPORTANT: Do NOT add declare(strict_types=1) here!
+ * TER (TYPO3 Extension Repository) cannot parse ext_emconf.php with strict_types.
+ * See: https://github.com/TYPO3/tailor/issues/...
  */
 
-declare(strict_types=1);
-
-$EM_CONF['rte_ckeditor_image'] = [
+$EM_CONF[$_EXTKEY] = [
     'title'          => 'CKEditor Rich Text Editor Image Support',
     'description'    => 'Adds FAL image support to CKEditor for TYPO3 - by Netresearch.',
     'category'       => 'be',

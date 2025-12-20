@@ -29,6 +29,16 @@ jobs:
                 name: Checkout
                 uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
+            -   id: ter-compatibility
+                name: TER Compatibility Check
+                run: |
+                    # ext_emconf.php must NOT contain strict_types - TER cannot parse it
+                    if grep -q "declare(strict_types" ext_emconf.php; then
+                        echo "::error file=ext_emconf.php::ext_emconf.php contains strict_types declaration which breaks TER publishing"
+                        exit 1
+                    fi
+                    echo "TER compatibility check passed"
+
             -   id: setup_php
                 name: Set up PHP version ${{ matrix.php }}
                 uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
