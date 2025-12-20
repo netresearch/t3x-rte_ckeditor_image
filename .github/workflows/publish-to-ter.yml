@@ -17,7 +17,7 @@ jobs:
             contents: read
 
         env:
-            TYPO3_EXTENSION_KEY: ${{ secrets.TYPO3_EXTENSION_KEY }}
+            TYPO3_EXTENSION_KEY: rte_ckeditor_image
             TYPO3_API_TOKEN: ${{ secrets.TYPO3_TER_ACCESS_TOKEN }}
 
         steps:
@@ -44,12 +44,13 @@ jobs:
                   SERVER_URL: ${{ github.server_url }}
                   REPO: ${{ github.repository }}
               run: |
-                  readonly local comment=$(git tag -n10 -l "v${TAG_VERSION}" | sed "s/^v[0-9.]*[ ]*//g")
+                  # Get first line of tag message only (avoid multiline issues)
+                  readonly local comment=$(git tag -n1 -l "v${TAG_VERSION}" | sed "s/^v[0-9.]*[ ]*//g")
 
                   if [[ -z "${comment// }" ]]; then
-                      echo "comment=Released version ${TAG_VERSION} of ${EXT_KEY} -- for details see ${SERVER_URL}/${REPO}/releases" >> $GITHUB_ENV
+                      echo "comment=Released version ${TAG_VERSION} of ${EXT_KEY}" >> $GITHUB_ENV
                   else
-                      echo "comment=${comment} -- for details see ${SERVER_URL}/${REPO}/releases" >> $GITHUB_ENV
+                      echo "comment=${comment}" >> $GITHUB_ENV
                   fi
 
             - name: Setup PHP
