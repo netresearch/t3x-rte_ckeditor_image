@@ -2,7 +2,6 @@ includes:
     - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-strict-rules/rules.neon
     - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-deprecation-rules/rules.neon
 #    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-phpunit/rules.neon
-    - %currentWorkingDirectory%/.Build/vendor/saschaegerer/phpstan-typo3/extension.neon
     - %currentWorkingDirectory%/Build/phpstan-baseline.neon
 
 parameters:
@@ -39,3 +38,11 @@ parameters:
         - identifier: argument.type
           path: %currentWorkingDirectory%/Tests/Unit/*
           message: '#Parameter \#2 \$array of static method PHPUnit\\Framework\\Assert::#'
+        # Ignore GeneralUtility::makeInstance() return type issues in functional tests
+        # These are correct but PHPStan can't infer types without phpstan-typo3 extension
+        - identifier: argument.type
+          path: %currentWorkingDirectory%/Tests/Functional/*
+        - identifier: assign.propertyType
+          path: %currentWorkingDirectory%/Tests/Functional/*
+        - identifier: method.nonObject
+          path: %currentWorkingDirectory%/Tests/Functional/*

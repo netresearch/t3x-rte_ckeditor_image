@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- TYPO3 v14.0 support - full compatibility with TYPO3 14.0+ while maintaining TYPO3 13.4 support
+- PHP 8.5 support - extends PHP compatibility to include the latest stable PHP version
+- DDEV environment for TYPO3 v14 local testing (`ddev install-v14`)
+
+### Changed
+
+- CI test matrix expanded to 8 combinations (TYPO3 13.4/14.0 x PHP 8.2/8.3/8.4/8.5)
+- Updated branch alias to 14.0.x-dev
+
 ## [13.1.5] - 2025-12-20
 
 > **Note:** Versions 13.1.0-13.1.4 were blocked by GitHub's immutable releases feature during release troubleshooting. This is the first published release of the 13.1.x series.

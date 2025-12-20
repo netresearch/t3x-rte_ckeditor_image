@@ -21,8 +21,8 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                typo3: [ '^13.0' ]
-                php: [ '8.2', '8.3', '8.4' ]
+                typo3: [ '^13.4', '^14.0' ]
+                php: [ '8.2', '8.3', '8.4', '8.5' ]
 
         steps:
             -   id: checkout
@@ -78,7 +78,9 @@ jobs:
                 run: |
                     composer require typo3/cms-core:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-backend:${{ matrix.typo3 }} --no-progress --no-update
+                    composer require typo3/cms-frontend:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-extbase:${{ matrix.typo3 }} --no-progress --no-update
+                    composer require typo3/cms-rte-ckeditor:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-extensionmanager:${{ matrix.typo3 }} --no-progress --no-update
                     composer install --no-interaction --prefer-dist
                     git checkout composer.json
@@ -135,7 +137,7 @@ jobs:
 
             -   id: coverage
                 name: Generate Coverage Report
-                if: ${{ always() && steps.functional.conclusion == 'success' && matrix.php == '8.3' }}
+                if: ${{ always() && steps.functional.conclusion == 'success' && matrix.php == '8.4' && matrix.typo3 == '^14.0' }}
                 env:
                     typo3DatabaseDriver: pdo_sqlite
                 run: |
@@ -143,7 +145,7 @@ jobs:
 
             -   id: upload-coverage
                 name: Upload Coverage to Codecov
-                if: ${{ always() && steps.coverage.conclusion == 'success' && matrix.php == '8.3' }}
+                if: ${{ always() && steps.coverage.conclusion == 'success' && matrix.php == '8.4' }}
                 uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
                 with:
                     files: .Build/logs/clover.xml
@@ -185,7 +187,7 @@ jobs:
 
             -   name: Run E2E Tests (TYPO3 Core pattern)
                 run: |
-                    Build/Scripts/runTests.sh -s e2e -p 8.3
+                    Build/Scripts/runTests.sh -s e2e -p 8.4
 
             -   name: Upload E2E Test Results
                 if: always()

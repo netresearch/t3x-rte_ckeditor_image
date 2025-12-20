@@ -47,8 +47,9 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
      */
     public function renderPageModulePreviewContent(GridColumnItem $item): string
     {
-        $row  = $item->getRecord();
-        $html = $row['bodytext'] ?? '';
+        $record = $item->getRecord();
+        $row    = $item->getRow();
+        $html   = $row['bodytext'] ?? '';
 
         // Sanitize HTML (replaces invalid chars with U+FFFD)<.
         // - Invalid control chars: [\x00-\x08\x0B\x0C\x0E-\x1F]
@@ -63,7 +64,7 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
         return $this
             ->linkEditContent(
                 $this->renderTextWithHtml($html),
-                $row,
+                $record,
             )
             . '<br />';
     }

@@ -51,6 +51,9 @@ return static function (RectorConfig $rectorConfig): void {
 
         // PHP 8.4 support for latest language features
         LevelSetList::UP_TO_PHP_84,
+
+        // Use UP_TO_TYPO3_13 for dual v13/v14 support
+        // UP_TO_TYPO3_14 would migrate to v14-only APIs breaking v13 compatibility
         Typo3LevelSetList::UP_TO_TYPO3_13,
     ]);
 

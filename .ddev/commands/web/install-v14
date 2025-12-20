@@ -1,0 +1,175 @@
+#!/bin/bash
+
+## Description: Install TYPO3 14.0 with your extension
+## Usage: install-v14
+## Example: ddev install-v14
+
+VERSION=v14
+
+# Test image dimensions for E2E tests
+TEST_IMAGE_WIDTH=800
+TEST_IMAGE_HEIGHT=600
+
+rm -rf /var/www/html/$VERSION/*
+mkdir -p /var/www/html/$VERSION/
+echo "{}" > /var/www/html/$VERSION/composer.json
+composer config extra.typo3/cms.web-dir public -d /var/www/html/$VERSION
+composer config repositories.$EXTENSION_KEY path ../../$EXTENSION_KEY -d /var/www/html/$VERSION
+composer config --no-plugins allow-plugins.typo3/cms-composer-installers true -d /var/www/html/$VERSION
+composer config --no-plugins allow-plugins.typo3/class-alias-loader true -d /var/www/html/$VERSION
+composer req t3/cms:'^14' $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
+composer req typo3/cms-extensionmanager typo3/cms-dashboard typo3/cms-reports --no-progress -n -d /var/www/html/$VERSION
+composer req --dev typo3/cms-styleguide bk2k/bootstrap-package:'^16.0' --no-progress -n -d /var/www/html/$VERSION
+
+cd /var/www/html/$VERSION
+
+mysql -h db -u root -p"root" -e "DROP DATABASE IF EXISTS ${VERSION};"
+mysql -h db -u root -p"root" -e "CREATE DATABASE ${VERSION};"
+
+vendor/bin/typo3 setup -n --dbname=$VERSION --password=$TYPO3_DB_PASSWORD --create-site="https://${VERSION}.rte-ckeditor-image.ddev.site" --admin-user-password=$TYPO3_SETUP_ADMIN_PASSWORD
+
+vendor/bin/typo3 configuration:set 'BE/debug' 1
+vendor/bin/typo3 configuration:set 'FE/debug' 1
+vendor/bin/typo3 configuration:set 'SYS/devIPmask' '*'
+vendor/bin/typo3 configuration:set 'SYS/displayErrors' 1
+# Create additional.php for trustedHostsPattern (configuration:set doesn't work reliably for this)
+mkdir -p /var/www/html/$VERSION/config/system
+echo '<?php' > /var/www/html/$VERSION/config/system/additional.php
+echo '$GLOBALS["TYPO3_CONF_VARS"]["SYS"]["trustedHostsPattern"] = ".*";' >> /var/www/html/$VERSION/config/system/additional.php
+vendor/bin/typo3 configuration:set 'MAIL/transport' 'smtp'
+vendor/bin/typo3 configuration:set 'MAIL/transport_smtp_server' 'localhost:1025'
+vendor/bin/typo3 configuration:set 'MAIL/defaultMailFromAddress' 'admin@example.com'
+vendor/bin/typo3 configuration:set 'GFX/processor' 'ImageMagick'
+vendor/bin/typo3 configuration:set 'GFX/processor_path' '/usr/bin/'
+
+sed -i "/'deprecations'/,/^[[:space:]]*'disabled' => true,/s/'disabled' => true,/'disabled' => false,/" /var/www/html/$VERSION/config/system/settings.php
+
+vendor/bin/typo3 extension:setup
+
+# Generate styleguide demo content for E2E tests
+# This creates pages with various content elements including images
+vendor/bin/typo3 styleguide:generate
+
+# Add test content to homepage for E2E tests
+# The styleguide creates demo content, but E2E tests need content on the root page
+# Add a text content element with an image in the bodytext
+# NOTE: MySQL credentials are hardcoded for DDEV local development only
+
+# First, create the test image file (needed before FAL registration)
+mkdir -p public/fileadmin/user_upload
+if command -v convert &> /dev/null; then
+    convert -size ${TEST_IMAGE_WIDTH}x${TEST_IMAGE_HEIGHT} \
+        xc:blue \
+        -pointsize 48 \
+        -fill white \
+        -gravity center \
+        -annotate +0+0 'Test Image\nfor E2E Tests' \
+        public/fileadmin/user_upload/example.jpg
+else
+    echo "Warning: ImageMagick not found, creating minimal placeholder image"
+    echo '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9/KKKKAP/2Q==' | base64 -d > public/fileadmin/user_upload/example.jpg
+fi
+
+# Get actual file info for FAL entry
+TEST_FILE_PATH="public/fileadmin/user_upload/example.jpg"
+TEST_FILE_SIZE=$(stat -c%s "$TEST_FILE_PATH" 2>/dev/null || stat -f%z "$TEST_FILE_PATH")
+TEST_FILE_SHA1=$(sha1sum "$TEST_FILE_PATH" 2>/dev/null | cut -d' ' -f1 || shasum "$TEST_FILE_PATH" | cut -d' ' -f1)
+
+# Create FAL entry in sys_file for proper click-to-enlarge support
+# The click-to-enlarge feature requires:
+# 1. A valid sys_file entry (with metadata for width/height)
+# 2. data-htmlarea-file-uid attribute pointing to the sys_file UID
+# 3. data-htmlarea-zoom="true" attribute
+mysql -h db -u root -p"root" $VERSION << EOSQL
+-- Insert sys_file entry for the test image
+INSERT INTO sys_file (
+    pid, storage, type, identifier, identifier_hash, folder_hash,
+    extension, mime_type, name, sha1, size,
+    creation_date, modification_date, tstamp, last_indexed
+)
+VALUES (
+    0,
+    1,
+    2,
+    '/user_upload/example.jpg',
+    SHA1('/user_upload/example.jpg'),
+    SHA1('/user_upload'),
+    'jpg',
+    'image/jpeg',
+    'example.jpg',
+    '$TEST_FILE_SHA1',
+    $TEST_FILE_SIZE,
+    UNIX_TIMESTAMP(),
+    UNIX_TIMESTAMP(),
+    UNIX_TIMESTAMP(),
+    UNIX_TIMESTAMP()
+);
+
+-- Get the sys_file UID we just created
+SET @file_uid = LAST_INSERT_ID();
+
+-- Insert sys_file_metadata with width/height (required for image processing)
+INSERT INTO sys_file_metadata (
+    pid, tstamp, crdate, file, width, height
+)
+VALUES (
+    0,
+    UNIX_TIMESTAMP(),
+    UNIX_TIMESTAMP(),
+    @file_uid,
+    $TEST_IMAGE_WIDTH,
+    $TEST_IMAGE_HEIGHT
+);
+
+-- Update sys_file to link to metadata
+UPDATE sys_file SET metadata = LAST_INSERT_ID() WHERE uid = @file_uid;
+
+-- Insert tt_content with proper RTE image attributes for click-to-enlarge
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (
+    1,
+    'text',
+    'Welcome to RTE CKEditor Image Demo',
+    CONCAT(
+        '<p>This is a test page with an image:</p>',
+        '<p><img src="fileadmin/user_upload/example.jpg" alt="Example image" ',
+        'width="$TEST_IMAGE_WIDTH" height="$TEST_IMAGE_HEIGHT" ',
+        'data-htmlarea-file-uid="', @file_uid, '" ',
+        'data-htmlarea-zoom="true" /></p>',
+        '<p>Click the image to see the click-to-enlarge functionality.</p>'
+    ),
+    0,
+    0,
+    UNIX_TIMESTAMP(),
+    UNIX_TIMESTAMP(),
+    0,
+    256
+);
+EOSQL
+
+# Add site sets to site configuration (TYPO3 v13 approach)
+# Bootstrap Package is added for frontend rendering demo
+# Note: rte_ckeditor_image uses an event listener for true zero-configuration,
+# so adding it to dependencies is optional (but recommended for clarity)
+if [ -f config/sites/main/config.yaml ]; then
+    # Remove any existing dependencies section
+    sed -i '/^dependencies:/d' config/sites/main/config.yaml
+    sed -i '/^  - /d' config/sites/main/config.yaml
+
+    # Add dependencies section with Bootstrap Package
+    # rte_ckeditor_image uses AfterTemplatesHaveBeenDeterminedEvent for auto-injection
+    echo "dependencies:" >> config/sites/main/config.yaml
+    echo "  - bootstrap-package/full" >> config/sites/main/config.yaml
+fi
+
+vendor/bin/typo3 cache:flush
+
+echo ""
+echo "TYPO3 $VERSION installation complete!"
+echo ""
+echo "rte_ckeditor_image is auto-configured (true zero-configuration)"
+echo "- TypoScript automatically injected via AfterTemplatesHaveBeenDeterminedEvent"
+echo "- Works with Bootstrap Package without manual sys_template configuration"
+echo "- Test content with images added to homepage for E2E testing"
+echo ""
+echo "Test click-to-enlarge: https://${VERSION}.rte-ckeditor-image.ddev.site/"

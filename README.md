@@ -14,7 +14,7 @@
 
 # Image support for CKEditor for TYPO3
 
-**Version 13.0.x** for TYPO3 13.4+
+**Version 14.0.x** for TYPO3 13.4+ and TYPO3 14.0+
 **License:** AGPL-3.0-or-later
 
 This extension adds comprehensive image handling capabilities to CKEditor for TYPO3.\
@@ -35,8 +35,8 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
 
 ## Requirements
 
-- **TYPO3:** 13.4 or later
-- **PHP:** 8.2, 8.3, or 8.4
+- **TYPO3:** 13.4 LTS or 14.0+
+- **PHP:** 8.2, 8.3, 8.4, or 8.5
 - **Extensions:** cms-rte-ckeditor (included in TYPO3 core)
 
 ### Critical Dependencies (v13.0.0+)
@@ -258,8 +258,9 @@ make up                      # Start DDEV + complete setup (ONE COMMAND!)
 # Access your environment
 # - Overview:       https://rte-ckeditor-image.ddev.site/
 # - Documentation:  https://docs.rte-ckeditor-image.ddev.site/
-# - TYPO3 Frontend: https://v13.rte-ckeditor-image.ddev.site/
-# - TYPO3 Backend:  https://v13.rte-ckeditor-image.ddev.site/typo3/
+# - TYPO3 v13:      https://v13.rte-ckeditor-image.ddev.site/
+# - TYPO3 v14:      https://v14.rte-ckeditor-image.ddev.site/
+# - Backend:        [version].rte-ckeditor-image.ddev.site/typo3/
 # - Credentials:    admin / Password:joh316
 
 # Individual commands
