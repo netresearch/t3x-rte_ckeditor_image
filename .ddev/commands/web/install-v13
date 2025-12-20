@@ -23,8 +23,12 @@ composer req --dev typo3/cms-styleguide bk2k/bootstrap-package:'^15.0' --no-prog
 
 cd /var/www/html/$VERSION
 
-mysql -h db -u root -p"root" -e "DROP DATABASE IF EXISTS ${VERSION};"
-mysql -h db -u root -p"root" -e "CREATE DATABASE ${VERSION};"
+# MySQL credentials use environment variables with DDEV defaults
+DB_HOST="${MYSQL_HOST:-db}"
+DB_USER="${MYSQL_USER:-root}"
+DB_PASSWORD="${MYSQL_PASSWORD:-root}"
+mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" -e "DROP DATABASE IF EXISTS ${VERSION};"
+mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" -e "CREATE DATABASE ${VERSION};"
 
 vendor/bin/typo3 setup -n --dbname=$VERSION --password=$TYPO3_DB_PASSWORD --create-site="https://${VERSION}.rte-ckeditor-image.ddev.site" --admin-user-password=$TYPO3_SETUP_ADMIN_PASSWORD
 
@@ -53,7 +57,6 @@ vendor/bin/typo3 styleguide:generate
 # Add test content to homepage for E2E tests
 # The styleguide creates demo content, but E2E tests need content on the root page
 # Add a text content element with an image in the bodytext
-# NOTE: MySQL credentials are hardcoded for DDEV local development only
 
 # First, create the test image file (needed before FAL registration)
 mkdir -p public/fileadmin/user_upload
@@ -80,7 +83,7 @@ TEST_FILE_SHA1=$(sha1sum "$TEST_FILE_PATH" 2>/dev/null | cut -d' ' -f1 || shasum
 # 1. A valid sys_file entry (with metadata for width/height)
 # 2. data-htmlarea-file-uid attribute pointing to the sys_file UID
 # 3. data-htmlarea-zoom="true" attribute
-mysql -h db -u root -p"root" $VERSION << EOSQL
+mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" "$VERSION" << EOSQL
 -- Insert sys_file entry for the test image
 INSERT INTO sys_file (
     pid, storage, type, identifier, identifier_hash, folder_hash,

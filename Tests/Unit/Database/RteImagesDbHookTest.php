@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Database;
 
-use ArgumentCountError;
 use Netresearch\RteCKEditorImage\Database\RteImagesDbHook;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -176,6 +175,14 @@ final class RteImagesDbHookTest extends UnitTestCase
     #[Test]
     public function processDatamapPostProcessFieldArrayHandlesNonRteField(): void
     {
+        // TYPO3 v14+ requires TcaSchemaFactory in DI container for BackendUtility::getTCAtypeValue()
+        // Unit tests don't have proper DI setup, so skip on v14+
+        // Detection: GridColumnItem::getRow() was added in v14
+        // @phpstan-ignore function.alreadyNarrowedType (v14 detection - evaluates differently per TYPO3 version)
+        if (method_exists(\TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem::class, 'getRow')) {
+            self::markTestSkipped('Test requires functional test setup for TYPO3 v14+ (TcaSchemaFactory needs DI container)');
+        }
+
         $status     = 'update';
         $table      = 'tt_content';
         $id         = '123';
@@ -189,23 +196,13 @@ final class RteImagesDbHookTest extends UnitTestCase
             'type' => 'text',
         ];
 
-        // Skip test if TcaSchemaFactory is not available (TYPO3 v14+ without DI container)
-        // This test requires BackendUtility::getTCAtypeValue() which needs TcaSchemaFactory
-        try {
-            $this->subject->processDatamap_postProcessFieldArray(
-                $status,
-                $table,
-                $id,
-                $fieldArray,
-                $dataHandlerMock,
-            );
-        } catch (ArgumentCountError $e) {
-            if (str_contains($e->getMessage(), 'TcaSchemaFactory')) {
-                self::markTestSkipped('Test requires functional test setup for TYPO3 v14+ TcaSchemaFactory');
-            }
-
-            throw $e;
-        }
+        $this->subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandlerMock,
+        );
 
         // Field array should remain unchanged for non-RTE fields
         self::assertSame('plain text content', $fieldArray['bodytext']);
