@@ -76,51 +76,47 @@ Key Features
       .. card-footer:: :ref:`Security Guide <integration-security>`
          :button-style: btn btn-secondary stretched-link
 
-New in v13.1.5
-==============
-
-.. versionadded:: 13.1.5
-
-.. card-grid::
-   :columns: 1
-   :columns-md: 2
-   :gap: 4
-   :card-height: 100
-
    .. card:: Quality Multipliers
+      :class: border-success
 
-      Retina (2x), Ultra (3x), and Print (6x) quality settings for high-DPI displays.
+      |new135| Retina (2x), Ultra (3x), and Print (6x) quality settings for high-DPI displays.
 
       .. card-footer:: :ref:`Quality Settings <integration-configuration-quality>`
          :button-style: btn btn-secondary stretched-link
 
    .. card:: noScale Mode
+      :class: border-success
 
-      Skip image processing entirely for pre-optimized images (SVG, WebP, optimized PNG).
+      |new135| Skip image processing entirely for pre-optimized images (SVG, WebP, optimized PNG).
 
       .. card-footer:: :ref:`Image Processing <integration-configuration-image-processing>`
          :button-style: btn btn-secondary stretched-link
 
    .. card:: Service Architecture
+      :class: border-success
 
-      Modern Parser → Resolver → Renderer pipeline with dependency injection.
+      |new135| Modern Parser → Resolver → Renderer pipeline with dependency injection.
 
       .. card-footer:: :ref:`Services API <api-services>`
          :button-style: btn btn-secondary stretched-link
 
    .. card:: Fluid Templates
+      :class: border-success
 
-      Customizable output via template overrides for complete rendering control.
+      |new135| Customizable output via template overrides for complete rendering control.
 
       .. card-footer:: :ref:`Template Overrides <examples-template-overrides>`
          :button-style: btn btn-secondary stretched-link
 
    .. card:: TYPO3 v14 & PHP 8.5
+      :class: border-success
 
-      Full compatibility with TYPO3 v14 and tested with PHP 8.5.
+      |new135| Full compatibility with TYPO3 v14 and tested with PHP 8.5.
 
       .. card-footer:: :ref:`Requirements <requirements>`
          :button-style: btn btn-secondary stretched-link
+
+.. |new135| replace:: **[New in 13.1.5]**
 
 Visual Preview
 ==============
