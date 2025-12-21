@@ -26,6 +26,13 @@ Configuration of page TSConfig settings for image handling, upload folders, and 
 Page TSConfig
 =============
 
+.. figure:: /Images/backend-tsconfig-rte.png
+   :alt: Page TSConfig module showing RTE configuration
+   :class: with-shadow
+   :width: 600px
+
+   Page TSConfig configuration in the TYPO3 backend
+
 Magic Image Configuration
 -------------------------
 

@@ -118,6 +118,13 @@ Quality Multipliers
 
 The extension supports quality multipliers for high-DPI displays and print output:
 
+.. figure:: /Images/backend-quality-selector-dropdown.png
+   :alt: Quality selector dropdown in image properties dialog
+   :class: with-shadow
+   :width: 400px
+
+   Quality multiplier dropdown in the image properties dialog
+
 ..  list-table:: Quality multiplier options
     :header-rows: 1
     :widths: 20 15 65
@@ -152,6 +159,13 @@ The extension supports quality multipliers for high-DPI displays and print outpu
 
 Editors can select quality from a dropdown in the image dialog. The selection
 persists with the image and affects frontend processing dimensions.
+
+.. figure:: /Images/backend-image-properties-dialog.png
+   :alt: Image properties dialog showing all configuration options
+   :class: with-shadow
+   :width: 500px
+
+   Complete image properties dialog with title, alt text, dimensions, and quality settings
 
 **TSConfig for quality-based processing:**
 

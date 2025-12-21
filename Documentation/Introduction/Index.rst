@@ -124,11 +124,18 @@ Key Features
 Visual Preview
 ==============
 
+.. figure:: /Images/backend-rte-editor.png
+   :alt: Rich Text Editor with image support in TYPO3 backend
+   :class: with-shadow
+   :width: 600px
+
+   The RTE with image support enabled, showing an inserted image with styling options
+
 .. figure:: /Images/demo.gif
    :alt: RTE CKEditor Image extension demo
    :class: with-shadow
 
-   Image insertion and configuration in CKEditor with TYPO3 file browser integration
+   Image insertion and configuration workflow in CKEditor with TYPO3 file browser integration
 
 Version Information
 ===================
@@ -188,18 +195,32 @@ Install via Composer:
 
    composer require netresearch/rte-ckeditor-image
 
+.. figure:: /Images/backend-extensions-list.png
+   :alt: Extension Manager showing RTE CKEditor Image extension installed
+   :class: with-shadow
+   :width: 600px
+
+   The extension appears in the TYPO3 Extension Manager after installation
+
 **That's it!** The extension works completely out-of-the-box with zero configuration:
 
 - ✅ **Backend RTE**: Automatically registers the ``rteWithImages`` preset and configures the toolbar with ``insertimage`` button for all sites
 - ✅ **Frontend Rendering**: Automatically loads TypoScript for proper image rendering via ``lib.parseFunc_RTE``
 - ✅ **No Manual Steps**: No template inclusion, no TSConfig setup, no YAML configuration required
 
-.. figure:: /Images/demo.gif
-   :alt: Image button in CKEditor toolbar
+.. note::
+   **Using Bootstrap Package or other theme extensions?**
+
+   If your site uses ``bootstrap_package`` or another theme extension with Site Sets,
+   you may need to add this extension to your site dependencies. See
+   :ref:`troubleshooting-installation-issues` for the one-line fix.
+
+.. figure:: /Images/backend-rte-with-image-button.png
+   :alt: CKEditor toolbar with image insert button highlighted
    :class: with-shadow
    :width: 600px
 
-   The ``insertimage`` button provides full image management capabilities with TYPO3 file browser integration
+   The ``insertimage`` button in the CKEditor toolbar opens the TYPO3 file browser for image selection
 
 Custom Configuration (Optional)
 ================================
