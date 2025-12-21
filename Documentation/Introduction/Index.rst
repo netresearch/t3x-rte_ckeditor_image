@@ -14,24 +14,113 @@ integration into TYPO3's File Abstraction Layer (FAL).
 Key Features
 ============
 
-- :ref:`Native CKEditor 5 plugin integration <ckeditor-plugin-development>`
-- :ref:`Full TYPO3 FAL support <integration-configuration-rte-setup>` with file browser integration
-- :ref:`Advanced image processing <integration-configuration-image-processing>` (magic images, cropping, scaling)
-- :ref:`Custom image style configuration <examples-image-styles>`
-- :ref:`Responsive image support <examples-responsive-images>`
-- :ref:`Lazy loading and performance optimization <examples-advanced-features>`
-- :ref:`Event-driven architecture <api-eventlisteners>` for extensibility
+.. card-grid::
+   :columns: 1
+   :columns-md: 2
+   :gap: 4
+   :card-height: 100
+
+   .. card:: CKEditor 5 Integration
+
+      Native CKEditor 5 plugin with full toolbar integration and TYPO3 file browser support.
+
+      .. card-footer:: :ref:`Plugin Development <ckeditor-plugin-development>`
+         :button-style: btn btn-secondary stretched-link
+
+   .. card:: TYPO3 FAL Support
+
+      Full File Abstraction Layer integration with file references, metadata, and browser.
+
+      .. card-footer:: :ref:`RTE Setup <integration-configuration-rte-setup>`
+         :button-style: btn btn-secondary stretched-link
+
+   .. card:: Image Processing
+
+      Magic images, cropping, scaling with configurable quality multipliers (1x-6x).
+
+      .. card-footer:: :ref:`Configuration <integration-configuration-image-processing>`
+         :button-style: btn btn-secondary stretched-link
+
+   .. card:: Custom Styles
+
+      Define custom image styles (borders, shadows, alignment) via YAML configuration.
+
+      .. card-footer:: :ref:`Image Styles <examples-image-styles>`
+         :button-style: btn btn-secondary stretched-link
+
+   .. card:: Responsive Images
+
+      Automatic srcset generation and picture element support for responsive layouts.
+
+      .. card-footer:: :ref:`Responsive Examples <examples-responsive-images>`
+         :button-style: btn btn-secondary stretched-link
+
+   .. card:: Performance
+
+      Native lazy loading, intersection observer fallback, and optimized rendering.
+
+      .. card-footer:: :ref:`Advanced Features <examples-advanced-features>`
+         :button-style: btn btn-secondary stretched-link
+
+   .. card:: Event Architecture
+
+      PSR-14 event dispatching for custom image processing and rendering hooks.
+
+      .. card-footer:: :ref:`Event Listeners <api-eventlisteners>`
+         :button-style: btn btn-secondary stretched-link
+
+   .. card:: Security
+
+      Protocol blocking, XSS prevention, file validation, and FAL-based access control.
+
+      .. card-footer:: :ref:`Security Guide <integration-security>`
+         :button-style: btn btn-secondary stretched-link
+
+New in v13.1.5
+==============
 
 .. versionadded:: 13.1.5
 
-   - **Quality multipliers**: Retina (2x), Ultra (3x), Print (6x) quality settings.
-   - **noScale mode**: Skip image processing for pre-optimized images.
-   - **SVG support**: Native SVG dimension extraction and handling.
-   - **Service architecture**: Modern Parser → Resolver → Renderer pipeline.
-   - **Fluid templates**: Customizable output via template overrides.
-   - **Enhanced security**: Protocol blocking, XSS prevention, file validation.
-   - **TYPO3 v14 support**: Full compatibility with TYPO3 v14.
-   - **PHP 8.5 support**: Tested with PHP 8.5.
+.. card-grid::
+   :columns: 1
+   :columns-md: 2
+   :gap: 4
+   :card-height: 100
+
+   .. card:: Quality Multipliers
+
+      Retina (2x), Ultra (3x), and Print (6x) quality settings for high-DPI displays.
+
+      .. card-footer:: :ref:`Quality Settings <integration-configuration-quality>`
+         :button-style: btn btn-secondary stretched-link
+
+   .. card:: noScale Mode
+
+      Skip image processing entirely for pre-optimized images (SVG, WebP, optimized PNG).
+
+      .. card-footer:: :ref:`Image Processing <integration-configuration-image-processing>`
+         :button-style: btn btn-secondary stretched-link
+
+   .. card:: Service Architecture
+
+      Modern Parser → Resolver → Renderer pipeline with dependency injection.
+
+      .. card-footer:: :ref:`Services API <api-services>`
+         :button-style: btn btn-secondary stretched-link
+
+   .. card:: Fluid Templates
+
+      Customizable output via template overrides for complete rendering control.
+
+      .. card-footer:: :ref:`Template Overrides <examples-template-overrides>`
+         :button-style: btn btn-secondary stretched-link
+
+   .. card:: TYPO3 v14 & PHP 8.5
+
+      Full compatibility with TYPO3 v14 and tested with PHP 8.5.
+
+      .. card-footer:: :ref:`Requirements <requirements>`
+         :button-style: btn btn-secondary stretched-link
 
 Visual Preview
 ==============
