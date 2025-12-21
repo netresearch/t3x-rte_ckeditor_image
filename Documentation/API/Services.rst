@@ -1,3 +1,5 @@
+.. include:: /Includes.rst.txt
+
 .. _api-services:
 
 ============
@@ -23,22 +25,34 @@ Architecture overview
     :caption: Service pipeline architecture
 
     skinparam componentStyle rectangle
+    skinparam backgroundColor white
 
-    component "ImageAttributeParser" as Parser {
-        note right: HTML Parsing\nDOMDocument\nAttribute extraction
-    }
+    component "ImageAttributeParser" as Parser
+    component "ImageResolverService" as Resolver
+    component "ImageRenderingService" as Renderer
+    component "Rendered HTML" as Output
 
-    component "ImageResolverService" as Resolver {
-        note right: Business Logic\nSecurity Validation\nFAL Processing
-    }
+    note right of Parser
+        HTML Parsing
+        DOMDocument
+        Attribute extraction
+    end note
 
-    component "ImageRenderingService" as Renderer {
-        note right: Fluid Rendering\nViewFactoryInterface\nTemplate Selection
-    }
+    note right of Resolver
+        Business Logic
+        Security Validation
+        FAL Processing
+    end note
+
+    note right of Renderer
+        Fluid Rendering
+        ViewFactoryInterface
+        Template Selection
+    end note
 
     Parser --> Resolver : Raw attributes
     Resolver --> Renderer : ImageRenderingDto
-    Renderer --> [Rendered HTML]
+    Renderer --> Output
 
 ImageAttributeParser
 ====================
