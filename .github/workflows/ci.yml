@@ -195,9 +195,10 @@ jobs:
                     cd Tests/E2E && npm ci --ignore-scripts
 
             -   name: Run E2E Tests (TYPO3 Core pattern)
-                # E2E tests run once on PHP 8.4 - they test browser behavior, not PHP version compatibility
+                # E2E tests run once - they test browser behavior, not PHP version compatibility
+                # Using PHP 8.5 to ensure compatibility with latest supported version
                 run: |
-                    Build/Scripts/runTests.sh -s e2e -p 8.4
+                    Build/Scripts/runTests.sh -s e2e -p 8.5
 
             -   name: Upload E2E Test Results
                 if: always()
