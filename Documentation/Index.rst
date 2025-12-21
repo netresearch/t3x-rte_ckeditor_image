@@ -13,7 +13,7 @@ RTE CKEditor Image
    netresearch/rte-ckeditor-image
 
 :Version:
-   13.0.x
+   |release|
 
 :Language:
    en
