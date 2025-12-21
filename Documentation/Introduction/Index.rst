@@ -77,46 +77,49 @@ Key Features
          :button-style: btn btn-secondary stretched-link
 
    .. card:: Quality Multipliers
-      :class: border-success
 
-      |new135| Retina (2x), Ultra (3x), and Print (6x) quality settings for high-DPI displays.
+      .. versionadded:: 13.1.5
+
+      Retina (2x), Ultra (3x), and Print (6x) quality settings for high-DPI displays.
 
       .. card-footer:: :ref:`Quality Settings <integration-configuration-quality>`
          :button-style: btn btn-secondary stretched-link
 
    .. card:: noScale Mode
-      :class: border-success
 
-      |new135| Skip image processing entirely for pre-optimized images (SVG, WebP, optimized PNG).
+      .. versionadded:: 13.1.5
+
+      Skip image processing entirely for pre-optimized images (SVG, WebP, optimized PNG).
 
       .. card-footer:: :ref:`Image Processing <integration-configuration-image-processing>`
          :button-style: btn btn-secondary stretched-link
 
    .. card:: Service Architecture
-      :class: border-success
 
-      |new135| Modern Parser → Resolver → Renderer pipeline with dependency injection.
+      .. versionadded:: 13.1.5
+
+      Modern Parser → Resolver → Renderer pipeline with dependency injection.
 
       .. card-footer:: :ref:`Services API <api-services>`
          :button-style: btn btn-secondary stretched-link
 
    .. card:: Fluid Templates
-      :class: border-success
 
-      |new135| Customizable output via template overrides for complete rendering control.
+      .. versionadded:: 13.1.5
+
+      Customizable output via template overrides for complete rendering control.
 
       .. card-footer:: :ref:`Template Overrides <examples-template-overrides>`
          :button-style: btn btn-secondary stretched-link
 
    .. card:: TYPO3 v14 & PHP 8.5
-      :class: border-success
 
-      |new135| Full compatibility with TYPO3 v14 and tested with PHP 8.5.
+      .. versionadded:: 13.1.5
+
+      Full compatibility with TYPO3 v14 and tested with PHP 8.5.
 
       .. card-footer:: :ref:`Requirements <requirements>`
          :button-style: btn btn-secondary stretched-link
-
-.. |new135| replace:: **[New in 13.1.5]**
 
 Visual Preview
 ==============
