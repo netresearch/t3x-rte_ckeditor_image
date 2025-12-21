@@ -8,6 +8,11 @@ Integration & Configuration
 
 Complete configuration reference and integration guide for the RTE CKEditor Image extension.
 
+.. versionchanged:: 13.1.5
+
+   Added quality multipliers, noScale mode, SVG support, and new service architecture.
+   See :ref:`integration-configuration-quality` for quality settings.
+
 .. important::
    **Zero-Configuration Installation (v13.0.0+)**
 
@@ -123,6 +128,13 @@ Configuration Topics
         ..  card-footer:: :ref:`Read more <integration-configuration-advanced>`
             :button-style: btn btn-primary stretched-link
 
+    ..  card:: 🛡️ Security
+
+        Security features, file validation, and XSS protection
+
+        ..  card-footer:: :ref:`Read more <integration-security>`
+            :button-style: btn btn-primary stretched-link
+
 Related Documentation
 =====================
 
@@ -169,3 +181,4 @@ Related Documentation
    TSConfig
    Frontend-Rendering
    Advanced-Configuration
+   Security

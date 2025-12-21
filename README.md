@@ -29,6 +29,8 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
 - **Custom Styles**: Configurable image styles with CKEditor 5 style system
 - **Lazy Loading**: TYPO3 native browser lazyload support
 - **Event-Driven**: PSR-14 events for extensibility
+- **Security**: Protocol blocking, XSS prevention, file visibility validation
+- **Fluid Templates**: Customizable output via template overrides (v13.1.5+)
 
 ## Requirements
 
@@ -159,7 +161,7 @@ The extension supports [TYPO3 lazyload handling](https://docs.typo3.org/c/typo3/
 styles.content.image.lazyLoading = lazy
 ```
 
-### Image Quality Selector (v13.1.0+)
+### Image Quality Selector (v13.1.5+)
 
 The image dialog includes a quality selector dropdown for optimal image processing:
 

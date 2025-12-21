@@ -22,6 +22,17 @@ Key Features
 - Lazy loading and performance optimization
 - Event-driven architecture for extensibility
 
+.. versionadded:: 13.1.5
+
+   - **Quality multipliers**: Retina (2x), Ultra (3x), Print (6x) quality settings.
+   - **noScale mode**: Skip image processing for pre-optimized images.
+   - **SVG support**: Native SVG dimension extraction and handling.
+   - **Service architecture**: Modern Parser → Resolver → Renderer pipeline.
+   - **Fluid templates**: Customizable output via template overrides.
+   - **Enhanced security**: Protocol blocking, XSS prevention, file validation.
+   - **TYPO3 v14 support**: Full compatibility with TYPO3 v14.
+   - **PHP 8.5 support**: Tested with PHP 8.5.
+
 Visual Preview
 ==============
 

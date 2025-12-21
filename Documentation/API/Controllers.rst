@@ -4,20 +4,28 @@
 Controllers API
 ===============
 
-Controllers handle HTTP requests in the backend, providing image selection, information retrieval, and processing capabilities.
+Controllers handle HTTP requests in the backend and bridge TypoScript to the service architecture.
 
-.. contents:: Table of Contents
+.. contents:: Table of contents
    :depth: 3
    :local:
+
+.. versionchanged:: 13.1.5
+
+   The legacy :php:`ImageRenderingController` and :php:`ImageLinkRenderingController` were removed
+   and replaced with :php:`ImageRenderingAdapter` using the new service architecture.
+   See :ref:`api-services` for the new service-based approach.
 
 SelectImageController
 =====================
 
 .. _api-selectimagecontroller:
 
-:Namespace: ``Netresearch\RteCKEditorImage\Controller``
-:Purpose: Main controller for image selection and processing in the CKEditor context
-:Backend Route: ``rteckeditorimage_wizard_select_image`` → ``/rte/wizard/selectimage``
+..  php:class:: Netresearch\RteCKEditorImage\Controller\SelectImageController
+
+    Main controller for image selection and processing in the CKEditor context.
+
+    :Backend Route: `rteckeditorimage_wizard_select_image` → `/rte/wizard/selectimage`
 
 Methods
 -------
@@ -25,133 +33,90 @@ Methods
 mainAction()
 ~~~~~~~~~~~~
 
-.. php:method:: mainAction(ServerRequestInterface $request): ResponseInterface
+..  php:method:: mainAction(ServerRequestInterface $request): ResponseInterface
 
-   Entry point for the image browser/selection interface.
+    Entry point for the image browser/selection interface.
 
-   :param ServerRequestInterface $request: PSR-7 server request with query parameters
-   :returns: PSR-7 response with file browser HTML
-   :returntype: ResponseInterface
+    :param ServerRequestInterface $request: PSR-7 server request with query parameters.
+    :returns: PSR-7 response with file browser HTML.
+    :returntype: ResponseInterface
 
-   **Query Parameters:**
+**Query parameters:**
 
-   :`mode`: Browser mode (default: ``file`` from route configuration)
-   :`bparams`: Browser parameters passed to file browser
+-  `mode`: Browser mode (default: `file` from route configuration).
+-  `bparams`: Browser parameters passed to file browser.
 
-   **Usage Example:**
+**Usage example:**
 
-   .. code-block:: javascript
+..  code-block:: javascript
+    :caption: CKEditor plugin integration
 
-      // Called from CKEditor plugin
-      const contentUrl = routeUrl + '&contentsLanguage=en&editorId=123&bparams=' + bparams.join('|');
+    // Called from CKEditor plugin
+    const contentUrl = routeUrl + '&contentsLanguage=en&editorId=123&bparams=' + bparams.join('|');
 
 infoAction()
 ~~~~~~~~~~~~
 
-.. php:method:: infoAction(ServerRequestInterface $request): ResponseInterface
+..  php:method:: infoAction(ServerRequestInterface $request): ResponseInterface
 
-   Returns JSON with image information and processed variants.
+    Returns JSON with image information and processed variants.
 
-   :param ServerRequestInterface $request: Server request with file identification and processing parameters
-   :returns: JSON response with image data
-   :returntype: ResponseInterface
+    :param ServerRequestInterface $request: Server request with file identification and processing parameters.
+    :returns: JSON response with image data.
+    :returntype: ResponseInterface
 
-   **Query Parameters:**
+**Query parameters:**
 
-   :`fileId`: FAL file UID
-   :`table`: Database table (usually ``sys_file``)
-   :`P[width]`: Desired width (optional)
-   :`P[height]`: Desired height (optional)
-   :`action`: Action type (``info``)
+-  `fileId`: FAL file UID.
+-  `table`: Database table (usually `sys_file`).
+-  `P[width]`: Desired width (optional).
+-  `P[height]`: Desired height (optional).
+-  `action`: Action type (`info`).
 
-   **Response Structure:**
+**Response structure:**
 
-   .. code-block:: json
+..  code-block:: json
+    :caption: Image info API response
 
-      {
-        "uid": 123,
-        "url": "/fileadmin/user_upload/image.jpg",
-        "width": 1920,
-        "height": 1080,
-        "title": "Image title",
-        "alt": "Alternative text",
-        "processed": {
-          "url": "/fileadmin/_processed_/image_hash.jpg",
-          "width": 800,
-          "height": 450
-        },
-        "lang": {
-          "override": "Override %s",
-          "overrideNoDefault": "Override (no default)",
-          "zoom": "Zoom",
-          "cssClass": "CSS Class"
-        }
+    {
+      "uid": 123,
+      "url": "/fileadmin/user_upload/image.jpg",
+      "width": 1920,
+      "height": 1080,
+      "title": "Image title",
+      "alt": "Alternative text",
+      "processed": {
+        "url": "/fileadmin/_processed_/image_hash.jpg",
+        "width": 800,
+        "height": 450
+      },
+      "lang": {
+        "override": "Override %s",
+        "overrideNoDefault": "Override (no default)",
+        "zoom": "Zoom",
+        "cssClass": "CSS Class"
       }
+    }
 
-   **Usage Example:**
+ImageRenderingAdapter
+=====================
 
-   .. code-block:: javascript
+.. _api-imagerenderingadapter:
 
-      // From CKEditor plugin
-      getImageInfo(editor, 'sys_file', 123, {width: '800', height: '450'})
-        .then(function(img) {
-          // Use image data
-        });
+.. versionadded:: 13.1.5
 
-getImage()
-~~~~~~~~~~
+   Replaces the legacy :php:`ImageRenderingController` and :php:`ImageLinkRenderingController`.
 
-.. php:method:: getImage(int fileUid, string table): File|null
+..  php:class:: Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter
 
-   Retrieves FAL File object.
+    TypoScript adapter bridging `preUserFunc` to the modern service architecture.
 
-   :param int fileUid: File UID from FAL
-   :param string table: Database table (sys_file)
-   :returns: File object or null if not found
-   :returntype: TYPO3\\CMS\\Core\\Resource\\File|null
-   :throws: Exception if file cannot be loaded
+The adapter serves as a thin layer between TypoScript's `preUserFunc` interface and the
+service-based architecture. It delegates actual processing to:
 
-processImage()
-~~~~~~~~~~~~~~
-
-.. php:method:: processImage(File file, array processingInstructions): ProcessedFile|null
-
-   Creates processed image variant with specified dimensions.
-
-   :param File file: Original FAL file
-   :param array processingInstructions: Array with ``width``, ``height``, ``crop``, etc.
-   :returns: Processed file or null
-   :returntype: TYPO3\\CMS\\Core\\Resource\\ProcessedFile|null
-
-   **Processing Instructions:**
-
-   .. code-block:: php
-
-      [
-          'width' => '800',
-          'height' => '600',
-          'crop' => null  // Optional crop configuration
-      ]
-
-ImageRenderingController
-========================
-
-.. _api-imagerenderingcontroller:
-
-:Namespace: ``Netresearch\RteCKEditorImage\Controller``
-:Purpose: Frontend rendering controller for ``<img>`` tags in RTE content
-
-**TypoScript Integration:**
-
-.. code-block:: typoscript
-
-   lib.parseFunc_RTE {
-       tags.img = TEXT
-       tags.img {
-           current = 1
-           preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
-       }
-   }
+-  :ref:`ImageAttributeParser <api-imageattributeparser>` - HTML parsing.
+-  :ref:`ImageResolverService <api-imageresolverservice>` - Business logic and security.
+-  :ref:`ImageRenderingService <api-imagerenderingservice>` - Fluid template rendering.
 
 Methods
 -------
@@ -159,144 +124,93 @@ Methods
 renderImageAttributes()
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. php:method:: renderImageAttributes(string $content, array $conf, ContentObjectRenderer $cObj): string
+..  php:method:: renderImageAttributes(string $content, array $conf): string
 
-   Processes ``<img>`` tags in RTE content, applying magic images and FAL processing.
+    Processes :html:`<img>` tags in RTE content using the service pipeline.
 
-   :param string $content: Current HTML content (single ``<img>`` tag)
-   :param array $conf: TypoScript configuration
-   :param ContentObjectRenderer $cObj: Content object renderer
-   :returns: Processed HTML with updated image URL and attributes
-   :returntype: string
+    :param string $content: Current HTML content (single :html:`<img>` tag).
+    :param array $conf: TypoScript configuration.
+    :returns: Processed HTML with updated image URL and attributes.
+    :returntype: string
 
-   **Processing Steps:**
+**Processing pipeline:**
 
-   1. Parse ``data-htmlarea-file-uid`` attribute
-   2. Load FAL file from UID
-   3. Apply magic image processing (resize, crop)
-   4. Generate processed image URL
-   5. Remove internal data attributes
-   6. Return updated HTML
+#. :php:`ImageAttributeParser` extracts data attributes from HTML.
+#. :php:`ImageResolverService` resolves FAL file, applies security checks, processes image.
+#. :php:`ImageRenderingService` renders via Fluid template.
 
-   **Data Attributes Processed:**
+**TypoScript integration:**
 
-   :data-htmlarea-file-uid: FAL file reference
-   :data-htmlarea-file-table: Table name
-   :data-htmlarea-zoom: Zoom functionality
-   :data-title-override: Title override flag
-   :data-alt-override: Alt override flag
+..  code-block:: typoscript
+    :caption: Image tag processing configuration
 
-ImageLinkRenderingController
-=============================
+    lib.parseFunc_RTE {
+        tags.img = TEXT
+        tags.img {
+            current = 1
+            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
+        }
+    }
 
-.. _api-imagelinkrenderingcontroller:
+renderLinkedImageAttributes()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:Namespace: ``Netresearch\RteCKEditorImage\Controller``
-:Purpose: Handles rendering of images within ``<a>`` tags (linked images)
+..  php:method:: renderLinkedImageAttributes(string $content, array $conf): string
 
-**TypoScript Integration:**
+    Processes :html:`<img>` tags within :html:`<a>` tags (linked images).
 
-.. code-block:: typoscript
+    :param string $content: HTML content (complete :html:`<a>` tag with nested :html:`<img>`).
+    :param array $conf: TypoScript configuration.
+    :returns: Processed HTML with both link and image correctly rendered.
+    :returntype: string
 
-   lib.parseFunc_RTE {
-       tags.a = TEXT
-       tags.a {
-           current = 1
-           preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageLinkRenderingController->renderImages
-       }
-   }
+**TypoScript integration:**
 
-Methods
--------
+..  code-block:: typoscript
+    :caption: Linked image processing configuration
 
-renderImages()
-~~~~~~~~~~~~~~
+    lib.parseFunc_RTE {
+        tags.a = TEXT
+        tags.a {
+            current = 1
+            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderLinkedImageAttributes
+        }
+    }
 
-.. php:method:: renderImages(string $content, array $conf, ContentObjectRenderer $cObj): string
-
-   Processes ``<img>`` tags within ``<a>`` tags, maintaining link functionality while applying image processing.
-
-   :param string $content: HTML content (complete ``<a>`` tag with nested ``<img>``)
-   :param array $conf: TypoScript configuration
-   :param ContentObjectRenderer $cObj: Content object renderer
-   :returns: Processed HTML with both link and image correctly rendered
-   :returntype: string
-
-   **Usage Scenario:**
-
-   .. code-block:: html
-
-      <!-- Input -->
-      <a href="page-link">
-        <img data-htmlarea-file-uid="123" src="..." />
-      </a>
-
-      <!-- Output -->
-      <a href="page-link">
-        <img src="/fileadmin/_processed_/image_hash.jpg" width="800" height="600" />
-      </a>
-
-Service Configuration
+Service configuration
 =====================
 
-All controllers are configured in ``Configuration/Services.yaml``:
+All controllers are configured in :file:`Configuration/Services.yaml`:
 
-.. code-block:: yaml
+..  code-block:: yaml
+    :caption: EXT:rte_ckeditor_image/Configuration/Services.yaml
 
-   Netresearch\RteCKEditorImage\Controller\SelectImageController:
-     tags: ['backend.controller']
+    Netresearch\RteCKEditorImage\Controller\SelectImageController:
+      tags: ['backend.controller']
 
-Controllers use constructor injection for dependencies like ``ResourceFactory``.
+    Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter:
+      public: true
 
-Usage Examples
-==============
+Controllers use constructor injection for dependencies.
 
-Calling Image Info from JavaScript
------------------------------------
+Migration from legacy controllers
+=================================
 
-.. code-block:: javascript
+.. versionchanged:: 13.1.5
 
-   function getImageInfo(editor, table, uid, params) {
-       let url = editor.config.get('style').typo3image.routeUrl
-           + '&action=info&fileId=' + encodeURIComponent(uid)
-           + '&table=' + encodeURIComponent(table);
+If you were extending the legacy controllers via XCLASS, migrate to:
 
-       if (params.width) {
-           url += '&P[width]=' + params.width;
-       }
-       if (params.height) {
-           url += '&P[height]=' + params.height;
-       }
+#. **Template overrides** (recommended): Override Fluid templates in your site package.
+   See :ref:`examples-template-overrides`.
 
-       return $.getJSON(url);
-   }
+#. **Service decoration**: Decorate :php:`ImageResolverService` or :php:`ImageRenderingService`.
+   See :ref:`api-services`.
 
-TypoScript Configuration
-------------------------
+The TypoScript interface remains 100% backward compatible - no changes required for standard usage.
 
-.. code-block:: typoscript
-
-   lib.parseFunc_RTE {
-       tags.img = TEXT
-       tags.img {
-           current = 1
-           preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
-       }
-
-       nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
-           # Remove internal attributes from frontend output
-           data-htmlarea-file-uid.unset = 1
-           data-htmlarea-file-table.unset = 1
-           # Keep zoom attributes for popup/lightbox rendering
-           # data-htmlarea-zoom.unset = 1
-           data-title-override.unset = 1
-           data-alt-override.unset = 1
-       }
-   }
-
-Related Documentation
+Related documentation
 =====================
 
-- :ref:`Architecture Overview <architecture-overview>`
-- :ref:`Data Flow <architecture-design-patterns>`
-- :ref:`TypoScript Configuration <typoscript-reference>`
+-  :ref:`Services API <api-services>` - New service architecture.
+-  :ref:`DTOs <api-dtos>` - Data transfer objects.
+-  :ref:`Template Overrides <examples-template-overrides>` - Customizing output.
