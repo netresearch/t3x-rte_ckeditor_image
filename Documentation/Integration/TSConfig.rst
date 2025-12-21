@@ -32,7 +32,7 @@ Page TSConfig
    :width: 600px
    :target: /Images/backend-tsconfig-rte.png
 
-   Page TSConfig configuration in the TYPO3 backend (click to enlarge)
+   Page TSConfig configuration in the TYPO3 backend
 
 Magic Image Configuration
 -------------------------

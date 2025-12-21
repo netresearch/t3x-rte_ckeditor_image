@@ -130,7 +130,7 @@ Visual Preview
    :width: 600px
    :target: /Images/backend-rte-editor.png
 
-   The RTE with image support enabled, showing an inserted image with styling options (click to enlarge)
+   The RTE with image support enabled, showing an inserted image with styling options
 
 .. figure:: /Images/demo.gif
    :alt: RTE CKEditor Image extension demo
@@ -202,7 +202,7 @@ Install via Composer:
    :width: 600px
    :target: /Images/backend-extensions-list.png
 
-   The extension appears in the TYPO3 Extension Manager after installation (click to enlarge)
+   The extension appears in the TYPO3 Extension Manager after installation
 
 **That's it!** The extension works completely out-of-the-box with zero configuration:
 
@@ -223,7 +223,7 @@ Install via Composer:
    :width: 600px
    :target: /Images/backend-rte-with-image-button.png
 
-   The ``insertimage`` button in the CKEditor toolbar opens the TYPO3 file browser for image selection (click to enlarge)
+   The ``insertimage`` button in the CKEditor toolbar opens the TYPO3 file browser for image selection
 
 Custom Configuration (Optional)
 ================================
