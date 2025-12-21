@@ -29,6 +29,14 @@ setup: ## Complete setup (docs + install + configure)
 docs: ## Render extension documentation
 	ddev docs
 
+.PHONY: docs-lint
+docs-lint: ## Lint documentation (TYPO3 guidelines compliance)
+	./Build/Scripts/validate-docs.sh
+
+.PHONY: docs-fix
+docs-fix: ## Fix auto-fixable documentation issues
+	./Build/Scripts/validate-docs.sh --fix
+
 .PHONY: install-v13
 install-v13: ## Install TYPO3 v13.4 LTS
 	ddev install-v13
@@ -46,7 +54,7 @@ install: ## Install composer dependencies
 	composer install
 
 .PHONY: lint
-lint: ## Run all linters (PHP syntax + PHPStan + style check)
+lint: ## Run all linters (PHP syntax + PHPStan + style check + docs)
 	@echo "==> Running PHP lint..."
 	composer ci:test:php:lint
 	@echo "==> Running PHPStan..."
@@ -55,6 +63,8 @@ lint: ## Run all linters (PHP syntax + PHPStan + style check)
 	composer ci:test:php:rector
 	@echo "==> Running code style check..."
 	composer ci:test:php:cgl
+	@echo "==> Running documentation lint..."
+	./Build/Scripts/validate-docs.sh || true
 	@echo "✅ All linters passed"
 
 .PHONY: format

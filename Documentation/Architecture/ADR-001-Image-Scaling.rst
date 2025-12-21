@@ -1,3 +1,5 @@
+.. include:: /Includes.rst.txt
+
 .. _adr-001-image-scaling:
 
 ====================================

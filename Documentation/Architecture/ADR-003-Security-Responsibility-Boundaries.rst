@@ -1,3 +1,5 @@
+.. include:: /Includes.rst.txt
+
 ADR-003: Security Responsibility Boundaries
 ===========================================
 
@@ -132,7 +134,7 @@ Consequences
 References
 ----------
 
-- GitHub Issue #474: SVG Sanitization
-- GitHub Issue #475: Protocol Blocklist
-- TYPO3 Security Guide: https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/Security/
-- OWASP File Upload Cheat Sheet: https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html
+- `GitHub Issue #474: SVG Sanitization <https://github.com/netresearch/rte-ckeditor-image/issues/474>`__
+- `GitHub Issue #475: Protocol Blocklist <https://github.com/netresearch/rte-ckeditor-image/issues/475>`__
+- `TYPO3 Security Guide <https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/Security/>`__
+- `OWASP File Upload Cheat Sheet <https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html>`__

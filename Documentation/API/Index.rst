@@ -1,3 +1,5 @@
+.. include:: /Includes.rst.txt
+
 .. _api-documentation:
 .. _api-index:
 

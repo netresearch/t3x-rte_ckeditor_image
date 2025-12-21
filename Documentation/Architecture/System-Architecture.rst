@@ -1,3 +1,5 @@
+.. include:: /Includes.rst.txt
+
 .. _architecture-overview:
 .. _architecture-system-components:
 .. _architecture-technology-stack:
@@ -48,38 +50,40 @@ The rte_ckeditor_image extension follows TYPO3's modern extension architecture w
 High-Level Architecture
 =======================
 
-.. code-block:: text
+..  uml::
+    :caption: High-level system architecture
 
-   ┌─────────────────────────────────────────────────────────┐
-   │                    TYPO3 Backend                        │
-   │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐ │
-   │  │   CKEditor   │  │    Image     │  │     FAL      │ │
-   │  │   Plugin     │─▶│  Controller  │─▶│   Storage    │ │
-   │  └──────────────┘  └──────────────┘  └──────────────┘ │
-   │         │                 │                             │
-   │         ▼                 ▼                             │
-   │  ┌──────────────┐  ┌──────────────┐                   │
-   │  │  JavaScript  │  │  Backend     │                    │
-   │  │   Dialog     │  │    Route     │                    │
-   │  └──────────────┘  └──────────────┘                   │
-   └─────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-   ┌─────────────────────────────────────────────────────────┐
-   │                  Content Storage                        │
-   │  ┌──────────────────────────────────────────────────┐  │
-   │  │  RTE Content with data-htmlarea-* attributes    │  │
-   │  └──────────────────────────────────────────────────┘  │
-   └─────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-   ┌─────────────────────────────────────────────────────────┐
-   │                  Frontend Rendering                     │
-   │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐ │
-   │  │  TypoScript  │─▶│   Image      │─▶│   Rendered   │ │
-   │  │    Hooks     │  │  Rendering   │  │     HTML     │ │
-   │  └──────────────┘  └──────────────┘  └──────────────┘ │
-   └─────────────────────────────────────────────────────────┘
+    skinparam componentStyle rectangle
+    skinparam backgroundColor white
+
+    package "TYPO3 Backend" {
+        component "CKEditor\nPlugin" as CKEditor
+        component "Image\nController" as Controller
+        component "FAL\nStorage" as FAL
+        component "JavaScript\nDialog" as Dialog
+        component "Backend\nRoute" as Route
+
+        CKEditor --> Controller
+        Controller --> FAL
+        CKEditor --> Dialog
+        Controller --> Route
+    }
+
+    database "Content Storage" as Storage {
+        card "RTE Content with\ndata-htmlarea-* attributes" as Content
+    }
+
+    package "Frontend Rendering" {
+        component "TypoScript\nHooks" as TS
+        component "Image\nRendering" as Rendering
+        component "Rendered\nHTML" as HTML
+
+        TS --> Rendering
+        Rendering --> HTML
+    }
+
+    Controller --> Storage
+    Storage --> TS
 
 Core Components
 ===============
@@ -172,6 +176,6 @@ Related Documentation
 =====================
 
 - :ref:`architecture-design-patterns` - Design patterns, integration points, and data flow
-- Component Details - Detailed component breakdown
-- Data Flow - Complete request/response flows
-- CKEditor Integration - Editor integration details
+- :ref:`api-controllers` - Controller API reference
+- :ref:`ckeditor-plugin-development` - CKEditor plugin integration details
+- :ref:`integration-security` - Security considerations

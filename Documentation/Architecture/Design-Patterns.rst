@@ -1,3 +1,5 @@
+.. include:: /Includes.rst.txt
+
 .. _architecture-design-patterns:
 .. _architecture-integration-points:
 .. _architecture-data-flow:
@@ -166,27 +168,23 @@ Data Flow
 Image Selection Flow
 --------------------
 
-.. code-block:: text
+..  uml::
+    :caption: Image selection workflow
 
-   User clicks insert image
-       ↓
-   CKEditor plugin opens modal
-       ↓
-   Backend route loads file browser
-       ↓
-   User selects image
-       ↓
-   JavaScript receives file UID
-       ↓
-   Backend API returns image info
-       ↓
-   Dialog opens with image properties
-       ↓
-   User confirms settings
-       ↓
-   typo3image model element created
-       ↓
-   Content saved to database
+    skinparam activityBackgroundColor white
+
+    start
+    :User clicks insert image;
+    :CKEditor plugin opens modal;
+    :Backend route loads file browser;
+    :User selects image;
+    :JavaScript receives file UID;
+    :Backend API returns image info;
+    :Dialog opens with image properties;
+    :User confirms settings;
+    :typo3image model element created;
+    :Content saved to database;
+    stop
 
 Detailed steps:
 
@@ -203,23 +201,21 @@ Detailed steps:
 Frontend Rendering Flow
 ------------------------
 
-.. code-block:: text
+..  uml::
+    :caption: Frontend rendering workflow
 
-   RTE content loaded from database
-       ↓
-   lib.parseFunc_RTE processes content
-       ↓
-   ImageRenderingController hook invoked
-       ↓
-   FAL file loaded from UID
-       ↓
-   Magic image processing applied
-       ↓
-   Processed image URL generated
-       ↓
-   HTML with processed URL rendered
-       ↓
-   Internal data-* attributes removed
+    skinparam activityBackgroundColor white
+
+    start
+    :RTE content loaded from database;
+    :lib.parseFunc_RTE processes content;
+    :ImageRenderingController hook invoked;
+    :FAL file loaded from UID;
+    :Magic image processing applied;
+    :Processed image URL generated;
+    :HTML with processed URL rendered;
+    :Internal data-* attributes removed;
+    stop
 
 Detailed steps:
 
@@ -313,6 +309,6 @@ Related Documentation
 =====================
 
 - :ref:`architecture-overview` - System architecture and core components
-- Component Details - Detailed component breakdown
-- CKEditor Integration - Editor integration details
-- API Reference - Complete API documentation
+- :ref:`api-services` - Service layer API documentation
+- :ref:`ckeditor-plugin-development` - CKEditor plugin integration details
+- :ref:`api-controllers` - Controller API reference
