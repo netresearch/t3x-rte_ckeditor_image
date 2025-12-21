@@ -124,7 +124,7 @@ Methods
 renderImageAttributes()
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-..  php:method:: renderImageAttributes(string $content, array $conf): string
+..  php:method:: renderImageAttributes($content, $conf)
 
     Processes :html:`<img>` tags in RTE content using the service pipeline.
 
@@ -155,7 +155,7 @@ renderImageAttributes()
 renderLinkedImageAttributes()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-..  php:method:: renderLinkedImageAttributes(string $content, array $conf): string
+..  php:method:: renderLinkedImageAttributes($content, $conf)
 
     Processes :html:`<img>` tags within :html:`<a>` tags (linked images).
 

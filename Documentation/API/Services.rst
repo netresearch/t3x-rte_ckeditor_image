@@ -63,7 +63,7 @@ Methods
 parseImageAttributes()
 ~~~~~~~~~~~~~~~~~~~~~~
 
-..  php:method:: parseImageAttributes(string $html): array
+..  php:method:: parseImageAttributes($html)
 
     Parse attributes from :html:`<img>` tag HTML string.
 
@@ -85,7 +85,7 @@ parseImageAttributes()
 parseLinkWithImages()
 ~~~~~~~~~~~~~~~~~~~~~
 
-..  php:method:: parseLinkWithImages(string $html): array
+..  php:method:: parseLinkWithImages($html)
 
     Parse attributes from :html:`<a>` tag containing :html:`<img>` tags.
 
@@ -161,7 +161,7 @@ Methods
 resolve()
 ~~~~~~~~~
 
-..  php:method:: resolve(array $attributes, array $conf, ServerRequestInterface $request, ?array $linkAttributes = null): ?ImageRenderingDto
+..  php:method:: resolve($attributes, $conf, $request, $linkAttributes = null)
 
     Resolve image attributes to validated DTO.
 
