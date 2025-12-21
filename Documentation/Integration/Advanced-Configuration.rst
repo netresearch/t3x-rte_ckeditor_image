@@ -127,8 +127,8 @@ The extension supports quality multipliers for high-DPI displays and print outpu
         - Use Case
 
     *   - No Scaling
-        - 1.0x
-        - Use exact dimensions specified.
+        - N/A
+        - Skip processing, use original file unchanged.
 
     *   - Low
         - 0.9x

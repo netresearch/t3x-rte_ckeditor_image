@@ -148,7 +148,7 @@ The service supports quality multipliers for image processing:
 ..  code-block:: php
     :caption: Quality constants in ImageResolverService
 
-    const QUALITY_NONE     = 'none';     // 1.0x - No scaling
+    const QUALITY_NONE     = 'none';     // N/A - Skip processing entirely
     const QUALITY_LOW      = 'low';      // 0.9x - Performance optimized
     const QUALITY_STANDARD = 'standard'; // 1.0x - Default
     const QUALITY_RETINA   = 'retina';   // 2.0x - High-DPI displays
