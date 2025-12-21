@@ -122,8 +122,9 @@ The extension supports quality multipliers for high-DPI displays and print outpu
    :alt: Quality selector dropdown in image properties dialog
    :class: with-shadow
    :width: 400px
+   :target: /Images/backend-quality-selector-dropdown.png
 
-   Quality multiplier dropdown in the image properties dialog
+   Quality multiplier dropdown in the image properties dialog (click to enlarge)
 
 ..  list-table:: Quality multiplier options
     :header-rows: 1
@@ -164,8 +165,9 @@ persists with the image and affects frontend processing dimensions.
    :alt: Image properties dialog showing all configuration options
    :class: with-shadow
    :width: 500px
+   :target: /Images/backend-image-properties-dialog.png
 
-   Complete image properties dialog with title, alt text, dimensions, and quality settings
+   Complete image properties dialog with title, alt text, dimensions, and quality settings (click to enlarge)
 
 **TSConfig for quality-based processing:**
 
