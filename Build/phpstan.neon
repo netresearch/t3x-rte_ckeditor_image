@@ -54,11 +54,17 @@ parameters:
           message: '#method_exists.*getRow#'
           reportUnmatched: false
         # Ignore GeneralUtility::makeInstance() return type issues in functional tests
-        # These are correct but PHPStan can't infer types without phpstan-typo3 extension
-        # makeInstance() returns mixed which causes argument.type, assign.propertyType, method.nonObject errors
+        # PHPStan sees makeInstance() returning mixed (without phpstan-typo3 extension)
+        # This causes "mixed given" and "does not accept mixed" errors for typed properties/params
         - identifier: argument.type
           path: %currentWorkingDirectory%/Tests/Functional/*
+          message: '#mixed#'
+          reportUnmatched: false
         - identifier: assign.propertyType
           path: %currentWorkingDirectory%/Tests/Functional/*
+          message: '#mixed#'
+          reportUnmatched: false
         - identifier: method.nonObject
           path: %currentWorkingDirectory%/Tests/Functional/*
+          message: '#mixed#'
+          reportUnmatched: false

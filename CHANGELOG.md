@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - CI test matrix expanded to 8 combinations (TYPO3 13.4/14.0 x PHP 8.2/8.3/8.4/8.5)
-- Updated branch alias to 14.0.x-dev
+- Updated branch alias to 13.x-dev
 
 ## [13.1.5] - 2025-12-20
 
