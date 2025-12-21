@@ -14,9 +14,6 @@
 
 # Image support for CKEditor for TYPO3
 
-**Version 14.0.x** for TYPO3 13.4+ and TYPO3 14.0+
-**License:** AGPL-3.0-or-later
-
 This extension adds comprehensive image handling capabilities to CKEditor for TYPO3.\
 Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image).
 
