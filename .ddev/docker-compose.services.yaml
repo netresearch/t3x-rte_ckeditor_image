@@ -4,7 +4,7 @@ services:
     container_name: ddev-${DDEV_SITENAME}-valkey
     image: valkey/valkey:8-alpine
     restart: unless-stopped
-    ports:
+    expose:
       - "6379"
     volumes:
       - valkey-data:/data
@@ -21,9 +21,9 @@ services:
     container_name: ddev-${DDEV_SITENAME}-mailpit
     image: axllent/mailpit:latest
     restart: unless-stopped
-    ports:
-      - "1025"  # SMTP port
-      - "8025"  # Web UI port
+    expose:
+      - "1025"  # SMTP port (internal only)
+      - "8025"  # Web UI port (internal only, accessed via ddev router)
     labels:
       com.ddev.site-name: ${DDEV_SITENAME}
       com.ddev.approot: $DDEV_APPROOT

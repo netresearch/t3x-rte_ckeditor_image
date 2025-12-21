@@ -14,13 +14,13 @@ integration into TYPO3's File Abstraction Layer (FAL).
 Key Features
 ============
 
-- Native CKEditor 5 plugin integration
-- Full TYPO3 FAL support with file browser integration
-- Advanced image processing (magic images, cropping, scaling)
-- Custom image style configuration
-- Responsive image support
-- Lazy loading and performance optimization
-- Event-driven architecture for extensibility
+- :ref:`Native CKEditor 5 plugin integration <ckeditor-plugin-development>`
+- :ref:`Full TYPO3 FAL support <integration-configuration-rte-setup>` with file browser integration
+- :ref:`Advanced image processing <integration-configuration-image-processing>` (magic images, cropping, scaling)
+- :ref:`Custom image style configuration <examples-image-styles>`
+- :ref:`Responsive image support <examples-responsive-images>`
+- :ref:`Lazy loading and performance optimization <examples-advanced-features>`
+- :ref:`Event-driven architecture <api-eventlisteners>` for extensibility
 
 .. versionadded:: 13.1.5
 
