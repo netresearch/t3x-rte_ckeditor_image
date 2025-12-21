@@ -1,10 +1,10 @@
 #!/bin/bash
 
-## Description: Install TYPO3 13.4 LTS with your extension
-## Usage: install-v13
-## Example: ddev install-v13
+## Description: Install TYPO3 14.0 with your extension
+## Usage: install-v14
+## Example: ddev install-v14
 
-VERSION=v13
+VERSION=v14
 
 # Test image dimensions for E2E tests
 TEST_IMAGE_WIDTH=800
@@ -17,9 +17,9 @@ composer config extra.typo3/cms.web-dir public -d /var/www/html/$VERSION
 composer config repositories.$EXTENSION_KEY path ../../$EXTENSION_KEY -d /var/www/html/$VERSION
 composer config --no-plugins allow-plugins.typo3/cms-composer-installers true -d /var/www/html/$VERSION
 composer config --no-plugins allow-plugins.typo3/class-alias-loader true -d /var/www/html/$VERSION
-composer req t3/cms:'^13' $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
+composer req t3/cms:'^14' $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
 composer req typo3/cms-extensionmanager typo3/cms-dashboard typo3/cms-reports --no-progress -n -d /var/www/html/$VERSION
-composer req --dev typo3/cms-styleguide bk2k/bootstrap-package:'^15.0' --no-progress -n -d /var/www/html/$VERSION
+composer req --dev typo3/cms-styleguide bk2k/bootstrap-package:'^16.0' --no-progress -n -d /var/www/html/$VERSION
 
 cd /var/www/html/$VERSION
 
@@ -58,6 +58,7 @@ vendor/bin/typo3 styleguide:generate
 # Add test content to homepage for E2E tests
 # The styleguide creates demo content, but E2E tests need content on the root page
 # Add a text content element with an image in the bodytext
+# NOTE: MySQL credentials use environment variables with DDEV defaults
 
 # First, create the test image file (needed before FAL registration)
 mkdir -p public/fileadmin/user_upload
@@ -151,7 +152,7 @@ VALUES (
 );
 EOSQL
 
-# Add site sets to site configuration (TYPO3 v13 approach)
+# Add site sets to site configuration (TYPO3 v14 approach)
 # Bootstrap Package is added for frontend rendering demo
 # Note: rte_ckeditor_image uses an event listener for true zero-configuration,
 # so adding it to dependencies is optional (but recommended for clarity)

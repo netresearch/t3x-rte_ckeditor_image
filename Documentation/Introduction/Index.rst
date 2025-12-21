@@ -34,7 +34,7 @@ Visual Preview
 Version Information
 ===================
 
-:Version: 13.0.x for TYPO3 13.4+
+:Supported TYPO3: 13.4 LTS, 14.0+
 :License: AGPL-3.0-or-later
 :Repository: `github.com/netresearch/t3x-rte_ckeditor_image <https://github.com/netresearch/t3x-rte_ckeditor_image>`__
 :Maintainer: `Netresearch DTT GmbH <https://www.netresearch.de/>`__
@@ -49,8 +49,8 @@ Requirements
 System Requirements
 ===================
 
-- **TYPO3:** 13.4 or later
-- **PHP:** 8.2, 8.3, or 8.4
+- **TYPO3:** 13.4 LTS or 14.0+
+- **PHP:** 8.2, 8.3, 8.4, or 8.5
 - **Extensions:** cms-rte-ckeditor (included in TYPO3 core)
 
 Critical Dependencies

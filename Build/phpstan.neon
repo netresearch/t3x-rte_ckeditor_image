@@ -2,7 +2,6 @@ includes:
     - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-strict-rules/rules.neon
     - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-deprecation-rules/rules.neon
 #    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-phpunit/rules.neon
-    - %currentWorkingDirectory%/.Build/vendor/saschaegerer/phpstan-typo3/extension.neon
     - %currentWorkingDirectory%/Build/phpstan-baseline.neon
 
 parameters:
@@ -39,3 +38,33 @@ parameters:
         - identifier: argument.type
           path: %currentWorkingDirectory%/Tests/Unit/*
           message: '#Parameter \#2 \$array of static method PHPUnit\\Framework\\Assert::#'
+        # TYPO3 v13/v14 compatibility: getRow() exists in v14+ but not in v13
+        # PHPStan sees it differently depending on which TYPO3 version is installed
+        - identifier: function.alreadyNarrowedType
+          path: %currentWorkingDirectory%/Classes/Backend/Preview/RteImagePreviewRenderer.php
+          message: '#method_exists.*getRow#'
+          reportUnmatched: false
+        - identifier: method.notFound
+          path: %currentWorkingDirectory%/Classes/Backend/Preview/RteImagePreviewRenderer.php
+          message: '#getRow#'
+          reportUnmatched: false
+        # Same compatibility pattern in unit tests
+        - identifier: function.alreadyNarrowedType
+          path: %currentWorkingDirectory%/Tests/Unit/Database/RteImagesDbHookTest.php
+          message: '#method_exists.*getRow#'
+          reportUnmatched: false
+        # Ignore GeneralUtility::makeInstance() return type issues in functional tests
+        # PHPStan sees makeInstance() returning mixed (without phpstan-typo3 extension)
+        # This causes "mixed given" and "does not accept mixed" errors for typed properties/params
+        - identifier: argument.type
+          path: %currentWorkingDirectory%/Tests/Functional/*
+          message: '#mixed#'
+          reportUnmatched: false
+        - identifier: assign.propertyType
+          path: %currentWorkingDirectory%/Tests/Functional/*
+          message: '#mixed#'
+          reportUnmatched: false
+        - identifier: method.nonObject
+          path: %currentWorkingDirectory%/Tests/Functional/*
+          message: '#mixed#'
+          reportUnmatched: false

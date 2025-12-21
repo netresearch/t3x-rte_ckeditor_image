@@ -11,5 +11,6 @@ xdebug_enabled: false
 additional_hostnames:
     - docs.rte-ckeditor-image
     - v13.rte-ckeditor-image
+    - v14.rte-ckeditor-image
 additional_fqdns: []
 use_dns_when_possible: true

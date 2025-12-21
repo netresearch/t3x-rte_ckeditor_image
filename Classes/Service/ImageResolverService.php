@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
 
 /**
  * Business logic and security validation for image rendering.
@@ -363,7 +364,7 @@ class ImageResolverService
     {
         $frontendTyposcript = $request->getAttribute('frontend.typoscript');
 
-        if ($frontendTyposcript === null) {
+        if (!$frontendTyposcript instanceof FrontendTypoScript) {
             return null;
         }
 
@@ -618,7 +619,7 @@ class ImageResolverService
     {
         $frontendTyposcript = $request->getAttribute('frontend.typoscript');
 
-        if ($frontendTyposcript === null) {
+        if (!$frontendTyposcript instanceof FrontendTypoScript) {
             return null;
         }
 

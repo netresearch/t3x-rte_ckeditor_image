@@ -25,19 +25,18 @@
         }
     ],
     "require": {
-        "php": "^8.2 || ^8.3 || ^8.4",
+        "php": "^8.2",
         "ext-dom": "*",
         "ext-libxml": "*",
-        "typo3/cms-core": "^13.4",
-        "typo3/cms-backend": "^13.4",
-        "typo3/cms-frontend": "^13.4",
-        "typo3/cms-extbase": "^13.4",
-        "typo3/cms-rte-ckeditor": "^13.4"
+        "typo3/cms-core": "^13.4 || ^14.0",
+        "typo3/cms-backend": "^13.4 || ^14.0",
+        "typo3/cms-frontend": "^13.4 || ^14.0",
+        "typo3/cms-extbase": "^13.4 || ^14.0",
+        "typo3/cms-rte-ckeditor": "^13.4 || ^14.0"
     },
     "require-dev": {
         "typo3/testing-framework": "^8.0 || ^9.0",
         "friendsofphp/php-cs-fixer": "^3.87",
-        "saschaegerer/phpstan-typo3": "^2.1",
         "overtrue/phplint": "^9.5",
         "phpstan/phpstan": "^2.0",
         "phpstan/phpstan-strict-rules": "^2.0",
@@ -70,7 +69,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "13.0.x-dev"
+            "dev-main": "13.x-dev"
         },
         "typo3/cms": {
             "extension-key": "rte_ckeditor_image",

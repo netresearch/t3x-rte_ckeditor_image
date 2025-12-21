@@ -17,22 +17,22 @@
                project-repository="https://github.com/netresearch/t3x-rte_ckeditor_image"
                project-issues="https://github.com/netresearch/t3x-rte_ckeditor_image/issues"
                report-issue="https://github.com/netresearch/t3x-rte_ckeditor_image/issues"
-               typo3-core-preferred="13.4"/>
+               typo3-core-preferred="stable"/>
 
     <!-- Project Metadata -->
     <project title="RTE CKEditor Image"
-             version="local"
-             release="13.0"
+             version="main"
+             release="main"
              copyright="since 2017 by Netresearch &amp; Contributors"/>
 
-    <!-- Interlink References -->
+    <!-- Interlink References - use main/stable for latest docs -->
     <inventory id="t3coreapi"
-               url="https://docs.typo3.org/m/typo3/reference-coreapi/13.4/en-us/"/>
+               url="https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/"/>
     <inventory id="t3tsref"
-               url="https://docs.typo3.org/m/typo3/reference-tsconfig/13.4/en-us/"/>
+               url="https://docs.typo3.org/m/typo3/reference-tsconfig/main/en-us/"/>
     <inventory id="t3extbasebook"
-               url="https://docs.typo3.org/m/typo3/book-extbasefluid/13.4/en-us/"/>
+               url="https://docs.typo3.org/m/typo3/book-extbasefluid/main/en-us/"/>
     <inventory id="t3ckeditor"
-               url="https://docs.typo3.org/c/typo3/cms-rte-ckeditor/13.4/en-us/"/>
+               url="https://docs.typo3.org/c/typo3/cms-rte-ckeditor/main/en-us/"/>
 
 </guides>

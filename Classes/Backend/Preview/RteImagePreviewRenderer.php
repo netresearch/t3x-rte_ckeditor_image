@@ -47,7 +47,11 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
      */
     public function renderPageModulePreviewContent(GridColumnItem $item): string
     {
-        $row  = $item->getRecord();
+        $record = $item->getRecord();
+
+        // TYPO3 v14+ uses getRow() for array access, v13 uses getRecord() which returns array directly
+        /** @var array<string, mixed> $row */
+        $row  = method_exists($item, 'getRow') ? $item->getRow() : $record;
         $html = $row['bodytext'] ?? '';
 
         // Sanitize HTML (replaces invalid chars with U+FFFD)<.
@@ -63,7 +67,7 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
         return $this
             ->linkEditContent(
                 $this->renderTextWithHtml($html),
-                $row,
+                $record,
             )
             . '<br />';
     }
