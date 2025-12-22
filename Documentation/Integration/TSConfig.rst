@@ -30,7 +30,6 @@ Page TSConfig
    :alt: Page TSConfig module showing RTE configuration
    :class: with-shadow
    :width: 600px
-   :target: /Images/backend-tsconfig-rte.png
 
    Page TSConfig configuration in the TYPO3 backend
 

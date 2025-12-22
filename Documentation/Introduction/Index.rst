@@ -128,7 +128,6 @@ Visual Preview
    :alt: Rich Text Editor with image support in TYPO3 backend
    :class: with-shadow
    :width: 600px
-   :target: /Images/backend-rte-editor.png
 
    The RTE with image support enabled, showing an inserted image with styling options
 
@@ -200,7 +199,6 @@ Install via Composer:
    :alt: Extension Manager showing RTE CKEditor Image extension installed
    :class: with-shadow
    :width: 600px
-   :target: /Images/backend-extensions-list.png
 
    The extension appears in the TYPO3 Extension Manager after installation
 
@@ -221,7 +219,6 @@ Install via Composer:
    :alt: CKEditor toolbar with image insert button highlighted
    :class: with-shadow
    :width: 600px
-   :target: /Images/backend-rte-with-image-button.png
 
    The ``insertimage`` button in the CKEditor toolbar opens the TYPO3 file browser for image selection
 
