@@ -19,15 +19,16 @@ The extension provides five quality levels for processed images:
 
 .. confval:: No Scaling
 
-   :Multiplier: 1.0x
-   :Processing: Skip image processing, use original file
+   :Multiplier: N/A (original file used)
+   :Processing: Skip image processing entirely, use original file unchanged
    :Indicator: ● Gray
 
    Best for:
+   - Pre-optimized images (WebP, optimized PNG)
+   - SVG files (vector graphics)
    - Newsletters and email
    - PDF exports
    - When maximum quality is required
-   - SVG files (vector graphics)
 
 .. confval:: Standard (1.0x)
 

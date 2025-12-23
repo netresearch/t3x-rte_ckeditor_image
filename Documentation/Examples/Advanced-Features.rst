@@ -18,7 +18,7 @@ Lightbox Integration
 .. versionchanged:: 13.1.0
    Default popup configuration is now provided automatically.
    The basic "Enlarge on Click" feature works out-of-the-box without additional setup.
-   See :ref:`integration-frontend-rendering` for details.
+   See :ref:`integration-configuration-frontend-rendering` for details.
 
 PhotoSwipe Lightbox
 -------------------

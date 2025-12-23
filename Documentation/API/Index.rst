@@ -1,3 +1,5 @@
+.. include:: /Includes.rst.txt
+
 .. _api-documentation:
 .. _api-index:
 
@@ -11,6 +13,11 @@ Complete API reference for all PHP classes in the RTE CKEditor Image extension.
    :depth: 2
    :local:
 
+.. versionchanged:: 13.1.5
+
+   Major architecture update: legacy controllers replaced with service-based pipeline.
+   See :ref:`api-services` for the new approach.
+
 API Components
 ==============
 
@@ -23,21 +30,35 @@ API Components
 
     ..  card:: 🎮 Controllers API
 
-        Frontend and backend controllers for image handling and rendering
+        TypoScript adapters and backend controllers for image handling.
 
         ..  card-footer:: :ref:`Read more <api-controllers>`
             :button-style: btn btn-primary stretched-link
 
+    ..  card:: ⚙️ Services API
+
+        New service architecture with clean separation of concerns.
+
+        ..  card-footer:: :ref:`Read more <api-services>`
+            :button-style: btn btn-primary stretched-link
+
+    ..  card:: 📦 Data Transfer Objects
+
+        Type-safe DTOs for validated image data.
+
+        ..  card-footer:: :ref:`Read more <api-dtos>`
+            :button-style: btn btn-primary stretched-link
+
     ..  card:: 📊 Data Handling API
 
-        Database hooks, content processing, and image transformations
+        Database hooks, content processing, and image transformations.
 
         ..  card-footer:: :ref:`Read more <api-datahandling>`
             :button-style: btn btn-primary stretched-link
 
     ..  card:: 🔔 Event Listeners
 
-        PSR-14 event system integration for RTE configuration
+        PSR-14 event system integration for RTE configuration.
 
         ..  card-footer:: :ref:`Read more <api-eventlisteners>`
             :button-style: btn btn-primary stretched-link
@@ -59,5 +80,7 @@ Related Documentation
    :maxdepth: 1
 
    Controllers
+   Services
+   DTOs
    DataHandling
    EventListeners

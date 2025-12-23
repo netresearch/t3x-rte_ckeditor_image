@@ -71,6 +71,14 @@ Examples by Topic
         ..  card-footer:: :ref:`Read more <examples-testing>`
             :button-style: btn btn-primary stretched-link
 
+    ..  card:: 🎭 Template Overrides
+
+        Customize image rendering output by overriding Fluid templates.
+        Includes Bootstrap integration, PhotoSwipe lightbox, and lazy loading examples.
+
+        ..  card-footer:: :ref:`Read more <examples-template-overrides>`
+            :button-style: btn btn-primary stretched-link
+
 Quick Reference Links
 =====================
 
@@ -89,3 +97,4 @@ Quick Reference Links
    Advanced-Features
    Custom-Extensions
    Testing
+   Template-Overrides

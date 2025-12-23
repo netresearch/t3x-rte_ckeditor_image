@@ -43,11 +43,12 @@ echo ""
 
 docker run --rm \
     -v "${PROJECT_DIR}:/project" \
+    -w /project/Documentation \
     --user "$(id -u):$(id -g)" \
     ghcr.io/typo3-documentation/render-guides:latest \
     --no-progress \
     --output=/project/Documentation-GENERATED-temp \
-    /project/Documentation 2>&1
+    . 2>&1
 
 if [ $? -eq 0 ]; then
     # Check for output files (structure may vary)

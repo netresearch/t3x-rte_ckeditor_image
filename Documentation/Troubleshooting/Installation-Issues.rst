@@ -344,6 +344,107 @@ After applying fix, check frontend HTML:
 
 ----
 
+Issue: Insert Image Button Missing with Bootstrap Package or Other Site Sets
+-----------------------------------------------------------------------------
+
+.. versionadded:: 13.1.0
+   Site Set dependency ordering ensures proper override behavior.
+
+**Symptoms:**
+
+* Extension is installed and active
+* "Insert image" button missing from RTE toolbar
+* Page TSConfig shows ``RTE.default.preset = bootstrap`` (or another third-party preset)
+* Zero-config installation not working
+
+**Cause:**
+
+Third-party extensions like ``bootstrap_package`` use **Site Sets** to configure the RTE.
+In TYPO3 v13, Site Sets have **higher priority** than extension ``page.tsconfig`` files.
+
+The loading order is:
+
+1. Extension ``Configuration/page.tsconfig`` (our ``RTE.default.preset = rteWithImages``)
+2. Site Set configurations (bootstrap's ``RTE.default.preset = bootstrap`` **overrides ours**)
+
+When your site uses a Site Set dependency like ``bootstrap-package/full``, it loads
+**after** our extension's page.tsconfig and overrides our RTE preset.
+
+**Detection:**
+
+Check the active RTE preset in Page TSConfig module:
+
+1. Go to **Site Management** → **Page TSconfig**
+2. Search for ``RTE.default.preset``
+3. If it shows ``bootstrap`` or another preset (not ``rteWithImages``), you have this issue
+
+Or check your site configuration:
+
+.. code-block:: yaml
+   :caption: config/sites/<site>/config.yaml
+
+   dependencies:
+     - bootstrap-package/full  # This overrides our RTE preset!
+
+**Solution: Add Site Set Dependency**
+
+Add ``netresearch/rte-ckeditor-image`` to your site dependencies **after** the overriding
+package so our preset loads last:
+
+.. code-block:: yaml
+   :caption: config/sites/<site>/config.yaml
+
+   base: 'https://example.com/'
+   rootPageId: 1
+   dependencies:
+     - bootstrap-package/full
+     - netresearch/rte-ckeditor-image  # Must come AFTER bootstrap-package
+
+Clear caches after updating:
+
+.. code-block:: bash
+
+   ./vendor/bin/typo3 cache:flush
+
+**Why This Works:**
+
+Our Site Set (``netresearch/rte-ckeditor-image``) declares ``optionalDependencies`` on
+bootstrap-package, so when both are listed, ours loads **after** bootstrap and overrides
+their RTE preset with ``rteWithImages``.
+
+.. code-block:: yaml
+   :caption: EXT:rte_ckeditor_image/Configuration/Sets/RteCKEditorImage/config.yaml
+
+   name: netresearch/rte-ckeditor-image
+   label: 'CKEditor Image Support'
+   optionalDependencies:
+     - bootstrap-package/content-elements
+     - bootstrap-package/full
+
+**Affected Packages:**
+
+This issue affects any extension that sets ``RTE.default.preset`` via Site Sets:
+
+* ``bootstrap_package`` (sets ``RTE.default.preset = bootstrap``)
+* Other theme packages with custom RTE configurations
+* Any extension using Site Sets for RTE configuration
+
+**Verification:**
+
+After adding the dependency:
+
+1. Clear all caches
+2. Go to any content element with an RTE field
+3. Verify the **Insert image** button appears in the toolbar
+4. Check Page TSConfig shows ``RTE.default.preset = rteWithImages``
+
+.. tip::
+   The extension's Site Set is designed to work alongside theme packages.
+   Simply adding it to your site dependencies is the correct solution—no
+   manual TSConfig overrides needed.
+
+----
+
 Image Processing Configuration
 ===============================
 

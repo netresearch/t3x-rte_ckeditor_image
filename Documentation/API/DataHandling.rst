@@ -1,3 +1,5 @@
+.. include:: /Includes.rst.txt
+
 .. _api-datahandling:
 
 ==================
@@ -59,7 +61,7 @@ Main Hook Methods
 processDatamap_postProcessFieldArray()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. php:method:: processDatamap_postProcessFieldArray(string $status, string $table, string $id, array &$fieldArray, DataHandler &$dataHandler): void
+.. php:method:: processDatamap_postProcessFieldArray($status, $table, $id, &$fieldArray, &$dataHandler)
 
    Main TCEmain hook method called after field processing, before database save.
 
@@ -91,7 +93,7 @@ Image Processing Methods
 modifyRteField()
 ~~~~~~~~~~~~~~~~
 
-.. php:method:: modifyRteField(string $value): string
+.. php:method:: modifyRteField($value)
 
    Main processing method for RTE field content with images.
 
@@ -217,12 +219,12 @@ extractFromAttributeValueOrStyle()
 matchStyleAttribute()
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. php:method:: matchStyleAttribute(string styleAttribute, string imageAttribute): string|null
+.. php:method:: matchStyleAttribute($styleAttribute, $imageAttribute)
 
    Extracts dimension value from CSS style attribute.
 
-   :param string styleAttribute: CSS style string
-   :param string imageAttribute: Attribute name to extract
+   :param string $styleAttribute: CSS style string.
+   :param string $imageAttribute: Attribute name to extract.
    :returns: Extracted value or null
    :returntype: string|null
    :visibility: private
@@ -240,7 +242,7 @@ matchStyleAttribute()
 resolveFieldConfigurationAndRespectColumnsOverrides()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. php:method:: resolveFieldConfigurationAndRespectColumnsOverrides(DataHandler $dataHandler, string $table, string $field): array
+.. php:method:: resolveFieldConfigurationAndRespectColumnsOverrides($dataHandler, $table, $field)
 
    Gets TCA field configuration with type-specific overrides applied.
 

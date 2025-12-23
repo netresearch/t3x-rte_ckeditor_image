@@ -3,6 +3,9 @@ type: php
 docroot: ""
 no_project_mount: true
 php_version: "8.4"
+
+# Security: Don't expose internal service ports to host
+host_db_port: ""
 composer_version: "2"
 webserver_type: apache-fpm
 router_http_port: "80"

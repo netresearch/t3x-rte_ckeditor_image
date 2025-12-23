@@ -1,3 +1,5 @@
+.. include:: /Includes.rst.txt
+
 .. _adr-001-image-scaling:
 
 ====================================
@@ -327,7 +329,7 @@ Rule 2: Dimensions Match Exactly (Skip Processing)
 
 .. code-block:: text
 
-   No Scaling: Image 1920×1080 px will be displayed at 1920×1080 px = ● Standard Quality (1.0x scaling)
+   No Scaling: Image 1920×1080 px will be used unchanged (no processing)
    Standard (1.0x): Image 1920×1080 px will be displayed at 1920×1080 px = ● Standard Quality (1.0x scaling)
    Retina (2.0x): Image 1920×1080 px will be displayed at 1920×1080 px = ● Standard Quality (1.0x scaling) [cannot achieve 2.0x]
 
