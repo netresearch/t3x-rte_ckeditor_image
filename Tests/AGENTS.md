@@ -66,26 +66,37 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
 ## 🔧 Build & Tests
 
 ### Running Tests
-```bash
-# Currently no test runner configured in Makefile
-# When available, use:
-make test                           # Run all tests
-make test-functional               # Functional tests only
-make test-unit                     # Unit tests only
 
-# Direct PHPUnit execution
-vendor/bin/phpunit Tests/Functional/
-vendor/bin/phpunit Tests/Unit/
+**CRITICAL: Always run the full test suite before committing changes!**
+
+```bash
+# Unit tests (no database required)
+composer ci:test:php:unit
+
+# Functional tests (REQUIRES ddev with database)
+# ALWAYS use ddev for functional tests - never skip them!
+ddev start  # Ensure ddev is running first
+ddev exec "cd /var/www/rte_ckeditor_image && typo3DatabaseHost=db typo3DatabaseUsername=root typo3DatabasePassword=root typo3DatabaseName=func_test .Build/bin/phpunit -c Build/phpunit/FunctionalTests.xml"
+
+# Run all tests (unit + functional)
+composer ci:test:php:unit && ddev exec "cd /var/www/rte_ckeditor_image && typo3DatabaseHost=db typo3DatabaseUsername=root typo3DatabasePassword=root typo3DatabaseName=func_test .Build/bin/phpunit -c Build/phpunit/FunctionalTests.xml"
 
 # With coverage (requires xdebug)
-vendor/bin/phpunit --coverage-html coverage/ Tests/
+composer ci:coverage:unit
+ddev exec "cd /var/www/rte_ckeditor_image && typo3DatabaseHost=db typo3DatabaseUsername=root typo3DatabasePassword=root typo3DatabaseName=func_test .Build/bin/phpunit -c Build/phpunit/FunctionalTests.xml --coverage-html=.Build/coverage-functional"
 ```
 
 ### Test Configuration
-Test configuration location (when available):
-- `phpunit.xml.dist` - PHPUnit configuration
-- `Build/phpunit-functional.xml` - Functional tests config
-- `Build/phpunit-unit.xml` - Unit tests config
+- `Build/phpunit/UnitTests.xml` - Unit tests config
+- `Build/phpunit/FunctionalTests.xml` - Functional tests config
+- `phpunit.xml` - Legacy config (relative paths for TYPO3 vendor setup)
+
+### Database Requirements for Functional Tests
+Functional tests require database credentials via environment variables:
+- `typo3DatabaseHost=db` (ddev database hostname)
+- `typo3DatabaseUsername=root`
+- `typo3DatabasePassword=root`
+- `typo3DatabaseName=func_test` (uses dedicated test database)
 
 ## 📝 Code Style
 
