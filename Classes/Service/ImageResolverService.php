@@ -475,6 +475,13 @@ class ImageResolverService
     /**
      * Get attribute value with fallback to file property.
      *
+     * Handles the override mechanism where:
+     * - data-{attr}-override="true" means "use the explicit attribute value, don't fall back to file metadata"
+     * - data-{attr}-override="Custom Value" means "use 'Custom Value' as the attribute value"
+     * - No override: fall back to attribute value or file property
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/502
+     *
      * @param string               $attribute  Attribute name
      * @param array<string,string> $attributes Attributes array
      * @param File                 $file       File object
@@ -492,7 +499,18 @@ class ImageResolverService
         $overrideKey = 'data-' . $attribute . '-override';
 
         if (isset($attributes[$overrideKey]) && $attributes[$overrideKey] !== '') {
-            return $attributes[$overrideKey];
+            $overrideValue = $attributes[$overrideKey];
+
+            // When override is "true", it's a boolean flag meaning "use element-specific value"
+            // Return the actual attribute value (even if empty) instead of file metadata
+            if ($overrideValue === 'true') {
+                // Return the explicit attribute value, or empty string if not set
+                // This allows intentionally empty alt/title attributes
+                return $attributes[$attribute] ?? '';
+            }
+
+            // Otherwise, the override value is the actual content to use
+            return $overrideValue;
         }
 
         // Check for regular attribute
