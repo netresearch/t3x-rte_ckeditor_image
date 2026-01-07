@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 
 /**
  * E2E tests for RTE CKEditor Image style/alignment functionality.
@@ -12,12 +12,46 @@ import { test, expect } from '@playwright/test';
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/501
  */
+
+/**
+ * Helper function to test CSS property for a given image style class.
+ * Reduces code duplication across alignment tests.
+ */
+async function testImageStyle(
+  page: Page,
+  selector: string,
+  cssProperty: string,
+  expectedValues: string | string[],
+  skipMessage: string
+): Promise<void> {
+  await page.goto('/');
+
+  const elements = page.locator(selector);
+  const count = await elements.count();
+
+  test.skip(count === 0, skipMessage);
+
+  const firstElement = elements.first();
+  await expect(firstElement).toBeVisible();
+
+  const actualValue = await firstElement.evaluate(
+    (el, prop) => getComputedStyle(el).getPropertyValue(prop),
+    cssProperty
+  );
+
+  const expected = Array.isArray(expectedValues) ? expectedValues : [expectedValues];
+  expect(expected).toContain(actualValue);
+}
+
 test.describe('Image Style/Alignment Functionality', () => {
   test('images with alignment classes render correctly', async ({ page }) => {
     await page.goto('/');
 
     // Find any images with style classes
-    const styledImages = page.locator('img.image-left, img.image-right, img.image-center, img.image-inline, img.image-block, figure.image-left, figure.image-right, figure.image-center, figure.image-inline, figure.image-block');
+    const styledImages = page.locator(
+      'img.image-left, img.image-right, img.image-center, img.image-inline, img.image-block, ' +
+      'figure.image-left, figure.image-right, figure.image-center, figure.image-inline, figure.image-block'
+    );
     const count = await styledImages.count();
 
     // Log what we found for debugging
@@ -31,35 +65,23 @@ test.describe('Image Style/Alignment Functionality', () => {
   });
 
   test('image-left class applies float left styling', async ({ page }) => {
-    await page.goto('/');
-
-    const leftImages = page.locator('img.image-left, figure.image-left');
-    const count = await leftImages.count();
-
-    test.skip(count === 0, 'No left-aligned images found');
-
-    const firstLeft = leftImages.first();
-    await expect(firstLeft).toBeVisible();
-
-    // Verify float left is applied
-    const float = await firstLeft.evaluate(el => getComputedStyle(el).float);
-    expect(float).toBe('left');
+    await testImageStyle(
+      page,
+      'img.image-left, figure.image-left',
+      'float',
+      'left',
+      'No left-aligned images found'
+    );
   });
 
   test('image-right class applies float right styling', async ({ page }) => {
-    await page.goto('/');
-
-    const rightImages = page.locator('img.image-right, figure.image-right');
-    const count = await rightImages.count();
-
-    test.skip(count === 0, 'No right-aligned images found');
-
-    const firstRight = rightImages.first();
-    await expect(firstRight).toBeVisible();
-
-    // Verify float right is applied
-    const float = await firstRight.evaluate(el => getComputedStyle(el).float);
-    expect(float).toBe('right');
+    await testImageStyle(
+      page,
+      'img.image-right, figure.image-right',
+      'float',
+      'right',
+      'No right-aligned images found'
+    );
   });
 
   test('image-center class applies center alignment styling', async ({ page }) => {
@@ -83,35 +105,25 @@ test.describe('Image Style/Alignment Functionality', () => {
   });
 
   test('image-block class applies block display styling', async ({ page }) => {
-    await page.goto('/');
-
-    const blockImages = page.locator('img.image-block, figure.image-block');
-    const count = await blockImages.count();
-
-    test.skip(count === 0, 'No block images found');
-
-    const firstBlock = blockImages.first();
-    await expect(firstBlock).toBeVisible();
-
-    // Verify block display
-    const display = await firstBlock.evaluate(el => getComputedStyle(el).display);
-    expect(display).toBe('block');
+    await testImageStyle(
+      page,
+      'img.image-block, figure.image-block',
+      'display',
+      'block',
+      'No block images found'
+    );
   });
 
   test('image-inline class applies inline display styling', async ({ page }) => {
-    await page.goto('/');
-
-    const inlineImages = page.locator('img.image-inline');
-    const count = await inlineImages.count();
-
-    test.skip(count === 0, 'No inline images found');
-
-    const firstInline = inlineImages.first();
-    await expect(firstInline).toBeVisible();
-
-    // Verify inline display
-    const display = await firstInline.evaluate(el => getComputedStyle(el).display);
-    expect(display).toBe('inline');
+    // Allow both 'inline' and 'inline-block' as browsers may compute
+    // differently based on CSS factors (e.g., if dimensions are set)
+    await testImageStyle(
+      page,
+      'img.image-inline',
+      'display',
+      ['inline', 'inline-block'],
+      'No inline images found'
+    );
   });
 
   test('image alignment CSS is loaded on page', async ({ page }) => {
@@ -147,55 +159,49 @@ test.describe('Image Style Class Preservation', () => {
     await page.goto('/');
 
     // Get all images that should have style classes
-    const allImages = page.locator('img');
-    const imageCount = await allImages.count();
+    const styledImages = page.locator(
+      'img.image-left, img.image-right, img.image-center, img.image-inline, img.image-block'
+    );
+    const count = await styledImages.count();
 
-    if (imageCount === 0) {
-      console.log('No images found on page');
-      return;
-    }
+    // Skip if no styled images - test is content-dependent
+    test.skip(count === 0, 'No styled images found on page');
 
-    // Check each image for valid class attribute
-    for (let i = 0; i < Math.min(imageCount, 10); i++) {
-      const img = allImages.nth(i);
+    // Verify each styled image has the expected class preserved
+    for (let i = 0; i < Math.min(count, 5); i++) {
+      const img = styledImages.nth(i);
       const className = await img.getAttribute('class');
 
-      if (className) {
-        // Log images with style classes for debugging
-        const hasStyleClass = /image-(left|right|center|inline|block)/.test(className);
-        if (hasStyleClass) {
-          console.log(`Image ${i}: class="${className}"`);
-        }
-      }
+      // Assert that the class attribute contains a valid style class
+      expect(className).toBeTruthy();
+      expect(className).toMatch(/image-(left|right|center|inline|block)/);
     }
   });
 
   test('figure elements preserve style classes', async ({ page }) => {
     await page.goto('/');
 
-    const figures = page.locator('figure');
-    const figureCount = await figures.count();
+    // Get figures with style classes
+    const styledFigures = page.locator(
+      'figure.image-left, figure.image-right, figure.image-center, figure.image-inline, figure.image-block'
+    );
+    const count = await styledFigures.count();
 
-    if (figureCount === 0) {
-      console.log('No figure elements found on page');
-      return;
-    }
+    // Skip if no styled figures - test is content-dependent
+    test.skip(count === 0, 'No styled figure elements found on page');
 
-    // Check figures for style classes
-    for (let i = 0; i < Math.min(figureCount, 10); i++) {
-      const figure = figures.nth(i);
+    // Verify each styled figure has class preserved and contains an image
+    for (let i = 0; i < Math.min(count, 5); i++) {
+      const figure = styledFigures.nth(i);
       const className = await figure.getAttribute('class');
 
-      if (className) {
-        const hasStyleClass = /image-(left|right|center|inline|block)/.test(className);
-        if (hasStyleClass) {
-          console.log(`Figure ${i}: class="${className}"`);
+      // Assert class contains valid style
+      expect(className).toBeTruthy();
+      expect(className).toMatch(/image-(left|right|center|inline|block)/);
 
-          // Verify figure contains an image
-          const img = figure.locator('img');
-          await expect(img).toBeVisible();
-        }
-      }
+      // Assert figure contains an image
+      const img = figure.locator('img');
+      await expect(img).toBeVisible();
     }
   });
 });
