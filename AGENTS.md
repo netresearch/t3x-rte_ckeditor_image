@@ -27,9 +27,18 @@ See **[claudedocs/INDEX.md](claudedocs/INDEX.md)** for AI context navigation.
 ## ⚡ Pre-Commit Checklist
 
 ```bash
-composer ci:test              # All checks (lint + phpstan + rector + cgl)
-composer ci:cgl               # Auto-fix code style if needed
+# Quality checks (lint + phpstan + rector + cgl)
+composer ci:test
+
+# Run FULL test suite (ALWAYS run before committing!)
+composer ci:test:php:unit  # Unit tests
+ddev exec "cd /var/www/rte_ckeditor_image && typo3DatabaseHost=db typo3DatabaseUsername=root typo3DatabasePassword=root typo3DatabaseName=func_test .Build/bin/phpunit -c Build/phpunit/FunctionalTests.xml"  # Functional tests
+
+# Auto-fix code style
+composer ci:cgl
 ```
+
+**IMPORTANT:** ddev/containers are ALWAYS available in this project. Never skip functional tests!
 
 ## 📂 Scoped Guides (Nearest Wins)
 
