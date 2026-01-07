@@ -306,7 +306,7 @@ Choosing the right approach
      - None required
      - YAML configuration needed
    * - Styles available
-     - 5 alignment presets
+     - 5 style options (3 alignment + 2 display)
      - Custom (you define them)
    * - Location
      - Balloon above image
