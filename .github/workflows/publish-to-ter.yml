@@ -92,9 +92,7 @@ jobs:
 
                   # Append release link if available
                   if [[ -n "${RELEASE_URL}" ]]; then
-                      COMMENT="${COMMENT}
-
-Details: ${RELEASE_URL}"
+                      COMMENT=$(printf '%s\n\nDetails: %s' "${COMMENT}" "${RELEASE_URL}")
                   fi
 
                   # Use heredoc for multiline support in GitHub Actions
