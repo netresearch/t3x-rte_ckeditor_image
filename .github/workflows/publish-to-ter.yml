@@ -61,22 +61,48 @@ jobs:
                   ref: v${{ env.version }}
                   fetch-tags: true
 
-            - name: Get comment
+            - name: Prepare release comment
               id: get-comment
               env:
                   TAG_VERSION: ${{ env.version }}
                   EXT_KEY: ${{ env.TYPO3_EXTENSION_KEY }}
-                  SERVER_URL: ${{ github.server_url }}
-                  REPO: ${{ github.repository }}
+                  RELEASE_BODY: ${{ github.event.release.body }}
+                  RELEASE_NAME: ${{ github.event.release.name }}
+                  RELEASE_URL: ${{ github.event.release.html_url }}
               run: |
-                  # Get first line of tag message only (avoid multiline issues)
-                  readonly local comment=$(git tag -n1 -l "v${TAG_VERSION}" | sed "s/^v[0-9.]*[ ]*//g")
-
-                  if [[ -z "${comment// }" ]]; then
-                      echo "comment=Released version ${TAG_VERSION} of ${EXT_KEY}" >> $GITHUB_ENV
+                  # Use release body (GitHub release notes) as primary source
+                  # TER only supports plain text - no markdown, no special characters
+                  if [[ -n "${RELEASE_BODY}" ]]; then
+                      # Strip markdown formatting and limit length
+                      # TER supports newlines (rendered as <br> on frontend)
+                      COMMENT=$(echo "${RELEASE_BODY}" | head -c 1000)
+                      # Strip characters not supported in TER XML export
+                      # Allowed: word chars, whitespace, " % & [ ] ( ) . , ; : / ? { } ! $ - @
+                      COMMENT=$(echo "${COMMENT}" | sed 's/[#*+=~^|\\<>]//g')
+                  elif [[ -n "${RELEASE_NAME}" ]]; then
+                      COMMENT="${RELEASE_NAME}"
                   else
-                      echo "comment=${comment}" >> $GITHUB_ENV
+                      COMMENT="Released version ${TAG_VERSION} of ${EXT_KEY}"
                   fi
+
+                  # For workflow_dispatch, fall back to simple message
+                  if [[ -z "${COMMENT// }" ]]; then
+                      COMMENT="Released version ${TAG_VERSION} of ${EXT_KEY}"
+                  fi
+
+                  # Append release link if available
+                  if [[ -n "${RELEASE_URL}" ]]; then
+                      COMMENT="${COMMENT}
+
+Details: ${RELEASE_URL}"
+                  fi
+
+                  # Use heredoc for multiline support in GitHub Actions
+                  {
+                      echo "comment<<EOF"
+                      echo "${COMMENT}"
+                      echo "EOF"
+                  } >> $GITHUB_ENV
 
             - name: Setup PHP
               uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
