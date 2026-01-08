@@ -7,16 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.2.0] - 2026-01-08
+
 ### Added
 
-- TYPO3 v14.0 support - full compatibility with TYPO3 14.0+ while maintaining TYPO3 13.4 support
-- PHP 8.5 support - extends PHP compatibility to include the latest stable PHP version
+- TYPO3 v14.0 support - full compatibility with TYPO3 14.0+ while maintaining TYPO3 13.4 support ([#495](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/495))
+- PHP 8.5 support - extends PHP compatibility to include the latest stable PHP version ([#495](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/495))
 - DDEV environment for TYPO3 v14 local testing (`ddev install-v14`)
+- E2E tests for image style/alignment functionality ([#505](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/505))
 
 ### Changed
 
 - CI test matrix expanded to 8 combinations (TYPO3 13.4/14.0 x PHP 8.2/8.3/8.4/8.5)
 - Updated branch alias to 13.x-dev
+- Clarified documentation for two image styling approaches (built-in balloon toolbar vs native Style dropdown) ([#506](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/506))
+
+### Fixed
+
+- Image `alt` and `title` attributes rendering as literal `"true"` instead of empty string when `data-alt-override="true"` or `data-title-override="true"` was set ([#502](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/502), [#503](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/503))
 
 ## [13.1.5] - 2025-12-20
 
