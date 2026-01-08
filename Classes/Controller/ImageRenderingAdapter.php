@@ -16,6 +16,7 @@ use Netresearch\RteCKEditorImage\Service\ImageAttributeParser;
 use Netresearch\RteCKEditorImage\Service\ImageRenderingService;
 use Netresearch\RteCKEditorImage\Service\ImageResolverService;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Attribute\AsAllowedCallable;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
@@ -86,6 +87,7 @@ class ImageRenderingAdapter
      *
      * @return string Rendered HTML
      */
+    #[AsAllowedCallable]
     public function renderImageAttributes(?string $content, array $conf, ServerRequestInterface $request): string
     {
         // Get attributes from ContentObjectRenderer (populated by TypoScript tags.img parser)
@@ -125,6 +127,7 @@ class ImageRenderingAdapter
      *
      * @return string Rendered HTML with processed images
      */
+    #[AsAllowedCallable]
     public function renderImages(?string $content, array $conf, ServerRequestInterface $request): string
     {
         // Get link inner HTML from ContentObjectRenderer
