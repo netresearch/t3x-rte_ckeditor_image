@@ -97,10 +97,10 @@ final class ImageResolverServiceTest extends TestCase
      * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/502
      */
     #[Test]
-    public function getAttributeValueReturnsBooleanTrueStringWhenOverrideSetToTrue(): void
+    public function getAttributeValueReturnsEmptyStringWhenOverrideIsTrue(): void
     {
-        // Bug reproduction: data-alt-override="true" with alt="" should return ""
-        // Current buggy behavior returns "true"
+        // Regression test for #502: data-alt-override="true" with alt="" must return ""
+        // Previously returned literal "true" instead of empty string
         $fileMock = $this->createFileMock(['alt' => 'File Alt Text']);
 
         $attributes = [
@@ -110,9 +110,7 @@ final class ImageResolverServiceTest extends TestCase
 
         $result = $this->callPrivateMethod($this->service, 'getAttributeValue', ['alt', $attributes, $fileMock]);
 
-        // BUG: Currently returns "true" instead of "" (empty string)
-        // The override flag "true" should mean "use the alt attribute as-is"
-        // not "use 'true' as the alt value"
+        // The override flag "true" means "use the alt attribute as-is, don't fall back to file metadata"
         self::assertSame('', $result, 'When data-alt-override="true" and alt="", the result should be empty string');
     }
 
@@ -120,9 +118,9 @@ final class ImageResolverServiceTest extends TestCase
      * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/502
      */
     #[Test]
-    public function getAttributeValueReturnsBooleanTrueStringForTitleWhenOverrideSetToTrue(): void
+    public function getAttributeValueReturnsEmptyStringForTitleWhenOverrideIsTrue(): void
     {
-        // Same bug for title attribute
+        // Regression test for #502: same fix applies to title attribute
         $fileMock = $this->createFileMock(['title' => 'File Title Text']);
 
         $attributes = [
