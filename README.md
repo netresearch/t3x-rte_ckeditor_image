@@ -3,6 +3,7 @@
 [![CI](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/ci.yml/badge.svg)](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/codeql-analysis.yml)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/netresearch/t3x-rte_ckeditor_image/badge)](https://securityscorecards.dev/viewer/?uri=github.com/netresearch/t3x-rte_ckeditor_image)
+[![PHPStan](https://img.shields.io/badge/PHPStan-level%2010-brightgreen.svg)](https://phpstan.org/)
 
 ![Total downloads](https://typo3-badges.dev/badge/rte_ckeditor_image/downloads/shields.svg)
 ![TYPO3 extension](https://typo3-badges.dev/badge/rte_ckeditor_image/extension/shields.svg)
