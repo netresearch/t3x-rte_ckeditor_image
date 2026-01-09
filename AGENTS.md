@@ -23,6 +23,24 @@ See **[claudedocs/INDEX.md](claudedocs/INDEX.md)** for AI context navigation.
 - **Commits:** Use conventional format: `type(scope): message`
 - **Security:** No secrets in VCS (use .env, LocalConfiguration.php)
 - **Quality Gate:** All code must pass `composer ci:test` before commit
+- **Releases:** ALWAYS create signed tags - NEVER use `gh release create` alone
+
+## 🏷️ Creating Signed Releases
+
+**CRITICAL:** Tags/releases created via `gh release create` are UNSIGNED. Always use this process:
+
+```bash
+# 1. Create signed tag locally
+git tag -s vX.Y.Z -m "vX.Y.Z"
+
+# 2. Push signed tag to remote
+git push origin vX.Y.Z
+
+# 3. Create release on existing tag (tag already exists, so it stays signed)
+gh release create vX.Y.Z --title "vX.Y.Z" --notes "Release notes..."
+```
+
+**NEVER:** Run `gh release create` without first creating and pushing a signed tag.
 
 ## ⚡ Pre-Commit Checklist
 
