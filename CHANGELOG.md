@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.3.2] - 2026-01-09
+
+> **Note:** Versions 13.3.0 and 13.3.1 were blocked by GitHub's immutable releases feature during release troubleshooting. This is the first published release of the 13.3.x series.
+
+### Added
+
+- `#[AsAllowedCallable]` attribute on `renderImageAttributes()` and `renderImages()` methods for TYPO3 v14 compatibility ([#518](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/518))
+- Functional tests for TypoScript callable integration
+
+### Changed
+
+- Minimum TYPO3 version raised to 13.4.21 (backport of `AsAllowedCallable` attribute)
+
 ## [13.2.0] - 2026-01-08
 
 ### Added
