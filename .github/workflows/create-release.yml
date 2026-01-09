@@ -45,18 +45,20 @@ jobs:
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
 
-            - name: Update ext_emconf.php version
+            - name: Update ext_emconf.php version and commit
               run: |
-                  sed -i "s/'version'[[:space:]]*=>[[:space:]]*'[^']*'/'version'        => '${VERSION}'/" ext_emconf.php
-                  echo "Updated ext_emconf.php to version ${VERSION}"
-                  grep "'version'" ext_emconf.php
+                  # Check current version before modifying
+                  CURRENT_VERSION=$(grep -oP "'version'\s*=>\s*'\K[^']+" ext_emconf.php)
+                  echo "Current version: ${CURRENT_VERSION}"
+                  echo "Target version: ${VERSION}"
 
-            - name: Commit version bump
-              run: |
-                  git add ext_emconf.php
-                  if git diff --staged --quiet; then
-                      echo "::notice::ext_emconf.php already at version ${VERSION}, skipping commit"
+                  if [[ "${CURRENT_VERSION}" == "${VERSION}" ]]; then
+                      echo "::notice::ext_emconf.php already at version ${VERSION}, skipping update"
                   else
+                      sed -i "s/'version'[[:space:]]*=>[[:space:]]*'[^']*'/'version'        => '${VERSION}'/" ext_emconf.php
+                      echo "Updated ext_emconf.php to version ${VERSION}"
+                      grep "'version'" ext_emconf.php
+                      git add ext_emconf.php
                       git commit -m "chore: bump version to ${VERSION}"
                       git push origin main
                   fi
