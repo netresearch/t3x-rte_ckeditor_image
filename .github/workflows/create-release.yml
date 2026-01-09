@@ -54,8 +54,12 @@ jobs:
             - name: Commit version bump
               run: |
                   git add ext_emconf.php
-                  git commit -m "chore: bump version to ${VERSION}"
-                  git push origin main
+                  if git diff --staged --quiet; then
+                      echo "::notice::ext_emconf.php already at version ${VERSION}, skipping commit"
+                  else
+                      git commit -m "chore: bump version to ${VERSION}"
+                      git push origin main
+                  fi
 
             - name: Create release
               env:
