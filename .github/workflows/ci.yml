@@ -73,7 +73,7 @@ jobs:
 
             -   id: composer-cache-dependencies
                 name: Cache Composer dependencies
-                uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+                uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
                 with:
                     path: ${{ steps.composer-cache-vars.outputs.dir }}
                     key: ${{ runner.os }}-composer-${{ matrix.php }}-${{ matrix.typo3 }}-${{ steps.composer-cache-vars.outputs.timestamp }}
@@ -176,7 +176,7 @@ jobs:
                 uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
             -   name: Cache Docker layers
-                uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+                uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
                 with:
                     path: /tmp/.docker-cache
                     key: ${{ runner.os }}-docker-e2e-${{ hashFiles('Build/Scripts/runTests.sh') }}
@@ -184,7 +184,7 @@ jobs:
                         ${{ runner.os }}-docker-e2e-
 
             -   name: Cache npm dependencies
-                uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+                uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
                 with:
                     path: Tests/E2E/node_modules
                     key: ${{ runner.os }}-npm-e2e-${{ hashFiles('Tests/E2E/package-lock.json') }}
