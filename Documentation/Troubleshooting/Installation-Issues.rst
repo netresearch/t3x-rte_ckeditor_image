@@ -321,7 +321,7 @@ Modern TYPO3 v13 approach:
 * **TypoScript must be manually included** via static template or import
 * **sys_template records** control TypoScript for their page tree
 * **Bootstrap Package** in sys_template may clear ``lib.parseFunc_RTE`` hooks
-* **Load order matters** - include the extension's TypoScript after other templates
+* **Load order matters** - include the extension's TypoScript after theme packages but before Fluid Styled Content
 
 **Verification:**
 

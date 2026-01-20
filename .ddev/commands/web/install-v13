@@ -163,9 +163,14 @@ if [ -f config/sites/main/config.yaml ]; then
         file_put_contents(\$file, yaml_emit(\$yaml, YAML_UTF8_ENCODING));
     " 2>/dev/null || {
         # Fallback: append if PHP yaml extension not available
-        if ! grep -q '^dependencies:' config/sites/main/config.yaml; then
-            echo "dependencies:" >> config/sites/main/config.yaml
-            echo "  - bootstrap-package/full" >> config/sites/main/config.yaml
+        # Check if our specific dependency is missing (handles both missing key and partial entries)
+        if ! grep -q 'netresearch/rte-ckeditor-image' config/sites/main/config.yaml; then
+            if ! grep -q '^dependencies:' config/sites/main/config.yaml; then
+                echo "dependencies:" >> config/sites/main/config.yaml
+            fi
+            if ! grep -q 'bootstrap-package/full' config/sites/main/config.yaml; then
+                echo "  - bootstrap-package/full" >> config/sites/main/config.yaml
+            fi
             echo "  - netresearch/rte-ckeditor-image" >> config/sites/main/config.yaml
         fi
     }
