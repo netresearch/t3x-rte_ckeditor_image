@@ -14,22 +14,25 @@ Complete configuration reference and integration guide for the RTE CKEditor Imag
    See :ref:`integration-configuration-quality` for quality settings.
 
 .. important::
-   **Zero-Configuration Installation (v13.0.0+)**
+   **Installation Requirements**
 
-   The extension works out-of-the-box after installation:
+   After installing the extension:
 
    .. code-block:: bash
 
       composer require netresearch/rte-ckeditor-image
 
-   **No manual configuration needed!** The extension automatically:
+   The extension automatically:
 
    - ✅ Registers ``rteWithImages`` preset for backend RTE
    - ✅ Configures toolbar with ``insertimage`` button
-   - ✅ Loads TypoScript for frontend rendering
-   - ✅ Applies configuration globally to all sites
 
-   This section is for **advanced users** who need custom RTE configurations beyond the defaults.
+   **For frontend rendering**, you must include the TypoScript:
+
+   - **Static Template**: Include "CKEditor Image Support" in your template
+   - **Or direct import**: ``@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'``
+
+   See :ref:`integration-configuration-frontend-rendering` for details.
 
 Configuration Quick Reference
 ==============================

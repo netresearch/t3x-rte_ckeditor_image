@@ -9,22 +9,34 @@ Frontend Rendering
 TypoScript configuration for frontend image rendering, CSS classes, lazy loading, and lightbox integration.
 
 .. important::
-   **Zero-Configuration Installation (v13.0.0+)**
+   **TypoScript Required for Frontend Rendering**
 
-   The extension automatically loads TypoScript for frontend rendering via :file:`ext_localconf.php`:
+   After installing the extension, you must include the TypoScript for frontend image rendering.
 
-   ..  code-block:: bash
-       :caption: Install via Composer
+   **Option 1: Static Template (Recommended)**
 
-       composer require netresearch/rte-ckeditor-image
+   #. Go to :guilabel:`WEB > Template` module.
+   #. Select your root page.
+   #. Edit the template.
+   #. In :guilabel:`Includes` tab, add: :guilabel:`CKEditor Image Support (rte_ckeditor_image)`.
 
-   **No manual static template inclusion needed!** The extension automatically loads:
+   **Option 2: Direct Import**
+
+   Add to your site package TypoScript:
+
+   ..  code-block:: typoscript
+       :caption: Import in your site package
+
+       @import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
+
+   This loads:
 
    -  Image rendering hooks (:typoscript:`lib.parseFunc_RTE.tags.img`).
    -  Link rendering hooks (:typoscript:`lib.parseFunc_RTE.tags.a`).
    -  HTMLparser configuration for data attribute cleanup.
 
-   This section is for **advanced users** who need to customize the default frontend rendering behavior.
+   Using direct import gives you full control over the TypoScript load order,
+   allowing you to override settings (like lightbox configuration) after the import.
 
 .. contents:: Table of Contents
    :depth: 3
@@ -109,7 +121,7 @@ Lightbox/Popup Integration
 .. note::
    **Optional Site Set Configuration (TYPO3 v13+)**
 
-   The extension works out-of-the-box with zero configuration, including click-to-enlarge functionality.
+   The extension provides click-to-enlarge functionality once TypoScript is included.
 
    **However**, for TYPO3 v13+ best practices, you can optionally include the extension's site set
    to ensure proper loading order with :typoscript:`fluid_styled_content` if you use it:
@@ -142,22 +154,14 @@ Lightbox/Popup Integration
    #. Edit the template.
    #. In :guilabel:`Includes` tab, add: :guilabel:`CKEditor Image Support (rte_ckeditor_image)`.
 
-   **Why use site sets?** While not required, TYPO3 v13 site sets provide proper dependency ordering
+   **Why use site sets?** TYPO3 v13 site sets provide proper dependency ordering
    with :typoscript:`fluid_styled_content`, ensuring TypoScript loads in the correct sequence.
-
-   **Everything works without site set/static template!** The extension automatically configures:
-
-   -  Basic image insertion and rendering.
-   -  Click-to-enlarge popup functionality.
-   -  Image processing and lazy loading.
-
-   Site sets are optional and only recommended for TYPO3 v13+ sites using :typoscript:`fluid_styled_content`.
 
 The extension provides :typoscript:`lib.contentElement.settings.media.popup` configuration
 with sensible defaults for click-to-enlarge functionality. When editors enable
 :guilabel:`Enlarge on Click` in the image dialog, images will open in a JavaScript popup window.
 
-**Default Configuration** (automatically loaded via :file:`ext_localconf.php`):
+**Default Configuration** (included in the static template):
 
 ..  code-block:: typoscript
     :caption: Default popup configuration
@@ -197,27 +201,34 @@ If using :typoscript:`fluid_styled_content` constants, enable lightbox mode:
 
     styles.content.textmedia.linkWrap.lightboxEnabled = 1
 
-Automatic TypoScript Loading
-=============================
+Manual TypoScript Inclusion
+===========================
 
-.. versionadded:: 13.0.0
-   TypoScript is now loaded automatically via :file:`ext_localconf.php`.
-   Manual static template inclusion is no longer required.
+.. versionchanged:: 14.0.0
+   TypoScript is no longer automatically loaded. Manual inclusion is required.
+   See :ref:`integration-configuration-frontend-rendering` for inclusion options.
 
-The extension automatically loads frontend rendering configuration:
+The extension requires manual TypoScript inclusion, giving you full control over load order
+and the ability to override settings in your site package.
 
-..  code-block:: php
-    :caption: Automatic TypoScript loading in ext_localconf.php
+**Include via Static Template:**
 
-    ExtensionManagementUtility::addTypoScript(
-        'rte_ckeditor_image',
-        'setup',
-        '@import "EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript"'
-    );
+#. Go to :guilabel:`WEB > Template` module
+#. Select your root page
+#. In :guilabel:`Includes` tab, add: :guilabel:`CKEditor Image Support`
 
-.. note::
-   The static template :guilabel:`CKEditor Image Support` is still available for backward compatibility,
-   but is optional with automatic loading enabled.
+**Or import directly in your site package:**
+
+..  code-block:: typoscript
+    :caption: Direct import in site package TypoScript
+
+    @import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
+
+    # Now you can override settings:
+    lib.contentElement.settings.media.popup {
+        directImageLink = 1
+        linkParams.ATagParams.dataWrap = class="lightbox"
+    }
 
 .. _typoscript-reference:
 
