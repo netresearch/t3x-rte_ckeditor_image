@@ -97,7 +97,7 @@ class ImageRenderingService
 
         // Step 2: Remove whitespace between HTML tags
         // Example: </a>\n    <figcaption> becomes </a><figcaption>
-        $output = preg_replace('/>\s+</', '><', $output) ?? $output;
+        $output = preg_replace('/>\s+</', '><', (string) $output) ?? $output;
 
         return trim($output);
     }
