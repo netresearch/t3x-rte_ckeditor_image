@@ -204,7 +204,7 @@ If using :typoscript:`fluid_styled_content` constants, enable lightbox mode:
 Manual TypoScript Inclusion
 ===========================
 
-.. versionchanged:: 14.0.0
+.. versionchanged:: 13.4.0
    TypoScript is no longer automatically loaded. Manual inclusion is required.
    See :ref:`integration-configuration-frontend-rendering` for inclusion options.
 
