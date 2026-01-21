@@ -9,11 +9,11 @@
 [![codecov](https://codecov.io/gh/netresearch/t3x-rte_ckeditor_image/graph/badge.svg)](https://codecov.io/gh/netresearch/t3x-rte_ckeditor_image)
 [![SLSA 3](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev)
 
+![Composer](https://typo3-badges.dev/badge/rte_ckeditor_image/composer/shields.svg)
 ![Total downloads](https://typo3-badges.dev/badge/rte_ckeditor_image/downloads/shields.svg)
 ![TYPO3 extension](https://typo3-badges.dev/badge/rte_ckeditor_image/extension/shields.svg)
 ![Stability](https://typo3-badges.dev/badge/rte_ckeditor_image/stability/shields.svg)
 ![TYPO3 versions](https://typo3-badges.dev/badge/rte_ckeditor_image/typo3/shields.svg)
-![Verified state](https://typo3-badges.dev/badge/rte_ckeditor_image/verified/shields.svg)
 ![Latest version](https://typo3-badges.dev/badge/rte_ckeditor_image/version/shields.svg)
 <!-- Generated with 🧡 at typo3-badges.dev -->
 
