@@ -65,11 +65,23 @@ Install the extension via composer:
 composer req netresearch/rte-ckeditor-image
 ```
 
-**That's it!** The extension works completely out-of-the-box with zero configuration:
+The backend RTE works immediately. For frontend rendering, include the TypoScript:
 
-- ✅ **Backend RTE**: Automatically registers the `rteWithImages` preset and configures the toolbar with `insertimage` button for all sites
-- ✅ **Frontend Rendering**: Automatically loads TypoScript for proper image rendering via `lib.parseFunc_RTE`
-- ✅ **No Manual Steps**: No template inclusion, no TSConfig setup, no YAML configuration required
+**Option 1: Static Template (Recommended)**
+
+1. Go to **WEB > Template** module
+2. Select your root page, edit the template
+3. In **Includes** tab, add: **CKEditor Image Support (rte_ckeditor_image)**
+
+**Option 2: Direct Import**
+
+Add to your site package TypoScript:
+
+```typoscript
+@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
+```
+
+This gives you full control over TypoScript load order, allowing you to override settings (like lightbox configuration) after the import.
 
 ### Custom Configuration (Optional)
 
@@ -276,7 +288,7 @@ make docs                    # Render extension documentation
 **Included Packages:**
 - **Bootstrap Package** (v15.0+) - Automatically installed to provide frontend rendering infrastructure
 - **TYPO3 Styleguide** - UI pattern reference for testing
-- All packages configured with zero-configuration for immediate testing of:
+- All packages pre-configured for immediate testing of:
   - Image insertion and editing in RTE
   - Click-to-enlarge functionality on frontend
   - Caption editing (WYSIWYG mode)

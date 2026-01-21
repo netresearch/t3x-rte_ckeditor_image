@@ -154,20 +154,25 @@ EOSQL
 
 # Add site sets to site configuration (TYPO3 v14 approach)
 # Bootstrap Package is added for frontend rendering demo
-# Note: rte_ckeditor_image uses an event listener for true zero-configuration,
-# so adding it to dependencies is optional (but recommended for clarity)
+# rte_ckeditor_image site set is added for frontend TypoScript
 if [ -f config/sites/main/config.yaml ]; then
     # Safely update dependencies using PHP YAML parsing to avoid corrupting other sections
     php -r "
         \$file = 'config/sites/main/config.yaml';
         \$yaml = yaml_parse_file(\$file);
-        \$yaml['dependencies'] = ['bootstrap-package/full'];
+        \$yaml['dependencies'] = ['bootstrap-package/full', 'netresearch/rte-ckeditor-image'];
         file_put_contents(\$file, yaml_emit(\$yaml, YAML_UTF8_ENCODING));
     " 2>/dev/null || {
         # Fallback: append if PHP yaml extension not available
-        if ! grep -q '^dependencies:' config/sites/main/config.yaml; then
-            echo "dependencies:" >> config/sites/main/config.yaml
-            echo "  - bootstrap-package/full" >> config/sites/main/config.yaml
+        # Check if our specific dependency is missing (handles both missing key and partial entries)
+        if ! grep -q 'netresearch/rte-ckeditor-image' config/sites/main/config.yaml; then
+            if ! grep -q '^dependencies:' config/sites/main/config.yaml; then
+                echo "dependencies:" >> config/sites/main/config.yaml
+            fi
+            if ! grep -q 'bootstrap-package/full' config/sites/main/config.yaml; then
+                echo "  - bootstrap-package/full" >> config/sites/main/config.yaml
+            fi
+            echo "  - netresearch/rte-ckeditor-image" >> config/sites/main/config.yaml
         fi
     }
 fi
@@ -177,9 +182,9 @@ vendor/bin/typo3 cache:flush
 echo ""
 echo "TYPO3 $VERSION installation complete!"
 echo ""
-echo "rte_ckeditor_image is auto-configured (true zero-configuration)"
-echo "- TypoScript automatically injected via AfterTemplatesHaveBeenDeterminedEvent"
-echo "- Works with Bootstrap Package without manual sys_template configuration"
+echo "rte_ckeditor_image configuration:"
+echo "- Backend RTE: auto-configured (insertimage button available)"
+echo "- Frontend TypoScript: included via site set dependency"
 echo "- Test content with images added to homepage for E2E testing"
 echo ""
 echo "Test click-to-enlarge: https://${VERSION}.rte-ckeditor-image.ddev.site/"

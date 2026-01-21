@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 /**
  * E2E tests for RTE CKEditor Image click-to-enlarge functionality.
  *
- * These tests verify zero-configuration TypoScript injection works
- * correctly with various site set combinations.
+ * These tests verify TypoScript rendering works correctly
+ * with various site set combinations.
  *
  * Note on extension behavior:
  * - Images with data-htmlarea-zoom="true" in the database are TRANSFORMED
@@ -229,7 +229,7 @@ test.describe('Caption Rendering (Whitespace Artifact Prevention)', () => {
   });
 });
 
-test.describe('Zero-Configuration Verification', () => {
+test.describe('TypoScript Configuration Verification', () => {
   test('page renders without TypoScript errors', async ({ page }) => {
     const response = await page.goto('/');
 

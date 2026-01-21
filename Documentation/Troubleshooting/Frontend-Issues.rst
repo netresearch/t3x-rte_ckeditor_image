@@ -27,25 +27,27 @@ Issue: Images Not Appearing in Frontend
 
 **Causes:**
 
-1. TypoScript rendering hooks missing (rare with v13.0.0+)
+1. TypoScript not included (most common)
 2. Cached content
-3. Custom TypoScript overriding automatic configuration
+3. Custom TypoScript overriding extension configuration
 
 **Solution:**
 
-1. **Verify TypoScript is loaded (v13.0.0+ automatic):**
+1. **Include TypoScript (required):**
 
-   The extension automatically loads TypoScript. Verify it's present:
+   The extension requires manual TypoScript inclusion for frontend rendering:
+
+   **Option A: Static Template**
+
+   #. Go to :guilabel:`WEB > Template` module
+   #. Select your root page, edit the template
+   #. In :guilabel:`Includes` tab, add: :guilabel:`CKEditor Image Support`
+
+   **Option B: Direct Import**
 
    .. code-block:: typoscript
 
-      lib.parseFunc_RTE {
-          tags.img = TEXT
-          tags.img {
-              current = 1
-              preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
-          }
-      }
+      @import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
 
 2. **Clear Caches:**
 
@@ -57,8 +59,8 @@ Issue: Images Not Appearing in Frontend
 
    If you have custom ``lib.parseFunc_RTE`` configuration, ensure it doesn't override the image rendering hooks.
 
-.. note::
-   Since v13.0.0, TypoScript is automatically loaded. Manual static template inclusion is optional.
+.. important::
+   TypoScript must be manually included. See :ref:`integration-configuration-frontend-rendering` for details.
 
 ----
 

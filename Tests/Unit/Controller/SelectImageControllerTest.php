@@ -720,12 +720,12 @@ final class TestableExpandFolderController
         // Replicate the logic from SelectImageController::mainAction()
         $parsedBody = $request->getParsedBody();
         /** @var array<string, mixed> $queryParams */
-        $queryParams  = $request->getQueryParams();
-        $isInfoAction = (
-            (is_array($parsedBody) ? ($parsedBody['action'] ?? null) : null)
-            ?? $queryParams['action']
-            ?? null
-        ) === 'info';
+        $queryParams = $request->getQueryParams();
+
+        // Extract action from body or query params (matches refactored pattern in SelectImageController)
+        $actionFromBody = is_array($parsedBody) ? ($parsedBody['action'] ?? null) : null;
+        $action         = $actionFromBody ?? $queryParams['action'] ?? null;
+        $isInfoAction   = $action === 'info';
 
         if (!$isInfoAction) {
             $bparamsValue = $queryParams['bparams'] ?? '';

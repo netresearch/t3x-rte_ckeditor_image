@@ -318,10 +318,10 @@ Modern TYPO3 v13 approach:
 
 **Why This Happens:**
 
-* **Zero-config installation** (via ``ext_localconf.php``) loads TypoScript globally
-* **sys_template records override** global TypoScript for their page tree
-* **Bootstrap Package** in sys_template clears ``lib.parseFunc_RTE`` hooks
-* **Site sets are ignored** when sys_template exists
+* **TypoScript must be manually included** via static template or import
+* **sys_template records** control TypoScript for their page tree
+* **Bootstrap Package** in sys_template may clear ``lib.parseFunc_RTE`` hooks
+* **Load order matters** - include the extension's TypoScript after theme packages but before Fluid Styled Content
 
 **Verification:**
 
@@ -355,7 +355,6 @@ Issue: Insert Image Button Missing with Bootstrap Package or Other Site Sets
 * Extension is installed and active
 * "Insert image" button missing from RTE toolbar
 * Page TSConfig shows ``RTE.default.preset = bootstrap`` (or another third-party preset)
-* Zero-config installation not working
 
 **Cause:**
 

@@ -6,32 +6,45 @@
 Basic Integration
 =================
 
-Quick start guide demonstrating the zero-configuration installation and basic customization options.
+Quick start guide demonstrating the installation and basic customization options.
 
 .. contents:: Table of Contents
    :depth: 3
    :local:
 
-Zero-Configuration Installation
-================================
-
-**Objective**: Get image functionality working with zero manual configuration
-
 Installation
-------------
+============
+
+**Objective**: Get image functionality working in backend and frontend
+
+Step 1: Install Extension
+-------------------------
 
 .. code-block:: bash
 
    composer require netresearch/rte-ckeditor-image:^13.0
 
-**That's it!** The extension automatically:
+The extension automatically configures the **backend RTE**:
 
-- ✅ Registers the ``rteWithImages`` preset for backend RTE
+- ✅ Registers the ``rteWithImages`` preset
 - ✅ Configures toolbar with ``insertimage`` button for all sites
-- ✅ Loads TypoScript for frontend image rendering
-- ✅ No manual configuration required
 
-**Result**: Full image functionality working out-of-the-box ✅
+Step 2: Include TypoScript
+--------------------------
+
+For **frontend rendering**, include the TypoScript:
+
+**Option A: Static Template (Recommended)**
+
+#. Go to :guilabel:`WEB > Template` module
+#. Select your root page, edit the template
+#. In :guilabel:`Includes` tab, add: :guilabel:`CKEditor Image Support`
+
+**Option B: Direct Import**
+
+.. code-block:: typoscript
+
+   @import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
 
 Verification
 ------------

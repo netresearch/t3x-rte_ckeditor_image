@@ -86,13 +86,13 @@ class SelectImageController extends ElementBrowserController
     public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
 
-        $parsedBody   = $request->getParsedBody();
-        $queryParams  = $request->getQueryParams();
-        $isInfoAction = (
-            (is_array($parsedBody) ? ($parsedBody['action'] ?? null) : null)
-            ?? $queryParams['action']
-            ?? null
-        ) === 'info';
+        $parsedBody  = $request->getParsedBody();
+        $queryParams = $request->getQueryParams();
+
+        // Extract action from body or query params (avoid nested coalesce for Rector compatibility)
+        $actionFromBody = is_array($parsedBody) ? ($parsedBody['action'] ?? null) : null;
+        $action         = $actionFromBody ?? $queryParams['action'] ?? null;
+        $isInfoAction   = $action === 'info';
 
         if (!$isInfoAction) {
             $bparams = explode('|', (string) $queryParams['bparams']);

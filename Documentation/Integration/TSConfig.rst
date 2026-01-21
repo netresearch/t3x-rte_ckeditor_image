@@ -9,13 +9,16 @@ Page TSConfig Setup
 Configuration of page TSConfig settings for image handling, upload folders, and permissions.
 
 .. important::
-   **Zero-Configuration Installation (v13.0.0+)**
+   **Automatic Page TSConfig**
 
-   The extension automatically loads basic Page TSConfig via ``ext_tables.php``:
+   The extension automatically loads Page TSConfig via ``ext_tables.php``:
 
    - ✅ Magic image processing enabled (maxWidth: 1920, maxHeight: 9999)
    - ✅ RTE preset configured globally
    - ✅ Processing modes set automatically
+
+   .. note::
+      **Frontend TypoScript** requires manual inclusion. See :ref:`integration-configuration-frontend-rendering`.
 
    This section is for **advanced users** who need to customize these defaults or add field-specific configurations.
 

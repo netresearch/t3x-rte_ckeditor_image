@@ -11,14 +11,14 @@ Advanced configuration options including custom styles, performance optimization
 .. note::
    **For Advanced Users**
 
-   The extension works out-of-the-box with zero configuration. This section covers:
+   This section covers advanced customization:
 
    -  Custom image styles and style groups.
    -  Performance optimization and image processing.
    -  Extension-specific settings.
    -  Best practices for production environments.
 
-   You only need these configurations if you want to customize beyond the automatic defaults.
+   You only need these configurations if you want to customize beyond the defaults.
 
 .. contents:: Table of Contents
    :depth: 3

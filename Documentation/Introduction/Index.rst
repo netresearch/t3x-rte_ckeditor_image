@@ -202,11 +202,17 @@ Install via Composer:
 
    The extension appears in the TYPO3 Extension Manager after installation
 
-**That's it!** The extension works completely out-of-the-box with zero configuration:
+The backend RTE works immediately after installation:
 
-- ✅ **Backend RTE**: Automatically registers the ``rteWithImages`` preset and configures the toolbar with ``insertimage`` button for all sites
-- ✅ **Frontend Rendering**: Automatically loads TypoScript for proper image rendering via ``lib.parseFunc_RTE``
-- ✅ **No Manual Steps**: No template inclusion, no TSConfig setup, no YAML configuration required
+- ✅ **Backend RTE**: Automatically registers the ``rteWithImages`` preset and configures the toolbar with ``insertimage`` button
+
+**For frontend rendering**, include the TypoScript:
+
+#. Go to :guilabel:`WEB > Template` module
+#. Select your root page, edit the template
+#. In :guilabel:`Includes` tab, add: :guilabel:`CKEditor Image Support (rte_ckeditor_image)`
+
+Or add to your site package: ``@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'``
 
 .. note::
    **Using Bootstrap Package or other theme extensions?**

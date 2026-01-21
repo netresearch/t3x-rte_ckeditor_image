@@ -9,15 +9,18 @@ RTE Setup
 Complete guide for configuring the RTE (Rich Text Editor) with CKEditor image support.
 
 .. important::
-   **Zero-Configuration Installation (v13.0.0+)**
+   **Automatic Backend Configuration**
 
-   The extension works out-of-the-box with zero manual configuration:
+   The extension automatically configures the backend RTE after installation:
 
    .. code-block:: bash
 
       composer require netresearch/rte-ckeditor-image
 
    The ``insertimage`` button is automatically available in all RTEs. **No RTE configuration needed!**
+
+   .. note::
+      **Frontend rendering requires TypoScript inclusion.** See :ref:`integration-configuration-frontend-rendering`.
 
    This guide is for **advanced users** who need custom RTE presets or want to override the defaults.
 
@@ -28,14 +31,15 @@ Complete guide for configuring the RTE (Rich Text Editor) with CKEditor image su
 Automatic Configuration (Default)
 ==================================
 
-The extension automatically provides:
+The extension automatically provides for the **backend**:
 
 - **Preset**: ``rteWithImages`` registered and enabled globally
 - **Toolbar**: ``insertimage`` button included in default toolbar
-- **TypoScript**: Frontend rendering hooks loaded automatically
 - **Configuration**: ``Configuration/RTE/Default.yaml`` with full toolbar
 
-To use the automatic configuration, simply install the extension. No additional steps required.
+.. note::
+   **Frontend rendering** requires manual TypoScript inclusion.
+   See :ref:`integration-configuration-frontend-rendering`.
 
 Custom RTE Configuration
 =========================
