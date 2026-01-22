@@ -37,6 +37,7 @@ services:
     arguments:
       $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
       $processedFilesHandler: '@Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler'
+      $svgSanitizer: '@TYPO3\CMS\Core\Resource\Security\SvgSanitizer'
       $logManager: '@TYPO3\CMS\Core\Log\LogManager'
 
   Netresearch\RteCKEditorImage\Service\ImageRenderingService:

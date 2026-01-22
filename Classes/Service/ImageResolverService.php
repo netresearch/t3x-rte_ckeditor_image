@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\Security\SvgSanitizer;
 use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
 
 /**
@@ -82,6 +83,7 @@ class ImageResolverService
     public function __construct(
         private readonly ResourceFactory $resourceFactory,
         private readonly ProcessedFilesHandler $processedFilesHandler,
+        private readonly SvgSanitizer $svgSanitizer,
         LogManager $logManager,
     ) {
         $this->logger = $logManager->getLogger(self::class);
@@ -428,6 +430,83 @@ class ImageResolverService
     }
 
     /**
+     * Sanitize SVG content within data:image/svg+xml URIs.
+     *
+     * SECURITY: SVG data URIs bypass FAL upload validation and can contain
+     * embedded JavaScript via <script> tags, event handlers, or javascript: hrefs.
+     *
+     * @param string $dataUri The data URI to sanitize
+     *
+     * @return string Sanitized data URI, or original if not an SVG data URI
+     */
+    private function sanitizeSvgDataUri(string $dataUri): string
+    {
+        $lowercaseUri = strtolower($dataUri);
+
+        if (!str_starts_with($lowercaseUri, 'data:image/svg+xml')) {
+            return $dataUri;
+        }
+
+        $isBase64 = str_contains($lowercaseUri, ';base64,');
+
+        if ($isBase64) {
+            // Base64 format: data:image/svg+xml;base64,PHN2Zy4uLg==
+            $parts = explode(';base64,', $dataUri, 2);
+
+            if (count($parts) !== 2) {
+                $this->logger->warning('Malformed base64 SVG data URI', [
+                    'uriPrefix' => substr($dataUri, 0, 50),
+                ]);
+
+                return $dataUri;
+            }
+
+            $svgContent = base64_decode($parts[1], true);
+
+            if ($svgContent === false) {
+                $this->logger->warning('Invalid base64 encoding in SVG data URI');
+
+                return $dataUri;
+            }
+
+            $sanitizedSvg = $this->svgSanitizer->sanitizeContent($svgContent);
+
+            if ($sanitizedSvg !== $svgContent) {
+                $this->logger->notice('SVG data URI sanitized - potentially malicious content removed', [
+                    'originalLength'  => strlen($svgContent),
+                    'sanitizedLength' => strlen($sanitizedSvg),
+                ]);
+            }
+
+            return 'data:image/svg+xml;base64,' . base64_encode($sanitizedSvg);
+        }
+
+        // Raw/percent-encoded format: data:image/svg+xml,%3Csvg...
+        $commaPos = strpos($dataUri, ',');
+
+        if ($commaPos === false) {
+            $this->logger->warning('Malformed raw SVG data URI - missing comma separator');
+
+            return $dataUri;
+        }
+
+        $prefix     = substr($dataUri, 0, $commaPos + 1);
+        $encodedSvg = substr($dataUri, $commaPos + 1);
+        $svgContent = rawurldecode($encodedSvg);
+
+        $sanitizedSvg = $this->svgSanitizer->sanitizeContent($svgContent);
+
+        if ($sanitizedSvg !== $svgContent) {
+            $this->logger->notice('SVG data URI sanitized - potentially malicious content removed', [
+                'originalLength'  => strlen($svgContent),
+                'sanitizedLength' => strlen($sanitizedSvg),
+            ]);
+        }
+
+        return $prefix . rawurlencode($sanitizedSvg);
+    }
+
+    /**
      * Validate URL to prevent JavaScript injection attacks.
      *
      * SECURITY: Block dangerous protocols like javascript:, vbscript:, data:text/html
@@ -672,6 +751,11 @@ class ImageResolverService
 
         if ($src === '') {
             return null;
+        }
+
+        // SECURITY: Sanitize SVG data URIs to prevent XSS via embedded JavaScript
+        if (str_starts_with(strtolower($src), 'data:image/svg+xml')) {
+            $src = $this->sanitizeSvgDataUri($src);
         }
 
         // Add leading slash if only a path is given
