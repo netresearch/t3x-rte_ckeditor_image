@@ -303,8 +303,60 @@ final class ImageResolverServiceTest extends TestCase
         $result = $this->callPrivateMethod($this->service, 'sanitizeSvgDataUri', [$mixedCaseUri]);
         self::assertIsString($result);
 
-        // Should be processed (result will be lowercase prefix with sanitized content)
-        self::assertStringStartsWith('data:image/svg+xml;base64,', $result);
+        // Should be processed - original prefix is preserved (including case)
+        self::assertStringStartsWith('DATA:IMAGE/SVG+XML;base64,', $result);
+    }
+
+    #[Test]
+    public function sanitizeSvgDataUriHandlesMixedCaseBase64Marker(): void
+    {
+        // SECURITY: Mixed case ;BASE64, must still be sanitized (was a bypass vector)
+        $maliciousSvg = '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>';
+        $cleanSvg     = '<svg xmlns="http://www.w3.org/2000/svg"></svg>';
+
+        $service = $this->createServiceWithSanitizer(
+            static fn (string $content): string => str_contains($content, '<script>')
+                ? $cleanSvg
+                : $content,
+        );
+
+        // Use uppercase BASE64 marker - this must NOT bypass sanitization
+        $maliciousUri = 'data:image/svg+xml;BASE64,' . base64_encode($maliciousSvg);
+
+        $result = $this->callPrivateMethod($service, 'sanitizeSvgDataUri', [$maliciousUri]);
+        self::assertIsString($result);
+
+        // Verify script was removed (not bypassed)
+        self::assertStringContainsString(';BASE64,', $result); // Original marker preserved
+        $markerPos = strpos($result, ';BASE64,');
+        self::assertIsInt($markerPos);
+        $base64Part    = substr($result, $markerPos + 8);
+        $decodedResult = base64_decode($base64Part, true);
+
+        self::assertSame($cleanSvg, $decodedResult, 'Mixed-case BASE64 marker must not bypass sanitization');
+    }
+
+    #[Test]
+    public function sanitizeSvgDataUriPreservesCharsetParameterWithBase64(): void
+    {
+        $svgContent = '<svg xmlns="http://www.w3.org/2000/svg"></svg>';
+
+        // Data URI with charset parameter before base64
+        $dataUri = 'data:image/svg+xml;charset=utf-8;base64,' . base64_encode($svgContent);
+
+        $result = $this->callPrivateMethod($this->service, 'sanitizeSvgDataUri', [$dataUri]);
+        self::assertIsString($result);
+
+        // Verify charset parameter is preserved
+        self::assertStringStartsWith('data:image/svg+xml;charset=utf-8;base64,', $result);
+
+        // Verify content is still valid
+        $markerPos = strpos($result, ';base64,');
+        self::assertIsInt($markerPos);
+        $base64Part    = substr($result, $markerPos + 8);
+        $decodedResult = base64_decode($base64Part, true);
+
+        self::assertSame($svgContent, $decodedResult);
     }
 
     #[Test]
@@ -377,11 +429,9 @@ final class ImageResolverServiceTest extends TestCase
         $malformedUri = 'data:image/svg+xml;base64,';
 
         $result = $this->callPrivateMethod($this->service, 'sanitizeSvgDataUri', [$malformedUri]);
-        self::assertIsString($result);
 
-        // Empty base64 decodes to empty string, which is valid
-        // Result should be processed (empty SVG content)
-        self::assertStringStartsWith('data:image/svg+xml;base64,', $result);
+        // Empty base64 data should return original (graceful degradation)
+        self::assertSame($malformedUri, $result);
     }
 
     #[Test]

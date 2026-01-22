@@ -441,27 +441,32 @@ class ImageResolverService
      */
     private function sanitizeSvgDataUri(string $dataUri): string
     {
-        $lowercaseUri = strtolower($dataUri);
+        // Check prefix case-insensitively without copying the entire URI
+        $prefixLength = 18; // strlen('data:image/svg+xml')
 
-        if (!str_starts_with($lowercaseUri, 'data:image/svg+xml')) {
+        if (strncasecmp($dataUri, 'data:image/svg+xml', $prefixLength) !== 0) {
             return $dataUri;
         }
 
-        $isBase64 = str_contains($lowercaseUri, ';base64,');
+        // Detect ";base64," marker case-insensitively without lowercasing the full payload
+        $base64MarkerPos = stripos($dataUri, ';base64,');
 
-        if ($isBase64) {
+        if ($base64MarkerPos !== false) {
             // Base64 format: data:image/svg+xml;base64,PHN2Zy4uLg==
-            $parts = explode(';base64,', $dataUri, 2);
+            // or with params: data:image/svg+xml;charset=utf-8;base64,PHN2Zy4uLg==
+            $base64MarkerLength = 8; // strlen(';base64,')
+            $base64DataStart    = $base64MarkerPos + $base64MarkerLength;
+            $base64Data         = substr($dataUri, $base64DataStart);
 
-            if (count($parts) !== 2) {
-                $this->logger->warning('Malformed base64 SVG data URI', [
+            if ($base64Data === '') {
+                $this->logger->warning('Malformed base64 SVG data URI - empty base64 data', [
                     'uriPrefix' => substr($dataUri, 0, 50),
                 ]);
 
                 return $dataUri;
             }
 
-            $svgContent = base64_decode($parts[1], true);
+            $svgContent = base64_decode($base64Data, true);
 
             if ($svgContent === false) {
                 $this->logger->warning('Invalid base64 encoding in SVG data URI');
@@ -478,10 +483,14 @@ class ImageResolverService
                 ]);
             }
 
-            return 'data:image/svg+xml;base64,' . base64_encode($sanitizedSvg);
+            // Preserve original prefix (including any parameters like charset)
+            $originalPrefix = substr($dataUri, 0, $base64DataStart);
+
+            return $originalPrefix . base64_encode($sanitizedSvg);
         }
 
         // Raw/percent-encoded format: data:image/svg+xml,%3Csvg...
+        // or with params: data:image/svg+xml;charset=utf-8,%3Csvg...
         $commaPos = strpos($dataUri, ',');
 
         if ($commaPos === false) {
@@ -754,7 +763,7 @@ class ImageResolverService
         }
 
         // SECURITY: Sanitize SVG data URIs to prevent XSS via embedded JavaScript
-        if (str_starts_with(strtolower($src), 'data:image/svg+xml')) {
+        if (strncasecmp($src, 'data:image/svg+xml', 18) === 0) {
             $src = $this->sanitizeSvgDataUri($src);
         }
 
