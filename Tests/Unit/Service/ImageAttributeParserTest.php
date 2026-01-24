@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Service;
 
 use Netresearch\RteCKEditorImage\Service\ImageAttributeParser;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -292,5 +293,180 @@ class ImageAttributeParserTest extends TestCase
         self::assertStringContainsString('first.jpg', $result['images'][0]['originalHtml']);
         self::assertStringContainsString('second.jpg', $result['images'][1]['originalHtml']);
         self::assertNotSame($result['images'][0]['originalHtml'], $result['images'][1]['originalHtml']);
+    }
+
+    // ========================================================================
+    // parseFigureWithCaption() Tests - Caption extraction from <figure>/<figcaption>
+    // ========================================================================
+
+    #[Test]
+    public function parseFigureWithCaptionExtractsCaptionFromFigcaption(): void
+    {
+        $html   = '<figure class="image"><img src="test.jpg" alt="Test"/><figcaption>My Caption</figcaption></figure>';
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('My Caption', $result['caption']);
+        self::assertSame('test.jpg', $result['attributes']['src']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionReturnsEmptyForNoFigure(): void
+    {
+        $html   = '<img src="test.jpg" alt="Test"/>';
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('', $result['caption']);
+        self::assertEmpty($result['attributes']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionHandlesEmptyFigcaption(): void
+    {
+        $html   = '<figure class="image"><img src="test.jpg"/><figcaption></figcaption></figure>';
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('', $result['caption']);
+        self::assertSame('test.jpg', $result['attributes']['src']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionHandlesMissingFigcaption(): void
+    {
+        $html   = '<figure class="image"><img src="test.jpg"/></figure>';
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('', $result['caption']);
+        self::assertSame('test.jpg', $result['attributes']['src']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionPreservesDataCaptionAttribute(): void
+    {
+        // When both figcaption and data-caption exist, figcaption takes precedence
+        $html   = '<figure class="image"><img src="test.jpg" data-caption="Old Caption"/><figcaption>New Caption</figcaption></figure>';
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('New Caption', $result['caption']);
+        self::assertSame('Old Caption', $result['attributes']['data-caption']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionExtractsAllImageAttributes(): void
+    {
+        $html   = '<figure class="image"><img src="test.jpg" alt="Alt" title="Title" width="100" height="50" data-htmlarea-file-uid="123"/><figcaption>Caption</figcaption></figure>';
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('test.jpg', $result['attributes']['src']);
+        self::assertSame('Alt', $result['attributes']['alt']);
+        self::assertSame('Title', $result['attributes']['title']);
+        self::assertSame('100', $result['attributes']['width']);
+        self::assertSame('50', $result['attributes']['height']);
+        self::assertSame('123', $result['attributes']['data-htmlarea-file-uid']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionHandlesEmptyString(): void
+    {
+        $result = $this->parser->parseFigureWithCaption('');
+
+        self::assertSame('', $result['caption']);
+        self::assertEmpty($result['attributes']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionHandlesWhitespaceOnlyCaption(): void
+    {
+        $html   = '<figure class="image"><img src="test.jpg"/><figcaption>   </figcaption></figure>';
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        // Whitespace-only caption should be trimmed to empty
+        self::assertSame('', $result['caption']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionHandlesNestedFigure(): void
+    {
+        // Nested in other elements
+        $html   = '<p><figure class="image"><img src="test.jpg"/><figcaption>Nested Caption</figcaption></figure></p>';
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('Nested Caption', $result['caption']);
+    }
+
+    // ========================================================================
+    // hasFigureWrapper() Tests - Figure wrapper detection
+    // ========================================================================
+
+    #[Test]
+    public function hasFigureWrapperReturnsTrueForFigureWithImage(): void
+    {
+        $html = '<figure class="image"><img src="test.jpg"/></figure>';
+
+        self::assertTrue($this->parser->hasFigureWrapper($html));
+    }
+
+    #[Test]
+    public function hasFigureWrapperReturnsFalseForStandaloneImage(): void
+    {
+        $html = '<img src="test.jpg"/>';
+
+        self::assertFalse($this->parser->hasFigureWrapper($html));
+    }
+
+    #[Test]
+    public function hasFigureWrapperReturnsFalseForFigureWithoutImage(): void
+    {
+        $html = '<figure class="image"><p>No image here</p></figure>';
+
+        // Should return false when figure exists but contains no img element
+        self::assertFalse($this->parser->hasFigureWrapper($html));
+    }
+
+    #[Test]
+    public function hasFigureWrapperReturnsFalseForEmptyString(): void
+    {
+        self::assertFalse($this->parser->hasFigureWrapper(''));
+    }
+
+    #[Test]
+    public function hasFigureWrapperReturnsFalseForUnrelatedFigureAndImage(): void
+    {
+        // Figure and img exist but img is not inside figure
+        $html = '<p>Read more in <figure>1</figure></p><div><img src="other.jpg"/></div>';
+
+        self::assertFalse($this->parser->hasFigureWrapper($html));
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionHandlesHtmlEntities(): void
+    {
+        $html   = '<figure class="image"><img src="test.jpg"/><figcaption>Caption with &amp; &lt; &gt;</figcaption></figure>';
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        // textContent should decode HTML entities
+        self::assertSame('Caption with & < >', $result['caption']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionPreservesInternalWhitespace(): void
+    {
+        $html   = "<figure class=\"image\"><img src=\"test.jpg\"/><figcaption>Line 1\nLine 2</figcaption></figure>";
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        // Internal whitespace (newlines, multiple spaces) should be preserved
+        self::assertSame("Line 1\nLine 2", $result['caption']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionHandlesLinkedImage(): void
+    {
+        // Figure containing a linked image (common scenario)
+        $html = '<figure class="image"><a href="/link"><img src="test.jpg" data-htmlarea-file-uid="123"/></a><figcaption>Linked Caption</figcaption></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('Linked Caption', $result['caption']);
+        self::assertSame('test.jpg', $result['attributes']['src']);
+        self::assertSame('123', $result['attributes']['data-htmlarea-file-uid']);
     }
 }

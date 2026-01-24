@@ -216,4 +216,214 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertSame('rte_ckeditor_image', $this->adapter->extKey);
         self::assertSame('Classes/Controller/ImageRenderingAdapter.php', $this->adapter->scriptRelPath);
     }
+
+    // ========================================================================
+    // renderFigure() Tests
+    // ========================================================================
+
+    #[Test]
+    public function renderFigureReturnsEmptyStringWhenNoContent(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn(null);
+
+        $result = $this->adapter->renderFigure(null, [], $this->request);
+
+        self::assertSame('', $result);
+    }
+
+    #[Test]
+    public function renderFigureReturnsOriginalWhenNoFigureWrapper(): void
+    {
+        $html = '<img src="test.jpg" />';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser
+            ->expects(self::once())
+            ->method('hasFigureWrapper')
+            ->with($html)
+            ->willReturn(false);
+
+        $result = $this->adapter->renderFigure(null, [], $this->request);
+
+        self::assertSame($html, $result);
+    }
+
+    #[Test]
+    public function renderFigureReturnsOriginalWhenNoFileUid(): void
+    {
+        $html = '<figure><img src="external.jpg" /><figcaption>Caption</figcaption></figure>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser
+            ->method('hasFigureWrapper')
+            ->willReturn(true);
+
+        $this->attributeParser
+            ->method('parseFigureWithCaption')
+            ->willReturn([
+                'attributes' => ['src' => 'external.jpg'], // No data-htmlarea-file-uid
+                'caption'    => 'Caption',
+            ]);
+
+        $this->resolverService
+            ->expects(self::never())
+            ->method('resolve');
+
+        $result = $this->adapter->renderFigure(null, [], $this->request);
+
+        self::assertSame($html, $result);
+    }
+
+    #[Test]
+    public function renderFigureRendersViaServiceWhenResolutionSucceeds(): void
+    {
+        $html = '<figure><img src="test.jpg" data-htmlarea-file-uid="1" /><figcaption>My Caption</figcaption></figure>';
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: [],
+            caption: 'My Caption',
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser
+            ->method('hasFigureWrapper')
+            ->willReturn(true);
+
+        $this->attributeParser
+            ->method('parseFigureWithCaption')
+            ->willReturn([
+                'attributes' => [
+                    'src'                    => 'test.jpg',
+                    'data-htmlarea-file-uid' => '1',
+                ],
+                'caption' => 'My Caption',
+            ]);
+
+        // Caption from figcaption should be added to attributes
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->with(
+                self::callback(static function (array $attributes): bool {
+                    return $attributes['data-caption'] === 'My Caption'
+                        && $attributes['data-htmlarea-file-uid'] === '1';
+                }),
+                [],
+                $this->request,
+            )
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->expects(self::once())
+            ->method('render')
+            ->with($dto, $this->request)
+            ->willReturn('<figure><img /><figcaption>My Caption</figcaption></figure>');
+
+        $result = $this->adapter->renderFigure(null, [], $this->request);
+
+        self::assertSame('<figure><img /><figcaption>My Caption</figcaption></figure>', $result);
+    }
+
+    #[Test]
+    public function renderFigureFigcaptionOverridesDataCaption(): void
+    {
+        $html = '<figure><img src="test.jpg" data-htmlarea-file-uid="1" data-caption="Old" /><figcaption>New</figcaption></figure>';
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: [],
+            caption: 'New',
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser
+            ->method('hasFigureWrapper')
+            ->willReturn(true);
+
+        $this->attributeParser
+            ->method('parseFigureWithCaption')
+            ->willReturn([
+                'attributes' => [
+                    'src'                    => 'test.jpg',
+                    'data-htmlarea-file-uid' => '1',
+                    'data-caption'           => 'Old', // Existing data-caption
+                ],
+                'caption' => 'New', // Figcaption should override
+            ]);
+
+        // Figcaption caption should override data-caption
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->with(
+                self::callback(static function (array $attributes): bool {
+                    return $attributes['data-caption'] === 'New'; // Must be overridden
+                }),
+                [],
+                $this->request,
+            )
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->method('render')
+            ->willReturn('<figure><img /><figcaption>New</figcaption></figure>');
+
+        $result = $this->adapter->renderFigure(null, [], $this->request);
+
+        self::assertStringContainsString('New', $result);
+    }
+
+    #[Test]
+    public function renderFigureReturnsOriginalWhenResolutionFails(): void
+    {
+        $html = '<figure><img src="test.jpg" data-htmlarea-file-uid="999" /></figure>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser
+            ->method('hasFigureWrapper')
+            ->willReturn(true);
+
+        $this->attributeParser
+            ->method('parseFigureWithCaption')
+            ->willReturn([
+                'attributes' => [
+                    'src'                    => 'test.jpg',
+                    'data-htmlarea-file-uid' => '999',
+                ],
+                'caption' => '',
+            ]);
+
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->willReturn(null); // Resolution fails
+
+        $result = $this->adapter->renderFigure(null, [], $this->request);
+
+        self::assertSame($html, $result);
+    }
 }

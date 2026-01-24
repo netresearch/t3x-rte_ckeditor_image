@@ -1257,6 +1257,22 @@ export default class Typo3Image extends Plugin {
                 attributes['data-quality'] = quality
             }
 
+            // Add data-caption attribute for PHP backend compatibility
+            // The caption is stored in typo3imageCaption child element
+            // This ensures PHP can access the caption even though it only sees <img> attributes
+            const captionElement = getCaptionFromImageModelElement(modelElement);
+            if (captionElement && captionElement.childCount > 0) {
+                let captionText = '';
+                for (const child of captionElement.getChildren()) {
+                    if (child.is('$text')) {
+                        captionText += child.data;
+                    }
+                }
+                if (captionText.trim()) {
+                    attributes['data-caption'] = captionText;
+                }
+            }
+
             const imgElement = writer.createEmptyElement('img', attributes);
 
             // Check if model has link attributes and wrap in <a> if present

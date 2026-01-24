@@ -56,6 +56,18 @@ lib.parseFunc_RTE {
         #     maxFileSizeForAuto = 2000000
         # }
     }
+    tags.figure = TEXT
+    tags.figure {
+        current = 1
+        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderFigure
+
+        # noScale configuration for figure-wrapped images
+        # Same options as tags.img above
+        # noScale = 1
+        # noScale {
+        #     maxFileSizeForAuto = 2000000
+        # }
+    }
     nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
         allparams.unset = 1
         data-htmlarea-file-uid.unset = 1

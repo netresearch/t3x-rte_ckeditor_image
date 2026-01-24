@@ -380,7 +380,7 @@ class RteImagesDbHook
                 // Skip processing in non-backend contexts
                 // DataHandler can be triggered from frontend (e.g., frontend editing, TypoScript)
                 // In such cases, skip image processing rather than crash the request
-                if (!(($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface)) {
+                if (!($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface) {
                     return $value; // No request context available, skip processing
                 }
 
