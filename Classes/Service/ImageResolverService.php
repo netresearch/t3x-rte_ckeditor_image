@@ -67,15 +67,21 @@ class ImageResolverService
     ];
 
     /**
-     * Dangerous URL protocols that must be blocked.
+     * Allowed URL protocols for link hrefs (allowlist approach).
+     *
+     * Using allowlist instead of blocklist for defense-in-depth:
+     * - Unknown protocols are blocked by default
+     * - More secure than trying to enumerate all dangerous protocols
+     * - Aligned with OWASP input validation recommendations
      *
      * @var array<int, string>
      */
-    private const DANGEROUS_PROTOCOLS = [
-        'javascript:',
-        'data:text/html',
-        'vbscript:',
-        'file:',
+    private const ALLOWED_LINK_PROTOCOLS = [
+        'http:',
+        'https:',
+        'mailto:',
+        'tel:',
+        't3:',      // TYPO3 internal links (t3://page?uid=123)
     ];
 
     private readonly LoggerInterface $logger;
@@ -516,9 +522,14 @@ class ImageResolverService
     }
 
     /**
-     * Validate URL to prevent JavaScript injection attacks.
+     * Validate URL using allowlist approach to prevent injection attacks.
      *
-     * SECURITY: Block dangerous protocols like javascript:, vbscript:, data:text/html
+     * SECURITY: Only explicitly allowed protocols are permitted.
+     * This is more secure than blocklisting because unknown/new protocols
+     * are blocked by default (defense-in-depth).
+     *
+     * Allowed: http:, https:, mailto:, tel:, t3:, relative paths, anchors
+     * Blocked: javascript:, vbscript:, data:, file:, ftp:, and all others
      *
      * @param string $url URL to validate
      *
@@ -526,25 +537,49 @@ class ImageResolverService
      */
     private function validateLinkUrl(string $url): bool
     {
-        if ($url === '') {
+        $trimmedUrl = trim($url);
+
+        if ($trimmedUrl === '') {
             return false;
         }
 
-        $lowercaseUrl = strtolower(trim($url));
+        $lowercaseUrl = strtolower($trimmedUrl);
 
-        foreach (self::DANGEROUS_PROTOCOLS as $protocol) {
+        // Allow relative paths (no protocol) - starts with /, #, or has no colon before first slash
+        if (str_starts_with($lowercaseUrl, '/') || str_starts_with($lowercaseUrl, '#')) {
+            return true;
+        }
+
+        // Check if URL has a protocol (contains : before any /)
+        $colonPos = strpos($lowercaseUrl, ':');
+        $slashPos = strpos($lowercaseUrl, '/');
+
+        // No colon means no protocol - treat as relative path
+        if ($colonPos === false) {
+            return true;
+        }
+
+        // Colon after slash means it's part of the path, not a protocol (e.g., "path/to:file")
+        if ($slashPos !== false && $slashPos < $colonPos) {
+            return true;
+        }
+
+        // Check against allowlist of protocols
+        foreach (self::ALLOWED_LINK_PROTOCOLS as $protocol) {
             if (str_starts_with($lowercaseUrl, $protocol)) {
-                $this->logger->log(
-                    PsrLogLevel::WARNING,
-                    'Blocked potentially malicious URL with dangerous protocol',
-                    ['url' => substr($url, 0, 50), 'protocol' => $protocol],
-                );
-
-                return false;
+                return true;
             }
         }
 
-        return true;
+        // Protocol not in allowlist - block and log
+        $detectedProtocol = substr($trimmedUrl, 0, $colonPos + 1);
+        $this->logger->log(
+            PsrLogLevel::WARNING,
+            'Blocked URL with non-allowed protocol',
+            ['url' => substr($url, 0, 50), 'protocol' => $detectedProtocol],
+        );
+
+        return false;
     }
 
     /**
