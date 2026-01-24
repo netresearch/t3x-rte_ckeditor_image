@@ -210,13 +210,35 @@ class ImageAttributeParser
     /**
      * Check if HTML contains a figure-wrapped image structure.
      *
+     * Uses DOM parsing to ensure the img is actually inside the figure element,
+     * not just co-existing in the same HTML string.
+     *
      * @param string $html HTML to check
      *
-     * @return bool True if figure wrapper detected
+     * @return bool True if figure wrapper with nested img detected
      */
     public function hasFigureWrapper(string $html): bool
     {
-        return str_contains($html, '<figure') && str_contains($html, '<img');
+        if (trim($html) === '') {
+            return false;
+        }
+
+        $dom = new DOMDocument();
+        libxml_use_internal_errors(true);
+
+        $dom->loadHTML(
+            '<div>' . $html . '</div>',
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
+        );
+
+        libxml_clear_errors();
+
+        $xpath = new DOMXPath($dom);
+
+        // Check for any <figure> that contains an <img> descendant
+        $figuresWithImages = $xpath->query('//figure[.//img]');
+
+        return $figuresWithImages !== false && $figuresWithImages->length > 0;
     }
 
     /**

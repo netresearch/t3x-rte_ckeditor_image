@@ -418,7 +418,7 @@ class ImageAttributeParserTest extends TestCase
     {
         $html = '<figure class="image"><p>No image here</p></figure>';
 
-        // Has figure but no img - detection should still find figure/img combination
+        // Should return false when figure exists but contains no img element
         self::assertFalse($this->parser->hasFigureWrapper($html));
     }
 
@@ -426,5 +426,34 @@ class ImageAttributeParserTest extends TestCase
     public function hasFigureWrapperReturnsFalseForEmptyString(): void
     {
         self::assertFalse($this->parser->hasFigureWrapper(''));
+    }
+
+    #[Test]
+    public function hasFigureWrapperReturnsFalseForUnrelatedFigureAndImage(): void
+    {
+        // Figure and img exist but img is not inside figure
+        $html = '<p>Read more in <figure>1</figure></p><div><img src="other.jpg"/></div>';
+
+        self::assertFalse($this->parser->hasFigureWrapper($html));
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionHandlesHtmlEntities(): void
+    {
+        $html   = '<figure class="image"><img src="test.jpg"/><figcaption>Caption with &amp; &lt; &gt;</figcaption></figure>';
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        // textContent should decode HTML entities
+        self::assertSame('Caption with & < >', $result['caption']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionPreservesInternalWhitespace(): void
+    {
+        $html   = "<figure class=\"image\"><img src=\"test.jpg\"/><figcaption>Line 1\nLine 2</figcaption></figure>";
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        // Internal whitespace (newlines, multiple spaces) should be preserved
+        self::assertSame("Line 1\nLine 2", $result['caption']);
     }
 }
