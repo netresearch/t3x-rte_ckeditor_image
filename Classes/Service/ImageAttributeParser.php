@@ -147,6 +147,79 @@ class ImageAttributeParser
     }
 
     /**
+     * Parse image attributes and caption from <figure> wrapped images.
+     *
+     * Extracts caption text from <figcaption> element if present.
+     * This handles CKEditor 5 output format: <figure><img/><figcaption>...</figcaption></figure>
+     *
+     * @param string $html HTML string containing figure-wrapped image
+     *
+     * @return array{attributes: array<string,string>, caption: string}
+     */
+    public function parseFigureWithCaption(string $html): array
+    {
+        if (trim($html) === '') {
+            return ['attributes' => [], 'caption' => ''];
+        }
+
+        $dom = new DOMDocument();
+        libxml_use_internal_errors(true);
+
+        $dom->loadHTML(
+            '<div>' . $html . '</div>',
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
+        );
+
+        libxml_clear_errors();
+
+        $xpath = new DOMXPath($dom);
+
+        // Find first <figure> element
+        $figures = $xpath->query('//figure');
+
+        if ($figures === false || $figures->length === 0) {
+            return ['attributes' => [], 'caption' => ''];
+        }
+
+        /** @var DOMElement $figure */
+        $figure = $figures->item(0);
+
+        // Extract image attributes
+        $images     = $xpath->query('.//img', $figure);
+        $attributes = [];
+
+        if ($images !== false && $images->length > 0) {
+            /** @var DOMElement $img */
+            $img        = $images->item(0);
+            $attributes = $this->extractAttributes($img);
+        }
+
+        // Extract caption from figcaption
+        $captions = $xpath->query('.//figcaption', $figure);
+        $caption  = '';
+
+        if ($captions !== false && $captions->length > 0) {
+            /** @var DOMElement $figcaptionElement */
+            $figcaptionElement = $captions->item(0);
+            $caption           = trim($figcaptionElement->textContent ?? '');
+        }
+
+        return ['attributes' => $attributes, 'caption' => $caption];
+    }
+
+    /**
+     * Check if HTML contains a figure-wrapped image structure.
+     *
+     * @param string $html HTML to check
+     *
+     * @return bool True if figure wrapper detected
+     */
+    public function hasFigureWrapper(string $html): bool
+    {
+        return str_contains($html, '<figure') && str_contains($html, '<img');
+    }
+
+    /**
      * Extract all attributes from a DOM element.
      *
      * @param DOMElement $element DOM element to extract attributes from
