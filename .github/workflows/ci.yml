@@ -150,6 +150,7 @@ jobs:
                 env:
                     typo3DatabaseDriver: pdo_sqlite
                 run: |
+                    composer ci:coverage:unit
                     composer ci:coverage:functional
 
             -   id: upload-coverage
@@ -158,7 +159,7 @@ jobs:
                 uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
                 with:
                     token: ${{ secrets.CODECOV_TOKEN }}
-                    files: .Build/logs/clover.xml
+                    files: .Build/logs/clover-unit.xml,.Build/logs/clover.xml
                     fail_ci_if_error: false
 
     e2e:
