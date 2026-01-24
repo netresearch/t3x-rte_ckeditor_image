@@ -559,4 +559,134 @@ final class ImageResolverServiceTest extends TestCase
 
         self::assertSame($svgContent, $decodedResult);
     }
+
+    // ========================================================================
+    // Caption Extraction Tests
+    // ========================================================================
+
+    #[Test]
+    public function sanitizeCaptionReturnsEmptyStringForEmptyInput(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaption', ['']);
+
+        self::assertSame('', $result);
+    }
+
+    #[Test]
+    public function sanitizeCaptionEncodesHtmlTags(): void
+    {
+        // sanitizeCaption uses htmlspecialchars to encode HTML for safe display
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaption', ['<b>Bold</b> text']);
+
+        self::assertSame('&lt;b&gt;Bold&lt;/b&gt; text', $result);
+    }
+
+    #[Test]
+    public function sanitizeCaptionEncodesScriptTags(): void
+    {
+        // Script tags are encoded, preventing XSS execution
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaption', ['Caption <script>alert(1)</script>']);
+
+        self::assertSame('Caption &lt;script&gt;alert(1)&lt;/script&gt;', $result);
+    }
+
+    #[Test]
+    public function sanitizeCaptionTrimsWhitespace(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaption', ['   Caption text   ']);
+
+        self::assertSame('Caption text', $result);
+    }
+
+    #[Test]
+    public function sanitizeCaptionPreservesPlainText(): void
+    {
+        $caption = 'This is a plain text caption with no HTML';
+
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaption', [$caption]);
+
+        self::assertSame($caption, $result);
+    }
+
+    #[Test]
+    public function sanitizeCaptionEncodesHtmlEntities(): void
+    {
+        // Already-encoded entities get double-encoded for safe display
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaption', ['Caption &amp; More']);
+
+        self::assertSame('Caption &amp;amp; More', $result);
+    }
+
+    #[Test]
+    public function sanitizeCaptionEncodesSpecialCharacters(): void
+    {
+        $caption = 'Caption with "quotes" and <angle> brackets';
+
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaption', [$caption]);
+
+        // Quotes and angle brackets are encoded for safe display
+        self::assertSame('Caption with &quot;quotes&quot; and &lt;angle&gt; brackets', $result);
+    }
+
+    /**
+     * Data provider for caption sanitization edge cases.
+     *
+     * sanitizeCaption() uses htmlspecialchars() to encode HTML for safe display.
+     *
+     * @return array<string, array{input: string, expected: string}>
+     */
+    public static function captionSanitizationDataProvider(): array
+    {
+        return [
+            'empty string' => [
+                'input'    => '',
+                'expected' => '',
+            ],
+            'whitespace only' => [
+                'input'    => '   ',
+                'expected' => '',
+            ],
+            'simple text' => [
+                'input'    => 'Simple caption',
+                'expected' => 'Simple caption',
+            ],
+            'text with newlines' => [
+                'input'    => "Line 1\nLine 2",
+                'expected' => "Line 1\nLine 2",
+            ],
+            'html paragraph encoded' => [
+                'input'    => '<p>Paragraph caption</p>',
+                'expected' => '&lt;p&gt;Paragraph caption&lt;/p&gt;',
+            ],
+            'nested html encoded' => [
+                'input'    => '<div><p><strong>Nested</strong> text</p></div>',
+                'expected' => '&lt;div&gt;&lt;p&gt;&lt;strong&gt;Nested&lt;/strong&gt; text&lt;/p&gt;&lt;/div&gt;',
+            ],
+            'html with attributes encoded' => [
+                'input'    => '<span class="caption" style="color:red">Styled</span>',
+                'expected' => '&lt;span class=&quot;caption&quot; style=&quot;color:red&quot;&gt;Styled&lt;/span&gt;',
+            ],
+            'xss attempt onclick encoded' => [
+                'input'    => '<img src="x" onclick="alert(1)">Caption',
+                'expected' => '&lt;img src=&quot;x&quot; onclick=&quot;alert(1)&quot;&gt;Caption',
+            ],
+            'xss attempt onerror encoded' => [
+                'input'    => '<img src="x" onerror="alert(1)">Caption',
+                'expected' => '&lt;img src=&quot;x&quot; onerror=&quot;alert(1)&quot;&gt;Caption',
+            ],
+            'unicode text preserved' => [
+                'input'    => 'Ümläuts and émojis 🎉',
+                'expected' => 'Ümläuts and émojis 🎉',
+            ],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('captionSanitizationDataProvider')]
+    public function sanitizeCaptionHandlesVariousInputs(string $input, string $expected): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaption', [$input]);
+
+        self::assertSame($expected, $result);
+    }
 }
