@@ -195,4 +195,69 @@ class ImageRenderingAdapter
 
         return is_string($linkContent) ? $linkContent : '';
     }
+
+    /**
+     * Render figure-wrapped images with caption support.
+     *
+     * TypoScript: lib.parseFunc_RTE.tags.figure.preUserFunc
+     *
+     * Handles CKEditor 5 output format: <figure><img/><figcaption>...</figcaption></figure>
+     * Extracts caption from figcaption element and passes to image resolver.
+     *
+     * @param string|null            $content Content input (not used)
+     * @param array<string, mixed>   $conf    TypoScript configuration
+     * @param ServerRequestInterface $request Current request
+     *
+     * @return string Rendered HTML
+     */
+    #[AsAllowedCallable]
+    public function renderFigure(?string $content, array $conf, ServerRequestInterface $request): string
+    {
+        // Get figure HTML from ContentObjectRenderer
+        $currentVal = $this->cObj instanceof ContentObjectRenderer
+            ? $this->cObj->getCurrentVal()
+            : null;
+
+        if (!is_string($currentVal) || $currentVal === '') {
+            return '';
+        }
+
+        $figureHtml = $currentVal;
+
+        // Check if this is actually a figure with an image
+        if (!$this->attributeParser->hasFigureWrapper($figureHtml)) {
+            // Not a figure-wrapped image, return original content
+            return $figureHtml;
+        }
+
+        // Parse figure to extract image attributes and caption
+        $parsed          = $this->attributeParser->parseFigureWithCaption($figureHtml);
+        $imageAttributes = $parsed['attributes'];
+        $caption         = $parsed['caption'];
+
+        // Skip images without file UID (external images)
+        $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
+
+        if ($fileUid === 0) {
+            // No file UID - return original content
+            return $figureHtml;
+        }
+
+        // Add caption from figcaption to attributes if not already present
+        // This ensures backward compatibility with content that has figcaption but no data-caption
+        if ($caption !== '' && !isset($imageAttributes['data-caption'])) {
+            $imageAttributes['data-caption'] = $caption;
+        }
+
+        // Resolve image to validated DTO
+        $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
+
+        if (!$dto instanceof ImageRenderingDto) {
+            // Resolution failed - return original content
+            return $figureHtml;
+        }
+
+        // Render via Fluid templates (will use WithCaption.html if caption present)
+        return $this->renderingService->render($dto, $request);
+    }
 }
