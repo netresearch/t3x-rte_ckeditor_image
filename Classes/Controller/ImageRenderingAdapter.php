@@ -243,9 +243,10 @@ class ImageRenderingAdapter
             return $figureHtml;
         }
 
-        // Add caption from figcaption to attributes if not already present
-        // This ensures backward compatibility with content that has figcaption but no data-caption
-        if ($caption !== '' && !isset($imageAttributes['data-caption'])) {
+        // Add caption from figcaption to attributes, overriding any existing data-caption
+        // Figcaption takes precedence as it's the visible element in the editor
+        // This also ensures backward compatibility with content that has figcaption but no data-caption
+        if ($caption !== '') {
             $imageAttributes['data-caption'] = $caption;
         }
 

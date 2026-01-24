@@ -456,4 +456,17 @@ class ImageAttributeParserTest extends TestCase
         // Internal whitespace (newlines, multiple spaces) should be preserved
         self::assertSame("Line 1\nLine 2", $result['caption']);
     }
+
+    #[Test]
+    public function parseFigureWithCaptionHandlesLinkedImage(): void
+    {
+        // Figure containing a linked image (common scenario)
+        $html = '<figure class="image"><a href="/link"><img src="test.jpg" data-htmlarea-file-uid="123"/></a><figcaption>Linked Caption</figcaption></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('Linked Caption', $result['caption']);
+        self::assertSame('test.jpg', $result['attributes']['src']);
+        self::assertSame('123', $result['attributes']['data-htmlarea-file-uid']);
+    }
 }
