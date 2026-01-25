@@ -401,7 +401,7 @@ You can customize the automatic behavior via Extension Configuration:
     :type: boolean
     :Default: 1 (enabled)
 
-    Master switch to enable or disable automatic RTE softref processing.
+    Primary toggle to enable or disable automatic RTE softref processing.
 
     When enabled, the extension automatically adds :php:`rtehtmlarea_images` soft reference to all RTE-enabled text fields across all tables.
 
@@ -421,7 +421,7 @@ You can customize the automatic behavior via Extension Configuration:
     :type: string (comma-separated)
     :Default: (empty)
 
-    Whitelist mode: If set, ONLY these tables will be processed.
+    Allowlist mode: If set, ONLY these tables will be processed.
 
     **Example:** :php:`tt_content,tx_news_domain_model_news,tx_myext_article`
 
@@ -440,7 +440,7 @@ Configuration Examples
         'excludedTables' => 'tx_form_formframework,sys_template',
     ];
 
-**Whitelist Mode (Only Specific Tables):**
+**Allowlist Mode (Only Specific Tables):**
 
 ..  code-block:: php
     :caption: settings.php or LocalConfiguration.php
