@@ -15,6 +15,7 @@ use Netresearch\RteCKEditorImage\Database\RteImagesDbHook;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionClass;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
@@ -207,5 +208,553 @@ final class RteImagesDbHookTest extends UnitTestCase
 
         // Field array should remain unchanged for non-RTE fields
         self::assertSame('plain text content', $fieldArray['bodytext']);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayIgnoresFieldNotInTca(): void
+    {
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '123';
+        $fieldArray = ['non_existing_field' => 'some value'];
+
+        /** @var DataHandler&MockObject $dataHandlerMock */
+        $dataHandlerMock = $this->createMock(DataHandler::class);
+
+        // Ensure the field does not exist in TCA
+        unset($GLOBALS['TCA']['tt_content']['columns']['non_existing_field']);
+
+        $this->subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandlerMock,
+        );
+
+        // Field array should remain unchanged
+        self::assertSame(['non_existing_field' => 'some value'], $fieldArray);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayIgnoresFieldWithoutTypeInConfig(): void
+    {
+        if (method_exists(\TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem::class, 'getRow')) {
+            self::markTestSkipped('Test requires functional test setup for TYPO3 v14+');
+        }
+
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '123';
+        $fieldArray = ['bodytext' => 'content'];
+
+        /** @var DataHandler&MockObject $dataHandlerMock */
+        $dataHandlerMock = $this->createMock(DataHandler::class);
+
+        // Mock TCA configuration without 'type' key
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = [
+            'rows' => 5,
+        ];
+
+        $this->subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandlerMock,
+        );
+
+        // Field array should remain unchanged
+        self::assertSame(['bodytext' => 'content'], $fieldArray);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayIgnoresNonTextTypeField(): void
+    {
+        if (method_exists(\TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem::class, 'getRow')) {
+            self::markTestSkipped('Test requires functional test setup for TYPO3 v14+');
+        }
+
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '123';
+        $fieldArray = ['header' => 'A header'];
+
+        /** @var DataHandler&MockObject $dataHandlerMock */
+        $dataHandlerMock = $this->createMock(DataHandler::class);
+
+        // Mock TCA configuration with type 'input'
+        $GLOBALS['TCA']['tt_content']['columns']['header']['config'] = [
+            'type' => 'input',
+        ];
+
+        $this->subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandlerMock,
+        );
+
+        // Field array should remain unchanged
+        self::assertSame(['header' => 'A header'], $fieldArray);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayIgnoresFieldWithoutEnableRichtext(): void
+    {
+        if (method_exists(\TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem::class, 'getRow')) {
+            self::markTestSkipped('Test requires functional test setup for TYPO3 v14+');
+        }
+
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '123';
+        $fieldArray = ['bodytext' => 'plain text'];
+
+        /** @var DataHandler&MockObject $dataHandlerMock */
+        $dataHandlerMock = $this->createMock(DataHandler::class);
+
+        // Mock TCA configuration without enableRichtext
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = [
+            'type' => 'text',
+            'rows' => 10,
+        ];
+
+        $this->subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandlerMock,
+        );
+
+        // Field array should remain unchanged
+        self::assertSame(['bodytext' => 'plain text'], $fieldArray);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayIgnoresFieldWithEnableRichtextFalse(): void
+    {
+        if (method_exists(\TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem::class, 'getRow')) {
+            self::markTestSkipped('Test requires functional test setup for TYPO3 v14+');
+        }
+
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '123';
+        $fieldArray = ['bodytext' => 'plain text'];
+
+        /** @var DataHandler&MockObject $dataHandlerMock */
+        $dataHandlerMock = $this->createMock(DataHandler::class);
+
+        // Mock TCA configuration with enableRichtext = false
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = [
+            'type'           => 'text',
+            'enableRichtext' => false,
+        ];
+
+        $this->subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandlerMock,
+        );
+
+        // Field array should remain unchanged
+        self::assertSame(['bodytext' => 'plain text'], $fieldArray);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayIgnoresNullFieldValue(): void
+    {
+        if (method_exists(\TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem::class, 'getRow')) {
+            self::markTestSkipped('Test requires functional test setup for TYPO3 v14+');
+        }
+
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '123';
+        $fieldArray = ['bodytext' => null];
+
+        /** @var DataHandler&MockObject $dataHandlerMock */
+        $dataHandlerMock = $this->createMock(DataHandler::class);
+
+        // Mock TCA configuration with enableRichtext = true
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = [
+            'type'           => 'text',
+            'enableRichtext' => true,
+        ];
+
+        $this->subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandlerMock,
+        );
+
+        // Field array should remain unchanged when value is null
+        self::assertNull($fieldArray['bodytext']);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayProcessesMultipleFields(): void
+    {
+        if (method_exists(\TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem::class, 'getRow')) {
+            self::markTestSkipped('Test requires functional test setup for TYPO3 v14+');
+        }
+
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '123';
+        $fieldArray = [
+            'bodytext'    => 'text without images',
+            'header'      => 'Not an RTE field',
+            'description' => 'another text without images',
+        ];
+
+        /** @var DataHandler&MockObject $dataHandlerMock */
+        $dataHandlerMock = $this->createMock(DataHandler::class);
+
+        // Mock TCA configuration
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = [
+            'type'           => 'text',
+            'enableRichtext' => true,
+        ];
+        $GLOBALS['TCA']['tt_content']['columns']['header']['config'] = [
+            'type' => 'input',
+        ];
+        $GLOBALS['TCA']['tt_content']['columns']['description']['config'] = [
+            'type'           => 'text',
+            'enableRichtext' => true,
+        ];
+
+        $this->subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandlerMock,
+        );
+
+        // RTE fields should be processed (even if content unchanged without images)
+        // Non-RTE fields should remain unchanged
+        self::assertSame('Not an RTE field', $fieldArray['header']);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayHandlesEmptyStringValue(): void
+    {
+        if (method_exists(\TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem::class, 'getRow')) {
+            self::markTestSkipped('Test requires functional test setup for TYPO3 v14+');
+        }
+
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '123';
+        $fieldArray = ['bodytext' => ''];
+
+        /** @var DataHandler&MockObject $dataHandlerMock */
+        $dataHandlerMock = $this->createMock(DataHandler::class);
+
+        // Mock TCA configuration
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = [
+            'type'           => 'text',
+            'enableRichtext' => true,
+        ];
+
+        $this->subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandlerMock,
+        );
+
+        // Empty string should be processed (returns empty string)
+        self::assertSame('', $fieldArray['bodytext']);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayHandlesContentWithoutImgTags(): void
+    {
+        if (method_exists(\TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem::class, 'getRow')) {
+            self::markTestSkipped('Test requires functional test setup for TYPO3 v14+');
+        }
+
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '123';
+        $content    = '<p>This is a paragraph with <strong>bold text</strong> but no images.</p>';
+        $fieldArray = ['bodytext' => $content];
+
+        /** @var DataHandler&MockObject $dataHandlerMock */
+        $dataHandlerMock = $this->createMock(DataHandler::class);
+
+        // Mock TCA configuration
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = [
+            'type'           => 'text',
+            'enableRichtext' => true,
+        ];
+
+        $this->subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandlerMock,
+        );
+
+        // Content without img tags should remain unchanged
+        self::assertSame($content, $fieldArray['bodytext']);
+    }
+
+    #[Test]
+    public function getSafeIpForExternalFetchBlocksPrivateIpv4Ranges(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('getSafeIpForExternalFetch');
+
+        // Test private IPv4 ranges
+        $privateUrls = [
+            'http://10.0.0.1/image.jpg',       // 10.0.0.0/8
+            'http://172.16.0.1/image.jpg',     // 172.16.0.0/12
+            'http://192.168.1.1/image.jpg',    // 192.168.0.0/16
+            'http://127.0.0.1/image.jpg',      // Loopback
+            'http://169.254.1.1/image.jpg',    // Link-local
+        ];
+
+        foreach ($privateUrls as $url) {
+            $result = $method->invoke($this->subject, $url);
+            self::assertNull($result, "Expected {$url} to be blocked");
+        }
+    }
+
+    #[Test]
+    public function getSafeIpForExternalFetchBlocksCloudMetadataEndpoints(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('getSafeIpForExternalFetch');
+        // Test cloud metadata endpoints
+        $metadataUrls = [
+            'http://169.254.169.254/latest/meta-data',
+            'http://metadata.google.internal/computeMetadata/v1/',
+        ];
+
+        foreach ($metadataUrls as $url) {
+            $result = $method->invoke($this->subject, $url);
+            self::assertNull($result, "Expected {$url} to be blocked");
+        }
+    }
+
+    #[Test]
+    public function getSafeIpForExternalFetchReturnsNullForInvalidUrl(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('getSafeIpForExternalFetch');
+        // Test invalid URLs
+        $result = $method->invoke($this->subject, 'not-a-valid-url');
+        self::assertNull($result);
+    }
+
+    #[Test]
+    public function getSafeIpForExternalFetchReturnsNullForUrlWithoutHost(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('getSafeIpForExternalFetch');
+        // Test URL without host
+        $result = $method->invoke($this->subject, '/relative/path/image.jpg');
+        self::assertNull($result);
+    }
+
+    #[Test]
+    public function isValidImageMimeTypeAcceptsJpegImages(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('isValidImageMimeType');
+        // Create minimal valid JPEG data (JPEG magic bytes: FF D8 FF)
+        $jpegData = "\xFF\xD8\xFF\xE0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00";
+
+        $result = $method->invoke($this->subject, $jpegData);
+        self::assertTrue($result);
+    }
+
+    #[Test]
+    public function isValidImageMimeTypeAcceptsPngImages(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('isValidImageMimeType');
+        // Create minimal valid PNG data (PNG magic bytes)
+        $pngData = "\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x00\x00\x00\x00:~\x9bU\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82";
+
+        $result = $method->invoke($this->subject, $pngData);
+        self::assertTrue($result);
+    }
+
+    #[Test]
+    public function isValidImageMimeTypeRejectsSvgImages(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('isValidImageMimeType');
+        // SVG content
+        $svgData = '<svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100"/></svg>';
+
+        $result = $method->invoke($this->subject, $svgData);
+        self::assertFalse($result, 'SVG should be rejected per ADR-003');
+    }
+
+    #[Test]
+    public function isValidImageMimeTypeRejectsHtmlContent(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('isValidImageMimeType');
+        // HTML content masquerading as image
+        $htmlData = '<html><body><script>alert("xss")</script></body></html>';
+
+        $result = $method->invoke($this->subject, $htmlData);
+        self::assertFalse($result);
+    }
+
+    #[Test]
+    public function matchStyleAttributeExtractsWidthFromStyleAttribute(): void
+    {
+        $reflection     = new ReflectionClass($this->subject);
+        $method         = $reflection->getMethod('matchStyleAttribute');
+        $styleAttribute = 'width: 300px; height: 200px;';
+        $result         = $method->invoke($this->subject, $styleAttribute, 'width');
+
+        self::assertSame('300', $result);
+    }
+
+    #[Test]
+    public function matchStyleAttributeExtractsHeightFromStyleAttribute(): void
+    {
+        $reflection     = new ReflectionClass($this->subject);
+        $method         = $reflection->getMethod('matchStyleAttribute');
+        $styleAttribute = 'width: 300px; height: 200px;';
+        $result         = $method->invoke($this->subject, $styleAttribute, 'height');
+
+        self::assertSame('200', $result);
+    }
+
+    #[Test]
+    public function matchStyleAttributeHandlesStyleWithSpaces(): void
+    {
+        $reflection     = new ReflectionClass($this->subject);
+        $method         = $reflection->getMethod('matchStyleAttribute');
+        $styleAttribute = 'width  :   250  px;';
+        $result         = $method->invoke($this->subject, $styleAttribute, 'width');
+
+        self::assertSame('250', $result);
+    }
+
+    #[Test]
+    public function matchStyleAttributeReturnsNullWhenAttributeNotFound(): void
+    {
+        $reflection     = new ReflectionClass($this->subject);
+        $method         = $reflection->getMethod('matchStyleAttribute');
+        $styleAttribute = 'color: red;';
+        $result         = $method->invoke($this->subject, $styleAttribute, 'width');
+
+        self::assertNull($result);
+    }
+
+    #[Test]
+    public function matchStyleAttributeIsCaseInsensitive(): void
+    {
+        $reflection     = new ReflectionClass($this->subject);
+        $method         = $reflection->getMethod('matchStyleAttribute');
+        $styleAttribute = 'WIDTH: 150px;';
+        $result         = $method->invoke($this->subject, $styleAttribute, 'width');
+
+        self::assertSame('150', $result);
+    }
+
+    #[Test]
+    public function extractFromAttributeValueOrStylePrefersStyleOverAttribute(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('extractFromAttributeValueOrStyle');
+        $attributes = [
+            'width' => '100',
+            'style' => 'width: 200px;',
+        ];
+
+        $result = $method->invoke($this->subject, $attributes, 'width');
+        self::assertSame('200', $result, 'Style attribute value should take precedence');
+    }
+
+    #[Test]
+    public function extractFromAttributeValueOrStyleReturnsAttributeWhenNoStyle(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('extractFromAttributeValueOrStyle');
+        $attributes = [
+            'width' => '100',
+        ];
+
+        $result = $method->invoke($this->subject, $attributes, 'width');
+        self::assertSame('100', $result);
+    }
+
+    #[Test]
+    public function extractFromAttributeValueOrStyleReturnsNullWhenNotFound(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('extractFromAttributeValueOrStyle');
+        $attributes = [
+            'alt' => 'Image description',
+        ];
+
+        $result = $method->invoke($this->subject, $attributes, 'width');
+        self::assertNull($result);
+    }
+
+    #[Test]
+    public function getImageWidthFromAttributesReturnsIntegerWidth(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('getImageWidthFromAttributes');
+        $attributes = ['width' => '250'];
+        $result     = $method->invoke($this->subject, $attributes);
+
+        // assertSame verifies both type and value
+        self::assertSame(250, $result);
+    }
+
+    #[Test]
+    public function getImageWidthFromAttributesReturnsZeroWhenNotSet(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('getImageWidthFromAttributes');
+        $attributes = ['alt' => 'Image'];
+        $result     = $method->invoke($this->subject, $attributes);
+
+        self::assertSame(0, $result);
+    }
+
+    #[Test]
+    public function getImageHeightFromAttributesReturnsIntegerHeight(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('getImageHeightFromAttributes');
+        $attributes = ['height' => '180'];
+        $result     = $method->invoke($this->subject, $attributes);
+
+        // assertSame verifies both type and value
+        self::assertSame(180, $result);
+    }
+
+    #[Test]
+    public function getImageHeightFromAttributesReturnsZeroWhenNotSet(): void
+    {
+        $reflection = new ReflectionClass($this->subject);
+        $method     = $reflection->getMethod('getImageHeightFromAttributes');
+        $attributes = ['alt' => 'Image'];
+        $result     = $method->invoke($this->subject, $attributes);
+
+        self::assertSame(0, $result);
     }
 }
