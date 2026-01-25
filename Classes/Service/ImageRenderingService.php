@@ -108,7 +108,7 @@ class ImageRenderingService
         // Regex handles > inside quoted attributes (e.g., data-config="a > b")
         $output = preg_replace_callback(
             '/<[a-zA-Z](?:"[^"]*"|\'[^\']*\'|[^>])*>/s',
-            static fn (array $match): string => (string) preg_replace('/[\r\n]+\s*/', ' ', $match[0]),
+            static fn (array $match): string => (string) preg_replace('/\s*[\r\n]+\s*/', ' ', $match[0]),
             $output,
         ) ?? $output;
 

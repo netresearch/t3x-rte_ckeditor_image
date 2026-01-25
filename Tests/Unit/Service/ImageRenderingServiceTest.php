@@ -441,7 +441,8 @@ class ImageRenderingServiceTest extends TestCase
                     <img src="/fileadmin/image.jpg"
                          alt="Test"
                          width="800"
-                         height="600" />
+                         height="600"
+                         decoding="async" />
                 </a>
                 <figcaption>Caption text</figcaption>
             </figure>

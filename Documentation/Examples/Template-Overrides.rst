@@ -189,7 +189,8 @@ Override :file:`WithCaption.html` for custom figure styling:
              height="{image.height}"
              class="content-image__img"
              {f:if(condition: image.title, then: 'title="{image.title}"')}
-             loading="lazy" />
+             loading="lazy"
+             decoding="async" />
         <figcaption class="content-image__caption">
             {image.caption}
         </figcaption>
