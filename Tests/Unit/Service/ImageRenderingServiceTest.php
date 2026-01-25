@@ -896,4 +896,53 @@ class ImageRenderingServiceTest extends TestCase
 
         $this->service->render($dto, $requestMock, $config);
     }
+
+    /**
+     * Test that string numeric keys from TypoScript are correctly converted to integers.
+     *
+     * TypoScript arrays always have string keys (e.g. '10', '20'), which must
+     * be converted to integers for proper sorting and priority handling.
+     */
+    public function testRenderConvertsStringNumericKeysToIntegers(): void
+    {
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->method('render')->willReturn('<img src="test.jpg" />');
+
+        $this->viewFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->with(self::callback(static function (ViewFactoryData $data): bool {
+                $templatePaths = $data->templateRootPaths ?? [];
+
+                // String key '10' should be converted to int and added after default
+                // Expected order: [0] = default, [1] = custom (from key '10')
+                return count($templatePaths) === 2
+                    && $templatePaths[0] === 'EXT:rte_ckeditor_image/Resources/Private/Templates/'
+                    && $templatePaths[1] === 'EXT:custom/Resources/Private/Templates/';
+            }))
+            ->willReturn($viewMock);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        // String numeric key '10' (typical TypoScript format) should be converted to int
+        $config = [
+            'templateRootPaths.' => [
+                '10' => 'EXT:custom/Resources/Private/Templates/',
+            ],
+        ];
+
+        $this->service->render($dto, $requestMock, $config);
+    }
 }
