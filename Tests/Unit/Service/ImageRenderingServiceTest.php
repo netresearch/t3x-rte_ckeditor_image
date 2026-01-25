@@ -801,4 +801,99 @@ class ImageRenderingServiceTest extends TestCase
 
         $this->service->render($dto, $requestMock, $config);
     }
+
+    /**
+     * Test that key 0 cannot be overridden by custom configuration.
+     *
+     * The default path at priority 0 should always be preserved.
+     */
+    public function testRenderProtectsDefaultPathAtKeyZero(): void
+    {
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->method('render')->willReturn('<img src="test.jpg" />');
+
+        $this->viewFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->with(self::callback(static function (ViewFactoryData $data): bool {
+                $templatePaths = $data->templateRootPaths ?? [];
+
+                // Default path should ALWAYS be first (key 0 protected)
+                $defaultPath = 'EXT:rte_ckeditor_image/Resources/Private/Templates/';
+
+                return isset($templatePaths[0]) && $templatePaths[0] === $defaultPath;
+            }))
+            ->willReturn($viewMock);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        // Attempt to override key 0 - should be ignored
+        $config = [
+            'templateRootPaths.' => [
+                '0' => 'EXT:malicious_override/Resources/Private/Templates/',
+            ],
+        ];
+
+        $this->service->render($dto, $requestMock, $config);
+    }
+
+    /**
+     * Test that non-numeric keys in path configuration are ignored.
+     *
+     * Only numeric keys > 0 should be accepted to prevent accidental
+     * casting to 0 (which would override the default).
+     */
+    public function testRenderIgnoresNonNumericPathKeys(): void
+    {
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->method('render')->willReturn('<img src="test.jpg" />');
+
+        $this->viewFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->with(self::callback(static function (ViewFactoryData $data): bool {
+                $templatePaths = $data->templateRootPaths ?? [];
+
+                // Non-numeric key "foo" should be ignored (it would cast to 0)
+                // So only default path should be present
+                return count($templatePaths) === 1
+                    && $templatePaths[0] === 'EXT:rte_ckeditor_image/Resources/Private/Templates/';
+            }))
+            ->willReturn($viewMock);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        // Non-numeric key should be ignored
+        $config = [
+            'templateRootPaths.' => [
+                'foo' => 'EXT:bad_override/Resources/Private/Templates/',
+            ],
+        ];
+
+        $this->service->render($dto, $requestMock, $config);
+    }
 }

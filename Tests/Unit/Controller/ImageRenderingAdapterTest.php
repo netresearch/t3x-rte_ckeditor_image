@@ -145,12 +145,54 @@ final class ImageRenderingAdapterTest extends TestCase
         $this->renderingService
             ->expects(self::once())
             ->method('render')
-            ->with($dto, $this->request)
+            ->with($dto, $this->request, [])
             ->willReturn('<img src="/processed.jpg" width="800" height="600" alt="Test" />');
 
         $result = $this->adapter->renderImageAttributes(null, [], $this->request);
 
         self::assertSame('<img src="/processed.jpg" width="800" height="600" alt="Test" />', $result);
+    }
+
+    #[Test]
+    public function renderImageAttributesPassesConfigToRenderingService(): void
+    {
+        $attributes = [
+            'src'                    => '/image.jpg',
+            'data-htmlarea-file-uid' => '1',
+        ];
+
+        $config = [
+            'templateRootPaths.' => ['10' => 'EXT:my_ext/Resources/Private/Templates/'],
+        ];
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = $attributes;
+
+        $this->resolverService
+            ->method('resolve')
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->expects(self::once())
+            ->method('render')
+            ->with($dto, $this->request, $config)
+            ->willReturn('<img src="/processed.jpg" />');
+
+        $result = $this->adapter->renderImageAttributes(null, $config, $this->request);
+
+        self::assertSame('<img src="/processed.jpg" />', $result);
     }
 
     #[Test]
@@ -207,6 +249,62 @@ final class ImageRenderingAdapterTest extends TestCase
         $result = $this->adapter->renderImages(null, [], $this->request);
 
         self::assertSame($linkContent, $result);
+    }
+
+    #[Test]
+    public function renderImagesRendersImagesWithFileUidAndPassesConfig(): void
+    {
+        $originalImg = '<img src="/image.jpg" data-htmlarea-file-uid="1" />';
+        $linkContent = $originalImg;
+
+        $config = [
+            'templateRootPaths.' => ['10' => 'EXT:my_ext/Resources/Private/Templates/'],
+        ];
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                    => '/image.jpg',
+                            'data-htmlarea-file-uid' => '1',
+                        ],
+                        'originalHtml' => $originalImg,
+                    ],
+                ],
+            ]);
+
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->expects(self::once())
+            ->method('render')
+            ->with($dto, $this->request, $config)
+            ->willReturn('<img src="/processed.jpg" width="800" height="600" alt="Test" />');
+
+        $result = $this->adapter->renderImages(null, $config, $this->request);
+
+        self::assertSame('<img src="/processed.jpg" width="800" height="600" alt="Test" />', $result);
     }
 
     #[Test]
@@ -330,7 +428,7 @@ final class ImageRenderingAdapterTest extends TestCase
         $this->renderingService
             ->expects(self::once())
             ->method('render')
-            ->with($dto, $this->request)
+            ->with($dto, $this->request, [])
             ->willReturn('<figure><img /><figcaption>My Caption</figcaption></figure>');
 
         $result = $this->adapter->renderFigure(null, [], $this->request);

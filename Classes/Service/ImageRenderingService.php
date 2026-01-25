@@ -220,6 +220,10 @@ class ImageRenderingService
     /**
      * Merge custom paths with default, sorted by numeric key.
      *
+     * Custom paths can only use numeric keys > 0 to ensure the default path
+     * at priority 0 is always preserved. Non-numeric keys are ignored to
+     * prevent accidental overrides (e.g. casting "foo" to 0).
+     *
      * @param array<int|string, string> $customPaths Custom paths from TypoScript (pre-filtered)
      * @param string                    $defaultPath Default path for this extension
      *
@@ -227,12 +231,25 @@ class ImageRenderingService
      */
     private function mergePathsWithDefault(array $customPaths, string $defaultPath): array
     {
-        // Start with default at key 0
+        // Start with default at key 0 (always preserved)
         $paths = [0 => $defaultPath];
 
-        // Merge custom paths (will override key 0 if specified)
+        // Merge custom paths, but never allow overriding key 0
         foreach ($customPaths as $key => $path) {
-            $paths[(int) $key] = $path;
+            // Accept only numeric keys > 0 to preserve default at priority 0
+            if (is_int($key)) {
+                $intKey = $key;
+            } elseif ($key !== '' && ctype_digit($key)) {
+                // String key that looks like a number (e.g. '10' from TypoScript)
+                $intKey = (int) $key;
+            } else {
+                // Ignore non-numeric keys to avoid accidental overrides (e.g. casting to 0)
+                continue;
+            }
+
+            if ($intKey > 0) {
+                $paths[$intKey] = $path;
+            }
         }
 
         // Sort by key (TYPO3 convention: lower number = lower priority)
