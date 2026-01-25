@@ -900,8 +900,9 @@ class ImageRenderingServiceTest extends TestCase
     /**
      * Test that string numeric keys from TypoScript are correctly converted to integers.
      *
-     * TypoScript arrays always have string keys (e.g. '10', '20'), which must
-     * be converted to integers for proper sorting and priority handling.
+     * Note: PHP auto-converts pure numeric string keys like '10' to integers in arrays.
+     * This test uses a key with leading zeros ('010') which PHP preserves as a string,
+     * allowing us to test the string-to-integer conversion path in mergePathsWithDefault().
      */
     public function testRenderConvertsStringNumericKeysToIntegers(): void
     {
@@ -914,8 +915,8 @@ class ImageRenderingServiceTest extends TestCase
             ->with(self::callback(static function (ViewFactoryData $data): bool {
                 $templatePaths = $data->templateRootPaths ?? [];
 
-                // String key '10' should be converted to int and added after default
-                // Expected order: [0] = default, [1] = custom (from key '10')
+                // String key '010' should be converted to int 10 and added after default
+                // Expected order: [0] = default, [1] = custom (from key '010' -> 10)
                 return count($templatePaths) === 2
                     && $templatePaths[0] === 'EXT:rte_ckeditor_image/Resources/Private/Templates/'
                     && $templatePaths[1] === 'EXT:custom/Resources/Private/Templates/';
@@ -936,10 +937,11 @@ class ImageRenderingServiceTest extends TestCase
             isMagicImage: true,
         );
 
-        // String numeric key '10' (typical TypoScript format) should be converted to int
+        // Key '010' with leading zero stays as string in PHP arrays,
+        // but ctype_digit('010') returns true, so it triggers the string conversion path
         $config = [
             'templateRootPaths.' => [
-                '10' => 'EXT:custom/Resources/Private/Templates/',
+                '010' => 'EXT:custom/Resources/Private/Templates/',
             ],
         ];
 
