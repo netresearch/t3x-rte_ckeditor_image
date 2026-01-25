@@ -689,4 +689,114 @@ final class ImageResolverServiceTest extends TestCase
 
         self::assertSame($expected, $result);
     }
+
+    // ========================================================================
+    // URL Protocol Allowlist Tests
+    // ========================================================================
+
+    /**
+     * Data provider for allowed link protocols.
+     *
+     * @return array<string, array{url: string}>
+     */
+    public static function allowedLinkProtocolsDataProvider(): array
+    {
+        return [
+            'https url'              => ['url' => 'https://example.com/page'],
+            'http url'               => ['url' => 'http://example.com/page'],
+            'mailto link'            => ['url' => 'mailto:user@example.com'],
+            'tel link'               => ['url' => 'tel:+1234567890'],
+            't3 page link'           => ['url' => 't3://page?uid=123'],
+            't3 file link'           => ['url' => 't3://file?uid=456'],
+            'relative path'          => ['url' => '/path/to/page'],
+            'relative path no slash' => ['url' => 'path/to/page'],
+            'anchor link'            => ['url' => '#section'],
+            'relative with anchor'   => ['url' => '/page#section'],
+            'https with port'        => ['url' => 'https://example.com:8080/page'],
+            'https with query'       => ['url' => 'https://example.com/page?foo=bar'],
+            'path with colon'        => ['url' => 'path/to:file'],  // Colon after slash = not a protocol
+            'path with colon deeper' => ['url' => 'some/path/file:name.txt'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('allowedLinkProtocolsDataProvider')]
+    public function validateLinkUrlAllowsValidProtocols(string $url): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'validateLinkUrl', [$url]);
+
+        self::assertTrue($result, "URL should be allowed: {$url}");
+    }
+
+    /**
+     * Data provider for blocked link protocols.
+     *
+     * @return array<string, array{url: string}>
+     */
+    public static function blockedLinkProtocolsDataProvider(): array
+    {
+        return [
+            'javascript protocol'   => ['url' => 'javascript:alert(1)'],
+            'javascript uppercase'  => ['url' => 'JAVASCRIPT:alert(1)'],
+            'javascript mixed case' => ['url' => 'JavaScript:alert(1)'],
+            'vbscript protocol'     => ['url' => 'vbscript:msgbox(1)'],
+            'data text html'        => ['url' => 'data:text/html,<script>alert(1)</script>'],
+            'data application'      => ['url' => 'data:application/javascript,alert(1)'],
+            'file protocol'         => ['url' => 'file:///etc/passwd'],
+            'ftp protocol'          => ['url' => 'ftp://example.com/file'],
+            'ftps protocol'         => ['url' => 'ftps://example.com/file'],
+            'sftp protocol'         => ['url' => 'sftp://example.com/file'],
+            'gopher protocol'       => ['url' => 'gopher://example.com/'],
+            'ldap protocol'         => ['url' => 'ldap://example.com/'],
+            'dict protocol'         => ['url' => 'dict://example.com/'],
+            'ssh protocol'          => ['url' => 'ssh://user@host'],
+            'telnet protocol'       => ['url' => 'telnet://example.com/'],
+            'jar protocol'          => ['url' => 'jar:file:///path/to/file.jar!/'],
+            'unknown protocol'      => ['url' => 'unknown://example.com/'],
+            'custom protocol'       => ['url' => 'myapp://action'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('blockedLinkProtocolsDataProvider')]
+    public function validateLinkUrlBlocksDangerousProtocols(string $url): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'validateLinkUrl', [$url]);
+
+        self::assertFalse($result, "URL should be blocked: {$url}");
+    }
+
+    #[Test]
+    public function validateLinkUrlBlocksEmptyUrl(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'validateLinkUrl', ['']);
+
+        self::assertFalse($result);
+    }
+
+    #[Test]
+    public function validateLinkUrlBlocksWhitespaceOnlyUrl(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'validateLinkUrl', ['   ']);
+
+        self::assertFalse($result);
+    }
+
+    #[Test]
+    public function validateLinkUrlHandlesUrlWithLeadingWhitespace(): void
+    {
+        // Leading whitespace with valid protocol - should be trimmed and allowed
+        $result = $this->callPrivateMethod($this->service, 'validateLinkUrl', ['  https://example.com']);
+
+        self::assertTrue($result);
+    }
+
+    #[Test]
+    public function validateLinkUrlBlocksJavascriptWithWhitespace(): void
+    {
+        // Attempting to bypass with leading whitespace
+        $result = $this->callPrivateMethod($this->service, 'validateLinkUrl', ['  javascript:alert(1)']);
+
+        self::assertFalse($result);
+    }
 }
