@@ -204,4 +204,207 @@ class SelectImageControllerTest extends FunctionalTestCase
             'Dimensions should not allow memory exhaustion (max 10000x10000)',
         );
     }
+
+    // ========================================================================
+    // calculateDisplayDimensions Tests
+    // ========================================================================
+
+    public function testCalculateDisplayDimensionsReturnsOriginalForSmallImage(): void
+    {
+        self::assertNotNull($this->subject);
+        // Image smaller than max limits should return original dimensions
+        $result = $this->invokeMethod($this->subject, 'calculateDisplayDimensions', [
+            800,  // originalWidth
+            600,  // originalHeight
+            1920, // maxWidth
+            1080, // maxHeight
+        ]);
+
+        self::assertIsArray($result);
+        self::assertEquals(800, $result['width']);
+        self::assertEquals(600, $result['height']);
+    }
+
+    public function testCalculateDisplayDimensionsScalesDownWideImage(): void
+    {
+        self::assertNotNull($this->subject);
+        // Wide image exceeding maxWidth should scale proportionally
+        $result = $this->invokeMethod($this->subject, 'calculateDisplayDimensions', [
+            3840, // originalWidth (exceeds maxWidth)
+            2160, // originalHeight
+            1920, // maxWidth
+            1080, // maxHeight
+        ]);
+
+        self::assertIsArray($result);
+        self::assertArrayHasKey('width', $result);
+        self::assertArrayHasKey('height', $result);
+        self::assertLessThanOrEqual(1920, $result['width']);
+        self::assertLessThanOrEqual(1080, $result['height']);
+        // Aspect ratio should be preserved: 3840/2160 ≈ 1.78
+        $width  = (int) $result['width'];
+        $height = (int) $result['height'];
+        self::assertGreaterThan(0, $height, 'Height must be greater than zero for ratio calculation');
+        $aspectRatio = $width / $height;
+        self::assertEqualsWithDelta(1.78, $aspectRatio, 0.01);
+    }
+
+    public function testCalculateDisplayDimensionsScalesDownTallImage(): void
+    {
+        self::assertNotNull($this->subject);
+        // Tall image exceeding maxHeight should scale proportionally
+        $result = $this->invokeMethod($this->subject, 'calculateDisplayDimensions', [
+            800,  // originalWidth
+            2000, // originalHeight (exceeds maxHeight)
+            1920, // maxWidth
+            1080, // maxHeight
+        ]);
+
+        self::assertIsArray($result);
+        self::assertLessThanOrEqual(1920, $result['width']);
+        self::assertLessThanOrEqual(1080, $result['height']);
+    }
+
+    public function testCalculateDisplayDimensionsHandlesSquareImage(): void
+    {
+        self::assertNotNull($this->subject);
+        $result = $this->invokeMethod($this->subject, 'calculateDisplayDimensions', [
+            1000, // originalWidth
+            1000, // originalHeight
+            500,  // maxWidth
+            500,  // maxHeight
+        ]);
+
+        self::assertIsArray($result);
+        self::assertEquals(500, $result['width']);
+        self::assertEquals(500, $result['height']);
+    }
+
+    public function testCalculateDisplayDimensionsHandlesExtremelyWideImage(): void
+    {
+        self::assertNotNull($this->subject);
+        // Panorama image: very wide, short height
+        $result = $this->invokeMethod($this->subject, 'calculateDisplayDimensions', [
+            10000, // originalWidth
+            500,   // originalHeight
+            1920,  // maxWidth
+            1080,  // maxHeight
+        ]);
+
+        self::assertIsArray($result);
+        self::assertLessThanOrEqual(1920, $result['width']);
+        // Height should scale proportionally (10000/500 = 20, so 1920/20 = 96)
+        self::assertLessThan(500, $result['height']);
+    }
+
+    public function testCalculateDisplayDimensionsHandlesExtremelyTallImage(): void
+    {
+        self::assertNotNull($this->subject);
+        // Very tall image: narrow width, tall height
+        $result = $this->invokeMethod($this->subject, 'calculateDisplayDimensions', [
+            500,   // originalWidth
+            10000, // originalHeight
+            1920,  // maxWidth
+            1080,  // maxHeight
+        ]);
+
+        self::assertIsArray($result);
+        self::assertLessThanOrEqual(1080, $result['height']);
+        self::assertLessThan(500, $result['width']);
+    }
+
+    public function testCalculateDisplayDimensionsPreservesAspectRatio(): void
+    {
+        self::assertNotNull($this->subject);
+        // 16:9 aspect ratio
+        $result = $this->invokeMethod($this->subject, 'calculateDisplayDimensions', [
+            3200, // originalWidth
+            1800, // originalHeight
+            800,  // maxWidth
+            600,  // maxHeight
+        ]);
+
+        self::assertIsArray($result);
+        self::assertArrayHasKey('width', $result);
+        self::assertArrayHasKey('height', $result);
+        // Original aspect ratio: 3200/1800 ≈ 1.78
+        $width  = (int) $result['width'];
+        $height = (int) $result['height'];
+        self::assertGreaterThan(0, $height, 'Height must be greater than zero for ratio calculation');
+        $aspectRatio = $width / $height;
+        self::assertEqualsWithDelta(1.78, $aspectRatio, 0.01);
+    }
+
+    // ========================================================================
+    // getTranslations Tests (via infoAction with translations request)
+    // ========================================================================
+
+    public function testGetTranslationsReturnsExpectedKeys(): void
+    {
+        self::assertNotNull($this->subject);
+        // Create a real controller instance for testing getTranslations
+        $result = $this->invokeMethod($this->subject, 'getTranslations', []);
+
+        self::assertIsArray($result);
+
+        // Verify essential translation keys exist
+        $expectedKeys = [
+            'override',
+            'overrideNoDefault',
+            'cssClass',
+            'width',
+            'height',
+            'title',
+            'alt',
+            'clickToEnlarge',
+            'enabled',
+            'skipImageProcessing',
+            'imageProperties',
+            'cancel',
+            'save',
+            'insertImage',
+            'noDefaultMetadata',
+            'zoomHelp',
+            'noScaleHelp',
+            'zoom',
+            'quality',
+            'qualityNone',
+            'qualityStandard',
+            'qualityRetina',
+            'qualityUltra',
+            'qualityPrint',
+        ];
+
+        foreach ($expectedKeys as $key) {
+            self::assertArrayHasKey($key, $result, "Missing translation key: {$key}");
+        }
+    }
+
+    public function testGetTranslationsReturnsQualityLabelsAndTooltips(): void
+    {
+        self::assertNotNull($this->subject);
+        $result = $this->invokeMethod($this->subject, 'getTranslations', []);
+
+        self::assertIsArray($result);
+
+        // Quality levels with labels and tooltips
+        $qualityKeys = [
+            'qualityLowLabel',
+            'qualityLowTooltip',
+            'qualityStandardLabel',
+            'qualityStandardTooltip',
+            'qualityRetinaLabel',
+            'qualityRetinaTooltip',
+            'qualityUltraLabel',
+            'qualityUltraTooltip',
+            'qualityPrintLabel',
+            'qualityPrintTooltip',
+            'qualityExcessiveLabel',
+            'qualityExcessiveTooltip',
+        ];
+
+        foreach ($qualityKeys as $key) {
+            self::assertArrayHasKey($key, $result, "Missing quality translation key: {$key}");
+        }
+    }
 }

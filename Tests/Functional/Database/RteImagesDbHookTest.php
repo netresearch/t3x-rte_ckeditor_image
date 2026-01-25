@@ -155,4 +155,308 @@ final class RteImagesDbHookTest extends FunctionalTestCase
         // RteImagesDbHook should be registered
         self::assertContains(RteImagesDbHook::class, $registeredHooks);
     }
+
+    // ========================================================================
+    // modifyRteField Tests (via processDatamap_postProcessFieldArray)
+    // ========================================================================
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayHandlesTextTypeWithoutRichtext(): void
+    {
+        $subject      = $this->createSubject();
+        $status       = 'update';
+        $table        = 'tt_content';
+        $id           = '1';
+        $originalText = 'Plain text content';
+        $fieldArray   = [
+            'bodytext' => $originalText,
+        ];
+
+        /** @var DataHandler $dataHandler */
+        $dataHandler = $this->get(DataHandler::class);
+
+        // Configure TCA for text field WITHOUT enableRichtext
+        /** @var array<string, mixed> $tcaConfig */
+        $tcaConfig = [
+            'type' => 'text',
+            'rows' => 10,
+        ];
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = $tcaConfig;
+
+        $subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandler,
+        );
+
+        // Text without enableRichtext should remain unchanged
+        self::assertSame($originalText, $fieldArray['bodytext']);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayHandlesRichtextDisabled(): void
+    {
+        $subject      = $this->createSubject();
+        $status       = 'update';
+        $table        = 'tt_content';
+        $id           = '1';
+        $originalText = '<p>HTML content</p>';
+        $fieldArray   = [
+            'bodytext' => $originalText,
+        ];
+
+        /** @var DataHandler $dataHandler */
+        $dataHandler = $this->get(DataHandler::class);
+
+        // Configure TCA for text field with enableRichtext = false
+        /** @var array<string, mixed> $tcaConfig */
+        $tcaConfig = [
+            'type'           => 'text',
+            'enableRichtext' => false,
+        ];
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = $tcaConfig;
+
+        $subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandler,
+        );
+
+        // enableRichtext=false should remain unchanged
+        self::assertSame($originalText, $fieldArray['bodytext']);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayHandlesNullFieldValue(): void
+    {
+        $subject    = $this->createSubject();
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '1';
+        $fieldArray = [
+            'bodytext' => null,
+        ];
+
+        /** @var DataHandler $dataHandler */
+        $dataHandler = $this->get(DataHandler::class);
+
+        // Configure TCA for RTE field
+        /** @var array<string, mixed> $tcaConfig */
+        $tcaConfig = [
+            'type'           => 'text',
+            'enableRichtext' => true,
+        ];
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = $tcaConfig;
+
+        $subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandler,
+        );
+
+        // Null value should remain null
+        self::assertNull($fieldArray['bodytext']);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayHandlesContentWithoutImages(): void
+    {
+        $subject    = $this->createSubject();
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '1';
+        $content    = '<p>This is a paragraph with <strong>bold</strong> text but no images.</p>';
+        $fieldArray = [
+            'bodytext' => $content,
+        ];
+
+        /** @var DataHandler $dataHandler */
+        $dataHandler = $this->get(DataHandler::class);
+
+        // Configure TCA for RTE field
+        /** @var array<string, mixed> $tcaConfig */
+        $tcaConfig = [
+            'type'           => 'text',
+            'enableRichtext' => true,
+        ];
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = $tcaConfig;
+
+        $subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandler,
+        );
+
+        // Content without images should be processed but remain essentially unchanged
+        self::assertStringContainsString('This is a paragraph', $fieldArray['bodytext']);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayHandlesEmptyString(): void
+    {
+        $subject    = $this->createSubject();
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '1';
+        $fieldArray = [
+            'bodytext' => '',
+        ];
+
+        /** @var DataHandler $dataHandler */
+        $dataHandler = $this->get(DataHandler::class);
+
+        // Configure TCA for RTE field
+        /** @var array<string, mixed> $tcaConfig */
+        $tcaConfig = [
+            'type'           => 'text',
+            'enableRichtext' => true,
+        ];
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = $tcaConfig;
+
+        $subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandler,
+        );
+
+        // Empty string should remain empty
+        self::assertSame('', $fieldArray['bodytext']);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayHandlesMultipleRteFields(): void
+    {
+        $subject    = $this->createSubject();
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '1';
+        $fieldArray = [
+            'bodytext'  => '<p>Body text content</p>',
+            'header'    => 'Not an RTE field',
+            'subheader' => 'Also not RTE',
+        ];
+
+        /** @var DataHandler $dataHandler */
+        $dataHandler = $this->get(DataHandler::class);
+
+        // Configure TCA
+        /** @var array<string, mixed> $bodytextConfig */
+        $bodytextConfig = [
+            'type'           => 'text',
+            'enableRichtext' => true,
+        ];
+        /** @var array<string, mixed> $headerConfig */
+        $headerConfig = [
+            'type' => 'input',
+        ];
+        /** @var array<string, mixed> $subheaderConfig */
+        $subheaderConfig = [
+            'type' => 'input',
+        ];
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = $bodytextConfig;
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        $GLOBALS['TCA']['tt_content']['columns']['header']['config'] = $headerConfig;
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        $GLOBALS['TCA']['tt_content']['columns']['subheader']['config'] = $subheaderConfig;
+
+        $subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandler,
+        );
+
+        // Non-RTE fields should remain unchanged
+        self::assertSame('Not an RTE field', $fieldArray['header']);
+        self::assertSame('Also not RTE', $fieldArray['subheader']);
+        // RTE field should be processed
+        self::assertStringContainsString('Body text content', $fieldArray['bodytext']);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayHandlesDeleteStatus(): void
+    {
+        $subject    = $this->createSubject();
+        $status     = 'delete';
+        $table      = 'tt_content';
+        $id         = '1';
+        $fieldArray = [
+            'bodytext' => '<p>Content to delete</p>',
+        ];
+
+        /** @var DataHandler $dataHandler */
+        $dataHandler = $this->get(DataHandler::class);
+
+        // Configure TCA for RTE field
+        /** @var array<string, mixed> $tcaConfig */
+        $tcaConfig = [
+            'type'           => 'text',
+            'enableRichtext' => true,
+        ];
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = $tcaConfig;
+
+        $subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandler,
+        );
+
+        // Delete operations should still process field values
+        self::assertStringContainsString('Content to delete', $fieldArray['bodytext']);
+    }
+
+    #[Test]
+    public function processDatamapPostProcessFieldArrayHandlesFieldWithoutTypeKey(): void
+    {
+        $subject    = $this->createSubject();
+        $status     = 'update';
+        $table      = 'tt_content';
+        $id         = '1';
+        $fieldArray = [
+            'bodytext' => 'Some content',
+        ];
+
+        /** @var DataHandler $dataHandler */
+        $dataHandler = $this->get(DataHandler::class);
+
+        // Configure TCA WITHOUT type key
+        /** @var array<string, mixed> $tcaConfig */
+        $tcaConfig = [
+            'rows' => 10,
+            'cols' => 80,
+        ];
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
+        $GLOBALS['TCA']['tt_content']['columns']['bodytext']['config'] = $tcaConfig;
+
+        $subject->processDatamap_postProcessFieldArray(
+            $status,
+            $table,
+            $id,
+            $fieldArray,
+            $dataHandler,
+        );
+
+        // Field without type should remain unchanged
+        self::assertSame('Some content', $fieldArray['bodytext']);
+    }
 }

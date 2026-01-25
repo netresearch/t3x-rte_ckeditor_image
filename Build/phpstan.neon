@@ -57,6 +57,10 @@ parameters:
           path: %currentWorkingDirectory%/Tests/Unit/Backend/Preview/RteImagePreviewRendererTest.php
           message: '#method_exists.*getRow#'
           reportUnmatched: false
+        # Ignore cast.int errors in functional tests (mixed from invokeMethod reflection calls)
+        - identifier: cast.int
+          path: %currentWorkingDirectory%/Tests/Functional/*
+          reportUnmatched: false
         # Ignore GeneralUtility::makeInstance() return type issues in functional tests
         # PHPStan sees makeInstance() returning mixed (without phpstan-typo3 extension)
         # This causes "mixed given" and "does not accept mixed" errors for typed properties/params
