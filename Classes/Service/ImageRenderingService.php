@@ -104,15 +104,15 @@ class ImageRenderingService
         //
         // Step 1: Collapse whitespace within HTML tags (handles multi-line attributes)
         // Example: <a href="..."\n   target="..."> becomes <a href="..." target="...">
-        $output = (string) preg_replace_callback(
+        $output = preg_replace_callback(
             '/<[a-zA-Z][^>]*>/s',
             static fn (array $match): string => (string) preg_replace('/\s+/', ' ', $match[0]),
             $output,
-        );
+        ) ?? $output;
 
         // Step 2: Remove whitespace between HTML tags
         // Example: </a>\n    <figcaption> becomes </a><figcaption>
-        $output = preg_replace('/>\s+</', '><', (string) $output) ?? $output;
+        $output = preg_replace('/>\s+</', '><', $output) ?? $output;
 
         return trim($output);
     }

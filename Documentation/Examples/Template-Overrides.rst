@@ -26,13 +26,26 @@ The extension provides six Fluid templates for different rendering contexts:
 ..  code-block:: text
     :caption: Template directory structure
 
-    Resources/Private/Templates/Image/
-    ├── Standalone.html      # Basic image without wrapper
-    ├── WithCaption.html     # Image with <figure>/<figcaption>
-    ├── Link.html            # Image wrapped in <a> tag
-    ├── LinkWithCaption.html # Linked image with caption
-    ├── Popup.html           # Image with lightbox/popup link
-    └── PopupWithCaption.html # Popup image with caption
+    Resources/Private/Templates/
+    ├── Image/
+    │   ├── Standalone.html      # Basic image without wrapper
+    │   ├── WithCaption.html     # Image with <figure>/<figcaption>
+    │   ├── Link.html            # Image wrapped in <a> tag
+    │   ├── LinkWithCaption.html # Linked image with caption
+    │   ├── Popup.html           # Image with lightbox/popup link
+    │   └── PopupWithCaption.html # Popup image with caption
+    └── Partials/Image/
+        ├── Tag.html             # <img> element partial
+        ├── TagInFigure.html     # <img> without class (for figures)
+        ├── Link.html            # <a> wrapper partial
+        └── Figure.html          # <figure> wrapper partial
+
+..  note::
+
+    This extension stores partials in ``Templates/Partials/`` rather than the
+    standard TYPO3 location ``Partials/``. When overriding, you can use either
+    location by configuring your ``partialRootPaths`` accordingly. For standard
+    TYPO3 structure in your site package, use ``Resources/Private/Partials/``.
 
 Template selection
 ------------------
