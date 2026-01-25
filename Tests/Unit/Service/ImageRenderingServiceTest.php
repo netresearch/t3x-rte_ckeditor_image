@@ -553,8 +553,15 @@ class ImageRenderingServiceTest extends TestCase
             ->with(self::callback(static function (ViewFactoryData $data): bool {
                 $templatePaths = $data->templateRootPaths ?? [];
 
-                // Custom path should be present and have higher priority (later in array)
-                return in_array('EXT:my_sitepackage/Resources/Private/Templates/', $templatePaths, true);
+                // Default path should be first (lower priority), custom path second (higher priority)
+                $defaultPath = 'EXT:rte_ckeditor_image/Resources/Private/Templates/';
+                $customPath  = 'EXT:my_sitepackage/Resources/Private/Templates/';
+
+                $defaultPos = array_search($defaultPath, $templatePaths, true);
+                $customPos  = array_search($customPath, $templatePaths, true);
+
+                // Both must exist and custom must come after default (higher priority)
+                return $defaultPos !== false && $customPos !== false && $defaultPos < $customPos;
             }))
             ->willReturn($viewMock);
 

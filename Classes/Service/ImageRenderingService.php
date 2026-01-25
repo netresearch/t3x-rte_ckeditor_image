@@ -174,26 +174,9 @@ class ImageRenderingService
 
         // Build paths with defaults at key 0 (lowest priority)
         // Filter to ensure non-empty string values only
-        $filteredTemplateConfig = [];
-        foreach ($templateConfig as $key => $value) {
-            if (is_string($value) && $value !== '') {
-                $filteredTemplateConfig[$key] = $value;
-            }
-        }
-
-        $filteredPartialConfig = [];
-        foreach ($partialConfig as $key => $value) {
-            if (is_string($value) && $value !== '') {
-                $filteredPartialConfig[$key] = $value;
-            }
-        }
-
-        $filteredLayoutConfig = [];
-        foreach ($layoutConfig as $key => $value) {
-            if (is_string($value) && $value !== '') {
-                $filteredLayoutConfig[$key] = $value;
-            }
-        }
+        $filteredTemplateConfig = $this->filterNonEmptyStringPaths($templateConfig);
+        $filteredPartialConfig  = $this->filterNonEmptyStringPaths($partialConfig);
+        $filteredLayoutConfig   = $this->filterNonEmptyStringPaths($layoutConfig);
 
         $templatePaths = $this->mergePathsWithDefault(
             $filteredTemplateConfig,
@@ -215,6 +198,26 @@ class ImageRenderingService
             'partialRootPaths'  => $partialPaths,
             'layoutRootPaths'   => $layoutPaths,
         ];
+    }
+
+    /**
+     * Filter array to keep only non-empty string values, preserving keys.
+     *
+     * @param array<mixed> $config Configuration array to filter
+     *
+     * @return array<int|string, string> Filtered array with non-empty string values
+     */
+    private function filterNonEmptyStringPaths(array $config): array
+    {
+        $filtered = [];
+
+        foreach ($config as $key => $value) {
+            if (is_string($value) && $value !== '') {
+                $filtered[$key] = $value;
+            }
+        }
+
+        return $filtered;
     }
 
     /**
