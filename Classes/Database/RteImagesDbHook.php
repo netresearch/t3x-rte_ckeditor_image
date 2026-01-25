@@ -11,253 +11,39 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Database;
 
-use function count;
-
-use finfo;
-
-use function is_array;
-use function is_string;
-
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
-
-use function strlen;
-
-use Throwable;
+use Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
-use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Context\FileProcessingAspect;
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
-use TYPO3\CMS\Core\Html\HtmlParser;
-use TYPO3\CMS\Core\Http\ApplicationType;
-use TYPO3\CMS\Core\Http\RequestFactory;
-use TYPO3\CMS\Core\Log\LogManager;
-use TYPO3\CMS\Core\Resource\AbstractFile;
-use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
-use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
-use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
-use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\FileInterface;
-use TYPO3\CMS\Core\Resource\ProcessedFile;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class for processing of the FAL soft references on img tags inserted in RTE content.
+ * DataHandler hook for processing images in RTE fields.
+ *
+ * Intercepts RTE field saves to process img tags:
+ * - Resolves file UIDs for existing images
+ * - Fetches and imports external images (if enabled)
+ * - Processes images to requested dimensions
  *
  * @author  Stefan Galinski <stefan@sgalinski.de>
+ * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  *
  * @see    https://www.netresearch.de
  */
 class RteImagesDbHook
 {
-    use LoggerAwareTrait;
-
-    /**
-     * @var bool
-     */
-    protected bool $fetchExternalImages;
-
-    /**
-     * Constructor.
-     *
-     * @param ExtensionConfiguration      $extensionConfiguration
-     * @param LogManager                  $logManager
-     * @param ResourceFactory             $resourceFactory
-     * @param Context                     $context
-     * @param RequestFactory              $requestFactory
-     * @param DefaultUploadFolderResolver $uploadFolderResolver
-     *
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     */
     public function __construct(
-        ExtensionConfiguration $extensionConfiguration,
-        LogManager $logManager,
-        private readonly ResourceFactory $resourceFactory,
-        private readonly Context $context,
-        private readonly RequestFactory $requestFactory,
-        private readonly DefaultUploadFolderResolver $uploadFolderResolver,
-    ) {
-        $this->fetchExternalImages = (bool) $extensionConfiguration
-            ->get('rte_ckeditor_image', 'fetchExternalImages');
-
-        $this->logger = $logManager->getLogger(self::class);
-    }
-
-    /**
-     * Validates if the given URL is allowed for external image fetching and returns the safe IP.
-     * Implements SSRF protection by checking against internal IP ranges and private networks.
-     * Returns the validated IP address to prevent DNS rebinding attacks.
-     *
-     * @param string $url The URL to validate
-     *
-     * @return string|null The validated IP address or null if validation fails
-     */
-    private function getSafeIpForExternalFetch(string $url): ?string
-    {
-        $parsedUrl = parse_url($url);
-        if (!is_array($parsedUrl) || !isset($parsedUrl['host'])) {
-            return null;
-        }
-
-        $host = $parsedUrl['host'];
-
-        // Resolve hostname to IP address
-        $ip = gethostbyname($host);
-        if ($ip === $host) {
-            // DNS resolution failed or is already an IP
-            $ip = $host;
-        }
-
-        // Validate IP is not in private/reserved ranges
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
-            // Block private IPv4 ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
-            // Block loopback (127.0.0.0/8)
-            // Block link-local (169.254.0.0/16)
-            if (
-                filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false
-            ) {
-                return null;
-            }
-        } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
-            // Block private IPv6 ranges
-            if (
-                filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false
-            ) {
-                return null;
-            }
-        } else {
-            // Invalid IP format
-            return null;
-        }
-
-        // Additional check: block cloud metadata endpoints
-        $blockedHosts = [
-            '169.254.169.254',  // AWS/Azure/GCP metadata
-            'metadata.google.internal',
-            'instance-data',
-        ];
-
-        foreach ($blockedHosts as $blockedHost) {
-            if (stripos($host, $blockedHost) !== false || stripos($ip, $blockedHost) !== false) {
-                return null;
-            }
-        }
-
-        return $ip;
-    }
-
-    /**
-     * Validates file content by MIME type to prevent malicious uploads.
-     *
-     * @param string $fileContent The file content to validate
-     *
-     * @return bool True if MIME type is allowed
-     */
-    private function isValidImageMimeType(string $fileContent): bool
-    {
-        // Allowed image MIME types for external images
-        // Note: SVG is intentionally excluded - SVG sanitization is TYPO3 Core/FAL
-        // responsibility per ADR-003 Security Responsibility Boundaries
-        $allowedMimeTypes = [
-            'image/jpeg',  // Standard JPEG format
-            'image/png',   // PNG format
-            'image/gif',   // GIF format
-            'image/webp',  // Modern WebP format
-        ];
-
-        // Use finfo to detect MIME type from content
-        $finfo    = new finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo->buffer($fileContent);
-
-        return in_array($mimeType, $allowedMimeTypes, true);
-    }
-
-    /**
-     * Finds width and height from attrib-array
-     * If the width and height is found in the style-attribute, use that!
-     *
-     * @param string $styleAttribute The image style attribute
-     * @param string $imageAttribute The image attribute to match in the style attribute (e.g. width, height)
-     *
-     * @return string|null
-     */
-    private function matchStyleAttribute(string $styleAttribute, string $imageAttribute): ?string
-    {
-        $regex   = '[[:space:]]*:[[:space:]]*([0-9]*)[[:space:]]*px';
-        $matches = [];
-
-        if (preg_match('/' . $imageAttribute . $regex . '/i', $styleAttribute, $matches) === 1) {
-            return $matches[1];
-        }
-
-        return null;
-    }
-
-    /**
-     * Extracts the given image attribute value from the image tag attributes. If a style attribute
-     * exists the information is extracted from this one.
-     *
-     * @param string[] $attributes     The attributes of the image tag
-     * @param string   $imageAttribute The image attribute to extract (e.g. width, height)
-     *
-     * @return mixed|null
-     */
-    private function extractFromAttributeValueOrStyle(array $attributes, string $imageAttribute)
-    {
-        $style = trim($attributes['style'] ?? '');
-
-        if ($style !== '') {
-            $value = $this->matchStyleAttribute($style, $imageAttribute);
-
-            // Return value from style attribute
-            if ($value !== null) {
-                return $value;
-            }
-        }
-
-        // Returns value from tag attributes
-        return $attributes[$imageAttribute] ?? null;
-    }
-
-    /**
-     * Returns the width of the image from the image tag attributes. If a style attribute exists
-     * the information is extracted from this one.
-     *
-     * @param string[] $attributes The attributes of the image tag
-     *
-     * @return int
-     */
-    private function getImageWidthFromAttributes(array $attributes): int
-    {
-        return (int) $this->extractFromAttributeValueOrStyle($attributes, 'width');
-    }
-
-    /**
-     * Returns the height of the image from the image tag attributes. If a style attribute exists
-     * the information is extracted from this one.
-     *
-     * @param string[] $attributes The attributes of the image tag
-     *
-     * @return int
-     */
-    private function getImageHeightFromAttributes(array $attributes): int
-    {
-        return (int) $this->extractFromAttributeValueOrStyle($attributes, 'height');
-    }
+        private readonly RteImageProcessorInterface $imageProcessor,
+    ) {}
 
     /**
      * Process the modified text from TCA text field before its stored in the database.
      *
-     * @param mixed[] $fieldArray
+     * @param string               $status      The status (new/update)
+     * @param string               $table       The table name
+     * @param string               $id          The record ID
+     * @param array<string, mixed> $fieldArray  The field values (by reference)
+     * @param DataHandler          $dataHandler The DataHandler instance
      */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function processDatamap_postProcessFieldArray(
@@ -268,351 +54,79 @@ class RteImagesDbHook
         DataHandler &$dataHandler,
     ): void {
         foreach ($fieldArray as $field => $fieldValue) {
-            // Ignore not existing fields in TCA definition
+            // Skip fields not defined in TCA
             if (!isset($GLOBALS['TCA'][$table]['columns'][$field])) {
                 continue;
             }
 
-            // Get TCA config for the field
-            $tcaFieldConf = $this->resolveFieldConfigurationAndRespectColumnsOverrides($dataHandler, $table, $field);
-            // Handle only fields of type "text"
-            if (!array_key_exists('type', $tcaFieldConf)) {
+            // Get TCA configuration for the field
+            $tcaFieldConf = $this->resolveFieldConfiguration($dataHandler, $table, $field);
+
+            // Only process text fields with RTE enabled
+            if (!$this->isRteTextField($tcaFieldConf)) {
                 continue;
             }
 
-            if ($tcaFieldConf['type'] !== 'text') {
-                continue;
-            }
-
-            // Ignore all none RTE text fields
-            if (!array_key_exists('enableRichtext', $tcaFieldConf)) {
-                continue;
-            }
-
-            if ($tcaFieldConf['enableRichtext'] === false) {
-                continue;
-            }
-
+            // Skip null values
             if ($fieldValue === null) {
                 continue;
             }
 
-            $fieldArray[$field] = $this->modifyRteField($fieldValue);
+            // Process the RTE field content
+            $fieldArray[$field] = $this->imageProcessor->process((string) $fieldValue);
         }
-    }
-
-    private function modifyRteField(string $value): string
-    {
-        $rteHtmlParser = new HtmlParser();
-        $imgSplit      = $rteHtmlParser->splitTags('img', $value);
-
-        if (count($imgSplit) === 0) {
-            return $value;
-        }
-
-        $siteUrl  = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
-        $siteHost = GeneralUtility::getIndpEnv('TYPO3_REQUEST_HOST');
-        $sitePath = '';
-
-        if (!is_string($siteUrl)) {
-            $siteUrl = '';
-        }
-
-        if (is_string($siteHost)) {
-            $sitePath = str_replace(
-                $siteHost,
-                '',
-                $siteUrl,
-            );
-        }
-
-        foreach ($imgSplit as $key => $v) {
-            // Odd numbers contains the <img> tags
-            if (($key % 2) === 1) {
-                // Get attributes
-                [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
-                // It's always an absolute URL coming from the RTE into the Database.
-                $absoluteUrl = trim((string) $attribArray['src']);
-
-                // Make path absolute if it is relative, and we have a site path which is not '/'
-                if (($sitePath !== '') && str_starts_with($absoluteUrl, $sitePath)) {
-                    // If site is in a subpath (e.g. /~user_jim/) this path needs to be removed
-                    // because it will be added with $siteUrl
-                    $absoluteUrl = substr($absoluteUrl, strlen($sitePath));
-                    $absoluteUrl = $siteUrl . $absoluteUrl;
-                }
-
-                $originalImageFile = null;
-                if (isset($attribArray['data-htmlarea-file-uid'])) {
-                    // An original image file uid is available
-                    try {
-                        $originalImageFile = $this->resourceFactory
-                            ->getFileObject((int) $attribArray['data-htmlarea-file-uid']);
-                    } catch (FileDoesNotExistException $exception) {
-                        if ($this->logger instanceof LoggerInterface) {
-                            // Log the fact the file could not be retrieved.
-                            $message = sprintf(
-                                'Could not find file with uid "%s"',
-                                $attribArray['data-htmlarea-file-uid'],
-                            );
-
-                            $this->logger->error($message, ['exception' => $exception]);
-                        }
-                    }
-                }
-
-                // Get image dimensions: prioritize HTML attributes, fallback to file properties if available
-                $imageWidth  = $this->getImageWidthFromAttributes($attribArray);
-                $imageHeight = $this->getImageHeightFromAttributes($attribArray);
-
-                // Fallback to original file dimensions if not set in attributes
-                if (($imageWidth === 0) && ($originalImageFile instanceof File)) {
-                    $imageWidth = (int) $originalImageFile->getProperty('width');
-                }
-
-                if (($imageHeight === 0) && ($originalImageFile instanceof File)) {
-                    $imageHeight = (int) $originalImageFile->getProperty('height');
-                }
-
-                $attribArray['width']  = $imageWidth;
-                $attribArray['height'] = $imageHeight;
-
-                // Skip processing in non-backend contexts
-                // DataHandler can be triggered from frontend (e.g., frontend editing, TypoScript)
-                // In such cases, skip image processing rather than crash the request
-                if (!($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface) {
-                    return $value; // No request context available, skip processing
-                }
-
-                $applicationType = ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST']);
-                if (!$applicationType->isBackend()) {
-                    return $value; // Frontend context, skip processing gracefully
-                }
-
-                if ($originalImageFile instanceof File) {
-                    // Build public URL to image, remove trailing slash from site URL
-                    $imageFileUrl = rtrim($siteUrl, '/') . $originalImageFile->getPublicUrl();
-
-                    // Public url of local file is relative to the site url, absolute otherwise
-                    if (($absoluteUrl !== $imageFileUrl) && ($absoluteUrl !== $originalImageFile->getPublicUrl())) {
-                        // Magic image case: get a processed file with the requested configuration
-                        $imageConfiguration = [
-                            'width'  => $imageWidth,
-                            'height' => $imageHeight,
-                        ];
-
-                        // ensure we do get a processed file
-                        $this->context->setAspect('fileProcessing', new FileProcessingAspect(false));
-
-                        $magicImage = $originalImageFile->process(
-                            ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
-                            $imageConfiguration,
-                        );
-
-                        $attribArray['width']  = $magicImage->getProperty('width');
-                        $attribArray['height'] = $magicImage->getProperty('height');
-
-                        $imgSrc = $magicImage->getPublicUrl();
-
-                        // publicUrl like 'https://www.domain.xy/typo3/image/process?token=...'?
-                        // -> generate img source from storage basepath and identifier instead
-                        if ($imgSrc !== null && str_contains($imgSrc, 'process?token=')) {
-                            $imgSrc = $originalImageFile->getStorage()->getPublicUrl($magicImage);
-                        }
-
-                        $attribArray['src'] = $imgSrc;
-                    }
-                } elseif (
-                    $this->fetchExternalImages
-                    && !str_starts_with($absoluteUrl, $siteUrl)
-                ) {
-                    // External image from another URL: in that case, fetch image, unless
-                    // the feature is disabled.
-                    // Note: Backend context is already validated above (lines 441-444).
-                    //
-                    // SECURITY: Validate URL and get safe IP to prevent DNS rebinding attacks
-                    $safeIp = $this->getSafeIpForExternalFetch($absoluteUrl);
-                    if ($safeIp === null) {
-                        if ($this->logger instanceof LoggerInterface) {
-                            $this->logger->warning(
-                                'Blocked external image fetch: URL failed SSRF validation',
-                                ['url' => $absoluteUrl],
-                            );
-                        }
-
-                        continue;
-                    }
-
-                    // Fetch the external image using validated IP to prevent DNS rebinding
-                    $externalFile = null;
-                    try {
-                        $parsedUrl = parse_url($absoluteUrl);
-                        $host      = $parsedUrl['host'];
-                        $port      = $parsedUrl['port'] ?? (($parsedUrl['scheme'] ?? 'http') === 'https' ? 443 : 80);
-
-                        $response = $this->requestFactory->request($absoluteUrl, 'GET', [
-                            'timeout'         => 5,
-                            'allow_redirects' => false, // Prevent redirect to unsafe locations
-                            'curl'            => [
-                                // Force cURL to use validated IP for this hostname:port
-                                CURLOPT_RESOLVE => [sprintf('%s:%d:%s', $host, $port, $safeIp)],
-                            ],
-                        ]);
-
-                        if ($response->getStatusCode() === 200) {
-                            $externalFile = $response->getBody()->getContents();
-                        }
-                    } catch (Throwable $exception) {
-                        if ($this->logger instanceof LoggerInterface) {
-                            $this->logger->error(
-                                'Failed to fetch external image',
-                                ['exception' => $exception],
-                            );
-                        }
-
-                        // do nothing, further image processing will be skipped
-                    }
-
-                    if ($externalFile !== null) {
-                        // SECURITY: Validate MIME type from content before processing
-                        if (!$this->isValidImageMimeType($externalFile)) {
-                            if ($this->logger instanceof LoggerInterface) {
-                                $this->logger->warning(
-                                    'Blocked external image: Invalid MIME type detected',
-                                    ['url' => $absoluteUrl],
-                                );
-                            }
-
-                            continue;
-                        }
-
-                        $pU        = parse_url($absoluteUrl);
-                        $path      = is_array($pU) ? ($pU['path'] ?? '') : '';
-                        $pI        = pathinfo($path);
-                        $extension = strtolower($pI['extension'] ?? '');
-
-                        // Allowed extensions for external images (SVG excluded per ADR-003)
-                        $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png', 'webp'];
-
-                        // Validate file extension (defense in depth after MIME check)
-                        if (in_array($extension, $allowedExtensions, true)) {
-                            $fileName = substr(md5($absoluteUrl), 0, 10) . '.' . ($pI['extension'] ?? '');
-                            // We insert this image into the user default upload folder
-                            $folder             = $this->uploadFolderResolver->resolve($GLOBALS['BE_USER']);
-                            $fileObject         = $folder->createFile($fileName)->setContents($externalFile);
-                            $imageConfiguration = [
-                                'width'  => $attribArray['width'],
-                                'height' => $attribArray['height'],
-                            ];
-
-                            $magicImage = $fileObject->process(
-                                ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
-                                $imageConfiguration,
-                            );
-
-                            $attribArray['width']                  = $magicImage->getProperty('width');
-                            $attribArray['height']                 = $magicImage->getProperty('height');
-                            $attribArray['data-htmlarea-file-uid'] = $fileObject->getUid();
-                            $attribArray['src']                    = $magicImage->getPublicUrl();
-                        }
-                    }
-                } elseif (str_starts_with($absoluteUrl, $siteUrl)) {
-                    // Finally, check image as local file (siteURL equals the one of the image)
-                    // Image has no data-htmlarea-file-uid attribute
-                    // Relative path, rawurldecoded for special characters.
-                    $path = rawurldecode(substr($absoluteUrl, strlen($siteUrl)));
-
-                    // SECURITY: Sanitize path to prevent directory traversal
-                    $path = str_replace(['../', '..\\', "\0"], '', $path);
-
-                    // Absolute filepath, locked to relative path of this project
-                    $filepath = GeneralUtility::getFileAbsFileName($path);
-
-                    // SECURITY: Verify the resolved path is within allowed directory
-                    if ($filepath !== '') {
-                        $realpath   = realpath($filepath);
-                        $publicPath = Environment::getPublicPath();
-
-                        // Ensure realpath succeeded and is within public path
-                        if ($realpath === false || !str_starts_with($realpath, $publicPath)) {
-                            if ($this->logger instanceof LoggerInterface) {
-                                $this->logger->warning(
-                                    'Blocked file access: Path traversal attempt detected',
-                                    ['path' => $path],
-                                );
-                            }
-
-                            continue;
-                        }
-                    }
-
-                    // Check file existence (in relative directory to this installation!)
-                    if (($filepath !== '') && is_file($filepath)) {
-                        // Let's try to find a file uid for this image
-                        try {
-                            $fileOrFolderObject = $this->resourceFactory->retrieveFileOrFolderObject($path);
-                            if ($fileOrFolderObject instanceof FileInterface) {
-                                $fileIdentifier = $fileOrFolderObject->getIdentifier();
-                                $fileObject     = $fileOrFolderObject->getStorage()->getFile($fileIdentifier);
-                                if ($fileObject instanceof AbstractFile) {
-                                    $fileUid = $fileObject->getUid();
-                                    // if the retrieved file is a processed file, get the original file...
-                                    if ($fileObject->hasProperty('original')) {
-                                        $fileUid = $fileObject->getProperty('original');
-                                    }
-
-                                    $attribArray['data-htmlarea-file-uid'] = $fileUid;
-                                }
-                            }
-                        } catch (ResourceDoesNotExistException) {
-                            // Nothing to be done if file/folder not found
-                        }
-                    }
-                }
-
-                if (!$attribArray) {
-                    // some error occurred, leave the img tag as is
-                    continue;
-                }
-
-                // Remove width and height from style attribute
-                $attribArray['style'] = preg_replace(
-                    '/(?:^|[^-])(\\s*(?:width|height)\\s*:[^;]*(?:$|;))/si',
-                    '',
-                    $attribArray['style'] ?? '',
-                );
-                // Must have alt attribute
-                if (!isset($attribArray['alt'])) {
-                    $attribArray['alt'] = '';
-                }
-
-                // Convert absolute to relative url
-                if (str_starts_with((string) $attribArray['src'], $siteUrl)) {
-                    $attribArray['src'] = substr((string) $attribArray['src'], strlen($siteUrl));
-                }
-
-                $imgSplit[$key] = '<img ' . GeneralUtility::implodeAttributes($attribArray, true, true) . ' />';
-            }
-        }
-
-        return implode('', $imgSplit);
     }
 
     /**
-     * @return mixed[]
+     * Check if TCA field configuration is for an RTE text field.
+     *
+     * @param array<string, mixed> $tcaFieldConf The TCA field configuration
+     *
+     * @return bool True if RTE text field
      */
-    private function resolveFieldConfigurationAndRespectColumnsOverrides(
+    private function isRteTextField(array $tcaFieldConf): bool
+    {
+        if (!isset($tcaFieldConf['type'])) {
+            return false;
+        }
+
+        if ($tcaFieldConf['type'] !== 'text') {
+            return false;
+        }
+
+        if (!isset($tcaFieldConf['enableRichtext'])) {
+            return false;
+        }
+
+        return $tcaFieldConf['enableRichtext'] === true;
+    }
+
+    /**
+     * Resolve TCA field configuration respecting columnsOverrides.
+     *
+     * @param DataHandler $dataHandler The DataHandler instance
+     * @param string      $table       The table name
+     * @param string      $field       The field name
+     *
+     * @return array<string, mixed> The resolved TCA field configuration
+     */
+    private function resolveFieldConfiguration(
         DataHandler $dataHandler,
         string $table,
         string $field,
     ): array {
-        $tcaFieldConf = $GLOBALS['TCA'][$table]['columns'][$field]['config'];
-        $recordType   = BackendUtility::getTCAtypeValue($table, $dataHandler->checkValue_currentRecord);
+        $tcaFieldConf = $GLOBALS['TCA'][$table]['columns'][$field]['config'] ?? [];
 
-        $columnsOverridesConfigOfField = $GLOBALS['TCA'][$table]['types'][$recordType]['columnsOverrides'][$field]['config'] ?? null;
+        if (!is_array($tcaFieldConf)) {
+            return [];
+        }
 
-        if ($columnsOverridesConfigOfField !== null) {
-            ArrayUtility::mergeRecursiveWithOverrule($tcaFieldConf, $columnsOverridesConfigOfField);
+        $recordType = BackendUtility::getTCAtypeValue($table, $dataHandler->checkValue_currentRecord);
+
+        $columnsOverrides = $GLOBALS['TCA'][$table]['types'][$recordType]['columnsOverrides'][$field]['config'] ?? null;
+
+        if (is_array($columnsOverrides)) {
+            ArrayUtility::mergeRecursiveWithOverrule($tcaFieldConf, $columnsOverrides);
         }
 
         return $tcaFieldConf;

@@ -145,12 +145,6 @@ parameters:
 			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
 
 		-
-			message: '#^Cannot access offset ''alt'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
 			message: '#^Cannot access offset ''columns'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 2
@@ -169,49 +163,7 @@ parameters:
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
-			message: '#^Cannot access offset ''data\-htmlarea\-file\-uid'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset ''height'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 3
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset ''host'' on array\{scheme\?\: string, host\?\: string, port\?\: int\<0, 65535\>, user\?\: string, pass\?\: string, path\?\: string, query\?\: string, fragment\?\: string\}\|false\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset ''src'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 6
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset ''style'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
 			message: '#^Cannot access offset ''types'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset ''width'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot access offset \(int\|string\) on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: ../Classes/Database/RteImagesDbHook.php
@@ -219,90 +171,18 @@ parameters:
 		-
 			message: '#^Cannot access offset string on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 6
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot call method createFile\(\) on bool\|TYPO3\\CMS\\Core\\Resource\\Folder\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Cannot cast mixed to int\.$#'
-			identifier: cast.int
-			count: 5
+			count: 7
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
 			message: '#^Cannot cast mixed to string\.$#'
 			identifier: cast.string
-			count: 3
+			count: 1
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
-			message: '#^Method Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook\:\:resolveFieldConfigurationAndRespectColumnsOverrides\(\) should return array\<mixed\> but returns mixed\.$#'
+			message: '#^Method Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook\:\:resolveFieldConfiguration\(\) should return array\<string, mixed\> but returns array\<mixed, mixed\>\.$#'
 			identifier: return.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$arr of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:implodeAttributes\(\) expects array\<string, int\|string\>, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$attributes of method Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook\:\:getImageHeightFromAttributes\(\) expects array\<string\>, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$attributes of method Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook\:\:getImageWidthFromAttributes\(\) expects array\<string\>, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$original of static method TYPO3\\CMS\\Core\\Utility\\ArrayUtility\:\:mergeRecursiveWithOverrule\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$tag of method TYPO3\\CMS\\Core\\Html\\HtmlParser\:\:get_tag_attributes\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$user of method TYPO3\\CMS\\Core\\Resource\\DefaultUploadFolderResolver\:\:resolve\(\) expects TYPO3\\CMS\\Core\\Authentication\\BackendUserAuthentication, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#1 \$value of method Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook\:\:modifyRteField\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#2 \$overrule of static method TYPO3\\CMS\\Core\\Utility\\ArrayUtility\:\:mergeRecursiveWithOverrule\(\) expects array, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Database/RteImagesDbHook.php
-
-		-
-			message: '#^Parameter \#3 \$subject of function preg_replace expects array\<float\|int\|string\>\|string, mixed given\.$#'
-			identifier: argument.type
 			count: 1
 			path: ../Classes/Database/RteImagesDbHook.php
 
@@ -359,6 +239,78 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: ../Classes/Listener/TCA/RteSoftrefEnforcer.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: ../Classes/Service/Builder/ImageTagBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$arr of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:implodeAttributes\(\) expects array\<string, int\|string\>, array\<string, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: ../Classes/Service/Builder/ImageTagBuilder.php
+
+		-
+			message: '#^Method Netresearch\\RteCKEditorImage\\Service\\Parser\\ImageTagParser\:\:extractAttributes\(\) should return array\<string, string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: ../Classes/Service/Parser/ImageTagParser.php
+
+		-
+			message: '#^Method Netresearch\\RteCKEditorImage\\Service\\Parser\\ImageTagParser\:\:splitByImageTags\(\) should return array\<string\> but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: ../Classes/Service/Parser/ImageTagParser.php
+
+		-
+			message: '#^Cannot call method createFile\(\) on bool\|TYPO3\\CMS\\Core\\Resource\\Folder\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: ../Classes/Service/Processor/RteImageProcessor.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 12
+			path: ../Classes/Service/Processor/RteImageProcessor.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: ../Classes/Service/Processor/RteImageProcessor.php
+
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 2
+			path: ../Classes/Service/Processor/RteImageProcessor.php
+
+		-
+			message: '#^Instanceof between TYPO3\\CMS\\Core\\Resource\\File and TYPO3\\CMS\\Core\\Resource\\File will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: ../Classes/Service/Processor/RteImageProcessor.php
+
+		-
+			message: '#^Instanceof between TYPO3\\CMS\\Core\\Resource\\File and TYPO3\\CMS\\Core\\Resource\\File will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 2
+			path: ../Classes/Service/Resolver/ImageFileResolver.php
+
+		-
+			message: '#^Instanceof between TYPO3\\CMS\\Core\\Resource\\Folder and TYPO3\\CMS\\Core\\Resource\\Folder will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: ../Classes/Service/Resolver/ImageFileResolver.php
+
+		-
+			message: '#^Instanceof between TYPO3\\CMS\\Core\\Resource\\ProcessedFile and TYPO3\\CMS\\Core\\Resource\\ProcessedFile will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: ../Classes/Service/Resolver/ImageFileResolver.php
 
 		-
 			message: '#^Cannot access offset ''bodytext'' on mixed\.$#'
@@ -479,6 +431,12 @@ parameters:
 			identifier: argument.type
 			count: 9
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
+
+		-
+			message: '#^Method Netresearch\\RteCKEditorImage\\Tests\\Functional\\Database\\RteImagesDbHookTest\:\:createSubject\(\) should return Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: ../Tests/Functional/Database/RteImagesDbHookTest.php
 
 		-
 			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'

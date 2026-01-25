@@ -12,15 +12,10 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Functional\Database;
 
 use Netresearch\RteCKEditorImage\Database\RteImagesDbHook;
+use Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessor;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
-use TYPO3\CMS\Core\Http\RequestFactory;
-use TYPO3\CMS\Core\Log\LogManager;
-use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
@@ -47,15 +42,22 @@ final class RteImagesDbHookTest extends FunctionalTestCase
 
     private function createSubject(): RteImagesDbHook
     {
-        // Get services from container with proper dependency injection
-        return new RteImagesDbHook(
-            $this->get(ExtensionConfiguration::class),
-            $this->get(LogManager::class),
-            $this->get(ResourceFactory::class),
-            $this->get(Context::class),
-            $this->get(RequestFactory::class),
-            $this->get(DefaultUploadFolderResolver::class),
-        );
+        // Get RteImagesDbHook from container with proper dependency injection
+        return $this->get(RteImagesDbHook::class);
+    }
+
+    #[Test]
+    public function hookCanBeCreatedFromContainer(): void
+    {
+        $subject = $this->createSubject();
+        self::assertInstanceOf(RteImagesDbHook::class, $subject);
+    }
+
+    #[Test]
+    public function imageProcessorCanBeCreatedFromContainer(): void
+    {
+        $processor = $this->get(RteImageProcessor::class);
+        self::assertInstanceOf(RteImageProcessor::class, $processor);
     }
 
     #[Test]
