@@ -102,8 +102,8 @@ Add the template path to your TypoScript setup:
 
     The configuration must be placed within ``lib.parseFunc_RTE.tags.img``
     (not directly in ``lib.parseFunc_RTE``). The same configuration can be
-    added to ``tags.a`` and ``tags.figure`` if you need custom templates
-    for linked images and figure-wrapped images respectively.
+    added to ``tags.a`` and ``tags.figure`` to control the templates used
+    for images that are already wrapped in ``<a>`` or ``<figure>`` elements.
 
 Step 3: Create override templates
 ---------------------------------
