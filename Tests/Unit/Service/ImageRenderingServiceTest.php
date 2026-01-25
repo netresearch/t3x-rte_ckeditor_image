@@ -17,6 +17,7 @@ use Netresearch\RteCKEditorImage\Service\ImageRenderingService;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionMethod;
+use TYPO3\CMS\Core\View\ViewFactoryData;
 use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Core\View\ViewInterface;
 
@@ -492,5 +493,312 @@ class ImageRenderingServiceTest extends TestCase
         // Verify no whitespace between tags (prevents <p>&nbsp;</p> artifacts)
         self::assertStringNotContainsString('> <', $result);
         self::assertStringContainsString('><', $result);
+    }
+
+    // ========================================================================
+    // TypoScript Configuration Tests (Issue #434)
+    // ========================================================================
+
+    /**
+     * Test that render() uses default template paths when no configuration provided.
+     */
+    public function testRenderUsesDefaultPathsWithoutConfiguration(): void
+    {
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->method('render')->willReturn('<img src="test.jpg" />');
+
+        $this->viewFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->with(self::callback(static function (ViewFactoryData $data): bool {
+                // Verify default paths are used
+                $templatePaths = $data->templateRootPaths ?? [];
+                $partialPaths  = $data->partialRootPaths ?? [];
+                $layoutPaths   = $data->layoutRootPaths ?? [];
+
+                return in_array('EXT:rte_ckeditor_image/Resources/Private/Templates/', $templatePaths, true)
+                    && in_array('EXT:rte_ckeditor_image/Resources/Private/Templates/Partials/', $partialPaths, true)
+                    && in_array('EXT:rte_ckeditor_image/Resources/Private/Templates/Layouts/', $layoutPaths, true);
+            }))
+            ->willReturn($viewMock);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->service->render($dto, $requestMock);
+    }
+
+    /**
+     * Test that render() uses custom template paths from configuration.
+     */
+    public function testRenderUsesCustomTemplatePathsFromConfiguration(): void
+    {
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->method('render')->willReturn('<img src="test.jpg" />');
+
+        $this->viewFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->with(self::callback(static function (ViewFactoryData $data): bool {
+                $templatePaths = $data->templateRootPaths ?? [];
+
+                // Custom path should be present and have higher priority (later in array)
+                return in_array('EXT:my_sitepackage/Resources/Private/Templates/', $templatePaths, true);
+            }))
+            ->willReturn($viewMock);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $config = [
+            'templateRootPaths.' => [
+                '10' => 'EXT:my_sitepackage/Resources/Private/Templates/',
+            ],
+        ];
+
+        $this->service->render($dto, $requestMock, $config);
+    }
+
+    /**
+     * Test that render() uses custom partial paths from configuration.
+     */
+    public function testRenderUsesCustomPartialPathsFromConfiguration(): void
+    {
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->method('render')->willReturn('<img src="test.jpg" />');
+
+        $this->viewFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->with(self::callback(static function (ViewFactoryData $data): bool {
+                $partialPaths = $data->partialRootPaths ?? [];
+
+                return in_array('EXT:my_sitepackage/Resources/Private/Partials/', $partialPaths, true);
+            }))
+            ->willReturn($viewMock);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $config = [
+            'partialRootPaths.' => [
+                '10' => 'EXT:my_sitepackage/Resources/Private/Partials/',
+            ],
+        ];
+
+        $this->service->render($dto, $requestMock, $config);
+    }
+
+    /**
+     * Test that render() uses custom layout paths from configuration.
+     */
+    public function testRenderUsesCustomLayoutPathsFromConfiguration(): void
+    {
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->method('render')->willReturn('<img src="test.jpg" />');
+
+        $this->viewFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->with(self::callback(static function (ViewFactoryData $data): bool {
+                $layoutPaths = $data->layoutRootPaths ?? [];
+
+                return in_array('EXT:my_sitepackage/Resources/Private/Layouts/', $layoutPaths, true);
+            }))
+            ->willReturn($viewMock);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $config = [
+            'layoutRootPaths.' => [
+                '10' => 'EXT:my_sitepackage/Resources/Private/Layouts/',
+            ],
+        ];
+
+        $this->service->render($dto, $requestMock, $config);
+    }
+
+    /**
+     * Test that custom paths are merged with defaults, not replacing them.
+     */
+    public function testRenderMergesCustomPathsWithDefaults(): void
+    {
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->method('render')->willReturn('<img src="test.jpg" />');
+
+        $this->viewFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->with(self::callback(static function (ViewFactoryData $data): bool {
+                $templatePaths = $data->templateRootPaths ?? [];
+
+                // Both default AND custom paths should be present
+                $hasDefault = in_array('EXT:rte_ckeditor_image/Resources/Private/Templates/', $templatePaths, true);
+                $hasCustom  = in_array('EXT:my_sitepackage/Resources/Private/Templates/', $templatePaths, true);
+
+                return $hasDefault && $hasCustom;
+            }))
+            ->willReturn($viewMock);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $config = [
+            'templateRootPaths.' => [
+                '10' => 'EXT:my_sitepackage/Resources/Private/Templates/',
+            ],
+        ];
+
+        $this->service->render($dto, $requestMock, $config);
+    }
+
+    /**
+     * Test that higher-numbered paths take precedence (standard TYPO3 convention).
+     */
+    public function testRenderPathPriorityFollowsTypo3Convention(): void
+    {
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->method('render')->willReturn('<img src="test.jpg" />');
+
+        $this->viewFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->with(self::callback(static function (ViewFactoryData $data): bool {
+                $templatePaths = $data->templateRootPaths ?? [];
+
+                // Paths should be ordered by key: 0, 10, 20 (higher = later = higher priority)
+                // Find positions
+                $defaultPos  = array_search('EXT:rte_ckeditor_image/Resources/Private/Templates/', $templatePaths, true);
+                $sitePos     = array_search('EXT:my_sitepackage/Resources/Private/Templates/', $templatePaths, true);
+                $overridePos = array_search('EXT:override_package/Resources/Private/Templates/', $templatePaths, true);
+
+                // Later items have higher priority in Fluid - verify correct order
+                return $defaultPos !== false && $sitePos !== false && $overridePos !== false
+                    && $defaultPos < $sitePos && $sitePos < $overridePos;
+            }))
+            ->willReturn($viewMock);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $config = [
+            'templateRootPaths.' => [
+                '10' => 'EXT:my_sitepackage/Resources/Private/Templates/',
+                '20' => 'EXT:override_package/Resources/Private/Templates/',
+            ],
+        ];
+
+        $this->service->render($dto, $requestMock, $config);
+    }
+
+    /**
+     * Test that settings wrapper is supported for TypoScript convention.
+     */
+    public function testRenderSupportsSettingsWrapper(): void
+    {
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->method('render')->willReturn('<img src="test.jpg" />');
+
+        $this->viewFactoryMock
+            ->expects(self::once())
+            ->method('create')
+            ->with(self::callback(static function (ViewFactoryData $data): bool {
+                $templatePaths = $data->templateRootPaths ?? [];
+
+                return in_array('EXT:my_sitepackage/Resources/Private/Templates/', $templatePaths, true);
+            }))
+            ->willReturn($viewMock);
+
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        // Configuration with settings. wrapper (as documented)
+        $config = [
+            'settings.' => [
+                'templateRootPaths.' => [
+                    '10' => 'EXT:my_sitepackage/Resources/Private/Templates/',
+                ],
+            ],
+        ];
+
+        $this->service->render($dto, $requestMock, $config);
     }
 }

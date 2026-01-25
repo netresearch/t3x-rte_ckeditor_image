@@ -54,25 +54,40 @@ class ImageRenderingService
     ) {}
 
     /**
+     * Default partial root path.
+     */
+    private const PARTIAL_ROOT_PATH = 'EXT:rte_ckeditor_image/Resources/Private/Templates/Partials/';
+
+    /**
+     * Default layout root path.
+     */
+    private const LAYOUT_ROOT_PATH = 'EXT:rte_ckeditor_image/Resources/Private/Templates/Layouts/';
+
+    /**
      * Render image HTML from validated DTO.
      *
      * @param ImageRenderingDto      $imageData Validated image data
      * @param ServerRequestInterface $request   Current request
+     * @param array<string, mixed>   $config    TypoScript configuration for template paths
      *
      * @return string Rendered HTML
      */
     public function render(
         ImageRenderingDto $imageData,
         ServerRequestInterface $request,
+        array $config = [],
     ): string {
         // 1. Select template based on rendering context
         $templatePath = $this->selectTemplate($imageData);
 
-        // 2. Create view via ViewFactoryInterface (TYPO3 v13 standard)
+        // 2. Build template paths from configuration (with defaults)
+        $paths = $this->buildTemplatePaths($config);
+
+        // 3. Create view via ViewFactoryInterface (TYPO3 v13 standard)
         $viewFactoryData = new ViewFactoryData(
-            templateRootPaths: [self::TEMPLATE_ROOT_PATH],
-            partialRootPaths: [self::TEMPLATE_ROOT_PATH . 'Partials/'],
-            layoutRootPaths: [self::TEMPLATE_ROOT_PATH . 'Layouts/'],
+            templateRootPaths: $paths['templateRootPaths'],
+            partialRootPaths: $paths['partialRootPaths'],
+            layoutRootPaths: $paths['layoutRootPaths'],
             request: $request,
         );
 
@@ -123,5 +138,107 @@ class ImageRenderingService
             $hasCaption             => self::TEMPLATE_WITH_CAPTION,
             default                 => self::TEMPLATE_STANDALONE,
         };
+    }
+
+    /**
+     * Build template paths from configuration, merging with defaults.
+     *
+     * Supports both direct configuration and settings. wrapper:
+     * - Direct: templateRootPaths., partialRootPaths., layoutRootPaths.
+     * - Wrapped: settings.templateRootPaths., etc.
+     *
+     * Paths are sorted by numeric key (TYPO3 convention: higher = higher priority).
+     * Default extension paths are added with key 0 to ensure they're lowest priority.
+     *
+     * @param array<string, mixed> $config TypoScript configuration
+     *
+     * @return array{templateRootPaths: list<string>, partialRootPaths: list<string>, layoutRootPaths: list<string>}
+     */
+    private function buildTemplatePaths(array $config): array
+    {
+        // Check for settings. wrapper (as documented in Template-Overrides.rst)
+        $settings = isset($config['settings.']) && is_array($config['settings.'])
+            ? $config['settings.']
+            : $config;
+
+        // Extract path configurations (ensure arrays)
+        $templateConfig = isset($settings['templateRootPaths.']) && is_array($settings['templateRootPaths.'])
+            ? $settings['templateRootPaths.']
+            : [];
+        $partialConfig = isset($settings['partialRootPaths.']) && is_array($settings['partialRootPaths.'])
+            ? $settings['partialRootPaths.']
+            : [];
+        $layoutConfig = isset($settings['layoutRootPaths.']) && is_array($settings['layoutRootPaths.'])
+            ? $settings['layoutRootPaths.']
+            : [];
+
+        // Build paths with defaults at key 0 (lowest priority)
+        // Filter to ensure non-empty string values only
+        $filteredTemplateConfig = [];
+        foreach ($templateConfig as $key => $value) {
+            if (is_string($value) && $value !== '') {
+                $filteredTemplateConfig[$key] = $value;
+            }
+        }
+
+        $filteredPartialConfig = [];
+        foreach ($partialConfig as $key => $value) {
+            if (is_string($value) && $value !== '') {
+                $filteredPartialConfig[$key] = $value;
+            }
+        }
+
+        $filteredLayoutConfig = [];
+        foreach ($layoutConfig as $key => $value) {
+            if (is_string($value) && $value !== '') {
+                $filteredLayoutConfig[$key] = $value;
+            }
+        }
+
+        $templatePaths = $this->mergePathsWithDefault(
+            $filteredTemplateConfig,
+            self::TEMPLATE_ROOT_PATH,
+        );
+
+        $partialPaths = $this->mergePathsWithDefault(
+            $filteredPartialConfig,
+            self::PARTIAL_ROOT_PATH,
+        );
+
+        $layoutPaths = $this->mergePathsWithDefault(
+            $filteredLayoutConfig,
+            self::LAYOUT_ROOT_PATH,
+        );
+
+        return [
+            'templateRootPaths' => $templatePaths,
+            'partialRootPaths'  => $partialPaths,
+            'layoutRootPaths'   => $layoutPaths,
+        ];
+    }
+
+    /**
+     * Merge custom paths with default, sorted by numeric key.
+     *
+     * @param array<int|string, string> $customPaths Custom paths from TypoScript (pre-filtered)
+     * @param string                    $defaultPath Default path for this extension
+     *
+     * @return list<string> Sorted paths (lower key = lower priority)
+     */
+    private function mergePathsWithDefault(array $customPaths, string $defaultPath): array
+    {
+        // Start with default at key 0
+        $paths = [0 => $defaultPath];
+
+        // Merge custom paths (will override key 0 if specified)
+        foreach ($customPaths as $key => $path) {
+            $paths[(int) $key] = $path;
+        }
+
+        // Sort by key (TYPO3 convention: lower number = lower priority)
+        ksort($paths);
+
+        // Return as list (values only, in sorted order)
+        return array_values($paths);
     }
 }

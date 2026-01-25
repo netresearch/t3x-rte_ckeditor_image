@@ -82,7 +82,7 @@ class ImageRenderingAdapter
      * TypoScript: lib.parseFunc_RTE.tags.img.preUserFunc
      *
      * @param string|null            $content Content input (not used)
-     * @param mixed[]                $conf    TypoScript configuration
+     * @param array<string, mixed>   $conf    TypoScript configuration
      * @param ServerRequestInterface $request Current request
      *
      * @return string Rendered HTML
@@ -112,8 +112,8 @@ class ImageRenderingAdapter
                 : '';
         }
 
-        // Render via Fluid templates
-        return $this->renderingService->render($dto, $request);
+        // Render via Fluid templates (passing TypoScript config for template paths)
+        return $this->renderingService->render($dto, $request, $conf);
     }
 
     /**
@@ -122,7 +122,7 @@ class ImageRenderingAdapter
      * TypoScript: lib.parseFunc_RTE.tags.a.preUserFunc
      *
      * @param string|null            $content Content input (not used)
-     * @param mixed[]                $conf    TypoScript configuration
+     * @param array<string, mixed>   $conf    TypoScript configuration
      * @param ServerRequestInterface $request Current request
      *
      * @return string Rendered HTML with processed images
@@ -176,7 +176,7 @@ class ImageRenderingAdapter
             }
 
             // Render just the <img> tag (no link wrapper)
-            $renderedImg = $this->renderingService->render($dto, $request);
+            $renderedImg = $this->renderingService->render($dto, $request, $conf);
 
             // Use original HTML from parser for accurate replacement
             if ($originalHtml !== '') {
@@ -259,6 +259,6 @@ class ImageRenderingAdapter
         }
 
         // Render via Fluid templates (will use WithCaption.html if caption present)
-        return $this->renderingService->render($dto, $request);
+        return $this->renderingService->render($dto, $request, $conf);
     }
 }

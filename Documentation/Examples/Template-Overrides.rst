@@ -85,12 +85,25 @@ Add the template path to your TypoScript setup:
 ..  code-block:: typoscript
     :caption: EXT:my_sitepackage/Configuration/TypoScript/setup.typoscript
 
-    lib.parseFunc_RTE {
-        # Add your templates with higher priority (lower number = higher priority)
+    lib.parseFunc_RTE.tags.img {
+        # Add your templates with higher priority (higher number = higher priority)
         settings.templateRootPaths {
             10 = EXT:my_sitepackage/Resources/Private/Templates/
         }
+        settings.partialRootPaths {
+            10 = EXT:my_sitepackage/Resources/Private/Partials/
+        }
+        settings.layoutRootPaths {
+            10 = EXT:my_sitepackage/Resources/Private/Layouts/
+        }
     }
+
+..  note::
+
+    The configuration must be placed within ``lib.parseFunc_RTE.tags.img``
+    (not directly in ``lib.parseFunc_RTE``). The same configuration can be
+    added to ``tags.a`` and ``tags.figure`` if you need custom templates
+    for linked images and figure-wrapped images respectively.
 
 Step 3: Create override templates
 ---------------------------------

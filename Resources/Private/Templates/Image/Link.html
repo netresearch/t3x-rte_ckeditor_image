@@ -1,12 +1,4 @@
-<a href="{image.link.url}"
-   {f:if(condition: image.link.target, then: 'target="{image.link.target}"')}
-   {f:if(condition: image.link.class, then: 'class="{image.link.class}"')}>
-    <img src="{image.src}"
-         alt="{image.alt}"
-         width="{image.width}"
-         height="{image.height}"
-         {f:if(condition: image.title, then: 'title="{image.title}"')}
-         {f:if(condition: image.htmlAttributes.class, then: 'class="{image.htmlAttributes.class}"')}
-         {f:if(condition: image.htmlAttributes.style, then: 'style="{image.htmlAttributes.style}"')}
-         {f:if(condition: image.htmlAttributes.loading, then: 'loading="{image.htmlAttributes.loading}"')} />
-</a>
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:variable name="imgTag"><f:render partial="Image/Tag" arguments="{image: image}"/></f:variable>
+<f:render partial="Image/Link" arguments="{image: image, content: imgTag, isPopup: 0}"/>
+</html>

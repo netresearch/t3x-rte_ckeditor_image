@@ -12,6 +12,32 @@ lib.parseFunc_RTE {
         preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
 
         #******************************************************
+        # Template Override Configuration
+        #
+        # Override Fluid templates for custom image rendering.
+        # Paths with higher numbers take precedence (TYPO3 convention).
+        #
+        # Default paths (automatically included at priority 0):
+        # - Templates: EXT:rte_ckeditor_image/Resources/Private/Templates/
+        # - Partials:  EXT:rte_ckeditor_image/Resources/Private/Templates/Partials/
+        # - Layouts:   EXT:rte_ckeditor_image/Resources/Private/Templates/Layouts/
+        #
+        # To override, add your paths with priority > 0:
+        #
+        # settings.templateRootPaths {
+        #     10 = EXT:my_sitepackage/Resources/Private/Templates/
+        # }
+        # settings.partialRootPaths {
+        #     10 = EXT:my_sitepackage/Resources/Private/Partials/
+        # }
+        # settings.layoutRootPaths {
+        #     10 = EXT:my_sitepackage/Resources/Private/Layouts/
+        # }
+        #
+        # See Documentation/Examples/Template-Overrides.rst for details.
+        #******************************************************
+
+        #******************************************************
         # noScale: Skip image processing and use original file
         #
         # When enabled (noScale = 1), images are not processed

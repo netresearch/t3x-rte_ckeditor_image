@@ -31,12 +31,6 @@ parameters:
 			path: ../Classes/Controller/ImageRenderingAdapter.php
 
 		-
-			message: '#^Parameter \#2 \$conf of method Netresearch\\RteCKEditorImage\\Service\\ImageResolverService\:\:resolve\(\) expects array\<string, mixed\>, array\<mixed\> given\.$#'
-			identifier: argument.type
-			count: 2
-			path: ../Classes/Controller/ImageRenderingAdapter.php
-
-		-
 			message: '#^Parameter \#3 \$subject of function str_replace expects array\<string\>\|string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
