@@ -251,6 +251,11 @@ Best practices
 
 #. **Use native lazy loading**: Prefer `loading="lazy"` over JavaScript solutions.
 
+#. **CSS classes move to figure**: When images have captions, CSS classes defined on the
+   ``<img>`` element are applied to the ``<figure>`` wrapper instead. This ensures valid HTML5
+   semantics. If you need classes specifically on the ``<img>`` within a figure, create a
+   custom :file:`WithCaption.html` template override.
+
 #. **Whitespace is stripped**: The rendering service removes whitespace between HTML tags
    to prevent ``parseFunc_RTE`` from creating ``<p>&nbsp;</p>`` artifacts. Templates can use
    readable multi-line formatting; it will be normalized. However, deliberate spacing between
