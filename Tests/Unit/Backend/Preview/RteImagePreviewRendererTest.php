@@ -63,7 +63,7 @@ class RteImagePreviewRendererTest extends TestCase
         $gridColumnItemMock = $this->createMock(GridColumnItem::class);
 
         // TYPO3 v14+ uses getRow() which returns array from RecordInterface
-        // @phpstan-ignore function.alreadyNarrowedType (method_exists check for cross-version compatibility)
+        // @phpstan-ignore-next-line method_exists check for cross-version compatibility
         if (method_exists(GridColumnItem::class, 'getRow')) {
             $recordMock = $this->createMock(\TYPO3\CMS\Core\Domain\RecordInterface::class);
             $gridColumnItemMock
