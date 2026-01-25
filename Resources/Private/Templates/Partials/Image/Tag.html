@@ -3,6 +3,7 @@
      alt="{image.alt}"
      width="{image.width}"
      height="{image.height}"
+     decoding="async"
      {f:if(condition: image.title, then: 'title="{image.title}"')}
      {f:if(condition: image.htmlAttributes.class, then: 'class="{image.htmlAttributes.class}"')}
      {f:if(condition: image.htmlAttributes.style, then: 'style="{image.htmlAttributes.style}"')}

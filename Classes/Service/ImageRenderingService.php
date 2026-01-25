@@ -93,21 +93,22 @@ class ImageRenderingService
 
         $view = $this->viewFactory->create($viewFactoryData);
 
-        // 3. Assign variables (DTO data already validated/sanitized)
+        // 4. Assign variables (DTO data already validated/sanitized)
         $view->assign('image', $imageData);
 
-        // 4. Render template and normalize whitespace
+        // 5. Render template and normalize whitespace
         $output = $view->render($templatePath);
 
         // Normalize whitespace to prevent parseFunc_RTE from creating <p>&nbsp;</p> artifacts.
         // This allows templates to use readable multi-line formatting.
         //
-        // Step 1: Collapse whitespace within HTML tags (handles multi-line attributes)
+        // Step 1: Collapse newlines and indentation within HTML tags (handles multi-line attributes)
         // Example: <a href="..."\n   target="..."> becomes <a href="..." target="...">
+        // Only targets newlines to preserve intentional spaces in attribute values (e.g., alt text)
         // Regex handles > inside quoted attributes (e.g., data-config="a > b")
         $output = preg_replace_callback(
             '/<[a-zA-Z](?:"[^"]*"|\'[^\']*\'|[^>])*>/s',
-            static fn (array $match): string => (string) preg_replace('/\s+/', ' ', $match[0]),
+            static fn (array $match): string => (string) preg_replace('/[\r\n]+\s*/', ' ', $match[0]),
             $output,
         ) ?? $output;
 
