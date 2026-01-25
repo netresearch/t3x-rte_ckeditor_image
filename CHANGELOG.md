@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.4.0] - 2026-01-25
+
+### Added
+
+- **TypoScript template path configuration** - Override Fluid templates via TypoScript `templateRootPaths`, `partialRootPaths`, `layoutRootPaths` ([#434](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/434), [#542](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/542))
+- **Figure tag handler** for caption extraction from CKEditor 5 `<figure>`/`<figcaption>` structure ([#538](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/538), [#540](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/540))
+- **SVG data URI sanitization** to prevent XSS attacks via malicious SVG content ([#535](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/535), [#536](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/536))
+- **URL allowlist validation** - Switched from blocklist to allowlist approach for external URL validation ([#541](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/541))
+
 ### Changed
 
 - **BREAKING:** TypoScript is no longer auto-injected for frontend rendering ([#532](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/532))
@@ -14,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed `AddTypoScriptAfterTemplatesListener` event listener
   - **Migration:** Include TypoScript manually via static template "CKEditor Image Support" or `@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'`
   - This gives integrators full control over TypoScript load order, enabling proper override of settings like lightbox configuration
+- Updated Code of Conduct to Contributor Covenant v3.0 ([#543](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/543))
+- Documentation uses inclusive language (allowlist, primary toggle)
 
 ## [13.3.2] - 2026-01-09
 
