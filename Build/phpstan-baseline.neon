@@ -13,25 +13,7 @@ parameters:
 			path: ../Classes/Controller/ImageRenderingAdapter.php
 
 		-
-			message: '#^Method Netresearch\\RteCKEditorImage\\Controller\\ImageRenderingAdapter\:\:renderImages\(\) should return string but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: ../Classes/Controller/ImageRenderingAdapter.php
-
-		-
 			message: '#^Parameter \#1 \$attributes of method Netresearch\\RteCKEditorImage\\Service\\ImageResolverService\:\:resolve\(\) expects array\<string, string\>, array given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Controller/ImageRenderingAdapter.php
-
-		-
-			message: '#^Parameter \#1 \$html of method Netresearch\\RteCKEditorImage\\Service\\ImageAttributeParser\:\:parseLinkWithImages\(\) expects string, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Controller/ImageRenderingAdapter.php
-
-		-
-			message: '#^Parameter \#3 \$subject of function str_replace expects array\<string\>\|string, mixed given\.$#'
 			identifier: argument.type
 			count: 1
 			path: ../Classes/Controller/ImageRenderingAdapter.php

@@ -248,6 +248,11 @@ Best practices
 
 #. **Use native lazy loading**: Prefer `loading="lazy"` over JavaScript solutions.
 
+#. **Whitespace is stripped**: The rendering service removes whitespace between HTML tags
+   to prevent ``parseFunc_RTE`` from creating ``<p>&nbsp;</p>`` artifacts. Templates can use
+   readable multi-line formatting; it will be normalized. However, deliberate spacing between
+   inline elements will be removed.
+
 Debugging templates
 ===================
 

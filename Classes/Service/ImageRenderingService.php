@@ -104,8 +104,9 @@ class ImageRenderingService
         //
         // Step 1: Collapse whitespace within HTML tags (handles multi-line attributes)
         // Example: <a href="..."\n   target="..."> becomes <a href="..." target="...">
+        // Regex handles > inside quoted attributes (e.g., data-config="a > b")
         $output = preg_replace_callback(
-            '/<[a-zA-Z][^>]*>/s',
+            '/<[a-zA-Z](?:"[^"]*"|\'[^\']*\'|[^>])*>/s',
             static fn (array $match): string => (string) preg_replace('/\s+/', ' ', $match[0]),
             $output,
         ) ?? $output;

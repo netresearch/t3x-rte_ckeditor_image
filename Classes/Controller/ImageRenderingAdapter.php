@@ -135,7 +135,7 @@ class ImageRenderingAdapter
             ? $this->cObj->getCurrentVal()
             : null;
 
-        if ($linkContent === null || $linkContent === '') {
+        if (!is_string($linkContent) || $linkContent === '') {
             return '';
         }
 
@@ -185,15 +185,13 @@ class ImageRenderingAdapter
         }
 
         // Apply replacements to link content
+        // Use strtr() instead of str_replace() to prevent collision when one
+        // image tag is a substring of another - strtr prioritizes longer keys
         if ($replacements !== []) {
-            $linkContent = str_replace(
-                array_keys($replacements),
-                array_values($replacements),
-                $linkContent,
-            );
+            $linkContent = strtr($linkContent, $replacements);
         }
 
-        return is_string($linkContent) ? $linkContent : '';
+        return $linkContent;
     }
 
     /**
