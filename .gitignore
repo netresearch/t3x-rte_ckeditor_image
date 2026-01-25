@@ -57,3 +57,4 @@ render-output.log
 
 # Local dev config
 config/
+.beads/

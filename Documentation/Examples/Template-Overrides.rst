@@ -26,13 +26,26 @@ The extension provides six Fluid templates for different rendering contexts:
 ..  code-block:: text
     :caption: Template directory structure
 
-    Resources/Private/Templates/Image/
-    ├── Standalone.html      # Basic image without wrapper
-    ├── WithCaption.html     # Image with <figure>/<figcaption>
-    ├── Link.html            # Image wrapped in <a> tag
-    ├── LinkWithCaption.html # Linked image with caption
-    ├── Popup.html           # Image with lightbox/popup link
-    └── PopupWithCaption.html # Popup image with caption
+    Resources/Private/Templates/
+    ├── Image/
+    │   ├── Standalone.html      # Basic image without wrapper
+    │   ├── WithCaption.html     # Image with <figure>/<figcaption>
+    │   ├── Link.html            # Image wrapped in <a> tag
+    │   ├── LinkWithCaption.html # Linked image with caption
+    │   ├── Popup.html           # Image with lightbox/popup link
+    │   └── PopupWithCaption.html # Popup image with caption
+    └── Partials/Image/
+        ├── Tag.html             # <img> element partial
+        ├── TagInFigure.html     # <img> without class (for figures)
+        ├── Link.html            # <a> wrapper partial
+        └── Figure.html          # <figure> wrapper partial
+
+..  note::
+
+    This extension stores partials in ``Templates/Partials/`` rather than the
+    standard TYPO3 location ``Partials/``. When overriding, you can use either
+    location by configuring your ``partialRootPaths`` accordingly. For standard
+    TYPO3 structure in your site package, use ``Resources/Private/Partials/``.
 
 Template selection
 ------------------
@@ -85,12 +98,25 @@ Add the template path to your TypoScript setup:
 ..  code-block:: typoscript
     :caption: EXT:my_sitepackage/Configuration/TypoScript/setup.typoscript
 
-    lib.parseFunc_RTE {
-        # Add your templates with higher priority (lower number = higher priority)
+    lib.parseFunc_RTE.tags.img {
+        # Add your templates with higher priority (higher number = higher priority)
         settings.templateRootPaths {
             10 = EXT:my_sitepackage/Resources/Private/Templates/
         }
+        settings.partialRootPaths {
+            10 = EXT:my_sitepackage/Resources/Private/Partials/
+        }
+        settings.layoutRootPaths {
+            10 = EXT:my_sitepackage/Resources/Private/Layouts/
+        }
     }
+
+..  note::
+
+    The configuration must be placed within ``lib.parseFunc_RTE.tags.img``
+    (not directly in ``lib.parseFunc_RTE``). The same configuration can be
+    added to ``tags.a`` and ``tags.figure`` to control the templates used
+    for images that are already wrapped in ``<a>`` or ``<figure>`` elements.
 
 Step 3: Create override templates
 ---------------------------------
@@ -163,7 +189,8 @@ Override :file:`WithCaption.html` for custom figure styling:
              height="{image.height}"
              class="content-image__img"
              {f:if(condition: image.title, then: 'title="{image.title}"')}
-             loading="lazy" />
+             loading="lazy"
+             decoding="async" />
         <figcaption class="content-image__caption">
             {image.caption}
         </figcaption>
@@ -188,7 +215,8 @@ Override :file:`Popup.html` for PhotoSwipe v5 integration:
              height="{image.height}"
              {f:if(condition: image.title, then: 'title="{image.title}"')}
              {f:if(condition: image.htmlAttributes.class, then: 'class="{image.htmlAttributes.class}"')}
-             loading="lazy" />
+             loading="lazy"
+             decoding="async" />
     </a>
 
 Lazy loading with placeholder
@@ -206,7 +234,8 @@ Override :file:`Standalone.html` for progressive image loading:
          height="{image.height}"
          class="lazyload {image.htmlAttributes.class}"
          {f:if(condition: image.title, then: 'title="{image.title}"')}
-         {f:if(condition: image.htmlAttributes.style, then: 'style="{image.htmlAttributes.style}"')} />
+         {f:if(condition: image.htmlAttributes.style, then: 'style="{image.htmlAttributes.style}"')}
+         decoding="async" />
 
 Best practices
 ==============
@@ -221,6 +250,20 @@ Best practices
 #. **Test all contexts**: Verify overrides work with captions, links, and popups.
 
 #. **Use native lazy loading**: Prefer `loading="lazy"` over JavaScript solutions.
+
+#. **CSS classes move to figure**: When images have captions, CSS classes defined on the
+   ``<img>`` element are applied to the ``<figure>`` wrapper instead. This ensures valid HTML5
+   semantics. If you need classes specifically on the ``<img>`` within a figure, create a
+   custom :file:`WithCaption.html` template override.
+
+#. **Decoding attribute**: The default templates include ``decoding="async"`` on all images
+   to improve rendering performance by allowing the browser to decode images off the main thread.
+   This is a modern best practice that does not affect visual output.
+
+#. **Whitespace is stripped**: The rendering service removes whitespace between HTML tags
+   to prevent ``parseFunc_RTE`` from creating ``<p>&nbsp;</p>`` artifacts. Templates can use
+   readable multi-line formatting; it will be normalized. However, deliberate spacing between
+   inline elements will be removed.
 
 Debugging templates
 ===================
