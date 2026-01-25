@@ -188,7 +188,7 @@ class ImageRenderingAdapter
         // Use strtr() instead of str_replace() to prevent collision when one
         // image tag is a substring of another - strtr prioritizes longer keys
         if ($replacements !== []) {
-            $linkContent = strtr($linkContent, $replacements);
+            return strtr($linkContent, $replacements);
         }
 
         return $linkContent;

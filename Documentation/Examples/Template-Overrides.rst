@@ -256,6 +256,10 @@ Best practices
    semantics. If you need classes specifically on the ``<img>`` within a figure, create a
    custom :file:`WithCaption.html` template override.
 
+#. **Decoding attribute**: The default templates include ``decoding="async"`` on all images
+   to improve rendering performance by allowing the browser to decode images off the main thread.
+   This is a modern best practice that does not affect visual output.
+
 #. **Whitespace is stripped**: The rendering service removes whitespace between HTML tags
    to prevent ``parseFunc_RTE`` from creating ``<p>&nbsp;</p>`` artifacts. Templates can use
    readable multi-line formatting; it will be normalized. However, deliberate spacing between
