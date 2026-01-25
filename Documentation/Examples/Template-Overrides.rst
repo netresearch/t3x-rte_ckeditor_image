@@ -215,7 +215,8 @@ Override :file:`Popup.html` for PhotoSwipe v5 integration:
              height="{image.height}"
              {f:if(condition: image.title, then: 'title="{image.title}"')}
              {f:if(condition: image.htmlAttributes.class, then: 'class="{image.htmlAttributes.class}"')}
-             loading="lazy" />
+             loading="lazy"
+             decoding="async" />
     </a>
 
 Lazy loading with placeholder
@@ -233,7 +234,8 @@ Override :file:`Standalone.html` for progressive image loading:
          height="{image.height}"
          class="lazyload {image.htmlAttributes.class}"
          {f:if(condition: image.title, then: 'title="{image.title}"')}
-         {f:if(condition: image.htmlAttributes.style, then: 'style="{image.htmlAttributes.style}"')} />
+         {f:if(condition: image.htmlAttributes.style, then: 'style="{image.htmlAttributes.style}"')}
+         decoding="async" />
 
 Best practices
 ==============
