@@ -25,10 +25,10 @@ use TYPO3\CMS\Core\Html\HtmlParser;
  * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
-final class ImageTagParser
+final readonly class ImageTagParser
 {
     public function __construct(
-        private readonly HtmlParser $htmlParser,
+        private HtmlParser $htmlParser,
     ) {}
 
     /**

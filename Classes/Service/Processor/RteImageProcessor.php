@@ -19,6 +19,7 @@ use Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolver;
 use Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\FileProcessingAspect;
 use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
@@ -37,19 +38,19 @@ use TYPO3\CMS\Core\Resource\ProcessedFile;
  * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
-final class RteImageProcessor implements RteImageProcessorInterface
+final readonly class RteImageProcessor implements RteImageProcessorInterface
 {
     public function __construct(
-        private readonly ImageTagParser $parser,
-        private readonly ImageTagBuilder $builder,
-        private readonly ImageFileResolver $fileResolver,
-        private readonly ExternalImageFetcher $externalFetcher,
-        private readonly EnvironmentInfoInterface $environmentInfo,
-        private readonly SecurityValidatorInterface $securityValidator,
-        private readonly Context $context,
-        private readonly DefaultUploadFolderResolver $uploadFolderResolver,
-        private readonly LoggerInterface $logger,
-        private readonly bool $fetchExternalImages = false,
+        private ImageTagParser $parser,
+        private ImageTagBuilder $builder,
+        private ImageFileResolver $fileResolver,
+        private ExternalImageFetcher $externalFetcher,
+        private EnvironmentInfoInterface $environmentInfo,
+        private SecurityValidatorInterface $securityValidator,
+        private Context $context,
+        private DefaultUploadFolderResolver $uploadFolderResolver,
+        private LoggerInterface $logger,
+        private bool $fetchExternalImages = false,
     ) {}
 
     /**
@@ -105,7 +106,7 @@ final class RteImageProcessor implements RteImageProcessorInterface
     private function processImageTag(string $imgTag, string $siteUrl, string $sitePath): ?string
     {
         $attributes = $this->parser->extractAttributes($imgTag);
-        if (empty($attributes)) {
+        if ($attributes === []) {
             return null;
         }
 
@@ -124,11 +125,11 @@ final class RteImageProcessor implements RteImageProcessorInterface
         $width  = $this->parser->getDimension($attributes, 'width');
         $height = $this->parser->getDimension($attributes, 'height');
 
-        if ($width === 0 && $originalFile !== null) {
+        if ($width === 0 && $originalFile instanceof File) {
             $width = (int) $originalFile->getProperty('width');
         }
 
-        if ($height === 0 && $originalFile !== null) {
+        if ($height === 0 && $originalFile instanceof File) {
             $height = (int) $originalFile->getProperty('height');
         }
 
@@ -136,7 +137,7 @@ final class RteImageProcessor implements RteImageProcessorInterface
         $attributes['height'] = $height;
 
         // Process based on file source
-        if ($originalFile !== null) {
+        if ($originalFile instanceof File) {
             $attributes = $this->processExistingFile($originalFile, $attributes, $absoluteUrl, $siteUrl);
         } elseif ($this->isExternalUrl($absoluteUrl, $siteUrl)) {
             $attributes = $this->processExternalImage($absoluteUrl, $attributes);
@@ -144,7 +145,7 @@ final class RteImageProcessor implements RteImageProcessorInterface
             $attributes = $this->processLocalImage($absoluteUrl, $attributes, $siteUrl);
         }
 
-        if (empty($attributes)) {
+        if ($attributes === []) {
             return null;
         }
 
@@ -201,7 +202,7 @@ final class RteImageProcessor implements RteImageProcessorInterface
 
                 $processedFile = $this->fileResolver->processImage($file, $width, $height);
 
-                if ($processedFile !== null) {
+                if ($processedFile instanceof ProcessedFile) {
                     $imgSrc = $this->getProcessedFileUrl($file, $processedFile);
 
                     return $this->builder->withProcessedImage(
@@ -231,7 +232,7 @@ final class RteImageProcessor implements RteImageProcessorInterface
 
         // Handle image processing URLs (process?token=...)
         if ($imgSrc !== null && str_contains($imgSrc, 'process?token=')) {
-            $imgSrc = $originalFile->getStorage()->getPublicUrl($processedFile);
+            return $originalFile->getStorage()->getPublicUrl($processedFile);
         }
 
         return $imgSrc;
@@ -284,7 +285,7 @@ final class RteImageProcessor implements RteImageProcessorInterface
         // Fetch and import the external image
         try {
             $backendUser = $this->environmentInfo->getBackendUser();
-            if ($backendUser === null) {
+            if (!$backendUser instanceof BackendUserAuthentication) {
                 $this->logger->warning('No backend user available for external image import', [
                     'url' => $url,
                 ]);
@@ -306,21 +307,13 @@ final class RteImageProcessor implements RteImageProcessorInterface
             $createdFile = $folder->createFile($filename);
             $fileObject  = $createdFile->setContents($content);
 
-            if (!$fileObject instanceof File) {
-                $this->logger->error('Created file is not a File instance', [
-                    'url' => $url,
-                ]);
-
-                return [];
-            }
-
             $width  = (int) $attributes['width'];
             $height = (int) $attributes['height'];
 
             if ($width > 0 && $height > 0) {
                 $processedFile = $this->fileResolver->processImage($fileObject, $width, $height);
 
-                if ($processedFile !== null) {
+                if ($processedFile instanceof ProcessedFile) {
                     return $this->builder->withProcessedImage(
                         $attributes,
                         (int) $processedFile->getProperty('width'),
@@ -362,7 +355,7 @@ final class RteImageProcessor implements RteImageProcessorInterface
         // Try to resolve file by path
         $file = $this->fileResolver->resolveByPath($path);
 
-        if ($file !== null) {
+        if ($file instanceof File) {
             $fileUid = $file->getUid();
 
             // Check for processed file - get original UID

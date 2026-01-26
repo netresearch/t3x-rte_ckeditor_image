@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Service\Environment;
 
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+
 /**
  * Interface for environment information abstraction.
  *
@@ -56,7 +58,7 @@ interface EnvironmentInfoInterface
      * Returns the authenticated backend user from the current session,
      * or null if not in a backend context.
      *
-     * @return \TYPO3\CMS\Core\Authentication\BackendUserAuthentication|null
+     * @return BackendUserAuthentication|null
      */
-    public function getBackendUser(): ?\TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+    public function getBackendUser(): ?BackendUserAuthentication;
 }

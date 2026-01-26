@@ -32,19 +32,19 @@ use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
  * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
-final class RteImageProcessorFactory
+final readonly class RteImageProcessorFactory
 {
     public function __construct(
-        private readonly ImageTagParser $parser,
-        private readonly ImageTagBuilder $builder,
-        private readonly ImageFileResolver $fileResolver,
-        private readonly ExternalImageFetcher $externalFetcher,
-        private readonly EnvironmentInfoInterface $environmentInfo,
-        private readonly SecurityValidatorInterface $securityValidator,
-        private readonly Context $context,
-        private readonly DefaultUploadFolderResolver $uploadFolderResolver,
-        private readonly ExtensionConfiguration $extensionConfiguration,
-        private readonly LoggerInterface $logger,
+        private ImageTagParser $parser,
+        private ImageTagBuilder $builder,
+        private ImageFileResolver $fileResolver,
+        private ExternalImageFetcher $externalFetcher,
+        private EnvironmentInfoInterface $environmentInfo,
+        private SecurityValidatorInterface $securityValidator,
+        private Context $context,
+        private DefaultUploadFolderResolver $uploadFolderResolver,
+        private ExtensionConfiguration $extensionConfiguration,
+        private LoggerInterface $logger,
     ) {}
 
     /**
@@ -82,7 +82,12 @@ final class RteImageProcessorFactory
                 'rte_ckeditor_image',
                 'fetchExternalImages',
             );
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            $this->logger->warning(
+                'Failed to read fetchExternalImages configuration, using default value',
+                ['exception' => $exception->getMessage()],
+            );
+
             // Default to false if configuration is not available
             return false;
         }

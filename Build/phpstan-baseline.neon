@@ -283,27 +283,9 @@ parameters:
 			path: ../Classes/Service/Processor/RteImageProcessor.php
 
 		-
-			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
-			identifier: empty.notAllowed
-			count: 2
-			path: ../Classes/Service/Processor/RteImageProcessor.php
-
-		-
-			message: '#^Instanceof between TYPO3\\CMS\\Core\\Resource\\File and TYPO3\\CMS\\Core\\Resource\\File will always evaluate to true\.$#'
-			identifier: instanceof.alwaysTrue
-			count: 1
-			path: ../Classes/Service/Processor/RteImageProcessor.php
-
-		-
 			message: '#^Instanceof between TYPO3\\CMS\\Core\\Resource\\File and TYPO3\\CMS\\Core\\Resource\\File will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 2
-			path: ../Classes/Service/Resolver/ImageFileResolver.php
-
-		-
-			message: '#^Instanceof between TYPO3\\CMS\\Core\\Resource\\Folder and TYPO3\\CMS\\Core\\Resource\\Folder will always evaluate to true\.$#'
-			identifier: instanceof.alwaysTrue
-			count: 1
 			path: ../Classes/Service/Resolver/ImageFileResolver.php
 
 		-

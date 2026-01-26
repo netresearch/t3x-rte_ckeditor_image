@@ -18,7 +18,6 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
 use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 
@@ -34,14 +33,14 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
  * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
-final class ImageFileResolver
+final readonly class ImageFileResolver
 {
     public function __construct(
-        private readonly ResourceFactory $resourceFactory,
-        private readonly SecurityValidatorInterface $securityValidator,
-        private readonly ExternalImageFetcher $externalImageFetcher,
-        private readonly EnvironmentInfoInterface $environmentInfo,
-        private readonly LoggerInterface $logger,
+        private ResourceFactory $resourceFactory,
+        private SecurityValidatorInterface $securityValidator,
+        private ExternalImageFetcher $externalImageFetcher,
+        private EnvironmentInfoInterface $environmentInfo,
+        private LoggerInterface $logger,
     ) {}
 
     /**
@@ -180,13 +179,6 @@ final class ImageFileResolver
             $filename = $this->generateFilenameFromUrl($url);
 
             $folderObject = $this->resourceFactory->getFolderObjectFromCombinedIdentifier($targetFolder);
-            if (!$folderObject instanceof Folder) {
-                $this->logger->error('Could not resolve target folder', [
-                    'targetFolder' => $targetFolder,
-                ]);
-
-                return null;
-            }
 
             // Create temporary file
             $tempFile = tempnam(sys_get_temp_dir(), 'rte_img_');
@@ -225,7 +217,7 @@ final class ImageFileResolver
      */
     public function fileExists(int $fileUid): bool
     {
-        return $this->resolveByUid($fileUid) !== null;
+        return $this->resolveByUid($fileUid) instanceof File;
     }
 
     /**

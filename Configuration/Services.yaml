@@ -74,6 +74,10 @@ services:
   Netresearch\RteCKEditorImage\Service\Security\SecurityValidator:
     public: true
 
+  # TYPO3 Core HtmlParser (not registered by TYPO3 by default)
+  TYPO3\CMS\Core\Html\HtmlParser:
+    public: false
+
   # HTML parsing for img tags
   Netresearch\RteCKEditorImage\Service\Parser\ImageTagParser:
     public: true

@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Backend\Preview;
 
 use Netresearch\RteCKEditorImage\Backend\Preview\RteImagePreviewRenderer;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -24,6 +25,7 @@ use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
  * @author  Netresearch DTT GmbH <info@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
+#[CoversClass(RteImagePreviewRenderer::class)]
 class RteImagePreviewRendererTest extends TestCase
 {
     private RteImagePreviewRenderer $renderer;
@@ -48,7 +50,9 @@ class RteImagePreviewRendererTest extends TestCase
         $reflection = new ReflectionMethod($object::class, $methodName);
         $result     = $reflection->invokeArgs($object, $parameters);
 
-        return is_string($result) ? $result : '';
+        self::assertIsString($result, 'Expected method ' . $methodName . ' to return a string');
+
+        return $result;
     }
 
     /**

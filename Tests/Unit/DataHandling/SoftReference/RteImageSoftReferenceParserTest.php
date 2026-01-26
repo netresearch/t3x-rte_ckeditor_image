@@ -193,7 +193,7 @@ final class RteImageSoftReferenceParserTest extends UnitTestCase
     }
 
     #[Test]
-    public function parseIgnoresNestedImagesInComplexStructure(): void
+    public function parseFindsNestedImagesInComplexStructure(): void
     {
         // Complex HTML with nested elements and multiple images
         $content = '<div><a href="#"><img src="/outer.jpg" data-htmlarea-file-uid="111" /></a>'

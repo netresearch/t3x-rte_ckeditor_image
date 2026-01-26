@@ -28,7 +28,7 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
-final class ExternalImageFetcher
+final readonly class ExternalImageFetcher
 {
     /**
      * Default timeout for external requests in seconds.
@@ -41,9 +41,9 @@ final class ExternalImageFetcher
     private const MAX_CONTENT_LENGTH = 10 * 1024 * 1024;
 
     public function __construct(
-        private readonly SecurityValidatorInterface $securityValidator,
-        private readonly RequestFactory $requestFactory,
-        private readonly LoggerInterface $logger,
+        private SecurityValidatorInterface $securityValidator,
+        private RequestFactory $requestFactory,
+        private LoggerInterface $logger,
     ) {}
 
     /**
@@ -201,7 +201,8 @@ final class ExternalImageFetcher
         $host   = $parsed['host'] ?? '';
         $port   = isset($parsed['port']) ? ':' . $parsed['port'] : '';
         $path   = $parsed['path'] ?? '';
+        $query  = isset($parsed['query']) ? '?' . $parsed['query'] : '';
 
-        return $scheme . $host . $port . $path;
+        return $scheme . $host . $port . $path . $query;
     }
 }
