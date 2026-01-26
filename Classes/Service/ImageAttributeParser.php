@@ -68,11 +68,17 @@ class ImageAttributeParser
     }
 
     /**
-     * Parse attributes from <a> tag containing <img> tags.
+     * Parse attributes from <a> tag containing <img> tags, or standalone img tags.
      *
-     * @param string $html HTML string containing <a><img /></a>
+     * When TypoScript tags.a.preUserFunc calls this method, getCurrentVal()
+     * returns only the inner content of the link (just <img>), not <a><img></a>.
+     * This method handles both cases: full link HTML or just inner content.
+     *
+     * @param string $html HTML string containing <a><img /></a> or just <img />
      *
      * @return array{link: array<string,string>, images: array<int,array{attributes: array<string,string>, originalHtml: string}>}
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/546
      */
     public function parseLinkWithImages(string $html): array
     {
@@ -92,21 +98,25 @@ class ImageAttributeParser
 
         $xpath = new DOMXPath($dom);
 
-        // Find first <a> element
-        $links = $xpath->query('//a');
+        // Find first <a> element (if present)
+        $links          = $xpath->query('//a');
+        $searchContext  = null;
+        $linkAttributes = [];
 
-        if ($links === false || $links->length === 0) {
-            return ['link' => [], 'images' => []];
+        if ($links !== false && $links->length > 0) {
+            /** @var DOMElement $link */
+            $link           = $links->item(0);
+            $linkAttributes = $this->extractAttributes($link);
+            $searchContext  = $link;
         }
 
-        /** @var DOMElement $link */
-        $link = $links->item(0);
+        // Find all <img> elements - either within the link or at document level
+        // When called from tags.a.preUserFunc, getCurrentVal() returns only inner
+        // content (just <img>), so we need to search the whole document if no link found.
+        $images = $searchContext !== null
+            ? $xpath->query('.//img', $searchContext)
+            : $xpath->query('//img');
 
-        // Extract link attributes
-        $linkAttributes = $this->extractAttributes($link);
-
-        // Find all <img> elements within the link
-        $images          = $xpath->query('.//img', $link);
         $imageAttributes = [];
 
         if ($images !== false) {

@@ -180,8 +180,11 @@ class ImageRenderingAdapter
                 continue;
             }
 
-            // Disable zoom for images inside links (already wrapped in link)
+            // Images inside links should not create figure wrappers or popup links.
+            // - data-caption: Would create figure wrapper, but image is inside <a>, not figure
+            // - data-htmlarea-zoom/clickenlarge: Image already wrapped in link, no popup needed
             unset(
+                $imageAttributes['data-caption'],
                 $imageAttributes['data-htmlarea-zoom'],
                 $imageAttributes['data-htmlarea-clickenlarge'],
             );

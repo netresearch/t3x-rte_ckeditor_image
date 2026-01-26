@@ -307,6 +307,93 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertSame('<img src="/processed.jpg" width="800" height="600" alt="Test" />', $result);
     }
 
+    /**
+     * Test that renderImages strips caption and zoom attributes before resolving.
+     *
+     * Images inside links should not create figure wrappers or popup links,
+     * so data-caption, data-htmlarea-zoom, and data-htmlarea-clickenlarge
+     * must be removed before passing to the resolver.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/546
+     */
+    #[Test]
+    public function renderImagesStripsAttributesThatWouldCreateWrappers(): void
+    {
+        $originalImg = '<img src="/image.jpg" data-htmlarea-file-uid="1" data-caption="Caption" '
+            . 'data-htmlarea-zoom="1" data-htmlarea-clickenlarge="1" />';
+        $linkContent = $originalImg;
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
+
+        // Parser returns attributes including ones that should be stripped
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => [],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                        => '/image.jpg',
+                            'data-htmlarea-file-uid'     => '1',
+                            'data-caption'               => 'Caption',
+                            'data-htmlarea-zoom'         => '1',
+                            'data-htmlarea-clickenlarge' => '1',
+                        ],
+                        'originalHtml' => $originalImg,
+                    ],
+                ],
+            ]);
+
+        // Verify resolve() receives attributes WITHOUT caption/zoom/clickenlarge
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->with(
+                self::callback(static function (array $attributes): bool {
+                    // These attributes MUST be stripped
+                    if (array_key_exists('data-caption', $attributes)) {
+                        return false;
+                    }
+
+                    if (array_key_exists('data-htmlarea-zoom', $attributes)) {
+                        return false;
+                    }
+
+                    if (array_key_exists('data-htmlarea-clickenlarge', $attributes)) {
+                        return false;
+                    }
+
+                    // File UID must still be present
+                    return ($attributes['data-htmlarea-file-uid'] ?? '') === '1';
+                }),
+                self::anything(),
+                self::anything(),
+            )
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->method('render')
+            ->willReturn('<img src="/processed.jpg" />');
+
+        $result = $this->adapter->renderImages(null, [], $this->request);
+
+        // Verify the rendered image replaces the original
+        self::assertSame('<img src="/processed.jpg" />', $result);
+    }
+
     #[Test]
     public function prefixIdAndExtKeyAreSet(): void
     {
