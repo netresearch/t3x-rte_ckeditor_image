@@ -112,6 +112,7 @@ services:
 
   Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessor:
     public: true
+    autowire: false
     factory: ['@Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorFactory', 'create']
 
   # Factory for RteImageProcessor (reads extension configuration)
