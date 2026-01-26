@@ -334,10 +334,4 @@ class SelectImageControllerTest extends FunctionalTestCase
         $aspectRatio = $width / $height;
         self::assertEqualsWithDelta(1.78, $aspectRatio, 0.01);
     }
-
-    // Note: getTranslations() tests removed because:
-    // 1. The method just returns a hardcoded array of LocalizationUtility::translate() calls
-    // 2. Testing triggers TYPO3 core deprecation warnings (image_zoom_formlabel in v14)
-    // 3. No complex logic to test - coverage gained is minimal
-    // Translation coverage is achieved through unit tests in SelectImageControllerTest
 }

@@ -110,6 +110,8 @@ services:
 
   Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessor:
     public: true
+    # Autowire disabled: RteImageProcessor requires runtime configuration (fetchExternalImages)
+    # that must be read from extension settings via the factory
     autowire: false
     factory: ['@Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorFactory', 'create']
 

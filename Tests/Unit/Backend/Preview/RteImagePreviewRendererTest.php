@@ -113,9 +113,9 @@ class RteImagePreviewRendererTest extends TestCase
         $contentWithSurrogates = "<p>Text\xED\xA0\x80with\xED\xBF\xBFsurrogates</p>";
 
         // Sanitization happens before renderTextWithHtml in renderPageModulePreviewContent
-        // Simulate the sanitization
+        // Simulate the sanitization (regex must match implementation)
         $sanitized = preg_replace(
-            '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF].|\xEF\xBF[\xBE\xBF]/',
+            '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF][\x80-\xBF]|\xEF\xBF[\xBE\xBF]/',
             "\xEF\xBF\xBD",
             $contentWithSurrogates,
         );
@@ -131,9 +131,9 @@ class RteImagePreviewRendererTest extends TestCase
         // Content with non-characters U+FFFE and U+FFFF
         $contentWithNonChars = "<p>Text\xEF\xBF\xBEwith\xEF\xBF\xBFnon-chars</p>";
 
-        // Simulate the sanitization
+        // Simulate the sanitization (regex must match implementation)
         $sanitized = preg_replace(
-            '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF].|\xEF\xBF[\xBE\xBF]/',
+            '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF][\x80-\xBF]|\xEF\xBF[\xBE\xBF]/',
             "\xEF\xBF\xBD",
             $contentWithNonChars,
         );
