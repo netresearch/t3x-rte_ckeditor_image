@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Service\Resolver;
 
 use Netresearch\RteCKEditorImage\Service\Environment\EnvironmentInfoInterface;
-use Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcher;
+use Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcherInterface;
 use Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -33,12 +33,12 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
  * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
-final readonly class ImageFileResolver
+final readonly class ImageFileResolver implements ImageFileResolverInterface
 {
     public function __construct(
         private ResourceFactory $resourceFactory,
         private SecurityValidatorInterface $securityValidator,
-        private ExternalImageFetcher $externalImageFetcher,
+        private ExternalImageFetcherInterface $externalImageFetcher,
         private EnvironmentInfoInterface $environmentInfo,
         private LoggerInterface $logger,
     ) {}

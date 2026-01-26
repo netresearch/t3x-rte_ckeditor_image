@@ -78,6 +78,19 @@ services:
   TYPO3\CMS\Core\Html\HtmlParser:
     public: false
 
+  # Interface aliases for dependency injection and testing
+  Netresearch\RteCKEditorImage\Service\Parser\ImageTagParserInterface:
+    alias: Netresearch\RteCKEditorImage\Service\Parser\ImageTagParser
+
+  Netresearch\RteCKEditorImage\Service\Builder\ImageTagBuilderInterface:
+    alias: Netresearch\RteCKEditorImage\Service\Builder\ImageTagBuilder
+
+  Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcherInterface:
+    alias: Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcher
+
+  Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolverInterface:
+    alias: Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolver
+
   # HTML parsing for img tags
   Netresearch\RteCKEditorImage\Service\Parser\ImageTagParser:
     public: true

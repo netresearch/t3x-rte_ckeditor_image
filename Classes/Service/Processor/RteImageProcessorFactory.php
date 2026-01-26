@@ -11,11 +11,11 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Service\Processor;
 
-use Netresearch\RteCKEditorImage\Service\Builder\ImageTagBuilder;
+use Netresearch\RteCKEditorImage\Service\Builder\ImageTagBuilderInterface;
 use Netresearch\RteCKEditorImage\Service\Environment\EnvironmentInfoInterface;
-use Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcher;
-use Netresearch\RteCKEditorImage\Service\Parser\ImageTagParser;
-use Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolver;
+use Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcherInterface;
+use Netresearch\RteCKEditorImage\Service\Parser\ImageTagParserInterface;
+use Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolverInterface;
 use Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -35,10 +35,10 @@ use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
 final readonly class RteImageProcessorFactory
 {
     public function __construct(
-        private ImageTagParser $parser,
-        private ImageTagBuilder $builder,
-        private ImageFileResolver $fileResolver,
-        private ExternalImageFetcher $externalFetcher,
+        private ImageTagParserInterface $parser,
+        private ImageTagBuilderInterface $builder,
+        private ImageFileResolverInterface $fileResolver,
+        private ExternalImageFetcherInterface $externalFetcher,
         private EnvironmentInfoInterface $environmentInfo,
         private SecurityValidatorInterface $securityValidator,
         private Context $context,

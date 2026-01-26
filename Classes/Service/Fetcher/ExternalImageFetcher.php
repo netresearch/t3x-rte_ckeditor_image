@@ -28,7 +28,7 @@ use TYPO3\CMS\Core\Http\RequestFactory;
  * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
-final readonly class ExternalImageFetcher
+final readonly class ExternalImageFetcher implements ExternalImageFetcherInterface
 {
     /**
      * Default timeout for external requests in seconds.

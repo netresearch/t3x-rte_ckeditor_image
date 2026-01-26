@@ -25,7 +25,7 @@ use TYPO3\CMS\Core\Html\HtmlParser;
  * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
-final readonly class ImageTagParser
+final readonly class ImageTagParser implements ImageTagParserInterface
 {
     public function __construct(
         private HtmlParser $htmlParser,
@@ -62,8 +62,8 @@ final readonly class ImageTagParser
      *
      * Prefers value from style attribute over direct attribute.
      *
-     * @param array<string, string> $attributes The img tag attributes
-     * @param string                $dimension  The dimension to get ('width' or 'height')
+     * @param array<string, mixed> $attributes The img tag attributes
+     * @param string               $dimension  The dimension to get ('width' or 'height')
      *
      * @return int The dimension value in pixels, or 0 if not found
      */
@@ -122,14 +122,15 @@ final readonly class ImageTagParser
      *
      * Style attribute takes precedence over direct attribute.
      *
-     * @param array<string, string> $attributes     The attributes array
-     * @param string                $imageAttribute The attribute to extract
+     * @param array<string, mixed> $attributes     The attributes array
+     * @param string               $imageAttribute The attribute to extract
      *
      * @return string|null The attribute value or null if not found
      */
     private function extractFromAttributeValueOrStyle(array $attributes, string $imageAttribute): ?string
     {
-        $style = trim($attributes['style'] ?? '');
+        $styleValue = $attributes['style'] ?? '';
+        $style      = is_string($styleValue) ? trim($styleValue) : '';
 
         if ($style !== '') {
             $value = $this->matchStyleAttribute($style, $imageAttribute);
@@ -138,7 +139,9 @@ final readonly class ImageTagParser
             }
         }
 
-        return $attributes[$imageAttribute] ?? null;
+        $attrValue = $attributes[$imageAttribute] ?? null;
+
+        return is_string($attrValue) ? $attrValue : null;
     }
 
     /**

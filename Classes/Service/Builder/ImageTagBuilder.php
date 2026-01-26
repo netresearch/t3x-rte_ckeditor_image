@@ -25,7 +25,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
-final class ImageTagBuilder
+final class ImageTagBuilder implements ImageTagBuilderInterface
 {
     /**
      * Build an img tag from attributes array.
