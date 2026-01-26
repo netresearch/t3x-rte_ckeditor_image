@@ -465,7 +465,7 @@ IMAGE_MYSQL="docker.io/mysql:${DBMS_VERSION}"
 IMAGE_POSTGRES="docker.io/postgres:${DBMS_VERSION}-alpine"
 # E2E testing images (TYPO3 Core pattern)
 IMAGE_APACHE="ghcr.io/typo3/core-testing-apache24:1.7"
-IMAGE_PLAYWRIGHT="mcr.microsoft.com/playwright:v1.57.0-noble"
+IMAGE_PLAYWRIGHT="mcr.microsoft.com/playwright:v1.58.0-noble"
 
 # Set $1 to first mass argument, this is the optional test file or test directory to execute
 shift $((OPTIND - 1))
