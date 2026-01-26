@@ -13,7 +13,7 @@ parameters:
 			path: ../Classes/Controller/ImageRenderingAdapter.php
 
 		-
-			message: '#^Parameter \#1 \$attributes of method Netresearch\\RteCKEditorImage\\Service\\ImageResolverService\:\:resolve\(\) expects array\<string, string\>, array given\.$#'
+			message: '#^Parameter \#1 \$attributes of method Netresearch\\RteCKEditorImage\\Service\\ImageResolverService\:\:resolve\(\) expects array\<string, string\>, array\<mixed, mixed\> given\.$#'
 			identifier: argument.type
 			count: 1
 			path: ../Classes/Controller/ImageRenderingAdapter.php

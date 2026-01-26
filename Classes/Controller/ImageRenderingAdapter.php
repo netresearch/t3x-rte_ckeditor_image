@@ -81,11 +81,23 @@ class ImageRenderingAdapter
      *
      * TypoScript: lib.parseFunc_RTE.tags.img.preUserFunc
      *
+     * IMPORTANT: This handler processes standalone <img> tags and must NOT create
+     * figure wrappers. Figure wrappers with captions should only be created by
+     * renderFigure() which handles the tags.figure configuration.
+     *
+     * When CKEditor outputs captioned images, it creates:
+     * <figure><img data-caption="X"><figcaption>X</figcaption></figure>
+     *
+     * If this handler created figure wrappers for data-caption images, parseFunc
+     * would produce nested figures (bug #546).
+     *
      * @param string|null            $content Content input (not used)
      * @param array<string, mixed>   $conf    TypoScript configuration
      * @param ServerRequestInterface $request Current request
      *
-     * @return string Rendered HTML
+     * @return string Rendered HTML (img tag only, no figure wrapper)
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/546
      */
     #[AsAllowedCallable]
     public function renderImageAttributes(?string $content, array $conf, ServerRequestInterface $request): string
@@ -102,7 +114,13 @@ class ImageRenderingAdapter
                 : '';
         }
 
-        // Resolve image to validated DTO
+        // CRITICAL FIX for #546: Remove data-caption to prevent figure wrapper creation.
+        // Caption handling is the responsibility of renderFigure(), not this method.
+        // If we pass caption to the resolver, it would create a figure wrapper, causing
+        // nested figures when the image is inside a <figure> element.
+        unset($attributes['data-caption']);
+
+        // Resolve image to validated DTO (without caption, so no figure wrapper)
         $dto = $this->resolverService->resolve($attributes, $conf, $request);
 
         if (!$dto instanceof ImageRenderingDto) {
