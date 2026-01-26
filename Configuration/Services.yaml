@@ -94,7 +94,6 @@ services:
     arguments:
       $securityValidator: '@Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface'
       $requestFactory: '@TYPO3\CMS\Core\Http\RequestFactory'
-      $logger: '@Psr\Log\LoggerInterface'
 
   # File resolution and processing
   Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolver:
@@ -104,7 +103,6 @@ services:
       $securityValidator: '@Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface'
       $externalImageFetcher: '@Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcher'
       $environmentInfo: '@Netresearch\RteCKEditorImage\Service\Environment\EnvironmentInfoInterface'
-      $logger: '@Psr\Log\LoggerInterface'
 
   # Main image processor orchestrator
   Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorInterface:
@@ -128,7 +126,6 @@ services:
       $context: '@TYPO3\CMS\Core\Context\Context'
       $uploadFolderResolver: '@TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver'
       $extensionConfiguration: '@TYPO3\CMS\Core\Configuration\ExtensionConfiguration'
-      $logger: '@Psr\Log\LoggerInterface'
 
   # DataHandler hook using new service architecture
   Netresearch\RteCKEditorImage\Database\RteImagesDbHook:
