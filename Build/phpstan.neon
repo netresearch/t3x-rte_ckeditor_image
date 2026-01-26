@@ -76,3 +76,11 @@ parameters:
           path: %currentWorkingDirectory%/Tests/Functional/*
           message: '#mixed#'
           reportUnmatched: false
+        # TYPO3 v13/v14 compatibility: instanceof checks may be redundant on one version
+        # but necessary on the other due to different return type annotations
+        - identifier: instanceof.alwaysTrue
+          path: %currentWorkingDirectory%/Classes/Service/Resolver/ImageFileResolver.php
+          reportUnmatched: false
+        - identifier: instanceof.alwaysTrue
+          path: %currentWorkingDirectory%/Classes/Service/Processor/RteImageProcessor.php
+          reportUnmatched: false
