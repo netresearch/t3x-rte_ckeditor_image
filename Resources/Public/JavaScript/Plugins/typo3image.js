@@ -579,7 +579,7 @@ function askImageAttributes(editor, img, attributes, table) {
                     var dialogInfo = dialog.get(),
                         filteredAttr = {},
                         allowedAttributes = [
-                            '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-quality', 'data-title-override', 'data-alt-override'
+                            '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-quality', 'data-title-override', 'data-alt-override', 'caption'
                         ],
                         attributesNew = $.extend({}, img, dialogInfo);
 
