@@ -179,14 +179,30 @@ class ImageAttributeParserTest extends TestCase
         self::assertSame('noopener', $result['link']['rel']);
     }
 
-    public function testParseLinkWithImagesReturnsEmptyForNoLink(): void
+    /**
+     * Test that parseLinkWithImages finds images even without link wrapper.
+     *
+     * When TypoScript tags.a.preUserFunc calls this method, getCurrentVal()
+     * returns only the inner content (just <img>), not <a><img></a>.
+     * The method should still find and process these images.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/546
+     */
+    public function testParseLinkWithImagesReturnsImagesWithoutLinkWrapper(): void
     {
-        $html = '<img src="/image.jpg" />';
+        $html = '<img src="/image.jpg" alt="Test" data-htmlarea-file-uid="1" />';
 
         $result = $this->parser->parseLinkWithImages($html);
 
+        // Link should be empty (no <a> wrapper)
         self::assertEmpty($result['link']);
-        self::assertEmpty($result['images']);
+
+        // But images should still be found
+        self::assertNotEmpty($result['images']);
+        self::assertCount(1, $result['images']);
+        self::assertSame('/image.jpg', $result['images'][0]['attributes']['src']);
+        self::assertSame('Test', $result['images'][0]['attributes']['alt']);
+        self::assertSame('1', $result['images'][0]['attributes']['data-htmlarea-file-uid']);
     }
 
     public function testParseLinkWithImagesReturnsEmptyForEmptyString(): void
