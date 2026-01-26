@@ -232,8 +232,10 @@ final readonly class ImageFileResolver implements ImageFileResolverInterface
         $path     = parse_url($url, PHP_URL_PATH);
         $basename = is_string($path) ? basename($path) : '';
 
-        // Extract extension
+        // Extract and normalize extension to lowercase
         $extension = pathinfo($basename, PATHINFO_EXTENSION);
+        $extension = is_string($extension) ? strtolower($extension) : '';
+
         if ($extension === '' || !$this->securityValidator->isAllowedExtension($extension)) {
             $extension = 'jpg';
         }
@@ -241,6 +243,6 @@ final readonly class ImageFileResolver implements ImageFileResolverInterface
         // Generate unique filename
         $hash = substr(md5($url . microtime()), 0, 12);
 
-        return 'external_' . $hash . '.' . strtolower($extension);
+        return 'external_' . $hash . '.' . $extension;
     }
 }

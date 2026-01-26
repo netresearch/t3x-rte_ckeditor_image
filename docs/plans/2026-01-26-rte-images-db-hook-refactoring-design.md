@@ -1,4 +1,4 @@
-# RteImagesDbHook Refactoring Design
+# RteImagesDbHook Refactoring Design (Test Coverage Enablement)
 
 ## Problem Statement
 

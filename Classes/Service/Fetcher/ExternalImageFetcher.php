@@ -143,7 +143,11 @@ final readonly class ExternalImageFetcher implements ExternalImageFetcherInterfa
         $path   = $parsedUrl['path'] ?? '';
         $query  = isset($parsedUrl['query']) ? '?' . $parsedUrl['query'] : '';
 
-        $ipUrl = $scheme . '://' . $validatedIp . $port . $path . $query;
+        // Ensure IPv6 literals are wrapped in brackets when used in URLs
+        $isIpv6 = filter_var($validatedIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
+        $ipHost = $isIpv6 ? '[' . trim($validatedIp, '[]') . ']' : $validatedIp;
+
+        $ipUrl = $scheme . '://' . $ipHost . $port . $path . $query;
 
         $response = $this->requestFactory->request($ipUrl, 'GET', [
             'headers' => [

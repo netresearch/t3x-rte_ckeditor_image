@@ -190,9 +190,17 @@ final class SecurityValidator implements SecurityValidatorInterface
 
         // IPv4-mapped IPv6 addresses (::ffff:127.0.0.1, etc.)
         if (str_starts_with(strtolower($ip), '::ffff:')) {
-            // Extract the IPv4 portion and validate it
+            // Extract the IPv4 portion
             $ipv4 = substr($ip, 7);
-            if (filter_var($ipv4, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+
+            // First ensure the extracted part is a syntactically valid IPv4 address
+            if (filter_var($ipv4, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+                // Not a valid IPv4 address; block as invalid format
+                return true;
+            }
+
+            // Then check that the valid IPv4 address is not in a private or reserved range
+            if (filter_var($ipv4, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
                 return true;
             }
         }
