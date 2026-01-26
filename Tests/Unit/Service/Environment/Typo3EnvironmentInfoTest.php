@@ -98,4 +98,20 @@ final class Typo3EnvironmentInfoTest extends UnitTestCase
         // This test verifies the method exists and can be called
         self::markTestSkipped('TYPO3 Environment requires bootstrap - tested in functional tests');
     }
+
+    #[Test]
+    public function getSiteUrlReturnsString(): void
+    {
+        // GeneralUtility::getIndpEnv() requires TYPO3 Environment bootstrap
+        // which is only available in functional tests
+        self::markTestSkipped('TYPO3 Environment requires bootstrap - tested in functional tests');
+    }
+
+    #[Test]
+    public function getRequestHostReturnsString(): void
+    {
+        // GeneralUtility::getIndpEnv() requires TYPO3 Environment bootstrap
+        // which is only available in functional tests
+        self::markTestSkipped('TYPO3 Environment requires bootstrap - tested in functional tests');
+    }
 }

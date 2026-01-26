@@ -294,4 +294,239 @@ final class ExternalImageFetcherTest extends UnitTestCase
         // Minimal valid JPEG file header
         return "\xFF\xD8\xFF\xE0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00\xFF\xDB\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\x09\x09\x08\x0A\x0C\x14\x0D\x0C\x0B\x0B\x0C\x19\x12\x13\x0F\x14\x1D\x1A\x1F\x1E\x1D\x1A\x1C\x1C $.' \",#\x1C\x1C(7),01444\x1F'9telecommu.<telecommu2telecommu\xFF\xD9";
     }
+
+    #[Test]
+    public function fetchReturnsNullWhenContentExceedsMaxSize(): void
+    {
+        $url = 'https://example.com/large-image.jpg';
+
+        $this->securityValidatorMock
+            ->method('getValidatedIpForUrl')
+            ->willReturn('93.184.216.34');
+
+        // Create content larger than 10MB (the MAX_CONTENT_LENGTH)
+        $largeContent = str_repeat('x', 10 * 1024 * 1024 + 1);
+
+        $streamMock = $this->createMock(StreamInterface::class);
+        $streamMock->method('getContents')->willReturn($largeContent);
+
+        $responseMock = $this->createMock(ResponseInterface::class);
+        $responseMock->method('getStatusCode')->willReturn(200);
+        $responseMock->method('getBody')->willReturn($streamMock);
+
+        $this->requestFactoryMock
+            ->method('request')
+            ->willReturn($responseMock);
+
+        $this->loggerMock
+            ->expects(self::once())
+            ->method('warning')
+            ->with(
+                self::stringContains('exceeds maximum size'),
+                self::callback(static fn (array $context): bool => isset($context['size'])),
+            );
+
+        $result = $this->subject->fetch($url);
+
+        self::assertNull($result);
+    }
+
+    #[Test]
+    public function fetchReturnsNullForUrlWithInvalidParsedHost(): void
+    {
+        // A URL that passes security validation but fails parse_url host extraction
+        // This is edge case - security validator returned IP but URL is malformed
+        $url = 'https:///image.jpg'; // No host in URL
+
+        $this->securityValidatorMock
+            ->method('getValidatedIpForUrl')
+            ->willReturn('93.184.216.34');
+
+        $result = $this->subject->fetch($url);
+
+        self::assertNull($result);
+    }
+
+    #[Test]
+    public function fetchCorrectlyHandlesIpv6ValidatedAddress(): void
+    {
+        $url     = 'https://ipv6host.example.com/image.jpg';
+        $content = $this->getMinimalJpegContent();
+
+        // Return an IPv6 address from validation
+        $this->securityValidatorMock
+            ->method('getValidatedIpForUrl')
+            ->willReturn('2001:db8::1');
+
+        $streamMock = $this->createMock(StreamInterface::class);
+        $streamMock->method('getContents')->willReturn($content);
+
+        $responseMock = $this->createMock(ResponseInterface::class);
+        $responseMock->method('getStatusCode')->willReturn(200);
+        $responseMock->method('getBody')->willReturn($streamMock);
+
+        // Verify the request is made with brackets around IPv6 address
+        $this->requestFactoryMock
+            ->expects(self::once())
+            ->method('request')
+            ->with(
+                self::stringContains('[2001:db8::1]'),
+                'GET',
+                self::anything(),
+            )
+            ->willReturn($responseMock);
+
+        $this->securityValidatorMock
+            ->method('isAllowedImageMimeType')
+            ->willReturn(true);
+
+        $result = $this->subject->fetch($url);
+
+        self::assertSame($content, $result);
+    }
+
+    #[Test]
+    public function fetchHandlesUrlWithQueryString(): void
+    {
+        $url     = 'https://example.com/image.jpg?token=abc123&size=large';
+        $content = $this->getMinimalJpegContent();
+
+        $this->securityValidatorMock
+            ->method('getValidatedIpForUrl')
+            ->willReturn('93.184.216.34');
+
+        $streamMock = $this->createMock(StreamInterface::class);
+        $streamMock->method('getContents')->willReturn($content);
+
+        $responseMock = $this->createMock(ResponseInterface::class);
+        $responseMock->method('getStatusCode')->willReturn(200);
+        $responseMock->method('getBody')->willReturn($streamMock);
+
+        // Verify query string is preserved
+        $this->requestFactoryMock
+            ->expects(self::once())
+            ->method('request')
+            ->with(
+                self::stringContains('?token=abc123&size=large'),
+                'GET',
+                self::anything(),
+            )
+            ->willReturn($responseMock);
+
+        $this->securityValidatorMock
+            ->method('isAllowedImageMimeType')
+            ->willReturn(true);
+
+        $result = $this->subject->fetch($url);
+
+        self::assertSame($content, $result);
+    }
+
+    #[Test]
+    public function fetchHandlesUrlWithExplicitPort(): void
+    {
+        $url     = 'https://example.com:8443/image.jpg';
+        $content = $this->getMinimalJpegContent();
+
+        $this->securityValidatorMock
+            ->method('getValidatedIpForUrl')
+            ->willReturn('93.184.216.34');
+
+        $streamMock = $this->createMock(StreamInterface::class);
+        $streamMock->method('getContents')->willReturn($content);
+
+        $responseMock = $this->createMock(ResponseInterface::class);
+        $responseMock->method('getStatusCode')->willReturn(200);
+        $responseMock->method('getBody')->willReturn($streamMock);
+
+        // Verify port is preserved in the request URL
+        $this->requestFactoryMock
+            ->expects(self::once())
+            ->method('request')
+            ->with(
+                self::stringContains(':8443'),
+                'GET',
+                self::anything(),
+            )
+            ->willReturn($responseMock);
+
+        $this->securityValidatorMock
+            ->method('isAllowedImageMimeType')
+            ->willReturn(true);
+
+        $result = $this->subject->fetch($url);
+
+        self::assertSame($content, $result);
+    }
+
+    #[Test]
+    public function fetchPassesHostHeaderInRequest(): void
+    {
+        $url     = 'https://cdn.example.com/image.jpg';
+        $content = $this->getMinimalJpegContent();
+
+        $this->securityValidatorMock
+            ->method('getValidatedIpForUrl')
+            ->willReturn('93.184.216.34');
+
+        $streamMock = $this->createMock(StreamInterface::class);
+        $streamMock->method('getContents')->willReturn($content);
+
+        $responseMock = $this->createMock(ResponseInterface::class);
+        $responseMock->method('getStatusCode')->willReturn(200);
+        $responseMock->method('getBody')->willReturn($streamMock);
+
+        // Verify Host header is set to original hostname
+        $this->requestFactoryMock
+            ->expects(self::once())
+            ->method('request')
+            ->with(
+                self::anything(),
+                'GET',
+                self::callback(static function (array $options): bool {
+                    return isset($options['headers']['Host'])
+                        && $options['headers']['Host'] === 'cdn.example.com';
+                }),
+            )
+            ->willReturn($responseMock);
+
+        $this->securityValidatorMock
+            ->method('isAllowedImageMimeType')
+            ->willReturn(true);
+
+        $result = $this->subject->fetch($url);
+
+        self::assertSame($content, $result);
+    }
+
+    #[Test]
+    public function fetchReturnsNullForNon2xxStatusCodes(): void
+    {
+        $statusCodes = [100, 301, 302, 400, 401, 403, 500, 502, 503];
+
+        foreach ($statusCodes as $statusCode) {
+            $this->securityValidatorMock
+                ->method('getValidatedIpForUrl')
+                ->willReturn('93.184.216.34');
+
+            $responseMock = $this->createMock(ResponseInterface::class);
+            $responseMock->method('getStatusCode')->willReturn($statusCode);
+
+            $this->requestFactoryMock
+                ->method('request')
+                ->willReturn($responseMock);
+
+            $result = $this->subject->fetch('https://example.com/image.jpg');
+
+            self::assertNull($result, "Status code {$statusCode} should return null");
+        }
+    }
+
+    #[Test]
+    public function isExternalUrlReturnsFalseForWhitespaceOnlyUrl(): void
+    {
+        self::assertFalse($this->subject->isExternalUrl('   '));
+        self::assertFalse($this->subject->isExternalUrl("\t"));
+        self::assertFalse($this->subject->isExternalUrl("\n"));
+    }
 }

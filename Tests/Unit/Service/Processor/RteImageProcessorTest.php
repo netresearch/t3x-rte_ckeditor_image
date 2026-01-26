@@ -896,4 +896,317 @@ class RteImageProcessorTest extends TestCase
         // Tag should be removed on error
         self::assertStringContainsString('<p>', $result);
     }
+
+    // ========================================================================
+    // Processed File URL with Token Tests
+    // ========================================================================
+
+    #[Test]
+    public function processExistingFileWithProcessTokenUrl(): void
+    {
+        $this->environmentInfo
+            ->method('isBackendRequest')
+            ->willReturn(true);
+        $this->environmentInfo
+            ->method('getSiteUrl')
+            ->willReturn('https://example.com/');
+        $this->environmentInfo
+            ->method('getRequestHost')
+            ->willReturn('https://example.com');
+
+        $this->parser
+            ->method('splitByImageTags')
+            ->willReturn(['<p>', '<img src="fileadmin/_processed_/image.jpg" data-htmlarea-file-uid="123" width="400" height="300" />', '</p>']);
+        $this->parser
+            ->method('calculateSitePath')
+            ->willReturn('/');
+        $this->parser
+            ->method('extractAttributes')
+            ->willReturn([
+                'src'                    => 'fileadmin/_processed_/image.jpg',
+                'data-htmlarea-file-uid' => '123',
+                'width'                  => '400',
+                'height'                 => '300',
+            ]);
+        $this->parser
+            ->method('normalizeImageSrc')
+            ->willReturn('https://example.com/fileadmin/_processed_/image.jpg');
+        $this->parser
+            ->method('getDimension')
+            ->willReturnOnConsecutiveCalls(400, 300);
+
+        $storageMock = $this->createMock(\TYPO3\CMS\Core\Resource\ResourceStorage::class);
+        $storageMock->method('getPublicUrl')
+            ->willReturn('/fileadmin/_processed_/image_real.jpg');
+
+        $fileMock = $this->createMock(File::class);
+        $fileMock->method('getProperty')
+            ->willReturnMap([
+                ['width', 800],
+                ['height', 600],
+            ]);
+        $fileMock->method('getPublicUrl')
+            ->willReturn('/fileadmin/image.jpg');
+        $fileMock->method('getStorage')
+            ->willReturn($storageMock);
+
+        $this->fileResolver
+            ->method('resolveByUid')
+            ->with(123)
+            ->willReturn($fileMock);
+
+        // ProcessedFile returns URL with process?token= format
+        $processedFileMock = $this->createMock(ProcessedFile::class);
+        $processedFileMock->method('getProperty')
+            ->willReturnMap([
+                ['width', 400],
+                ['height', 300],
+            ]);
+        $processedFileMock->method('getPublicUrl')
+            ->willReturn('/typo3/image/process?token=abc123');
+
+        $this->fileResolver
+            ->method('processImage')
+            ->with($fileMock, 400, 300)
+            ->willReturn($processedFileMock);
+
+        $this->builder
+            ->method('withProcessedImage')
+            ->with(
+                self::anything(),
+                400,
+                300,
+                '/fileadmin/_processed_/image_real.jpg',
+            )
+            ->willReturn([
+                'src'                    => '/fileadmin/_processed_/image_real.jpg',
+                'width'                  => 400,
+                'height'                 => 300,
+                'data-htmlarea-file-uid' => '123',
+            ]);
+        $this->builder
+            ->method('makeRelativeSrc')
+            ->willReturn('fileadmin/_processed_/image_real.jpg');
+        $this->builder
+            ->method('build')
+            ->willReturn('<img src="fileadmin/_processed_/image_real.jpg" data-htmlarea-file-uid="123" width="400" height="300" />');
+
+        $processor = $this->createProcessor();
+        $result    = $processor->process('<p><img src="fileadmin/_processed_/image.jpg" data-htmlarea-file-uid="123" width="400" height="300" /></p>');
+
+        self::assertStringContainsString('width="400"', $result);
+    }
+
+    // ========================================================================
+    // Local Image with Original Property Tests
+    // ========================================================================
+
+    #[Test]
+    public function processLocalImageWithOriginalProperty(): void
+    {
+        $this->environmentInfo
+            ->method('isBackendRequest')
+            ->willReturn(true);
+        $this->environmentInfo
+            ->method('getSiteUrl')
+            ->willReturn('https://example.com/');
+        $this->environmentInfo
+            ->method('getRequestHost')
+            ->willReturn('https://example.com');
+
+        $this->parser
+            ->method('splitByImageTags')
+            ->willReturn(['<p>', '<img src="https://example.com/fileadmin/_processed_/local.jpg" />', '</p>']);
+        $this->parser
+            ->method('calculateSitePath')
+            ->willReturn('/');
+        $this->parser
+            ->method('extractAttributes')
+            ->willReturn(['src' => 'https://example.com/fileadmin/_processed_/local.jpg']);
+        $this->parser
+            ->method('normalizeImageSrc')
+            ->willReturn('https://example.com/fileadmin/_processed_/local.jpg');
+        $this->parser
+            ->method('getDimension')
+            ->willReturn(0);
+
+        $this->externalFetcher
+            ->method('isExternalUrl')
+            ->willReturn(false);
+
+        // Mock a processed file that has an 'original' property pointing to original UID
+        $fileMock = $this->createMock(File::class);
+        $fileMock->method('getUid')->willReturn(999); // Processed file UID
+        $fileMock->method('hasProperty')
+            ->with('original')
+            ->willReturn(true);
+        $fileMock->method('getProperty')
+            ->with('original')
+            ->willReturn(123); // Original file UID
+
+        $this->fileResolver
+            ->method('resolveByUid')
+            ->willReturn(null);
+        $this->fileResolver
+            ->method('resolveByPath')
+            ->with('fileadmin/_processed_/local.jpg')
+            ->willReturn($fileMock);
+
+        $this->builder
+            ->method('makeRelativeSrc')
+            ->willReturn('fileadmin/_processed_/local.jpg');
+        $this->builder
+            ->method('build')
+            ->willReturn('<img src="fileadmin/_processed_/local.jpg" data-htmlarea-file-uid="123" width="0" height="0" />');
+
+        $processor = $this->createProcessor();
+        $result    = $processor->process('<p><img src="https://example.com/fileadmin/_processed_/local.jpg" /></p>');
+
+        // Should use the original file UID (123), not the processed file UID (999)
+        self::assertStringContainsString('data-htmlarea-file-uid="123"', $result);
+    }
+
+    #[Test]
+    public function processLocalImageWithOriginalPropertyNull(): void
+    {
+        $this->environmentInfo
+            ->method('isBackendRequest')
+            ->willReturn(true);
+        $this->environmentInfo
+            ->method('getSiteUrl')
+            ->willReturn('https://example.com/');
+        $this->environmentInfo
+            ->method('getRequestHost')
+            ->willReturn('https://example.com');
+
+        $this->parser
+            ->method('splitByImageTags')
+            ->willReturn(['<p>', '<img src="https://example.com/fileadmin/local.jpg" />', '</p>']);
+        $this->parser
+            ->method('calculateSitePath')
+            ->willReturn('/');
+        $this->parser
+            ->method('extractAttributes')
+            ->willReturn(['src' => 'https://example.com/fileadmin/local.jpg']);
+        $this->parser
+            ->method('normalizeImageSrc')
+            ->willReturn('https://example.com/fileadmin/local.jpg');
+        $this->parser
+            ->method('getDimension')
+            ->willReturn(0);
+
+        $this->externalFetcher
+            ->method('isExternalUrl')
+            ->willReturn(false);
+
+        // Mock a file with hasProperty true but getProperty returns null
+        $fileMock = $this->createMock(File::class);
+        $fileMock->method('getUid')->willReturn(789);
+        $fileMock->method('hasProperty')
+            ->with('original')
+            ->willReturn(true);
+        $fileMock->method('getProperty')
+            ->with('original')
+            ->willReturn(null); // No original set
+
+        $this->fileResolver
+            ->method('resolveByUid')
+            ->willReturn(null);
+        $this->fileResolver
+            ->method('resolveByPath')
+            ->with('fileadmin/local.jpg')
+            ->willReturn($fileMock);
+
+        $this->builder
+            ->method('makeRelativeSrc')
+            ->willReturn('fileadmin/local.jpg');
+        $this->builder
+            ->method('build')
+            ->willReturn('<img src="fileadmin/local.jpg" data-htmlarea-file-uid="789" width="0" height="0" />');
+
+        $processor = $this->createProcessor();
+        $result    = $processor->process('<p><img src="https://example.com/fileadmin/local.jpg" /></p>');
+
+        // Should keep the file's own UID when original is null
+        self::assertStringContainsString('data-htmlarea-file-uid="789"', $result);
+    }
+
+    // ========================================================================
+    // External Image Without Dimensions Tests
+    // ========================================================================
+
+    #[Test]
+    public function processExternalImageWithoutDimensions(): void
+    {
+        $this->environmentInfo
+            ->method('isBackendRequest')
+            ->willReturn(true);
+        $this->environmentInfo
+            ->method('getSiteUrl')
+            ->willReturn('https://example.com/');
+        $this->environmentInfo
+            ->method('getRequestHost')
+            ->willReturn('https://example.com');
+
+        $backendUserMock = $this->createMock(BackendUserAuthentication::class);
+        $this->environmentInfo
+            ->method('getBackendUser')
+            ->willReturn($backendUserMock);
+
+        $this->parser
+            ->method('splitByImageTags')
+            ->willReturn(['<p>', '<img src="https://external.com/image.jpg" />', '</p>']);
+        $this->parser
+            ->method('calculateSitePath')
+            ->willReturn('/');
+        $this->parser
+            ->method('extractAttributes')
+            ->willReturn(['src' => 'https://external.com/image.jpg']);
+        $this->parser
+            ->method('normalizeImageSrc')
+            ->willReturn('https://external.com/image.jpg');
+        $this->parser
+            ->method('getDimension')
+            ->willReturn(0); // No dimensions
+
+        $this->externalFetcher
+            ->method('isExternalUrl')
+            ->willReturn(true);
+        $this->externalFetcher
+            ->method('fetch')
+            ->willReturn('fake-image-content');
+
+        $folderMock = $this->createMock(Folder::class);
+        $fileMock   = $this->createMock(File::class);
+        $fileMock->method('getUid')->willReturn(456);
+        $fileMock->method('setContents')->willReturnSelf();
+
+        $folderMock->method('createFile')->willReturn($fileMock);
+
+        $this->uploadFolderResolver
+            ->method('resolve')
+            ->willReturn($folderMock);
+
+        $this->securityValidator
+            ->method('isAllowedExtension')
+            ->willReturn(true);
+
+        // Without dimensions (width=0, height=0), processImage should not be called
+        $this->fileResolver
+            ->expects(self::never())
+            ->method('processImage');
+
+        $this->builder
+            ->method('makeRelativeSrc')
+            ->willReturn('fileadmin/external_456.jpg');
+        $this->builder
+            ->method('build')
+            ->willReturn('<img src="fileadmin/external_456.jpg" data-htmlarea-file-uid="456" width="0" height="0" />');
+
+        $processor = $this->createProcessor(true);
+        $result    = $processor->process('<p><img src="https://external.com/image.jpg" /></p>');
+
+        // File should be created but not processed
+        self::assertStringContainsString('data-htmlarea-file-uid="456"', $result);
+    }
 }
