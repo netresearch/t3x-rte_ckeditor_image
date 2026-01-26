@@ -799,4 +799,271 @@ final class ImageResolverServiceTest extends TestCase
 
         self::assertFalse($result);
     }
+
+    // ========================================================================
+    // parseIntAttribute Tests
+    // ========================================================================
+
+    #[Test]
+    public function parseIntAttributeReturnsIntegerForNumericString(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'parseIntAttribute', ['123']);
+
+        self::assertSame(123, $result);
+    }
+
+    #[Test]
+    public function parseIntAttributeReturnsIntegerForNegativeNumericString(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'parseIntAttribute', ['-50']);
+
+        self::assertSame(-50, $result);
+    }
+
+    #[Test]
+    public function parseIntAttributeReturnsZeroForNonNumericString(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'parseIntAttribute', ['abc']);
+
+        self::assertSame(0, $result);
+    }
+
+    #[Test]
+    public function parseIntAttributeReturnsFallbackForNonNumericString(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'parseIntAttribute', ['abc', 100]);
+
+        self::assertSame(100, $result);
+    }
+
+    #[Test]
+    public function parseIntAttributeReturnsZeroForEmptyString(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'parseIntAttribute', ['']);
+
+        self::assertSame(0, $result);
+    }
+
+    #[Test]
+    public function parseIntAttributeReturnsFallbackForEmptyString(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'parseIntAttribute', ['', 200]);
+
+        self::assertSame(200, $result);
+    }
+
+    #[Test]
+    public function parseIntAttributeIgnoresNonNumericFallback(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'parseIntAttribute', ['abc', 'xyz']);
+
+        self::assertSame(0, $result);
+    }
+
+    #[Test]
+    public function parseIntAttributeHandlesFloatString(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'parseIntAttribute', ['123.45']);
+
+        self::assertSame(123, $result);
+    }
+
+    // ========================================================================
+    // isPopupAttributeSet Tests
+    // ========================================================================
+
+    #[Test]
+    public function isPopupAttributeSetReturnsTrueForDataHtmlareaZoom(): void
+    {
+        $attributes = ['data-htmlarea-zoom' => '1'];
+
+        $result = $this->callPrivateMethod($this->service, 'isPopupAttributeSet', [$attributes]);
+
+        self::assertTrue($result);
+    }
+
+    #[Test]
+    public function isPopupAttributeSetReturnsTrueForDataHtmlareaClickenlarge(): void
+    {
+        $attributes = ['data-htmlarea-clickenlarge' => '1'];
+
+        $result = $this->callPrivateMethod($this->service, 'isPopupAttributeSet', [$attributes]);
+
+        self::assertTrue($result);
+    }
+
+    #[Test]
+    public function isPopupAttributeSetReturnsFalseForEmptyAttributes(): void
+    {
+        $attributes = [];
+
+        $result = $this->callPrivateMethod($this->service, 'isPopupAttributeSet', [$attributes]);
+
+        self::assertFalse($result);
+    }
+
+    #[Test]
+    public function isPopupAttributeSetReturnsFalseForOtherAttributes(): void
+    {
+        $attributes = ['src' => 'image.jpg', 'alt' => 'Alt text', 'width' => '100'];
+
+        $result = $this->callPrivateMethod($this->service, 'isPopupAttributeSet', [$attributes]);
+
+        self::assertFalse($result);
+    }
+
+    #[Test]
+    public function isPopupAttributeSetReturnsTrueWhenBothZoomAttributesPresent(): void
+    {
+        $attributes = [
+            'data-htmlarea-zoom'         => '1',
+            'data-htmlarea-clickenlarge' => '1',
+        ];
+
+        $result = $this->callPrivateMethod($this->service, 'isPopupAttributeSet', [$attributes]);
+
+        self::assertTrue($result);
+    }
+
+    // ========================================================================
+    // getNestedTypoScriptValue Tests
+    // ========================================================================
+
+    #[Test]
+    public function getNestedTypoScriptValueReturnsValueForSimpleKey(): void
+    {
+        $array = ['key' => 'value'];
+        $keys  = ['key'];
+
+        $result = $this->callPrivateMethod($this->service, 'getNestedTypoScriptValue', [$array, $keys]);
+
+        self::assertSame('value', $result);
+    }
+
+    #[Test]
+    public function getNestedTypoScriptValueReturnsValueForNestedKeys(): void
+    {
+        $array = ['level1' => ['level2' => ['level3' => 'deep value']]];
+        $keys  = ['level1', 'level2', 'level3'];
+
+        $result = $this->callPrivateMethod($this->service, 'getNestedTypoScriptValue', [$array, $keys]);
+
+        self::assertSame('deep value', $result);
+    }
+
+    #[Test]
+    public function getNestedTypoScriptValueReturnsNullForMissingKey(): void
+    {
+        $array = ['key' => 'value'];
+        $keys  = ['nonexistent'];
+
+        $result = $this->callPrivateMethod($this->service, 'getNestedTypoScriptValue', [$array, $keys]);
+
+        self::assertNull($result);
+    }
+
+    #[Test]
+    public function getNestedTypoScriptValueReturnsNullForPartialPath(): void
+    {
+        $array = ['level1' => ['level2' => 'value']];
+        $keys  = ['level1', 'level2', 'level3']; // level3 doesn't exist
+
+        $result = $this->callPrivateMethod($this->service, 'getNestedTypoScriptValue', [$array, $keys]);
+
+        self::assertNull($result);
+    }
+
+    #[Test]
+    public function getNestedTypoScriptValueReturnsNullForEmptyArray(): void
+    {
+        $array = [];
+        $keys  = ['key'];
+
+        $result = $this->callPrivateMethod($this->service, 'getNestedTypoScriptValue', [$array, $keys]);
+
+        self::assertNull($result);
+    }
+
+    #[Test]
+    public function getNestedTypoScriptValueReturnsArrayForPartialPath(): void
+    {
+        $array = ['level1' => ['level2' => ['a' => 1, 'b' => 2]]];
+        $keys  = ['level1', 'level2'];
+
+        $result = $this->callPrivateMethod($this->service, 'getNestedTypoScriptValue', [$array, $keys]);
+
+        self::assertSame(['a' => 1, 'b' => 2], $result);
+    }
+
+    #[Test]
+    public function getNestedTypoScriptValueHandlesEmptyKeysArray(): void
+    {
+        $array = ['key' => 'value'];
+        $keys  = [];
+
+        $result = $this->callPrivateMethod($this->service, 'getNestedTypoScriptValue', [$array, $keys]);
+
+        // With empty keys, should return the original array
+        self::assertSame(['key' => 'value'], $result);
+    }
+
+    // ========================================================================
+    // Quality Multiplier Tests
+    // ========================================================================
+
+    #[Test]
+    public function getQualityMultiplierReturnsOneForStandard(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'getQualityMultiplier', ['standard']);
+
+        self::assertSame(1.0, $result);
+    }
+
+    #[Test]
+    public function getQualityMultiplierReturnsTwoForRetina(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'getQualityMultiplier', ['retina']);
+
+        self::assertSame(2.0, $result);
+    }
+
+    #[Test]
+    public function getQualityMultiplierReturnsThreeForUltra(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'getQualityMultiplier', ['ultra']);
+
+        self::assertSame(3.0, $result);
+    }
+
+    #[Test]
+    public function getQualityMultiplierReturnsSixForPrint(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'getQualityMultiplier', ['print']);
+
+        self::assertSame(6.0, $result);
+    }
+
+    #[Test]
+    public function getQualityMultiplierReturnsPointNineForLow(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'getQualityMultiplier', ['low']);
+
+        self::assertSame(0.9, $result);
+    }
+
+    #[Test]
+    public function getQualityMultiplierReturnsOneForUnknown(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'getQualityMultiplier', ['unknown']);
+
+        self::assertSame(1.0, $result);
+    }
+
+    #[Test]
+    public function getQualityMultiplierReturnsOneForEmptyString(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'getQualityMultiplier', ['']);
+
+        self::assertSame(1.0, $result);
+    }
 }

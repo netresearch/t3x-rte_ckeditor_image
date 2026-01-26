@@ -48,10 +48,18 @@ parameters:
           path: %currentWorkingDirectory%/Classes/Backend/Preview/RteImagePreviewRenderer.php
           message: '#getRow#'
           reportUnmatched: false
-        # Same compatibility pattern in unit tests
+        # Same compatibility pattern in unit tests (getRow exists in v14+, not in v13)
         - identifier: function.alreadyNarrowedType
           path: %currentWorkingDirectory%/Tests/Unit/Database/RteImagesDbHookTest.php
           message: '#method_exists.*getRow#'
+          reportUnmatched: false
+        - identifier: function.alreadyNarrowedType
+          path: %currentWorkingDirectory%/Tests/Unit/Backend/Preview/RteImagePreviewRendererTest.php
+          message: '#method_exists.*getRow#'
+          reportUnmatched: false
+        # Ignore cast.int errors in functional tests (mixed from invokeMethod reflection calls)
+        - identifier: cast.int
+          path: %currentWorkingDirectory%/Tests/Functional/*
           reportUnmatched: false
         # Ignore GeneralUtility::makeInstance() return type issues in functional tests
         # PHPStan sees makeInstance() returning mixed (without phpstan-typo3 extension)
@@ -67,4 +75,12 @@ parameters:
         - identifier: method.nonObject
           path: %currentWorkingDirectory%/Tests/Functional/*
           message: '#mixed#'
+          reportUnmatched: false
+        # TYPO3 v13/v14 compatibility: instanceof checks may be redundant on one version
+        # but necessary on the other due to different return type annotations
+        - identifier: instanceof.alwaysTrue
+          path: %currentWorkingDirectory%/Classes/Service/Resolver/ImageFileResolver.php
+          reportUnmatched: false
+        - identifier: instanceof.alwaysTrue
+          path: %currentWorkingDirectory%/Classes/Service/Processor/RteImageProcessor.php
           reportUnmatched: false

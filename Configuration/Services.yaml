@@ -56,16 +56,97 @@ services:
       - name: softreference.parser
         parserKey: rtehtmlarea_images
 
-  # DataHandler hook with full dependency injection
+  # =========================================================================
+  # Backend Image Processing Services (RTE → Database)
+  # =========================================================================
+
+  # Environment abstraction for testability (wraps TYPO3 statics)
+  Netresearch\RteCKEditorImage\Service\Environment\EnvironmentInfoInterface:
+    alias: Netresearch\RteCKEditorImage\Service\Environment\Typo3EnvironmentInfo
+
+  Netresearch\RteCKEditorImage\Service\Environment\Typo3EnvironmentInfo:
+    public: true
+
+  # Security validation service (SSRF, MIME, path traversal)
+  Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface:
+    alias: Netresearch\RteCKEditorImage\Service\Security\SecurityValidator
+
+  Netresearch\RteCKEditorImage\Service\Security\SecurityValidator:
+    public: true
+
+  # TYPO3 Core HtmlParser (not registered by TYPO3 by default)
+  TYPO3\CMS\Core\Html\HtmlParser:
+    public: false
+
+  # Interface aliases for dependency injection and testing
+  Netresearch\RteCKEditorImage\Service\Parser\ImageTagParserInterface:
+    alias: Netresearch\RteCKEditorImage\Service\Parser\ImageTagParser
+
+  Netresearch\RteCKEditorImage\Service\Builder\ImageTagBuilderInterface:
+    alias: Netresearch\RteCKEditorImage\Service\Builder\ImageTagBuilder
+
+  Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcherInterface:
+    alias: Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcher
+
+  Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolverInterface:
+    alias: Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolver
+
+  # HTML parsing for img tags
+  Netresearch\RteCKEditorImage\Service\Parser\ImageTagParser:
+    public: true
+    arguments:
+      $htmlParser: '@TYPO3\CMS\Core\Html\HtmlParser'
+
+  # Img tag reconstruction
+  Netresearch\RteCKEditorImage\Service\Builder\ImageTagBuilder:
+    public: true
+
+  # External image fetching with security
+  Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcher:
+    public: true
+    arguments:
+      $securityValidator: '@Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface'
+      $requestFactory: '@TYPO3\CMS\Core\Http\RequestFactory'
+
+  # File resolution and processing
+  Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolver:
+    public: true
+    arguments:
+      $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
+      $securityValidator: '@Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface'
+      $externalImageFetcher: '@Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcher'
+      $environmentInfo: '@Netresearch\RteCKEditorImage\Service\Environment\EnvironmentInfoInterface'
+
+  # Main image processor orchestrator
+  Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorInterface:
+    alias: Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessor
+
+  Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessor:
+    public: true
+    # Autowire disabled: RteImageProcessor requires runtime configuration (fetchExternalImages)
+    # that must be read from extension settings via the factory
+    autowire: false
+    factory: ['@Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorFactory', 'create']
+
+  # Factory for RteImageProcessor (reads extension configuration)
+  Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorFactory:
+    public: true
+    arguments:
+      $parser: '@Netresearch\RteCKEditorImage\Service\Parser\ImageTagParser'
+      $builder: '@Netresearch\RteCKEditorImage\Service\Builder\ImageTagBuilder'
+      $fileResolver: '@Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolver'
+      $externalFetcher: '@Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcher'
+      $environmentInfo: '@Netresearch\RteCKEditorImage\Service\Environment\EnvironmentInfoInterface'
+      $securityValidator: '@Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface'
+      $context: '@TYPO3\CMS\Core\Context\Context'
+      $uploadFolderResolver: '@TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver'
+      $extensionConfiguration: '@TYPO3\CMS\Core\Configuration\ExtensionConfiguration'
+
+  # DataHandler hook using new service architecture
   Netresearch\RteCKEditorImage\Database\RteImagesDbHook:
     public: true
     arguments:
-      $extensionConfiguration: '@TYPO3\CMS\Core\Configuration\ExtensionConfiguration'
-      $logManager: '@TYPO3\CMS\Core\Log\LogManager'
-      $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
-      $context: '@TYPO3\CMS\Core\Context\Context'
-      $requestFactory: '@TYPO3\CMS\Core\Http\RequestFactory'
-      $uploadFolderResolver: '@TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver'
+      $imageProcessor: '@Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorInterface'
 
   # Event listener for automatic RTE softref enforcement
   Netresearch\RteCKEditorImage\Listener\TCA\RteSoftrefEnforcer:
@@ -76,4 +157,3 @@ services:
         identifier: 'nr-rte-softref-enforcer'
         event: TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent
         after: '*'
-

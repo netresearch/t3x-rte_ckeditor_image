@@ -170,4 +170,128 @@ final class RteImageSoftReferenceParserTest extends UnitTestCase
         self::assertStringContainsString('title="Title"', $modifiedContent);
         self::assertStringContainsString('width="800"', $modifiedContent);
     }
+
+    // ========================================================================
+    // Edge Case Tests - Malformed HTML Handling
+    // ========================================================================
+
+    #[Test]
+    public function parseHandlesImageWithMissingQuotesOnAttributes(): void
+    {
+        // Malformed attributes: missing quotes around value
+        $content = '<img src=/test.jpg data-htmlarea-file-uid="456" />';
+        $result  = $this->subject->parse('tt_content', 'bodytext', 1, $content);
+
+        // Should still find the data-htmlarea-file-uid
+        $matchedElements = $result->getMatchedElements();
+        self::assertNotEmpty($matchedElements);
+
+        $firstMatch = reset($matchedElements);
+        self::assertIsArray($firstMatch);
+        self::assertArrayHasKey('subst', $firstMatch);
+        self::assertSame('sys_file:456', $firstMatch['subst']['recordRef']);
+    }
+
+    #[Test]
+    public function parseFindsNestedImagesInComplexStructure(): void
+    {
+        // Complex HTML with nested elements and multiple images
+        $content = '<div><a href="#"><img src="/outer.jpg" data-htmlarea-file-uid="111" /></a>'
+            . '<figure><img src="/figure.jpg" data-htmlarea-file-uid="222" />'
+            . '<figcaption>Caption</figcaption></figure></div>';
+        $result = $this->subject->parse('tt_content', 'bodytext', 1, $content);
+
+        $matchedElements = $result->getMatchedElements();
+        self::assertCount(2, $matchedElements);
+
+        $values = array_column(array_column($matchedElements, 'subst'), 'tokenValue');
+        self::assertContains('111', $values);
+        self::assertContains('222', $values);
+    }
+
+    #[Test]
+    public function parseHandlesMixOfRteImagesAndRegularImages(): void
+    {
+        // Mix of RTE-managed images (with data-htmlarea-file-uid) and regular img tags
+        $content = '<img src="/regular1.jpg" alt="Regular image" />'
+            . '<img src="/rte1.jpg" data-htmlarea-file-uid="100" />'
+            . '<img src="/regular2.jpg" class="external" />'
+            . '<img src="/rte2.jpg" data-htmlarea-file-uid="200" />';
+        $result = $this->subject->parse('tt_content', 'bodytext', 1, $content);
+
+        // Should only find the 2 RTE images
+        $matchedElements = $result->getMatchedElements();
+        self::assertCount(2, $matchedElements);
+
+        $values = array_column(array_column($matchedElements, 'subst'), 'tokenValue');
+        self::assertContains('100', $values);
+        self::assertContains('200', $values);
+    }
+
+    #[Test]
+    public function parseIncludesEmptyDataHtmlareaFileUidAttribute(): void
+    {
+        // Empty string value for data-htmlarea-file-uid - parser still extracts it
+        $content = '<img src="/test.jpg" data-htmlarea-file-uid="" />';
+        $result  = $this->subject->parse('tt_content', 'bodytext', 1, $content);
+
+        // Parser extracts even empty values (validation happens elsewhere)
+        $matchedElements = $result->getMatchedElements();
+        self::assertNotEmpty($matchedElements);
+
+        $firstMatch = reset($matchedElements);
+        self::assertIsArray($firstMatch);
+        self::assertSame('', $firstMatch['subst']['tokenValue']);
+    }
+
+    #[Test]
+    public function parseHandlesNonNumericFileUidValue(): void
+    {
+        // Non-numeric value in data-htmlarea-file-uid (malformed data)
+        $content = '<img src="/test.jpg" data-htmlarea-file-uid="invalid" />';
+        $result  = $this->subject->parse('tt_content', 'bodytext', 1, $content);
+
+        // Parser doesn't validate UID format, just extracts the value
+        $matchedElements = $result->getMatchedElements();
+        self::assertNotEmpty($matchedElements);
+
+        $firstMatch = reset($matchedElements);
+        self::assertIsArray($firstMatch);
+        self::assertSame('sys_file:invalid', $firstMatch['subst']['recordRef']);
+        self::assertSame('invalid', $firstMatch['subst']['tokenValue']);
+    }
+
+    #[Test]
+    public function parseHandlesMultipleImagesWithDifferentFileUidsInVariousStructures(): void
+    {
+        // Multiple images with different UIDs in various HTML structures
+        $content = '<p><img src="/img1.jpg" data-htmlarea-file-uid="10" /></p>'
+            . '<div class="content"><img data-htmlarea-file-uid="20" src="/img2.jpg" alt="Second" /></div>'
+            . '<section><img src="/img3.jpg" data-htmlarea-file-uid="30" class="large" /></section>';
+        $result = $this->subject->parse('tt_content', 'bodytext', 1, $content);
+
+        $matchedElements = $result->getMatchedElements();
+        self::assertCount(3, $matchedElements);
+
+        $references = array_column(array_column($matchedElements, 'subst'), 'recordRef');
+        self::assertContains('sys_file:10', $references);
+        self::assertContains('sys_file:20', $references);
+        self::assertContains('sys_file:30', $references);
+    }
+
+    #[Test]
+    public function parseHandlesWhitespaceAroundAttributeValue(): void
+    {
+        // Whitespace inside attribute value
+        $content = '<img src="/test.jpg" data-htmlarea-file-uid=" 789 " />';
+        $result  = $this->subject->parse('tt_content', 'bodytext', 1, $content);
+
+        $matchedElements = $result->getMatchedElements();
+        self::assertNotEmpty($matchedElements);
+
+        // The value includes whitespace as-is
+        $firstMatch = reset($matchedElements);
+        self::assertIsArray($firstMatch);
+        self::assertSame(' 789 ', $firstMatch['subst']['tokenValue']);
+    }
 }
