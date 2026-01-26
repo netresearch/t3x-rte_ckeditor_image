@@ -18,6 +18,7 @@ use Netresearch\RteCKEditorImage\Service\Parser\ImageTagParserInterface;
 use Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolverInterface;
 use Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Throwable;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Context\Context;
@@ -305,7 +306,13 @@ final readonly class RteImageProcessor implements RteImageProcessorInterface
 
             // Create file in upload folder
             $createdFile = $folder->createFile($filename);
-            $fileObject  = $createdFile->setContents($content);
+            if (!$createdFile instanceof File) {
+                throw new RuntimeException(
+                    'Failed to create file for external image: ' . $filename,
+                );
+            }
+
+            $fileObject = $createdFile->setContents($content);
 
             $width  = (int) $attributes['width'];
             $height = (int) $attributes['height'];
