@@ -282,17 +282,8 @@ parameters:
 			count: 1
 			path: ../Classes/Service/Processor/RteImageProcessor.php
 
-		-
-			message: '#^Instanceof between TYPO3\\CMS\\Core\\Resource\\File and TYPO3\\CMS\\Core\\Resource\\File will always evaluate to true\.$#'
-			identifier: instanceof.alwaysTrue
-			count: 2
-			path: ../Classes/Service/Resolver/ImageFileResolver.php
-
-		-
-			message: '#^Instanceof between TYPO3\\CMS\\Core\\Resource\\ProcessedFile and TYPO3\\CMS\\Core\\Resource\\ProcessedFile will always evaluate to true\.$#'
-			identifier: instanceof.alwaysTrue
-			count: 1
-			path: ../Classes/Service/Resolver/ImageFileResolver.php
+		# instanceof.alwaysTrue for ImageFileResolver.php removed - handled by ignoreErrors
+		# with reportUnmatched: false to support both TYPO3 v13 and v14 (different occurrence counts)
 
 		-
 			message: '#^Cannot access offset ''bodytext'' on mixed\.$#'
