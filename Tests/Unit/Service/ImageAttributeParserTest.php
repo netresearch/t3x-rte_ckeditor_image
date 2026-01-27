@@ -485,4 +485,149 @@ class ImageAttributeParserTest extends TestCase
         self::assertSame('test.jpg', $result['attributes']['src']);
         self::assertSame('123', $result['attributes']['data-htmlarea-file-uid']);
     }
+
+    // ========================================================================
+    // Issue #555 Tests - Link extraction from figure-wrapped images
+    // ========================================================================
+
+    /**
+     * Test that parseFigureWithCaption extracts link attributes when image is wrapped in <a>.
+     *
+     * Bug: When CKEditor outputs <figure><a href="..."><img/></a><figcaption>...</figcaption></figure>,
+     * the link information must be extracted so the correct template (LinkWithCaption) can be selected.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
+     */
+    #[Test]
+    public function parseFigureWithCaptionExtractsLinkAttributesFromLinkedImage(): void
+    {
+        $html = '<figure class="image"><a href="https://example.com" target="_blank" class="external"><img src="test.jpg" data-htmlarea-file-uid="123"/></a><figcaption>Linked Caption</figcaption></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        // Image attributes should be extracted
+        self::assertSame('test.jpg', $result['attributes']['src']);
+        self::assertSame('123', $result['attributes']['data-htmlarea-file-uid']);
+        self::assertSame('Linked Caption', $result['caption']);
+
+        // Link attributes MUST be extracted (this is the bug)
+        self::assertArrayHasKey('link', $result);
+        self::assertSame('https://example.com', $result['link']['href']);
+        self::assertSame('_blank', $result['link']['target']);
+        self::assertSame('external', $result['link']['class']);
+    }
+
+    /**
+     * Test that parseFigureWithCaption returns empty link array when no <a> wrapper.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
+     */
+    #[Test]
+    public function parseFigureWithCaptionReturnsEmptyLinkWhenNoLinkWrapper(): void
+    {
+        $html = '<figure class="image"><img src="test.jpg" data-htmlarea-file-uid="123"/><figcaption>Caption</figcaption></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertArrayHasKey('link', $result);
+        self::assertEmpty($result['link']);
+    }
+
+    /**
+     * Test that parseFigureWithCaption extracts link with popup attributes.
+     *
+     * When image has data-htmlarea-zoom inside a link inside a figure,
+     * all this context must be preserved for correct template selection.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
+     */
+    #[Test]
+    public function parseFigureWithCaptionExtractsLinkForPopupImage(): void
+    {
+        $html = '<figure class="image"><a href="/fullsize.jpg"><img src="test.jpg" data-htmlarea-file-uid="123" data-htmlarea-zoom="1"/></a><figcaption>Popup Caption</figcaption></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        // Link should be extracted
+        self::assertArrayHasKey('link', $result);
+        self::assertSame('/fullsize.jpg', $result['link']['href']);
+
+        // Popup attribute on image should be preserved
+        self::assertSame('1', $result['attributes']['data-htmlarea-zoom']);
+    }
+
+    /**
+     * Test that parseFigureWithCaption extracts link even without figcaption.
+     *
+     * Figure + Link (no caption) should still extract link attributes.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
+     */
+    #[Test]
+    public function parseFigureWithCaptionExtractsLinkWithoutCaption(): void
+    {
+        $html = '<figure class="image"><a href="https://example.com" target="_blank"><img src="test.jpg" data-htmlarea-file-uid="123"/></a></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        // Link should be extracted
+        self::assertArrayHasKey('link', $result);
+        self::assertSame('https://example.com', $result['link']['href']);
+        self::assertSame('_blank', $result['link']['target']);
+
+        // Caption should be empty
+        self::assertSame('', $result['caption']);
+
+        // Image attributes should be extracted
+        self::assertSame('test.jpg', $result['attributes']['src']);
+        self::assertSame('123', $result['attributes']['data-htmlarea-file-uid']);
+    }
+
+    /**
+     * Test that parseFigureWithCaption preserves popup attributes without explicit link.
+     *
+     * When image has data-htmlarea-zoom but no <a> wrapper, the popup attributes
+     * must be preserved so the resolver can auto-generate a popup link.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
+     */
+    #[Test]
+    public function parseFigureWithCaptionPreservesPopupAttributesWithoutLink(): void
+    {
+        $html = '<figure class="image"><img src="test.jpg" data-htmlarea-file-uid="123" data-htmlarea-zoom="1"/><figcaption>Popup Caption</figcaption></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        // No explicit link
+        self::assertArrayHasKey('link', $result);
+        self::assertEmpty($result['link']);
+
+        // Popup attribute on image should be preserved for resolver to handle
+        self::assertSame('1', $result['attributes']['data-htmlarea-zoom']);
+
+        // Caption should be extracted
+        self::assertSame('Popup Caption', $result['caption']);
+    }
+
+    /**
+     * Test that parseFigureWithCaption handles figure with popup and no caption.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
+     */
+    #[Test]
+    public function parseFigureWithCaptionHandlesPopupWithoutCaption(): void
+    {
+        $html = '<figure class="image"><img src="test.jpg" data-htmlarea-file-uid="123" data-htmlarea-clickenlarge="1"/></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        // No explicit link
+        self::assertEmpty($result['link']);
+
+        // Popup attribute preserved
+        self::assertSame('1', $result['attributes']['data-htmlarea-clickenlarge']);
+
+        // No caption
+        self::assertSame('', $result['caption']);
+    }
 }

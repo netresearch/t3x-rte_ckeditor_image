@@ -13,6 +13,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Controller;
 
 use Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter;
 use Netresearch\RteCKEditorImage\Domain\Model\ImageRenderingDto;
+use Netresearch\RteCKEditorImage\Domain\Model\LinkDto;
 use Netresearch\RteCKEditorImage\Service\ImageAttributeParser;
 use Netresearch\RteCKEditorImage\Service\ImageRenderingService;
 use Netresearch\RteCKEditorImage\Service\ImageResolverService;
@@ -453,6 +454,7 @@ final class ImageRenderingAdapterTest extends TestCase
             ->willReturn([
                 'attributes' => ['src' => 'external.jpg'], // No data-htmlarea-file-uid
                 'caption'    => 'Caption',
+                'link'       => [],
             ]);
 
         $this->resolverService
@@ -496,6 +498,7 @@ final class ImageRenderingAdapterTest extends TestCase
                     'data-htmlarea-file-uid' => '1',
                 ],
                 'caption' => 'My Caption',
+                'link'    => [],
             ]);
 
         // Caption from figcaption should be added to attributes
@@ -556,6 +559,7 @@ final class ImageRenderingAdapterTest extends TestCase
                     'data-caption'           => 'Old', // Existing data-caption
                 ],
                 'caption' => 'New', // Figcaption should override
+                'link'    => [],
             ]);
 
         // Figcaption caption should override data-caption
@@ -600,6 +604,7 @@ final class ImageRenderingAdapterTest extends TestCase
                     'data-htmlarea-file-uid' => '999',
                 ],
                 'caption' => '',
+                'link'    => [],
             ]);
 
         $this->resolverService
@@ -610,5 +615,309 @@ final class ImageRenderingAdapterTest extends TestCase
         $result = $this->adapter->renderFigure(null, [], $this->request);
 
         self::assertSame($html, $result);
+    }
+
+    // ========================================================================
+    // Issue #555 Tests - renderFigure must pass link attributes to resolver
+    // ========================================================================
+
+    /**
+     * Test that renderFigure passes link attributes to resolver when image is inside <a>.
+     *
+     * Bug: When CKEditor outputs <figure><a href="..."><img/></a><figcaption>...</figcaption></figure>,
+     * the link attributes must be passed to the resolver so LinkWithCaption template is selected.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
+     */
+    #[Test]
+    public function renderFigurePassesLinkAttributesToResolverForLinkedImage(): void
+    {
+        $html = '<figure><a href="https://example.com" target="_blank"><img src="test.jpg" data-htmlarea-file-uid="1" /></a><figcaption>Caption</figcaption></figure>';
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: [],
+            caption: 'Caption',
+            link: new LinkDto(
+                url: 'https://example.com',
+                target: '_blank',
+                class: null,
+                isPopup: false,
+                jsConfig: null,
+            ),
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser
+            ->method('hasFigureWrapper')
+            ->willReturn(true);
+
+        // Parser returns link attributes (after fix)
+        $this->attributeParser
+            ->method('parseFigureWithCaption')
+            ->willReturn([
+                'attributes' => [
+                    'src'                    => 'test.jpg',
+                    'data-htmlarea-file-uid' => '1',
+                ],
+                'caption' => 'Caption',
+                'link'    => [
+                    'href'   => 'https://example.com',
+                    'target' => '_blank',
+                ],
+            ]);
+
+        // Resolver MUST receive link attributes as 4th parameter
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->with(
+                self::callback(static function (array $attributes): bool {
+                    return $attributes['data-htmlarea-file-uid'] === '1'
+                        && $attributes['data-caption'] === 'Caption';
+                }),
+                [],
+                $this->request,
+                self::callback(static function (?array $linkAttributes): bool {
+                    // Link attributes MUST be passed (this is the bug - currently null)
+                    return is_array($linkAttributes)
+                        && $linkAttributes['href'] === 'https://example.com'
+                        && $linkAttributes['target'] === '_blank';
+                }),
+            )
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->method('render')
+            ->willReturn('<figure><a href="https://example.com"><img /></a><figcaption>Caption</figcaption></figure>');
+
+        $result = $this->adapter->renderFigure(null, [], $this->request);
+
+        self::assertStringContainsString('figure', $result);
+    }
+
+    /**
+     * Test that renderFigure passes null for link attributes when no link wrapper.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
+     */
+    #[Test]
+    public function renderFigurePassesNullLinkAttributesWhenNoLinkWrapper(): void
+    {
+        $html = '<figure><img src="test.jpg" data-htmlarea-file-uid="1" /><figcaption>Caption</figcaption></figure>';
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: [],
+            caption: 'Caption',
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser
+            ->method('hasFigureWrapper')
+            ->willReturn(true);
+
+        // Parser returns empty link array (no <a> wrapper)
+        $this->attributeParser
+            ->method('parseFigureWithCaption')
+            ->willReturn([
+                'attributes' => [
+                    'src'                    => 'test.jpg',
+                    'data-htmlarea-file-uid' => '1',
+                ],
+                'caption' => 'Caption',
+                'link'    => [], // Empty = no link
+            ]);
+
+        // Resolver should receive null for link attributes when no link
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->with(
+                self::anything(),
+                [],
+                $this->request,
+                null, // No link attributes
+            )
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->method('render')
+            ->willReturn('<figure><img /><figcaption>Caption</figcaption></figure>');
+
+        $this->adapter->renderFigure(null, [], $this->request);
+    }
+
+    /**
+     * Test that renderFigure passes link attributes for linked image without caption.
+     *
+     * Figure + Link (no caption) should still pass link attributes to resolver,
+     * resulting in Link template selection.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
+     */
+    #[Test]
+    public function renderFigurePassesLinkAttributesForLinkedImageWithoutCaption(): void
+    {
+        $html = '<figure><a href="https://example.com"><img src="test.jpg" data-htmlarea-file-uid="1" /></a></figure>';
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: [],
+            caption: null, // No caption
+            link: new LinkDto(
+                url: 'https://example.com',
+                target: null,
+                class: null,
+                isPopup: false,
+                jsConfig: null,
+            ),
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser
+            ->method('hasFigureWrapper')
+            ->willReturn(true);
+
+        // Parser returns link attributes but no caption
+        $this->attributeParser
+            ->method('parseFigureWithCaption')
+            ->willReturn([
+                'attributes' => [
+                    'src'                    => 'test.jpg',
+                    'data-htmlarea-file-uid' => '1',
+                ],
+                'caption' => '', // No caption
+                'link'    => [
+                    'href' => 'https://example.com',
+                ],
+            ]);
+
+        // Resolver MUST receive link attributes even without caption
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->with(
+                self::callback(static function (array $attributes): bool {
+                    // No data-caption should be added when caption is empty
+                    return !array_key_exists('data-caption', $attributes)
+                        && $attributes['data-htmlarea-file-uid'] === '1';
+                }),
+                [],
+                $this->request,
+                self::callback(static function (?array $linkAttributes): bool {
+                    return is_array($linkAttributes)
+                        && $linkAttributes['href'] === 'https://example.com';
+                }),
+            )
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->method('render')
+            ->willReturn('<a href="https://example.com"><img /></a>');
+
+        $result = $this->adapter->renderFigure(null, [], $this->request);
+
+        self::assertStringContainsString('href', $result);
+    }
+
+    /**
+     * Test that renderFigure preserves popup attributes for resolver to handle.
+     *
+     * When figure contains image with data-htmlarea-zoom but no explicit link,
+     * the popup attributes should be preserved in the image attributes passed
+     * to the resolver, allowing it to auto-generate a popup link.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
+     */
+    #[Test]
+    public function renderFigurePreservesPopupAttributesForResolverAutoLink(): void
+    {
+        $html = '<figure><img src="test.jpg" data-htmlarea-file-uid="1" data-htmlarea-zoom="1" /><figcaption>Popup Caption</figcaption></figure>';
+
+        // The resolver will create a popup link because of data-htmlarea-zoom
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: [],
+            caption: 'Popup Caption',
+            link: new LinkDto(
+                url: '/fullsize.jpg', // Auto-generated by resolver
+                target: '_blank',
+                class: 'popup-link',
+                isPopup: true,
+                jsConfig: null,
+            ),
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser
+            ->method('hasFigureWrapper')
+            ->willReturn(true);
+
+        // Parser returns popup attributes on image, no explicit link
+        $this->attributeParser
+            ->method('parseFigureWithCaption')
+            ->willReturn([
+                'attributes' => [
+                    'src'                    => 'test.jpg',
+                    'data-htmlarea-file-uid' => '1',
+                    'data-htmlarea-zoom'     => '1', // Popup attribute
+                ],
+                'caption' => 'Popup Caption',
+                'link'    => [], // No explicit link
+            ]);
+
+        // Resolver receives null for link attributes, but image attributes include zoom
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->with(
+                self::callback(static function (array $attributes): bool {
+                    // Popup attribute MUST be preserved
+                    return $attributes['data-htmlarea-zoom'] === '1'
+                        && $attributes['data-caption'] === 'Popup Caption';
+                }),
+                [],
+                $this->request,
+                null, // No explicit link attributes
+            )
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->method('render')
+            ->willReturn('<figure><a href="/fullsize.jpg" data-popup="true"><img /></a><figcaption>Popup Caption</figcaption></figure>');
+
+        $result = $this->adapter->renderFigure(null, [], $this->request);
+
+        self::assertStringContainsString('Popup Caption', $result);
     }
 }

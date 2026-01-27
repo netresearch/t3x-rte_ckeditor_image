@@ -221,13 +221,16 @@ class ImageRenderingAdapter
      * TypoScript: lib.parseFunc_RTE.tags.figure.preUserFunc
      *
      * Handles CKEditor 5 output format: <figure><img/><figcaption>...</figcaption></figure>
-     * Extracts caption from figcaption element and passes to image resolver.
+     * And linked images: <figure><a href="..."><img/></a><figcaption>...</figcaption></figure>
+     * Extracts caption from figcaption element and link attributes from anchor wrapper.
      *
      * @param string|null            $content Content input (not used)
      * @param array<string, mixed>   $conf    TypoScript configuration
      * @param ServerRequestInterface $request Current request
      *
      * @return string Rendered HTML
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
      */
     #[AsAllowedCallable]
     public function renderFigure(?string $content, array $conf, ServerRequestInterface $request): string
@@ -249,10 +252,11 @@ class ImageRenderingAdapter
             return $figureHtml;
         }
 
-        // Parse figure to extract image attributes and caption
+        // Parse figure to extract image attributes, caption, and link attributes
         $parsed          = $this->attributeParser->parseFigureWithCaption($figureHtml);
         $imageAttributes = $parsed['attributes'];
         $caption         = $parsed['caption'];
+        $linkAttributes  = $parsed['link'];
 
         // Skip images without file UID (external images)
         $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
@@ -269,15 +273,19 @@ class ImageRenderingAdapter
             $imageAttributes['data-caption'] = $caption;
         }
 
+        // Pass link attributes to resolver if image is wrapped in <a>
+        // This ensures the correct template (LinkWithCaption) is selected
+        $linkAttributesOrNull = $linkAttributes !== [] ? $linkAttributes : null;
+
         // Resolve image to validated DTO
-        $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
+        $dto = $this->resolverService->resolve($imageAttributes, $conf, $request, $linkAttributesOrNull);
 
         if (!$dto instanceof ImageRenderingDto) {
             // Resolution failed - return original content
             return $figureHtml;
         }
 
-        // Render via Fluid templates (will use WithCaption.html if caption present)
+        // Render via Fluid templates (will use LinkWithCaption.html if link and caption present)
         return $this->renderingService->render($dto, $request, $conf);
     }
 }
