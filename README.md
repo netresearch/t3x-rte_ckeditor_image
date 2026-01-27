@@ -35,25 +35,15 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
 - **Lazy Loading**: TYPO3 native browser lazyload support
 - **Event-Driven**: PSR-14 events for extensibility
 - **Security**: Protocol blocking, XSS prevention, file visibility validation
-- **Fluid Templates**: Customizable output via template overrides (v13.1.5+)
+- **Fluid Templates**: Customizable output via template overrides
 
 ## Requirements
 
-- **TYPO3:** 13.4 LTS or 14.0+
-- **PHP:** 8.2, 8.3, 8.4, or 8.5
+- **TYPO3:** 13.4.21+ or 14.0+
+- **PHP:** 8.2 or later
 - **Extensions:** cms-rte-ckeditor (included in TYPO3 core)
 
-### Critical Dependencies (v13.0.0+)
-
-The CKEditor plugin requires these dependencies for style functionality:
-
-```yaml
-# In your RTE YAML configuration
-importModules:
-  - '@ckeditor/ckeditor5-html-support'
-```
-
-**Important:** Missing `GeneralHtmlSupport` will disable the style dropdown for images. See [Documentation](Documentation/Index.md) for details.
+> **Note:** The plugin automatically integrates with CKEditor's `GeneralHtmlSupport` for style functionality. No additional configuration required.
 
 ## Installation
 
@@ -66,6 +56,8 @@ composer req netresearch/rte-ckeditor-image
 ```
 
 The backend RTE works immediately. For frontend rendering, include the TypoScript:
+
+> **Important (v13.4.0+):** TypoScript is no longer auto-injected. You must include it manually using one of the options below.
 
 **Option 1: Static Template (Recommended)**
 
@@ -145,8 +137,7 @@ RTE.default.buttons.image.options.magic {
 }
 ```
 
-Current versions of TYPO3 won't render TSConfig settings correctly out of custom template extensions (see the corresponding T3 bug: https://forge.typo3.org/issues/87068).
-In this case just add the settings to root page config.
+If TSConfig settings don't render correctly from custom template extensions, add the settings directly to root page configuration.
 
 
 ### Usage as lightbox with fluid_styled_content
@@ -178,7 +169,7 @@ The extension supports [TYPO3 lazyload handling](https://docs.typo3.org/c/typo3/
 styles.content.image.lazyLoading = lazy
 ```
 
-### Image Quality Selector (v13.1.5+)
+### Image Quality Selector
 
 The image dialog includes a quality selector dropdown for optimal image processing:
 
@@ -193,22 +184,17 @@ Quality selection persists via `data-quality` HTML attribute. The selector autom
 
 **See:** [Image Quality Selector Documentation](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/CKEditor/Image-Quality-Selector.html) for complete technical details, use cases, and migration guide.
 
-### Using original images without processing (noScale) - Legacy Configuration
+### Using original images without processing (noScale)
 
-For backward compatibility, you can still configure noScale globally via TypoScript:
+Configure noScale globally via TypoScript to skip image processing:
 
 ```typoscript
 # TypoScript Setup - Enable globally for all RTE images
 lib.parseFunc_RTE.tags.img.noScale = 1
 
 # Optional: Set file size threshold for auto-optimization
-lib.parseFunc_RTE.tags.img {
-    noScale = 1
-    noScale {
-        # Maximum file size in bytes for auto-optimization
-        # Prevents serving very large original files
-        maxFileSizeForAuto = 2000000  # 2MB
-    }
+lib.parseFunc_RTE.tags.img.noScale {
+    maxFileSizeForAuto = 2000000  # 2MB - prevents serving very large originals
 }
 ```
 
@@ -244,15 +230,9 @@ For integrators, administrators, and end users. Covers installation, configurati
 
 ### AI Development Context
 
-**AI Agents & Developers:** [claudedocs/INDEX.md](claudedocs/INDEX.md)
+**AI Agents & Developers:** `claudedocs/` directory (gitignored)
 
-Comprehensive technical knowledge base including:
-- [Architecture & Design](claudedocs/ARCHITECTURE.md) - System design, components, security
-- [API Reference](claudedocs/API_REFERENCE.md) - Complete PHP API documentation
-- [Development Guide](claudedocs/DEVELOPMENT_GUIDE.md) - Workflow, standards, testing
-- [Security Analysis](claudedocs/SECURITY.md) - Threat model, protections, best practices
-
-**Note:** `claudedocs/` is gitignored - generated per session for AI context only.
+Technical knowledge base for AI-assisted development. Not tracked in git - generate per session if needed.
 
 ### Project Essentials
 

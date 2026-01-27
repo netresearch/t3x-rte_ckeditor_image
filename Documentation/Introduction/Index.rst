@@ -114,7 +114,7 @@ Key Features
 
    .. card:: TYPO3 v14 & PHP 8.5
 
-      .. versionadded:: 13.1.5
+      .. versionadded:: 13.2.0
 
       Full compatibility with TYPO3 v14 and tested with PHP 8.5.
 
@@ -140,7 +140,7 @@ Visual Preview
 Version Information
 ===================
 
-:Supported TYPO3: 13.4 LTS, 14.0+
+:Supported TYPO3: 13.4.21+ LTS, 14.0+
 :License: AGPL-3.0-or-later
 :Repository: `github.com/netresearch/t3x-rte_ckeditor_image <https://github.com/netresearch/t3x-rte_ckeditor_image>`__
 :Maintainer: `Netresearch DTT GmbH <https://www.netresearch.de/>`__
@@ -155,29 +155,14 @@ Requirements
 System Requirements
 ===================
 
-- **TYPO3:** 13.4 LTS or 14.0+
-- **PHP:** 8.2, 8.3, 8.4, or 8.5
+- **TYPO3:** 13.4.21+ LTS or 14.0+
+- **PHP:** 8.2 or later
 - **Extensions:** cms-rte-ckeditor (included in TYPO3 core)
 
-Critical Dependencies
-=====================
+.. note::
 
-.. versionadded:: 13.0.0
-   The CKEditor plugin now requires ``StyleUtils`` and ``GeneralHtmlSupport``
-   dependencies for style functionality. Previous versions did not have this requirement.
-
-The CKEditor plugin requires these dependencies for style functionality:
-
-.. code-block:: javascript
-
-   static get requires() {
-       return ['StyleUtils', 'GeneralHtmlSupport'];
-   }
-
-.. important::
-
-   Missing either plugin will disable the style dropdown for images.
-   See :ref:`Style Integration <ckeditor-style-integration>` for details.
+   The plugin automatically integrates with CKEditor's ``GeneralHtmlSupport`` for style
+   functionality. No additional configuration required.
 
 
 .. _quick-start:
@@ -205,6 +190,10 @@ Install via Composer:
 The backend RTE works immediately after installation:
 
 - ✅ **Backend RTE**: Automatically registers the ``rteWithImages`` preset and configures the toolbar with ``insertimage`` button
+
+.. important::
+
+   **v13.4.0+:** TypoScript is no longer auto-injected. You must include it manually.
 
 **For frontend rendering**, include the TypoScript:
 
