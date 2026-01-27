@@ -512,6 +512,7 @@ final class ImageRenderingAdapterTest extends TestCase
                 }),
                 [],
                 $this->request,
+                null, // No link attributes (empty link array from parser)
             )
             ->willReturn($dto);
 
@@ -572,6 +573,7 @@ final class ImageRenderingAdapterTest extends TestCase
                 }),
                 [],
                 $this->request,
+                null, // No link attributes (empty link array from parser)
             )
             ->willReturn($dto);
 
