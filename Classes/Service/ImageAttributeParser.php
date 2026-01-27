@@ -157,19 +157,23 @@ class ImageAttributeParser
     }
 
     /**
-     * Parse image attributes and caption from <figure> wrapped images.
+     * Parse image attributes, caption, and link from <figure> wrapped images.
      *
      * Extracts caption text from <figcaption> element if present.
+     * Extracts link attributes when image is wrapped in <a> inside figure.
      * This handles CKEditor 5 output format: <figure><img/><figcaption>...</figcaption></figure>
+     * And linked images: <figure><a href="..."><img/></a><figcaption>...</figcaption></figure>
      *
      * @param string $html HTML string containing figure-wrapped image
      *
-     * @return array{attributes: array<string,string>, caption: string}
+     * @return array{attributes: array<string,string>, caption: string, link: array<string,string>}
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
      */
     public function parseFigureWithCaption(string $html): array
     {
         if (trim($html) === '') {
-            return ['attributes' => [], 'caption' => ''];
+            return ['attributes' => [], 'caption' => '', 'link' => []];
         }
 
         $dom = new DOMDocument();
@@ -188,7 +192,7 @@ class ImageAttributeParser
         $figures = $xpath->query('//figure');
 
         if ($figures === false || $figures->length === 0) {
-            return ['attributes' => [], 'caption' => ''];
+            return ['attributes' => [], 'caption' => '', 'link' => []];
         }
 
         /** @var DOMElement $figure */
@@ -214,7 +218,18 @@ class ImageAttributeParser
             $caption           = trim($figcaptionElement->textContent ?? '');
         }
 
-        return ['attributes' => $attributes, 'caption' => $caption];
+        // Extract link attributes if image is wrapped in <a>
+        // Query for <a> elements that contain an <img> descendant (not just any <a>)
+        $linksWithImage = $xpath->query('.//a[.//img]', $figure);
+        $linkAttributes = [];
+
+        if ($linksWithImage !== false && $linksWithImage->length > 0) {
+            /** @var DOMElement $link */
+            $link           = $linksWithImage->item(0);
+            $linkAttributes = $this->extractAttributes($link);
+        }
+
+        return ['attributes' => $attributes, 'caption' => $caption, 'link' => $linkAttributes];
     }
 
     /**
