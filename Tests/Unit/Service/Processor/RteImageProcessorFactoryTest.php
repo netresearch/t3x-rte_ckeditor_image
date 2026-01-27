@@ -20,6 +20,7 @@ use Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorFactory;
 use Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorInterface;
 use Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolverInterface;
 use Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -36,6 +37,7 @@ use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
  * @author  Netresearch DTT GmbH <info@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(RteImageProcessorFactory::class)]
 class RteImageProcessorFactoryTest extends TestCase
 {

@@ -18,6 +18,7 @@ use Netresearch\RteCKEditorImage\Service\Parser\ImageTagParserInterface;
 use Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessor;
 use Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolverInterface;
 use Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -38,6 +39,7 @@ use TYPO3\CMS\Core\Resource\ProcessedFile;
  * @author  Netresearch DTT GmbH <info@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(RteImageProcessor::class)]
 class RteImageProcessorTest extends TestCase
 {

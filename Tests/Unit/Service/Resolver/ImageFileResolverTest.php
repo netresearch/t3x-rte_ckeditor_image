@@ -15,6 +15,7 @@ use Netresearch\RteCKEditorImage\Service\Environment\EnvironmentInfoInterface;
 use Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcherInterface;
 use Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolver;
 use Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -33,6 +34,7 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
  * @author  Netresearch DTT GmbH <info@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(ImageFileResolver::class)]
 class ImageFileResolverTest extends TestCase
 {

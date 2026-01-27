@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Service\Environment;
 
 use Netresearch\RteCKEditorImage\Service\Environment\Typo3EnvironmentInfo;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use stdClass;
@@ -21,6 +22,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 /**
  * Unit tests for Typo3EnvironmentInfo.
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(Typo3EnvironmentInfo::class)]
 final class Typo3EnvironmentInfoTest extends UnitTestCase
 {

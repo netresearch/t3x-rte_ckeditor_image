@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Listener\TCA;
 
 use Netresearch\RteCKEditorImage\Listener\TCA\RteSoftrefEnforcer;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent;
@@ -21,6 +22,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 /**
  * Unit tests for RteSoftrefEnforcer event listener.
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(RteSoftrefEnforcer::class)]
 final class RteSoftrefEnforcerTest extends UnitTestCase
 {
