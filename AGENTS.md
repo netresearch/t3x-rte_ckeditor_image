@@ -25,22 +25,46 @@ See **[claudedocs/INDEX.md](claudedocs/INDEX.md)** for AI context navigation.
 - **Quality Gate:** All code must pass `composer ci:test` before commit
 - **Releases:** ALWAYS create signed tags - NEVER use `gh release create` alone
 
-## 🏷️ Creating Signed Releases
+## 🏷️ Release Process (MANDATORY)
+
+### Pre-Release Checklist
+
+1. **Update `ext_emconf.php`** - Bump version number (e.g., `13.4.1` → `13.4.2`)
+2. **Update `CHANGELOG.md`** - Add new version section with changes
+3. **Commit preparation** - `git commit -S -m "chore: prepare vX.Y.Z release"`
+4. **Verify CI passes** - All checks must be green on main
+
+### Creating Signed Releases
 
 **CRITICAL:** Tags/releases created via `gh release create` are UNSIGNED. Always use this process:
 
 ```bash
-# 1. Create signed tag locally
+# 1. Update version files
+# - ext_emconf.php: 'version' => 'X.Y.Z'
+# - CHANGELOG.md: Add [X.Y.Z] section
+
+# 2. Commit release preparation
+git add ext_emconf.php CHANGELOG.md
+git commit -S -m "chore: prepare vX.Y.Z release"
+git push origin main
+
+# 3. Create signed tag locally
 git tag -s vX.Y.Z -m "vX.Y.Z"
 
-# 2. Push signed tag to remote
+# 4. Push signed tag to remote
 git push origin vX.Y.Z
 
-# 3. Create release on existing tag (tag already exists, so it stays signed)
+# 5. Create release on existing tag (tag already exists, so it stays signed)
 gh release create vX.Y.Z --title "vX.Y.Z" --notes "Release notes..."
 ```
 
 **NEVER:** Run `gh release create` without first creating and pushing a signed tag.
+
+### Post-Release Verification
+
+- [ ] GitHub release visible: https://github.com/netresearch/t3x-rte_ckeditor_image/releases
+- [ ] TER upload complete: https://extensions.typo3.org/extension/rte_ckeditor_image
+- [ ] Packagist updated: https://packagist.org/packages/netresearch/rte-ckeditor-image
 
 ## ⚡ Pre-Commit Checklist
 
