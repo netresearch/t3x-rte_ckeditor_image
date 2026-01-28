@@ -13,6 +13,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Database;
 
 use Netresearch\RteCKEditorImage\Database\RteImagesDbHook;
 use Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -22,6 +23,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 /**
  * Unit tests for RteImagesDbHook.
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(RteImagesDbHook::class)]
 final class RteImagesDbHookTest extends UnitTestCase
 {

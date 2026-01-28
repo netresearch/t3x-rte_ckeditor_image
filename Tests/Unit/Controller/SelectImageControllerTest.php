@@ -13,6 +13,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Controller;
 
 use Exception;
 use Netresearch\RteCKEditorImage\Controller\SelectImageController;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -33,6 +34,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 /**
  * Unit tests for SelectImageController.
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(SelectImageController::class)]
 final class SelectImageControllerTest extends UnitTestCase
 {

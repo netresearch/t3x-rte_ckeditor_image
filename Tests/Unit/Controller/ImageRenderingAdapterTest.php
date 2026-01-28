@@ -17,6 +17,7 @@ use Netresearch\RteCKEditorImage\Domain\Model\LinkDto;
 use Netresearch\RteCKEditorImage\Service\ImageAttributeParser;
 use Netresearch\RteCKEditorImage\Service\ImageRenderingService;
 use Netresearch\RteCKEditorImage\Service\ImageResolverService;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -30,6 +31,7 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  * @author  Netresearch DTT GmbH <info@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(ImageRenderingAdapter::class)]
 final class ImageRenderingAdapterTest extends TestCase
 {

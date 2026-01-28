@@ -14,6 +14,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Service\Fetcher;
 use Exception;
 use Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcher;
 use Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -27,6 +28,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 /**
  * Unit tests for ExternalImageFetcher.
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(ExternalImageFetcher::class)]
 final class ExternalImageFetcherTest extends UnitTestCase
 {

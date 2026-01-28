@@ -13,6 +13,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Utils;
 
 use Exception;
 use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -24,6 +25,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 /**
  * Unit tests for ProcessedFilesHandler.
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(ProcessedFilesHandler::class)]
 final class ProcessedFilesHandlerTest extends UnitTestCase
 {

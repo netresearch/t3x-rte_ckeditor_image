@@ -13,6 +13,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Service;
 
 use Netresearch\RteCKEditorImage\Service\ImageResolverService;
 use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -28,6 +29,7 @@ use TYPO3\CMS\Core\Resource\Security\SvgSanitizer;
  * @author  Netresearch DTT GmbH <info@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
+#[AllowMockObjectsWithoutExpectations]
 final class ImageResolverServiceTest extends TestCase
 {
     private ImageResolverService $service;

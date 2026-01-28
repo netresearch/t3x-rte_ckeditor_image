@@ -8,6 +8,11 @@ parameters:
     # Level 10 is the strictest level - maximum type safety and code quality checks
     level: 10
 
+    # Stubs for classes that may not exist in all PHP/PHPUnit versions
+    # Note: stubFiles don't work reliably in CI, so we use bootstrapFiles instead
+    bootstrapFiles:
+        - %currentWorkingDirectory%/Build/phpstan-stubs/phpunit-attributes.php
+
     paths:
         - %currentWorkingDirectory%/Classes/
         - %currentWorkingDirectory%/Configuration/

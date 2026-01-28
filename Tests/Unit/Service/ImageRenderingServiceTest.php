@@ -14,6 +14,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Service;
 use Netresearch\RteCKEditorImage\Domain\Model\ImageRenderingDto;
 use Netresearch\RteCKEditorImage\Domain\Model\LinkDto;
 use Netresearch\RteCKEditorImage\Service\ImageRenderingService;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionMethod;
@@ -27,6 +28,7 @@ use TYPO3\CMS\Core\View\ViewInterface;
  * @author  Netresearch DTT GmbH <info@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
+#[AllowMockObjectsWithoutExpectations]
 class ImageRenderingServiceTest extends TestCase
 {
     private ImageRenderingService $service;
