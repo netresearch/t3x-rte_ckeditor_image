@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.4.2] - 2026-01-28
+
+### Fixed
+
+- **Template selection for linked figure images** - `renderFigure()` now correctly extracts link attributes from `<a>` wrapper inside `<figure>` elements, selecting the correct template (`LinkWithCaption` instead of `WithCaption`) ([#555](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555), [#556](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/556))
+
+### Changed
+
+- PHPUnit 11/12 compatibility - added polyfill for `AllowMockObjectsWithoutExpectations` attribute ([#558](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/558))
+- Updated documentation for accuracy (TYPO3 13.4.21+ requirement, TypoScript inclusion notice)
+
+## [13.4.1] - 2026-01-26
+
+### Fixed
+
+- **Caption persistence** - Caption values from the image properties dialog are now correctly persisted ([#549](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/549))
+- **Linked image processing** - Images wrapped in links (`<a>`) are now properly processed via `tags.a` handler ([#551](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/551))
+- **Nested figure prevention** - Strip `data-caption` in img handler to prevent nested figures ([#550](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/550))
+
 ## [13.4.0] - 2026-01-25
 
 ### Added
