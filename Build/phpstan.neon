@@ -10,7 +10,7 @@ parameters:
 
     # Stubs for classes that may not exist in all PHP/PHPUnit versions
     stubFiles:
-        - %currentWorkingDirectory%/Build/phpstan-stubs/phpunit-attributes.stub
+        - %currentWorkingDirectory%/Build/phpstan-stubs/phpunit-attributes.php
 
     paths:
         - %currentWorkingDirectory%/Classes/
