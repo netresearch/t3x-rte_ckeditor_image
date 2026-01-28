@@ -84,9 +84,8 @@ final class PartialPathResolutionTest extends FunctionalTestCase
     /**
      * Verify partials are shipped in TYPO3 standard location.
      *
-     * Issue #547 requirements:
+     * Issue #547 requirement:
      * - Partials must be in Resources/Private/Partials/Image/ (not Templates/Partials/)
-     * - Files must use .fluid.html extension for deterministic TYPO3 v13/v14 behavior
      *
      * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/547
      */
@@ -101,12 +100,12 @@ final class PartialPathResolutionTest extends FunctionalTestCase
         // Target location per issue #547: Resources/Private/Partials/Image/
         $newStandardPath = $extensionPath . 'Resources/Private/Partials/Image/';
 
-        // All required partials with .fluid.html extension (per issue #547 for v13/v14 compatibility)
+        // All required partials
         $requiredPartials = [
-            'Tag.fluid.html',
-            'TagInFigure.fluid.html',
-            'Link.fluid.html',
-            'Figure.fluid.html',
+            'Tag.html',
+            'TagInFigure.html',
+            'Link.html',
+            'Figure.html',
         ];
 
         self::assertDirectoryExists(
@@ -118,7 +117,7 @@ final class PartialPathResolutionTest extends FunctionalTestCase
             self::assertFileExists(
                 $newStandardPath . $partial,
                 sprintf(
-                    'Required partial "%s" must exist in standard location with .fluid.html extension',
+                    'Required partial "%s" must exist in standard location',
                     $partial,
                 ),
             );
@@ -169,8 +168,7 @@ final class PartialPathResolutionTest extends FunctionalTestCase
         $overridePath = Environment::getVarPath() . '/tests/override-old/Templates/Partials/Image';
         GeneralUtility::mkdir_deep($overridePath);
 
-        // Create override partial with .fluid.html extension only (per issue #547)
-        // ViewFactoryData format='fluid.html' ensures deterministic resolution on v13+v14
+        // Create override partial
         $customPartial = <<<'HTML'
             <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
             <!-- OVERRIDE-OLD-LOCATION -->
@@ -183,7 +181,7 @@ final class PartialPathResolutionTest extends FunctionalTestCase
             />
             </html>
             HTML;
-        $this->writeTestFile($overridePath . '/Tag.fluid.html', $customPartial);
+        $this->writeTestFile($overridePath . '/Tag.html', $customPartial);
 
         $imageDto = new ImageRenderingDto(
             src: '/fileadmin/test.jpg',
@@ -225,8 +223,7 @@ final class PartialPathResolutionTest extends FunctionalTestCase
         $overridePath = Environment::getVarPath() . '/tests/override-new/Partials/Image';
         GeneralUtility::mkdir_deep($overridePath);
 
-        // Create override partial with .fluid.html extension only (per issue #547)
-        // ViewFactoryData format='fluid.html' ensures deterministic resolution on v13+v14
+        // Create override partial
         $customPartial = <<<'HTML'
             <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
             <!-- OVERRIDE-NEW-LOCATION -->
@@ -239,7 +236,7 @@ final class PartialPathResolutionTest extends FunctionalTestCase
             />
             </html>
             HTML;
-        $this->writeTestFile($overridePath . '/Tag.fluid.html', $customPartial);
+        $this->writeTestFile($overridePath . '/Tag.html', $customPartial);
 
         $imageDto = new ImageRenderingDto(
             src: '/fileadmin/test.jpg',
@@ -276,7 +273,7 @@ final class PartialPathResolutionTest extends FunctionalTestCase
     #[Test]
     public function higherPriorityOverrideWins(): void
     {
-        // Create override in "old" location with lower priority (.fluid.html only per issue #547)
+        // Create override in "old" location with lower priority
         $oldOverridePath = Environment::getVarPath() . '/tests/override-priority/old/Templates/Partials/Image';
         GeneralUtility::mkdir_deep($oldOverridePath);
         $lowPriorityPartial = <<<'HTML'
@@ -285,9 +282,9 @@ final class PartialPathResolutionTest extends FunctionalTestCase
             <img src="{image.src}" alt="{image.alt}" class="low-priority" />
             </html>
             HTML;
-        $this->writeTestFile($oldOverridePath . '/Tag.fluid.html', $lowPriorityPartial);
+        $this->writeTestFile($oldOverridePath . '/Tag.html', $lowPriorityPartial);
 
-        // Create override in "new" location with higher priority (.fluid.html only per issue #547)
+        // Create override in "new" location with higher priority
         $newOverridePath = Environment::getVarPath() . '/tests/override-priority/new/Partials/Image';
         GeneralUtility::mkdir_deep($newOverridePath);
         $highPriorityPartial = <<<'HTML'
@@ -296,7 +293,7 @@ final class PartialPathResolutionTest extends FunctionalTestCase
             <img src="{image.src}" alt="{image.alt}" class="high-priority" />
             </html>
             HTML;
-        $this->writeTestFile($newOverridePath . '/Tag.fluid.html', $highPriorityPartial);
+        $this->writeTestFile($newOverridePath . '/Tag.html', $highPriorityPartial);
 
         $imageDto = new ImageRenderingDto(
             src: '/fileadmin/test.jpg',
