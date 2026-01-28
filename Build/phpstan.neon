@@ -8,6 +8,10 @@ parameters:
     # Level 10 is the strictest level - maximum type safety and code quality checks
     level: 10
 
+    # Stubs for classes that may not exist in all PHP/PHPUnit versions
+    stubFiles:
+        - %currentWorkingDirectory%/Build/phpstan-stubs/phpunit-attributes.stub
+
     paths:
         - %currentWorkingDirectory%/Classes/
         - %currentWorkingDirectory%/Configuration/
