@@ -72,15 +72,15 @@ gh release create vX.Y.Z --title "vX.Y.Z" --notes "Release notes..."
 # Quality checks (lint + phpstan + rector + cgl)
 composer ci:test
 
-# Run FULL test suite (ALWAYS run before committing!)
-composer ci:test:php:unit  # Unit tests
-ddev exec "cd /var/www/rte_ckeditor_image && typo3DatabaseHost=db typo3DatabaseUsername=root typo3DatabasePassword=root typo3DatabaseName=func_test .Build/bin/phpunit -c Build/phpunit/FunctionalTests.xml"  # Functional tests
+# Run test suite
+composer ci:test:php:unit  # Unit tests (run locally)
+# Functional tests: CI is authoritative; local ddev allowed for debugging only
 
 # Auto-fix code style
 composer ci:cgl
 ```
 
-**IMPORTANT:** ddev/containers are ALWAYS available in this project. Never skip functional tests!
+**Testing Policy:** CI is the authoritative source for test results. Local ddev execution is permitted for debugging failures, but always verify fixes pass in CI before merging.
 
 ## 📂 Scoped Guides (Nearest Wins)
 
