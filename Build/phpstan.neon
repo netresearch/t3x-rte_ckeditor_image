@@ -9,7 +9,8 @@ parameters:
     level: 10
 
     # Stubs for classes that may not exist in all PHP/PHPUnit versions
-    stubFiles:
+    # Note: stubFiles don't work reliably in CI, so we use bootstrapFiles instead
+    bootstrapFiles:
         - %currentWorkingDirectory%/Build/phpstan-stubs/phpunit-attributes.php
 
     paths:
