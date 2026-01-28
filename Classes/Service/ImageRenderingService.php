@@ -86,13 +86,11 @@ class ImageRenderingService
         $paths = $this->buildTemplatePaths($config);
 
         // 3. Create view via ViewFactoryInterface (TYPO3 v13 standard)
-        // Set format to 'fluid.html' for deterministic v13/v14 behavior per issue #547
         $viewFactoryData = new ViewFactoryData(
             templateRootPaths: $paths['templateRootPaths'],
             partialRootPaths: $paths['partialRootPaths'],
             layoutRootPaths: $paths['layoutRootPaths'],
             request: $request,
-            format: 'fluid.html',
         );
 
         $view = $this->viewFactory->create($viewFactoryData);
