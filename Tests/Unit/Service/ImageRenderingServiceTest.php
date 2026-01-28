@@ -519,8 +519,9 @@ class ImageRenderingServiceTest extends TestCase
                 $partialPaths  = $data->partialRootPaths ?? [];
                 $layoutPaths   = $data->layoutRootPaths ?? [];
 
+                // Partials in TYPO3 standard location per issue #547
                 return in_array('EXT:rte_ckeditor_image/Resources/Private/Templates/', $templatePaths, true)
-                    && in_array('EXT:rte_ckeditor_image/Resources/Private/Templates/Partials/', $partialPaths, true)
+                    && in_array('EXT:rte_ckeditor_image/Resources/Private/Partials/', $partialPaths, true)
                     && in_array('EXT:rte_ckeditor_image/Resources/Private/Templates/Layouts/', $layoutPaths, true);
             }))
             ->willReturn($viewMock);
