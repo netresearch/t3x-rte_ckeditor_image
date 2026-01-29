@@ -160,8 +160,20 @@ lib.contentElement.settings.media.popup {
     # Set to 1 if using a JavaScript lightbox library instead of popup window
     directImageLink = 0
 
-    # Link parameters for lightbox libraries
-    # linkParams.ATagParams.dataWrap = class="{$styles.content.textmedia.linkWrap.lightboxCssClass}" rel="{$styles.content.textmedia.linkWrap.lightboxRelAttribute}"
+    #******************************************************
+    # Popup link customization
+    # Configure the CSS class for popup/zoom links
+    #******************************************************
+
+    # Simple: Set a custom CSS class for the popup link
+    # Default: popup-link
+    # Example: linkClass = lightbox
+    # linkClass = popup-link
+
+    # Advanced: Use ATagParams for full control over link attributes
+    # This allows setting class, data-* attributes, rel, etc.
+    # Example for lightbox libraries:
+    # linkParams.ATagParams = class="lightbox" data-lightbox="gallery" rel="lightbox"
 }
 
 #******************************************************
