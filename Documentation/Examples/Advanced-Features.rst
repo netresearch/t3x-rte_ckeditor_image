@@ -20,6 +20,48 @@ Lightbox Integration
    The basic "Enlarge on Click" feature works out-of-the-box without additional setup.
    See :ref:`integration-configuration-frontend-rendering` for details.
 
+Popup Link Configuration
+------------------------
+
+.. versionadded:: 13.4.3
+   The popup link CSS class is now configurable via TypoScript.
+
+By default, popup links use the CSS class ``popup-link``. You can customize this
+to integrate with your lightbox library or styling framework.
+
+Simple Configuration
+~~~~~~~~~~~~~~~~~~~~
+
+Set a custom class directly:
+
+.. code-block:: typoscript
+   :caption: EXT:my_site/Configuration/TypoScript/setup.typoscript
+
+   lib.contentElement.settings.media.popup {
+       # Set custom CSS class for popup/lightbox links
+       linkClass = lightbox
+   }
+
+Advanced Configuration (ATagParams)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For more control over link attributes, use ``linkParams.ATagParams``:
+
+.. code-block:: typoscript
+   :caption: EXT:my_site/Configuration/TypoScript/setup.typoscript
+
+   lib.contentElement.settings.media.popup {
+       linkParams.ATagParams = class="fancybox" data-gallery="main" rel="gallery"
+   }
+
+The extension extracts the ``class`` attribute from ``ATagParams`` if ``linkClass``
+is not set. This allows integrating with libraries that require additional data attributes.
+
+.. note::
+   ``linkClass`` takes precedence over the class extracted from ``ATagParams``.
+   Use ``linkClass`` for simple cases, ``ATagParams`` when you need additional attributes.
+
+
 PhotoSwipe Lightbox
 -------------------
 
