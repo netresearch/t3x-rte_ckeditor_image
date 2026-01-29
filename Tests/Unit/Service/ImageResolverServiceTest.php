@@ -1063,6 +1063,21 @@ final class ImageResolverServiceTest extends TestCase
         self::assertSame('lightbox gallery-item', $result);
     }
 
+    #[Test]
+    public function getPopupLinkClassReturnsDefaultForEmptyClassInATagParams(): void
+    {
+        $config = [
+            'linkParams.' => [
+                'ATagParams' => 'class="" rel="gallery"',
+            ],
+        ];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        // Empty class should fall back to default
+        self::assertSame('popup-link', $result);
+    }
+
     // ========================================================================
     // getNestedTypoScriptValue Tests
     // ========================================================================
