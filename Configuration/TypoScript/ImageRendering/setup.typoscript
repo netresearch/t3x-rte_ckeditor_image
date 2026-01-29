@@ -112,12 +112,13 @@ lib.parseFunc_RTE {
 # artifacts between <img> and <figcaption> elements.
 # See: https://github.com/netresearch/t3x-rte_ckeditor_image/pull/482
 #
-# Note: 'a' is included for linked images (<a><img></a>) rendered
-# by this extension's templates. Standard inline anchors within
-# paragraph text are unaffected since they're already wrapped
-# in their parent paragraph content.
+# Note: 'a' was removed from this list in TYPO3 v13 due to duplicate
+# link generation when images are wrapped in links. The encapsLines
+# handler in v13 processes anchor tags differently, causing nested
+# links like <a><a><img></a></a>.
+# See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/565
 #******************************************************
-lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img,figure,figcaption,a)
+lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img,figure,figcaption)
 
 #******************************************************
 # Figure element configuration
