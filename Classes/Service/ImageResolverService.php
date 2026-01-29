@@ -779,7 +779,8 @@ class ImageResolverService
         }
 
         // Check for ATagParams configuration (advanced)
-        // TypoScript: lib.contentElement.settings.media.popup.linkParams.ATagParams = class="lightbox" data-gallery="main"
+        // TypoScript: lib.contentElement.settings.media.popup.linkParams.ATagParams = class="lightbox gallery-item"
+        // Note: Only the class attribute is extracted; other attributes are ignored
         $linkParams = $popupConfig['linkParams.'] ?? null;
 
         if (is_array($linkParams) && isset($linkParams['ATagParams']) && is_string($linkParams['ATagParams'])) {

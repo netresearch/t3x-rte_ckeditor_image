@@ -1048,6 +1048,21 @@ final class ImageResolverServiceTest extends TestCase
         self::assertSame('spaced-class', $result);
     }
 
+    #[Test]
+    public function getPopupLinkClassExtractsMultipleCssClasses(): void
+    {
+        $config = [
+            'linkParams.' => [
+                'ATagParams' => 'class="lightbox gallery-item" rel="gallery"',
+            ],
+        ];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        // Multiple space-separated classes should be preserved
+        self::assertSame('lightbox gallery-item', $result);
+    }
+
     // ========================================================================
     // getNestedTypoScriptValue Tests
     // ========================================================================

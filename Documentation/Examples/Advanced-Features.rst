@@ -45,21 +45,25 @@ Set a custom class directly:
 Advanced Configuration (ATagParams)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For more control over link attributes, use ``linkParams.ATagParams``:
+For backward compatibility with existing TypoScript configurations, the extension
+can also extract the CSS class from ``linkParams.ATagParams``:
 
 .. code-block:: typoscript
    :caption: EXT:my_site/Configuration/TypoScript/setup.typoscript
 
    lib.contentElement.settings.media.popup {
-       linkParams.ATagParams = class="fancybox" data-gallery="main" rel="gallery"
+       linkParams.ATagParams = class="fancybox gallery-item"
    }
 
-The extension extracts the ``class`` attribute from ``ATagParams`` if ``linkClass``
-is not set. This allows integrating with libraries that require additional data attributes.
+.. important::
+   Only the ``class`` attribute is extracted from ``ATagParams``. Other attributes
+   like ``data-*``, ``rel``, or ``target`` are **not** applied to the popup link.
+   For full attribute control, use a custom Fluid template override or PHP hook.
 
 .. note::
    ``linkClass`` takes precedence over the class extracted from ``ATagParams``.
-   Use ``linkClass`` for simple cases, ``ATagParams`` when you need additional attributes.
+   Use ``linkClass`` for simple configuration (recommended).
+
 
 
 PhotoSwipe Lightbox
