@@ -1034,6 +1034,20 @@ final class ImageResolverServiceTest extends TestCase
         self::assertSame('popup-link', $result);
     }
 
+    #[Test]
+    public function getPopupLinkClassTrimsWhitespaceFromATagParams(): void
+    {
+        $config = [
+            'linkParams.' => [
+                'ATagParams' => 'class="  spaced-class  " rel="gallery"',
+            ],
+        ];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        self::assertSame('spaced-class', $result);
+    }
+
     // ========================================================================
     // getNestedTypoScriptValue Tests
     // ========================================================================

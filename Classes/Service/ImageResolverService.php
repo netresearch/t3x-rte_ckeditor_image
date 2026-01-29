@@ -787,7 +787,7 @@ class ImageResolverService
 
             // Extract class from ATagParams if present
             if (preg_match('/class\s*=\s*["\']([^"\']+)["\']/', $atagParams, $matches) === 1) {
-                return $matches[1];
+                return trim($matches[1]);
             }
         }
 
