@@ -9,11 +9,11 @@ parameters:
 		-
 			message: '#^Method Netresearch\\RteCKEditorImage\\Controller\\ImageRenderingAdapter\:\:renderImageAttributes\(\) should return string but returns mixed\.$#'
 			identifier: return.type
-			count: 2
+			count: 3
 			path: ../Classes/Controller/ImageRenderingAdapter.php
 
 		-
-			message: '#^Parameter \#1 \$attributes of method Netresearch\\RteCKEditorImage\\Service\\ImageResolverService\:\:resolve\(\) expects array\<string, string\>, array\<mixed, mixed\> given\.$#'
+			message: '#^Parameter \#1 \$attributes of method Netresearch\\RteCKEditorImage\\Service\\ImageResolverService\:\:resolve\(\) expects array\<string, string\>, array given\.$#'
 			identifier: argument.type
 			count: 1
 			path: ../Classes/Controller/ImageRenderingAdapter.php
@@ -281,9 +281,6 @@ parameters:
 			identifier: cast.string
 			count: 1
 			path: ../Classes/Service/Processor/RteImageProcessor.php
-
-		# instanceof.alwaysTrue for ImageFileResolver.php removed - handled by ignoreErrors
-		# with reportUnmatched: false to support both TYPO3 v13 and v14 (different occurrence counts)
 
 		-
 			message: '#^Cannot access offset ''bodytext'' on mixed\.$#'
