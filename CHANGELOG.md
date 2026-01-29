@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.5.0] - 2026-01-29
+
+### Added
+
+- **Configurable popup link class** - The CSS class for popup/lightbox links is now configurable via TypoScript `lib.contentElement.settings.media.popup.linkClass` ([#562](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/562), [#569](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/569))
+
+### Fixed
+
+- **Captioned image template selection** - Images with `data-caption` inside `<figure>` elements now correctly use the `WithCaption` template. The `renderImageAttributes()` handler skips processing captioned images to preserve `data-htmlarea-file-uid` for the `renderFigure()` handler ([#566](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/566), [#572](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/572))
+- **Duplicate link prevention** - Removed `a` from `encapsTagList` to prevent double-wrapped links when images are inside anchor tags ([#565](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/565), [#570](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/570))
+- **PageTSconfig duplicate loading** - Removed global `page.tsconfig` include to prevent duplicate loading when using TYPO3 Site Sets ([#563](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/563), [#568](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/568))
+
+### Changed
+
+- Documentation now mentions Site Set dependency requirement for installation
+
 ## [13.4.2] - 2026-01-28
 
 ### Fixed
