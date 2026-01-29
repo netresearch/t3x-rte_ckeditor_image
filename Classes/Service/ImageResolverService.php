@@ -738,15 +738,61 @@ class ImageResolverService
         }
 
         // Get popup configuration from TypoScript
-        $jsConfig = $this->getPopupConfiguration($request);
+        $popupConfig = $this->getPopupConfiguration($request);
+
+        // Get popup link class from TypoScript, default to 'popup-link' for BC
+        $linkClass = $this->getPopupLinkClass($popupConfig);
 
         return new LinkDto(
             url: $url,
             target: '_blank', // Popup opens in new window
-            class: 'popup-link', // Default class for popup links
+            class: $linkClass,
             isPopup: true,
-            jsConfig: $jsConfig,
+            jsConfig: $popupConfig,
         );
+    }
+
+    /**
+     * Get popup link class from configuration.
+     *
+     * @param array<string,mixed>|null $popupConfig Popup configuration from TypoScript
+     *
+     * @return string CSS class for popup link
+     */
+    private function getPopupLinkClass(?array $popupConfig): string
+    {
+        // Default class for backward compatibility
+        $defaultClass = 'popup-link';
+
+        if ($popupConfig === null) {
+            return $defaultClass;
+        }
+
+        // Check for linkClass configuration
+        // TypoScript: lib.contentElement.settings.media.popup.linkClass = my-lightbox
+        if (isset($popupConfig['linkClass']) && is_string($popupConfig['linkClass'])) {
+            $linkClass = trim($popupConfig['linkClass']);
+
+            if ($linkClass !== '') {
+                return $linkClass;
+            }
+        }
+
+        // Check for ATagParams configuration (advanced)
+        // TypoScript: lib.contentElement.settings.media.popup.linkParams.ATagParams = class="lightbox gallery-item"
+        // Note: Only the class attribute is extracted; other attributes are ignored
+        $linkParams = $popupConfig['linkParams.'] ?? null;
+
+        if (is_array($linkParams) && isset($linkParams['ATagParams']) && is_string($linkParams['ATagParams'])) {
+            $atagParams = $linkParams['ATagParams'];
+
+            // Extract class from ATagParams if present
+            if (preg_match('/class\s*=\s*["\']([^"\']+)["\']/', $atagParams, $matches) === 1) {
+                return trim($matches[1]);
+            }
+        }
+
+        return $defaultClass;
     }
 
     /**

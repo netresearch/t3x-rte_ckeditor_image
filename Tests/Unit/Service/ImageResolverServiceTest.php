@@ -928,6 +928,157 @@ final class ImageResolverServiceTest extends TestCase
     }
 
     // ========================================================================
+    // getPopupLinkClass Tests (#562)
+    // ========================================================================
+
+    #[Test]
+    public function getPopupLinkClassReturnsDefaultWhenConfigIsNull(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [null]);
+
+        self::assertSame('popup-link', $result);
+    }
+
+    #[Test]
+    public function getPopupLinkClassReturnsDefaultWhenConfigIsEmpty(): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [[]]);
+
+        self::assertSame('popup-link', $result);
+    }
+
+    #[Test]
+    public function getPopupLinkClassReturnsConfiguredLinkClass(): void
+    {
+        $config = ['linkClass' => 'my-lightbox'];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        self::assertSame('my-lightbox', $result);
+    }
+
+    #[Test]
+    public function getPopupLinkClassTrimsWhitespaceFromLinkClass(): void
+    {
+        $config = ['linkClass' => '  custom-popup  '];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        self::assertSame('custom-popup', $result);
+    }
+
+    #[Test]
+    public function getPopupLinkClassReturnsDefaultForEmptyLinkClass(): void
+    {
+        $config = ['linkClass' => '   '];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        self::assertSame('popup-link', $result);
+    }
+
+    #[Test]
+    public function getPopupLinkClassExtractsClassFromATagParams(): void
+    {
+        $config = [
+            'linkParams.' => [
+                'ATagParams' => 'class="lightbox-gallery" data-lightbox="main"',
+            ],
+        ];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        self::assertSame('lightbox-gallery', $result);
+    }
+
+    #[Test]
+    public function getPopupLinkClassExtractsClassFromATagParamsWithSingleQuotes(): void
+    {
+        $config = [
+            'linkParams.' => [
+                'ATagParams' => "class='fancybox' rel='gallery'",
+            ],
+        ];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        self::assertSame('fancybox', $result);
+    }
+
+    #[Test]
+    public function getPopupLinkClassPrefersLinkClassOverATagParams(): void
+    {
+        $config = [
+            'linkClass'   => 'preferred-class',
+            'linkParams.' => [
+                'ATagParams' => 'class="atag-class"',
+            ],
+        ];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        self::assertSame('preferred-class', $result);
+    }
+
+    #[Test]
+    public function getPopupLinkClassReturnsDefaultWhenATagParamsHasNoClass(): void
+    {
+        $config = [
+            'linkParams.' => [
+                'ATagParams' => 'data-lightbox="gallery" rel="lightbox"',
+            ],
+        ];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        self::assertSame('popup-link', $result);
+    }
+
+    #[Test]
+    public function getPopupLinkClassTrimsWhitespaceFromATagParams(): void
+    {
+        $config = [
+            'linkParams.' => [
+                'ATagParams' => 'class="  spaced-class  " rel="gallery"',
+            ],
+        ];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        self::assertSame('spaced-class', $result);
+    }
+
+    #[Test]
+    public function getPopupLinkClassExtractsMultipleCssClasses(): void
+    {
+        $config = [
+            'linkParams.' => [
+                'ATagParams' => 'class="lightbox gallery-item" rel="gallery"',
+            ],
+        ];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        // Multiple space-separated classes should be preserved
+        self::assertSame('lightbox gallery-item', $result);
+    }
+
+    #[Test]
+    public function getPopupLinkClassReturnsDefaultForEmptyClassInATagParams(): void
+    {
+        $config = [
+            'linkParams.' => [
+                'ATagParams' => 'class="" rel="gallery"',
+            ],
+        ];
+
+        $result = $this->callPrivateMethod($this->service, 'getPopupLinkClass', [$config]);
+
+        // Empty class should fall back to default
+        self::assertSame('popup-link', $result);
+    }
+
+    // ========================================================================
     // getNestedTypoScriptValue Tests
     // ========================================================================
 
