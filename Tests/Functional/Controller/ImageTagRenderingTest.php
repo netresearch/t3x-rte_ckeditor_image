@@ -22,14 +22,15 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 /**
  * Functional tests for standalone img tag rendering.
  *
- * Tests to verify that the tags.img handler (renderImageAttributes) does NOT
- * create figure wrappers for captioned images, preventing nested figure
- * structures when both tags.img and tags.figure handlers process content.
+ * Tests to verify that the tags.img handler (renderImageAttributes) skips
+ * processing for captioned images to preserve data-htmlarea-file-uid for
+ * the subsequent tags.figure handler (renderFigure).
  *
  * @author  Netresearch DTT GmbH <info@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/546
+ * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/566
  */
 final class ImageTagRenderingTest extends FunctionalTestCase
 {
@@ -73,21 +74,24 @@ final class ImageTagRenderingTest extends FunctionalTestCase
     }
 
     /**
-     * Test that renderImageAttributes does NOT create figure wrappers for captioned images.
+     * Test that renderImageAttributes skips processing for captioned images.
      *
-     * This is the root cause of bug #546: When an img tag has data-caption attribute,
-     * the tags.img handler (renderImageAttributes) was creating a figure wrapper.
-     * When this image is inside a figure (as CKEditor outputs captioned images),
-     * both handlers create figure wrappers, resulting in nested figures.
+     * This is the fix for bug #546 and #566: When an img tag has data-caption attribute,
+     * the tags.img handler (renderImageAttributes) must skip processing entirely to
+     * preserve the data-htmlarea-file-uid attribute for the subsequent tags.figure
+     * handler (renderFigure).
      *
-     * FIX: renderImageAttributes should NEVER create figure wrappers. Only
-     * renderFigure (tags.figure handler) should create figure wrappers.
+     * FIX: renderImageAttributes should return original content unchanged for captioned
+     * images, preserving data-htmlarea-file-uid for renderFigure to use.
      *
      * Current CKEditor output for captioned images:
      * <figure class="image">
      *   <img src="..." data-htmlarea-file-uid="1" data-caption="Caption">
      *   <figcaption>Caption</figcaption>
      * </figure>
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/546
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/566
      */
     #[Test]
     public function renderImageAttributesDoesNotCreateFigureWrapperForCaptionedImage(): void
@@ -99,8 +103,12 @@ final class ImageTagRenderingTest extends FunctionalTestCase
         $cObj->setRequest($this->request);
         $adapter->setContentObjectRenderer($cObj);
 
+        // The original img tag as it appears in the content
+        $originalImgTag = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" '
+            . 'width="250" height="250" alt="Test" data-caption="My Caption" />';
+
         // Simulate tags.img handler receiving an img with data-caption
-        // This is what parseFunc passes to the handler for standalone img tags
+        // parseFunc sets both parameters (parsed attributes) and currentVal (original tag)
         $cObj->parameters = [
             'src'                    => '/fileadmin/test.jpg',
             'data-htmlarea-file-uid' => '1',
@@ -109,29 +117,32 @@ final class ImageTagRenderingTest extends FunctionalTestCase
             'alt'                    => 'Test',
             'data-caption'           => 'My Caption',
         ];
+        $cObj->setCurrentVal($originalImgTag);
 
         /** @var string $result */
         $result = $adapter->renderImageAttributes(null, [], $this->request);
 
-        // CRITICAL ASSERTION: The output should NOT contain figure wrapper
-        // If it does, we'll get nested figures when this img is inside a figure
-        $figureCount = substr_count($result, '<figure');
-
+        // CRITICAL: The original content should be returned unchanged
+        // This preserves data-htmlarea-file-uid for renderFigure to use
         self::assertSame(
-            0,
-            $figureCount,
-            'renderImageAttributes should NOT create figure wrappers for captioned images. '
-            . 'Found ' . $figureCount . ' figure element(s). Result: ' . $result,
+            $originalImgTag,
+            $result,
+            'Captioned images should be returned unchanged to preserve data-htmlarea-file-uid. '
+            . 'Result: ' . $result,
         );
 
-        // The output should be just an img tag (possibly with wrapper span for styling)
-        self::assertStringContainsString('<img', $result, 'Output should contain img element');
-
-        // Should NOT contain figcaption (that's renderFigure's job)
-        self::assertStringNotContainsString(
-            '<figcaption',
+        // Verify data-htmlarea-file-uid is preserved (this is critical for #566)
+        self::assertStringContainsString(
+            'data-htmlarea-file-uid',
             $result,
-            'renderImageAttributes should NOT create figcaption. That is renderFigure\'s responsibility.',
+            'data-htmlarea-file-uid must be preserved for renderFigure to resolve the file.',
+        );
+
+        // Should NOT contain figure wrapper (that's renderFigure's job)
+        self::assertStringNotContainsString(
+            '<figure',
+            $result,
+            'renderImageAttributes should NOT create figure wrappers.',
         );
     }
 
@@ -174,10 +185,15 @@ final class ImageTagRenderingTest extends FunctionalTestCase
     }
 
     /**
-     * Test simulation of parseFunc processing order causing nested figures.
+     * Test simulation of parseFunc processing order with proper handling.
      *
-     * This test demonstrates the bug: when parseFunc processes content with
-     * a captioned image inside a figure, both handlers create figure wrappers.
+     * This test demonstrates the fix: when parseFunc processes content with
+     * a captioned image inside a figure, renderImageAttributes skips the captioned
+     * image (preserving data-htmlarea-file-uid), and renderFigure processes the
+     * complete figure structure.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/546
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/566
      */
     #[Test]
     public function combinedHandlersDoNotCreateNestedFigures(): void
@@ -189,7 +205,12 @@ final class ImageTagRenderingTest extends FunctionalTestCase
         $cObj->setRequest($this->request);
         $adapter->setContentObjectRenderer($cObj);
 
-        // Step 1: Simulate what tags.img handler produces
+        // The original img tag with data-caption (as it appears in CKEditor output)
+        $originalImgTag = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" '
+            . 'width="250" height="250" alt="Test" data-caption="Caption Text">';
+
+        // Step 1: Simulate tags.img handler processing
+        // parseFunc sets both parameters and currentVal
         $cObj->parameters = [
             'src'                    => '/fileadmin/test.jpg',
             'data-htmlarea-file-uid' => '1',
@@ -198,9 +219,18 @@ final class ImageTagRenderingTest extends FunctionalTestCase
             'alt'                    => 'Test',
             'data-caption'           => 'Caption Text',
         ];
+        $cObj->setCurrentVal($originalImgTag);
 
         /** @var string $imgResult */
         $imgResult = $adapter->renderImageAttributes(null, [], $this->request);
+
+        // With the fix, imgResult should be the original img tag (unchanged)
+        // This preserves data-htmlarea-file-uid for renderFigure
+        self::assertStringContainsString(
+            'data-htmlarea-file-uid',
+            $imgResult,
+            'After tags.img handler, data-htmlarea-file-uid should be preserved.',
+        );
 
         // Step 2: Build what the figure would look like after img processing
         // This simulates what parseFunc produces after tags.img runs

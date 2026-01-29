@@ -98,6 +98,7 @@ class ImageRenderingAdapter
      * @return string Rendered HTML (img tag only, no figure wrapper)
      *
      * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/546
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/566
      */
     #[AsAllowedCallable]
     public function renderImageAttributes(?string $content, array $conf, ServerRequestInterface $request): string
@@ -114,13 +115,18 @@ class ImageRenderingAdapter
                 : '';
         }
 
-        // CRITICAL FIX for #546: Remove data-caption to prevent figure wrapper creation.
-        // Caption handling is the responsibility of renderFigure(), not this method.
-        // If we pass caption to the resolver, it would create a figure wrapper, causing
-        // nested figures when the image is inside a <figure> element.
-        unset($attributes['data-caption']);
+        // CRITICAL FIX for #546 and #566: Skip processing for images with caption.
+        // Images with data-caption are part of a <figure> structure and MUST be
+        // processed by renderFigure() instead. If we process here, we strip the
+        // data-htmlarea-file-uid attribute, preventing renderFigure() from resolving
+        // the file later.
+        if (isset($attributes['data-caption']) && $attributes['data-caption'] !== '') {
+            return $this->cObj instanceof ContentObjectRenderer
+                ? ($this->cObj->getCurrentVal() ?? '')
+                : '';
+        }
 
-        // Resolve image to validated DTO (without caption, so no figure wrapper)
+        // Resolve image to validated DTO
         $dto = $this->resolverService->resolve($attributes, $conf, $request);
 
         if (!$dto instanceof ImageRenderingDto) {

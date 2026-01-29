@@ -198,4 +198,148 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
         // Should return original unchanged
         self::assertSame($externalFigure, $result);
     }
+
+    // ========================================================================
+    // Issue #566 Tests - Full parseFunc flow simulation
+    // ========================================================================
+
+    /**
+     * Test that captioned images use WithCaption template when processed through full flow.
+     *
+     * Reproduces issue #566: Template selection not working correctly for images with captions.
+     *
+     * When parseFunc processes <figure><img data-caption="..."><figcaption>...</figcaption></figure>:
+     * 1. tags.img handler (renderImageAttributes) runs FIRST on the inner <img>
+     * 2. tags.figure handler (renderFigure) runs SECOND on the outer <figure>
+     *
+     * The bug: renderImageAttributes was processing the img and stripping data-htmlarea-file-uid,
+     * causing renderFigure to fail file resolution and abort, leaving the Standalone template output.
+     *
+     * The fix: renderImageAttributes must skip processing when image has data-caption,
+     * returning original content so renderFigure can handle the whole figure.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/566
+     */
+    #[Test]
+    public function captionedImageUsesWithCaptionTemplateInFullParseFuncFlow(): void
+    {
+        $adapter = $this->get(ImageRenderingAdapter::class);
+
+        /** @var ContentObjectRenderer $cObj */
+        $cObj = $this->get(ContentObjectRenderer::class);
+        $cObj->setRequest($this->request);
+        $adapter->setContentObjectRenderer($cObj);
+
+        // CKEditor output: figure with captioned image
+        $imgTag = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" '
+            . 'width="250" height="250" alt="Test" data-caption="My Caption" />';
+
+        $figureHtml = '<figure class="image">'
+            . $imgTag
+            . '<figcaption>My Caption</figcaption>'
+            . '</figure>';
+
+        // Step 1: Simulate tags.img handler calling renderImageAttributes
+        // In real parseFunc, this is called on the <img> element inside the figure
+        $cObj->parameters = [
+            'src'                    => '/fileadmin/test.jpg',
+            'data-htmlarea-file-uid' => '1',
+            'width'                  => '250',
+            'height'                 => '250',
+            'alt'                    => 'Test',
+            'data-caption'           => 'My Caption',
+        ];
+        $cObj->setCurrentVal($imgTag);
+
+        /** @var string $imgResult */
+        $imgResult = $adapter->renderImageAttributes(null, [], $this->request);
+
+        // CRITICAL: The img should be returned UNCHANGED (with data-htmlarea-file-uid preserved)
+        // This allows renderFigure to resolve the file later
+        self::assertStringContainsString(
+            'data-htmlarea-file-uid',
+            $imgResult,
+            'renderImageAttributes must preserve data-htmlarea-file-uid for captioned images. Result: ' . $imgResult,
+        );
+
+        // Step 2: Simulate tags.figure handler calling renderFigure
+        // The figure content should still have the original img with data-htmlarea-file-uid
+        $cObj->setCurrentVal($figureHtml);
+
+        /** @var string $figureResult */
+        $figureResult = $adapter->renderFigure(null, [], $this->request);
+
+        // Should have exactly one figure
+        $figureCount = substr_count($figureResult, '<figure');
+        self::assertSame(
+            1,
+            $figureCount,
+            'Expected exactly 1 figure element. Result: ' . $figureResult,
+        );
+
+        // Should have exactly one figcaption
+        $figcaptionCount = substr_count($figureResult, '<figcaption');
+        self::assertSame(
+            1,
+            $figcaptionCount,
+            'Expected exactly 1 figcaption element. Result: ' . $figureResult,
+        );
+
+        // Caption text should appear in the output
+        self::assertStringContainsString(
+            'My Caption',
+            $figureResult,
+            'Caption text should appear in output. Result: ' . $figureResult,
+        );
+    }
+
+    /**
+     * Test that standalone images (no caption) are still processed normally.
+     *
+     * Regression test: The fix for issue #566 should not affect standalone images.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/566
+     */
+    #[Test]
+    public function standaloneImageIsStillProcessedByRenderImageAttributes(): void
+    {
+        $adapter = $this->get(ImageRenderingAdapter::class);
+
+        /** @var ContentObjectRenderer $cObj */
+        $cObj = $this->get(ContentObjectRenderer::class);
+        $cObj->setRequest($this->request);
+        $adapter->setContentObjectRenderer($cObj);
+
+        // Standalone image without caption
+        $imgTag = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" '
+            . 'width="250" height="250" alt="Test" />';
+
+        $cObj->parameters = [
+            'src'                    => '/fileadmin/test.jpg',
+            'data-htmlarea-file-uid' => '1',
+            'width'                  => '250',
+            'height'                 => '250',
+            'alt'                    => 'Test',
+            // No data-caption
+        ];
+        $cObj->setCurrentVal($imgTag);
+
+        /** @var string $result */
+        $result = $adapter->renderImageAttributes(null, [], $this->request);
+
+        // Standalone images SHOULD be processed (src changed to processed path)
+        // The data-htmlarea-file-uid should be removed after processing
+        self::assertStringNotContainsString(
+            'data-htmlarea-file-uid',
+            $result,
+            'Standalone images should be processed and have data-* attributes removed. Result: ' . $result,
+        );
+
+        // Should have a processed image src
+        self::assertStringContainsString(
+            '<img',
+            $result,
+            'Result should contain img tag. Result: ' . $result,
+        );
+    }
 }

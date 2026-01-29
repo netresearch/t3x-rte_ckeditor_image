@@ -405,6 +405,145 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertSame('Classes/Controller/ImageRenderingAdapter.php', $this->adapter->scriptRelPath);
     }
 
+
+    // ========================================================================
+    // Issue #566 Tests - renderImageAttributes must skip captioned images
+    // ========================================================================
+
+    /**
+     * Test that renderImageAttributes skips processing when image has data-caption.
+     *
+     * CRITICAL for issue #566: Images with data-caption are part of a <figure>
+     * structure and MUST be processed by renderFigure() instead. If we process
+     * here, we strip the data-htmlarea-file-uid attribute, preventing renderFigure()
+     * from resolving the file later.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/566
+     */
+    #[Test]
+    public function renderImageAttributesSkipsProcessingWhenImageHasCaption(): void
+    {
+        $originalImg = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" data-caption="My Caption" />';
+
+        $attributes = [
+            'src'                    => '/fileadmin/test.jpg',
+            'data-htmlarea-file-uid' => '1',
+            'data-caption'           => 'My Caption',
+        ];
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = $attributes;
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($originalImg);
+
+        // Resolver should NOT be called - processing should be skipped entirely
+        $this->resolverService
+            ->expects(self::never())
+            ->method('resolve');
+
+        // Rendering service should NOT be called
+        $this->renderingService
+            ->expects(self::never())
+            ->method('render');
+
+        $result = $this->adapter->renderImageAttributes(null, [], $this->request);
+
+        // Should return original content unchanged to preserve data-htmlarea-file-uid
+        self::assertSame($originalImg, $result);
+    }
+
+    /**
+     * Test that renderImageAttributes processes images WITHOUT data-caption normally.
+     *
+     * Standalone images (no caption) should be processed by renderImageAttributes
+     * as before - only captioned images are skipped.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/566
+     */
+    #[Test]
+    public function renderImageAttributesProcessesImagesWithoutCaption(): void
+    {
+        $attributes = [
+            'src'                    => '/fileadmin/test.jpg',
+            'data-htmlarea-file-uid' => '1',
+            // No data-caption
+        ];
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = $attributes;
+
+        // Resolver SHOULD be called for images without caption
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->expects(self::once())
+            ->method('render')
+            ->willReturn('<img src="/processed.jpg" />');
+
+        $result = $this->adapter->renderImageAttributes(null, [], $this->request);
+
+        self::assertSame('<img src="/processed.jpg" />', $result);
+    }
+
+    /**
+     * Test that renderImageAttributes processes images with empty caption.
+     *
+     * Edge case: data-caption="" (empty string) should NOT skip processing,
+     * only non-empty captions indicate a figure structure.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/566
+     */
+    #[Test]
+    public function renderImageAttributesProcessesImagesWithEmptyCaption(): void
+    {
+        $attributes = [
+            'src'                    => '/fileadmin/test.jpg',
+            'data-htmlarea-file-uid' => '1',
+            'data-caption'           => '', // Empty caption
+        ];
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: [],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = $attributes;
+
+        // Resolver SHOULD be called for images with empty caption
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->expects(self::once())
+            ->method('render')
+            ->willReturn('<img src="/processed.jpg" />');
+
+        $this->adapter->renderImageAttributes(null, [], $this->request);
+    }
     // ========================================================================
     // renderFigure() Tests
     // ========================================================================
