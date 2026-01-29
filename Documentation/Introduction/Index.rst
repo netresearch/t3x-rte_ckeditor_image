@@ -187,28 +187,37 @@ Install via Composer:
 
    The extension appears in the TYPO3 Extension Manager after installation
 
-The backend RTE works immediately after installation:
+.. versionchanged:: 13.4.3
+   The RTE preset and frontend TypoScript are now provided via Site Set only.
+   You must enable the Site Set in your site configuration.
 
-- ✅ **Backend RTE**: Automatically registers the ``rteWithImages`` preset and configures the toolbar with ``insertimage`` button
+**Step 1: Enable Site Set (Required)**
 
-.. important::
+Add the extension to your site dependencies:
 
-   **v13.4.0+:** TypoScript is no longer auto-injected. You must include it manually.
+.. code-block:: yaml
+   :caption: config/sites/<site>/config.yaml
 
-**For frontend rendering**, include the TypoScript:
+   dependencies:
+     - netresearch/rte-ckeditor-image
 
-#. Go to :guilabel:`WEB > Template` module
-#. Select your root page, edit the template
-#. In :guilabel:`Includes` tab, add: :guilabel:`CKEditor Image Support (rte_ckeditor_image)`
+This enables:
 
-Or add to your site package: ``@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'``
+- ✅ **Backend RTE**: Registers the ``rteWithImages`` preset with ``insertimage`` button
+- ✅ **Frontend rendering**: Includes TypoScript for image processing
+
+**Step 2: Clear Caches**
+
+.. code-block:: bash
+
+   vendor/bin/typo3 cache:flush
 
 .. note::
    **Using Bootstrap Package or other theme extensions?**
 
    If your site uses ``bootstrap_package`` or another theme extension with Site Sets,
-   you may need to add this extension to your site dependencies. See
-   :ref:`troubleshooting-installation-issues` for the one-line fix.
+   list this extension **after** them in your dependencies to override their RTE preset.
+   See :ref:`troubleshooting-installation-issues` for details.
 
 .. figure:: /Images/backend-rte-with-image-button.png
    :alt: CKEditor toolbar with image insert button highlighted
