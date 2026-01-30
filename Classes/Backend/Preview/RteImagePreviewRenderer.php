@@ -105,7 +105,7 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
         $dom = new DOMDocument();
         $dom->loadHTML(
             '<?xml encoding="UTF-8">' . $html,
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
+            LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
         // Restore error level

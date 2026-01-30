@@ -48,7 +48,7 @@ class ImageAttributeParser
         // Load HTML fragment - wrap in div to ensure proper parsing
         $dom->loadHTML(
             '<div>' . $html . '</div>',
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
+            LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
         libxml_clear_errors();
@@ -91,7 +91,7 @@ class ImageAttributeParser
 
         $dom->loadHTML(
             '<div>' . $html . '</div>',
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
+            LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
         libxml_clear_errors();
@@ -181,7 +181,7 @@ class ImageAttributeParser
 
         $dom->loadHTML(
             '<div>' . $html . '</div>',
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
+            LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
         libxml_clear_errors();
@@ -253,7 +253,7 @@ class ImageAttributeParser
 
         $dom->loadHTML(
             '<div>' . $html . '</div>',
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
+            LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
         libxml_clear_errors();

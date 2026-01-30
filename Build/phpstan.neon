@@ -3,6 +3,8 @@ includes:
     - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-deprecation-rules/rules.neon
 #    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-phpunit/rules.neon
     - %currentWorkingDirectory%/Build/phpstan-baseline.neon
+    - %currentWorkingDirectory%/.Build/vendor/phpat/phpat/extension.neon
+    - %currentWorkingDirectory%/Build/phpat.neon
 
 parameters:
     # Level 10 is the strictest level - maximum type safety and code quality checks
