@@ -22,6 +22,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use ReflectionMethod;
 use RuntimeException;
 use TYPO3\CMS\Backend\ElementBrowser\ElementBrowserRegistry;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
@@ -61,12 +62,16 @@ final class SelectImageControllerTest extends UnitTestCase
         /** @var ElementBrowserRegistry&MockObject $elementBrowserRegistryMock */
         $elementBrowserRegistryMock = $this->createMock(ElementBrowserRegistry::class);
 
+        /** @var UriBuilder&MockObject $uriBuilderMock */
+        $uriBuilderMock = $this->createMock(UriBuilder::class);
+
         $this->resourceFactoryMock      = $resourceFactoryMock;
         $this->uploadFolderResolverMock = $uploadFolderResolverMock;
         $this->subject                  = new SelectImageController(
             $this->resourceFactoryMock,
             $this->uploadFolderResolverMock,
             $elementBrowserRegistryMock,
+            $uriBuilderMock,
         );
     }
 
@@ -697,6 +702,275 @@ final class SelectImageControllerTest extends UnitTestCase
         // Verify expandFolder was NOT set
         self::assertNotNull($testableController->capturedQueryParams);
         self::assertArrayNotHasKey('expandFolder', $testableController->capturedQueryParams);
+    }
+
+    // ========================================================================
+    // mainAction Dispatch to linkBrowserAction Tests
+    // ========================================================================
+
+    #[Test]
+    public function mainActionDispatchesToLinkBrowserActionForLinkBrowserAction(): void
+    {
+        /** @var UriBuilder&MockObject $uriBuilderMock */
+        $uriBuilderMock = $this->createMock(UriBuilder::class);
+        $uriBuilderMock
+            ->expects(self::once())
+            ->method('buildUriFromRoute')
+            ->with('wizard_link', self::anything())
+            ->willReturn('/typo3/wizard/link?token=abc123');
+
+        /** @var ElementBrowserRegistry&MockObject $elementBrowserRegistryMock */
+        $elementBrowserRegistryMock = $this->createMock(ElementBrowserRegistry::class);
+
+        $controller = new SelectImageController(
+            $this->resourceFactoryMock,
+            $this->uploadFolderResolverMock,
+            $elementBrowserRegistryMock,
+            $uriBuilderMock,
+        );
+
+        /** @var ServerRequestInterface&MockObject $requestMock */
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+        $requestMock->method('getParsedBody')->willReturn(null);
+        $requestMock->method('getQueryParams')->willReturn([
+            'action' => 'linkBrowser',
+            'pid'    => 1,
+        ]);
+
+        $response = $controller->mainAction($requestMock);
+
+        // Should return JSON response from linkBrowserAction
+        self::assertSame(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $data = json_decode($body, true);
+        self::assertIsArray($data);
+        self::assertArrayHasKey('url', $data);
+    }
+
+    #[Test]
+    public function mainActionDispatchesToLinkBrowserActionForLowercaseAction(): void
+    {
+        // Test the lowercase variant 'linkbrowser'
+        /** @var UriBuilder&MockObject $uriBuilderMock */
+        $uriBuilderMock = $this->createMock(UriBuilder::class);
+        $uriBuilderMock
+            ->expects(self::once())
+            ->method('buildUriFromRoute')
+            ->willReturn('/typo3/wizard/link');
+
+        /** @var ElementBrowserRegistry&MockObject $elementBrowserRegistryMock */
+        $elementBrowserRegistryMock = $this->createMock(ElementBrowserRegistry::class);
+
+        $controller = new SelectImageController(
+            $this->resourceFactoryMock,
+            $this->uploadFolderResolverMock,
+            $elementBrowserRegistryMock,
+            $uriBuilderMock,
+        );
+
+        /** @var ServerRequestInterface&MockObject $requestMock */
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+        $requestMock->method('getParsedBody')->willReturn(null);
+        $requestMock->method('getQueryParams')->willReturn([
+            'action' => 'linkbrowser', // lowercase variant
+        ]);
+
+        $response = $controller->mainAction($requestMock);
+
+        // Should return JSON response from linkBrowserAction
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function mainActionDispatchesToLinkBrowserActionFromParsedBody(): void
+    {
+        // Test that action from parsed body takes precedence
+        /** @var UriBuilder&MockObject $uriBuilderMock */
+        $uriBuilderMock = $this->createMock(UriBuilder::class);
+        $uriBuilderMock
+            ->expects(self::once())
+            ->method('buildUriFromRoute')
+            ->willReturn('/typo3/wizard/link');
+
+        /** @var ElementBrowserRegistry&MockObject $elementBrowserRegistryMock */
+        $elementBrowserRegistryMock = $this->createMock(ElementBrowserRegistry::class);
+
+        $controller = new SelectImageController(
+            $this->resourceFactoryMock,
+            $this->uploadFolderResolverMock,
+            $elementBrowserRegistryMock,
+            $uriBuilderMock,
+        );
+
+        /** @var ServerRequestInterface&MockObject $requestMock */
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+        $requestMock->method('getParsedBody')->willReturn([
+            'action' => 'linkBrowser',
+        ]);
+        $requestMock->method('getQueryParams')->willReturn([]);
+
+        $response = $controller->mainAction($requestMock);
+
+        // Should return JSON response from linkBrowserAction
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    // ========================================================================
+    // linkBrowserAction Tests
+    // ========================================================================
+
+    #[Test]
+    public function linkBrowserActionReturnsJsonResponseWithUrl(): void
+    {
+        /** @var UriBuilder&MockObject $uriBuilderMock */
+        $uriBuilderMock = $this->createMock(UriBuilder::class);
+        $uriBuilderMock
+            ->expects(self::once())
+            ->method('buildUriFromRoute')
+            ->with('wizard_link', self::anything())
+            ->willReturn('/typo3/wizard/link?token=abc123');
+
+        /** @var ElementBrowserRegistry&MockObject $elementBrowserRegistryMock */
+        $elementBrowserRegistryMock = $this->createMock(ElementBrowserRegistry::class);
+
+        $controller = new SelectImageController(
+            $this->resourceFactoryMock,
+            $this->uploadFolderResolverMock,
+            $elementBrowserRegistryMock,
+            $uriBuilderMock,
+        );
+
+        /** @var ServerRequestInterface&MockObject $requestMock */
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+        $requestMock->method('getQueryParams')->willReturn([
+            'pid'          => 1,
+            'currentValue' => 't3://page?uid=5',
+        ]);
+
+        $response = $controller->linkBrowserAction($requestMock);
+
+        self::assertSame(200, $response->getStatusCode());
+
+        $body = (string) $response->getBody();
+        $data = json_decode($body, true);
+
+        self::assertIsArray($data);
+        self::assertArrayHasKey('url', $data);
+        self::assertSame('/typo3/wizard/link?token=abc123', $data['url']);
+    }
+
+    #[Test]
+    public function linkBrowserActionHandlesEmptyQueryParams(): void
+    {
+        /** @var UriBuilder&MockObject $uriBuilderMock */
+        $uriBuilderMock = $this->createMock(UriBuilder::class);
+        $uriBuilderMock
+            ->expects(self::once())
+            ->method('buildUriFromRoute')
+            ->with('wizard_link', self::callback(static function (array $params): bool {
+                // Verify default values are used
+                return $params['P']['pid'] === 0
+                    && $params['P']['currentValue'] === '';
+            }))
+            ->willReturn('/typo3/wizard/link');
+
+        /** @var ElementBrowserRegistry&MockObject $elementBrowserRegistryMock */
+        $elementBrowserRegistryMock = $this->createMock(ElementBrowserRegistry::class);
+
+        $controller = new SelectImageController(
+            $this->resourceFactoryMock,
+            $this->uploadFolderResolverMock,
+            $elementBrowserRegistryMock,
+            $uriBuilderMock,
+        );
+
+        /** @var ServerRequestInterface&MockObject $requestMock */
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+        $requestMock->method('getQueryParams')->willReturn([]);
+
+        $response = $controller->linkBrowserAction($requestMock);
+
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function linkBrowserActionReturnsErrorOnException(): void
+    {
+        /** @var UriBuilder&MockObject $uriBuilderMock */
+        $uriBuilderMock = $this->createMock(UriBuilder::class);
+        $uriBuilderMock
+            ->expects(self::once())
+            ->method('buildUriFromRoute')
+            ->willThrowException(new Exception('Route not found'));
+
+        /** @var ElementBrowserRegistry&MockObject $elementBrowserRegistryMock */
+        $elementBrowserRegistryMock = $this->createMock(ElementBrowserRegistry::class);
+
+        $controller = new SelectImageController(
+            $this->resourceFactoryMock,
+            $this->uploadFolderResolverMock,
+            $elementBrowserRegistryMock,
+            $uriBuilderMock,
+        );
+
+        /** @var ServerRequestInterface&MockObject $requestMock */
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+        $requestMock->method('getQueryParams')->willReturn([]);
+
+        $response = $controller->linkBrowserAction($requestMock);
+
+        self::assertSame(500, $response->getStatusCode());
+
+        $body = (string) $response->getBody();
+        $data = json_decode($body, true);
+
+        self::assertIsArray($data);
+        self::assertArrayHasKey('error', $data);
+        self::assertIsString($data['error']);
+        self::assertStringContainsString('Route not found', $data['error']);
+    }
+
+    #[Test]
+    public function linkBrowserActionPassesCorrectParametersToUriBuilder(): void
+    {
+        /** @var UriBuilder&MockObject $uriBuilderMock */
+        $uriBuilderMock = $this->createMock(UriBuilder::class);
+        $uriBuilderMock
+            ->expects(self::once())
+            ->method('buildUriFromRoute')
+            ->with('wizard_link', self::callback(static function (array $params): bool {
+                // Verify the P array structure
+                $p = $params['P'] ?? [];
+
+                return $p['table'] === 'tt_content'
+                    && $p['uid'] === 42
+                    && $p['pid'] === 42
+                    && $p['field'] === 'bodytext'
+                    && $p['formName'] === 'typo3image_linkform'
+                    && $p['itemName'] === 'typo3image_link'
+                    && $p['currentValue'] === 'https://example.com'
+                    && $p['currentSelectedValues'] === 'https://example.com';
+            }))
+            ->willReturn('/typo3/wizard/link');
+
+        /** @var ElementBrowserRegistry&MockObject $elementBrowserRegistryMock */
+        $elementBrowserRegistryMock = $this->createMock(ElementBrowserRegistry::class);
+
+        $controller = new SelectImageController(
+            $this->resourceFactoryMock,
+            $this->uploadFolderResolverMock,
+            $elementBrowserRegistryMock,
+            $uriBuilderMock,
+        );
+
+        /** @var ServerRequestInterface&MockObject $requestMock */
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+        $requestMock->method('getQueryParams')->willReturn([
+            'pid'          => 42,
+            'currentValue' => 'https://example.com',
+        ]);
+
+        $controller->linkBrowserAction($requestMock);
     }
 }
 
