@@ -29,9 +29,11 @@ jobs:
                       typo3: '^13.4'
                       run_cgl: true
                     # Run coverage on PHP 8.5 + TYPO3 14.0 (latest versions)
+                    # Also run JavaScript tests here (they don't depend on PHP/TYPO3 versions)
                     - php: '8.5'
                       typo3: '^14.0'
                       run_coverage: true
+                      run_js_tests: true
 
         steps:
             -   id: checkout
@@ -55,6 +57,15 @@ jobs:
                 with:
                     php-version: ${{ matrix.php }}
                     tools: composer:v2, php-cs-fixer
+
+            -   id: setup_node
+                name: Set up Node.js
+                if: ${{ matrix.run_js_tests }}
+                uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+                with:
+                    node-version: '22'
+                    cache: 'npm'
+                    cache-dependency-path: Tests/JavaScript/package-lock.json
 
             -   name: Validate composer.json and composer.lock
                 run: composer validate
@@ -136,6 +147,12 @@ jobs:
                 run: |
                     composer ci:test:php:unit
 
+            -   id: js-unit
+                name: JavaScript Unit Tests
+                if: ${{ always() && steps.install.conclusion == 'success' && matrix.run_js_tests }}
+                run: |
+                    cd Tests/JavaScript && npm ci && npm test
+
             -   id: functional
                 name: Functional Tests
                 if: ${{ always() && steps.install.conclusion == 'success' }}
@@ -153,13 +170,28 @@ jobs:
                     composer ci:coverage:unit
                     composer ci:coverage:functional
 
+            -   id: js-coverage
+                name: Generate JavaScript Coverage Report
+                if: ${{ always() && steps.js-unit.conclusion == 'success' && matrix.run_coverage }}
+                run: |
+                    cd Tests/JavaScript && npm run test:coverage
+
             -   id: upload-coverage
-                name: Upload Coverage to Codecov
+                name: Upload PHP Coverage to Codecov
                 if: ${{ always() && steps.coverage.conclusion == 'success' && matrix.run_coverage }}
                 uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
                 with:
                     token: ${{ secrets.CODECOV_TOKEN }}
                     files: .Build/logs/clover-unit.xml,.Build/logs/clover.xml
+                    fail_ci_if_error: false
+
+            -   id: upload-js-coverage
+                name: Upload JavaScript Coverage to Codecov
+                if: ${{ always() && steps.js-coverage.conclusion == 'success' && matrix.run_coverage }}
+                uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+                with:
+                    token: ${{ secrets.CODECOV_TOKEN }}
+                    files: Tests/JavaScript/coverage/lcov.info
                     fail_ci_if_error: false
 
     e2e:

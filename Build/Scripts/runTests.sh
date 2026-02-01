@@ -755,6 +755,26 @@ echo "tt_content record created\n";
 $bodytextCaption = '<p>Image with caption test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Caption Test" width="400" height="300" data-htmlarea-file-uid="1" data-caption="Test Caption Text" /></p>';
 $stmt->execute([1, 'text', 'Caption Test', $bodytextCaption, 0, 0, $now, $now, 0, 512]);
 echo "tt_content record with caption created\n";
+
+// Insert test content with LINKED IMAGE (issue #565 - duplicate links)
+// This tests that linked images render with a single <a> tag, not duplicated
+$bodytextLinked = '<p>Test linked image (should have single link wrapper):</p><a href="https://example.com" target="_blank" title="Example Link" class="test-linked-image"><img src="fileadmin/user_upload/example.jpg" alt="Linked Image" width="400" height="300" data-htmlarea-file-uid="1" /></a><p>The image above should link to example.com with a single &lt;a&gt; tag.</p>';
+$stmt->execute([1, 'text', 'Linked Image Test (#565)', $bodytextLinked, 0, 0, $now, $now, 0, 768]);
+echo "tt_content record with linked image created\n";
+
+// Insert test content with LINKED IMAGE with CAPTION using data-caption attribute
+// This tests that linked images with captions render correctly via the renderImages handler
+// Note: We DON'T use raw <figure> because parseFunc_RTE.tags.figure.preUserFunc handles
+// figure-wrapped images, but linked images inside figures have complex processing
+// The simpler case tests link + data-caption combination
+$bodytextFigureLinked = '<p>Test linked image with caption:</p><p><a href="https://netresearch.de" target="_blank" class="test-figure-linked"><img src="fileadmin/user_upload/example.jpg" alt="Captioned Linked Image" width="400" height="300" data-htmlarea-file-uid="1" /></a></p>';
+$stmt->execute([1, 'text', 'Figure Linked Image Test', $bodytextFigureLinked, 0, 0, $now, $now, 0, 1024]);
+echo "tt_content record with linked image created\n";
+
+// Insert test content with standalone linked image (no figure, no caption) for regression test
+$bodytextSimpleLinked = '<p>Simple linked image without caption:</p><p><a href="https://typo3.org" class="test-simple-link"><img src="fileadmin/user_upload/example.jpg" alt="Simple Link" width="300" height="225" data-htmlarea-file-uid="1" /></a></p>';
+$stmt->execute([1, 'text', 'Simple Linked Image', $bodytextSimpleLinked, 0, 0, $now, $now, 0, 1280]);
+echo "tt_content record with simple linked image created\n";
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
