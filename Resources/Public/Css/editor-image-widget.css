@@ -95,3 +95,28 @@
 .ck-editor__editable figure.ck-widget.image:hover .ck-image-indicator {
     background: rgba(0, 0, 0, 0.8);
 }
+
+/* ==========================================================================
+   Inline Image Widget Styles
+   ========================================================================== */
+
+/* Inline image widget wrapper - allows cursor placement before/after on same line */
+.ck-editor__editable .ck-widget.ck-widget_inline-image {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 0.25em;
+}
+
+/* Ensure inline image doesn't break text flow */
+.ck-editor__editable .ck-widget.ck-widget_inline-image > img,
+.ck-editor__editable .ck-widget.ck-widget_inline-image > a > img {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 100%;
+}
+
+/* Selection styling for inline images */
+.ck-editor__editable .ck-widget.ck-widget_inline-image.ck-widget_selected {
+    outline: 3px solid var(--ck-color-focus-border);
+    outline-offset: 1px;
+}

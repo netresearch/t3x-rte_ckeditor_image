@@ -59,96 +59,230 @@ vendor/bin/typo3 styleguide:generate
 # The styleguide creates demo content, but E2E tests need content on the root page
 # Add a text content element with an image in the bodytext
 
-# First, create the test image file (needed before FAL registration)
+# Create test images (needed before FAL registration)
 mkdir -p public/fileadmin/user_upload
+
+# Create multiple test images for demo
 if command -v convert &> /dev/null; then
+    # Main example image (blue)
     convert -size ${TEST_IMAGE_WIDTH}x${TEST_IMAGE_HEIGHT} \
-        xc:blue \
-        -pointsize 48 \
+        xc:'#2F99A4' \
+        -pointsize 36 \
         -fill white \
         -gravity center \
-        -annotate +0+0 'Test Image\nfor E2E Tests' \
+        -annotate +0+0 'Block Image\n800x600' \
         public/fileadmin/user_upload/example.jpg
+
+    # Small inline image (orange, 100x75)
+    convert -size 100x75 \
+        xc:'#FF4D00' \
+        -pointsize 14 \
+        -fill white \
+        -gravity center \
+        -annotate +0+0 'Inline' \
+        public/fileadmin/user_upload/inline-small.jpg
+
+    # Medium image for various demos (green, 400x300)
+    convert -size 400x300 \
+        xc:'#4CAF50' \
+        -pointsize 24 \
+        -fill white \
+        -gravity center \
+        -annotate +0+0 'Medium Image\n400x300' \
+        public/fileadmin/user_upload/medium.jpg
+
+    # Icon-sized image for inline demos (purple, 32x32)
+    convert -size 32x32 \
+        xc:'#9C27B0' \
+        -fill white \
+        -gravity center \
+        -pointsize 10 \
+        -annotate +0+0 'Icon' \
+        public/fileadmin/user_upload/icon.jpg
 else
-    echo "Warning: ImageMagick not found, creating minimal placeholder image"
+    echo "Warning: ImageMagick not found, creating minimal placeholder images"
+    # Create minimal JPEG for each
     echo '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9/KKKKAP/2Q==' | base64 -d > public/fileadmin/user_upload/example.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/inline-small.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/medium.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/icon.jpg
 fi
 
-# Get actual file info for FAL entry
-TEST_FILE_PATH="public/fileadmin/user_upload/example.jpg"
-TEST_FILE_SIZE=$(stat -c%s "$TEST_FILE_PATH" 2>/dev/null || stat -f%z "$TEST_FILE_PATH")
-TEST_FILE_SHA1=$(sha1sum "$TEST_FILE_PATH" 2>/dev/null | cut -d' ' -f1 || shasum "$TEST_FILE_PATH" | cut -d' ' -f1)
+# Get actual file info for FAL entries
+get_file_info() {
+    local file=$1
+    local size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file")
+    local sha1=$(sha1sum "$file" 2>/dev/null | cut -d' ' -f1 || shasum "$file" | cut -d' ' -f1)
+    echo "$size $sha1"
+}
 
-# Create FAL entry in sys_file for proper click-to-enlarge support
-# The click-to-enlarge feature requires:
-# 1. A valid sys_file entry (with metadata for width/height)
-# 2. data-htmlarea-file-uid attribute pointing to the sys_file UID
-# 3. data-htmlarea-zoom="true" attribute
+FILE1_INFO=($(get_file_info "public/fileadmin/user_upload/example.jpg"))
+FILE2_INFO=($(get_file_info "public/fileadmin/user_upload/inline-small.jpg"))
+FILE3_INFO=($(get_file_info "public/fileadmin/user_upload/medium.jpg"))
+FILE4_INFO=($(get_file_info "public/fileadmin/user_upload/icon.jpg"))
+
+# Create FAL entries and demo content
 mysql -h "$DB_HOST" -u "$DB_USER" "$VERSION" << EOSQL
--- Insert sys_file entry for the test image
-INSERT INTO sys_file (
-    pid, storage, type, identifier, identifier_hash, folder_hash,
-    extension, mime_type, name, sha1, size,
-    creation_date, modification_date, tstamp, last_indexed
-)
-VALUES (
-    0,
-    1,
-    2,
-    '/user_upload/example.jpg',
-    SHA1('/user_upload/example.jpg'),
-    SHA1('/user_upload'),
-    'jpg',
-    'image/jpeg',
-    'example.jpg',
-    '$TEST_FILE_SHA1',
-    $TEST_FILE_SIZE,
-    UNIX_TIMESTAMP(),
-    UNIX_TIMESTAMP(),
-    UNIX_TIMESTAMP(),
-    UNIX_TIMESTAMP()
-);
+-- =============================================================================
+-- FILE 1: example.jpg (800x600, main block image)
+-- =============================================================================
+INSERT INTO sys_file (pid, storage, type, identifier, identifier_hash, folder_hash, extension, mime_type, name, sha1, size, creation_date, modification_date, tstamp, last_indexed)
+VALUES (0, 1, 2, '/user_upload/example.jpg', SHA1('/user_upload/example.jpg'), SHA1('/user_upload'), 'jpg', 'image/jpeg', 'example.jpg', '${FILE1_INFO[1]}', ${FILE1_INFO[0]}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+SET @file1_uid = LAST_INSERT_ID();
+INSERT INTO sys_file_metadata (pid, tstamp, crdate, file, width, height) VALUES (0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), @file1_uid, 800, 600);
 
--- Get the sys_file UID we just created
-SET @file_uid = LAST_INSERT_ID();
+-- =============================================================================
+-- FILE 2: inline-small.jpg (100x75, for inline demos)
+-- =============================================================================
+INSERT INTO sys_file (pid, storage, type, identifier, identifier_hash, folder_hash, extension, mime_type, name, sha1, size, creation_date, modification_date, tstamp, last_indexed)
+VALUES (0, 1, 2, '/user_upload/inline-small.jpg', SHA1('/user_upload/inline-small.jpg'), SHA1('/user_upload'), 'jpg', 'image/jpeg', 'inline-small.jpg', '${FILE2_INFO[1]}', ${FILE2_INFO[0]}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+SET @file2_uid = LAST_INSERT_ID();
+INSERT INTO sys_file_metadata (pid, tstamp, crdate, file, width, height) VALUES (0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), @file2_uid, 100, 75);
 
--- Insert sys_file_metadata with width/height (required for image processing)
-INSERT INTO sys_file_metadata (
-    pid, tstamp, crdate, file, width, height
-)
-VALUES (
-    0,
-    UNIX_TIMESTAMP(),
-    UNIX_TIMESTAMP(),
-    @file_uid,
-    $TEST_IMAGE_WIDTH,
-    $TEST_IMAGE_HEIGHT
-);
+-- =============================================================================
+-- FILE 3: medium.jpg (400x300, for various demos)
+-- =============================================================================
+INSERT INTO sys_file (pid, storage, type, identifier, identifier_hash, folder_hash, extension, mime_type, name, sha1, size, creation_date, modification_date, tstamp, last_indexed)
+VALUES (0, 1, 2, '/user_upload/medium.jpg', SHA1('/user_upload/medium.jpg'), SHA1('/user_upload'), 'jpg', 'image/jpeg', 'medium.jpg', '${FILE3_INFO[1]}', ${FILE3_INFO[0]}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+SET @file3_uid = LAST_INSERT_ID();
+INSERT INTO sys_file_metadata (pid, tstamp, crdate, file, width, height) VALUES (0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), @file3_uid, 400, 300);
 
--- Update sys_file to link to metadata
-UPDATE sys_file SET metadata = LAST_INSERT_ID() WHERE uid = @file_uid;
+-- =============================================================================
+-- FILE 4: icon.jpg (32x32, for icon-sized inline demos)
+-- =============================================================================
+INSERT INTO sys_file (pid, storage, type, identifier, identifier_hash, folder_hash, extension, mime_type, name, sha1, size, creation_date, modification_date, tstamp, last_indexed)
+VALUES (0, 1, 2, '/user_upload/icon.jpg', SHA1('/user_upload/icon.jpg'), SHA1('/user_upload'), 'jpg', 'image/jpeg', 'icon.jpg', '${FILE4_INFO[1]}', ${FILE4_INFO[0]}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+SET @file4_uid = LAST_INSERT_ID();
+INSERT INTO sys_file_metadata (pid, tstamp, crdate, file, width, height) VALUES (0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), @file4_uid, 32, 32);
 
--- Insert tt_content with proper RTE image attributes for click-to-enlarge
+-- =============================================================================
+-- CONTENT ELEMENT 1: Introduction
+-- =============================================================================
 INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
-VALUES (
-    1,
-    'text',
-    'Welcome to RTE CKEditor Image Demo',
-    CONCAT(
-        '<p>This is a test page with an image:</p>',
-        '<p><img src="fileadmin/user_upload/example.jpg" alt="Example image" ',
-        'width="$TEST_IMAGE_WIDTH" height="$TEST_IMAGE_HEIGHT" ',
-        'data-htmlarea-file-uid="', @file_uid, '" ',
-        'data-htmlarea-zoom="true" /></p>',
-        '<p>Click the image to see the click-to-enlarge functionality.</p>'
-    ),
-    0,
-    0,
-    UNIX_TIMESTAMP(),
-    UNIX_TIMESTAMP(),
-    0,
-    256
-);
+VALUES (1, 'text', 'RTE CKEditor Image Extension',
+'<p><strong>Welcome to the demo page for <code>netresearch/rte-ckeditor-image</code></strong></p>
+<p>This extension enhances CKEditor 5 in TYPO3 with advanced image handling capabilities. It supports:</p>
+<ul>
+<li><strong>Block images</strong> - Standalone images with optional captions and various alignments</li>
+<li><strong>Inline images</strong> - Images that flow with text on the same line</li>
+<li><strong>Click-to-enlarge</strong> - Lightbox functionality for image previews</li>
+<li><strong>Image links</strong> - Wrap images in links to pages, files, or URLs</li>
+<li><strong>FAL integration</strong> - Full File Abstraction Layer support</li>
+</ul>
+<p>Scroll down to see examples of each feature. <strong>To test:</strong> Edit this page in the TYPO3 backend and try modifying the images below.</p>',
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 100);
+
+-- =============================================================================
+-- CONTENT ELEMENT 2: Block Images with Click-to-Enlarge
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', 'Block Images with Click-to-Enlarge',
+CONCAT(
+'<p>Block images are displayed as standalone elements. Click the image below to test the lightbox:</p>
+<figure class="image">
+<img src="fileadmin/user_upload/example.jpg" alt="Block image example" width="400" height="300" data-htmlarea-file-uid="', @file1_uid, '" data-htmlarea-file-table="sys_file" data-htmlarea-zoom="true" data-title-override="true" data-alt-override="true">
+<figcaption>This caption demonstrates the figcaption support</figcaption>
+</figure>
+<p><strong>How it works:</strong> The <code>data-htmlarea-zoom="true"</code> attribute enables click-to-enlarge. The image must have a valid <code>data-htmlarea-file-uid</code> pointing to a sys_file record.</p>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 200);
+
+-- =============================================================================
+-- CONTENT ELEMENT 3: Inline Images (IMPORTANT FOR E2E TESTS)
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', 'Inline Images',
+CONCAT(
+'<p><strong>Inline images</strong> flow with text on the same line. Here is an example:</p>
+<p>This text has an <img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="inline example" width="50" height="38" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file" data-title-override="true" data-alt-override="true"> inline image embedded in the middle of the sentence, and the text continues after it.</p>
+<p>You can also use icon-sized images <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="icon" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file" data-title-override="true" data-alt-override="true"> like this one as visual markers in your content.</p>
+<p><strong>Key difference from block images:</strong> Inline images use <code>class="image image-inline"</code> and render as plain <code>&lt;img&gt;</code> tags, not wrapped in <code>&lt;figure&gt;</code> elements.</p>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 300);
+
+-- =============================================================================
+-- CONTENT ELEMENT 4: Inline Images with Click-to-Enlarge
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', 'Inline Images with Click-to-Enlarge',
+CONCAT(
+'<p>Inline images can also have click-to-enlarge enabled. Click this inline image: <img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="clickable inline" width="50" height="38" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file" data-htmlarea-zoom="true" data-title-override="true" data-alt-override="true"> to see the lightbox.</p>
+<p>The click-to-enlarge works the same way for inline images - just add <code>data-htmlarea-zoom="true"</code>.</p>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 400);
+
+-- =============================================================================
+-- CONTENT ELEMENT 5: Multiple Inline Images in One Paragraph
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', 'Multiple Inline Images',
+CONCAT(
+'<p>You can have multiple inline images in the same paragraph:</p>
+<p>First image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="icon 1" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> then some text, second image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="icon 2" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> more text, and a third image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="icon 3" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> at the end.</p>
+<p>All images remain on the same line and flow naturally with the surrounding text.</p>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 500);
+
+-- =============================================================================
+-- CONTENT ELEMENT 6: Image Alignment Classes
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', 'Image Alignment',
+CONCAT(
+'<p>Block images support alignment classes: <code>image-left</code>, <code>image-center</code>, <code>image-right</code></p>
+<figure class="image image-left">
+<img src="fileadmin/user_upload/medium.jpg" alt="left aligned" width="200" height="150" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file">
+</figure>
+<p>This paragraph flows around the left-aligned image. The image floats to the left and text wraps around it. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+<div style="clear:both"></div>
+<figure class="image image-center">
+<img src="fileadmin/user_upload/medium.jpg" alt="center aligned" width="200" height="150" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file">
+</figure>
+<p>Center-aligned images are displayed in the middle of the content area.</p>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 600);
+
+-- =============================================================================
+-- CONTENT ELEMENT 7: Images with Links
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', 'Images with Links',
+CONCAT(
+'<p>Images can be wrapped in links. Click the image below to visit TYPO3.org:</p>
+<figure class="image">
+<a href="https://typo3.org" target="_blank" title="Visit TYPO3.org">
+<img src="fileadmin/user_upload/medium.jpg" alt="linked image" width="200" height="150" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file">
+</a>
+</figure>
+<p><strong>Inline images with links:</strong> Here is a linked inline image: <a href="https://github.com/netresearch/t3x-rte_ckeditor_image" target="_blank"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="GitHub" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></a> that links to our GitHub repository.</p>
+<p><strong>Note:</strong> When an inline image is inside a link that also contains text, the image link options in the edit dialog are disabled (the link is controlled by the surrounding anchor).</p>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 700);
+
+-- =============================================================================
+-- CONTENT ELEMENT 8: Testing Instructions
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', 'Testing the Extension',
+'<p><strong>To test the extension features:</strong></p>
+<ol>
+<li>Log in to the <a href="/typo3/">TYPO3 Backend</a> (admin / Joh316!!)</li>
+<li>Go to <strong>Page &gt; Edit content</strong></li>
+<li>Click on any content element to edit it</li>
+<li>In the RTE, try:
+<ul>
+<li>Inserting new images via the toolbar button</li>
+<li>Double-clicking an image to edit its properties</li>
+<li>Toggling between block and inline mode</li>
+<li>Adding/removing click-to-enlarge</li>
+<li>Adding links to images</li>
+</ul>
+</li>
+<li>Save and check the frontend rendering</li>
+</ol>
+<p><strong>E2E Tests:</strong> The inline image examples above (content element 3) are used by our Playwright E2E tests to verify that inline images are handled correctly during the edit → save → reload cycle.</p>',
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 800);
+
 EOSQL
 
 # Add site sets to site configuration (TYPO3 v13 approach)
