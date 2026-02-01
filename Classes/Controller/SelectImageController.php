@@ -155,9 +155,12 @@ class SelectImageController extends ElementBrowserController
         try {
             $queryParams = $request->getQueryParams();
 
-            // Get the current page ID from query params or use 0 as fallback
-            $pid          = (int) ($queryParams['pid'] ?? 0);
-            $currentValue = $queryParams['currentValue'] ?? '';
+            // Validate and sanitize pid - must be a non-negative integer
+            $pidParam = $queryParams['pid'] ?? 0;
+            $pid      = max(0, (int) (is_numeric($pidParam) ? $pidParam : 0));
+
+            // Sanitize currentValue - ensure it's a string
+            $currentValue = is_string($queryParams['currentValue'] ?? '') ? ($queryParams['currentValue'] ?? '') : '';
 
             // Build URL using FormEngine-style parameters
             // This avoids loading the RTE-specific link browser adapter
@@ -166,7 +169,7 @@ class SelectImageController extends ElementBrowserController
                 [
                     'P' => [
                         'table'                 => 'tt_content',
-                        'uid'                   => $pid,  // Use pid as uid for context
+                        'uid'                   => $pid,
                         'pid'                   => $pid,
                         'field'                 => 'bodytext',
                         'formName'              => 'typo3image_linkform',
@@ -184,9 +187,10 @@ class SelectImageController extends ElementBrowserController
             return new JsonResponse([
                 'url' => $linkBrowserUrl,
             ]);
-        } catch (Exception $e) {
+        } catch (Exception) {
+            // Don't expose internal exception details to client
             return new JsonResponse([
-                'error' => 'Failed to generate link browser URL: ' . $e->getMessage(),
+                'error' => 'Failed to generate link browser URL',
             ], 500);
         }
     }

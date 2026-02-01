@@ -10,8 +10,16 @@ import { test, expect, Page } from '@playwright/test';
  */
 
 const BACKEND_USER = process.env.TYPO3_BACKEND_USER || 'admin';
-const BACKEND_PASSWORD = process.env.TYPO3_BACKEND_PASSWORD || 'Admin1234!';
+const BACKEND_PASSWORD = process.env.TYPO3_BACKEND_PASSWORD || '';
 const BASE_URL = process.env.BASE_URL || 'https://v13.rte-ckeditor-image.ddev.site';
+
+/**
+ * Check if backend credentials are configured.
+ * Tests requiring backend login should skip when this returns false.
+ */
+function hasBackendCredentials(): boolean {
+  return !!process.env.TYPO3_BACKEND_PASSWORD && process.env.TYPO3_BACKEND_PASSWORD.length > 0;
+}
 
 /**
  * Login to TYPO3 backend
