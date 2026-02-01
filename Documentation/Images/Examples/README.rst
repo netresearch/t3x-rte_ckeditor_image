@@ -5,7 +5,23 @@ Screenshots Needed for Examples
 ==============================
 
 The following screenshots are needed for the Linked Images documentation.
-Use the TYPO3 documentation screenshot container for consistent results.
+
+Quick Start with DDEV
+=====================
+
+The easiest approach is to use the existing DDEV environment:
+
+.. code-block:: bash
+
+   # Start DDEV (if not running)
+   ddev start
+
+   # Access TYPO3 v13 backend
+   # URL: https://v13.rte-ckeditor-image.ddev.site/typo3/
+   # Login: screenshot / Screenshot@123
+
+   # Navigate to: Page > Home > Edit the "Regular Text Element"
+   # Double-click the blue test image to open Image Properties dialog
 
 Required Screenshots
 ====================
@@ -15,83 +31,64 @@ ClickBehaviorDropdown.png
 
 **Purpose:** Show the Click Behavior dropdown with its three options.
 
-**Setup:**
+**Steps:**
 
-1. Open an RTE field with an image inserted
-2. Double-click the image to open the Image Properties dialog
-3. Click on the "Click Behavior" dropdown to show options
+1. Edit the text content element on the Home page
+2. Double-click the blue test image to open Image Properties
+3. Click the "Click Behavior" dropdown to expand it
+4. Screenshot showing "None", "Enlarge", "Link" options
 
-**Content to capture:**
-
-- The dropdown expanded showing "None", "Enlarge", "Link" options
-- Cropped to show just the relevant portion of the dialog
-
-**Dimensions:** Cropped screenshot, approximately 400px wide
-
-LinkBrowserDialog.png
----------------------
-
-**Purpose:** Show the TYPO3 link browser that opens when selecting a link target.
-
-**Setup:**
-
-1. Open Image Properties dialog with an image
-2. Select "Link" from Click Behavior dropdown
-3. Click the "Browse..." button next to Link URL field
-
-**Content to capture:**
-
-- The TYPO3 link browser modal
-- Show the tabs: Page, File, Folder, URL, Email, Telephone
-
-**Dimensions:** Full dialog, approximately 800px wide
+**Dimensions:** Cropped to dropdown area, ~400px wide
 
 LinkFieldsExpanded.png
 ----------------------
 
-**Purpose:** Show all link fields visible when "Link" is selected.
+**Purpose:** Show all link fields when "Link" is selected.
 
-**Setup:**
+**Steps:**
 
-1. Open Image Properties dialog with an image
-2. Select "Link" from Click Behavior dropdown
-3. Fill in example values in all fields
+1. In Image Properties dialog, select "Link" from Click Behavior
+2. Fill in example values:
+   - Link URL: ``https://example.com/page``
+   - Link Target: ``_blank``
+   - Link Title: ``Click for details``
+   - Link CSS Class: ``image-link``
+   - Additional Parameters: ``&L=1``
+3. Screenshot showing all fields populated
 
-**Content to capture:**
+**Dimensions:** Cropped to link fields, ~500px wide
 
-- Link URL field with a sample URL
-- Link Target dropdown (showing options)
-- Link Title field
-- Link CSS Class field
-- Additional Parameters field with example "&L=1"
+LinkBrowserDialog.png
+---------------------
 
-**Dimensions:** Cropped to link fields section, approximately 500px wide
+**Purpose:** Show the TYPO3 link browser modal.
 
-Screenshot Container Commands
-=============================
+**Steps:**
 
-.. code-block:: bash
+1. In Image Properties with "Link" selected
+2. Click "Browse..." button next to Link URL
+3. Screenshot the link browser showing Page/File/URL tabs
 
-   # Start the TYPO3 screenshot container
-   docker run -d --name typo3-screenshots -p 8080:80 linawolf/typo3-screenshots
-
-   # Install the extension
-   docker exec -it typo3-screenshots bash
-   composer require netresearch/rte-ckeditor-image
-   ./vendor/bin/typo3 extension:setup
-   exit
-
-   # Access TYPO3 backend at http://localhost:8080/typo3
-   # Username: j.doe
-
-   # Stop and remove when done
-   docker stop typo3-screenshots && docker rm typo3-screenshots
+**Dimensions:** Full dialog, ~800px wide
 
 Screenshot Requirements
 =======================
 
 - **Format:** PNG
-- **Backend mode:** Light theme (not dark mode)
-- **User:** j.doe
-- **CSS class:** Use ``:class: with-shadow`` in RST
-- **Alt text:** Descriptive, not just "screenshot"
+- **Theme:** Light mode (not dark)
+- **Tool:** Any screenshot tool (macOS: Cmd+Shift+4, Windows: Win+Shift+S)
+- **Annotations:** Use TYPO3 orange (#FF8700) for highlights if needed
+- **Alt text:** Descriptive text required for accessibility
+
+Alternative: Screenshot Container
+=================================
+
+For consistent, clean screenshots:
+
+.. code-block:: bash
+
+   docker run -d --name typo3-screenshots -p 8080:80 linawolf/typo3-screenshots
+   docker exec -it typo3-screenshots bash
+   composer require netresearch/rte-ckeditor-image
+   ./vendor/bin/typo3 extension:setup
+   # Access http://localhost:8080/typo3 (user: j.doe)

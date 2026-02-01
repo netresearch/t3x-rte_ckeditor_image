@@ -23,11 +23,10 @@ Click Behavior Options
 
 The image dialog provides three click behavior options:
 
-.. figure:: /Images/Examples/ClickBehaviorDropdown.png
-   :alt: Image properties dialog showing Click Behavior dropdown with None, Enlarge, and Link options
-   :class: with-shadow
+.. todo::
 
-   The Click Behavior dropdown replaces the previous "Click to Enlarge" checkbox
+   Add screenshot: ClickBehaviorDropdown.png showing the dropdown with
+   None, Enlarge, and Link options expanded.
 
 .. confval:: None
    :name: click-behavior-none
@@ -54,11 +53,10 @@ Link Browser Integration
 When "Link" click behavior is selected, editors can use TYPO3's link browser
 to select link targets:
 
-.. figure:: /Images/Examples/LinkBrowserDialog.png
-   :alt: TYPO3 link browser dialog showing page, file, URL, email, and telephone link options
-   :class: with-shadow
+.. todo::
 
-   The TYPO3 link browser provides access to all standard link types
+   Add screenshot: LinkBrowserDialog.png showing the TYPO3 link browser
+   with Page, File, Folder, URL, Email, and Telephone tabs.
 
 Supported Link Types
 --------------------
@@ -75,11 +73,10 @@ Link Attributes
 
 Each link can have the following attributes:
 
-.. figure:: /Images/Examples/LinkFieldsExpanded.png
-   :alt: Image dialog showing expanded link fields including URL, Target, Title, CSS Class, and Additional Parameters
-   :class: with-shadow
+.. todo::
 
-   Link fields appear when "Link" click behavior is selected
+   Add screenshot: LinkFieldsExpanded.png showing the expanded link fields
+   (URL, Target, Title, CSS Class, Additional Parameters).
 
 .. rst-class:: dl-parameters
 
