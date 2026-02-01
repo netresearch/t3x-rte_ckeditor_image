@@ -124,7 +124,7 @@ $prUrl = $prNumber ? $githubUrl . '/pull/' . $prNumber : null;
             <div class="credentials">
                 <h3>🔑 TYPO3 Backend Credentials</h3>
                 <p><strong>Username:</strong> <code>admin</code></p>
-                <p><strong>Password:</strong> <code>Password:joh316</code></p>
+                <p><strong>Password:</strong> <code>Joh316!!</code></p>
             </div>
         </div>
     </div>
