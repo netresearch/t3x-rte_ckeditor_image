@@ -1465,6 +1465,7 @@ export default class Typo3Image extends Plugin {
                 '|',
                 'toggleImageCaption',
                 '|',
+                'imageStyle:image-inline',
                 'imageStyle:image-left',
                 'imageStyle:image-center',
                 'imageStyle:image-right',
