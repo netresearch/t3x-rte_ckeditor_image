@@ -298,4 +298,79 @@ class LinkDtoTest extends TestCase
 
         self::assertSame('/page/about-us?cHash=abc123', $dto->getUrlWithParams());
     }
+
+    public function testGetUrlWithParamsConvertsQuestionMarkToAmpersandWhenUrlHasQuery(): void
+    {
+        // URL already has ?, and params start with ? - should convert to &
+        $dto = new LinkDto(
+            url: 'https://example.com/page?foo=bar',
+            target: null,
+            class: null,
+            params: '?L=1&type=123',
+            isPopup: false,
+            jsConfig: null,
+        );
+
+        self::assertSame('https://example.com/page?foo=bar&L=1&type=123', $dto->getUrlWithParams());
+    }
+
+    public function testGetUrlWithParamsAddsAmpersandWhenUrlHasQueryAndParamsHaveNoPrefix(): void
+    {
+        // URL already has ?, and params have no prefix - should add &
+        $dto = new LinkDto(
+            url: 'https://example.com/page?foo=bar',
+            target: null,
+            class: null,
+            params: 'L=1&type=123',
+            isPopup: false,
+            jsConfig: null,
+        );
+
+        self::assertSame('https://example.com/page?foo=bar&L=1&type=123', $dto->getUrlWithParams());
+    }
+
+    public function testGetUrlWithParamsPreservesFragmentAtEnd(): void
+    {
+        // URL has fragment - params should be inserted before fragment
+        $dto = new LinkDto(
+            url: 'https://example.com/page#section',
+            target: null,
+            class: null,
+            params: '&L=1',
+            isPopup: false,
+            jsConfig: null,
+        );
+
+        self::assertSame('https://example.com/page?L=1#section', $dto->getUrlWithParams());
+    }
+
+    public function testGetUrlWithParamsHandlesQueryAndFragmentTogether(): void
+    {
+        // URL has both query string and fragment
+        $dto = new LinkDto(
+            url: 'https://example.com/page?foo=bar#section',
+            target: null,
+            class: null,
+            params: '&L=1',
+            isPopup: false,
+            jsConfig: null,
+        );
+
+        self::assertSame('https://example.com/page?foo=bar&L=1#section', $dto->getUrlWithParams());
+    }
+
+    public function testGetUrlWithParamsHandlesFragmentWithParamsStartingWithQuestionMark(): void
+    {
+        // URL has fragment, params start with ?
+        $dto = new LinkDto(
+            url: 'https://example.com/page#section',
+            target: null,
+            class: null,
+            params: '?L=1',
+            isPopup: false,
+            jsConfig: null,
+        );
+
+        self::assertSame('https://example.com/page?L=1#section', $dto->getUrlWithParams());
+    }
 }

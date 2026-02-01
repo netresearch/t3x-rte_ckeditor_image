@@ -76,14 +76,12 @@ final readonly class LinkDto
                 // Params doesn't start with & or ? - add &
                 $params = '&' . $params;
             }
-        } else {
-            // URL has no query string - replace leading & with ? if present
-            if (str_starts_with($params, '&')) {
-                $params = '?' . substr($params, 1);
-            } elseif (!str_starts_with($params, '?')) {
-                // Params doesn't start with & or ? - add ?
-                $params = '?' . $params;
-            }
+        } elseif (str_starts_with($params, '&')) {
+            // URL has no query string - replace leading & with ?
+            $params = '?' . substr($params, 1);
+        } elseif (!str_starts_with($params, '?')) {
+            // Params doesn't start with & or ? - add ?
+            $params = '?' . $params;
         }
 
         return $url . $params . $fragment;
