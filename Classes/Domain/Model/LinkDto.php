@@ -53,9 +53,18 @@ final readonly class LinkDto
             return $this->url;
         }
 
-        // If URL already has query string, append params directly
+        // If URL already has query string, normalize params to start with &
         if (str_contains($this->url, '?')) {
-            return $this->url . $this->params;
+            $params = $this->params;
+            // Convert leading ? to & to avoid malformed URL like ?a=1?b=2
+            if (str_starts_with($params, '?')) {
+                $params = '&' . substr($params, 1);
+            } elseif (!str_starts_with($params, '&')) {
+                // Params doesn't start with & or ? - add &
+                $params = '&' . $params;
+            }
+
+            return $this->url . $params;
         }
 
         // URL has no query string - replace leading & with ? if present

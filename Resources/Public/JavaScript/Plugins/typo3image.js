@@ -1152,8 +1152,8 @@ function openLinkBrowser(editor, currentValue) {
                 hiddenInput.removeEventListener('change', changeHandler);
 
                 // Parse the TypoLink string to extract URL, target, class, title, and params
-                // TypoLink format: "url target class "title" additionalParams"
-                // Example: "t3://page?uid=1 _blank my-link-class "Click here" &L=1"
+                // TypoLink format: "url target class \"title\" additionalParams"
+                // Example: "t3://page?uid=1 _blank my-link-class \"Click here\" &L=1"
                 const linkData = parseTypoLink(linkValue);
 
                 // Don't call Modal.dismiss() - the adapter already handles this

@@ -169,7 +169,7 @@ class SelectImageController extends ElementBrowserController
                 [
                     'P' => [
                         'table'                 => 'tt_content',
-                        'uid'                   => $pid,
+                        'uid'                   => 0, // No specific tt_content record; page context via pid
                         'pid'                   => $pid,
                         'field'                 => 'bodytext',
                         'formName'              => 'typo3image_linkform',

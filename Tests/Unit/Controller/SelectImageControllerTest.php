@@ -927,7 +927,8 @@ final class SelectImageControllerTest extends UnitTestCase
         self::assertIsArray($data);
         self::assertArrayHasKey('error', $data);
         self::assertIsString($data['error']);
-        self::assertStringContainsString('Route not found', $data['error']);
+        // Error message is sanitized to prevent leaking internal details
+        self::assertSame('Failed to generate link browser URL', $data['error']);
     }
 
     #[Test]
@@ -943,7 +944,7 @@ final class SelectImageControllerTest extends UnitTestCase
                 $p = $params['P'] ?? [];
 
                 return $p['table'] === 'tt_content'
-                    && $p['uid'] === 42
+                    && $p['uid'] === 0  // No specific tt_content record; page context via pid
                     && $p['pid'] === 42
                     && $p['field'] === 'bodytext'
                     && $p['formName'] === 'typo3image_linkform'

@@ -93,7 +93,7 @@ parameters:
 		-
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
-			count: 7
+			count: 6
 			path: ../Classes/Controller/SelectImageController.php
 
 		-
