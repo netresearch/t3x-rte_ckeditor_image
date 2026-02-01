@@ -467,6 +467,22 @@ class SelectImageController extends ElementBrowserController
                 'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
                 . 'locallang_be.xlf:labels.ckeditor.linkTargetTop',
             ),
+            'linkTargetSelf' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.linkTargetSelf',
+            ),
+            'linkTargetParent' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.linkTargetParent',
+            ),
+            'linkParams' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.linkParams',
+            ),
+            'linkParamsPlaceholder' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.linkParamsPlaceholder',
+            ),
         ];
     }
 
