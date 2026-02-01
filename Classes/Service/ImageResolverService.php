@@ -706,6 +706,7 @@ class ImageResolverService
             url: $url,
             target: $linkAttributes['target'] ?? null,
             class: $linkAttributes['class'] ?? null,
+            params: $linkAttributes['data-link-params'] ?? null,
             isPopup: $isPopup,
             jsConfig: $jsConfig,
         );
@@ -747,6 +748,7 @@ class ImageResolverService
             url: $url,
             target: '_blank', // Popup opens in new window
             class: $linkClass,
+            params: null, // Popup links don't have additional params
             isPopup: true,
             jsConfig: $popupConfig,
         );
@@ -882,6 +884,7 @@ class ImageResolverService
                     url: $linkUrl,
                     target: $linkAttributes['target'] ?? null,
                     class: $linkAttributes['class'] ?? null,
+                    params: $linkAttributes['data-link-params'] ?? null,
                     isPopup: $isPopup,
                     jsConfig: null, // External images don't get popup config
                 );

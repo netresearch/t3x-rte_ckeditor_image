@@ -103,6 +103,7 @@ class ImageRenderingServiceTest extends TestCase
             url: 'https://example.com',
             target: '_blank',
             class: null,
+            params: null,
             isPopup: false,
             jsConfig: null,
         );
@@ -130,6 +131,7 @@ class ImageRenderingServiceTest extends TestCase
             url: 'https://example.com',
             target: '_blank',
             class: null,
+            params: null,
             isPopup: false,
             jsConfig: null,
         );
@@ -157,6 +159,7 @@ class ImageRenderingServiceTest extends TestCase
             url: '/large-image.jpg',
             target: 'popup',
             class: null,
+            params: null,
             isPopup: true,
             jsConfig: ['width' => 800, 'height' => 600],
         );
@@ -184,6 +187,7 @@ class ImageRenderingServiceTest extends TestCase
             url: '/large-image.jpg',
             target: 'popup',
             class: null,
+            params: null,
             isPopup: true,
             jsConfig: ['width' => 800, 'height' => 600],
         );
@@ -212,6 +216,7 @@ class ImageRenderingServiceTest extends TestCase
             url: '/large-image.jpg',
             target: '_blank',
             class: 'lightbox',
+            params: null,
             isPopup: true,
             jsConfig: ['width' => 800],
         );
@@ -278,7 +283,7 @@ class ImageRenderingServiceTest extends TestCase
         // Test priority: Popup > Link > Caption > Standalone
 
         // Priority 1: Popup with caption
-        $linkDto1 = new LinkDto('/', null, null, true, null);
+        $linkDto1 = new LinkDto('/', null, null, null, true, null);
         $dto1     = new ImageRenderingDto(
             '/img.jpg',
             100,
@@ -296,7 +301,7 @@ class ImageRenderingServiceTest extends TestCase
         );
 
         // Priority 2: Popup without caption
-        $linkDto2 = new LinkDto('/', null, null, true, null);
+        $linkDto2 = new LinkDto('/', null, null, null, true, null);
         $dto2     = new ImageRenderingDto(
             '/img.jpg',
             100,
@@ -314,7 +319,7 @@ class ImageRenderingServiceTest extends TestCase
         );
 
         // Priority 3: Link with caption
-        $linkDto3 = new LinkDto('/', null, null, false, null);
+        $linkDto3 = new LinkDto('/', null, null, null, false, null);
         $dto3     = new ImageRenderingDto(
             '/img.jpg',
             100,
@@ -332,7 +337,7 @@ class ImageRenderingServiceTest extends TestCase
         );
 
         // Priority 4: Link without caption
-        $linkDto4 = new LinkDto('/', null, null, false, null);
+        $linkDto4 = new LinkDto('/', null, null, null, false, null);
         $dto4     = new ImageRenderingDto(
             '/img.jpg',
             100,
@@ -474,6 +479,7 @@ class ImageRenderingServiceTest extends TestCase
                 url: '/fileadmin/image.jpg',
                 target: '_blank',
                 class: 'popup-link',
+                params: null,
                 isPopup: true,
                 jsConfig: null,
             ),

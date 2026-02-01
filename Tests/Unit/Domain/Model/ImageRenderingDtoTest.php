@@ -30,6 +30,7 @@ class ImageRenderingDtoTest extends TestCase
             url: 'https://example.com',
             target: '_blank',
             class: 'link-class',
+            params: null,
             isPopup: false,
             jsConfig: null,
         );

@@ -112,6 +112,15 @@ Key Features
       .. card-footer:: :ref:`Template Overrides <examples-template-overrides>`
          :button-style: btn btn-secondary stretched-link
 
+   .. card:: Linked Images
+
+      .. versionadded:: 13.5.0
+
+      Full link support with TYPO3 link browser integration, target options, and URL parameters.
+
+      .. card-footer:: :ref:`Linked Images <examples-linked-images>`
+         :button-style: btn btn-secondary stretched-link
+
    .. card:: TYPO3 v14 & PHP 8.5
 
       .. versionadded:: 13.2.0

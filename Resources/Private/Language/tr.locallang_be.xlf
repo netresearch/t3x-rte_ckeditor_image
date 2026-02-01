@@ -108,6 +108,19 @@
       <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve" approved="yes">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
 			<target state="final">Aşırı çözünürlük (%sx) - Gereksiz yere yüksek</target></trans-unit>
+
+      <trans-unit id="labels.ckeditor.linkTargetSelf" xml:space="preserve">
+				<source>Same window (_self)</source>
+			<target>Aynı pencere (_self)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetParent" xml:space="preserve">
+				<source>Parent frame (_parent)</source>
+			<target>Ana çerçeve (_parent)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkParams" xml:space="preserve">
+				<source>Additional Parameters</source>
+			<target>Ek parametreler</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkParamsPlaceholder" xml:space="preserve">
+				<source>e.g., &amp;L=1&amp;type=123</source>
+			<target>ör. &amp;L=1&amp;type=123</target></trans-unit>
     </body>
   </file>
 </xliff>

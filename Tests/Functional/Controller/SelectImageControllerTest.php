@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Functional\Controller;
 
 use Netresearch\RteCKEditorImage\Controller\SelectImageController;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\Test;
 use ReflectionClass;
 use ReflectionException;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
@@ -29,6 +31,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  *
  * @see \Netresearch\RteCKEditorImage\Tests\Unit\Controller\SelectImageControllerTest
  */
+#[AllowMockObjectsWithoutExpectations]
 class SelectImageControllerTest extends FunctionalTestCase
 {
     protected array $testExtensionsToLoad = [
@@ -85,7 +88,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         return $reflection->getConstant($constantName);
     }
 
-    public function testGetMaxDimensionsReturnsDefaultsWhenTSConfigMissing(): void
+    #[Test]
+    public function getMaxDimensionsReturnsDefaultsWhenTSConfigMissing(): void
     {
         // Call with PID 0 (root page) which should use defaults if no TSConfig is set
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
@@ -99,7 +103,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         $this->assertEquals(9999, $result['height'], 'Default height should be 9999');
     }
 
-    public function testGetMaxDimensionsHandlesEmptyConfigurationName(): void
+    #[Test]
+    public function getMaxDimensionsHandlesEmptyConfigurationName(): void
     {
         // Empty configuration name should fallback to 'default'
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
@@ -111,7 +116,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         $this->assertEquals(9999, $result['height']);
     }
 
-    public function testGetMaxDimensionsHandlesMissingPid(): void
+    #[Test]
+    public function getMaxDimensionsHandlesMissingPid(): void
     {
         // Missing PID should default to 0
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
@@ -123,7 +129,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         $this->assertEquals(9999, $result['height']);
     }
 
-    public function testGetMaxDimensionsEnforcesMinimumBounds(): void
+    #[Test]
+    public function getMaxDimensionsEnforcesMinimumBounds(): void
     {
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
             ['pid' => 0],
@@ -133,7 +140,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         $this->assertGreaterThanOrEqual(1, $result['height'], 'Height should be at least 1');
     }
 
-    public function testGetMaxDimensionsEnforcesMaximumBounds(): void
+    #[Test]
+    public function getMaxDimensionsEnforcesMaximumBounds(): void
     {
         // The method should clamp values to 10000 maximum to prevent resource exhaustion
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
@@ -144,7 +152,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         $this->assertLessThanOrEqual(10000, $result['height'], 'Height should not exceed 10000');
     }
 
-    public function testGetMaxDimensionsReturnsIntegerValues(): void
+    #[Test]
+    public function getMaxDimensionsReturnsIntegerValues(): void
     {
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
             ['pid' => 0],
@@ -154,7 +163,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         $this->assertIsInt($result['height'], 'Height should be an integer');
     }
 
-    public function testGetMaxDimensionsReturnsArrayWithCorrectKeys(): void
+    #[Test]
+    public function getMaxDimensionsReturnsArrayWithCorrectKeys(): void
     {
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
             ['pid' => 0],
@@ -169,7 +179,8 @@ class SelectImageControllerTest extends FunctionalTestCase
     /**
      * @throws ReflectionException
      */
-    public function testClassConstantsHaveExpectedValues(): void
+    #[Test]
+    public function classConstantsHaveExpectedValues(): void
     {
         $this->assertEquals(1, $this->getConstant('IMAGE_MIN_DIMENSION'));
         $this->assertEquals(10000, $this->getConstant('IMAGE_MAX_DIMENSION'));
@@ -177,7 +188,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         $this->assertEquals(9999, $this->getConstant('IMAGE_DEFAULT_MAX_HEIGHT'));
     }
 
-    public function testGetMaxDimensionsHandlesNullRichtextConfigurationName(): void
+    #[Test]
+    public function getMaxDimensionsHandlesNullRichtextConfigurationName(): void
     {
         // Null configuration name should fallback to 'default'
         $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
@@ -189,7 +201,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         $this->assertEquals(9999, $result['height']);
     }
 
-    public function testGetMaxDimensionsPreventsResourceExhaustion(): void
+    #[Test]
+    public function getMaxDimensionsPreventsResourceExhaustion(): void
     {
         // Verify that returned dimensions won't cause memory exhaustion
         // 10000x10000 ≈ 400MB is the documented safe maximum
@@ -209,7 +222,8 @@ class SelectImageControllerTest extends FunctionalTestCase
     // calculateDisplayDimensions Tests
     // ========================================================================
 
-    public function testCalculateDisplayDimensionsReturnsOriginalForSmallImage(): void
+    #[Test]
+    public function calculateDisplayDimensionsReturnsOriginalForSmallImage(): void
     {
         self::assertNotNull($this->subject);
         // Image smaller than max limits should return original dimensions
@@ -225,7 +239,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         self::assertEquals(600, $result['height']);
     }
 
-    public function testCalculateDisplayDimensionsScalesDownWideImage(): void
+    #[Test]
+    public function calculateDisplayDimensionsScalesDownWideImage(): void
     {
         self::assertNotNull($this->subject);
         // Wide image exceeding maxWidth should scale proportionally
@@ -249,7 +264,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         self::assertEqualsWithDelta(1.78, $aspectRatio, 0.01);
     }
 
-    public function testCalculateDisplayDimensionsScalesDownTallImage(): void
+    #[Test]
+    public function calculateDisplayDimensionsScalesDownTallImage(): void
     {
         self::assertNotNull($this->subject);
         // Tall image exceeding maxHeight should scale proportionally
@@ -265,7 +281,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         self::assertLessThanOrEqual(1080, $result['height']);
     }
 
-    public function testCalculateDisplayDimensionsHandlesSquareImage(): void
+    #[Test]
+    public function calculateDisplayDimensionsHandlesSquareImage(): void
     {
         self::assertNotNull($this->subject);
         $result = $this->invokeMethod($this->subject, 'calculateDisplayDimensions', [
@@ -280,7 +297,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         self::assertEquals(500, $result['height']);
     }
 
-    public function testCalculateDisplayDimensionsHandlesExtremelyWideImage(): void
+    #[Test]
+    public function calculateDisplayDimensionsHandlesExtremelyWideImage(): void
     {
         self::assertNotNull($this->subject);
         // Panorama image: very wide, short height
@@ -297,7 +315,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         self::assertLessThan(500, $result['height']);
     }
 
-    public function testCalculateDisplayDimensionsHandlesExtremelyTallImage(): void
+    #[Test]
+    public function calculateDisplayDimensionsHandlesExtremelyTallImage(): void
     {
         self::assertNotNull($this->subject);
         // Very tall image: narrow width, tall height
@@ -313,7 +332,8 @@ class SelectImageControllerTest extends FunctionalTestCase
         self::assertLessThan(500, $result['width']);
     }
 
-    public function testCalculateDisplayDimensionsPreservesAspectRatio(): void
+    #[Test]
+    public function calculateDisplayDimensionsPreservesAspectRatio(): void
     {
         self::assertNotNull($this->subject);
         // 16:9 aspect ratio
@@ -333,5 +353,75 @@ class SelectImageControllerTest extends FunctionalTestCase
         self::assertGreaterThan(0, $height, 'Height must be greater than zero for ratio calculation');
         $aspectRatio = $width / $height;
         self::assertEqualsWithDelta(1.78, $aspectRatio, 0.01);
+    }
+
+    // ========================================================================
+    // getTranslations Tests (PR #575 - Click Behavior UI)
+    // ========================================================================
+
+    /**
+     * Test that getTranslations returns the new Click Behavior translation keys.
+     *
+     * This test covers the new translation keys added for the Click Behavior UI
+     * in PR #575 to fix issue #565 (duplicate links when images wrapped in <a> tags).
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/565
+     */
+    #[Test]
+    public function getTranslationsContainsClickBehaviorKeys(): void
+    {
+        self::assertNotNull($this->subject);
+
+        /** @var array<string, string|null> $result */
+        $result = $this->invokeMethod($this->subject, 'getTranslations');
+
+        self::assertIsArray($result);
+
+        // Click Behavior UI translation keys (PR #575)
+        // These are the new keys added to fix issue #565
+        $clickBehaviorKeys = [
+            'clickBehavior',
+            'clickBehaviorNone',
+            'clickBehaviorEnlarge',
+            'clickBehaviorLink',
+            'linkUrl',
+            'linkTarget',
+            'linkTitle',
+            'linkCssClass',
+            'browse',
+            'linkTargetDefault',
+            'linkTargetBlank',
+            'linkTargetTop',
+        ];
+
+        foreach ($clickBehaviorKeys as $key) {
+            self::assertArrayHasKey(
+                $key,
+                $result,
+                sprintf('Click Behavior translation key "%s" should be present in getTranslations() result', $key),
+            );
+        }
+    }
+
+    /**
+     * Test that getTranslations returns an array with string keys.
+     *
+     * This ensures the method returns a properly structured array for JavaScript consumption.
+     */
+    #[Test]
+    public function getTranslationsReturnsArrayWithStringKeys(): void
+    {
+        self::assertNotNull($this->subject);
+
+        /** @var array<string, string|null> $result */
+        $result = $this->invokeMethod($this->subject, 'getTranslations');
+
+        self::assertIsArray($result);
+        self::assertNotEmpty($result, 'getTranslations() should return a non-empty array');
+
+        // Verify all keys are strings
+        foreach (array_keys($result) as $key) {
+            self::assertIsString($key, 'All translation keys should be strings');
+        }
     }
 }

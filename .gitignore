@@ -33,8 +33,9 @@ clover-unit.xml
 # Node.js
 node_modules/
 package-lock.json
-# Allow E2E package-lock for npm caching
+# Allow package-lock for npm caching in CI
 !Tests/E2E/package-lock.json
+!Tests/JavaScript/package-lock.json
 
 # Serena MCP
 .serena/
@@ -54,6 +55,10 @@ Tests/E2E/playwright-report/
 Tests/E2E/test-results/
 Build/test-results/
 render-output.log
+
+# JavaScript test artifacts
+Tests/JavaScript/node_modules/
+Tests/JavaScript/coverage/
 
 # Local dev config
 config/

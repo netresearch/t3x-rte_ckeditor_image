@@ -108,6 +108,54 @@
             <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
 			</trans-unit>
+            <trans-unit id="labels.ckeditor.clickBehavior" xml:space="preserve">
+				<source>Click Behavior</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.clickBehaviorNone" xml:space="preserve">
+				<source>None - image is not clickable</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.clickBehaviorEnlarge" xml:space="preserve">
+				<source>Enlarge - opens full-size in lightbox</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.clickBehaviorLink" xml:space="preserve">
+				<source>Link - opens custom URL</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.linkUrl" xml:space="preserve">
+				<source>Link URL</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.linkTarget" xml:space="preserve">
+				<source>Link Target</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.linkTitle" xml:space="preserve">
+				<source>Link Title</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.linkCssClass" xml:space="preserve">
+				<source>Link CSS Class</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.browse" xml:space="preserve">
+				<source>Browse...</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.linkTargetDefault" xml:space="preserve">
+				<source>(default)</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.linkTargetBlank" xml:space="preserve">
+				<source>New window (_blank)</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.linkTargetTop" xml:space="preserve">
+				<source>Top frame (_top)</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.linkTargetSelf" xml:space="preserve">
+				<source>Same window (_self)</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.linkTargetParent" xml:space="preserve">
+				<source>Parent frame (_parent)</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.linkParams" xml:space="preserve">
+				<source>Additional Parameters</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.linkParamsPlaceholder" xml:space="preserve">
+				<source>e.g., &amp;L=1&amp;type=123</source>
+			</trans-unit>
         </body>
     </file>
 </xliff>

@@ -283,44 +283,184 @@ function getImageDialog(editor, img, attributes) {
         $inputWidth = d.$el.find('#rteckeditorimage-width'),
         $inputHeight = d.$el.find('#rteckeditorimage-height'),
         $qualityDropdown = d.$el.find('#rteckeditorimage-quality'),
-        $zoom = $('<input id="checkbox-zoom" type="checkbox">'),
-        $noScale = $('<input id="checkbox-noscale" type="checkbox">'),
-        cssClass = attributes.class || '',
-        $inputCssClass = $('<input id="input-cssclass" type="text" class="form-control">').val(cssClass),
-        $customRow = $('<div class="row">').insertAfter($rows[2]),
-        $customRowCol1 = $('<div class="col-xs-12 col-sm-6">'),
-        $customRowCol2 = $('<div class="col-xs-12 col-sm-6">');
+        $noScale = $('<input id="checkbox-noscale" type="checkbox">');
 
-    // Create zoom checkbox following TYPO3 v13 backend conventions
-    var $zoomContainer = $('<div class="form-group">').prependTo($customRowCol1);
-    var $zoomTitle = $('<div class="form-label">').text(img.lang.clickToEnlarge).appendTo($zoomContainer);
-    var $zoomFormCheck = $('<div class="form-check form-check-type-toggle">').appendTo($zoomContainer);
-    $zoom.addClass('form-check-input').appendTo($zoomFormCheck);
-    var $zoomLabel = $('<label class="form-check-label" for="checkbox-zoom">').text(img.lang.enabled).appendTo($zoomFormCheck);
-    var $helpIcon = $('<span style="margin-left: 8px; cursor: help; color: #888;" title="' + img.lang.zoomHelp + '">ℹ️</span>');
-    $zoomTitle.append($helpIcon);
-
-    // noScale checkbox is now replaced by quality dropdown "No Scaling" option
-    // Keep the $noScale variable for backward compatibility with existing code
-    // The checkbox UI is hidden since quality dropdown provides "No Scaling" option
-
-    $inputCssClass
-        .prependTo(
-            $('<div class="form-group">').prependTo($customRowCol2)
-        )
-        .before($('<label class="form-label" for="input-cssclass">').text(img.lang.cssClass));
-
-    $customRow.append($customRowCol1, $customRowCol2);
-
-    // Support new `zoom` and legacy `clickenlarge` attributes
-    if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
-        $zoom.prop('checked', true);
-    }
-
-    // Check for existing noScale attribute
+    // Check for existing noScale attribute (for backward compatibility)
     if (attributes['data-noscale']) {
         $noScale.prop('checked', true);
     }
+
+    // ========================================
+    // Click Behavior Section - unified handling of image click actions
+    // Implements fix for issue #565: prevents conflict between
+    // "Click to Enlarge" and "Link" (both create <a> wrappers)
+    // ========================================
+    var $clickBehaviorSection = $('<div class="row" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #dee2e6;">').insertAfter($rows[3]);
+    var $clickBehaviorHeader = $('<div class="col-xs-12" style="margin-bottom: 12px;"><strong>' + (img.lang.clickBehavior || 'Click Behavior') + '</strong></div>').appendTo($clickBehaviorSection);
+
+    // Radio button container
+    var $radioContainer = $('<div class="col-xs-12" style="margin-bottom: 12px;">').appendTo($clickBehaviorSection);
+
+    // Extract non-alignment CSS classes for the CSS class input fields
+    // Alignment classes (image-left, image-center, etc.) are controlled via bubble toolbar
+    var alignmentClassList = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
+    var allClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
+    var nonAlignmentClasses = allClasses.filter(function(c) {
+        return alignmentClassList.indexOf(c) === -1;
+    }).join(' ');
+
+    // Determine initial selection based on existing attributes
+    var initialBehavior = 'none';
+    if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
+        initialBehavior = 'enlarge';
+    } else if (attributes.linkHref && attributes.linkHref.trim() !== '') {
+        initialBehavior = 'link';
+    }
+
+    // Radio: None
+    var $radioNoneWrapper = $('<div class="form-check" style="margin-bottom: 8px;">').appendTo($radioContainer);
+    var $radioNone = $('<input type="radio" name="clickBehavior" id="clickBehavior-none" value="none" class="form-check-input">')
+        .prop('checked', initialBehavior === 'none')
+        .appendTo($radioNoneWrapper);
+    $('<label class="form-check-label" for="clickBehavior-none">').text(img.lang.clickBehaviorNone || 'None - image is not clickable').appendTo($radioNoneWrapper);
+
+    // Radio: Enlarge
+    var $radioEnlargeWrapper = $('<div class="form-check" style="margin-bottom: 8px;">').appendTo($radioContainer);
+    var $radioEnlarge = $('<input type="radio" name="clickBehavior" id="clickBehavior-enlarge" value="enlarge" class="form-check-input">')
+        .prop('checked', initialBehavior === 'enlarge')
+        .appendTo($radioEnlargeWrapper);
+    $('<label class="form-check-label" for="clickBehavior-enlarge">').text(img.lang.clickBehaviorEnlarge || 'Enlarge - opens full-size in lightbox').appendTo($radioEnlargeWrapper);
+
+    // Radio: Link
+    var $radioLinkWrapper = $('<div class="form-check" style="margin-bottom: 8px;">').appendTo($radioContainer);
+    var $radioLink = $('<input type="radio" name="clickBehavior" id="clickBehavior-link" value="link" class="form-check-input">')
+        .prop('checked', initialBehavior === 'link')
+        .appendTo($radioLinkWrapper);
+    $('<label class="form-check-label" for="clickBehavior-link">').text(img.lang.clickBehaviorLink || 'Link - opens custom URL').appendTo($radioLinkWrapper);
+
+    // ========================================
+    // Dynamic fields container (shown/hidden based on radio selection)
+    // ========================================
+    var $dynamicFieldsContainer = $('<div class="col-xs-12" id="clickBehavior-fields">').appendTo($clickBehaviorSection);
+
+    // --- Enlarge fields (only CSS class) ---
+    var $enlargeFields = $('<div id="enlargeFields" style="display: none;">').appendTo($dynamicFieldsContainer);
+    var $enlargeCssGroup = $('<div class="form-group">').appendTo($enlargeFields);
+    $('<label class="form-label" for="input-linkCssClass-enlarge">').text(img.lang.linkCssClass || 'Link CSS Class').appendTo($enlargeCssGroup);
+    var $inputCssClassEnlarge = $('<input type="text" id="input-linkCssClass-enlarge" class="form-control" placeholder="e.g., lightbox-trigger">')
+        .val(initialBehavior === 'enlarge' ? nonAlignmentClasses : '')
+        .appendTo($enlargeCssGroup);
+
+    // --- Link fields (URL, Target, Title, CSS class) ---
+    var $linkFields = $('<div id="linkFields" style="display: none;">').appendTo($dynamicFieldsContainer);
+
+    // Link URL with Browse button
+    var $linkUrlGroup = $('<div class="form-group">').appendTo($linkFields);
+    $('<label class="form-label" for="rteckeditorimage-linkHref">').text(img.lang.linkUrl || 'Link URL').appendTo($linkUrlGroup);
+    var $linkUrlInputGroup = $('<div class="input-group">').appendTo($linkUrlGroup);
+    var $inputLinkHref = $('<input type="text" id="rteckeditorimage-linkHref" name="linkHref" class="form-control" placeholder="https://example.com or t3://page?uid=123">')
+        .val(attributes.linkHref || '')
+        .appendTo($linkUrlInputGroup);
+    var $browseButton = $('<button type="button" class="btn btn-default">')
+        .text(img.lang.browse || 'Browse...')
+        .appendTo($linkUrlInputGroup);
+
+    // Link Target and Title row
+    var $linkOptionsRow = $('<div class="row">').appendTo($linkFields);
+    var $linkTargetCol = $('<div class="col-xs-12 col-sm-6">').appendTo($linkOptionsRow);
+    var $linkTitleCol = $('<div class="col-xs-12 col-sm-6">').appendTo($linkOptionsRow);
+
+    // Link Target input with datalist for common values
+    // Changed from <select> to <input> to support free text targets like "nav_frame"
+    var $linkTargetGroup = $('<div class="form-group">').appendTo($linkTargetCol);
+    $('<label class="form-label" for="rteckeditorimage-linkTarget">').text(img.lang.linkTarget || 'Link Target').appendTo($linkTargetGroup);
+    var $inputLinkTarget = $('<input type="text" id="rteckeditorimage-linkTarget" name="linkTarget" class="form-control" list="rteckeditorimage-linkTarget-options" placeholder="' + (img.lang.linkTargetPlaceholder || 'e.g. _blank, _top, nav_frame') + '">')
+        .val(attributes.linkTarget || '')
+        .appendTo($linkTargetGroup);
+    // Datalist provides suggestions but allows any value
+    var $linkTargetDatalist = $('<datalist id="rteckeditorimage-linkTarget-options">').appendTo($linkTargetGroup);
+    $('<option>').attr('value', '_blank').text(img.lang.linkTargetBlank || 'New window').appendTo($linkTargetDatalist);
+    $('<option>').attr('value', '_top').text(img.lang.linkTargetTop || 'Top frame').appendTo($linkTargetDatalist);
+    $('<option>').attr('value', '_self').text(img.lang.linkTargetSelf || 'Same window').appendTo($linkTargetDatalist);
+    $('<option>').attr('value', '_parent').text(img.lang.linkTargetParent || 'Parent frame').appendTo($linkTargetDatalist);
+
+    // Link Title input
+    var $linkTitleGroup = $('<div class="form-group">').appendTo($linkTitleCol);
+    $('<label class="form-label" for="rteckeditorimage-linkTitle">').text(img.lang.linkTitle || 'Link Title').appendTo($linkTitleGroup);
+    var $inputLinkTitle = $('<input type="text" id="rteckeditorimage-linkTitle" name="linkTitle" class="form-control">')
+        .val(attributes.linkTitle || '')
+        .appendTo($linkTitleGroup);
+
+    // Link CSS Class (separate from image class - stored on <a> element)
+    var $linkCssGroup = $('<div class="form-group">').appendTo($linkFields);
+    $('<label class="form-label" for="input-linkCssClass">').text(img.lang.linkCssClass || 'Link CSS Class').appendTo($linkCssGroup);
+    var $inputCssClassLink = $('<input type="text" id="input-linkCssClass" class="form-control">')
+        .val(attributes.linkClass || '')
+        .appendTo($linkCssGroup);
+
+    // Additional Link Parameters (for advanced use cases like &L=1, &type=123, etc.)
+    var $linkParamsGroup = $('<div class="form-group">').appendTo($linkFields);
+    $('<label class="form-label" for="rteckeditorimage-linkParams">').text(img.lang.linkParams || 'Additional Parameters').appendTo($linkParamsGroup);
+    var $inputLinkParams = $('<input type="text" id="rteckeditorimage-linkParams" name="linkParams" class="form-control" placeholder="' + (img.lang.linkParamsPlaceholder || 'e.g. &L=1&type=123') + '">')
+        .val(attributes.linkParams || '')
+        .appendTo($linkParamsGroup);
+
+    // Store elements for d.get()
+    elements.linkHref = $inputLinkHref;
+    elements.linkTarget = $inputLinkTarget;
+    elements.linkTitle = $inputLinkTitle;
+    elements.linkClass = $inputCssClassLink;
+    elements.linkParams = $inputLinkParams;
+
+    // ========================================
+    // Field visibility toggle function
+    // ========================================
+    function updateClickBehaviorFields() {
+        // Scope selector to dialog container to avoid conflicts with multiple editors
+        var selectedBehavior = d.$el.find('input[name="clickBehavior"]:checked').val();
+
+        // Hide all dynamic fields first
+        $enlargeFields.hide();
+        $linkFields.hide();
+
+        // Show relevant fields based on selection
+        if (selectedBehavior === 'enlarge') {
+            $enlargeFields.show();
+        } else if (selectedBehavior === 'link') {
+            $linkFields.show();
+        }
+    }
+
+    // Bind radio button change events (scoped to dialog container)
+    d.$el.find('input[name="clickBehavior"]').on('change', updateClickBehaviorFields);
+
+    // Initial field visibility
+    updateClickBehaviorFields();
+
+    // Browse button click handler - opens TYPO3 link browser
+    $browseButton.on('click', function() {
+        // Construct full TypoLink from all current dialog fields
+        // This ensures target, class, title, additionalParams are preserved when reopening the browser
+        var currentLinkData = {
+            href: $inputLinkHref.val() || '',
+            target: $inputLinkTarget.val() || '',
+            class: $inputCssClassLink.val() || '',
+            title: $inputLinkTitle.val() || '',
+            additionalParams: $inputLinkParams.val() || ''
+        };
+        var currentLinkValue = encodeTypoLink(currentLinkData);
+        openLinkBrowser(editor, currentLinkValue).then(function(linkData) {
+            if (linkData && linkData.href) {
+                // Always update all fields to ensure stale values are cleared
+                // when the user selects a link without certain attributes
+                $inputLinkHref.val(linkData.href);
+                $inputLinkTarget.val(linkData.target || '');
+                $inputLinkTitle.val(linkData.title || '');
+                $inputCssClassLink.val(linkData.class || '');
+                $inputLinkParams.val(linkData.additionalParams || '');
+            }
+        });
+    });
 
 
     /**
@@ -494,12 +634,85 @@ function getImageDialog(editor, img, attributes) {
             });
         });
 
-        // When saving, the zoom property is saved as the new `zoom` attribute
-        if ($zoom.prop('checked')) {
+        // Extract and preserve alignment classes from original class attribute
+        // These are set via the bubble toolbar and must be preserved when saving
+        var alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
+        var originalClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
+        var preservedAlignmentClasses = originalClasses.filter(function(c) {
+            return alignmentClasses.indexOf(c) !== -1;
+        });
+
+        // Handle Click Behavior radio button selection
+        // IMPORTANT: Scope selector to dialog container to avoid conflicts with multiple editors
+        var selectedClickBehavior = d.$el.find('input[name="clickBehavior"]:checked').val();
+
+        if (selectedClickBehavior === 'enlarge') {
+            // Enlarge mode: set zoom attribute, clear link attributes
             attributes['data-htmlarea-zoom'] = true;
-        } else if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
+            delete attributes.linkHref;
+            delete attributes.linkTarget;
+            delete attributes.linkTitle;
+            delete attributes.linkParams;
+            // Set CSS class from enlarge field (sanitized to valid CSS class characters)
+            var enlargeCssVal = $inputCssClassEnlarge.val();
+            var enlargeCss = enlargeCssVal ? enlargeCssVal.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
+            // Combine preserved alignment classes with enlarge CSS class
+            var combinedEnlargeClasses = preservedAlignmentClasses.slice();
+            if (enlargeCss) {
+                combinedEnlargeClasses.push(enlargeCss);
+            }
+            attributes.class = combinedEnlargeClasses.join(' ');
+        } else if (selectedClickBehavior === 'link') {
+            // Link mode: clear zoom attribute, set link attributes
             delete attributes['data-htmlarea-zoom'];
             delete attributes['data-htmlarea-clickenlarge'];
+            // Collect link field values
+            var linkHrefVal = $inputLinkHref.val().trim();
+            var linkTargetVal = $inputLinkTarget.val().trim();
+            var linkTitleVal = $inputLinkTitle.val().trim();
+            var linkParamsVal = $inputLinkParams.val().trim();
+
+            if (linkHrefVal !== '') {
+                attributes.linkHref = linkHrefVal;
+            } else {
+                delete attributes.linkHref;
+            }
+            if (linkTargetVal !== '') {
+                attributes.linkTarget = linkTargetVal;
+            } else {
+                delete attributes.linkTarget;
+            }
+            if (linkTitleVal !== '') {
+                attributes.linkTitle = linkTitleVal;
+            } else {
+                delete attributes.linkTitle;
+            }
+            if (linkParamsVal !== '') {
+                attributes.linkParams = linkParamsVal;
+            } else {
+                delete attributes.linkParams;
+            }
+            // Set link CSS class (stored on <a> element, separate from image class)
+            var linkCssVal = $inputCssClassLink.val();
+            var linkCss = linkCssVal ? linkCssVal.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
+            if (linkCss) {
+                attributes.linkClass = linkCss;
+            } else {
+                delete attributes.linkClass;
+            }
+            // Preserve alignment classes on the image (not mixed with link class)
+            attributes.class = preservedAlignmentClasses.join(' ');
+        } else {
+            // None mode: clear both zoom and link attributes
+            delete attributes['data-htmlarea-zoom'];
+            delete attributes['data-htmlarea-clickenlarge'];
+            delete attributes.linkHref;
+            delete attributes.linkTarget;
+            delete attributes.linkTitle;
+            delete attributes.linkClass;
+            delete attributes.linkParams;
+            // Preserve alignment classes even in "none" mode
+            attributes.class = preservedAlignmentClasses.join(' ');
         }
 
         // Save quality attribute and sync with noScale
@@ -517,9 +730,6 @@ function getImageDialog(editor, img, attributes) {
             delete attributes['data-quality'];
             delete attributes['data-noscale'];
         }
-
-        // Set and escape cssClass value
-        attributes.class = $inputCssClass.val() ? $('<div/>').html($inputCssClass.val().trim()).text() : '';
 
         if ($checkboxTitle.length && !$checkboxTitle.is(":checked")) {
             delete attributes.title;
@@ -579,7 +789,8 @@ function askImageAttributes(editor, img, attributes, table) {
                     var dialogInfo = dialog.get(),
                         filteredAttr = {},
                         allowedAttributes = [
-                            '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-quality', 'data-title-override', 'data-alt-override', 'caption'
+                            '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-quality', 'data-title-override', 'data-alt-override', 'caption',
+                            'linkHref', 'linkTarget', 'linkTitle', 'linkClass', 'linkParams'
                         ],
                         attributesNew = $.extend({}, img, dialogInfo);
 
@@ -685,6 +896,302 @@ function selectImage(editor) {
     return deferred;
 }
 
+/**
+ * Parse a TYPO3 TypoLink string into its components.
+ * TypoLink format (order is crucial!): url target class title additionalParams
+ * - Empty values use "-" as placeholder
+ * - Values with spaces are enclosed in double quotes
+ * - Backslash is used as escape character
+ *
+ * Examples:
+ *   - "t3://page?uid=1"
+ *   - "t3://page?uid=1 _blank"
+ *   - "t3://page?uid=1 _blank my-class"
+ *   - "t3://page?uid=1 _blank my-class "Click here""
+ *   - "t3://page?uid=1 - - "Click here""
+ *   - "t3://page?uid=1 _blank my-class "Click here" &foo=bar"
+ *
+ * @param {string} typoLink - The TypoLink string to parse
+ * @return {Object} Object with href, target, class, title, additionalParams properties
+ */
+function parseTypoLink(typoLink) {
+    const result = {
+        href: '',
+        target: '',
+        class: '',
+        title: '',
+        additionalParams: ''
+    };
+
+    if (!typoLink || typeof typoLink !== 'string') {
+        return result;
+    }
+
+    typoLink = typoLink.trim();
+    if (typoLink === '') {
+        return result;
+    }
+
+    // Parse using CSV-like logic (space delimiter, quote enclosure, backslash escape)
+    // This mimics PHP's str_getcsv($typoLink, ' ', '"', '\\')
+    const parts = parseTypoLinkParts(typoLink);
+
+    // Order: url, target, class, title, additionalParams
+    if (parts.length > 0 && parts[0] !== '-') {
+        result.href = parts[0];
+    }
+    if (parts.length > 1 && parts[1] !== '-') {
+        result.target = parts[1];
+    }
+    if (parts.length > 2 && parts[2] !== '-') {
+        result.class = parts[2];
+    }
+    if (parts.length > 3 && parts[3] !== '-') {
+        result.title = parts[3];
+    }
+    if (parts.length > 4 && parts[4] !== '-') {
+        result.additionalParams = parts[4];
+    }
+
+    return result;
+}
+
+/**
+ * Parse TypoLink string into parts using CSV-like logic.
+ * Handles quoted strings with spaces and escaped characters.
+ *
+ * @param {string} str - The TypoLink string
+ * @return {string[]} Array of parsed parts
+ */
+function parseTypoLinkParts(str) {
+    const parts = [];
+    let current = '';
+    let inQuotes = false;
+    let i = 0;
+
+    while (i < str.length) {
+        const char = str[i];
+
+        if (char === '\\' && i + 1 < str.length) {
+            // Escape sequence - include next character literally
+            current += str[i + 1];
+            i += 2;
+            continue;
+        }
+
+        if (char === '"') {
+            inQuotes = !inQuotes;
+            i++;
+            continue;
+        }
+
+        if (char === ' ' && !inQuotes) {
+            // Delimiter - save current part and start new one
+            if (current !== '' || parts.length > 0) {
+                parts.push(current);
+                current = '';
+            }
+            i++;
+            continue;
+        }
+
+        current += char;
+        i++;
+    }
+
+    // Don't forget the last part
+    if (current !== '' || parts.length > 0) {
+        parts.push(current);
+    }
+
+    return parts;
+}
+
+/**
+ * Encode link data into TypoLink format.
+ * This is the reverse of parseTypoLink.
+ *
+ * Format: url target class title additionalParams
+ * - Empty values use '-' placeholder
+ * - Values with spaces are quoted
+ *
+ * @param {Object} linkData - Object with href, target, class, title, additionalParams
+ * @return {string} TypoLink string
+ */
+function encodeTypoLink(linkData) {
+    const url = linkData.href || '';
+    const target = linkData.target || '-';
+    const cssClass = linkData.class || '-';
+    const title = linkData.title || '-';
+    const additionalParams = linkData.additionalParams || '-';
+
+    // If URL is empty, return empty string
+    if (!url) {
+        return '';
+    }
+
+    // Quote values that contain spaces or special characters
+    const quoteIfNeeded = function(value) {
+        if (value === '-') {
+            return '-';
+        }
+        // Quote if contains space, quote, or backslash
+        if (value.indexOf(' ') !== -1 || value.indexOf('"') !== -1 || value.indexOf('\\') !== -1) {
+            // Escape backslashes and quotes
+            const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+            return '"' + escaped + '"';
+        }
+        return value;
+    };
+
+    // Build TypoLink parts array
+    const parts = [url];
+
+    // Only include parts up to the last non-empty value
+    // This keeps the output minimal while still correct
+    const hasAdditionalParams = additionalParams !== '-';
+    const hasTitle = title !== '-' || hasAdditionalParams;
+    const hasClass = cssClass !== '-' || hasTitle;
+    const hasTarget = target !== '-' || hasClass;
+
+    if (hasTarget) {
+        parts.push(quoteIfNeeded(target));
+    }
+    if (hasClass) {
+        parts.push(quoteIfNeeded(cssClass));
+    }
+    if (hasTitle) {
+        parts.push(quoteIfNeeded(title));
+    }
+    if (hasAdditionalParams) {
+        parts.push(quoteIfNeeded(additionalParams));
+    }
+
+    return parts.join(' ');
+}
+
+/**
+ * Open TYPO3's link browser to select a link target.
+ * Used by the image dialog to allow linking images to pages, files, URLs, etc.
+ *
+ * Uses the typo3image route with action=linkBrowser to get a FormEngine-style
+ * link browser URL. Creates hidden form elements that the FormEngine link browser
+ * adapter writes to when a link is selected.
+ *
+ * @param {Object} editor - The CKEditor instance
+ * @param {string} currentValue - Current link value (optional)
+ * @return {$.Deferred} Promise that resolves with link data {href, target, title, class}
+ */
+function openLinkBrowser(editor, currentValue) {
+    const deferred = $.Deferred();
+
+    // Use the typo3image route with action=linkBrowser
+    const baseUrl = editor.config.get('typo3image').routeUrl;
+    if (!baseUrl) {
+        console.error('typo3image.routeUrl not configured');
+        deferred.reject('Link browser route not configured');
+        return deferred;
+    }
+
+    // Build URL for linkBrowser action
+    const separator = baseUrl.indexOf('?') === -1 ? '?' : '&';
+    const linkBrowserActionUrl = baseUrl + separator + 'action=linkBrowser&currentValue=' + encodeURIComponent(currentValue || '');
+
+    // Fetch the wizard_link URL from our backend
+    $.ajax({
+        url: linkBrowserActionUrl,
+        dataType: 'json'
+    }).then(function(response) {
+        if (response.error) {
+            console.error('Link browser error:', response.error);
+            deferred.reject(response.error);
+            return;
+        }
+
+        const linkBrowserUrl = response.url;
+
+        // Create hidden form elements that the FormEngine link browser adapter expects
+        // The adapter looks for: form[name="formName"] [data-formengine-input-name="itemName"]
+        // IMPORTANT: The adapter's getParent() returns the list_frame (content iframe),
+        // not window.top, so we must create the form in the current document
+        const formName = 'typo3image_linkform';
+        const itemName = 'typo3image_link';
+
+        // The form must be in the current document (where CKEditor runs)
+        // The link browser adapter's getParent() will return this frame
+        const targetDoc = document;
+
+        // Remove any existing form from previous link browser sessions
+        const existingForm = targetDoc.querySelector('form[name="' + formName + '"]');
+        if (existingForm) {
+            existingForm.remove();
+        }
+
+        // Create hidden form that the link browser will write to
+        const hiddenForm = targetDoc.createElement('form');
+        hiddenForm.name = formName;
+        hiddenForm.style.display = 'none';
+
+        const hiddenInput = targetDoc.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = itemName;
+        hiddenInput.setAttribute('data-formengine-input-name', itemName);
+        hiddenInput.value = currentValue || '';
+
+        hiddenForm.appendChild(hiddenInput);
+        targetDoc.body.appendChild(hiddenForm);
+
+        // Listen for changes on the hidden input (set by the link browser adapter)
+        // When a link is selected, the adapter sets the value and dispatches 'change'
+        // The adapter ALSO calls Modal.dismiss() to close the link browser modal
+        // We should NOT call Modal.dismiss() again, as that would close the parent dialog
+        const changeHandler = function() {
+            const linkValue = hiddenInput.value;
+            if (linkValue && linkValue !== currentValue) {
+                // Clean up the event listener but keep the form until modal close
+                hiddenInput.removeEventListener('change', changeHandler);
+
+                // Parse the TypoLink string to extract URL, target, class, title, and params
+                // TypoLink format: "url target class \"title\" additionalParams"
+                // Example: "t3://page?uid=1 _blank my-link-class \"Click here\" &L=1"
+                const linkData = parseTypoLink(linkValue);
+
+                // Don't call Modal.dismiss() - the adapter already handles this
+                // The modal will close and our typo3-modal-hidden handler will clean up
+                deferred.resolve(linkData);
+            }
+        };
+        hiddenInput.addEventListener('change', changeHandler);
+
+        // Open the link browser in a modal (standard TYPO3 pattern)
+        const modal = Modal.advanced({
+            type: Modal.types.iframe,
+            title: TYPO3.lang['RTE.titleLinkBrowser'] || 'Link',
+            content: linkBrowserUrl,
+            size: Modal.sizes.large
+        });
+
+        // Handle modal close without selection
+        modal.addEventListener('typo3-modal-hidden', function() {
+            // Clean up hidden form from the target document
+            const form = targetDoc.querySelector('form[name="' + formName + '"]');
+            if (form) {
+                form.remove();
+            }
+
+            if (deferred.state() === 'pending') {
+                deferred.reject();
+            }
+        });
+
+    }).fail(function(xhr, status, error) {
+        console.error('Failed to get link browser URL:', error);
+        deferred.reject('Failed to get link browser URL');
+    });
+
+    return deferred;
+}
+
 
 function edit(selectedImage, editor, imageAttributes) {
     getImageInfo(editor, selectedImage.table, selectedImage.uid, {})
@@ -712,13 +1219,19 @@ function edit(selectedImage, editor, imageAttributes) {
                 // Only set link attributes if they have non-empty values
                 // IMPORTANT: Don't set empty strings to prevent unwanted link wrappers
                 if (attributes.linkHref && attributes.linkHref.trim() !== '') {
-                    imageAttributes.linkHref = attributes.linkHref;
+                    imageAttributes.imageLinkHref = attributes.linkHref;
                 }
                 if (attributes.linkTarget && attributes.linkTarget.trim() !== '') {
-                    imageAttributes.linkTarget = attributes.linkTarget;
+                    imageAttributes.imageLinkTarget = attributes.linkTarget;
                 }
                 if (attributes.linkTitle && attributes.linkTitle.trim() !== '') {
-                    imageAttributes.linkTitle = attributes.linkTitle;
+                    imageAttributes.imageLinkTitle = attributes.linkTitle;
+                }
+                if (attributes.linkClass && attributes.linkClass.trim() !== '') {
+                    imageAttributes.imageLinkClass = attributes.linkClass;
+                }
+                if (attributes.linkParams && attributes.linkParams.trim() !== '') {
+                    imageAttributes.imageLinkParams = attributes.linkParams;
                 }
 
                 const newImage = writer.createElement('typo3image', imageAttributes);
@@ -952,6 +1465,7 @@ export default class Typo3Image extends Plugin {
                 '|',
                 'toggleImageCaption',
                 '|',
+                'imageStyle:image-inline',
                 'imageStyle:image-left',
                 'imageStyle:image-center',
                 'imageStyle:image-right',
@@ -975,6 +1489,36 @@ export default class Typo3Image extends Plugin {
                 return null;
             }
         });
+
+        // Prevent Link plugin's balloon from showing when typo3image widget is selected
+        // This resolves the conflict where both image toolbar and link balloon appear
+        // Uses the same approach as CKEditor's LinkImageUI: stop event propagation
+        // See: https://github.com/ckeditor/ckeditor5/issues/9607
+        const viewDocument = editor.editing.view.document;
+
+        // Helper to check if current selection is on a linked typo3image
+        const isSelectedLinkedTypo3Image = () => {
+            const selection = editor.model.document.selection;
+            const selectedElement = selection.getSelectedElement();
+
+            if (selectedElement && selectedElement.name === 'typo3image') {
+                // Check if the image has a link
+                return selectedElement.hasAttribute('imageLinkHref') &&
+                       selectedElement.getAttribute('imageLinkHref').trim() !== '';
+            }
+            return false;
+        };
+
+        // Listen to click events with high priority to intercept before LinkUI
+        // Stop event propagation to prevent LinkUI from showing its balloon
+        this.listenTo(viewDocument, 'click', (evt, data) => {
+            if (isSelectedLinkedTypo3Image()) {
+                // Stop event propagation to prevent LinkUI from handling the click
+                evt.stop();
+                // Prevent default browser behavior
+                data.preventDefault();
+            }
+        }, { priority: 'high' });
 
         const styleUtils = editor.plugins.get('StyleUtils');
         // Add listener to allow style sets for `img` element, when a `typo3image` element is selected
@@ -1064,10 +1608,15 @@ export default class Typo3Image extends Plugin {
                 'width',
                 'height',
                 'quality',
-                'htmlA',
-                'linkHref',
-                'linkTarget',
-                'linkTitle'
+                // Note: 'htmlA' intentionally NOT included - we handle links via imageLinkHref/imageLinkTarget/imageLinkTitle/imageLinkClass/imageLinkParams
+                // Including htmlA would cause GHS to output duplicate <a> elements
+                // IMPORTANT: We use 'imageLink*' prefix instead of 'link*' to prevent TYPO3's Typo3LinkEditing plugin
+                // from recognizing these as link attributes and adding its own outer <a> wrapper
+                'imageLinkHref',
+                'imageLinkTarget',
+                'imageLinkTitle',
+                'imageLinkClass',
+                'imageLinkParams'
             ],
         });
 
@@ -1083,6 +1632,234 @@ export default class Typo3Image extends Plugin {
             allowChildren: 'typo3imageCaption'
         });
 
+        // Upcast converter for corrupted double-link structure: <a><a><img></a></a>
+        // This handles content that was corrupted by previous save cycles
+        editor.conversion
+            .for('upcast')
+            .elementToElement({
+                view: {
+                    name: 'a'
+                },
+                model: (viewOuterLink, { writer, consumable }) => {
+                    // Check if this <a> contains another <a> with an img
+                    let innerLink = null;
+                    let imgElement = null;
+
+                    for (const child of viewOuterLink.getChildren()) {
+                        if (child.is('element', 'a')) {
+                            innerLink = child;
+                            // Find img inside inner link
+                            for (const innerChild of child.getChildren()) {
+                                if (innerChild.is('element', 'img') && innerChild.getAttribute('data-htmlarea-file-uid')) {
+                                    imgElement = innerChild;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!innerLink || !imgElement) {
+                        return null; // Not a double-link structure
+                    }
+
+                    // Test consumability
+                    if (!consumable.test(viewOuterLink, { name: true }) ||
+                        !consumable.test(innerLink, { name: true }) ||
+                        !consumable.test(imgElement, { name: true })) {
+                        return null;
+                    }
+
+                    // Consume all elements
+                    consumable.consume(viewOuterLink, { name: true });
+                    consumable.consume(innerLink, { name: true });
+                    consumable.consume(imgElement, { name: true });
+
+                    // Use inner link attributes (they have more complete info like data-link-params)
+                    const linkHref = innerLink.getAttribute('href') || viewOuterLink.getAttribute('href') || '';
+                    const linkTarget = innerLink.getAttribute('target') || viewOuterLink.getAttribute('target') || '';
+                    const linkTitle = innerLink.getAttribute('title') || viewOuterLink.getAttribute('title') || '';
+                    const linkClass = innerLink.getAttribute('class') || viewOuterLink.getAttribute('class') || '';
+                    const linkParams = innerLink.getAttribute('data-link-params') || viewOuterLink.getAttribute('data-link-params') || '';
+
+                    const imageAttributes = {
+                        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
+                        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
+                        src: imgElement.getAttribute('src'),
+                        width: imgElement.getAttribute('width') || '',
+                        height: imgElement.getAttribute('height') || '',
+                        class: imgElement.getAttribute('class') || '',
+                        alt: imgElement.getAttribute('alt') || '',
+                        altOverride: imgElement.getAttribute('data-alt-override') || false,
+                        title: imgElement.getAttribute('title') || '',
+                        titleOverride: imgElement.getAttribute('data-title-override') || false,
+                        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
+                        noScale: imgElement.getAttribute('data-noscale') || false,
+                        quality: imgElement.getAttribute('data-quality') || ''
+                    };
+
+                    if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+                        imageAttributes.imageLinkHref = linkHref;
+                        if (linkTarget && linkTarget.trim() !== '') {
+                            imageAttributes.imageLinkTarget = linkTarget;
+                        }
+                        if (linkTitle && linkTitle.trim() !== '') {
+                            imageAttributes.imageLinkTitle = linkTitle;
+                        }
+                        // Filter out alignment classes
+                        const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
+                        const linkClassParts = (linkClass || '').split(' ').filter(c => c.trim() !== '');
+                        const actualLinkClass = linkClassParts.filter(c => !alignmentClasses.includes(c)).join(' ');
+                        if (actualLinkClass) {
+                            imageAttributes.imageLinkClass = actualLinkClass;
+                        }
+                        if (linkParams && linkParams.trim() !== '') {
+                            imageAttributes.imageLinkParams = linkParams;
+                        }
+                    }
+
+                    return writer.createElement('typo3image', imageAttributes);
+                },
+                converterPriority: 'highest'
+            });
+
+        // Upcast converter for linked figure: <a href="..."><figure class="image">...</figure></a>
+        // This handles legacy/alternate structure where link wraps the figure
+        // Must run before the regular figure upcast to consume the outer <a>
+        editor.conversion
+            .for('upcast')
+            .elementToElement({
+                view: {
+                    name: 'a'
+                },
+                model: (viewLink, { writer, consumable }) => {
+                    // Check if this <a> contains a figure.image
+                    let figureElement = null;
+                    for (const child of viewLink.getChildren()) {
+                        if (child.is('element', 'figure') && child.hasClass('image')) {
+                            figureElement = child;
+                            break;
+                        }
+                    }
+
+                    if (!figureElement) {
+                        return null; // Not a linked figure, let other converters handle
+                    }
+
+                    // Find img element within figure
+                    // Also track inner link element if img is wrapped in <a>
+                    let imgElement = null;
+                    let figcaptionElement = null;
+                    let innerLinkElement = null;
+                    for (const child of figureElement.getChildren()) {
+                        if (child.is('element', 'img')) {
+                            imgElement = child;
+                        } else if (child.is('element', 'figcaption')) {
+                            figcaptionElement = child;
+                        } else if (child.is('element', 'a')) {
+                            // Image might be wrapped in inner <a> too
+                            innerLinkElement = child;
+                            for (const innerChild of child.getChildren()) {
+                                if (innerChild.is('element', 'img')) {
+                                    imgElement = innerChild;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!imgElement || !imgElement.getAttribute('data-htmlarea-file-uid')) {
+                        return null;
+                    }
+
+                    // Test consumability before committing
+                    if (!consumable.test(viewLink, { name: true }) ||
+                        !consumable.test(figureElement, { name: true }) ||
+                        !consumable.test(imgElement, { name: true })) {
+                        return null;
+                    }
+
+                    // Consume all elements to prevent GHS from preserving them
+                    consumable.consume(viewLink, { name: true });
+                    consumable.consume(figureElement, { name: true });
+                    consumable.consume(imgElement, { name: true });
+                    // CRITICAL: Also consume inner link element to prevent duplicate links
+                    if (innerLinkElement && consumable.test(innerLinkElement, { name: true })) {
+                        consumable.consume(innerLinkElement, { name: true });
+                    }
+
+                    // Extract link attributes - prefer inner link for data-link-params, outer for class
+                    const linkHref = viewLink.getAttribute('href') || innerLinkElement?.getAttribute('href') || '';
+                    const linkTarget = viewLink.getAttribute('target') || innerLinkElement?.getAttribute('target') || '';
+                    const linkTitle = viewLink.getAttribute('title') || innerLinkElement?.getAttribute('title') || '';
+                    // linkClass from outer or inner link
+                    const linkClass = viewLink.getAttribute('class') || innerLinkElement?.getAttribute('class') || '';
+                    // data-link-params is typically on inner link
+                    const linkParams = innerLinkElement?.getAttribute('data-link-params') || viewLink.getAttribute('data-link-params') || '';
+
+                    // Build image attributes
+                    const imageAttributes = {
+                        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
+                        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
+                        src: imgElement.getAttribute('src'),
+                        width: imgElement.getAttribute('width') || '',
+                        height: imgElement.getAttribute('height') || '',
+                        class: figureElement.getAttribute('class') || '',
+                        alt: imgElement.getAttribute('alt') || '',
+                        altOverride: imgElement.getAttribute('data-alt-override') || false,
+                        title: imgElement.getAttribute('title') || '',
+                        titleOverride: imgElement.getAttribute('data-title-override') || false,
+                        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
+                        noScale: imgElement.getAttribute('data-noscale') || false,
+                        quality: imgElement.getAttribute('data-quality') || ''
+                    };
+
+                    // Add link attributes if valid
+                    if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+                        imageAttributes.imageLinkHref = linkHref;
+                        if (linkTarget && linkTarget.trim() !== '') {
+                            imageAttributes.imageLinkTarget = linkTarget;
+                        }
+                        if (linkTitle && linkTitle.trim() !== '') {
+                            imageAttributes.imageLinkTitle = linkTitle;
+                        }
+                        // Filter out alignment classes from linkClass
+                        const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
+                        const linkClassParts = (linkClass || '').split(' ').filter(c => c.trim() !== '');
+                        const actualLinkClass = linkClassParts.filter(c => !alignmentClasses.includes(c)).join(' ');
+                        const alignmentFromLink = linkClassParts.filter(c => alignmentClasses.includes(c)).join(' ');
+
+                        if (actualLinkClass) {
+                            imageAttributes.imageLinkClass = actualLinkClass;
+                        }
+                        // Add alignment classes to figure class if they were on the link
+                        if (alignmentFromLink) {
+                            const existingClass = imageAttributes.class || '';
+                            const existingParts = existingClass.split(' ').filter(c => c.trim() !== '' && !alignmentClasses.includes(c));
+                            imageAttributes.class = [...existingParts, alignmentFromLink].join(' ');
+                        }
+                        if (linkParams && linkParams.trim() !== '') {
+                            imageAttributes.imageLinkParams = linkParams;
+                        }
+                    }
+
+                    const typo3image = writer.createElement('typo3image', imageAttributes);
+
+                    // Handle caption
+                    if (figcaptionElement) {
+                        const captionElement = writer.createElement('typo3imageCaption');
+                        writer.append(captionElement, typo3image);
+
+                        for (const node of figcaptionElement.getChildren()) {
+                            if (node.is('$text')) {
+                                writer.insertText(node.data, captionElement);
+                            }
+                        }
+                    }
+
+                    return typo3image;
+                },
+                converterPriority: 'highest'
+            });
+
         // Upcast converter for figure with caption (higher priority)
         // Handles: <figure class="image"><img data-htmlarea-file-uid="..."><figcaption>Caption text</figcaption></figure>
         editor.conversion
@@ -1092,8 +1869,15 @@ export default class Typo3Image extends Plugin {
                     name: 'figure',
                     classes: ['image']
                 },
-                model: (viewFigure, { writer }) => {
+                model: (viewFigure, { writer, consumable }) => {
+                    // Skip if parent is a link - handled by the linked figure upcast above
+                    const parent = viewFigure.parent;
+                    if (parent && parent.is('element', 'a')) {
+                        return null;
+                    }
+
                     // Find img and figcaption elements within figure
+                    // Note: img may be wrapped in <a> element when linked
                     let imgElement = null;
                     let figcaptionElement = null;
 
@@ -1102,6 +1886,14 @@ export default class Typo3Image extends Plugin {
                             imgElement = child;
                         } else if (child.is('element', 'figcaption')) {
                             figcaptionElement = child;
+                        } else if (child.is('element', 'a')) {
+                            // Look for img inside link wrapper
+                            for (const linkChild of child.getChildren()) {
+                                if (linkChild.is('element', 'img')) {
+                                    imgElement = linkChild;
+                                    break;
+                                }
+                            }
                         }
                     }
 
@@ -1111,12 +1903,20 @@ export default class Typo3Image extends Plugin {
                     }
 
                     // Check if image is wrapped in a link element (inside figure)
-                    const linkElement = imgElement.parent?.name === 'a' ? imgElement.parent : null;
+                    const linkElement = imgElement.parent?.is('element', 'a') ? imgElement.parent : null;
+
+                    // CRITICAL: Consume the link element to prevent GHS from preserving it
+                    // This prevents duplicate <a> tags in the output
+                    if (linkElement && consumable.test(linkElement, { name: true })) {
+                        consumable.consume(linkElement, { name: true });
+                    }
 
                     // Extract link attributes if link wrapper exists
                     const linkHref = linkElement?.getAttribute('href') || '';
                     const linkTarget = linkElement?.getAttribute('target') || '';
                     const linkTitle = linkElement?.getAttribute('title') || '';
+                    const linkClass = linkElement?.getAttribute('class') || '';
+                    const linkParams = linkElement?.getAttribute('data-link-params') || '';
 
                     const imageAttributes = {
                         fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
@@ -1136,12 +1936,18 @@ export default class Typo3Image extends Plugin {
 
                     // Only set link attributes if they have non-empty values
                     if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
-                        imageAttributes.linkHref = linkHref;
+                        imageAttributes.imageLinkHref = linkHref;
                         if (linkTarget && linkTarget.trim() !== '') {
-                            imageAttributes.linkTarget = linkTarget;
+                            imageAttributes.imageLinkTarget = linkTarget;
                         }
                         if (linkTitle && linkTitle.trim() !== '') {
-                            imageAttributes.linkTitle = linkTitle;
+                            imageAttributes.imageLinkTitle = linkTitle;
+                        }
+                        if (linkClass && linkClass.trim() !== '') {
+                            imageAttributes.imageLinkClass = linkClass;
+                        }
+                        if (linkParams && linkParams.trim() !== '') {
+                            imageAttributes.imageLinkParams = linkParams;
                         }
                     }
 
@@ -1166,8 +1972,107 @@ export default class Typo3Image extends Plugin {
                 converterPriority: 'highest'
             });
 
+        // Upcast converter for linked images: <a href="..."><img data-htmlarea-file-uid="..."></a>
+        // CRITICAL FIX for #565: This converter CONSUMES the <a> element to prevent
+        // duplicate links. Without this, GHS preserves the <a> and downcast creates another.
+        // Must run before standalone img converter to handle linked images correctly.
+        // NOTE: Linked images inside <figure> are handled by the figure upcast converter above.
+        editor.conversion
+            .for('upcast')
+            .elementToElement({
+                view: {
+                    name: 'a'
+                },
+                model: (viewElement, { writer, consumable }) => {
+                    // Skip if parent is a figure element - handled by figure upcast converter
+                    // CRITICAL: Still consume the <a> to prevent GHS from preserving it
+                    const parentElement = viewElement.parent;
+                    if (parentElement?.is('element', 'figure') && parentElement?.hasClass('image')) {
+                        // Consume the <a> even though we return null - prevents duplicate links
+                        consumable.consume(viewElement, { name: true });
+                        return null;
+                    }
+
+                    // Find img child with data-htmlarea-file-uid
+                    let imgElement = null;
+                    for (const child of viewElement.getChildren()) {
+                        if (child.is('element', 'img') && child.getAttribute('data-htmlarea-file-uid')) {
+                            imgElement = child;
+                            break;
+                        }
+                    }
+
+                    // If no TYPO3 image found, let other converters handle this <a>
+                    if (!imgElement) {
+                        return null;
+                    }
+
+                    // Extract link attributes from <a> element
+                    const linkHref = viewElement.getAttribute('href') || '';
+                    const linkTarget = viewElement.getAttribute('target') || '';
+                    const linkTitle = viewElement.getAttribute('title') || '';
+                    const linkClass = viewElement.getAttribute('class') || '';
+                    const linkParams = viewElement.getAttribute('data-link-params') || '';
+
+                    // Determine if this is a real link (non-empty, non-placeholder href)
+                    const hasValidLink = linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/';
+
+                    // Test if both elements can be consumed before committing to conversion
+                    // Using test() first ensures we don't partially consume elements
+                    if (
+                        !consumable.test(viewElement, { name: true }) ||
+                        !consumable.test(imgElement, { name: true })
+                    ) {
+                        return null;
+                    }
+
+                    // Consume the <a> element and its children to prevent GHS from processing
+                    // Note: Only consume 'name' - consuming all attributes causes iteration error
+                    consumable.consume(viewElement, { name: true });
+                    consumable.consume(imgElement, { name: true });
+
+                    // Build image attributes from the img element
+                    const imageAttributes = {
+                        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
+                        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
+                        src: imgElement.getAttribute('src'),
+                        width: imgElement.getAttribute('width') || '',
+                        height: imgElement.getAttribute('height') || '',
+                        class: imgElement.getAttribute('class') || '',
+                        alt: imgElement.getAttribute('alt') || '',
+                        altOverride: imgElement.getAttribute('data-alt-override') || false,
+                        title: imgElement.getAttribute('title') || '',
+                        titleOverride: imgElement.getAttribute('data-title-override') || false,
+                        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
+                        noScale: imgElement.getAttribute('data-noscale') || false,
+                        quality: imgElement.getAttribute('data-quality') || ''
+                    };
+
+                    // Only add link attributes if href is valid (not empty/placeholder)
+                    if (hasValidLink) {
+                        imageAttributes.imageLinkHref = linkHref;
+                        if (linkTarget && linkTarget.trim() !== '') {
+                            imageAttributes.imageLinkTarget = linkTarget;
+                        }
+                        if (linkTitle && linkTitle.trim() !== '') {
+                            imageAttributes.imageLinkTitle = linkTitle;
+                        }
+                        if (linkClass && linkClass.trim() !== '') {
+                            imageAttributes.imageLinkClass = linkClass;
+                        }
+                        if (linkParams && linkParams.trim() !== '') {
+                            imageAttributes.imageLinkParams = linkParams;
+                        }
+                    }
+
+                    return writer.createElement('typo3image', imageAttributes);
+                },
+                converterPriority: 'highest'
+            });
+
         // Upcast converter for standalone img (backward compatibility)
         // Handles: <img data-htmlarea-file-uid="..." src="...">
+        // NOTE: Linked images are now handled by the converter above
         editor.conversion
             .for('upcast')
             .elementToElement({
@@ -1179,14 +2084,11 @@ export default class Typo3Image extends Plugin {
                     ]
                 },
                 model: (viewElement, { writer }) => {
-                    // Check if image is wrapped in a link element
-                    const linkElement = viewElement.parent?.name === 'a' ? viewElement.parent : null;
-
-                    // Extract link attributes if link wrapper exists
-                    // Only extract non-empty values to prevent unwanted link wrappers
-                    const linkHref = linkElement?.getAttribute('href') || '';
-                    const linkTarget = linkElement?.getAttribute('target') || '';
-                    const linkTitle = linkElement?.getAttribute('title') || '';
+                    // Skip if parent is <a> - handled by linked image converter above
+                    // This prevents double processing
+                    if (viewElement.parent?.name === 'a') {
+                        return null;
+                    }
 
                     const imageAttributes = {
                         fileUid: viewElement.getAttribute('data-htmlarea-file-uid'),
@@ -1203,19 +2105,6 @@ export default class Typo3Image extends Plugin {
                         noScale: viewElement.getAttribute('data-noscale') || false,
                         quality: viewElement.getAttribute('data-quality') || ''
                     };
-
-                    // Only set link attributes if they have non-empty values
-                    // IMPORTANT: Don't set empty strings to prevent unwanted link wrappers
-                    if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
-                        imageAttributes.linkHref = linkHref;
-                        // Only set target/title if there's an actual link
-                        if (linkTarget && linkTarget.trim() !== '') {
-                            imageAttributes.linkTarget = linkTarget;
-                        }
-                        if (linkTitle && linkTitle.trim() !== '') {
-                            imageAttributes.linkTitle = linkTitle;
-                        }
-                    }
 
                     return writer.createElement('typo3image', imageAttributes);
                 },
@@ -1277,21 +2166,34 @@ export default class Typo3Image extends Plugin {
 
             // Check if model has link attributes and wrap in <a> if present
             // Treat "/" as "no link" since it's TYPO3 link browser default/placeholder value
-            const linkHref = modelElement.getAttribute('linkHref');
+            const linkHref = modelElement.getAttribute('imageLinkHref');
             if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
                 const linkAttributes = {
                     href: linkHref
                 };
 
                 // Add optional link attributes only if they have values
-                const linkTarget = modelElement.getAttribute('linkTarget');
+                const linkTarget = modelElement.getAttribute('imageLinkTarget');
                 if (linkTarget && linkTarget.trim() !== '') {
                     linkAttributes.target = linkTarget;
                 }
 
-                const linkTitle = modelElement.getAttribute('linkTitle');
+                const linkTitle = modelElement.getAttribute('imageLinkTitle');
                 if (linkTitle && linkTitle.trim() !== '') {
                     linkAttributes.title = linkTitle;
+                }
+
+                const linkClass = modelElement.getAttribute('imageLinkClass');
+                if (linkClass && linkClass.trim() !== '') {
+                    linkAttributes.class = linkClass;
+                }
+
+                // Store linkParams as data attribute for TYPO3 to process on render
+                // TYPO3's frontend rendering will append these to the final URL
+                // We don't append to href here to avoid doubling on save/load cycles
+                const linkParams = modelElement.getAttribute('imageLinkParams');
+                if (linkParams && linkParams.trim() !== '') {
+                    linkAttributes['data-link-params'] = linkParams;
                 }
 
                 // Wrap image in link element
@@ -1323,6 +2225,37 @@ export default class Typo3Image extends Plugin {
 
                     // Insert image into figure
                     writer.insert(writer.createPositionAt(figure, 0), imageElement);
+
+                    // Add visual indicators for link and zoom
+                    const linkHref = modelElement.getAttribute('imageLinkHref');
+                    const hasLink = linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/';
+                    const hasZoom = modelElement.getAttribute('enableZoom');
+
+                    if (hasLink || hasZoom) {
+                        const indicatorContainer = writer.createContainerElement('span', {
+                            class: 'ck-image-indicators'
+                        });
+
+                        if (hasZoom) {
+                            // Zoom/enlarge indicator (magnifying glass icon)
+                            const zoomIndicator = writer.createContainerElement('span', {
+                                class: 'ck-image-indicator ck-image-indicator--zoom',
+                                title: 'Click to enlarge'
+                            });
+                            writer.insert(writer.createPositionAt(indicatorContainer, 'end'), zoomIndicator);
+                        }
+
+                        if (hasLink) {
+                            // Link indicator (chain link icon)
+                            const linkIndicator = writer.createContainerElement('span', {
+                                class: 'ck-image-indicator ck-image-indicator--link',
+                                title: linkHref
+                            });
+                            writer.insert(writer.createPositionAt(indicatorContainer, 'end'), linkIndicator);
+                        }
+
+                        writer.insert(writer.createPositionAt(figure, 'end'), indicatorContainer);
+                    }
 
                     // Create caption slot (renders all children including typo3imageCaption)
                     const captionSlot = writer.createSlot();
@@ -1369,10 +2302,15 @@ export default class Typo3Image extends Plugin {
                     const imageElement = createImageViewElement(modelElement, writer);
                     const captionElement = getCaptionFromImageModelElement(modelElement);
 
+                    // Get alignment class from model (e.g., 'image-left', 'image-right', 'image-center')
+                    const modelClass = modelElement.getAttribute('class') || '';
+
                     // If caption element exists (even if empty), wrap in figure with figcaption slot
                     if (captionElement) {
+                        // Combine 'image' base class with alignment class
+                        const figureClasses = ['image', modelClass].filter(c => c.trim()).join(' ');
                         const figure = writer.createContainerElement('figure', {
-                            class: 'image'
+                            class: figureClasses
                         });
 
                         // Insert image into figure
@@ -1385,7 +2323,18 @@ export default class Typo3Image extends Plugin {
                         return figure;
                     }
 
-                    // No caption: return plain image element
+                    // No caption: wrap in figure with alignment class if present
+                    // This ensures alignment classes are preserved even without caption
+                    if (modelClass.trim()) {
+                        const figureClasses = ['image', modelClass].filter(c => c.trim()).join(' ');
+                        const figure = writer.createContainerElement('figure', {
+                            class: figureClasses
+                        });
+                        writer.insert(writer.createPositionAt(figure, 0), imageElement);
+                        return figure;
+                    }
+
+                    // No caption and no alignment: return plain image element
                     return imageElement;
                 },
             });
@@ -1462,9 +2411,11 @@ export default class Typo3Image extends Plugin {
                             'data-quality': selectedElement.getAttribute('quality'),
                             'data-title-override': selectedElement.getAttribute('titleOverride'),
                             'data-alt-override': selectedElement.getAttribute('altOverride'),
-                            linkHref: selectedElement.getAttribute('linkHref'),
-                            linkTarget: selectedElement.getAttribute('linkTarget'),
-                            linkTitle: selectedElement.getAttribute('linkTitle'),
+                            linkHref: selectedElement.getAttribute('imageLinkHref'),
+                            linkTarget: selectedElement.getAttribute('imageLinkTarget'),
+                            linkTitle: selectedElement.getAttribute('imageLinkTitle'),
+                            linkClass: selectedElement.getAttribute('imageLinkClass'),
+                            linkParams: selectedElement.getAttribute('imageLinkParams'),
                         }
                     );
                 } else {
@@ -1483,7 +2434,7 @@ export default class Typo3Image extends Plugin {
 
             button.set({
                 label: 'Edit image',
-                icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="m11.077 15 .991-1.416a.75.75 0 1 1 1.229.86l-1.148 1.64a.748.748 0 0 1-.217.206 5.251 5.251 0 0 1-8.503-5.955.741.741 0 0 1 .12-.274l1.147-1.639a.75.75 0 1 1 1.228.86L4.933 10.7l.006.003a3.75 3.75 0 0 0 6.132 4.294l.006.004zm5.494-5.335a.748.748 0 0 1-.12.274l-1.147 1.639a.75.75 0 1 1-1.228-.86l.86-1.23a3.75 3.75 0 0 0-6.144-4.301l-.86 1.229a.75.75 0 0 1-1.229-.86l1.148-1.64a.748.748 0 0 1 .217-.206 5.251 5.251 0 0 1 8.503 5.955zm-4.563-2.532a.75.75 0 0 1 .184 1.045l-3.155 4.505a.75.75 0 1 1-1.229-.86l3.155-4.506a.75.75 0 0 1 1.045-.184z"/></svg>',
+                icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M6.91 10.54c.26-.23.64-.21.88.03l3.36 3.14 2.23-2.06a.64.64 0 0 1 .87 0l2.52 2.97V4.5H3.2v10.12l3.71-4.08zm10.27-7.51c.6 0 1.09.47 1.09 1.05v11.84c0 .59-.49 1.06-1.09 1.06H2.79c-.6 0-1.09-.47-1.09-1.06V4.08c0-.58.49-1.05 1.1-1.05h14.38zm-5.22 5.56a1.96 1.96 0 1 1 3.4-1.96 1.96 1.96 0 0 1-3.4 1.96z"/></svg>',
                 tooltip: true,
                 withText: false,
             });
@@ -1530,9 +2481,11 @@ export default class Typo3Image extends Plugin {
                             'data-quality': selectedElement.getAttribute('quality'),
                             'data-title-override': selectedElement.getAttribute('titleOverride'),
                             'data-alt-override': selectedElement.getAttribute('altOverride'),
-                            linkHref: selectedElement.getAttribute('linkHref'),
-                            linkTarget: selectedElement.getAttribute('linkTarget'),
-                            linkTitle: selectedElement.getAttribute('linkTitle'),
+                            linkHref: selectedElement.getAttribute('imageLinkHref'),
+                            linkTarget: selectedElement.getAttribute('imageLinkTarget'),
+                            linkTitle: selectedElement.getAttribute('imageLinkTitle'),
+                            linkClass: selectedElement.getAttribute('imageLinkClass'),
+                            linkParams: selectedElement.getAttribute('imageLinkParams'),
                         }
                     );
                 }
@@ -1731,13 +2684,35 @@ export default class Typo3Image extends Plugin {
                         'data-quality': modelElement.getAttribute('quality'),
                         'data-title-override': modelElement.getAttribute('titleOverride'),
                         'data-alt-override': modelElement.getAttribute('altOverride'),
-                        linkHref: modelElement.getAttribute('linkHref'),
-                        linkTarget: modelElement.getAttribute('linkTarget'),
-                        linkTitle: modelElement.getAttribute('linkTitle'),
+                        linkHref: modelElement.getAttribute('imageLinkHref'),
+                        linkTarget: modelElement.getAttribute('imageLinkTarget'),
+                        linkTitle: modelElement.getAttribute('imageLinkTitle'),
+                        linkClass: modelElement.getAttribute('imageLinkClass'),
+                        linkParams: modelElement.getAttribute('imageLinkParams'),
                         caption: captionText,
                     }
                 );
             }
         });
+
+        // Disable external link command when typo3image is selected
+        // Links should be added via the image dialog to prevent conflicts
+        // between our link handling and TYPO3's Typo3LinkEditing plugin
+        const linkCommand = editor.commands.get('link');
+        if (linkCommand) {
+            // Override the link command's refresh to disable it for typo3image
+            const originalRefresh = linkCommand.refresh.bind(linkCommand);
+            linkCommand.refresh = function() {
+                originalRefresh();
+
+                // Disable link command when typo3image is selected
+                const selection = editor.model.document.selection;
+                const selectedElement = selection.getSelectedElement();
+
+                if (selectedElement && selectedElement.name === 'typo3image') {
+                    this.isEnabled = false;
+                }
+            };
+        }
     }
 }

@@ -35,8 +35,9 @@ figure.image-center {
 
 /* Image displayed inline with text */
 .image-inline,
-img.image-inline {
-    display: inline;
+img.image-inline,
+figure.image-inline {
+    display: inline-block;
     vertical-align: middle;
     margin: 0 0.25rem;
 }

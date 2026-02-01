@@ -1,5 +1,5 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
-<a href="{image.link.url}"
+<a href="{image.link.urlWithParams}"
    {f:if(condition: image.link.target, then: 'target="{image.link.target}"')}
    {f:if(condition: image.link.class, then: 'class="{image.link.class}"')}
    {f:if(condition: isPopup, then: 'data-popup="true"')}>{content -> f:format.raw()}</a>
