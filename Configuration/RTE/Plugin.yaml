@@ -20,8 +20,12 @@ editor:
 processing:
   allowTagsOutside:
     - img
+    - a
+    - figure
   allowTags:
     - figure
     - figcaption
   allowAttributes:
     - 'figure[class]'
+    - 'a[class]'
+    - 'a[data-link-params]'

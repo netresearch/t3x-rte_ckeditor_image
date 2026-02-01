@@ -112,10 +112,10 @@ lib.parseFunc_RTE {
 # artifacts between <img> and <figcaption> elements.
 # See: https://github.com/netresearch/t3x-rte_ckeditor_image/pull/482
 #
-# Note: 'a' was removed from this list in TYPO3 v13 due to duplicate
-# link generation when images are wrapped in links. The encapsLines
-# handler in v13 processes anchor tags differently, causing nested
-# links like <a><a><img></a></a>.
+# Note: 'a' was removed from this list in TYPO3 v13 as a defensive
+# measure. The primary fix for duplicate link generation (<a><a><img></a></a>)
+# is in the CKEditor JavaScript upcast converter which now properly consumes
+# the parent <a> element when processing linked images.
 # See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/565
 #******************************************************
 lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img,figure,figcaption)
