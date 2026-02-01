@@ -17,6 +17,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use TYPO3\CMS\Backend\Controller\ElementBrowserController;
 use TYPO3\CMS\Backend\ElementBrowser\ElementBrowserRegistry;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Http\JsonResponse;
@@ -67,11 +68,13 @@ class SelectImageController extends ElementBrowserController
      * @param ResourceFactory             $resourceFactory        Factory for file resources
      * @param DefaultUploadFolderResolver $uploadFolderResolver   Resolver for default upload folders
      * @param ElementBrowserRegistry      $elementBrowserRegistry Registry for element browsers (required by parent)
+     * @param UriBuilder                  $uriBuilder             URI builder for backend routes
      */
     public function __construct(
         private readonly ResourceFactory $resourceFactory,
         private readonly DefaultUploadFolderResolver $uploadFolderResolver,
         ElementBrowserRegistry $elementBrowserRegistry,
+        private readonly UriBuilder $uriBuilder,
     ) {
         parent::__construct($elementBrowserRegistry);
     }
@@ -92,42 +95,100 @@ class SelectImageController extends ElementBrowserController
         // Extract action from body or query params (avoid nested coalesce for Rector compatibility)
         $actionFromBody = is_array($parsedBody) ? ($parsedBody['action'] ?? null) : null;
         $action         = $actionFromBody ?? $queryParams['action'] ?? null;
-        $isInfoAction   = $action === 'info';
 
-        if (!$isInfoAction) {
-            $bparams = explode('|', (string) $queryParams['bparams']);
+        // Dispatch to specific actions
+        if ($action === 'info') {
+            return $this->infoAction($request);
+        }
 
-            if (isset($bparams[3]) && ($bparams[3] === '')) {
-                $bparams[3]             = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
-                $queryParams['bparams'] = implode('|', $bparams);
-            }
+        if ($action === 'linkBrowser' || $action === 'linkbrowser') {
+            return $this->linkBrowserAction($request);
+        }
 
-            // Resolve default upload folder for users WITHOUT explicit folder context
-            // This fixes issue #290: non-admin users need explicit folder context
-            // to avoid InsufficientFolderAccessPermissionsException
-            // IMPORTANT: Only set if NOT already provided - allows folder browsing navigation
-            if (
-                !isset($queryParams['expandFolder'])
-                && isset($GLOBALS['BE_USER'])
-                && $GLOBALS['BE_USER'] instanceof BackendUserAuthentication
-            ) {
-                try {
-                    $folder = $this->uploadFolderResolver->resolve($GLOBALS['BE_USER']);
-                    if ($folder instanceof Folder) {
-                        // Add expandFolder parameter with combined identifier (format: "storage_uid:/path/")
-                        // TYPO3 v12+ ElementBrowser requires this parameter for folder resolution
-                        $queryParams['expandFolder'] = $folder->getCombinedIdentifier();
-                    }
-                } catch (Exception) {
-                    // Silently handle exceptions - parent ElementBrowserController will use default behavior
-                    // This ensures admin users with full access are not affected if folder resolution fails
+        // Default: show file browser
+        $bparams = explode('|', (string) $queryParams['bparams']);
+
+        if (isset($bparams[3]) && ($bparams[3] === '')) {
+            $bparams[3]             = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
+            $queryParams['bparams'] = implode('|', $bparams);
+        }
+
+        // Resolve default upload folder for users WITHOUT explicit folder context
+        // This fixes issue #290: non-admin users need explicit folder context
+        // to avoid InsufficientFolderAccessPermissionsException
+        // IMPORTANT: Only set if NOT already provided - allows folder browsing navigation
+        if (
+            !isset($queryParams['expandFolder'])
+            && isset($GLOBALS['BE_USER'])
+            && $GLOBALS['BE_USER'] instanceof BackendUserAuthentication
+        ) {
+            try {
+                $folder = $this->uploadFolderResolver->resolve($GLOBALS['BE_USER']);
+                if ($folder instanceof Folder) {
+                    // Add expandFolder parameter with combined identifier (format: "storage_uid:/path/")
+                    // TYPO3 v12+ ElementBrowser requires this parameter for folder resolution
+                    $queryParams['expandFolder'] = $folder->getCombinedIdentifier();
                 }
+            } catch (Exception) {
+                // Silently handle exceptions - parent ElementBrowserController will use default behavior
+                // This ensures admin users with full access are not affected if folder resolution fails
             }
         }
 
         $request = $request->withQueryParams($queryParams);
 
-        return $isInfoAction ? $this->infoAction($request) : parent::mainAction($request);
+        return parent::mainAction($request);
+    }
+
+    /**
+     * Return the link browser URL for image linking.
+     *
+     * This action generates the proper URL for TYPO3's link browser wizard,
+     * using the standard FormEngine pattern (not RTE-specific).
+     *
+     * @param ServerRequestInterface $request The request object
+     *
+     * @return ResponseInterface JSON response with link browser URL
+     */
+    public function linkBrowserAction(ServerRequestInterface $request): ResponseInterface
+    {
+        try {
+            $queryParams = $request->getQueryParams();
+
+            // Get the current page ID from query params or use 0 as fallback
+            $pid          = (int) ($queryParams['pid'] ?? 0);
+            $currentValue = $queryParams['currentValue'] ?? '';
+
+            // Build URL using FormEngine-style parameters
+            // This avoids loading the RTE-specific link browser adapter
+            $linkBrowserUrl = (string) $this->uriBuilder->buildUriFromRoute(
+                'wizard_link',
+                [
+                    'P' => [
+                        'table'                 => 'tt_content',
+                        'uid'                   => $pid,  // Use pid as uid for context
+                        'pid'                   => $pid,
+                        'field'                 => 'bodytext',
+                        'formName'              => 'typo3image_linkform',
+                        'itemName'              => 'typo3image_link',
+                        'currentValue'          => $currentValue,
+                        'currentSelectedValues' => $currentValue,
+                        'params'                => [
+                            'blindLinkOptions' => '',
+                            'blindLinkFields'  => '',
+                        ],
+                    ],
+                ],
+            );
+
+            return new JsonResponse([
+                'url' => $linkBrowserUrl,
+            ]);
+        } catch (Exception $e) {
+            return new JsonResponse([
+                'error' => 'Failed to generate link browser URL: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -276,9 +337,11 @@ class SelectImageController extends ElementBrowserController
                 'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
                 . 'locallang_be.xlf:labels.ckeditor.noscalehelp',
             ),
+            // Use local translation instead of deprecated TYPO3 core label
+            // (image_zoom_formlabel deprecated in TYPO3 v14)
             'zoom' => LocalizationUtility::translate(
-                'LLL:EXT:frontend/Resources/Private/Language/'
-                . 'locallang_ttc.xlf:image_zoom_formlabel',
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.clicktoenlarge',
             ),
             'quality' => LocalizationUtility::translate(
                 'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
@@ -351,6 +414,54 @@ class SelectImageController extends ElementBrowserController
             'qualityExcessiveTooltip' => LocalizationUtility::translate(
                 'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
                 . 'locallang_be.xlf:labels.ckeditor.quality.excessive.tooltip',
+            ),
+            'clickBehavior' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.clickBehavior',
+            ),
+            'clickBehaviorNone' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.clickBehaviorNone',
+            ),
+            'clickBehaviorEnlarge' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.clickBehaviorEnlarge',
+            ),
+            'clickBehaviorLink' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.clickBehaviorLink',
+            ),
+            'linkUrl' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.linkUrl',
+            ),
+            'linkTarget' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.linkTarget',
+            ),
+            'linkTitle' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.linkTitle',
+            ),
+            'linkCssClass' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.linkCssClass',
+            ),
+            'browse' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.browse',
+            ),
+            'linkTargetDefault' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.linkTargetDefault',
+            ),
+            'linkTargetBlank' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.linkTargetBlank',
+            ),
+            'linkTargetTop' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.linkTargetTop',
             ),
         ];
     }
