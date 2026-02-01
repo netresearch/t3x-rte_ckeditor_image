@@ -184,6 +184,104 @@ final class ImageTagRenderingTest extends FunctionalTestCase
         self::assertStringContainsString('<img', $result, 'Output should contain img element');
     }
 
+    // ========================================================================
+    // Issue #565 Tests - Linked Images (duplicate <a> tag prevention)
+    // ========================================================================
+
+    /**
+     * Test that renderImages does not create duplicate link wrappers.
+     *
+     * When an image is already wrapped in a link (<a><img/></a>), the tags.a
+     * handler (renderImages) processes the inner content. It should NOT add
+     * another link wrapper - the original <a> is preserved by TypoScript.
+     *
+     * Bug #565: Users reported <a><a><img/></a></a> appearing after editing
+     * linked images in CKEditor.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/565
+     */
+    #[Test]
+    public function renderImagesDoesNotCreateDuplicateLinkWrapper(): void
+    {
+        $adapter = $this->get(ImageRenderingAdapter::class);
+
+        /** @var ContentObjectRenderer $cObj */
+        $cObj = $this->get(ContentObjectRenderer::class);
+        $cObj->setRequest($this->request);
+        $adapter->setContentObjectRenderer($cObj);
+
+        // Simulate tags.a handler: currentVal is the INNER content of the <a> tag
+        // The outer <a href="https://example.com"> wrapper is handled by TypoScript
+        $linkContent = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" '
+            . 'data-htmlarea-file-table="sys_file" width="250" height="250" alt="Test">';
+
+        $cObj->setCurrentVal($linkContent);
+
+        /** @var string $result */
+        $result = $adapter->renderImages(null, [], $this->request);
+
+        // Count <a> tags in the result - should be ZERO
+        // The renderImages handler processes images INSIDE links, it should NOT
+        // create additional link wrappers
+        $linkCount = substr_count($result, '<a ');
+        $linkCount += substr_count($result, '<a>');
+
+        self::assertSame(
+            0,
+            $linkCount,
+            'renderImages should NOT create link wrappers (the outer <a> is handled by TypoScript). '
+            . 'Found ' . $linkCount . ' <a> tags. Result: ' . $result,
+        );
+
+        // Should still contain the processed img
+        self::assertStringContainsString(
+            '<img',
+            $result,
+            'Result should contain the processed img element. Result: ' . $result,
+        );
+    }
+
+    /**
+     * Test that linked images with zoom attribute do not get popup links added.
+     *
+     * When an image is already inside a link, the zoom/clickenlarge feature
+     * should be disabled - the image is already linked, no popup needed.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/565
+     */
+    #[Test]
+    public function renderImagesStripsZoomAttributeFromLinkedImages(): void
+    {
+        $adapter = $this->get(ImageRenderingAdapter::class);
+
+        /** @var ContentObjectRenderer $cObj */
+        $cObj = $this->get(ContentObjectRenderer::class);
+        $cObj->setRequest($this->request);
+        $adapter->setContentObjectRenderer($cObj);
+
+        // Image with zoom attribute inside a link
+        $linkContent = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" '
+            . 'data-htmlarea-file-table="sys_file" width="250" height="250" alt="Test" '
+            . 'data-htmlarea-zoom="true">';
+
+        $cObj->setCurrentVal($linkContent);
+
+        /** @var string $result */
+        $result = $adapter->renderImages(null, [], $this->request);
+
+        // Should NOT contain any link wrapper (zoom should be stripped for linked images)
+        // Count both <a > and <a> to catch all anchor variations
+        $linkCount = substr_count($result, '<a ');
+        $linkCount += substr_count($result, '<a>');
+
+        self::assertSame(
+            0,
+            $linkCount,
+            'Linked images should not get popup links from zoom attribute. '
+            . 'Found ' . $linkCount . ' <a> tags. Result: ' . $result,
+        );
+    }
+
     /**
      * Test simulation of parseFunc processing order with proper handling.
      *

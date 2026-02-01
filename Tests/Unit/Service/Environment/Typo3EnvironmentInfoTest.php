@@ -21,6 +21,10 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
  * Unit tests for Typo3EnvironmentInfo.
+ *
+ * Note: Methods getPublicPath(), getSiteUrl(), and getRequestHost() require
+ * a fully bootstrapped TYPO3 Environment and are therefore not covered by
+ * unit tests in this class.
  */
 #[AllowMockObjectsWithoutExpectations]
 #[CoversClass(Typo3EnvironmentInfo::class)]
@@ -91,29 +95,5 @@ final class Typo3EnvironmentInfoTest extends UnitTestCase
         $result = $this->subject->getBackendUser();
 
         self::assertSame($beUserMock, $result);
-    }
-
-    #[Test]
-    public function getPublicPathReturnsString(): void
-    {
-        // Environment::getPublicPath() needs TYPO3 bootstrap, skip in unit tests
-        // This test verifies the method exists and can be called
-        self::markTestSkipped('TYPO3 Environment requires bootstrap - tested in functional tests');
-    }
-
-    #[Test]
-    public function getSiteUrlReturnsString(): void
-    {
-        // GeneralUtility::getIndpEnv() requires TYPO3 Environment bootstrap
-        // which is only available in functional tests
-        self::markTestSkipped('TYPO3 Environment requires bootstrap - tested in functional tests');
-    }
-
-    #[Test]
-    public function getRequestHostReturnsString(): void
-    {
-        // GeneralUtility::getIndpEnv() requires TYPO3 Environment bootstrap
-        // which is only available in functional tests
-        self::markTestSkipped('TYPO3 Environment requires bootstrap - tested in functional tests');
     }
 }
