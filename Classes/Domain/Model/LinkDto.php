@@ -43,7 +43,8 @@ final readonly class LinkDto
      *
      * Handles the query string separator correctly:
      * - If URL has no "?", params starting with "&" get "?" prefix instead
-     * - If URL already has "?", params are appended as-is
+     * - If URL already has "?", params are normalized to start with "&"
+     * - URL fragments (#...) are preserved at the end
      *
      * @return string Complete URL with params
      */
@@ -53,9 +54,21 @@ final readonly class LinkDto
             return $this->url;
         }
 
+        $url      = $this->url;
+        $fragment = '';
+
+        // Extract fragment if present (params go before fragment)
+        $fragmentPos = strpos($url, '#');
+        if ($fragmentPos !== false) {
+            $fragment = substr($url, $fragmentPos);
+            $url      = substr($url, 0, $fragmentPos);
+        }
+
+        // Normalize params
+        $params = $this->params;
+
         // If URL already has query string, normalize params to start with &
-        if (str_contains($this->url, '?')) {
-            $params = $this->params;
+        if (str_contains($url, '?')) {
             // Convert leading ? to & to avoid malformed URL like ?a=1?b=2
             if (str_starts_with($params, '?')) {
                 $params = '&' . substr($params, 1);
@@ -63,20 +76,16 @@ final readonly class LinkDto
                 // Params doesn't start with & or ? - add &
                 $params = '&' . $params;
             }
-
-            return $this->url . $params;
+        } else {
+            // URL has no query string - replace leading & with ? if present
+            if (str_starts_with($params, '&')) {
+                $params = '?' . substr($params, 1);
+            } elseif (!str_starts_with($params, '?')) {
+                // Params doesn't start with & or ? - add ?
+                $params = '?' . $params;
+            }
         }
 
-        // URL has no query string - replace leading & with ? if present
-        $params = $this->params;
-
-        if (str_starts_with($params, '&')) {
-            $params = '?' . substr($params, 1);
-        } elseif (!str_starts_with($params, '?')) {
-            // Params doesn't start with & or ? - add ?
-            $params = '?' . $params;
-        }
-
-        return $this->url . $params;
+        return $url . $params . $fragment;
     }
 }

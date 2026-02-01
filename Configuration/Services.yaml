@@ -12,6 +12,7 @@ services:
     public: true
     tags: ['backend.controller']
     arguments:
+      $uriBuilder: '@TYPO3\CMS\Backend\Routing\UriBuilder'
       $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
       $uploadFolderResolver: '@TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver'
       $elementBrowserRegistry: '@TYPO3\CMS\Backend\ElementBrowser\ElementBrowserRegistry'

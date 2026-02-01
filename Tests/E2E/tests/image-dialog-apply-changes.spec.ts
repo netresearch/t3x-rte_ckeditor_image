@@ -15,13 +15,6 @@ const BACKEND_PASSWORD = process.env.TYPO3_BACKEND_PASSWORD || '';
 const BASE_URL = process.env.BASE_URL || 'https://v13.rte-ckeditor-image.ddev.site';
 
 /**
- * Check if backend credentials are configured.
- */
-function hasBackendCredentials(): boolean {
-  return !!process.env.TYPO3_BACKEND_PASSWORD && process.env.TYPO3_BACKEND_PASSWORD.length > 0;
-}
-
-/**
  * Login to TYPO3 backend
  */
 async function loginToBackend(page: Page): Promise<boolean> {

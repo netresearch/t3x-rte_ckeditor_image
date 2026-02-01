@@ -14,14 +14,6 @@ const BACKEND_PASSWORD = process.env.TYPO3_BACKEND_PASSWORD || '';
 const BASE_URL = process.env.BASE_URL || 'https://v13.rte-ckeditor-image.ddev.site';
 
 /**
- * Check if backend credentials are configured.
- * Tests requiring backend login should skip when this returns false.
- */
-function hasBackendCredentials(): boolean {
-  return !!process.env.TYPO3_BACKEND_PASSWORD && process.env.TYPO3_BACKEND_PASSWORD.length > 0;
-}
-
-/**
  * Login to TYPO3 backend
  */
 async function loginToBackend(page: Page): Promise<boolean> {
@@ -378,8 +370,8 @@ test.describe('Image Dialog Link Browser', () => {
       // Wait for the modal to close and link to be inserted
       await page.waitForTimeout(2000);
 
-      // Check if the link browser modal closed
-      const linkBrowserModalCount = await page.locator('.modal-dialog iframe').count();
+      // Check if the link browser modal closed (no remaining link browser iframes)
+      await expect(page.locator('.modal-dialog iframe')).toHaveCount(0);
 
       // The link input should now have a value
       const newValue = await linkInput.inputValue();
@@ -457,6 +449,7 @@ test.describe('Image Dialog Link Browser', () => {
 
     // The image edit dialog should still be visible
     const imageDialog = page.locator('.modal-dialog:has(input[name="alt"])');
+    await expect(imageDialog).toBeVisible();
     // Should not have critical JS errors
     const criticalErrors = consoleErrors.filter(e =>
       e.includes('Cannot read properties') ||
