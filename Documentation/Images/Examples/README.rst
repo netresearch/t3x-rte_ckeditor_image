@@ -20,7 +20,7 @@ The easiest approach is to use the existing DDEV environment:
 
    # Access TYPO3 v13 backend
    # URL: https://v13.rte-ckeditor-image.ddev.site/typo3/
-   # Login: screenshot / Screenshot@123
+   # Login: admin / Joh316!!
 
    # Navigate to: Page > Home > Edit the "Regular Text Element"
    # Double-click the blue test image to open Image Properties dialog
