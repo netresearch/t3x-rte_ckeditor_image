@@ -108,6 +108,19 @@
       <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve" approved="yes">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
 			<target state="final">Прекомерна резолуција (%sx) - Непотребно висока</target></trans-unit>
+
+      <trans-unit id="labels.ckeditor.linkTargetSelf" xml:space="preserve">
+				<source>Same window (_self)</source>
+			<target>Исти прозор (_self)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetParent" xml:space="preserve">
+				<source>Parent frame (_parent)</source>
+			<target>Родитељски оквир (_parent)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkParams" xml:space="preserve">
+				<source>Additional Parameters</source>
+			<target>Додатни параметри</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkParamsPlaceholder" xml:space="preserve">
+				<source>e.g., &amp;L=1&amp;type=123</source>
+			<target>нпр. &amp;L=1&amp;type=123</target></trans-unit>
     </body>
   </file>
 </xliff>
