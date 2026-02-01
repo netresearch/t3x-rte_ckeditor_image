@@ -31,6 +31,14 @@ Examples by Topic
         ..  card-footer:: :ref:`Read more <examples-basic-integration>`
             :button-style: btn btn-primary stretched-link
 
+    ..  card:: 🔗 Linked Images
+
+        Configure click behavior, link browser integration, and URL parameters.
+        Complete guide for creating linked and clickable images.
+
+        ..  card-footer:: :ref:`Read more <examples-linked-images>`
+            :button-style: btn btn-primary stretched-link
+
     ..  card:: 🎨 Image Styles
 
         Configure custom image styles with Bootstrap classes, CSS groups, and style dropdowns.

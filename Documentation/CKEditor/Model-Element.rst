@@ -68,7 +68,8 @@ Schema Definition
            'src', 'fileUid', 'fileTable',
            'alt', 'altOverride', 'title', 'titleOverride',
            'class', 'enableZoom', 'width', 'height',
-           'htmlA', 'linkHref', 'linkTarget', 'linkTitle'
+           'htmlA', 'linkHref', 'linkTarget', 'linkTitle',
+           'linkClass', 'linkParams'  // Added in 13.5.0
        ],
    });
 
@@ -544,6 +545,64 @@ linkTitle
 
    writer.setAttribute('linkTitle', 'Link description', modelElement);
 
+linkClass
+^^^^^^^^^
+
+.. versionadded:: 13.5.0
+
+.. code-block:: javascript
+
+   type: String
+   default: undefined
+
+**Purpose**: CSS class for the wrapping anchor tag
+
+**Example**:
+
+.. code-block:: javascript
+
+   linkClass: 'external-link btn-primary'
+
+**Usage**:
+
+.. code-block:: javascript
+
+   writer.setAttribute('linkClass', 'my-link-class', modelElement);
+
+linkParams
+^^^^^^^^^^
+
+.. versionadded:: 13.5.0
+
+.. code-block:: javascript
+
+   type: String
+   default: undefined
+
+**Purpose**: Additional URL parameters for the link (TypoLink additionalParams)
+
+**Format**: Query string starting with ``&`` (e.g., ``&L=1&type=123``)
+
+**Example**:
+
+.. code-block:: javascript
+
+   linkParams: '&L=1&type=123'
+
+**Usage**:
+
+.. code-block:: javascript
+
+   writer.setAttribute('linkParams', '&cHash=abc123', modelElement);
+
+**TypoLink Integration**:
+
+This corresponds to the fifth parameter in TYPO3's TypoLink format::
+
+   url target class "title" additionalParams
+   ↓                         ↓
+   linkHref                 linkParams
+
 Working with Model Elements
 ============================
 
@@ -733,7 +792,8 @@ CKEditor automatically strips attributes not in ``allowAttributes`` list:
        'src', 'fileUid', 'fileTable',
        'alt', 'altOverride', 'title', 'titleOverride',
        'class', 'enableZoom', 'width', 'height',
-       'htmlA', 'linkHref', 'linkTarget', 'linkTitle'
+       'htmlA', 'linkHref', 'linkTarget', 'linkTitle',
+       'linkClass', 'linkParams'
    ]
 
 Custom Validation

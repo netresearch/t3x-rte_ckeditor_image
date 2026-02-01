@@ -144,9 +144,15 @@ Properties
             public string $url,        // Link URL (validated)
             public ?string $target,    // Link target (_blank, _self, etc.)
             public ?string $class,     // CSS class for link element
+            public ?string $params,    // Additional URL parameters
             public bool $isPopup,      // Whether this is a popup/lightbox link
             public ?array $jsConfig,   // JavaScript configuration for lightbox
         ) {}
+
+        /**
+         * Get URL with params properly appended.
+         */
+        public function getUrlWithParams(): string;
     }
 
 Property details
@@ -173,6 +179,22 @@ Property details
 
     CSS classes applied to the :html:`<a>` element.
 
+..  confval:: params
+    :name: linkdto-params
+    :type: ?string
+    :required: false
+
+    .. versionadded:: 13.5.0
+
+    Additional URL parameters to append to the link URL (e.g., ``&L=1&type=123``).
+    These correspond to TYPO3's TypoLink ``additionalParams`` field.
+
+    The :php:`getUrlWithParams()` method handles proper concatenation:
+
+    - If URL has no query string: ``&L=1`` becomes ``?L=1``
+    - If URL already has query: params are appended with ``&``
+    - URL fragments (``#section``) are preserved at the end
+
 ..  confval:: isPopup
     :name: linkdto-ispopup
     :type: bool
@@ -196,6 +218,31 @@ Property details
             'effect' => 'fade'
         ]
 
+Methods
+-------
+
+..  php:method:: getUrlWithParams()
+
+    .. versionadded:: 13.5.0
+
+    Returns the URL with additional parameters properly appended.
+
+    Handles query string normalization:
+
+    ..  code-block:: php
+
+        // URL without query string
+        $dto = new LinkDto(url: '/page', params: '&L=1');
+        $dto->getUrlWithParams(); // '/page?L=1'
+
+        // URL with existing query string
+        $dto = new LinkDto(url: '/page?foo=bar', params: '&L=1');
+        $dto->getUrlWithParams(); // '/page?foo=bar&L=1'
+
+        // URL with fragment (preserved at end)
+        $dto = new LinkDto(url: '/page#section', params: '&L=1');
+        $dto->getUrlWithParams(); // '/page?L=1#section'
+
 Usage example
 =============
 
@@ -210,9 +257,22 @@ Usage example
         url: '/fileadmin/images/large.jpg',
         target: null,
         class: 'lightbox',
+        params: null,
         isPopup: true,
         jsConfig: ['effect' => 'fade']
     );
+
+    // Create link DTO for external link with parameters
+    $externalLink = new LinkDto(
+        url: 'https://example.com/page',
+        target: '_blank',
+        class: 'external-link',
+        params: '&utm_source=rte&utm_medium=image',
+        isPopup: false,
+        jsConfig: null
+    );
+    // $externalLink->getUrlWithParams() returns:
+    // 'https://example.com/page?utm_source=rte&utm_medium=image'
 
     // Create image DTO
     $image = new ImageRenderingDto(
