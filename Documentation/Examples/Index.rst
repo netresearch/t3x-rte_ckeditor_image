@@ -100,6 +100,7 @@ Quick Reference Links
    :maxdepth: 1
 
    Basic-Integration
+   Linked-Images
    Image-Styles
    Responsive-Images
    Advanced-Features
