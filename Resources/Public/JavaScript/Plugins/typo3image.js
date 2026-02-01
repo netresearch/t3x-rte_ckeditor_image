@@ -451,19 +451,13 @@ function getImageDialog(editor, img, attributes) {
         var currentLinkValue = encodeTypoLink(currentLinkData);
         openLinkBrowser(editor, currentLinkValue).then(function(linkData) {
             if (linkData && linkData.href) {
+                // Always update all fields to ensure stale values are cleared
+                // when the user selects a link without certain attributes
                 $inputLinkHref.val(linkData.href);
-                if (linkData.target) {
-                    $inputLinkTarget.val(linkData.target);
-                }
-                if (linkData.title) {
-                    $inputLinkTitle.val(linkData.title);
-                }
-                if (linkData.class) {
-                    $inputCssClassLink.val(linkData.class);
-                }
-                if (linkData.additionalParams) {
-                    $inputLinkParams.val(linkData.additionalParams);
-                }
+                $inputLinkTarget.val(linkData.target || '');
+                $inputLinkTitle.val(linkData.title || '');
+                $inputCssClassLink.val(linkData.class || '');
+                $inputLinkParams.val(linkData.additionalParams || '');
             }
         });
     });
