@@ -161,11 +161,15 @@ Editors can select quality from a dropdown in the image dialog. The selection
 persists with the image and affects frontend processing dimensions.
 
 .. figure:: /Images/backend-image-properties-dialog.png
-   :alt: Image properties dialog showing all configuration options
+   :alt: Image properties dialog showing all configuration options including Click Behavior dropdown
    :class: with-shadow
    :width: 500px
 
-   Complete image properties dialog with title, alt text, dimensions, and quality settings
+   Image properties dialog with dimensions, quality, title, alt text, and click behavior options
+
+.. todo::
+   Update screenshot to show the new Click Behavior dropdown (None/Enlarge/Link)
+   that replaced the "Click to Enlarge" checkbox in v13.5.0.
 
 **TSConfig for quality-based processing:**
 
