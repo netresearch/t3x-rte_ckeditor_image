@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **True inline images** - New `typo3imageInline` model element for images that flow with text. Cursor can be positioned before/after inline images on the same line. Toggle between block and inline via toolbar button or `toggleImageType` command. ([#580](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/580), [#583](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/583))
+- Comprehensive functional tests for RTE image renderer covering mixed inline and block content
+
 ## [13.5.0] - 2026-01-29
 
 ### Added

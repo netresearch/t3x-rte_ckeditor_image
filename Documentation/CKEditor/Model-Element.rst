@@ -56,8 +56,16 @@ Why Separate Model and View?
 - **Undo/Redo**: Model changes tracked for history management
 - **Validation**: Business rules enforced in model layer
 
-Schema Definition
-=================
+Model Elements
+==============
+
+The extension provides two model elements for different use cases:
+
+- **typo3image**: Block-level images wrapped in ``<figure>`` (with optional caption)
+- **typo3imageInline**: True inline images that flow with text
+
+Block Image Schema (typo3image)
+-------------------------------
 
 .. code-block:: javascript
 
@@ -68,10 +76,96 @@ Schema Definition
            'src', 'fileUid', 'fileTable',
            'alt', 'altOverride', 'title', 'titleOverride',
            'class', 'enableZoom', 'width', 'height',
-           'htmlA', 'linkHref', 'linkTarget', 'linkTitle',
-           'linkClass', 'linkParams'  // Added in 13.5.0
+           'htmlA', 'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle',
+           'imageLinkClass', 'imageLinkParams'
        ],
    });
+
+Inline Image Schema (typo3imageInline)
+--------------------------------------
+
+.. versionadded:: 13.6
+
+   True inline images with cursor positioning support.
+
+.. code-block:: javascript
+
+   editor.model.schema.register('typo3imageInline', {
+       inheritAllFrom: '$inlineObject',
+       allowIn: ['$block'],
+       allowAttributes: [
+           'src', 'fileUid', 'fileTable',
+           'alt', 'altOverride', 'title', 'titleOverride',
+           'class', 'enableZoom', 'width', 'height', 'noScale', 'quality',
+           'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle',
+           'imageLinkClass', 'imageLinkParams'
+       ],
+   });
+
+Key Differences
+^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 35 35
+
+   * - Feature
+     - typo3image (Block)
+     - typo3imageInline (Inline)
+   * - Inheritance
+     - ``$blockObject``
+     - ``$inlineObject``
+   * - Caption Support
+     - ✅ Yes (typo3imageCaption child)
+     - ❌ No
+   * - Text Flow
+     - Breaks paragraph (block-level)
+     - Flows with text (inline)
+   * - Cursor Position
+     - Before/after figure
+     - Before/after on same line
+   * - Output HTML
+     - ``<figure><img></figure>``
+     - ``<img class="image-inline">``
+   * - Style Classes
+     - ``image-left``, ``image-right``, ``image-center``, ``image-block``
+     - ``image-inline``
+
+Usage Example
+^^^^^^^^^^^^^
+
+Text can flow around inline images: |inline-example|
+
+.. |inline-example| image:: /Images/inline-image-example.png
+   :height: 20px
+
+In the editor, users can type text before and after inline images on the same line,
+just like typing around any other inline element (bold text, links, etc.).
+
+Toggle Command
+^^^^^^^^^^^^^^
+
+Users can convert between block and inline via the ``toggleImageType`` command:
+
+.. code-block:: javascript
+
+   // Toggle current image between block and inline
+   editor.execute('toggleImageType');
+
+   // Check current type
+   const isInline = editor.commands.get('toggleImageType').value === 'inline';
+
+**Block → Inline Conversion:**
+
+- Caption is removed (inline images cannot have captions)
+- Block style classes removed, ``image-inline`` added
+- Image becomes inline in text flow
+
+**Inline → Block Conversion:**
+
+- Image wrapped in figure
+- ``image-block`` class added (or previous alignment class)
+- Image becomes block-level element
 
 Schema Properties Explained
 ----------------------------
