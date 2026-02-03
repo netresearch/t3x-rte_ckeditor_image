@@ -26,9 +26,9 @@ use PHPat\Test\PHPat;
  *          ↓
  *      Service (application)
  *          ↓
- *   Domain/Model (core DTOs)
- *          ↓
- *   Utils (shared helpers)
+ *   Domain/Model (core DTOs) ←──┐
+ *          ↓                    │
+ *   Utils (shared helpers) ─────┘ (Utils may use Domain types)
  */
 final class ArchitectureTest
 {
@@ -164,6 +164,7 @@ final class ArchitectureTest
      * Utilities must not depend on higher layers.
      *
      * Utilities should be stateless helper functions.
+     * They may use Domain types (DTOs) but not application or presentation layers.
      */
     public function testUtilitiesDoNotDependOnHigherLayers(): BuildStep
     {
@@ -173,9 +174,10 @@ final class ArchitectureTest
             ->classes(
                 Selector::inNamespace('Netresearch\RteCKEditorImage\Controller'),
                 Selector::inNamespace('Netresearch\RteCKEditorImage\Backend'),
+                Selector::inNamespace('Netresearch\RteCKEditorImage\Service'),
                 Selector::inNamespace('Netresearch\RteCKEditorImage\Database'),
                 Selector::inNamespace('Netresearch\RteCKEditorImage\DataHandling'),
             )
-            ->because('utilities should be stateless helpers');
+            ->because('utilities should be stateless helpers without application layer dependencies');
     }
 }
