@@ -1,5 +1,7 @@
 # TYPO3 Documentation System Guide for AI Agents
 
+<!-- Managed by agent: keep sections & order; edit content, not structure. Last updated: 2026-02-03 -->
+
 This guide explains how to work with TYPO3 extension documentation for AI agents and developers.
 
 ## Documentation Structure
