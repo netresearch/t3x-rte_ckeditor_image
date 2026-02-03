@@ -137,7 +137,7 @@
 			<target state="translated">Jelajahi...</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetDefault" xml:space="preserve">
 				<source>(default)</source>
-			<target state="translated">(default)</target></trans-unit>
+			<target state="translated">(bawaan)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetBlank" xml:space="preserve">
 				<source>New window (_blank)</source>
 			<target state="translated">Jendela baru (_blank)</target></trans-unit>
