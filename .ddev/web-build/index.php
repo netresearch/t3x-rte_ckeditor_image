@@ -95,28 +95,59 @@ $prUrl = $prNumber ? $githubUrl . '/pull/' . $prNumber : null;
             </div>
         </div>
         <div class="badges">
-            <span class="badge">TYPO3 13.4+</span>
+            <span class="badge">TYPO3 13.4 LTS</span>
+            <span class="badge">TYPO3 14 Dev</span>
             <span class="badge">PHP 8.2/8.3/8.4</span>
             <span class="badge">DDEV Development</span>
         </div>
     </div>
 
     <div class="content">
-        <div class="grid">
-            <div class="card">
-                <h3>📖 Documentation</h3>
-                <p>Browse the complete extension documentation</p>
-                <a href="https://docs.rte-ckeditor-image.ddev.site/" target="_blank">View Documentation →</a>
+        <div class="section">
+            <h2>TYPO3 v13 LTS</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>🌐 v13 Frontend</h3>
+                    <p>View the TYPO3 13.4 LTS demo site with example content</p>
+                    <a href="https://v13.rte-ckeditor-image.ddev.site/" target="_blank">Open v13 Frontend →</a>
+                </div>
+                <div class="card">
+                    <h3>⚙️ v13 Backend</h3>
+                    <p>Access the TYPO3 13.4 LTS backend administration</p>
+                    <a href="https://v13.rte-ckeditor-image.ddev.site/typo3/" target="_blank">Open v13 Backend →</a>
+                </div>
             </div>
-            <div class="card">
-                <h3>🌐 TYPO3 Frontend</h3>
-                <p>View the TYPO3 demo site with example content</p>
-                <a href="https://v13.rte-ckeditor-image.ddev.site/" target="_blank">Open Frontend →</a>
+        </div>
+
+        <div class="section">
+            <h2>TYPO3 v14 (Dev)</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>🌐 v14 Frontend</h3>
+                    <p>View the TYPO3 14 development demo site</p>
+                    <a href="https://v14.rte-ckeditor-image.ddev.site/" target="_blank">Open v14 Frontend →</a>
+                </div>
+                <div class="card">
+                    <h3>⚙️ v14 Backend</h3>
+                    <p>Access the TYPO3 14 development backend</p>
+                    <a href="https://v14.rte-ckeditor-image.ddev.site/typo3/" target="_blank">Open v14 Backend →</a>
+                </div>
             </div>
-            <div class="card">
-                <h3>⚙️ TYPO3 Backend</h3>
-                <p>Access the TYPO3 backend administration panel</p>
-                <a href="https://v13.rte-ckeditor-image.ddev.site/typo3/" target="_blank">Open Backend →</a>
+        </div>
+
+        <div class="section">
+            <h2>Resources</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>📖 Documentation</h3>
+                    <p>Browse the complete extension documentation</p>
+                    <a href="https://docs.rte-ckeditor-image.ddev.site/" target="_blank">View Documentation →</a>
+                </div>
+                <div class="card">
+                    <h3>💻 GitHub</h3>
+                    <p>Source code, issues, and contributions</p>
+                    <a href="https://github.com/netresearch/t3x-rte_ckeditor_image" target="_blank">Open GitHub →</a>
+                </div>
             </div>
         </div>
 
