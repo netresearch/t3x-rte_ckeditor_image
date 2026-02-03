@@ -110,40 +110,40 @@
 			<target state="final">Överdriven upplösning (%sx) - Onödigt hög</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehavior" xml:space="preserve">
 				<source>Click Behavior</source>
-			<target state="needs-translation">Click Behavior</target></trans-unit>
+			<target state="translated">Klickbeteende</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorNone" xml:space="preserve">
 				<source>None - image is not clickable</source>
-			<target state="needs-translation">None - image is not clickable</target></trans-unit>
+			<target state="translated">Inget - bilden är inte klickbar</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorEnlarge" xml:space="preserve">
 				<source>Enlarge - opens full-size in lightbox</source>
-			<target state="needs-translation">Enlarge - opens full-size in lightbox</target></trans-unit>
+			<target state="translated">Förstora - öppnar i full storlek i lightbox</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorLink" xml:space="preserve">
 				<source>Link - opens custom URL</source>
-			<target state="needs-translation">Link - opens custom URL</target></trans-unit>
+			<target state="translated">Länk - öppnar anpassad URL</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkUrl" xml:space="preserve">
 				<source>Link URL</source>
-			<target state="needs-translation">Link URL</target></trans-unit>
+			<target state="translated">Länk-URL</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTarget" xml:space="preserve">
 				<source>Link Target</source>
-			<target state="needs-translation">Link Target</target></trans-unit>
+			<target state="translated">Länkmål</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTitle" xml:space="preserve">
 				<source>Link Title</source>
-			<target state="needs-translation">Link Title</target></trans-unit>
+			<target state="translated">Länktitel</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkCssClass" xml:space="preserve">
 				<source>Link CSS Class</source>
-			<target state="needs-translation">Link CSS Class</target></trans-unit>
+			<target state="translated">Länk CSS-klass</target></trans-unit>
       <trans-unit id="labels.ckeditor.browse" xml:space="preserve">
 				<source>Browse...</source>
-			<target state="needs-translation">Browse...</target></trans-unit>
+			<target state="translated">Bläddra...</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetDefault" xml:space="preserve">
 				<source>(default)</source>
-			<target state="needs-translation">(default)</target></trans-unit>
+			<target state="translated">(standard)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetBlank" xml:space="preserve">
 				<source>New window (_blank)</source>
-			<target state="needs-translation">New window (_blank)</target></trans-unit>
+			<target state="translated">Nytt fönster (_blank)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetTop" xml:space="preserve">
 				<source>Top frame (_top)</source>
-			<target state="needs-translation">Top frame (_top)</target></trans-unit>
+			<target state="translated">Övre ram (_top)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetSelf" xml:space="preserve">
 				<source>Same window (_self)</source>
 			<target state="translated">Samma fönster (_self)</target></trans-unit>
