@@ -70,6 +70,9 @@ lib.parseFunc_RTE {
         #     maxFileSizeForAuto = 2000000
         # }
     }
+    # Clear existing tags.a configuration to prevent typolink from processing
+    # our image links (would strip inner content and add rel="noreferrer")
+    tags.a >
     tags.a = TEXT
     tags.a {
         current = 1
@@ -82,17 +85,26 @@ lib.parseFunc_RTE {
         #     maxFileSizeForAuto = 2000000
         # }
     }
-    tags.figure = TEXT
-    tags.figure {
-        current = 1
-        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderFigure
+    # CRITICAL: Figure elements are processed as externalBlocks, NOT tags.
+    # The externalBlocks path in parseFunc handles block-level elements like figure.
+    # We must configure externalBlocks.figure, not tags.figure.
+    #
+    # Configuration:
+    # - callRecursive = 0: Prevents inner <a> tags from being processed before
+    #   our handler, which would break linked images in figures
+    # - stdWrap.preUserFunc: Processes the complete figure HTML through our adapter
+    externalBlocks.figure {
+        callRecursive = 0
+        stdWrap {
+            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderFigure
 
-        # noScale configuration for figure-wrapped images
-        # Same options as tags.img above
-        # noScale = 1
-        # noScale {
-        #     maxFileSizeForAuto = 2000000
-        # }
+            # noScale configuration for figure-wrapped images
+            # Same options as tags.img above
+            # noScale = 1
+            # noScale {
+            #     maxFileSizeForAuto = 2000000
+            # }
+        }
     }
     nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
         allparams.unset = 1

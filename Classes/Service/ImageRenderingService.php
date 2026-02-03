@@ -130,17 +130,21 @@ class ImageRenderingService
      */
     private function selectTemplate(ImageRenderingDto $imageData): string
     {
-        $hasCaption = $imageData->caption !== null && $imageData->caption !== '';
-        $hasLink    = $imageData->link instanceof LinkDto;
-        $isPopup    = $imageData->link instanceof LinkDto && $imageData->link->isPopup;
+        $hasCaption     = $imageData->caption !== null && $imageData->caption !== '';
+        $hasFigureClass = $imageData->figureClass !== null && $imageData->figureClass !== '';
+        $hasLink        = $imageData->link instanceof LinkDto;
+        $isPopup        = $imageData->link instanceof LinkDto && $imageData->link->isPopup;
+
+        // Figure wrapper is needed if there's a caption OR a figure class (for alignment)
+        $needsFigureWrapper = $hasCaption || $hasFigureClass;
 
         return match (true) {
-            $isPopup && $hasCaption => self::TEMPLATE_POPUP_WITH_CAPTION,
-            $isPopup                => self::TEMPLATE_POPUP,
-            $hasLink && $hasCaption => self::TEMPLATE_LINK_WITH_CAPTION,
-            $hasLink                => self::TEMPLATE_LINK,
-            $hasCaption             => self::TEMPLATE_WITH_CAPTION,
-            default                 => self::TEMPLATE_STANDALONE,
+            $isPopup && $needsFigureWrapper => self::TEMPLATE_POPUP_WITH_CAPTION,
+            $isPopup                        => self::TEMPLATE_POPUP,
+            $hasLink && $needsFigureWrapper => self::TEMPLATE_LINK_WITH_CAPTION,
+            $hasLink                        => self::TEMPLATE_LINK,
+            $needsFigureWrapper             => self::TEMPLATE_WITH_CAPTION,
+            default                         => self::TEMPLATE_STANDALONE,
         };
     }
 
