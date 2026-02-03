@@ -1,0 +1,10 @@
+# PHPat Architecture Rules Configuration
+#
+# Links the ArchitectureTest class to PHPStan.
+# The actual rules are defined in Tests/Architecture/ArchitectureTest.php
+#
+# Run with: Build/Scripts/runTests.sh -s phpstan
+
+services:
+    -
+        class: Netresearch\RteCKEditorImage\Tests\Architecture\ArchitectureTest
