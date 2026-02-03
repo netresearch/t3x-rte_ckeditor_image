@@ -12,24 +12,26 @@ Comprehensive test suite for TYPO3 CKEditor Image extension.
 ### Test Counts (Feb 2026)
 | Type | Files | Framework |
 |------|-------|-----------|
-| Unit | 22 | PHPUnit |
-| Functional | 10 | PHPUnit + TYPO3 Testing Framework |
+| Unit | 21 | PHPUnit |
+| Functional | 9 | PHPUnit + TYPO3 Testing Framework |
 | JavaScript | 2 | Vitest |
-| E2E | 11 | Playwright |
+| E2E | 7 | Playwright |
 | Fuzz | 2 | php-fuzzer |
 
 ### Test Structure
 ```
 Tests/
-├── Unit/                          # 22 PHPUnit tests (no database)
+├── Unit/                          # 21 PHPUnit tests (no database)
 │   ├── Backend/Preview/
 │   ├── Controller/
 │   ├── DataHandling/SoftReference/
 │   ├── Database/
 │   ├── Domain/Model/
+│   ├── JavaScript/
 │   ├── Listener/TCA/
-│   └── Service/                   # Builder, Environment, Fetcher, Parser, Processor
-├── Functional/                    # 10 PHPUnit tests (database required)
+│   ├── Service/                   # Builder, Environment, Fetcher, Parser, Processor, Resolver, Security
+│   └── Utils/
+├── Functional/                    # 9 PHPUnit tests (database required)
 │   ├── Controller/
 │   ├── DataHandling/
 │   ├── Database/
