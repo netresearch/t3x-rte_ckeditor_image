@@ -71,7 +71,7 @@
 			<target state="final">Baskı (6.0x)</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve" approved="yes">
 				<source>Low</source>
-			<target state="final">Düşük:</target></trans-unit>
+			<target state="final">Düşük</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve" approved="yes">
 				<source>Low quality (%sx) - Image may appear blurry</source>
 			<target state="final">Düşük kalite (%sx) - Görüntü bulanık görünebilir</target></trans-unit>
@@ -108,19 +108,54 @@
       <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve" approved="yes">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
 			<target state="final">Aşırı çözünürlük (%sx) - Gereksiz yere yüksek</target></trans-unit>
-
+      <trans-unit id="labels.ckeditor.clickBehavior" xml:space="preserve">
+				<source>Click Behavior</source>
+			<target state="needs-translation">Click Behavior</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clickBehaviorNone" xml:space="preserve">
+				<source>None - image is not clickable</source>
+			<target state="needs-translation">None - image is not clickable</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clickBehaviorEnlarge" xml:space="preserve">
+				<source>Enlarge - opens full-size in lightbox</source>
+			<target state="needs-translation">Enlarge - opens full-size in lightbox</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clickBehaviorLink" xml:space="preserve">
+				<source>Link - opens custom URL</source>
+			<target state="needs-translation">Link - opens custom URL</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkUrl" xml:space="preserve">
+				<source>Link URL</source>
+			<target state="needs-translation">Link URL</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTarget" xml:space="preserve">
+				<source>Link Target</source>
+			<target state="needs-translation">Link Target</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTitle" xml:space="preserve">
+				<source>Link Title</source>
+			<target state="needs-translation">Link Title</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkCssClass" xml:space="preserve">
+				<source>Link CSS Class</source>
+			<target state="needs-translation">Link CSS Class</target></trans-unit>
+      <trans-unit id="labels.ckeditor.browse" xml:space="preserve">
+				<source>Browse...</source>
+			<target state="needs-translation">Browse...</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetDefault" xml:space="preserve">
+				<source>(default)</source>
+			<target state="needs-translation">(default)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetBlank" xml:space="preserve">
+				<source>New window (_blank)</source>
+			<target state="needs-translation">New window (_blank)</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetTop" xml:space="preserve">
+				<source>Top frame (_top)</source>
+			<target state="needs-translation">Top frame (_top)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetSelf" xml:space="preserve">
 				<source>Same window (_self)</source>
-			<target>Aynı pencere (_self)</target></trans-unit>
+			<target state="translated">Aynı pencere (_self)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetParent" xml:space="preserve">
 				<source>Parent frame (_parent)</source>
-			<target>Ana çerçeve (_parent)</target></trans-unit>
+			<target state="translated">Ana çerçeve (_parent)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkParams" xml:space="preserve">
 				<source>Additional Parameters</source>
-			<target>Ek parametreler</target></trans-unit>
+			<target state="translated">Ek parametreler</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkParamsPlaceholder" xml:space="preserve">
 				<source>e.g., &amp;L=1&amp;type=123</source>
-			<target>ör. &amp;L=1&amp;type=123</target></trans-unit>
+			<target state="translated">ör. &amp;L=1&amp;type=123</target></trans-unit>
     </body>
   </file>
 </xliff>
