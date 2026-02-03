@@ -23,9 +23,14 @@ else
 fi
 echo ""
 
-# Step 2: Install TYPO3
-echo "🌐 Step 2/3: Installing TYPO3..."
+# Step 2: Install TYPO3 v13
+echo "🌐 Step 2/3: Installing TYPO3 v13..."
 ddev exec /mnt/ddev_config/commands/web/install-v13
+echo ""
+
+# Step 3: Install TYPO3 v14
+echo "🌐 Step 3/3: Installing TYPO3 v14..."
+ddev exec /mnt/ddev_config/commands/web/install-v14
 echo ""
 
 # Done
@@ -35,8 +40,12 @@ echo ""
 echo "🌐 Access Your Environment:"
 echo "   Overview:       https://${DDEV_SITENAME}.ddev.site/"
 echo "   Documentation:  https://docs.${DDEV_SITENAME}.ddev.site/"
-echo "   TYPO3 Frontend: https://v13.${DDEV_SITENAME}.ddev.site/"
-echo "   TYPO3 Backend:  https://v13.${DDEV_SITENAME}.ddev.site/typo3/"
+echo ""
+echo "   TYPO3 v13:      https://v13.${DDEV_SITENAME}.ddev.site/"
+echo "   TYPO3 v13 BE:   https://v13.${DDEV_SITENAME}.ddev.site/typo3/"
+echo ""
+echo "   TYPO3 v14:      https://v14.${DDEV_SITENAME}.ddev.site/"
+echo "   TYPO3 v14 BE:   https://v14.${DDEV_SITENAME}.ddev.site/typo3/"
 echo ""
 echo "🔑 Backend Login:"
 echo "   Username: admin"

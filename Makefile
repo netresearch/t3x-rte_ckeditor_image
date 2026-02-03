@@ -10,7 +10,12 @@ help: ## Show available targets
 # ===================================
 
 .PHONY: up
-up: start setup ## Complete startup (start DDEV + run setup) - ONE COMMAND TO RULE THEM ALL
+up: ## Complete startup (start DDEV + run setup) - ONE COMMAND TO RULE THEM ALL
+	@echo "🚀 Starting DDEV environment..."
+	@ddev start
+	@echo ""
+	@echo "🔧 Running setup (docs + v13 + v14)..."
+	@ddev setup
 
 .PHONY: start
 start: ## Start DDEV environment
@@ -21,7 +26,7 @@ stop: ## Stop DDEV environment
 	ddev stop
 
 .PHONY: setup
-setup: ## Complete setup (docs + install + configure)
+setup: ## Complete setup (docs + install v13 + install v14)
 	@ddev describe >/dev/null 2>&1 || ddev start
 	ddev setup
 
@@ -40,6 +45,10 @@ docs-fix: ## Fix auto-fixable documentation issues
 .PHONY: install-v13
 install-v13: ## Install TYPO3 v13.4 LTS
 	ddev install-v13
+
+.PHONY: install-v14
+install-v14: ## Install TYPO3 v14.0
+	ddev install-v14
 
 .PHONY: ddev-restart
 ddev-restart: ## Restart DDEV containers
