@@ -110,40 +110,40 @@
 			<target state="final">과도한 해상도 (%sx) - 불필요하게 높음</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehavior" xml:space="preserve">
 				<source>Click Behavior</source>
-			<target state="needs-translation">Click Behavior</target></trans-unit>
+			<target state="translated">클릭 동작</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorNone" xml:space="preserve">
 				<source>None - image is not clickable</source>
-			<target state="needs-translation">None - image is not clickable</target></trans-unit>
+			<target state="translated">없음 - 이미지 클릭 불가</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorEnlarge" xml:space="preserve">
 				<source>Enlarge - opens full-size in lightbox</source>
-			<target state="needs-translation">Enlarge - opens full-size in lightbox</target></trans-unit>
+			<target state="translated">확대 - 라이트박스에서 전체 크기로 열기</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorLink" xml:space="preserve">
 				<source>Link - opens custom URL</source>
-			<target state="needs-translation">Link - opens custom URL</target></trans-unit>
+			<target state="translated">링크 - 사용자 지정 URL 열기</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkUrl" xml:space="preserve">
 				<source>Link URL</source>
-			<target state="needs-translation">Link URL</target></trans-unit>
+			<target state="translated">링크 URL</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTarget" xml:space="preserve">
 				<source>Link Target</source>
-			<target state="needs-translation">Link Target</target></trans-unit>
+			<target state="translated">링크 대상</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTitle" xml:space="preserve">
 				<source>Link Title</source>
-			<target state="needs-translation">Link Title</target></trans-unit>
+			<target state="translated">링크 제목</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkCssClass" xml:space="preserve">
 				<source>Link CSS Class</source>
-			<target state="needs-translation">Link CSS Class</target></trans-unit>
+			<target state="translated">링크 CSS 클래스</target></trans-unit>
       <trans-unit id="labels.ckeditor.browse" xml:space="preserve">
 				<source>Browse...</source>
-			<target state="needs-translation">Browse...</target></trans-unit>
+			<target state="translated">찾아보기...</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetDefault" xml:space="preserve">
 				<source>(default)</source>
-			<target state="needs-translation">(default)</target></trans-unit>
+			<target state="translated">(기본값)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetBlank" xml:space="preserve">
 				<source>New window (_blank)</source>
-			<target state="needs-translation">New window (_blank)</target></trans-unit>
+			<target state="translated">새 창 (_blank)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetTop" xml:space="preserve">
 				<source>Top frame (_top)</source>
-			<target state="needs-translation">Top frame (_top)</target></trans-unit>
+			<target state="translated">최상위 프레임 (_top)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetSelf" xml:space="preserve">
 				<source>Same window (_self)</source>
 			<target state="translated">같은 창 (_self)</target></trans-unit>

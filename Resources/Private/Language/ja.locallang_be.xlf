@@ -110,40 +110,40 @@
 			<target state="final">過剰な解像度 (%sx) - 不必要に高い</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehavior" xml:space="preserve">
 				<source>Click Behavior</source>
-			<target state="needs-translation">Click Behavior</target></trans-unit>
+			<target state="translated">クリック動作</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorNone" xml:space="preserve">
 				<source>None - image is not clickable</source>
-			<target state="needs-translation">None - image is not clickable</target></trans-unit>
+			<target state="translated">なし - 画像はクリックできません</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorEnlarge" xml:space="preserve">
 				<source>Enlarge - opens full-size in lightbox</source>
-			<target state="needs-translation">Enlarge - opens full-size in lightbox</target></trans-unit>
+			<target state="translated">拡大 - ライトボックスでフルサイズで開く</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorLink" xml:space="preserve">
 				<source>Link - opens custom URL</source>
-			<target state="needs-translation">Link - opens custom URL</target></trans-unit>
+			<target state="translated">リンク - カスタムURLを開く</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkUrl" xml:space="preserve">
 				<source>Link URL</source>
-			<target state="needs-translation">Link URL</target></trans-unit>
+			<target state="translated">リンクURL</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTarget" xml:space="preserve">
 				<source>Link Target</source>
-			<target state="needs-translation">Link Target</target></trans-unit>
+			<target state="translated">リンクターゲット</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTitle" xml:space="preserve">
 				<source>Link Title</source>
-			<target state="needs-translation">Link Title</target></trans-unit>
+			<target state="translated">リンクタイトル</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkCssClass" xml:space="preserve">
 				<source>Link CSS Class</source>
-			<target state="needs-translation">Link CSS Class</target></trans-unit>
+			<target state="translated">リンクCSSクラス</target></trans-unit>
       <trans-unit id="labels.ckeditor.browse" xml:space="preserve">
 				<source>Browse...</source>
-			<target state="needs-translation">Browse...</target></trans-unit>
+			<target state="translated">参照...</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetDefault" xml:space="preserve">
 				<source>(default)</source>
-			<target state="needs-translation">(default)</target></trans-unit>
+			<target state="translated">(デフォルト)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetBlank" xml:space="preserve">
 				<source>New window (_blank)</source>
-			<target state="needs-translation">New window (_blank)</target></trans-unit>
+			<target state="translated">新しいウィンドウ (_blank)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetTop" xml:space="preserve">
 				<source>Top frame (_top)</source>
-			<target state="needs-translation">Top frame (_top)</target></trans-unit>
+			<target state="translated">トップフレーム (_top)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetSelf" xml:space="preserve">
 				<source>Same window (_self)</source>
 			<target state="translated">同じウィンドウ (_self)</target></trans-unit>

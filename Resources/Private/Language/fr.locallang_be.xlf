@@ -110,40 +110,40 @@
 			<target state="final">Résolution excessive (%sx) - Inutilement élevée</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehavior" xml:space="preserve">
 				<source>Click Behavior</source>
-			<target state="needs-translation">Click Behavior</target></trans-unit>
+			<target state="translated">Comportement au clic</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorNone" xml:space="preserve">
 				<source>None - image is not clickable</source>
-			<target state="needs-translation">None - image is not clickable</target></trans-unit>
+			<target state="translated">Aucun - l'image n'est pas cliquable</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorEnlarge" xml:space="preserve">
 				<source>Enlarge - opens full-size in lightbox</source>
-			<target state="needs-translation">Enlarge - opens full-size in lightbox</target></trans-unit>
+			<target state="translated">Agrandir - ouvre en pleine taille dans une lightbox</target></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorLink" xml:space="preserve">
 				<source>Link - opens custom URL</source>
-			<target state="needs-translation">Link - opens custom URL</target></trans-unit>
+			<target state="translated">Lien - ouvre une URL personnalisée</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkUrl" xml:space="preserve">
 				<source>Link URL</source>
-			<target state="needs-translation">Link URL</target></trans-unit>
+			<target state="translated">URL du lien</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTarget" xml:space="preserve">
 				<source>Link Target</source>
-			<target state="needs-translation">Link Target</target></trans-unit>
+			<target state="translated">Cible du lien</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTitle" xml:space="preserve">
 				<source>Link Title</source>
-			<target state="needs-translation">Link Title</target></trans-unit>
+			<target state="translated">Titre du lien</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkCssClass" xml:space="preserve">
 				<source>Link CSS Class</source>
-			<target state="needs-translation">Link CSS Class</target></trans-unit>
+			<target state="translated">Classe CSS du lien</target></trans-unit>
       <trans-unit id="labels.ckeditor.browse" xml:space="preserve">
 				<source>Browse...</source>
-			<target state="needs-translation">Browse...</target></trans-unit>
+			<target state="translated">Parcourir...</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetDefault" xml:space="preserve">
 				<source>(default)</source>
-			<target state="needs-translation">(default)</target></trans-unit>
+			<target state="translated">(par défaut)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetBlank" xml:space="preserve">
 				<source>New window (_blank)</source>
-			<target state="needs-translation">New window (_blank)</target></trans-unit>
+			<target state="translated">Nouvelle fenêtre (_blank)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetTop" xml:space="preserve">
 				<source>Top frame (_top)</source>
-			<target state="needs-translation">Top frame (_top)</target></trans-unit>
+			<target state="translated">Cadre supérieur (_top)</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetSelf" xml:space="preserve">
 				<source>Same window (_self)</source>
 			<target state="translated">Même fenêtre (_self)</target></trans-unit>
