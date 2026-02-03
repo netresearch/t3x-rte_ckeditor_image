@@ -1,33 +1,48 @@
 # Classes/AGENTS.md
 
-<!-- Managed by agent: keep sections & order; edit content, not structure. Last updated: 2025-10-15 -->
+<!-- Managed by agent: keep sections & order; edit content, not structure. Last updated: 2026-02-03 -->
 
-**Scope:** PHP backend components (Controllers, EventListeners, DataHandling, Utils)
+**Scope:** PHP backend components (Controllers, Services, DataHandling, Utils)
 **Parent:** [../AGENTS.md](../AGENTS.md)
 
-## 📋 Overview
+## Overview
 
 PHP backend implementation for TYPO3 CKEditor Image extension. Components:
 
 ### Controllers
 - **SelectImageController** - Image browser wizard, file selection, image info API
-- **ImageRenderingController** - Image rendering and processing for frontend
-- **ImageLinkRenderingController** - Link-wrapped image rendering
+- **ImageRenderingAdapter** - Image rendering adapter for frontend
 
-### EventListeners
-- **RteConfigurationListener** - PSR-14 event for RTE configuration injection
+### Services
+- **ImageRenderingService** - Core image rendering orchestration
+- **ImageResolverService** - File resolution and validation
+- **ImageAttributeParser** - Parse image attributes from HTML
+
+### Service Subsystems
+- **Builder/** - Image tag construction (ImageTagBuilder)
+- **Environment/** - TYPO3 environment detection (Typo3EnvironmentInfo)
+- **Fetcher/** - External image fetching (ExternalImageFetcher)
+- **Parser/** - Image tag parsing (ImageTagParser)
+- **Processor/** - RTE image processing (RteImageProcessor, RteImageProcessorFactory)
+- **Resolver/** - File resolution (ImageFileResolver)
+- **Security/** - Validation (SecurityValidator)
 
 ### DataHandling
 - **RteImagesDbHook** - Database hooks for image magic reference handling
 - **RteImageSoftReferenceParser** - Soft reference parsing for RTE images
+- **RteSoftrefEnforcer** - TCA listener enforcing softref configuration
 
-### Backend Components
+### Domain
+- **ImageRenderingDto** - Data transfer object for image rendering
+- **LinkDto** - Data transfer object for link data
+
+### Backend
 - **RteImagePreviewRenderer** - Backend preview rendering
 
 ### Utilities
 - **ProcessedFilesHandler** - File processing and manipulation utilities
 
-## 🏗️ Architecture Patterns
+## Architecture Patterns
 
 ### TYPO3 Patterns
 - **FAL (File Abstraction Layer):** All file operations via ResourceFactory
@@ -35,24 +50,51 @@ PHP backend implementation for TYPO3 CKEditor Image extension. Components:
 - **PSR-14 Events:** Event-driven configuration and hooks
 - **Dependency Injection:** Constructor-based DI (TYPO3 v13+)
 - **Service Configuration:** `Configuration/Services.yaml` for DI registration
+- **Interface-driven:** Services implement interfaces for testability
 
 ### File Structure
 ```
 Classes/
-├── Backend/
-│   └── Preview/
-│       └── RteImagePreviewRenderer.php
+├── Backend/Preview/
+│   └── RteImagePreviewRenderer.php
 ├── Controller/
-│   ├── ImageLinkRenderingController.php
-│   ├── ImageRenderingController.php
+│   ├── ImageRenderingAdapter.php
 │   └── SelectImageController.php
-├── DataHandling/
-│   └── SoftReference/
-│       └── RteImageSoftReferenceParser.php
+├── DataHandling/SoftReference/
+│   └── RteImageSoftReferenceParser.php
 ├── Database/
 │   └── RteImagesDbHook.php
-├── EventListener/
-│   └── RteConfigurationListener.php
+├── Domain/Model/
+│   ├── ImageRenderingDto.php
+│   └── LinkDto.php
+├── Listener/TCA/
+│   └── RteSoftrefEnforcer.php
+├── Service/
+│   ├── Builder/
+│   │   ├── ImageTagBuilder.php
+│   │   └── ImageTagBuilderInterface.php
+│   ├── Environment/
+│   │   ├── EnvironmentInfoInterface.php
+│   │   └── Typo3EnvironmentInfo.php
+│   ├── Fetcher/
+│   │   ├── ExternalImageFetcher.php
+│   │   └── ExternalImageFetcherInterface.php
+│   ├── Parser/
+│   │   ├── ImageTagParser.php
+│   │   └── ImageTagParserInterface.php
+│   ├── Processor/
+│   │   ├── RteImageProcessor.php
+│   │   ├── RteImageProcessorFactory.php
+│   │   └── RteImageProcessorInterface.php
+│   ├── Resolver/
+│   │   ├── ImageFileResolver.php
+│   │   └── ImageFileResolverInterface.php
+│   ├── Security/
+│   │   ├── SecurityValidator.php
+│   │   └── SecurityValidatorInterface.php
+│   ├── ImageAttributeParser.php
+│   ├── ImageRenderingService.php
+│   └── ImageResolverService.php
 └── Utils/
     └── ProcessedFilesHandler.php
 ```

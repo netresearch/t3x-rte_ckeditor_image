@@ -1,36 +1,61 @@
 # Tests/AGENTS.md
 
-<!-- Managed by agent: keep sections & order; edit content, not structure. Last updated: 2025-10-15 -->
+<!-- Managed by agent: keep sections & order; edit content, not structure. Last updated: 2026-02-03 -->
 
-**Scope:** Testing (Functional, Unit tests)
+**Scope:** Testing (Unit, Functional, JavaScript, E2E, Fuzz)
 **Parent:** [../AGENTS.md](../AGENTS.md)
 
-## 📋 Overview
+## Overview
 
-Test suite for TYPO3 CKEditor Image extension using TYPO3 Testing Framework.
+Comprehensive test suite for TYPO3 CKEditor Image extension.
+
+### Test Counts (Feb 2026)
+| Type | Files | Framework |
+|------|-------|-----------|
+| Unit | 21 | PHPUnit |
+| Functional | 9 | PHPUnit + TYPO3 Testing Framework |
+| JavaScript | 2 | Vitest |
+| E2E | 7 | Playwright |
+| Fuzz | 2 | php-fuzzer |
 
 ### Test Structure
 ```
 Tests/
-└── Functional/
-    └── DataHandling/
-        ├── Fixtures/
-        │   └── ReferenceIndex/
-        │       ├── UpdateReferenceIndexImport.csv   # Test data import
-        │       └── UpdateReferenceIndexResult.csv   # Expected results
-        └── RteImageSoftReferenceParserTest.php      # Functional test
+├── Unit/                          # 21 PHPUnit tests (no database)
+│   ├── Backend/Preview/
+│   ├── Controller/
+│   ├── DataHandling/SoftReference/
+│   ├── Database/
+│   ├── Domain/Model/
+│   ├── JavaScript/
+│   ├── Listener/TCA/
+│   ├── Service/                   # Builder, Environment, Fetcher, Parser, Processor, Resolver, Security
+│   └── Utils/
+├── Functional/                    # 9 PHPUnit tests (database required)
+│   ├── Controller/
+│   ├── DataHandling/
+│   ├── Database/
+│   ├── Service/
+│   └── TypoScript/
+├── JavaScript/                    # Vitest for CKEditor plugin
+│   └── tests/
+├── E2E/                          # Playwright browser tests
+│   └── tests/
+└── Fuzz/                         # php-fuzzer targets
+    ├── ImageAttributeParserTarget.php
+    └── RteImageSoftReferenceParserTarget.php
 ```
 
-### Test Types
-- **Functional Tests:** Database operations, integration scenarios, reference index
-- **Unit Tests:** Not yet implemented (isolated logic testing)
-
-### Current Coverage
+### Coverage Areas
+- ✅ Controllers (SelectImageController, ImageRenderingAdapter)
+- ✅ Services (all 10+ service classes with interfaces)
+- ✅ Domain models (DTOs)
+- ✅ Database hooks (RteImagesDbHook)
 - ✅ Soft reference parser
-- ✅ Reference index integration
-- ⏳ Controllers (pending)
-- ⏳ Event listeners (pending)
-- ⏳ Image processing utilities (pending)
+- ✅ TCA listener (RteSoftrefEnforcer)
+- ✅ Backend preview renderer
+- ✅ CKEditor plugin (JS unit tests)
+- ✅ E2E: image dialogs, styles, linking, inline images
 
 ## 🏗️ Architecture Patterns
 
@@ -63,40 +88,48 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
 - `#[DataProvider('dataProviderName')]` - Data-driven tests
 - `#[Depends('testMethodName')]` - Test dependencies
 
-## 🔧 Build & Tests
+## Commands (Verified)
+
+| Command | Purpose | ~Time |
+|---------|---------|-------|
+| `composer ci:test:php:unit` | Unit tests only | 10s |
+| `composer ci:test:php:functional` | Functional tests (CI authoritative) | 60s |
+| `composer ci:test:js:unit` | JavaScript unit tests (Vitest) | 15s |
+| `composer ci:test:e2e` | E2E tests via Docker/Playwright | 3min |
+| `composer ci:coverage:unit` | Unit tests with coverage | 30s |
+| `composer ci:mutation` | Mutation testing | 5min |
+| `composer ci:fuzz` | Fuzz testing (image-parser + softref) | 2min |
 
 ### Running Tests
 
-**CRITICAL: Always run the full test suite before committing changes!**
+**CI is authoritative** for test results. Local execution for debugging only.
 
 ```bash
-# Unit tests (no database required)
+# Unit tests (fast, no database)
 composer ci:test:php:unit
 
-# Functional tests (REQUIRES ddev with database)
-# ALWAYS use ddev for functional tests - never skip them!
-ddev start  # Ensure ddev is running first
-ddev exec "cd /var/www/rte_ckeditor_image && typo3DatabaseHost=db typo3DatabaseUsername=root typo3DatabasePassword=root typo3DatabaseName=func_test .Build/bin/phpunit -c Build/phpunit/FunctionalTests.xml"
+# Functional tests (CI is authoritative; local ddev OK for debugging)
+composer ci:test:php:functional
 
-# Run all tests (unit + functional)
-composer ci:test:php:unit && ddev exec "cd /var/www/rte_ckeditor_image && typo3DatabaseHost=db typo3DatabaseUsername=root typo3DatabasePassword=root typo3DatabaseName=func_test .Build/bin/phpunit -c Build/phpunit/FunctionalTests.xml"
+# JavaScript unit tests
+composer ci:test:js:unit
 
-# With coverage (requires xdebug)
-composer ci:coverage:unit
-ddev exec "cd /var/www/rte_ckeditor_image && typo3DatabaseHost=db typo3DatabaseUsername=root typo3DatabasePassword=root typo3DatabaseName=func_test .Build/bin/phpunit -c Build/phpunit/FunctionalTests.xml --coverage-html=.Build/coverage-functional"
+# E2E tests (requires ddev running)
+composer ci:test:e2e
+
+# Mutation testing
+composer ci:mutation
+
+# Fuzz testing
+composer ci:fuzz
 ```
 
 ### Test Configuration
 - `Build/phpunit/UnitTests.xml` - Unit tests config
 - `Build/phpunit/FunctionalTests.xml` - Functional tests config
-- `phpunit.xml` - Legacy config (relative paths for TYPO3 vendor setup)
-
-### Database Requirements for Functional Tests
-Functional tests require database credentials via environment variables:
-- `typo3DatabaseHost=db` (ddev database hostname)
-- `typo3DatabaseUsername=root`
-- `typo3DatabasePassword=root`
-- `typo3DatabaseName=func_test` (uses dedicated test database)
+- `Tests/JavaScript/vitest.config.ts` - JavaScript tests config
+- `Tests/E2E/playwright.config.ts` - E2E tests config
+- `infection.json5` - Mutation testing config
 
 ## 📝 Code Style
 
