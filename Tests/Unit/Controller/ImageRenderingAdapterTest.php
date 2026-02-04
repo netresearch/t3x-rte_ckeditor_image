@@ -210,11 +210,12 @@ final class ImageRenderingAdapterTest extends TestCase
     }
 
     #[Test]
-    public function renderImagesReturnsOriginalWhenNoImagesFound(): void
+    public function renderImagesReturnsOriginalWhenNoImagesFoundAndNoLink(): void
     {
         $linkContent = '<span>Text only, no images</span>';
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = []; // No link attributes
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
 
         $this->attributeParser
@@ -225,15 +226,46 @@ final class ImageRenderingAdapterTest extends TestCase
 
         $result = $this->adapter->renderImages(null, [], $this->request);
 
+        // No href in parameters means content is returned as-is (not wrapped)
         self::assertSame($linkContent, $result);
     }
 
     #[Test]
-    public function renderImagesSkipsImagesWithoutFileUid(): void
+    public function renderImagesWrapsContentInLinkWhenNoImagesButLinkExists(): void
+    {
+        $linkContent = '<span>Text only, no images</span>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        // Link attributes are in cObj->parameters (populated by parseFunc for tags.a)
+        $this->contentObjectRenderer->parameters = [
+            'href'   => '/page',
+            'target' => '_blank',
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
+
+        $this->attributeParser
+            ->expects(self::once())
+            ->method('parseLinkWithImages')
+            ->with($linkContent)
+            ->willReturn(['link' => [], 'images' => []]);
+
+        $result = $this->adapter->renderImages(null, [], $this->request);
+
+        // Content should be wrapped in <a> tag with attributes from parameters
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString('target="_blank"', $result);
+        self::assertStringContainsString($linkContent, $result);
+        self::assertStringContainsString('</a>', $result);
+    }
+
+    #[Test]
+    public function renderImagesSkipsImagesWithoutFileUidButWrapsInLink(): void
     {
         $linkContent = '<img src="/external.jpg" />';
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        // Link attributes from cObj->parameters
+        $this->contentObjectRenderer->parameters = ['href' => '/page'];
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
 
         $this->attributeParser
@@ -251,13 +283,17 @@ final class ImageRenderingAdapterTest extends TestCase
 
         $result = $this->adapter->renderImages(null, [], $this->request);
 
-        self::assertSame($linkContent, $result);
+        // Content should still be wrapped in link even though image wasn't processed
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString($linkContent, $result);
+        self::assertStringContainsString('</a>', $result);
     }
 
     #[Test]
-    public function renderImagesRendersImagesWithFileUidAndPassesConfig(): void
+    public function renderImagesRendersInlineImagesWithFileUidAndPassesConfig(): void
     {
-        $originalImg = '<img src="/image.jpg" data-htmlarea-file-uid="1" />';
+        // Inline images have class="image image-inline" (CKEditor output)
+        $originalImg = '<img src="/image.jpg" data-htmlarea-file-uid="1" class="image image-inline" />';
         $linkContent = $originalImg;
 
         $config = [
@@ -270,13 +306,15 @@ final class ImageRenderingAdapterTest extends TestCase
             height: 600,
             alt: 'Test',
             title: null,
-            htmlAttributes: [],
+            htmlAttributes: ['class' => 'image image-inline'],
             caption: null,
             link: null,
             isMagicImage: true,
         );
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        // Link attributes from cObj->parameters
+        $this->contentObjectRenderer->parameters = ['href' => '/page'];
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
 
         $this->attributeParser
@@ -288,6 +326,7 @@ final class ImageRenderingAdapterTest extends TestCase
                         'attributes' => [
                             'src'                    => '/image.jpg',
                             'data-htmlarea-file-uid' => '1',
+                            'class'                  => 'image image-inline',
                         ],
                         'originalHtml' => $originalImg,
                     ],
@@ -303,11 +342,14 @@ final class ImageRenderingAdapterTest extends TestCase
             ->expects(self::once())
             ->method('render')
             ->with($dto, $this->request, $config)
-            ->willReturn('<img src="/processed.jpg" width="800" height="600" alt="Test" />');
+            ->willReturn('<img src="/processed.jpg" width="800" height="600" alt="Test" class="image image-inline" />');
 
         $result = $this->adapter->renderImages(null, $config, $this->request);
 
-        self::assertSame('<img src="/processed.jpg" width="800" height="600" alt="Test" />', $result);
+        // Result should be wrapped in <a> tag (reconstructed from cObj->parameters)
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString('<img src="/processed.jpg"', $result);
+        self::assertStringContainsString('</a>', $result);
     }
 
     /**
@@ -322,8 +364,9 @@ final class ImageRenderingAdapterTest extends TestCase
     #[Test]
     public function renderImagesStripsAttributesThatWouldCreateWrappers(): void
     {
+        // Inline image with attributes that should be stripped
         $originalImg = '<img src="/image.jpg" data-htmlarea-file-uid="1" data-caption="Caption" '
-            . 'data-htmlarea-zoom="1" data-htmlarea-clickenlarge="1" />';
+            . 'data-htmlarea-zoom="1" data-htmlarea-clickenlarge="1" class="image image-inline" />';
         $linkContent = $originalImg;
 
         $dto = new ImageRenderingDto(
@@ -332,13 +375,14 @@ final class ImageRenderingAdapterTest extends TestCase
             height: 600,
             alt: 'Test',
             title: null,
-            htmlAttributes: [],
+            htmlAttributes: ['class' => 'image image-inline'],
             caption: null,
             link: null,
             isMagicImage: true,
         );
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = []; // No link attributes
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
 
         // Parser returns attributes including ones that should be stripped
@@ -354,6 +398,7 @@ final class ImageRenderingAdapterTest extends TestCase
                             'data-caption'               => 'Caption',
                             'data-htmlarea-zoom'         => '1',
                             'data-htmlarea-clickenlarge' => '1',
+                            'class'                      => 'image image-inline',
                         ],
                         'originalHtml' => $originalImg,
                     ],
