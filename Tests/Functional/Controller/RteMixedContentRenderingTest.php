@@ -1162,4 +1162,335 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
             ),
         );
     }
+
+    // ========================================================================
+    // Common Inline Image Patterns - Links spanning text and images
+    // ========================================================================
+
+    /**
+     * Test: Link with text before and after inline image.
+     *
+     * Common pattern: <a href="...">Click here <img> to visit</a>
+     *
+     * This is the primary use case for externalBlocks.a processing.
+     * The text and image must remain together inside the link.
+     */
+    #[Test]
+    public function linkWithTextBeforeAndAfterInlineImage(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $linkHtml = '<a href="https://typo3.org" target="_blank">Click here '
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" class="image image-inline" width="24" height="24" alt="icon">'
+            . ' to visit TYPO3</a>';
+
+        $cObj->setCurrentVal($linkHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderLink($linkHtml, [], $this->request);
+
+        // Link structure must be preserved
+        self::assertStringContainsString('<a', $result, 'Must contain opening <a> tag');
+        self::assertStringContainsString('href="https://typo3.org"', $result, 'href attribute must be preserved');
+        self::assertStringContainsString('target="_blank"', $result, 'target attribute must be preserved');
+
+        // Text content must be preserved
+        self::assertStringContainsString('Click here', $result, 'Text before image must be preserved');
+        self::assertStringContainsString('to visit TYPO3', $result, 'Text after image must be preserved');
+
+        // Image must be processed
+        self::assertStringContainsString('<img', $result, 'Processed img must be present');
+        self::assertStringContainsString('</a>', $result, 'Closing </a> tag must be present');
+
+        // Must NOT have duplicate links
+        self::assertSame(1, substr_count($result, '<a '), 'Must have exactly one <a> tag');
+        self::assertSame(1, substr_count($result, '</a>'), 'Must have exactly one </a> tag');
+    }
+
+    /**
+     * Test: Link with inline image at the beginning.
+     *
+     * Pattern: <a href="..."><img> TYPO3 Documentation</a>
+     */
+    #[Test]
+    public function linkWithInlineImageAtBeginning(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $linkHtml = '<a href="/docs">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" class="image image-inline" width="32" height="32" alt="logo">'
+            . ' TYPO3 Documentation</a>';
+
+        $cObj->setCurrentVal($linkHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertStringContainsString('<a', $result);
+        self::assertStringContainsString('href="/docs"', $result);
+        self::assertStringContainsString('<img', $result);
+        self::assertStringContainsString('TYPO3 Documentation', $result);
+        self::assertStringContainsString('</a>', $result);
+        self::assertSame(1, substr_count($result, '<a '), 'Must have exactly one <a> tag');
+    }
+
+    /**
+     * Test: Link with inline image at the end.
+     *
+     * Pattern: <a href="...">Download PDF <img></a>
+     */
+    #[Test]
+    public function linkWithInlineImageAtEnd(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $linkHtml = '<a href="/download.pdf">Download PDF '
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" class="image image-inline" width="16" height="16" alt="pdf">'
+            . '</a>';
+
+        $cObj->setCurrentVal($linkHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertStringContainsString('<a', $result);
+        self::assertStringContainsString('href="/download.pdf"', $result);
+        self::assertStringContainsString('Download PDF', $result);
+        self::assertStringContainsString('<img', $result);
+        self::assertStringContainsString('</a>', $result);
+        self::assertSame(1, substr_count($result, '<a '), 'Must have exactly one <a> tag');
+    }
+
+    /**
+     * Test: Link with multiple inline images and text.
+     *
+     * Pattern: <a href="..."><img> text <img></a>
+     */
+    #[Test]
+    public function linkWithMultipleInlineImagesAndText(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $linkHtml = '<a href="/features">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" class="image image-inline" width="24" height="24" alt="star">'
+            . ' Our Features '
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" class="image image-inline" width="24" height="24" alt="arrow">'
+            . '</a>';
+
+        $cObj->setCurrentVal($linkHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertStringContainsString('<a', $result);
+        self::assertStringContainsString('Our Features', $result);
+        // Both images should be processed
+        self::assertSame(2, substr_count($result, '<img'), 'Must have exactly two <img> tags');
+        self::assertSame(1, substr_count($result, '<a '), 'Must have exactly one <a> tag');
+    }
+
+    /**
+     * Test: Link containing only inline image (no text).
+     */
+    #[Test]
+    public function linkContainingOnlyInlineImage(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $linkHtml = '<a href="/home">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" class="image image-inline" width="100" height="50" alt="logo">'
+            . '</a>';
+
+        $cObj->setCurrentVal($linkHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertStringContainsString('<a', $result);
+        self::assertStringContainsString('href="/home"', $result);
+        self::assertStringContainsString('<img', $result);
+        self::assertStringContainsString('</a>', $result);
+        self::assertSame(1, substr_count($result, '<a '), 'Must have exactly one <a> tag');
+    }
+
+    /**
+     * Test: Link does not process block images (only inline).
+     *
+     * Block images inside links within figures should be processed by renderFigure().
+     */
+    #[Test]
+    public function linkDoesNotProcessBlockImages(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        // Block image (no "image-inline" class)
+        $linkHtml = '<a href="/page">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" class="image" width="250" height="250" alt="block">'
+            . '</a>';
+
+        $cObj->setCurrentVal($linkHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderLink($linkHtml, [], $this->request);
+
+        // Link should be reconstructed with original image (unprocessed)
+        self::assertStringContainsString('<a', $result);
+        self::assertStringContainsString('href="/page"', $result);
+        // The image should still be there but not processed
+        self::assertStringContainsString('<img', $result);
+        self::assertStringContainsString('data-htmlarea-file-uid="1"', $result, 'Block image UID must be preserved for renderFigure');
+    }
+
+    /**
+     * Test: Link returns original when no images found.
+     */
+    #[Test]
+    public function linkReturnsOriginalWhenNoImages(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $linkHtml = '<a href="/about">About Us</a>';
+
+        $cObj->setCurrentVal($linkHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertSame($linkHtml, $result, 'Link without images should be returned unchanged');
+    }
+
+    /**
+     * Test: Non-link content returns original.
+     */
+    #[Test]
+    public function nonLinkContentReturnsOriginal(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $html = '<p>Just a paragraph</p>';
+
+        $cObj->setCurrentVal($html);
+
+        /** @var string $result */
+        $result = $adapter->renderLink($html, [], $this->request);
+
+        self::assertSame($html, $result, 'Non-link content should be returned unchanged');
+    }
+
+    /**
+     * Test: Link with external image (no file UID) returns link with original image.
+     */
+    #[Test]
+    public function linkWithExternalImageReturnsOriginal(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $linkHtml = '<a href="/page">Click '
+            . '<img src="https://example.com/image.jpg" class="image image-inline" width="24" height="24" alt="external">'
+            . ' here</a>';
+
+        $cObj->setCurrentVal($linkHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderLink($linkHtml, [], $this->request);
+
+        // Link should be reconstructed but external image stays unchanged
+        self::assertStringContainsString('<a', $result);
+        self::assertStringContainsString('Click', $result);
+        self::assertStringContainsString('here', $result);
+        self::assertStringContainsString('https://example.com/image.jpg', $result);
+    }
+
+    // ========================================================================
+    // Common Inline Image Patterns - Images in tables, lists, and headings
+    // Note: These test the renderImageAttributes handler, not renderLink
+    // ========================================================================
+
+    /**
+     * Test: Inline image in table cell rendered correctly.
+     *
+     * The renderImageAttributes handler processes individual img tags,
+     * regardless of their container element (table, list, heading).
+     */
+    #[Test]
+    public function inlineImageInTableCellRendered(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $imgTag = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" '
+            . 'class="image image-inline" width="24" height="24" alt="icon">';
+
+        $cObj->parameters = [
+            'src'                    => '/fileadmin/test.jpg',
+            'data-htmlarea-file-uid' => '1',
+            'class'                  => 'image image-inline',
+            'width'                  => '24',
+            'height'                 => '24',
+            'alt'                    => 'icon',
+        ];
+        $cObj->setCurrentVal($imgTag);
+
+        /** @var string $result */
+        $result = $adapter->renderImageAttributes(null, [], $this->request);
+
+        // Should produce a processed inline image (no figure wrapper)
+        self::assertStringContainsString('<img', $result);
+        self::assertStringNotContainsString('<figure', $result, 'Inline image in table should not have figure wrapper');
+    }
+
+    /**
+     * Test: Inline image in list item rendered correctly.
+     */
+    #[Test]
+    public function inlineImageInListItemRendered(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $imgTag = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" '
+            . 'class="image image-inline" width="16" height="16" alt="bullet">';
+
+        $cObj->parameters = [
+            'src'                    => '/fileadmin/test.jpg',
+            'data-htmlarea-file-uid' => '1',
+            'class'                  => 'image image-inline',
+            'width'                  => '16',
+            'height'                 => '16',
+            'alt'                    => 'bullet',
+        ];
+        $cObj->setCurrentVal($imgTag);
+
+        /** @var string $result */
+        $result = $adapter->renderImageAttributes(null, [], $this->request);
+
+        self::assertStringContainsString('<img', $result);
+        self::assertStringNotContainsString('<figure', $result, 'Inline image in list should not have figure wrapper');
+    }
+
+    /**
+     * Test: Inline image in heading rendered correctly.
+     */
+    #[Test]
+    public function inlineImageInHeadingRendered(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $imgTag = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" '
+            . 'class="image image-inline" width="32" height="32" alt="section-icon">';
+
+        $cObj->parameters = [
+            'src'                    => '/fileadmin/test.jpg',
+            'data-htmlarea-file-uid' => '1',
+            'class'                  => 'image image-inline',
+            'width'                  => '32',
+            'height'                 => '32',
+            'alt'                    => 'section-icon',
+        ];
+        $cObj->setCurrentVal($imgTag);
+
+        /** @var string $result */
+        $result = $adapter->renderImageAttributes(null, [], $this->request);
+
+        self::assertStringContainsString('<img', $result);
+        self::assertStringNotContainsString('<figure', $result, 'Inline image in heading should not have figure wrapper');
+    }
 }

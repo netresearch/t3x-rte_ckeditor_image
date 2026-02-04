@@ -285,9 +285,134 @@ class ImageRenderingAdapter
     }
 
     /**
+     * Render link elements containing images (externalBlocks handler).
+     *
+     * TypoScript: lib.parseFunc_RTE.externalBlocks.a.stdWrap.preUserFunc
+     *
+     * This handler receives the COMPLETE <a>...</a> HTML including all inner content.
+     * Unlike tags.a which only receives inner content after recursive processing,
+     * externalBlocks.a with callRecursive=0 preserves the full link structure.
+     *
+     * This is necessary for links containing mixed text + image content like:
+     * <a href="...">Click here <img class="image-inline"...> to visit</a>
+     *
+     * @param string|null            $content Full <a>...</a> HTML from externalBlocks
+     * @param array<string, mixed>   $conf    TypoScript configuration
+     * @param ServerRequestInterface $request Current request
+     *
+     * @return string Processed HTML with images rendered
+     */
+    #[AsAllowedCallable]
+    public function renderLink(?string $content, array $conf, ServerRequestInterface $request): string
+    {
+        // Get link HTML from either content param or cObj->getCurrentVal()
+        $linkHtml = $content;
+
+        if (!is_string($linkHtml) || $linkHtml === '') {
+            $linkHtml = $this->cObj instanceof ContentObjectRenderer
+                ? $this->cObj->getCurrentVal()
+                : null;
+        }
+
+        if (!is_string($linkHtml) || $linkHtml === '') {
+            return '';
+        }
+
+        // Check if this is actually a link element
+        if (!str_contains($linkHtml, '<a ') && !str_contains($linkHtml, '<a>')) {
+            // Not a link - return original content
+            return $linkHtml;
+        }
+
+        // Parse the link to extract attributes and inner content
+        $parsed         = $this->attributeParser->parseLinkWithImages($linkHtml);
+        $linkAttributes = $parsed['link'];
+        $images         = $parsed['images'];
+
+        // If no images found, return original HTML unchanged
+        if ($images === []) {
+            return $linkHtml;
+        }
+
+        // Extract inner content from link (everything between <a...> and </a>)
+        $innerContent = $this->extractLinkInnerContent($linkHtml);
+
+        if ($innerContent === '') {
+            return $linkHtml;
+        }
+
+        // Process each image and build replacement map
+        $replacements = [];
+
+        foreach ($images as $imageData) {
+            $imageAttributes = $imageData['attributes'] ?? [];
+            $originalHtml    = $imageData['originalHtml'] ?? '';
+
+            // Skip images without file UID (external images or already processed)
+            $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
+
+            if ($fileUid === 0) {
+                continue;
+            }
+
+            // Skip block images - only process inline images in links
+            $imageClass = $imageAttributes['class'] ?? '';
+
+            if (!str_contains($imageClass, 'image-inline')) {
+                continue;
+            }
+
+            // Remove attributes that shouldn't apply to images in links
+            unset(
+                $imageAttributes['data-caption'],
+                $imageAttributes['data-htmlarea-zoom'],
+                $imageAttributes['data-htmlarea-clickenlarge'],
+            );
+
+            // Resolve and render the image
+            $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
+
+            if (!$dto instanceof ImageRenderingDto) {
+                continue;
+            }
+
+            $renderedImg = $this->renderingService->render($dto, $request, $conf);
+
+            if ($originalHtml !== '') {
+                $replacements[$originalHtml] = $renderedImg;
+            }
+        }
+
+        // Apply replacements to inner content
+        $processedContent = $replacements !== []
+            ? strtr($innerContent, $replacements)
+            : $innerContent;
+
+        // Reconstruct the link with processed content
+        return $this->wrapInLink($processedContent, $linkAttributes);
+    }
+
+    /**
+     * Extract inner content from a link HTML string.
+     *
+     * @param string $linkHtml Full <a>...</a> HTML
+     *
+     * @return string Inner content (everything between opening and closing tags)
+     */
+    private function extractLinkInnerContent(string $linkHtml): string
+    {
+        // Use regex to extract content between <a...> and </a>
+        if (preg_match('/<a[^>]*>(.*)<\/a>/is', $linkHtml, $matches) === 1) {
+            return $matches[1];
+        }
+
+        return '';
+    }
+
+    /**
      * Render figure-wrapped images with caption support.
      *
-     * TypoScript: lib.parseFunc_RTE.tags.figure.preUserFunc
+     * TypoScript: lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc
      *
      * Handles CKEditor 5 output format: <figure><img/><figcaption>...</figcaption></figure>
      * And linked images: <figure><a href="..."><img/></a><figcaption>...</figcaption></figure>

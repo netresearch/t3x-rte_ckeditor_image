@@ -33,7 +33,7 @@ export MYSQL_PWD="${MYSQL_PASSWORD:-root}"
 mysql -h "$DB_HOST" -u "$DB_USER" -e "DROP DATABASE IF EXISTS ${VERSION};"
 mysql -h "$DB_HOST" -u "$DB_USER" -e "CREATE DATABASE ${VERSION};"
 
-vendor/bin/typo3 setup -n --dbname=$VERSION --password=$TYPO3_DB_PASSWORD --create-site="/" --admin-user-password=$TYPO3_SETUP_ADMIN_PASSWORD
+vendor/bin/typo3 setup -n --dbname=$VERSION --password=$TYPO3_DB_PASSWORD --create-site="http://localhost/" --admin-user-password=$TYPO3_SETUP_ADMIN_PASSWORD
 
 # TYPO3 v14 removed the configuration:set command - write settings directly to additional.php
 mkdir -p /var/www/html/$VERSION/config/system
@@ -686,7 +686,142 @@ or read the <a href="https://docs.typo3.org" target="_blank"><img class="image i
 0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 750);
 
 -- =============================================================================
--- CONTENT ELEMENT 10: Edge Cases and Special Scenarios
+-- CONTENT ELEMENT 10: Common Inline Image Patterns
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(135deg, #585961, #2F99A4); color: white;">
+<h3 class="mb-0">Common Inline Image Patterns</h3>
+<small class="opacity-75">Links spanning text+image, tables, lists, and headings</small>
+</div>
+<div class="card-body">
+
+<h5 class="border-bottom pb-2 mb-3">Links Spanning Text and Inline Images</h5>
+<p>These test cases verify that links correctly wrap combinations of text and inline images:</p>
+
+<div class="row mb-4">
+<div class="col-md-4 mb-3">
+<div class="border rounded p-3 h-100">
+<h6 class="text-muted">Text + Image + Text</h6>
+<p class="mb-2"><a href="https://typo3.org" target="_blank">Click here <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="TYPO3" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> to visit TYPO3</a></p>
+<code class="small">&lt;a&gt;text [img] text&lt;/a&gt;</code>
+</div>
+</div>
+<div class="col-md-4 mb-3">
+<div class="border rounded p-3 h-100">
+<h6 class="text-muted">Image + Text</h6>
+<p class="mb-2"><a href="https://github.com/netresearch" target="_blank"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="GitHub" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Netresearch GitHub</a></p>
+<code class="small">&lt;a&gt;[img] text&lt;/a&gt;</code>
+</div>
+</div>
+<div class="col-md-4 mb-3">
+<div class="border rounded p-3 h-100">
+<h6 class="text-muted">Text + Image</h6>
+<p class="mb-2"><a href="https://packagist.org/packages/netresearch/rte-ckeditor-image" target="_blank">View on Packagist <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="Packagist" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></a></p>
+<code class="small">&lt;a&gt;text [img]&lt;/a&gt;</code>
+</div>
+</div>
+</div>
+
+<div class="alert alert-info small mb-4">
+<strong>Expected behavior:</strong> The entire link (text + image) should be clickable. The inline image inside the link should NOT trigger lightbox behavior even if <code>data-htmlarea-zoom</code> is set.
+</div>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Inline Images in Tables</h5>
+<table class="table table-bordered table-sm">
+<thead class="table-light">
+<tr>
+<th>Feature</th>
+<th>Status</th>
+<th>Icon</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Block Images</td>
+<td><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="check" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Complete</td>
+<td class="text-center"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="block" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></td>
+<td>Full support with <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="fig" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> figure/figcaption</td>
+</tr>
+<tr>
+<td>Inline Images</td>
+<td><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="check" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Complete</td>
+<td class="text-center"><img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="inline" width="30" height="23" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file"></td>
+<td>Flows with text <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="flow" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> naturally</td>
+</tr>
+<tr>
+<td>Linked Images</td>
+<td><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="check" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Complete</td>
+<td class="text-center"><a href="#"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="link" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></a></td>
+<td>Links work <a href="#"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="in" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> in cells</a></td>
+</tr>
+</tbody>
+</table>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Inline Images in Lists</h5>
+<div class="row">
+<div class="col-md-6 mb-3">
+<h6>Unordered List</h6>
+<ul>
+<li><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="bullet" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Image at start of list item</li>
+<li>List item with image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="middle" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> in the middle of text</li>
+<li>List item ending with image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="end" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></li>
+<li><a href="#"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="linked" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Linked image + text</a> in list</li>
+</ul>
+</div>
+<div class="col-md-6 mb-3">
+<h6>Ordered List</h6>
+<ol>
+<li>Step one: click the <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="button" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> button</li>
+<li><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="step" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Step two starts with image</li>
+<li>Step three: <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="a" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> multiple <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="b" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> images <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="c" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></li>
+</ol>
+</div>
+</div>
+
+<h6>Nested Lists with Images</h6>
+<ul>
+<li>Parent item <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="parent" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file">
+<ul>
+<li><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="child" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Nested child item</li>
+<li>Another nested <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="nested" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> item</li>
+</ul>
+</li>
+<li>Second parent <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="second" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></li>
+</ul>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Inline Images in Headings</h5>
+
+<h2><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="h2" width="28" height="28" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Heading 2 with Leading Image</h2>
+
+<h3>Heading 3 with Trailing Image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="h3" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></h3>
+
+<h4>Heading 4 <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="h4" width="22" height="22" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> with Middle Image</h4>
+
+<h5><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="start" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> H5 with <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="multiple" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Multiple Images <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="end" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></h5>
+
+<h6><a href="https://typo3.org"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="linked" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> H6 Linked Heading with Image</a></h6>
+
+<div class="alert alert-success mt-4">
+<strong>All scenarios tested:</strong> Links spanning text+image (3 patterns), images in table cells, images in ordered/unordered/nested lists, and images in h2-h6 headings.
+</div>
+
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 760);
+
+-- =============================================================================
+-- CONTENT ELEMENT 11: Technical Edge Cases
 -- =============================================================================
 INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
 VALUES (1, 'text', '',
@@ -736,7 +871,7 @@ VALUES (1, 'text', '',
 0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 800);
 
 -- =============================================================================
--- CONTENT ELEMENT 11: Long-Form Article Simulation
+-- CONTENT ELEMENT 12: Long-Form Article Simulation
 -- =============================================================================
 INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
 VALUES (1, 'text', '',
@@ -813,7 +948,7 @@ CONCAT(
 0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 850);
 
 -- =============================================================================
--- CONTENT ELEMENT 12: Testing Instructions Card
+-- CONTENT ELEMENT 13: Testing Instructions Card
 -- =============================================================================
 INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
 VALUES (1, 'text', '',
@@ -845,13 +980,13 @@ VALUES (1, 'text', '',
 <p class="mb-0"><strong>Password:</strong> <code>Joh316!!</code></p>
 </div>
 <div class="alert alert-success mt-3 small mb-0">
-<strong>Demo Coverage:</strong> This page tests 12 content scenarios covering the full feature matrix from functional tests.
+<strong>Demo Coverage:</strong> This page tests 13 content scenarios covering the full feature matrix from functional tests.
 </div>
 </div>
 </div>
 </div>
 </div>',
-0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 700);
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 900);
 
 EOSQL
 
@@ -863,10 +998,13 @@ if [ -f config/sites/main/config.yaml ]; then
     php -r "
         \$file = 'config/sites/main/config.yaml';
         \$yaml = yaml_parse_file(\$file);
+        \$yaml['base'] = '/';
         \$yaml['websiteTitle'] = 'RTE CKEditor Image';
         \$yaml['dependencies'] = ['bootstrap-package/full', 'netresearch/rte-ckeditor-image'];
         file_put_contents(\$file, yaml_emit(\$yaml, YAML_UTF8_ENCODING));
     " 2>/dev/null || {
+        # Fallback: update base URL for portability
+        sed -i "s|^base:.*|base: '/'|" config/sites/main/config.yaml
         # Fallback: append if PHP yaml extension not available
         # Add websiteTitle if missing
         if ! grep -q '^websiteTitle:' config/sites/main/config.yaml; then
