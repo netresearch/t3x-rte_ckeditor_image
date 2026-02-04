@@ -312,6 +312,40 @@ CONCAT(
 0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 300);
 
 -- =============================================================================
+-- CONTENT ELEMENT 3b: Long-form Text with Inline Images (Mixed Content Matrix)
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(45deg, #1a5a5f, #2F99A4); color: white;">
+<h3 class="mb-0">Long-form Content with Mixed Media</h3>
+<small class="opacity-75">Testing inline images in realistic article content</small>
+</div>
+<div class="card-body">
+<h4>Introduction to Image Handling in TYPO3</h4>
+<p>The TYPO3 content management system provides powerful tools for managing digital assets, and the rte_ckeditor_image extension enhances these capabilities significantly. When editors work with rich text content, they often need to include images <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="inline icon" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> that flow naturally with the surrounding text, rather than appearing as separate block elements that interrupt the reading flow.</p>
+
+<p>This distinction between inline and block images is fundamental to creating professional-looking content. Consider how a news article might reference a company logo <img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="company logo" width="40" height="30" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file"> within a sentence, or how technical documentation might include small diagrams <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="diagram" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> that relate directly to the adjacent explanation.</p>
+
+<h5>Multiple Images in a Single Paragraph</h5>
+<p>A well-designed article might include several visual elements: here is a status indicator <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="status" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file">, followed by explanatory text, then another visual marker <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="marker" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file">, more context about the feature being discussed, and finally a third reference image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="reference" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> that completes the visual narrative. Each image maintains its position relative to the text, regardless of screen size or zoom level.</p>
+
+<h5>Images with Links</h5>
+<p>Inline images can also serve as clickable elements. For example, this social media icon <a href="https://github.com/netresearch" target="_blank"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="GitHub" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></a> links to our GitHub profile. Similarly, you might want to link a product badge <a href="https://packagist.org/packages/netresearch/rte-ckeditor-image" target="_blank"><img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="Packagist" width="50" height="38" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file"></a> to the relevant package repository. These linked inline images are particularly useful for documentation and marketing content.</p>
+
+<h5>Text Continues After Image Sections</h5>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nunc nec ultricies ultricies, nunc nisl aliquam nisl, eget aliquam nunc nisl sit amet nisl. Sed euismod, nunc sit amet aliquam aliquam, nunc nisl aliquam nisl, eget aliquam nunc nisl sit amet nisl. Fusce vehicula dolor arcu, sit amet blandit dolor mollis nec. Donec viverra eleifend lacus, vitae ullamcorper metus.</p>
+
+<div class="alert alert-info">
+<strong>Technical Note:</strong> All inline images in this section use the <code>image-inline</code> class. The extension processes each image independently, ensuring no structural interference between elements.
+</div>
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 310);
+
+-- =============================================================================
 -- CONTENT ELEMENT 4: More Inline Examples (Clickable + Multiple)
 -- =============================================================================
 INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
