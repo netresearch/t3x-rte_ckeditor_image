@@ -206,10 +206,12 @@ class ImageRenderingAdapter
             // Block images inside <a> tags within <figure> elements should be
             // processed by renderFigure() instead. Only process truly inline images
             // here to avoid interfering with figure rendering.
-            // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/XXX
-            $imageClass = $imageAttributes['class'] ?? '';
+            // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/580
+            $imageClass  = $imageAttributes['class'] ?? '';
+            $splitResult = preg_split('/\s+/', $imageClass, -1, PREG_SPLIT_NO_EMPTY);
+            $classTokens = is_array($splitResult) ? $splitResult : [];
 
-            if (!str_contains($imageClass, 'image-inline')) {
+            if (!in_array('image-inline', $classTokens, true)) {
                 // Not an inline image - skip and let renderFigure handle it
                 continue;
             }
@@ -356,9 +358,11 @@ class ImageRenderingAdapter
             }
 
             // Skip block images - only process inline images in links
-            $imageClass = $imageAttributes['class'] ?? '';
+            $imageClass  = $imageAttributes['class'] ?? '';
+            $splitResult = preg_split('/\s+/', $imageClass, -1, PREG_SPLIT_NO_EMPTY);
+            $classTokens = is_array($splitResult) ? $splitResult : [];
 
-            if (!str_contains($imageClass, 'image-inline')) {
+            if (!in_array('image-inline', $classTokens, true)) {
                 continue;
             }
 

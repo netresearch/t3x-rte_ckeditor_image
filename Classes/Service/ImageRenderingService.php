@@ -130,13 +130,17 @@ class ImageRenderingService
      */
     private function selectTemplate(ImageRenderingDto $imageData): string
     {
-        $hasCaption     = $imageData->caption !== null && $imageData->caption !== '';
-        $hasFigureClass = $imageData->figureClass !== null && $imageData->figureClass !== '';
-        $hasLink        = $imageData->link instanceof LinkDto;
-        $isPopup        = $imageData->link instanceof LinkDto && $imageData->link->isPopup;
+        $hasCaption = $imageData->caption !== null && $imageData->caption !== '';
+        $hasLink    = $imageData->link instanceof LinkDto;
+        $isPopup    = $imageData->link instanceof LinkDto && $imageData->link->isPopup;
 
-        // Figure wrapper is needed if there's a caption OR a figure class (for alignment)
-        $needsFigureWrapper = $hasCaption || $hasFigureClass;
+        // Check for actual alignment classes (image-left, image-center, image-right)
+        // The generic "image" class alone should NOT trigger figure wrapper
+        $hasAlignmentClass = $imageData->figureClass !== null
+            && preg_match('/\bimage-(left|center|right)\b/', $imageData->figureClass) === 1;
+
+        // Figure wrapper is needed if there's a caption OR an alignment class
+        $needsFigureWrapper = $hasCaption || $hasAlignmentClass;
 
         return match (true) {
             $isPopup && $needsFigureWrapper => self::TEMPLATE_POPUP_WITH_CAPTION,
