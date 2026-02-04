@@ -339,6 +339,23 @@ function getImageDialog(editor, img, attributes) {
     $('<label class="form-check-label" for="clickBehavior-link">').text(img.lang.clickBehaviorLink || 'Link - opens custom URL').appendTo($radioLinkWrapper);
 
     // ========================================
+    // Disable click behavior when image is inside an external link
+    // (e.g., inline image inside a link that wraps text + image)
+    // ========================================
+    if (attributes.isInsideExternalLink) {
+        // Disable all radio buttons
+        $radioNone.prop('disabled', true);
+        $radioEnlarge.prop('disabled', true);
+        $radioLink.prop('disabled', true);
+
+        // Add info message explaining why options are disabled
+        var $externalLinkInfo = $('<div class="alert alert-info" style="margin-top: 12px; padding: 10px; font-size: 13px;">')
+            .html('<strong>' + (img.lang.imageInsideLinkTitle || 'Image is inside a link') + '</strong><br>' +
+                  (img.lang.imageInsideLinkMessage || 'Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.'))
+            .appendTo($radioContainer);
+    }
+
+    // ========================================
     // Dynamic fields container (shown/hidden based on radio selection)
     // ========================================
     var $dynamicFieldsContainer = $('<div class="col-xs-12" id="clickBehavior-fields">').appendTo($clickBehaviorSection);
@@ -1194,13 +1211,17 @@ function openLinkBrowser(editor, currentValue) {
 
 
 function edit(selectedImage, editor, imageAttributes) {
+    // Capture whether this is an inline image BEFORE the async operations
+    // This flag is passed from the caller and indicates the original element type
+    const isInlineImage = imageAttributes.isInlineImage || false;
+
     getImageInfo(editor, selectedImage.table, selectedImage.uid, {})
         .then(function (img) {
             return askImageAttributes(editor, img, imageAttributes, selectedImage.table);
         })
         .then(function (attributes) {
             editor.model.change(writer => {
-                const imageAttributes = {
+                const newImageAttributes = {
                     fileUid: attributes.fileUid,
                     fileTable: attributes.fileTable,
                     src: attributes.src,
@@ -1219,35 +1240,42 @@ function edit(selectedImage, editor, imageAttributes) {
                 // Only set link attributes if they have non-empty values
                 // IMPORTANT: Don't set empty strings to prevent unwanted link wrappers
                 if (attributes.linkHref && attributes.linkHref.trim() !== '') {
-                    imageAttributes.imageLinkHref = attributes.linkHref;
+                    newImageAttributes.imageLinkHref = attributes.linkHref;
                 }
                 if (attributes.linkTarget && attributes.linkTarget.trim() !== '') {
-                    imageAttributes.imageLinkTarget = attributes.linkTarget;
+                    newImageAttributes.imageLinkTarget = attributes.linkTarget;
                 }
                 if (attributes.linkTitle && attributes.linkTitle.trim() !== '') {
-                    imageAttributes.imageLinkTitle = attributes.linkTitle;
+                    newImageAttributes.imageLinkTitle = attributes.linkTitle;
                 }
                 if (attributes.linkClass && attributes.linkClass.trim() !== '') {
-                    imageAttributes.imageLinkClass = attributes.linkClass;
+                    newImageAttributes.imageLinkClass = attributes.linkClass;
                 }
                 if (attributes.linkParams && attributes.linkParams.trim() !== '') {
-                    imageAttributes.imageLinkParams = attributes.linkParams;
+                    newImageAttributes.imageLinkParams = attributes.linkParams;
                 }
 
-                const newImage = writer.createElement('typo3image', imageAttributes);
+                // Create the appropriate element type based on whether this was an inline image
+                // Inline images use typo3imageInline (no figure wrapper, flows with text)
+                // Block images use typo3image (figure wrapper, standalone block)
+                const elementType = isInlineImage ? 'typo3imageInline' : 'typo3image';
+                const newImage = writer.createElement(elementType, newImageAttributes);
 
-                // Create caption element if caption text exists
-                const captionText = (attributes.caption || '').trim();
-                if (captionText !== '') {
-                    const captionElement = writer.createElement('typo3imageCaption');
-                    writer.append(captionElement, newImage);
-                    writer.insertText(captionText, captionElement);
+                // Create caption element if caption text exists (only for block images)
+                // Inline images cannot have captions
+                if (!isInlineImage) {
+                    const captionText = (attributes.caption || '').trim();
+                    if (captionText !== '') {
+                        const captionElement = writer.createElement('typo3imageCaption');
+                        writer.append(captionElement, newImage);
+                        writer.insertText(captionText, captionElement);
+                    }
                 }
 
                 editor.model.insertObject(newImage);
             });
         });
-};
+}
 
 
 /**
@@ -1390,6 +1418,113 @@ class SetImageStyleCommand extends Command {
     }
 }
 
+
+/**
+ * Command to toggle between block (typo3image) and inline (typo3imageInline) image types
+ * Block→Inline: Removes caption (inline images cannot have captions)
+ * Inline→Block: Wraps image in figure
+ */
+class ToggleImageTypeCommand extends Command {
+    refresh() {
+        const editor = this.editor;
+        const selection = editor.model.document.selection;
+        const selectedElement = selection.getSelectedElement();
+
+        // Enable if either typo3image or typo3imageInline is selected
+        this.isEnabled = isTypo3ImageElement(selectedElement);
+
+        if (this.isEnabled) {
+            // Value is 'inline' if current element is inline, 'block' otherwise
+            this.value = selectedElement.name === 'typo3imageInline' ? 'inline' : 'block';
+        } else {
+            this.value = null;
+        }
+    }
+
+    execute() {
+        const editor = this.editor;
+        const model = editor.model;
+        const selection = model.document.selection;
+        const imageElement = selection.getSelectedElement();
+
+        if (!imageElement) {
+            return;
+        }
+
+        const isCurrentlyInline = imageElement.name === 'typo3imageInline';
+
+        model.change(writer => {
+            // Copy common attributes
+            const commonAttributes = [
+                'src', 'fileUid', 'fileTable', 'alt', 'altOverride',
+                'title', 'titleOverride', 'width', 'height',
+                'enableZoom', 'noScale', 'quality',
+                'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle', 'imageLinkClass', 'imageLinkParams'
+            ];
+
+            const attributes = {};
+            for (const attr of commonAttributes) {
+                const value = imageElement.getAttribute(attr);
+                if (value !== undefined && value !== null && value !== '') {
+                    attributes[attr] = value;
+                }
+            }
+
+            // Handle class attribute - remove/add image-inline as needed
+            let classValue = imageElement.getAttribute('class') || '';
+
+            if (isCurrentlyInline) {
+                // Inline → Block: remove image-inline class, add image-block if no other style class
+                classValue = classValue
+                    .split(' ')
+                    .filter(cls => cls !== 'image-inline')
+                    .join(' ')
+                    .trim();
+
+                // If no style class remains, default to image-block
+                if (!classValue.match(/image-(left|right|center|block)/)) {
+                    classValue = classValue ? classValue + ' image-block' : 'image-block';
+                }
+            } else {
+                // Block → Inline: remove block style classes, add image-inline
+                classValue = classValue
+                    .split(' ')
+                    .filter(cls => !cls.match(/^image-(left|right|center|block)$/))
+                    .join(' ')
+                    .trim();
+
+                classValue = classValue ? classValue + ' image-inline' : 'image-inline';
+            }
+
+            attributes['class'] = classValue;
+
+            // Create new element with appropriate type
+            const newElementName = isCurrentlyInline ? 'typo3image' : 'typo3imageInline';
+            const newImage = writer.createElement(newElementName, attributes);
+
+            // Insert new element at the same position
+            const position = writer.createPositionBefore(imageElement);
+            writer.insert(newImage, position);
+
+            // Remove old element
+            writer.remove(imageElement);
+
+            // Select the new element
+            writer.setSelection(newImage, 'on');
+        });
+    }
+}
+
+
+/**
+ * Check if element is a TYPO3 image (block or inline)
+ * @param {Element} element - The model element to check
+ * @return {boolean} True if element is typo3image or typo3imageInline
+ */
+function isTypo3ImageElement(element) {
+    return element && (element.name === 'typo3image' || element.name === 'typo3imageInline');
+}
+
 /**
  * Get caption element from typo3image model element
  * @param {Element} imageElement - The typo3image model element
@@ -1456,7 +1591,10 @@ export default class Typo3Image extends Plugin {
             }
         };
 
-        // Configure contextual balloon toolbar for typo3image widget
+        // Configure contextual balloon toolbar for both typo3image (block) and typo3imageInline widgets
+        // Using a single toolbar registration for consistent UX across all image types.
+        // Commands like toggleImageCaption and image styles will be automatically disabled
+        // for inline images based on their isEnabled state.
         const widgetToolbarRepository = editor.plugins.get('WidgetToolbarRepository');
         widgetToolbarRepository.register('typo3image', {
             ariaLabel: 'Image toolbar',
@@ -1465,30 +1603,73 @@ export default class Typo3Image extends Plugin {
                 '|',
                 'toggleImageCaption',
                 '|',
-                'imageStyle:image-inline',
+                'toggleImageType',
+                '|',
                 'imageStyle:image-left',
                 'imageStyle:image-center',
                 'imageStyle:image-right',
                 'imageStyle:image-block'
             ],
             getRelatedElement: selection => {
-                // Get the selected element from the view
-                const viewElement = selection.getSelectedElement();
+                try {
+                    // Get the selected element from the view
+                    const viewElement = selection.getSelectedElement();
 
-                if (!viewElement) {
+                    if (!viewElement) {
+                        return null;
+                    }
+
+                    // Ensure the element is still in the document (defensive check for balloon errors)
+                    if (!viewElement.root || !viewElement.root.document) {
+                        return null;
+                    }
+
+                    // Map view element to model element to check if it's a typo3image or typo3imageInline
+                    const modelElement = editor.editing.mapper.toModelElement(viewElement);
+
+                    if (isTypo3ImageElement(modelElement)) {
+                        // Verify the view element is still valid for positioning
+                        if (viewElement.is('element') && viewElement.parent) {
+                            return viewElement;
+                        }
+                    }
+                } catch (e) {
+                    // Return null on any error to prevent balloon positioning issues
+                    // This can happen when view elements are in an inconsistent state
                     return null;
-                }
-
-                // Map view element to model element to check if it's a typo3image
-                const modelElement = editor.editing.mapper.toModelElement(viewElement);
-
-                if (modelElement && modelElement.name === 'typo3image') {
-                    return viewElement; // Return view element for toolbar positioning
                 }
 
                 return null;
             }
         });
+
+        // Hide the link balloon when an image widget is selected to prevent balloon conflicts
+        // This must happen BEFORE the widget toolbar shows to avoid stacking issues
+        const contextualBalloon = editor.plugins.has('ContextualBalloon')
+            ? editor.plugins.get('ContextualBalloon')
+            : null;
+
+        if (contextualBalloon) {
+            // Listen to selection changes to hide link balloon when image is selected
+            editor.model.document.selection.on('change:range', () => {
+                const selectedElement = editor.model.document.selection.getSelectedElement();
+                if (isTypo3ImageElement(selectedElement)) {
+                    // Try to hide the link balloon if it's visible
+                    try {
+                        const linkUI = editor.plugins.has('LinkUI') ? editor.plugins.get('LinkUI') : null;
+                        if (linkUI && linkUI.formView && contextualBalloon.hasView(linkUI.formView)) {
+                            contextualBalloon.remove(linkUI.formView);
+                        }
+                        // Also try to remove link actions view
+                        if (linkUI && linkUI.actionsView && contextualBalloon.hasView(linkUI.actionsView)) {
+                            contextualBalloon.remove(linkUI.actionsView);
+                        }
+                    } catch (e) {
+                        // Ignore errors when trying to hide link balloon
+                    }
+                }
+            });
+        }
 
         // Prevent Link plugin's balloon from showing when typo3image widget is selected
         // This resolves the conflict where both image toolbar and link balloon appear
@@ -1496,23 +1677,25 @@ export default class Typo3Image extends Plugin {
         // See: https://github.com/ckeditor/ckeditor5/issues/9607
         const viewDocument = editor.editing.view.document;
 
-        // Helper to check if current selection is on a linked typo3image
-        const isSelectedLinkedTypo3Image = () => {
+        // Helper to check if current selection is on a typo3image/typo3imageInline widget
+        // Returns true if we should suppress the link balloon in favor of image toolbar
+        const isSelectedTypo3ImageWidget = () => {
             const selection = editor.model.document.selection;
             const selectedElement = selection.getSelectedElement();
 
-            if (selectedElement && selectedElement.name === 'typo3image') {
-                // Check if the image has a link
-                return selectedElement.hasAttribute('imageLinkHref') &&
-                       selectedElement.getAttribute('imageLinkHref').trim() !== '';
+            // Always suppress link balloon for image widgets - image toolbar takes precedence
+            if (isTypo3ImageElement(selectedElement)) {
+                return true;
             }
             return false;
         };
 
         // Listen to click events with high priority to intercept before LinkUI
         // Stop event propagation to prevent LinkUI from showing its balloon
+        // Note: There may be a visual artifact when clicking from link text to image
+        // widget - this is a known limitation due to CKEditor's balloon stack behavior.
         this.listenTo(viewDocument, 'click', (evt, data) => {
-            if (isSelectedLinkedTypo3Image()) {
+            if (isSelectedTypo3ImageWidget()) {
                 // Stop event propagation to prevent LinkUI from handling the click
                 evt.stop();
                 // Prevent default browser behavior
@@ -1630,6 +1813,33 @@ export default class Typo3Image extends Plugin {
         // Extend typo3image to allow caption child element
         editor.model.schema.extend('typo3image', {
             allowChildren: 'typo3imageCaption'
+        });
+
+        // Register typo3imageInline schema - inherits from $inlineObject for true inline behavior
+        // This enables cursor positioning before/after the image on the same line
+        // Note: Inline images cannot have captions (no typo3imageCaption child allowed)
+        editor.model.schema.register('typo3imageInline', {
+            inheritAllFrom: '$inlineObject',
+            allowAttributes: [
+                'src',
+                'fileUid',
+                'fileTable',
+                'alt',
+                'altOverride',
+                'title',
+                'titleOverride',
+                'class',
+                'enableZoom',
+                'noScale',
+                'width',
+                'height',
+                'quality',
+                'imageLinkHref',
+                'imageLinkTarget',
+                'imageLinkTitle',
+                'imageLinkClass',
+                'imageLinkParams'
+            ],
         });
 
         // Upcast converter for corrupted double-link structure: <a><a><img></a></a>
@@ -1902,6 +2112,12 @@ export default class Typo3Image extends Plugin {
                         return null;
                     }
 
+                    // Check if this is an inline image (figure has image-inline class)
+                    // If so, create typo3imageInline instead of typo3image
+                    const figureClasses = viewFigure.getAttribute('class') || '';
+                    const figureClassList = figureClasses.split(/\s+/);
+                    const isInlineImage = figureClassList.includes('image-inline');
+
                     // Check if image is wrapped in a link element (inside figure)
                     const linkElement = imgElement.parent?.is('element', 'a') ? imgElement.parent : null;
 
@@ -1951,7 +2167,13 @@ export default class Typo3Image extends Plugin {
                         }
                     }
 
-                    // Create typo3image element
+                    // Create typo3image or typo3imageInline based on figure class
+                    if (isInlineImage) {
+                        // Inline images: no caption support, simpler structure
+                        return writer.createElement('typo3imageInline', imageAttributes);
+                    }
+
+                    // Block image: may have caption
                     const typo3image = writer.createElement('typo3image', imageAttributes);
 
                     // Create caption element if figcaption exists
@@ -1994,16 +2216,38 @@ export default class Typo3Image extends Plugin {
                     }
 
                     // Find img child with data-htmlarea-file-uid
+                    // Also check if link contains ONLY the image (no other content)
                     let imgElement = null;
+                    let hasOtherContent = false;
+
                     for (const child of viewElement.getChildren()) {
                         if (child.is('element', 'img') && child.getAttribute('data-htmlarea-file-uid')) {
+                            if (imgElement) {
+                                // Already found an image - multiple images means other content
+                                hasOtherContent = true;
+                            }
                             imgElement = child;
-                            break;
+                        } else if (child.is('element', 'img')) {
+                            // Image without data-htmlarea-file-uid is other content
+                            hasOtherContent = true;
+                        } else if (child.is('$text') && child.data.trim() !== '') {
+                            // Link contains text content besides the image
+                            hasOtherContent = true;
+                        } else if (child.is('element')) {
+                            // Link contains other elements
+                            hasOtherContent = true;
                         }
                     }
 
                     // If no TYPO3 image found, let other converters handle this <a>
                     if (!imgElement) {
+                        return null;
+                    }
+
+                    // CRITICAL: If link contains text or other elements besides the image,
+                    // do NOT consume the link - let the normal link handling preserve the text.
+                    // The inline image upcast will handle the img separately.
+                    if (hasOtherContent) {
                         return null;
                     }
 
@@ -2065,7 +2309,102 @@ export default class Typo3Image extends Plugin {
                         }
                     }
 
-                    return writer.createElement('typo3image', imageAttributes);
+                    // Check if this should be an inline image based on class
+                    const imgClass = imageAttributes.class || '';
+                    const classList = imgClass.split(/\s+/);
+                    const isInlineImage = classList.includes('image-inline');
+
+                    return writer.createElement(isInlineImage ? 'typo3imageInline' : 'typo3image', imageAttributes);
+                },
+                converterPriority: 'highest'
+            });
+
+        // Upcast converter for inline images (highest priority)
+        // Handles: <img class="image-inline" data-htmlarea-file-uid="..." src="...">
+        // These become typo3imageInline model elements for true inline behavior
+        editor.conversion
+            .for('upcast')
+            .elementToElement({
+                view: {
+                    name: 'img',
+                    attributes: [
+                        'data-htmlarea-file-uid',
+                        'src',
+                    ]
+                },
+                model: (viewElement, { writer }) => {
+                    // Check if this image should be inline
+                    const className = viewElement.getAttribute('class') || '';
+                    const classList = className.split(/\s+/);
+                    const hasInlineClass = classList.includes('image-inline');
+
+                    // If no inline class, let the block converter handle it
+                    if (!hasInlineClass) {
+                        return null;
+                    }
+
+                    // Check if image is wrapped in a link element
+                    const linkElement = viewElement.parent?.name === 'a' ? viewElement.parent : null;
+
+                    // Check if link contains ONLY this image (no other content)
+                    // If link has other content, don't extract link attrs - let CKEditor handle the link
+                    let linkHasOnlyImage = true;
+                    if (linkElement) {
+                        for (const sibling of linkElement.getChildren()) {
+                            if (sibling === viewElement) continue;
+                            if (sibling.is('$text') && sibling.data.trim() !== '') {
+                                linkHasOnlyImage = false;
+                                break;
+                            }
+                            if (sibling.is('element')) {
+                                linkHasOnlyImage = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Extract link attributes only if link wraps ONLY this image
+                    const effectiveLinkElement = (linkElement && linkHasOnlyImage) ? linkElement : null;
+                    const linkHref = effectiveLinkElement?.getAttribute('href') || '';
+                    const linkTarget = effectiveLinkElement?.getAttribute('target') || '';
+                    const linkTitle = effectiveLinkElement?.getAttribute('title') || '';
+                    const linkClass = effectiveLinkElement?.getAttribute('class') || '';
+                    const linkParams = effectiveLinkElement?.getAttribute('data-link-params') || '';
+
+                    const imageAttributes = {
+                        fileUid: viewElement.getAttribute('data-htmlarea-file-uid'),
+                        fileTable: viewElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
+                        src: viewElement.getAttribute('src'),
+                        width: viewElement.getAttribute('width') || '',
+                        height: viewElement.getAttribute('height') || '',
+                        class: className,
+                        alt: viewElement.getAttribute('alt') || '',
+                        altOverride: viewElement.getAttribute('data-alt-override') || false,
+                        title: viewElement.getAttribute('title') || '',
+                        titleOverride: viewElement.getAttribute('data-title-override') || false,
+                        enableZoom: viewElement.getAttribute('data-htmlarea-zoom') || false,
+                        noScale: viewElement.getAttribute('data-noscale') || false,
+                        quality: viewElement.getAttribute('data-quality') || ''
+                    };
+
+                    // Only set link attributes if they have non-empty values
+                    if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+                        imageAttributes.imageLinkHref = linkHref;
+                        if (linkTarget && linkTarget.trim() !== '') {
+                            imageAttributes.imageLinkTarget = linkTarget;
+                        }
+                        if (linkTitle && linkTitle.trim() !== '') {
+                            imageAttributes.imageLinkTitle = linkTitle;
+                        }
+                        if (linkClass && linkClass.trim() !== '') {
+                            imageAttributes.imageLinkClass = linkClass;
+                        }
+                        if (linkParams && linkParams.trim() !== '') {
+                            imageAttributes.imageLinkParams = linkParams;
+                        }
+                    }
+
+                    return writer.createElement('typo3imageInline', imageAttributes);
                 },
                 converterPriority: 'highest'
             });
@@ -2349,6 +2688,119 @@ export default class Typo3Image extends Plugin {
                 }
             });
 
+        // Helper function to create view element for typo3imageInline
+        // Similar to createImageViewElement but with class on img and no caption support
+        const createInlineImageViewElement = (modelElement, writer) => {
+            const attributes = {
+                'src': modelElement.getAttribute('src'),
+                'data-htmlarea-file-uid': modelElement.getAttribute('fileUid'),
+                'data-htmlarea-file-table': modelElement.getAttribute('fileTable'),
+                'width': modelElement.getAttribute('width'),
+                'height': modelElement.getAttribute('height'),
+                // For inline images, class goes directly on the img element
+                'class': modelElement.getAttribute('class') || 'image-inline',
+                'title': modelElement.getAttribute('title') || '',
+                'alt': modelElement.getAttribute('alt') || '',
+            };
+
+            if (modelElement.getAttribute('titleOverride') || false) {
+                attributes['data-title-override'] = true;
+            }
+
+            if (modelElement.getAttribute('altOverride') || false) {
+                attributes['data-alt-override'] = true;
+            }
+
+            if (modelElement.getAttribute('enableZoom') || false) {
+                attributes['data-htmlarea-zoom'] = true;
+            }
+
+            if (modelElement.getAttribute('noScale') || false) {
+                attributes['data-noscale'] = true;
+            }
+
+            const quality = modelElement.getAttribute('quality') || '';
+            if (quality) {
+                attributes['data-quality'] = quality;
+            }
+
+            // Ensure image-inline class is present
+            const existingClasses = (attributes['class'] || '').split(/\s+/);
+            if (!existingClasses.includes('image-inline')) {
+                attributes['class'] = attributes['class']
+                    ? attributes['class'] + ' image-inline'
+                    : 'image-inline';
+            }
+
+            const imgElement = writer.createEmptyElement('img', attributes);
+
+            // Check if model has link attributes and wrap in <a> if present
+            const linkHref = modelElement.getAttribute('imageLinkHref');
+            if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+                const linkAttributes = {
+                    href: linkHref
+                };
+
+                const linkTarget = modelElement.getAttribute('imageLinkTarget');
+                if (linkTarget && linkTarget.trim() !== '') {
+                    linkAttributes.target = linkTarget;
+                }
+
+                const linkTitle = modelElement.getAttribute('imageLinkTitle');
+                if (linkTitle && linkTitle.trim() !== '') {
+                    linkAttributes.title = linkTitle;
+                }
+
+                const linkClass = modelElement.getAttribute('imageLinkClass');
+                if (linkClass && linkClass.trim() !== '') {
+                    linkAttributes.class = linkClass;
+                }
+
+                const linkParams = modelElement.getAttribute('imageLinkParams');
+                if (linkParams && linkParams.trim() !== '') {
+                    linkAttributes['data-link-params'] = linkParams;
+                }
+
+                return writer.createContainerElement('a', linkAttributes, imgElement);
+            }
+
+            return imgElement;
+        };
+
+        // Editing downcast for inline images - creates inline span widget
+        editor.conversion
+            .for('editingDowncast')
+            .elementToElement({
+                model: 'typo3imageInline',
+                view: (modelElement, { writer }) => {
+                    const imageElement = createInlineImageViewElement(modelElement, writer);
+
+                    // Wrap in span for inline widget (not figure)
+                    const wrapper = writer.createContainerElement('span', {
+                        class: 'ck-widget ck-widget_inline-image'
+                    });
+
+                    writer.insert(writer.createPositionAt(wrapper, 0), imageElement);
+
+                    return toWidget(wrapper, writer, {
+                        label: 'inline image widget',
+                        hasSelectionHandle: false
+                    });
+                }
+            });
+
+        // Data downcast for inline images - outputs plain img (no wrapper)
+        // Priority highest to ensure it runs before typo3image downcast
+        editor.conversion
+            .for('dataDowncast')
+            .elementToElement({
+                model: 'typo3imageInline',
+                view: (modelElement, { writer }) => {
+                    return createInlineImageViewElement(modelElement, writer);
+                },
+                converterPriority: 'highest'
+            });
+
         // Register the attribute converter to make changes to the `class` attribute visible in the view
         editor.conversion.for('downcast').attributeToAttribute({
             model: {
@@ -2356,7 +2808,16 @@ export default class Typo3Image extends Plugin {
                 key: 'class'
             },
             view: 'class'
-        })
+        });
+
+        // Register class attribute converter for inline images
+        editor.conversion.for('downcast').attributeToAttribute({
+            model: {
+                name: 'typo3imageInline',
+                key: 'class'
+            },
+            view: 'class'
+        });
 
 
         // Loop over existing images
@@ -2451,14 +2912,39 @@ export default class Typo3Image extends Plugin {
             button.on('execute', () => {
                 const selectedElement = editor.model.document.selection.getSelectedElement();
 
-                if (selectedElement && selectedElement.name === 'typo3image') {
-                    // Get caption text from caption element (if exists)
-                    const captionElement = getCaptionFromImageModelElement(selectedElement);
+                // Handle both block (typo3image) and inline (typo3imageInline) images
+                if (isTypo3ImageElement(selectedElement)) {
+                    // Get caption text from caption element (if exists) - only for block images
                     let captionText = '';
-                    if (captionElement) {
-                        for (const child of captionElement.getChildren()) {
-                            if (child.is('$text')) {
-                                captionText += child.data;
+                    if (selectedElement.name === 'typo3image') {
+                        const captionElement = getCaptionFromImageModelElement(selectedElement);
+                        if (captionElement) {
+                            for (const child of captionElement.getChildren()) {
+                                if (child.is('$text')) {
+                                    captionText += child.data;
+                                }
+                            }
+                        }
+                    }
+
+                    // Check if inline image is inside an external link (link wrapping the image from outside)
+                    // This happens when user creates a link around text that includes an inline image
+                    let isInsideExternalLink = false;
+                    if (selectedElement.name === 'typo3imageInline') {
+                        // The image itself doesn't have imageLinkHref, so check if we're inside a link
+                        const imageLinkHref = selectedElement.getAttribute('imageLinkHref');
+                        if (!imageLinkHref || imageLinkHref.trim() === '') {
+                            // No link on the image itself - check if there's an external link wrapping us
+                            // Use the view selection which gives us the widget element
+                            const viewSelection = editor.editing.view.document.selection;
+                            const viewElement = viewSelection.getSelectedElement();
+                            if (viewElement) {
+                                // The viewElement is the widget span, check its parent for a link
+                                const parent = viewElement.parent;
+                                if (parent && parent.is('attributeElement') && parent.name === 'a') {
+                                    // Image is inside an external link in the view
+                                    isInsideExternalLink = true;
+                                }
                             }
                         }
                     }
@@ -2486,6 +2972,10 @@ export default class Typo3Image extends Plugin {
                             linkTitle: selectedElement.getAttribute('imageLinkTitle'),
                             linkClass: selectedElement.getAttribute('imageLinkClass'),
                             linkParams: selectedElement.getAttribute('imageLinkParams'),
+                            // Pass flag to indicate if this is an inline image (for hiding caption field)
+                            isInlineImage: selectedElement.name === 'typo3imageInline',
+                            // Pass flag to indicate if image is inside an external link (for disabling link options)
+                            isInsideExternalLink: isInsideExternalLink,
                         }
                     );
                 }
@@ -2518,7 +3008,33 @@ export default class Typo3Image extends Plugin {
             return button;
         });
 
-        // Make image selectable with a single click
+        // Register toggle image type button for balloon toolbar (block ↔ inline)
+        editor.ui.componentFactory.add('toggleImageType', () => {
+            const command = editor.commands.get('toggleImageType');
+            const button = new ButtonView();
+
+            button.set({
+                label: 'Toggle inline/block',
+                // Icon: shows inline text with image
+                icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 3h16v2H2zm0 4h4v4H2zm6 0h10v2H8zm0 4h10v2H8zm-6 4h16v2H2z"/></svg>',
+                tooltip: true,
+                isToggleable: true
+            });
+
+            // Bind button state to command
+            // isOn is true when the image is inline
+            button.bind('isOn').to(command, 'value', value => value === 'inline');
+            button.bind('isEnabled').to(command, 'isEnabled');
+
+            button.on('execute', () => {
+                editor.execute('toggleImageType');
+                editor.editing.view.focus();
+            });
+
+            return button;
+        });
+
+        // Make image selectable with a single click (both block and inline images)
         editor.listenTo(editor.editing.view.document, 'click', (event, data) => {
             // Find the widget wrapper - traverse UP if we clicked the inner img/link
             let targetElement = data.target;
@@ -2539,7 +3055,8 @@ export default class Typo3Image extends Plugin {
             }
 
             const modelElement = editor.editing.mapper.toModelElement(targetElement);
-            if (modelElement && modelElement.name === 'typo3image') {
+            // Handle both block (typo3image) and inline (typo3imageInline) images
+            if (isTypo3ImageElement(modelElement)) {
                 // Prevent default link behavior in editor
                 data.preventDefault();
                 data.stopPropagation();
@@ -2617,6 +3134,9 @@ export default class Typo3Image extends Plugin {
         // Register ToggleCaptionCommand for inline caption editing
         editor.commands.add('toggleImageCaption', new ToggleCaptionCommand(editor));
 
+        // Register ToggleImageTypeCommand for switching between block and inline images
+        editor.commands.add('toggleImageType', new ToggleImageTypeCommand(editor));
+
         editor.listenTo(editor.editing.view.document, 'dblclick:typo3image', (event, data) => {
             // Find the widget wrapper - traverse UP if we clicked the inner img/link
             let targetElement = data.target;
@@ -2649,20 +3169,58 @@ export default class Typo3Image extends Plugin {
                 }
             }
 
+            // If we still don't have a widget, traverse up from the original target
+            // to find any ck-widget ancestor (handles img inside CKEditor link wrapper)
+            if (!targetElement.hasClass || !targetElement.hasClass('ck-widget')) {
+                let searchElement = data.target;
+                while (searchElement) {
+                    if (searchElement.hasClass && searchElement.hasClass('ck-widget') &&
+                        (searchElement.name === 'span' || searchElement.name === 'figure')) {
+                        targetElement = searchElement;
+                        break;
+                    }
+                    // Also check if we're on an img directly inside a widget span
+                    if (searchElement.name === 'img') {
+                        const widgetParent = searchElement.parent;
+                        if (widgetParent && widgetParent.hasClass && widgetParent.hasClass('ck-widget')) {
+                            targetElement = widgetParent;
+                            break;
+                        }
+                    }
+                    searchElement = searchElement.parent;
+                }
+            }
+
             const modelElement = editor.editing.mapper.toModelElement(targetElement);
-            if (modelElement && modelElement.name === 'typo3image') {
+            // Handle both block (typo3image) and inline (typo3imageInline) images
+            if (isTypo3ImageElement(modelElement)) {
                 // Select the clicked element
                 editor.model.change(writer => {
                     writer.setSelection(modelElement, 'on');
                 });
 
-                // Get caption text from caption element (if exists)
-                const captionElement = getCaptionFromImageModelElement(modelElement);
+                // Get caption text from caption element (if exists) - only for block images
                 let captionText = '';
-                if (captionElement) {
-                    for (const child of captionElement.getChildren()) {
-                        if (child.is('$text')) {
-                            captionText += child.data;
+                if (modelElement.name === 'typo3image') {
+                    const captionElement = getCaptionFromImageModelElement(modelElement);
+                    if (captionElement) {
+                        for (const child of captionElement.getChildren()) {
+                            if (child.is('$text')) {
+                                captionText += child.data;
+                            }
+                        }
+                    }
+                }
+
+                // Check if inline image is inside an external link (link wrapping from outside)
+                let isInsideExternalLink = false;
+                if (modelElement.name === 'typo3imageInline') {
+                    const imageLinkHref = modelElement.getAttribute('imageLinkHref');
+                    if (!imageLinkHref || imageLinkHref.trim() === '') {
+                        // No link on the image - check if targetElement's parent is a link
+                        const parent = targetElement.parent;
+                        if (parent && parent.is('attributeElement') && parent.name === 'a') {
+                            isInsideExternalLink = true;
                         }
                     }
                 }
@@ -2690,6 +3248,10 @@ export default class Typo3Image extends Plugin {
                         linkClass: modelElement.getAttribute('imageLinkClass'),
                         linkParams: modelElement.getAttribute('imageLinkParams'),
                         caption: captionText,
+                        // Pass flag to indicate if this is an inline image (for hiding caption field)
+                        isInlineImage: modelElement.name === 'typo3imageInline',
+                        // Pass flag to indicate if image is inside an external link (for disabling link options)
+                        isInsideExternalLink: isInsideExternalLink,
                     }
                 );
             }

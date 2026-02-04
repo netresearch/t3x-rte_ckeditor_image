@@ -102,6 +102,7 @@ class ImageResolverService
      * @param array<string,mixed>       $conf           TypoScript configuration
      * @param ServerRequestInterface    $request        Current request
      * @param array<string,string>|null $linkAttributes Optional link attributes for linked images
+     * @param string|null               $figureClass    Optional figure class for alignment (image-left, etc.)
      *
      * @return ImageRenderingDto|null Validated DTO or null if validation fails
      */
@@ -110,6 +111,7 @@ class ImageResolverService
         array $conf,
         ServerRequestInterface $request,
         ?array $linkAttributes = null,
+        ?string $figureClass = null,
     ): ?ImageRenderingDto {
         // Extract file UID from data-htmlarea-file-uid attribute
         $fileUid = (int) ($attributes['data-htmlarea-file-uid'] ?? 0);
@@ -203,6 +205,7 @@ class ImageResolverService
                 caption: $caption !== '' ? $caption : null,
                 link: $link,
                 isMagicImage: true,
+                figureClass: $figureClass !== '' ? $figureClass : null,
             );
         } catch (FileDoesNotExistException $exception) {
             $this->logger->log(

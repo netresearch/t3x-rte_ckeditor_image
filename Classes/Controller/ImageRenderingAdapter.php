@@ -145,11 +145,15 @@ class ImageRenderingAdapter
      *
      * TypoScript: lib.parseFunc_RTE.tags.a.preUserFunc
      *
+     * IMPORTANT: When tags.a is configured as TEXT with current=1, parseFunc only
+     * passes the inner content of the <a> tag, not the wrapper. We must reconstruct
+     * the complete <a>...</a> structure using the tag attributes from cObj->parameters.
+     *
      * @param string|null            $content Content input (not used)
      * @param array<string, mixed>   $conf    TypoScript configuration
      * @param ServerRequestInterface $request Current request
      *
-     * @return string Rendered HTML with processed images
+     * @return string Rendered HTML with processed images wrapped in <a> tag
      */
     #[AsAllowedCallable]
     public function renderImages(?string $content, array $conf, ServerRequestInterface $request): string
@@ -163,12 +167,24 @@ class ImageRenderingAdapter
             return '';
         }
 
+        // Get link attributes from tag parameters (populated by parseFunc for tags.a)
+        // Filter to string values only for type safety
+        $linkAttributes = [];
+
+        if ($this->cObj instanceof ContentObjectRenderer) {
+            foreach ($this->cObj->parameters as $key => $value) {
+                if (is_string($key) && is_string($value)) {
+                    $linkAttributes[$key] = $value;
+                }
+            }
+        }
+
         // Parse images from link content
         $parsed = $this->attributeParser->parseLinkWithImages($linkContent);
 
         if ($parsed['images'] === []) {
-            // No images found - return original content
-            return $linkContent;
+            // No images found - reconstruct link with original content
+            return $this->wrapInLink($linkContent, $linkAttributes);
         }
 
         // Process each image and build replacement map
@@ -183,6 +199,20 @@ class ImageRenderingAdapter
             $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
 
             if ($fileUid === 0) {
+                continue;
+            }
+
+            // CRITICAL: Skip block images (those without "image-inline" class).
+            // Block images inside <a> tags within <figure> elements should be
+            // processed by renderFigure() instead. Only process truly inline images
+            // here to avoid interfering with figure rendering.
+            // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/580
+            $imageClass  = $imageAttributes['class'] ?? '';
+            $splitResult = preg_split('/\s+/', $imageClass, -1, PREG_SPLIT_NO_EMPTY);
+            $classTokens = is_array($splitResult) ? $splitResult : [];
+
+            if (!in_array('image-inline', $classTokens, true)) {
+                // Not an inline image - skip and let renderFigure handle it
                 continue;
             }
 
@@ -214,17 +244,179 @@ class ImageRenderingAdapter
         // Apply replacements to link content
         // Use strtr() instead of str_replace() to prevent collision when one
         // image tag is a substring of another - strtr prioritizes longer keys
-        if ($replacements !== []) {
-            return strtr($linkContent, $replacements);
+        $processedContent = $replacements !== []
+            ? strtr($linkContent, $replacements)
+            : $linkContent;
+
+        // Reconstruct the <a> wrapper with processed content
+        return $this->wrapInLink($processedContent, $linkAttributes);
+    }
+
+    /**
+     * Wrap content in an <a> tag with the given attributes.
+     *
+     * @param string               $content    Content to wrap
+     * @param array<string,string> $attributes Link attributes (href, target, class, etc.)
+     *
+     * @return string Complete <a>...</a> HTML
+     */
+    private function wrapInLink(string $content, array $attributes): string
+    {
+        if ($attributes === [] || !isset($attributes['href'])) {
+            // No link attributes or no href - return content as-is
+            return $content;
         }
 
-        return $linkContent;
+        $attrParts = [];
+
+        foreach ($attributes as $name => $value) {
+            // Skip empty values
+            if ($value === '') {
+                continue;
+            }
+
+            // Escape attribute value for HTML safety
+            $attrParts[] = sprintf('%s="%s"', htmlspecialchars($name), htmlspecialchars($value));
+        }
+
+        if ($attrParts === []) {
+            return $content;
+        }
+
+        return '<a ' . implode(' ', $attrParts) . '>' . $content . '</a>';
+    }
+
+    /**
+     * Render link elements containing images (externalBlocks handler).
+     *
+     * TypoScript: lib.parseFunc_RTE.externalBlocks.a.stdWrap.preUserFunc
+     *
+     * This handler receives the COMPLETE <a>...</a> HTML including all inner content.
+     * Unlike tags.a which only receives inner content after recursive processing,
+     * externalBlocks.a with callRecursive=0 preserves the full link structure.
+     *
+     * This is necessary for links containing mixed text + image content like:
+     * <a href="...">Click here <img class="image-inline"...> to visit</a>
+     *
+     * @param string|null            $content Full <a>...</a> HTML from externalBlocks
+     * @param array<string, mixed>   $conf    TypoScript configuration
+     * @param ServerRequestInterface $request Current request
+     *
+     * @return string Processed HTML with images rendered
+     */
+    #[AsAllowedCallable]
+    public function renderLink(?string $content, array $conf, ServerRequestInterface $request): string
+    {
+        // Get link HTML from either content param or cObj->getCurrentVal()
+        $linkHtml = $content;
+
+        if (!is_string($linkHtml) || $linkHtml === '') {
+            $linkHtml = $this->cObj instanceof ContentObjectRenderer
+                ? $this->cObj->getCurrentVal()
+                : null;
+        }
+
+        if (!is_string($linkHtml) || $linkHtml === '') {
+            return '';
+        }
+
+        // Check if this is actually a link element
+        if (!str_contains($linkHtml, '<a ') && !str_contains($linkHtml, '<a>')) {
+            // Not a link - return original content
+            return $linkHtml;
+        }
+
+        // Parse the link to extract attributes and inner content
+        $parsed         = $this->attributeParser->parseLinkWithImages($linkHtml);
+        $linkAttributes = $parsed['link'];
+        $images         = $parsed['images'];
+
+        // If no images found, return original HTML unchanged
+        if ($images === []) {
+            return $linkHtml;
+        }
+
+        // Extract inner content from link (everything between <a...> and </a>)
+        $innerContent = $this->extractLinkInnerContent($linkHtml);
+
+        if ($innerContent === '') {
+            return $linkHtml;
+        }
+
+        // Process each image and build replacement map
+        $replacements = [];
+
+        foreach ($images as $imageData) {
+            $imageAttributes = $imageData['attributes'] ?? [];
+            $originalHtml    = $imageData['originalHtml'] ?? '';
+
+            // Skip images without file UID (external images or already processed)
+            $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
+
+            if ($fileUid === 0) {
+                continue;
+            }
+
+            // Skip block images - only process inline images in links
+            $imageClass  = $imageAttributes['class'] ?? '';
+            $splitResult = preg_split('/\s+/', $imageClass, -1, PREG_SPLIT_NO_EMPTY);
+            $classTokens = is_array($splitResult) ? $splitResult : [];
+
+            if (!in_array('image-inline', $classTokens, true)) {
+                continue;
+            }
+
+            // Remove attributes that shouldn't apply to images in links
+            unset(
+                $imageAttributes['data-caption'],
+                $imageAttributes['data-htmlarea-zoom'],
+                $imageAttributes['data-htmlarea-clickenlarge'],
+            );
+
+            // Resolve and render the image
+            $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
+
+            if (!$dto instanceof ImageRenderingDto) {
+                continue;
+            }
+
+            $renderedImg = $this->renderingService->render($dto, $request, $conf);
+
+            if ($originalHtml !== '') {
+                $replacements[$originalHtml] = $renderedImg;
+            }
+        }
+
+        // Apply replacements to inner content
+        $processedContent = $replacements !== []
+            ? strtr($innerContent, $replacements)
+            : $innerContent;
+
+        // Reconstruct the link with processed content
+        return $this->wrapInLink($processedContent, $linkAttributes);
+    }
+
+    /**
+     * Extract inner content from a link HTML string.
+     *
+     * @param string $linkHtml Full <a>...</a> HTML
+     *
+     * @return string Inner content (everything between opening and closing tags)
+     */
+    private function extractLinkInnerContent(string $linkHtml): string
+    {
+        // Use regex to extract content between <a...> and </a>
+        if (preg_match('/<a[^>]*>(.*)<\/a>/is', $linkHtml, $matches) === 1) {
+            return $matches[1];
+        }
+
+        return '';
     }
 
     /**
      * Render figure-wrapped images with caption support.
      *
-     * TypoScript: lib.parseFunc_RTE.tags.figure.preUserFunc
+     * TypoScript: lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc
      *
      * Handles CKEditor 5 output format: <figure><img/><figcaption>...</figcaption></figure>
      * And linked images: <figure><a href="..."><img/></a><figcaption>...</figcaption></figure>
@@ -241,16 +433,20 @@ class ImageRenderingAdapter
     #[AsAllowedCallable]
     public function renderFigure(?string $content, array $conf, ServerRequestInterface $request): string
     {
-        // Get figure HTML from ContentObjectRenderer
-        $currentVal = $this->cObj instanceof ContentObjectRenderer
-            ? $this->cObj->getCurrentVal()
-            : null;
+        // Get figure HTML from either:
+        // 1. First parameter $content (externalBlocks.stdWrap.preUserFunc context)
+        // 2. ContentObjectRenderer->getCurrentVal() (tags.figure context)
+        $figureHtml = $content;
 
-        if (!is_string($currentVal) || $currentVal === '') {
-            return '';
+        if (!is_string($figureHtml) || $figureHtml === '') {
+            $figureHtml = $this->cObj instanceof ContentObjectRenderer
+                ? $this->cObj->getCurrentVal()
+                : null;
         }
 
-        $figureHtml = $currentVal;
+        if (!is_string($figureHtml) || $figureHtml === '') {
+            return '';
+        }
 
         // Check if this is actually a figure with an image
         if (!$this->attributeParser->hasFigureWrapper($figureHtml)) {
@@ -258,11 +454,12 @@ class ImageRenderingAdapter
             return $figureHtml;
         }
 
-        // Parse figure to extract image attributes, caption, and link attributes
+        // Parse figure to extract image attributes, caption, link attributes, and figure class
         $parsed          = $this->attributeParser->parseFigureWithCaption($figureHtml);
         $imageAttributes = $parsed['attributes'];
         $caption         = $parsed['caption'];
         $linkAttributes  = $parsed['link'];
+        $figureClass     = $parsed['figureClass'] ?? '';
 
         // Skip images without file UID (external images)
         $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
@@ -282,9 +479,10 @@ class ImageRenderingAdapter
         // Pass link attributes to resolver if image is wrapped in <a>
         // This ensures the correct template (LinkWithCaption) is selected
         $linkAttributesOrNull = $linkAttributes !== [] ? $linkAttributes : null;
+        $figureClassOrNull    = $figureClass !== '' ? $figureClass : null;
 
         // Resolve image to validated DTO
-        $dto = $this->resolverService->resolve($imageAttributes, $conf, $request, $linkAttributesOrNull);
+        $dto = $this->resolverService->resolve($imageAttributes, $conf, $request, $linkAttributesOrNull, $figureClassOrNull);
 
         if (!$dto instanceof ImageRenderingDto) {
             // Resolution failed - return original content

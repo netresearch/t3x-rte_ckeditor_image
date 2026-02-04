@@ -17,7 +17,9 @@ composer config extra.typo3/cms.web-dir public -d /var/www/html/$VERSION
 composer config repositories.$EXTENSION_KEY path ../../$EXTENSION_KEY -d /var/www/html/$VERSION
 composer config --no-plugins allow-plugins.typo3/cms-composer-installers true -d /var/www/html/$VERSION
 composer config --no-plugins allow-plugins.typo3/class-alias-loader true -d /var/www/html/$VERSION
-composer req t3/cms:'^14' $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
+# Note: t3/cms metapackage doesn't have v14 yet, so install components separately
+# First install the extension with TYPO3 core requirements
+composer req $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
 composer req typo3/cms-extensionmanager typo3/cms-dashboard typo3/cms-reports --no-progress -n -d /var/www/html/$VERSION
 composer req --dev typo3/cms-styleguide bk2k/bootstrap-package:'^16.0' --no-progress -n -d /var/www/html/$VERSION
 
@@ -31,25 +33,56 @@ export MYSQL_PWD="${MYSQL_PASSWORD:-root}"
 mysql -h "$DB_HOST" -u "$DB_USER" -e "DROP DATABASE IF EXISTS ${VERSION};"
 mysql -h "$DB_HOST" -u "$DB_USER" -e "CREATE DATABASE ${VERSION};"
 
-vendor/bin/typo3 setup -n --dbname=$VERSION --password=$TYPO3_DB_PASSWORD --create-site="https://${VERSION}.rte-ckeditor-image.ddev.site" --admin-user-password=$TYPO3_SETUP_ADMIN_PASSWORD
+vendor/bin/typo3 setup -n --dbname=$VERSION --password=$TYPO3_DB_PASSWORD --create-site="http://localhost/" --admin-user-password=$TYPO3_SETUP_ADMIN_PASSWORD
 
-vendor/bin/typo3 configuration:set 'BE/debug' 1
-vendor/bin/typo3 configuration:set 'FE/debug' 1
-vendor/bin/typo3 configuration:set 'SYS/devIPmask' '*'
-vendor/bin/typo3 configuration:set 'SYS/displayErrors' 1
-# Create additional.php for trustedHostsPattern (configuration:set doesn't work reliably for this)
+# TYPO3 v14 removed the configuration:set command - write settings directly to additional.php
 mkdir -p /var/www/html/$VERSION/config/system
-echo '<?php' > /var/www/html/$VERSION/config/system/additional.php
-echo '$GLOBALS["TYPO3_CONF_VARS"]["SYS"]["trustedHostsPattern"] = ".*";' >> /var/www/html/$VERSION/config/system/additional.php
-vendor/bin/typo3 configuration:set 'MAIL/transport' 'smtp'
-vendor/bin/typo3 configuration:set 'MAIL/transport_smtp_server' 'localhost:1025'
-vendor/bin/typo3 configuration:set 'MAIL/defaultMailFromAddress' 'admin@example.com'
-vendor/bin/typo3 configuration:set 'GFX/processor' 'ImageMagick'
-vendor/bin/typo3 configuration:set 'GFX/processor_path' '/usr/bin/'
+cat > /var/www/html/$VERSION/config/system/additional.php << 'ADDPHP'
+<?php
+// Development settings
+$GLOBALS['TYPO3_CONF_VARS']['BE']['debug'] = true;
+$GLOBALS['TYPO3_CONF_VARS']['FE']['debug'] = true;
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['devIPmask'] = '*';
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['displayErrors'] = 1;
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['trustedHostsPattern'] = '.*';
 
-sed -i "/'deprecations'/,/^[[:space:]]*'disabled' => true,/s/'disabled' => true,/'disabled' => false,/" /var/www/html/$VERSION/config/system/settings.php
+// Mail settings (DDEV mailpit)
+$GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport'] = 'smtp';
+$GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport_smtp_server'] = 'localhost:1025';
+$GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress'] = 'admin@example.com';
+
+// Graphics
+$GLOBALS['TYPO3_CONF_VARS']['GFX']['processor'] = 'ImageMagick';
+$GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_path'] = '/usr/bin/';
+ADDPHP
 
 vendor/bin/typo3 extension:setup
+
+# TYPO3 v14 setup creates a setup.typoscript with minimal PAGE definition.
+# Remove it - site sets handle TypoScript loading automatically via config.yaml dependencies.
+rm -f config/sites/main/setup.typoscript
+
+# Create settings.yaml for site-specific configuration (logo, theme, etc.)
+# TYPO3 v14 uses site sets - constants are configured via settings.yaml, not sys_template
+cat > config/sites/main/settings.yaml << 'SETTINGSEOF'
+# Site-specific settings for Bootstrap Package
+# These override the defaults from bootstrap-package/full site set
+
+# Logo configuration - using Netresearch branded demo logo
+page.logo.file: 'fileadmin/user_upload/netresearch-logo.svg'
+page.logo.fileInverted: 'fileadmin/user_upload/netresearch-logo.svg'
+page.logo.height: 50
+page.logo.width: 380
+page.logo.alt: 'RTE CKEditor Image Demo'
+
+# Theme settings
+page.theme.navigation.style: 'default'
+page.theme.breadcrumb.enable: 0
+
+# Lightbox settings for click-to-enlarge compatibility
+lib.contentElement.settings.media.popup.linkClass: 'lightbox'
+lib.contentElement.settings.media.popup.directImageLink: 1
+SETTINGSEOF
 
 # Generate styleguide demo content for E2E tests
 # This creates pages with various content elements including images
@@ -58,112 +91,925 @@ vendor/bin/typo3 styleguide:generate
 # Add test content to homepage for E2E tests
 # The styleguide creates demo content, but E2E tests need content on the root page
 # Add a text content element with an image in the bodytext
-# NOTE: MySQL credentials use environment variables with DDEV defaults
 
-# First, create the test image file (needed before FAL registration)
+# Create test images (needed before FAL registration)
 mkdir -p public/fileadmin/user_upload
+
+# Create Netresearch logo SVG with "RTE CKEditor Image Demo" text for header
+cat > public/fileadmin/user_upload/netresearch-logo.svg << 'LOGOEOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 380 50" xmlns="http://www.w3.org/2000/svg">
+  <title>RTE CKEditor Image Demo</title>
+  <!-- Netresearch [n] symbol scaled to 50px height -->
+  <g transform="scale(0.167) translate(0, 0)">
+    <path fill="#2999a4" d="M209.6,0V31.62h32.77a26.38,26.38,0,0,1,26.44,26.43V242a26.38,26.38,0,0,1-26.44,26.44H209.6V300h47.93a42.77,42.77,0,0,0,42.86-42.86V42.89A42.76,42.76,0,0,0,257.53,0ZM43.25,0A42.76,42.76,0,0,0,.39,42.89V257.18A42.76,42.76,0,0,0,43.25,300H91.18V268.46H58.4A26.38,26.38,0,0,1,32,242v-184A26.37,26.37,0,0,1,58.4,31.62H91.18V0Z" transform="translate(-0.39 -0.04)"/>
+    <path fill="#595a62" d="M221.44,120.41c0-34.48-13.94-57.82-48.93-57.82-26.62,0-48.54,7.74-64.17,26.56l-.7-22.06-28.31.06V232.94h31.59V124.69c7.14-18.38,32.14-34.8,53-34.5,27.38.4,25.2,26.24,26,45.81v96.94h31.58" transform="translate(-0.39 -0.04)"/>
+  </g>
+  <!-- "RTE CKEditor Image Demo" text -->
+  <text x="60" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#2F99A4">RTE CKEditor Image Demo</text>
+</svg>
+LOGOEOF
+
+# Create branded demo images using Netresearch and TYPO3 colors
+# NR Teal: #2F99A4, NR Orange: #FF4D00, TYPO3 Orange: #FF8700
 if command -v convert &> /dev/null; then
+    # Main block image - TYPO3 branded (orange gradient)
     convert -size ${TEST_IMAGE_WIDTH}x${TEST_IMAGE_HEIGHT} \
-        xc:blue \
-        -pointsize 48 \
-        -fill white \
-        -gravity center \
-        -annotate +0+0 'Test Image\nfor E2E Tests' \
+        -define gradient:angle=135 \
+        gradient:'#FF8700'-'#FF4D00' \
+        -pointsize 72 \
+        -fill white -gravity center \
+        -annotate +0-50 'TYPO3' \
+        -pointsize 24 \
+        -annotate +0+50 'Click to Enlarge Demo' \
         public/fileadmin/user_upload/example.jpg
+
+    # Small inline image - Netresearch branded (teal with [n] logo)
+    convert -size 100x75 \
+        xc:'#2F99A4' \
+        -pointsize 28 \
+        -fill white -gravity center \
+        -annotate +0+0 '[n]' \
+        public/fileadmin/user_upload/inline-small.jpg
+
+    # Medium image - Netresearch teal gradient
+    convert -size 400x300 \
+        -define gradient:angle=45 \
+        gradient:'#2F99A4'-'#1a5a5f' \
+        -pointsize 36 \
+        -fill white -gravity center \
+        -annotate +0-30 'Netresearch' \
+        -pointsize 18 \
+        -annotate +0+30 'Image Demo' \
+        public/fileadmin/user_upload/medium.jpg
+
+    # Icon-sized image - NR Orange with [n]
+    convert -size 32x32 \
+        xc:'#FF4D00' \
+        -pointsize 16 \
+        -fill white -gravity center \
+        -annotate +0+0 '[n]' \
+        public/fileadmin/user_upload/icon.jpg
+
+    # Additional demo images for edge cases (replacing external placeholder.com URLs)
+    # External image placeholder - Netresearch teal
+    convert -size 300x200 \
+        xc:'#2F99A4' \
+        -pointsize 24 \
+        -fill white -gravity center \
+        -annotate +0+0 'External Image' \
+        public/fileadmin/user_upload/external-placeholder.jpg
+
+    # No caption demo - Netresearch orange
+    convert -size 250x150 \
+        xc:'#FF4D00' \
+        -pointsize 20 \
+        -fill white -gravity center \
+        -annotate +0+0 'No Caption' \
+        public/fileadmin/user_upload/no-caption.jpg
+
+    # Multi-class icon - TYPO3 orange
+    convert -size 40x40 \
+        xc:'#FF8700' \
+        -pointsize 18 \
+        -fill white -gravity center \
+        -annotate +0+0 'M' \
+        public/fileadmin/user_upload/multi-class.jpg
 else
-    echo "Warning: ImageMagick not found, creating minimal placeholder image"
+    echo "Warning: ImageMagick not found, creating minimal placeholder images"
+    # Create minimal JPEG for each
     echo '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9/KKKKAP/2Q==' | base64 -d > public/fileadmin/user_upload/example.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/inline-small.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/medium.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/icon.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/external-placeholder.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/no-caption.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/multi-class.jpg
 fi
 
-# Get actual file info for FAL entry
-TEST_FILE_PATH="public/fileadmin/user_upload/example.jpg"
-TEST_FILE_SIZE=$(stat -c%s "$TEST_FILE_PATH" 2>/dev/null || stat -f%z "$TEST_FILE_PATH")
-TEST_FILE_SHA1=$(sha1sum "$TEST_FILE_PATH" 2>/dev/null | cut -d' ' -f1 || shasum "$TEST_FILE_PATH" | cut -d' ' -f1)
+# Get actual file info for FAL entries
+get_file_info() {
+    local file=$1
+    local size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file")
+    local sha1=$(sha1sum "$file" 2>/dev/null | cut -d' ' -f1 || shasum "$file" | cut -d' ' -f1)
+    echo "$size $sha1"
+}
 
-# Create FAL entry in sys_file for proper click-to-enlarge support
-# The click-to-enlarge feature requires:
-# 1. A valid sys_file entry (with metadata for width/height)
-# 2. data-htmlarea-file-uid attribute pointing to the sys_file UID
-# 3. data-htmlarea-zoom="true" attribute
+FILE1_INFO=($(get_file_info "public/fileadmin/user_upload/example.jpg"))
+FILE2_INFO=($(get_file_info "public/fileadmin/user_upload/inline-small.jpg"))
+FILE3_INFO=($(get_file_info "public/fileadmin/user_upload/medium.jpg"))
+FILE4_INFO=($(get_file_info "public/fileadmin/user_upload/icon.jpg"))
+
+# Create FAL entries and demo content
 mysql -h "$DB_HOST" -u "$DB_USER" "$VERSION" << EOSQL
--- Insert sys_file entry for the test image
-INSERT INTO sys_file (
-    pid, storage, type, identifier, identifier_hash, folder_hash,
-    extension, mime_type, name, sha1, size,
-    creation_date, modification_date, tstamp, last_indexed
-)
-VALUES (
-    0,
-    1,
-    2,
-    '/user_upload/example.jpg',
-    SHA1('/user_upload/example.jpg'),
-    SHA1('/user_upload'),
-    'jpg',
-    'image/jpeg',
-    'example.jpg',
-    '$TEST_FILE_SHA1',
-    $TEST_FILE_SIZE,
-    UNIX_TIMESTAMP(),
-    UNIX_TIMESTAMP(),
-    UNIX_TIMESTAMP(),
-    UNIX_TIMESTAMP()
-);
+-- =============================================================================
+-- Remove default "Welcome to your default website" content element
+-- =============================================================================
+DELETE FROM tt_content WHERE header LIKE '%Welcome to your%' OR bodytext LIKE '%Welcome to your%';
 
--- Get the sys_file UID we just created
-SET @file_uid = LAST_INSERT_ID();
+-- =============================================================================
+-- FILE 1: example.jpg (800x600, main block image)
+-- =============================================================================
+INSERT INTO sys_file (pid, storage, type, identifier, identifier_hash, folder_hash, extension, mime_type, name, sha1, size, creation_date, modification_date, tstamp, last_indexed)
+VALUES (0, 1, 2, '/user_upload/example.jpg', SHA1('/user_upload/example.jpg'), SHA1('/user_upload'), 'jpg', 'image/jpeg', 'example.jpg', '${FILE1_INFO[1]}', ${FILE1_INFO[0]}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+SET @file1_uid = LAST_INSERT_ID();
+INSERT INTO sys_file_metadata (pid, tstamp, crdate, file, width, height) VALUES (0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), @file1_uid, 800, 600);
 
--- Insert sys_file_metadata with width/height (required for image processing)
-INSERT INTO sys_file_metadata (
-    pid, tstamp, crdate, file, width, height
-)
-VALUES (
-    0,
-    UNIX_TIMESTAMP(),
-    UNIX_TIMESTAMP(),
-    @file_uid,
-    $TEST_IMAGE_WIDTH,
-    $TEST_IMAGE_HEIGHT
-);
+-- =============================================================================
+-- FILE 2: inline-small.jpg (100x75, for inline demos)
+-- =============================================================================
+INSERT INTO sys_file (pid, storage, type, identifier, identifier_hash, folder_hash, extension, mime_type, name, sha1, size, creation_date, modification_date, tstamp, last_indexed)
+VALUES (0, 1, 2, '/user_upload/inline-small.jpg', SHA1('/user_upload/inline-small.jpg'), SHA1('/user_upload'), 'jpg', 'image/jpeg', 'inline-small.jpg', '${FILE2_INFO[1]}', ${FILE2_INFO[0]}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+SET @file2_uid = LAST_INSERT_ID();
+INSERT INTO sys_file_metadata (pid, tstamp, crdate, file, width, height) VALUES (0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), @file2_uid, 100, 75);
 
--- Update sys_file to link to metadata
-UPDATE sys_file SET metadata = LAST_INSERT_ID() WHERE uid = @file_uid;
+-- =============================================================================
+-- FILE 3: medium.jpg (400x300, for various demos)
+-- =============================================================================
+INSERT INTO sys_file (pid, storage, type, identifier, identifier_hash, folder_hash, extension, mime_type, name, sha1, size, creation_date, modification_date, tstamp, last_indexed)
+VALUES (0, 1, 2, '/user_upload/medium.jpg', SHA1('/user_upload/medium.jpg'), SHA1('/user_upload'), 'jpg', 'image/jpeg', 'medium.jpg', '${FILE3_INFO[1]}', ${FILE3_INFO[0]}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+SET @file3_uid = LAST_INSERT_ID();
+INSERT INTO sys_file_metadata (pid, tstamp, crdate, file, width, height) VALUES (0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), @file3_uid, 400, 300);
 
--- Insert tt_content with proper RTE image attributes for click-to-enlarge
+-- =============================================================================
+-- FILE 4: icon.jpg (32x32, for icon-sized inline demos)
+-- =============================================================================
+INSERT INTO sys_file (pid, storage, type, identifier, identifier_hash, folder_hash, extension, mime_type, name, sha1, size, creation_date, modification_date, tstamp, last_indexed)
+VALUES (0, 1, 2, '/user_upload/icon.jpg', SHA1('/user_upload/icon.jpg'), SHA1('/user_upload'), 'jpg', 'image/jpeg', 'icon.jpg', '${FILE4_INFO[1]}', ${FILE4_INFO[0]}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+SET @file4_uid = LAST_INSERT_ID();
+INSERT INTO sys_file_metadata (pid, tstamp, crdate, file, width, height) VALUES (0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), @file4_uid, 32, 32);
+
+-- =============================================================================
+-- Update sys_template to use Bootstrap Package layout + rte_ckeditor_image
+-- Configure lightbox class for Bootstrap Package compatibility (PhotoSwipe)
+-- =============================================================================
+UPDATE sys_template SET
+    include_static_file = 'EXT:bootstrap_package/Configuration/TypoScript/,EXT:bootstrap_package/Configuration/TypoScript/ContentElement/,EXT:fluid_styled_content/Configuration/TypoScript/,EXT:rte_ckeditor_image/Configuration/TypoScript/',
+    constants = 'page.logo.file =
+page.logo.fileInverted =
+page.logo.header = Netresearch
+page.logo.subheader = RTE CKEditor Image Demo',
+    config = 'lib.contentElement.settings.media.popup.linkClass = lightbox
+lib.contentElement.settings.media.popup.directImageLink = 1
+lib.contentElement.settings.media.popup.linkParams.ATagParams = rel="lightbox-group-rte"'
+WHERE uid = 1;
+
+-- =============================================================================
+-- Update page title for better presentation
+-- NOTE: In TYPO3 v14, sys_template is NOT used with site sets.
+-- TypoScript is loaded via site set dependencies in config.yaml.
+-- Settings (constants) are configured via settings.yaml in the site folder.
+-- =============================================================================
+UPDATE pages SET title = 'RTE CKEditor Image Demo' WHERE uid = 1;
+
+-- =============================================================================
+-- CONTENT ELEMENT 1: Hero Introduction with Feature Cards
+-- =============================================================================
 INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
-VALUES (
-    1,
-    'text',
-    'Welcome to RTE CKEditor Image Demo',
-    CONCAT(
-        '<p>This is a test page with an image:</p>',
-        '<p><img src="fileadmin/user_upload/example.jpg" alt="Example image" ',
-        'width="$TEST_IMAGE_WIDTH" height="$TEST_IMAGE_HEIGHT" ',
-        'data-htmlarea-file-uid="', @file_uid, '" ',
-        'data-htmlarea-zoom="true" /></p>',
-        '<p>Click the image to see the click-to-enlarge functionality.</p>'
-    ),
-    0,
-    0,
-    UNIX_TIMESTAMP(),
-    UNIX_TIMESTAMP(),
-    0,
-    256
-);
+VALUES (1, 'text', '',
+'<div class="container py-4">
+<div class="text-center mb-5">
+<h1 class="display-5 fw-bold" style="color: #2F99A4;">RTE CKEditor Image</h1>
+<p class="lead text-muted">Advanced image handling for CKEditor 5 in TYPO3</p>
+</div>
+<div class="row g-4 mb-5">
+<div class="col-md-6 col-lg-3">
+<div class="card h-100 border-0 shadow-sm">
+<div class="card-body text-center">
+<div class="display-6 mb-3" style="color: #FF4D00;">&#128444;</div>
+<h5 class="card-title">Block Images</h5>
+<p class="card-text small text-muted">Standalone images with captions and alignment options</p>
+</div>
+</div>
+</div>
+<div class="col-md-6 col-lg-3">
+<div class="card h-100 border-0 shadow-sm">
+<div class="card-body text-center">
+<div class="display-6 mb-3" style="color: #2F99A4;">&#128196;</div>
+<h5 class="card-title">Inline Images</h5>
+<p class="card-text small text-muted">Images that flow naturally with text content</p>
+</div>
+</div>
+</div>
+<div class="col-md-6 col-lg-3">
+<div class="card h-100 border-0 shadow-sm">
+<div class="card-body text-center">
+<div class="display-6 mb-3" style="color: #FF8700;">&#128269;</div>
+<h5 class="card-title">Click-to-Enlarge</h5>
+<p class="card-text small text-muted">Lightbox functionality for image previews</p>
+</div>
+</div>
+</div>
+<div class="col-md-6 col-lg-3">
+<div class="card h-100 border-0 shadow-sm">
+<div class="card-body text-center">
+<div class="display-6 mb-3" style="color: #585961;">&#128279;</div>
+<h5 class="card-title">Image Links</h5>
+<p class="card-text small text-muted">Wrap images in links to pages, files, or URLs</p>
+</div>
+</div>
+</div>
+</div>
+</div>',
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 100);
+
+-- =============================================================================
+-- CONTENT ELEMENT 2: Block Images Demo Card
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(135deg, #FF8700, #FF4D00); color: white;">
+<h3 class="mb-0">Block Images with Click-to-Enlarge</h3>
+</div>
+<div class="card-body">
+<div class="row">
+<div class="col-lg-6">
+<figure class="image text-center">
+<img src="fileadmin/user_upload/example.jpg" alt="Block image example" width="400" height="300" data-htmlarea-file-uid="', @file1_uid, '" data-htmlarea-file-table="sys_file" data-htmlarea-zoom="true" data-title-override="true" data-alt-override="true" class="img-fluid rounded shadow-sm">
+<figcaption class="mt-2 text-muted small">Click the image to test the lightbox</figcaption>
+</figure>
+</div>
+<div class="col-lg-6">
+<h5>How it works</h5>
+<p>Block images are standalone elements with optional captions. The <code>data-htmlarea-zoom="true"</code> attribute enables the lightbox.</p>
+<div class="alert alert-info small mb-0">
+<strong>Try it:</strong> Click the image to see the lightbox popup in action.
+</div>
+</div>
+</div>
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 200);
+
+-- =============================================================================
+-- CONTENT ELEMENT 3: Inline Images Demo Card (IMPORTANT FOR E2E TESTS)
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(135deg, #2F99A4, #1a5a5f); color: white;">
+<h3 class="mb-0">Inline Images</h3>
+</div>
+<div class="card-body">
+<p class="lead">Inline images flow naturally with your text content:</p>
+<div class="bg-light p-3 rounded mb-3">
+<p class="mb-2">This text has an <img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="inline example" width="50" height="38" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file" data-title-override="true" data-alt-override="true"> inline image embedded in the middle of the sentence, and the text continues after it.</p>
+<p class="mb-0">You can also use icon-sized images <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="icon" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file" data-title-override="true" data-alt-override="true"> like this one as visual markers in your content.</p>
+</div>
+<div class="row">
+<div class="col-md-6">
+<div class="alert alert-success small mb-0">
+<strong>Key difference:</strong> Inline images use <code>class="image image-inline"</code> and render as plain <code>&lt;img&gt;</code> tags.
+</div>
+</div>
+<div class="col-md-6">
+<div class="alert alert-warning small mb-0">
+<strong>E2E tested:</strong> This content is used by our Playwright tests.
+</div>
+</div>
+</div>
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 300);
+
+-- =============================================================================
+-- CONTENT ELEMENT 3b: Long-form Text with Inline Images (Mixed Content Matrix)
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(45deg, #1a5a5f, #2F99A4); color: white;">
+<h3 class="mb-0">Long-form Content with Mixed Media</h3>
+<small class="opacity-75">Testing inline images in realistic article content</small>
+</div>
+<div class="card-body">
+<h4>Introduction to Image Handling in TYPO3</h4>
+<p>The TYPO3 content management system provides powerful tools for managing digital assets, and the rte_ckeditor_image extension enhances these capabilities significantly. When editors work with rich text content, they often need to include images <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="inline icon" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> that flow naturally with the surrounding text, rather than appearing as separate block elements that interrupt the reading flow.</p>
+
+<p>This distinction between inline and block images is fundamental to creating professional-looking content. Consider how a news article might reference a company logo <img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="company logo" width="40" height="30" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file"> within a sentence, or how technical documentation might include small diagrams <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="diagram" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> that relate directly to the adjacent explanation.</p>
+
+<h5>Multiple Images in a Single Paragraph</h5>
+<p>A well-designed article might include several visual elements: here is a status indicator <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="status" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file">, followed by explanatory text, then another visual marker <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="marker" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file">, more context about the feature being discussed, and finally a third reference image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="reference" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> that completes the visual narrative. Each image maintains its position relative to the text, regardless of screen size or zoom level.</p>
+
+<h5>Images with Links</h5>
+<p>Inline images can also serve as clickable elements. For example, this social media icon <a href="https://github.com/netresearch" target="_blank"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="GitHub" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></a> links to our GitHub profile. Similarly, you might want to link a product badge <a href="https://packagist.org/packages/netresearch/rte-ckeditor-image" target="_blank"><img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="Packagist" width="50" height="38" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file"></a> to the relevant package repository. These linked inline images are particularly useful for documentation and marketing content.</p>
+
+<h5>Text Continues After Image Sections</h5>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nunc nec ultricies ultricies, nunc nisl aliquam nisl, eget aliquam nunc nisl sit amet nisl. Sed euismod, nunc sit amet aliquam aliquam, nunc nisl aliquam nisl, eget aliquam nunc nisl sit amet nisl. Fusce vehicula dolor arcu, sit amet blandit dolor mollis nec. Donec viverra eleifend lacus, vitae ullamcorper metus.</p>
+
+<div class="alert alert-info">
+<strong>Technical Note:</strong> All inline images in this section use the <code>image-inline</code> class. The extension processes each image independently, ensuring no structural interference between elements.
+</div>
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 310);
+
+-- =============================================================================
+-- CONTENT ELEMENT 4: More Inline Examples (Clickable + Multiple)
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="container-fluid px-4">
+<div class="row g-4 mb-4">
+<div class="col-md-6">
+<div class="card h-100 border-0 shadow-sm">
+<div class="card-body">
+<h5 class="card-title" style="color: #2F99A4;">Inline + Click-to-Enlarge</h5>
+<p>Inline images can also have lightbox enabled. Click this: <img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="clickable inline" width="50" height="38" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file" data-htmlarea-zoom="true" data-title-override="true" data-alt-override="true"> to see it work.</p>
+<p class="small text-muted mb-0">Just add <code>data-htmlarea-zoom="true"</code></p>
+</div>
+</div>
+</div>
+<div class="col-md-6">
+<div class="card h-100 border-0 shadow-sm">
+<div class="card-body">
+<h5 class="card-title" style="color: #FF4D00;">Multiple Inline Images</h5>
+<p>Multiple images in one paragraph: <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="icon 1" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> first <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="icon 2" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> second <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="icon 3" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> third</p>
+<p class="small text-muted mb-0">All flow naturally with the text</p>
+</div>
+</div>
+</div>
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 400);
+
+-- =============================================================================
+-- CONTENT ELEMENT 5: Image Alignment Demo
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: #585961; color: white;">
+<h3 class="mb-0">Image Alignment</h3>
+</div>
+<div class="card-body">
+<p>Block images support <code>image-left</code>, <code>image-center</code>, and <code>image-right</code> alignment classes:</p>
+<div class="row">
+<div class="col-lg-6 mb-3">
+<div class="border rounded p-3">
+<figure class="image image-left mb-0">
+<img src="fileadmin/user_upload/medium.jpg" alt="left aligned" width="150" height="113" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded">
+</figure>
+<p class="small">Text flows around the left-aligned image. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.</p>
+<div style="clear:both"></div>
+</div>
+</div>
+<div class="col-lg-6 mb-3">
+<div class="border rounded p-3 text-center">
+<figure class="image image-center">
+<img src="fileadmin/user_upload/medium.jpg" alt="center aligned" width="150" height="113" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded">
+</figure>
+<p class="small mb-0">Center-aligned images are displayed in the middle</p>
+</div>
+</div>
+</div>
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 500);
+
+-- =============================================================================
+-- CONTENT ELEMENT 6: Images with Links Demo
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(135deg, #FF4D00, #FF8700); color: white;">
+<h3 class="mb-0">Images with Links</h3>
+</div>
+<div class="card-body">
+<div class="row align-items-center">
+<div class="col-md-4 text-center mb-3 mb-md-0">
+<figure class="image">
+<a href="https://typo3.org" target="_blank" title="Visit TYPO3.org">
+<img src="fileadmin/user_upload/medium.jpg" alt="linked image" width="200" height="150" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded shadow-sm">
+</a>
+<figcaption class="small text-muted mt-2">Click to visit TYPO3.org</figcaption>
+</figure>
+</div>
+<div class="col-md-8">
+<h5>Block Image Link</h5>
+<p>Images can be wrapped in links to external URLs, internal pages, or files. The link is set via the image edit dialog in CKEditor.</p>
+<hr>
+<h5>Inline Image Link</h5>
+<p>Here is a linked inline image: <a href="https://github.com/netresearch/t3x-rte_ckeditor_image" target="_blank" class="text-decoration-none"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="GitHub" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></a> linking to our GitHub repository.</p>
+</div>
+</div>
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 600);
+
+-- =============================================================================
+-- CONTENT ELEMENT 7: Right Alignment + Full Alignment Matrix
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(135deg, #585961, #2F99A4); color: white;">
+<h3 class="mb-0">Complete Alignment Matrix</h3>
+<small class="opacity-75">All alignment combinations with flowing text</small>
+</div>
+<div class="card-body">
+
+<h5 class="border-bottom pb-2 mb-3">Right-Aligned Image with Text Wrap</h5>
+<figure class="image image-right mb-3">
+<img src="fileadmin/user_upload/medium.jpg" alt="right aligned" width="180" height="135" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded shadow-sm">
+<figcaption class="small text-muted">Right-aligned with caption</figcaption>
+</figure>
+<p>This paragraph demonstrates right-aligned images with text wrapping around them. The image floats to the right side of the container, and the text flows naturally on the left. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. This text continues to wrap around the right-aligned image until the float is cleared.</p>
+<div style="clear:both"></div>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Left-Aligned Image with Long Text</h5>
+<figure class="image image-left mb-3">
+<img src="fileadmin/user_upload/medium.jpg" alt="left aligned large" width="200" height="150" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded shadow-sm">
+<figcaption class="small text-muted">Left-aligned with caption</figcaption>
+</figure>
+<p>This is a longer paragraph that demonstrates how text wraps around a left-aligned image. The image floats to the left, creating a professional layout commonly seen in articles and documentation. When dealing with content management systems like TYPO3, proper image alignment is crucial for creating visually appealing pages that engage readers.</p>
+<p>The rte_ckeditor_image extension ensures that alignment classes set in CKEditor 5 are properly preserved during the rendering process. Without this functionality, the CSS classes would be stripped, and images would lose their intended positioning. This is particularly important for responsive designs where image placement affects the overall user experience.</p>
+<p>Additional paragraphs continue to flow around the floated image until the content extends beyond the image height or the float is explicitly cleared. This behavior is controlled by CSS rules defined in the image-alignment.css file.</p>
+<div style="clear:both"></div>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Center-Aligned Block Image</h5>
+<figure class="image image-center mb-3">
+<img src="fileadmin/user_upload/example.jpg" alt="center aligned block" width="400" height="300" data-htmlarea-file-uid="', @file1_uid, '" data-htmlarea-file-table="sys_file" class="rounded shadow">
+<figcaption>Centered image - perfect for featured content</figcaption>
+</figure>
+<p class="text-center text-muted">Center-aligned images work well for hero images, diagrams, and other content that deserves focal attention.</p>
+
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 650);
+
+-- =============================================================================
+-- CONTENT ELEMENT 8: Complex Mixed Content Scenarios
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(135deg, #FF8700, #2F99A4); color: white;">
+<h3 class="mb-0">Complex Mixed Content Scenarios</h3>
+<small class="opacity-75">Testing block + inline combinations from E2E test matrix</small>
+</div>
+<div class="card-body">
+
+<h5 class="border-bottom pb-2 mb-3">Block Image Followed by Inline Images in Text</h5>
+<figure class="image image-center mb-3">
+<img src="fileadmin/user_upload/medium.jpg" alt="block hero" width="300" height="225" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" data-htmlarea-zoom="true" class="rounded">
+<figcaption>Block image with click-to-enlarge - try clicking it!</figcaption>
+</figure>
+<p>After the block image above, here comes a paragraph with inline images. The TYPO3 <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="TYPO3" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> logo appears inline, followed by more text, then the Netresearch <img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="Netresearch" width="40" height="30" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file"> branding, and finally another icon <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="icon" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> at the end.</p>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Inline Images at Various Positions</h5>
+<p><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="start icon" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> This paragraph STARTS with an inline image, demonstrating proper handling of images at the beginning of text blocks.</p>
+<p>This paragraph has an inline image <img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="middle" width="50" height="38" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file"> right in the MIDDLE of the sentence, with text continuing naturally after it.</p>
+<p>This paragraph ENDS with an inline image, useful for status indicators or badges <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="end icon" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></p>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Text with Line Breaks and Inline Images</h5>
+<p>First line of text with an image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="line1" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> here.<br>
+Second line after a line break with another image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="line2" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> here.<br>
+Third line shows that images and br elements work together <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="line3" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> correctly.</p>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Multiple Consecutive Block Images</h5>
+<div class="row">
+<div class="col-md-4">
+<figure class="image">
+<img src="fileadmin/user_upload/medium.jpg" alt="block 1" width="200" height="150" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="img-fluid rounded">
+<figcaption class="small">Caption for first block</figcaption>
+</figure>
+</div>
+<div class="col-md-4">
+<figure class="image">
+<img src="fileadmin/user_upload/medium.jpg" alt="block 2" width="200" height="150" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="img-fluid rounded">
+<figcaption class="small">Caption for second block</figcaption>
+</figure>
+</div>
+<div class="col-md-4">
+<figure class="image">
+<img src="fileadmin/user_upload/medium.jpg" alt="block 3" width="200" height="150" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="img-fluid rounded">
+<figcaption class="small">Caption for third block</figcaption>
+</figure>
+</div>
+</div>
+<p class="text-muted small mt-2">Each block image is processed independently - captions are never duplicated across images.</p>
+
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 700);
+
+-- =============================================================================
+-- CONTENT ELEMENT 9: Linked Image Combinations Matrix
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(135deg, #FF4D00, #FF8700); color: white;">
+<h3 class="mb-0">Linked Image Combinations</h3>
+<small class="opacity-75">All link + image matrix scenarios</small>
+</div>
+<div class="card-body">
+
+<div class="row mb-4">
+<div class="col-md-6">
+<h5 class="border-bottom pb-2">Block Image with External Link</h5>
+<figure class="image image-center">
+<a href="https://docs.typo3.org" target="_blank" title="TYPO3 Documentation">
+<img src="fileadmin/user_upload/medium.jpg" alt="TYPO3 Docs" width="200" height="150" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded shadow-sm">
+</a>
+<figcaption class="small">Click to visit TYPO3 Documentation</figcaption>
+</figure>
+</div>
+<div class="col-md-6">
+<h5 class="border-bottom pb-2">Block Image with Zoom (Lightbox)</h5>
+<figure class="image image-center">
+<img src="fileadmin/user_upload/example.jpg" alt="Zoomable" width="200" height="150" data-htmlarea-file-uid="', @file1_uid, '" data-htmlarea-file-table="sys_file" data-htmlarea-zoom="true" class="rounded shadow-sm">
+<figcaption class="small">Click to open in lightbox</figcaption>
+</figure>
+</div>
+</div>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Multiple Linked Inline Images in Text</h5>
+<p>This paragraph contains several linked inline images that serve as navigation aids:
+Visit our <a href="https://github.com/netresearch/t3x-rte_ckeditor_image" target="_blank"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="GitHub" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></a> GitHub repository,
+check the <a href="https://packagist.org/packages/netresearch/rte-ckeditor-image" target="_blank"><img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="Packagist" width="40" height="30" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file"></a> Packagist page,
+or read the <a href="https://docs.typo3.org" target="_blank"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="Docs" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></a> documentation.</p>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Linked Block Image with Caption and Alignment</h5>
+<figure class="image image-left mb-3">
+<a href="https://netresearch.de" target="_blank">
+<img src="fileadmin/user_upload/medium.jpg" alt="Netresearch" width="180" height="135" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded">
+</a>
+<figcaption class="small">Left-aligned, linked, with caption</figcaption>
+</figure>
+<p>This demonstrates the complete combination: a block image that is left-aligned, wrapped in a link, AND has a caption. The text flows around it naturally. This is the most complex standard scenario and tests that all features work together without interference.</p>
+<p>The image links to an external URL, while the caption provides context. The alignment CSS ensures proper text flow, and the figure/figcaption structure maintains semantic HTML.</p>
+<div style="clear:both"></div>
+
+<div class="alert alert-warning mt-4">
+<strong>Important Test Case:</strong> Linked images should NOT get additional popup/zoom links added - the existing link takes precedence. The <code>data-htmlarea-zoom</code> attribute is stripped for images that are already wrapped in links.
+</div>
+
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 750);
+
+-- =============================================================================
+-- CONTENT ELEMENT 10: Common Inline Image Patterns
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(135deg, #585961, #2F99A4); color: white;">
+<h3 class="mb-0">Common Inline Image Patterns</h3>
+<small class="opacity-75">Links spanning text+image, tables, lists, and headings</small>
+</div>
+<div class="card-body">
+
+<h5 class="border-bottom pb-2 mb-3">Links Spanning Text and Inline Images</h5>
+<p>These test cases verify that links correctly wrap combinations of text and inline images:</p>
+
+<div class="row mb-4">
+<div class="col-md-4 mb-3">
+<div class="border rounded p-3 h-100">
+<h6 class="text-muted">Text + Image + Text</h6>
+<p class="mb-2"><a href="https://typo3.org" target="_blank">Click here <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="TYPO3" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> to visit TYPO3</a></p>
+<code class="small">&lt;a&gt;text [img] text&lt;/a&gt;</code>
+</div>
+</div>
+<div class="col-md-4 mb-3">
+<div class="border rounded p-3 h-100">
+<h6 class="text-muted">Image + Text</h6>
+<p class="mb-2"><a href="https://github.com/netresearch" target="_blank"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="GitHub" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Netresearch GitHub</a></p>
+<code class="small">&lt;a&gt;[img] text&lt;/a&gt;</code>
+</div>
+</div>
+<div class="col-md-4 mb-3">
+<div class="border rounded p-3 h-100">
+<h6 class="text-muted">Text + Image</h6>
+<p class="mb-2"><a href="https://packagist.org/packages/netresearch/rte-ckeditor-image" target="_blank">View on Packagist <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="Packagist" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></a></p>
+<code class="small">&lt;a&gt;text [img]&lt;/a&gt;</code>
+</div>
+</div>
+</div>
+
+<div class="alert alert-info small mb-4">
+<strong>Expected behavior:</strong> The entire link (text + image) should be clickable. The inline image inside the link should NOT trigger lightbox behavior even if <code>data-htmlarea-zoom</code> is set.
+</div>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Inline Images in Tables</h5>
+<table class="table table-bordered table-sm">
+<thead class="table-light">
+<tr>
+<th>Feature</th>
+<th>Status</th>
+<th>Icon</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Block Images</td>
+<td><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="check" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Complete</td>
+<td class="text-center"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="block" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></td>
+<td>Full support with <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="fig" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> figure/figcaption</td>
+</tr>
+<tr>
+<td>Inline Images</td>
+<td><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="check" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Complete</td>
+<td class="text-center"><img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="inline" width="30" height="23" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file"></td>
+<td>Flows with text <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="flow" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> naturally</td>
+</tr>
+<tr>
+<td>Linked Images</td>
+<td><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="check" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Complete</td>
+<td class="text-center"><a href="#"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="link" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></a></td>
+<td>Links work <a href="#"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="in" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> in cells</a></td>
+</tr>
+</tbody>
+</table>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Inline Images in Lists</h5>
+<div class="row">
+<div class="col-md-6 mb-3">
+<h6>Unordered List</h6>
+<ul>
+<li><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="bullet" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Image at start of list item</li>
+<li>List item with image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="middle" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> in the middle of text</li>
+<li>List item ending with image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="end" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></li>
+<li><a href="#"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="linked" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Linked image + text</a> in list</li>
+</ul>
+</div>
+<div class="col-md-6 mb-3">
+<h6>Ordered List</h6>
+<ol>
+<li>Step one: click the <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="button" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> button</li>
+<li><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="step" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Step two starts with image</li>
+<li>Step three: <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="a" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> multiple <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="b" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> images <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="c" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></li>
+</ol>
+</div>
+</div>
+
+<h6>Nested Lists with Images</h6>
+<ul>
+<li>Parent item <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="parent" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file">
+<ul>
+<li><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="child" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Nested child item</li>
+<li>Another nested <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="nested" width="16" height="16" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> item</li>
+</ul>
+</li>
+<li>Second parent <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="second" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></li>
+</ul>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Inline Images in Headings</h5>
+
+<h2><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="h2" width="28" height="28" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Heading 2 with Leading Image</h2>
+
+<h3>Heading 3 with Trailing Image <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="h3" width="24" height="24" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></h3>
+
+<h4>Heading 4 <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="h4" width="22" height="22" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> with Middle Image</h4>
+
+<h5><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="start" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> H5 with <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="multiple" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> Multiple Images <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="end" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"></h5>
+
+<h6><a href="https://typo3.org"><img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="linked" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> H6 Linked Heading with Image</a></h6>
+
+<div class="alert alert-success mt-4">
+<strong>All scenarios tested:</strong> Links spanning text+image (3 patterns), images in table cells, images in ordered/unordered/nested lists, and images in h2-h6 headings.
+</div>
+
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 760);
+
+-- =============================================================================
+-- CONTENT ELEMENT 11: Technical Edge Cases
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: #585961; color: white;">
+<h3 class="mb-0">Edge Cases and Special Scenarios</h3>
+<small class="opacity-75">Testing boundary conditions from functional tests</small>
+</div>
+<div class="card-body">
+
+<h5 class="border-bottom pb-2 mb-3">External Image (No File UID)</h5>
+<figure class="image image-center mb-3">
+<img src="fileadmin/user_upload/external-placeholder.jpg" alt="External placeholder" width="300" height="200" class="rounded">
+<figcaption class="small">External image - passes through unchanged (no data-htmlarea-file-uid)</figcaption>
+</figure>
+<p class="text-muted small">External images without <code>data-htmlarea-file-uid</code> are not processed by the extension and pass through unchanged. This is correct behavior.</p>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Block Image Without Caption</h5>
+<p>The following is a block image WITHOUT a caption. According to semantic HTML, it should NOT be wrapped in a figure element:</p>
+<p class="text-center">
+<img src="fileadmin/user_upload/no-caption.jpg" alt="No caption example" width="250" height="150" class="rounded shadow-sm">
+</p>
+<p class="text-muted small">Block images without captions render as plain <code>&lt;img&gt;</code> tags, not wrapped in <code>&lt;figure&gt;</code>. The figure wrapper is only added when there is a figcaption.</p>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Multiple CSS Classes on Images</h5>
+<p>Images can have multiple CSS classes: <img class="image image-inline custom-border special-effect" src="fileadmin/user_upload/multi-class.jpg" alt="Multi-class" width="40" height="40" style="border: 2px solid #2F99A4; border-radius: 50%;"> - this one has <code>image image-inline custom-border special-effect</code> classes.</p>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Idempotency Test</h5>
+<div class="alert alert-info">
+<p class="mb-2"><strong>What is idempotency?</strong></p>
+<p class="mb-0">If you render the same content twice through the image processing pipeline, the structure should remain unchanged. You should NOT get nested <code>&lt;figure&gt;&lt;figure&gt;</code> elements or duplicate captions. All content on this page has been rendered once - re-rendering it should produce identical output.</p>
+</div>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">Empty and Whitespace Handling</h5>
+<p>The extension correctly handles whitespace between elements. There should be no <code>&lt;p&gt;&amp;nbsp;&lt;/p&gt;</code> artifacts between images and their captions, and no extra spacing introduced by the rendering process.</p>
+
+</div>
+</div>',
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 800);
+
+-- =============================================================================
+-- CONTENT ELEMENT 12: Long-Form Article Simulation
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(135deg, #2F99A4, #FF8700); color: white;">
+<h3 class="mb-0">Long-Form Article with Rich Media</h3>
+<small class="opacity-75">Simulating a real-world article layout</small>
+</div>
+<div class="card-body">
+
+<p class="lead">This section simulates a real-world article with multiple images, text sections, and various formatting to ensure the extension handles complex real content correctly.</p>
+
+<h4>Chapter 1: Introduction to TYPO3 Content Management</h4>
+
+<figure class="image image-right mb-3">
+<img src="fileadmin/user_upload/medium.jpg" alt="TYPO3 Dashboard" width="200" height="150" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded shadow-sm">
+<figcaption class="small">The TYPO3 Backend Interface</figcaption>
+</figure>
+
+<p>TYPO3 is a powerful, enterprise-grade content management system that has been serving the web community for over two decades. Its flexibility and extensibility make it an ideal choice for organizations of all sizes, from small businesses to large enterprises with complex content requirements.</p>
+
+<p>The system provides robust tools for managing digital assets, including images <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="image icon" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file">, documents <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="doc icon" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file">, and multimedia content <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="media icon" width="18" height="18" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file">. The File Abstraction Layer (FAL) ensures consistent handling of all file operations.</p>
+
+<div style="clear:both"></div>
+
+<h4 class="mt-4">Chapter 2: Rich Text Editing with CKEditor 5</h4>
+
+<figure class="image image-left mb-3">
+<img src="fileadmin/user_upload/medium.jpg" alt="CKEditor Interface" width="180" height="135" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" data-htmlarea-zoom="true" class="rounded shadow-sm">
+<figcaption class="small">CKEditor 5 in TYPO3 (click to enlarge)</figcaption>
+</figure>
+
+<p>CKEditor 5 represents a significant advancement in rich text editing for the web. Its modular architecture allows for extensive customization, and TYPO3 leverages this flexibility to provide editors with a powerful yet intuitive content creation experience.</p>
+
+<p>The rte_ckeditor_image extension enhances this experience by providing seamless integration with TYPO3 file management. Editors can insert images directly from the file list, configure display options, and trust that their content will render correctly on the frontend.</p>
+
+<p>Key features include:</p>
+<ul>
+<li>Block and inline image support with proper semantic HTML</li>
+<li>Image alignment options (left, center, right) that persist to frontend</li>
+<li>Caption support with figcaption elements</li>
+<li>Click-to-enlarge (lightbox) functionality</li>
+<li>Link wrapping for images</li>
+</ul>
+
+<div style="clear:both"></div>
+
+<h4 class="mt-4">Chapter 3: Best Practices for Image Content</h4>
+
+<p>When working with images in your content, consider the following best practices:</p>
+
+<figure class="image image-center my-4">
+<img src="fileadmin/user_upload/example.jpg" alt="Best Practices Illustration" width="500" height="375" data-htmlarea-file-uid="', @file1_uid, '" data-htmlarea-file-table="sys_file" data-htmlarea-zoom="true" class="rounded shadow">
+<figcaption>Featured image demonstrating proper sizing and positioning</figcaption>
+</figure>
+
+<ol>
+<li><strong>Use appropriate image sizes</strong> - Avoid uploading oversized images. The extension will process them, but starting with optimized originals improves performance.</li>
+<li><strong>Provide meaningful alt text</strong> - Alt text is crucial for accessibility and SEO. Describe what the image shows, not just its filename.</li>
+<li><strong>Choose the right display mode</strong> - Use inline images for icons and small graphics within text; use block images for featured content.</li>
+<li><strong>Consider mobile users</strong> - Alignment classes respond to screen size, ensuring your content looks good on all devices.</li>
+</ol>
+
+<h4 class="mt-4">Conclusion</h4>
+
+<p>The combination of TYPO3, CKEditor 5, and the rte_ckeditor_image extension provides a powerful foundation for creating rich, accessible content. By understanding the available features and following best practices, content editors can create engaging pages that work across all devices and meet accessibility standards.</p>
+
+<p class="text-muted small">This article contained: 3 block images (1 centered, 1 left-aligned, 1 right-aligned), 3 inline images, 2 images with zoom enabled, and various text formatting. All features work together seamlessly.</p>
+
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 850);
+
+-- =============================================================================
+-- CONTENT ELEMENT 13: Testing Instructions Card
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+'<div class="card border-0 shadow mx-3" style="border-left: 4px solid #2F99A4 !important;">
+<div class="card-body">
+<h3 class="card-title" style="color: #2F99A4;">Test the Extension</h3>
+<div class="row">
+<div class="col-md-6">
+<ol class="mb-0">
+<li>Log in to the <a href="/typo3/" class="fw-bold">TYPO3 Backend</a></li>
+<li>Go to <strong>Page → Edit content</strong></li>
+<li>Click any content element to edit</li>
+<li>In the RTE, try:
+<ul class="mt-2">
+<li>Insert images via toolbar button</li>
+<li>Double-click images to edit properties</li>
+<li>Toggle block/inline mode</li>
+<li>Add/remove click-to-enlarge</li>
+<li>Add links to images</li>
+</ul>
+</li>
+<li>Save and check frontend rendering</li>
+</ol>
+</div>
+<div class="col-md-6">
+<div class="bg-light rounded p-3">
+<h6 class="text-muted">Backend Credentials</h6>
+<p class="mb-1"><strong>User:</strong> <code>admin</code></p>
+<p class="mb-0"><strong>Password:</strong> <code>Joh316!!</code></p>
+</div>
+<div class="alert alert-success mt-3 small mb-0">
+<strong>Demo Coverage:</strong> This page tests 13 content scenarios covering the full feature matrix from functional tests.
+</div>
+</div>
+</div>
+</div>
+</div>',
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 900);
+
 EOSQL
 
-# Add site sets to site configuration (TYPO3 v14 approach)
+# Add site sets to site configuration (TYPO3 v13 approach)
 # Bootstrap Package is added for frontend rendering demo
 # rte_ckeditor_image site set is added for frontend TypoScript
 if [ -f config/sites/main/config.yaml ]; then
-    # Safely update dependencies using PHP YAML parsing to avoid corrupting other sections
+    # Safely update site config using PHP YAML parsing to avoid corrupting other sections
     php -r "
         \$file = 'config/sites/main/config.yaml';
         \$yaml = yaml_parse_file(\$file);
+        \$yaml['base'] = '/';
+        \$yaml['websiteTitle'] = 'RTE CKEditor Image';
         \$yaml['dependencies'] = ['bootstrap-package/full', 'netresearch/rte-ckeditor-image'];
         file_put_contents(\$file, yaml_emit(\$yaml, YAML_UTF8_ENCODING));
     " 2>/dev/null || {
+        # Fallback: update base URL for portability
+        sed -i "s|^base:.*|base: '/'|" config/sites/main/config.yaml
         # Fallback: append if PHP yaml extension not available
+        # Add websiteTitle if missing
+        if ! grep -q '^websiteTitle:' config/sites/main/config.yaml; then
+            sed -i '/^base:/a websiteTitle: RTE CKEditor Image' config/sites/main/config.yaml
+        fi
         # Check if our specific dependency is missing (handles both missing key and partial entries)
         if ! grep -q 'netresearch/rte-ckeditor-image' config/sites/main/config.yaml; then
             if ! grep -q '^dependencies:' config/sites/main/config.yaml; then

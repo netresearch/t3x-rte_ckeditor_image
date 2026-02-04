@@ -210,11 +210,12 @@ final class ImageRenderingAdapterTest extends TestCase
     }
 
     #[Test]
-    public function renderImagesReturnsOriginalWhenNoImagesFound(): void
+    public function renderImagesReturnsOriginalWhenNoImagesFoundAndNoLink(): void
     {
         $linkContent = '<span>Text only, no images</span>';
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = []; // No link attributes
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
 
         $this->attributeParser
@@ -225,15 +226,46 @@ final class ImageRenderingAdapterTest extends TestCase
 
         $result = $this->adapter->renderImages(null, [], $this->request);
 
+        // No href in parameters means content is returned as-is (not wrapped)
         self::assertSame($linkContent, $result);
     }
 
     #[Test]
-    public function renderImagesSkipsImagesWithoutFileUid(): void
+    public function renderImagesWrapsContentInLinkWhenNoImagesButLinkExists(): void
+    {
+        $linkContent = '<span>Text only, no images</span>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        // Link attributes are in cObj->parameters (populated by parseFunc for tags.a)
+        $this->contentObjectRenderer->parameters = [
+            'href'   => '/page',
+            'target' => '_blank',
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
+
+        $this->attributeParser
+            ->expects(self::once())
+            ->method('parseLinkWithImages')
+            ->with($linkContent)
+            ->willReturn(['link' => [], 'images' => []]);
+
+        $result = $this->adapter->renderImages(null, [], $this->request);
+
+        // Content should be wrapped in <a> tag with attributes from parameters
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString('target="_blank"', $result);
+        self::assertStringContainsString($linkContent, $result);
+        self::assertStringContainsString('</a>', $result);
+    }
+
+    #[Test]
+    public function renderImagesSkipsImagesWithoutFileUidButWrapsInLink(): void
     {
         $linkContent = '<img src="/external.jpg" />';
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        // Link attributes from cObj->parameters
+        $this->contentObjectRenderer->parameters = ['href' => '/page'];
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
 
         $this->attributeParser
@@ -251,13 +283,17 @@ final class ImageRenderingAdapterTest extends TestCase
 
         $result = $this->adapter->renderImages(null, [], $this->request);
 
-        self::assertSame($linkContent, $result);
+        // Content should still be wrapped in link even though image wasn't processed
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString($linkContent, $result);
+        self::assertStringContainsString('</a>', $result);
     }
 
     #[Test]
-    public function renderImagesRendersImagesWithFileUidAndPassesConfig(): void
+    public function renderImagesRendersInlineImagesWithFileUidAndPassesConfig(): void
     {
-        $originalImg = '<img src="/image.jpg" data-htmlarea-file-uid="1" />';
+        // Inline images have class="image image-inline" (CKEditor output)
+        $originalImg = '<img src="/image.jpg" data-htmlarea-file-uid="1" class="image image-inline" />';
         $linkContent = $originalImg;
 
         $config = [
@@ -270,13 +306,15 @@ final class ImageRenderingAdapterTest extends TestCase
             height: 600,
             alt: 'Test',
             title: null,
-            htmlAttributes: [],
+            htmlAttributes: ['class' => 'image image-inline'],
             caption: null,
             link: null,
             isMagicImage: true,
         );
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        // Link attributes from cObj->parameters
+        $this->contentObjectRenderer->parameters = ['href' => '/page'];
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
 
         $this->attributeParser
@@ -288,6 +326,7 @@ final class ImageRenderingAdapterTest extends TestCase
                         'attributes' => [
                             'src'                    => '/image.jpg',
                             'data-htmlarea-file-uid' => '1',
+                            'class'                  => 'image image-inline',
                         ],
                         'originalHtml' => $originalImg,
                     ],
@@ -303,11 +342,14 @@ final class ImageRenderingAdapterTest extends TestCase
             ->expects(self::once())
             ->method('render')
             ->with($dto, $this->request, $config)
-            ->willReturn('<img src="/processed.jpg" width="800" height="600" alt="Test" />');
+            ->willReturn('<img src="/processed.jpg" width="800" height="600" alt="Test" class="image image-inline" />');
 
         $result = $this->adapter->renderImages(null, $config, $this->request);
 
-        self::assertSame('<img src="/processed.jpg" width="800" height="600" alt="Test" />', $result);
+        // Result should be wrapped in <a> tag (reconstructed from cObj->parameters)
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString('<img src="/processed.jpg"', $result);
+        self::assertStringContainsString('</a>', $result);
     }
 
     /**
@@ -322,8 +364,9 @@ final class ImageRenderingAdapterTest extends TestCase
     #[Test]
     public function renderImagesStripsAttributesThatWouldCreateWrappers(): void
     {
+        // Inline image with attributes that should be stripped
         $originalImg = '<img src="/image.jpg" data-htmlarea-file-uid="1" data-caption="Caption" '
-            . 'data-htmlarea-zoom="1" data-htmlarea-clickenlarge="1" />';
+            . 'data-htmlarea-zoom="1" data-htmlarea-clickenlarge="1" class="image image-inline" />';
         $linkContent = $originalImg;
 
         $dto = new ImageRenderingDto(
@@ -332,13 +375,14 @@ final class ImageRenderingAdapterTest extends TestCase
             height: 600,
             alt: 'Test',
             title: null,
-            htmlAttributes: [],
+            htmlAttributes: ['class' => 'image image-inline'],
             caption: null,
             link: null,
             isMagicImage: true,
         );
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = []; // No link attributes
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
 
         // Parser returns attributes including ones that should be stripped
@@ -354,6 +398,7 @@ final class ImageRenderingAdapterTest extends TestCase
                             'data-caption'               => 'Caption',
                             'data-htmlarea-zoom'         => '1',
                             'data-htmlarea-clickenlarge' => '1',
+                            'class'                      => 'image image-inline',
                         ],
                         'originalHtml' => $originalImg,
                     ],
@@ -1065,5 +1110,569 @@ final class ImageRenderingAdapterTest extends TestCase
         $result = $this->adapter->renderFigure(null, [], $this->request);
 
         self::assertStringContainsString('Popup Caption', $result);
+    }
+
+    // ========================================================================
+    // renderLink() Tests - externalBlocks.a handler
+    // ========================================================================
+
+    /**
+     * Test that renderLink returns empty string when no content.
+     */
+    #[Test]
+    public function renderLinkReturnsEmptyStringWhenNoContent(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn(null);
+
+        $result = $this->adapter->renderLink(null, [], $this->request);
+
+        self::assertSame('', $result);
+    }
+
+    /**
+     * Test that renderLink returns original content when not a link.
+     */
+    #[Test]
+    public function renderLinkReturnsOriginalWhenNotALink(): void
+    {
+        $html = '<p>Just some text</p>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $result = $this->adapter->renderLink($html, [], $this->request);
+
+        self::assertSame($html, $result);
+    }
+
+    /**
+     * Test that renderLink returns original when no images found.
+     */
+    #[Test]
+    public function renderLinkReturnsOriginalWhenNoImagesFound(): void
+    {
+        $linkHtml = '<a href="/page">Just text, no images</a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->expects(self::once())
+            ->method('parseLinkWithImages')
+            ->with($linkHtml)
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [],
+            ]);
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertSame($linkHtml, $result);
+    }
+
+    /**
+     * Test that renderLink processes inline images and reconstructs link.
+     *
+     * This is the key test for the "links spanning text and inline images" fix.
+     * Input: <a href="...">Click here <img class="image-inline"...> to visit</a>
+     * Output: Same structure with processed <img> tag.
+     */
+    #[Test]
+    public function renderLinkProcessesInlineImagesAndReconstructsLink(): void
+    {
+        $originalImg = '<img src="/image.jpg" data-htmlarea-file-uid="1" class="image image-inline" />';
+        $linkHtml    = '<a href="/page" target="_blank">Click here ' . $originalImg . ' to visit</a>';
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 50,
+            height: 50,
+            alt: 'Icon',
+            title: null,
+            htmlAttributes: ['class' => 'image image-inline'],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page', 'target' => '_blank'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                    => '/image.jpg',
+                            'data-htmlarea-file-uid' => '1',
+                            'class'                  => 'image image-inline',
+                        ],
+                        'originalHtml' => $originalImg,
+                    ],
+                ],
+            ]);
+
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->expects(self::once())
+            ->method('render')
+            ->willReturn('<img src="/processed.jpg" class="image image-inline" />');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        // Should have reconstructed link with processed image
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString('target="_blank"', $result);
+        self::assertStringContainsString('<img src="/processed.jpg"', $result);
+        self::assertStringContainsString('Click here', $result);
+        self::assertStringContainsString('to visit', $result);
+        self::assertStringContainsString('</a>', $result);
+    }
+
+    /**
+     * Test that renderLink skips block images (only processes inline).
+     *
+     * Block images inside <a> tags within <figure> elements should be
+     * processed by renderFigure() instead.
+     */
+    #[Test]
+    public function renderLinkSkipsBlockImages(): void
+    {
+        // Block image (no "image-inline" class)
+        $originalImg = '<img src="/image.jpg" data-htmlarea-file-uid="1" class="image" />';
+        $linkHtml    = '<a href="/page">' . $originalImg . '</a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                    => '/image.jpg',
+                            'data-htmlarea-file-uid' => '1',
+                            'class'                  => 'image', // No image-inline
+                        ],
+                        'originalHtml' => $originalImg,
+                    ],
+                ],
+            ]);
+
+        // Resolver should NOT be called for block images
+        $this->resolverService
+            ->expects(self::never())
+            ->method('resolve');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        // Should reconstruct link with original image (unprocessed)
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString($originalImg, $result);
+        self::assertStringContainsString('</a>', $result);
+    }
+
+    /**
+     * Test that renderLink skips images without file UID.
+     */
+    #[Test]
+    public function renderLinkSkipsImagesWithoutFileUid(): void
+    {
+        $originalImg = '<img src="/external.jpg" class="image image-inline" />';
+        $linkHtml    = '<a href="/page">' . $originalImg . '</a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'   => '/external.jpg',
+                            'class' => 'image image-inline',
+                            // No data-htmlarea-file-uid
+                        ],
+                        'originalHtml' => $originalImg,
+                    ],
+                ],
+            ]);
+
+        // Resolver should NOT be called for external images
+        $this->resolverService
+            ->expects(self::never())
+            ->method('resolve');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        // Should reconstruct link with original content
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString($originalImg, $result);
+    }
+
+    /**
+     * Test that renderLink strips caption/zoom attributes from inline images.
+     *
+     * Images inside links should not create figure wrappers or popup links.
+     */
+    #[Test]
+    public function renderLinkStripsAttributesThatWouldCreateWrappers(): void
+    {
+        $originalImg = '<img src="/image.jpg" data-htmlarea-file-uid="1" class="image image-inline" '
+            . 'data-caption="Caption" data-htmlarea-zoom="1" />';
+        $linkHtml = '<a href="/page">' . $originalImg . '</a>';
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 50,
+            height: 50,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: ['class' => 'image image-inline'],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                        => '/image.jpg',
+                            'data-htmlarea-file-uid'     => '1',
+                            'class'                      => 'image image-inline',
+                            'data-caption'               => 'Caption',
+                            'data-htmlarea-zoom'         => '1',
+                            'data-htmlarea-clickenlarge' => '1',
+                        ],
+                        'originalHtml' => $originalImg,
+                    ],
+                ],
+            ]);
+
+        // Verify resolve() receives attributes WITHOUT caption/zoom/clickenlarge
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->with(
+                self::callback(static function (array $attributes): bool {
+                    return !array_key_exists('data-caption', $attributes)
+                        && !array_key_exists('data-htmlarea-zoom', $attributes)
+                        && !array_key_exists('data-htmlarea-clickenlarge', $attributes)
+                        && ($attributes['data-htmlarea-file-uid'] ?? '') === '1';
+                }),
+                self::anything(),
+                self::anything(),
+            )
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->method('render')
+            ->willReturn('<img src="/processed.jpg" />');
+
+        $this->adapter->renderLink($linkHtml, [], $this->request);
+    }
+
+    /**
+     * Test that renderLink handles multiple inline images in one link.
+     */
+    #[Test]
+    public function renderLinkHandlesMultipleInlineImages(): void
+    {
+        $img1     = '<img src="/a.jpg" data-htmlarea-file-uid="1" class="image image-inline" />';
+        $img2     = '<img src="/b.jpg" data-htmlarea-file-uid="2" class="image image-inline" />';
+        $linkHtml = '<a href="/page">First: ' . $img1 . ' Second: ' . $img2 . '</a>';
+
+        $dto1 = new ImageRenderingDto(
+            src: '/processed-a.jpg',
+            width: 50,
+            height: 50,
+            alt: 'A',
+            title: null,
+            htmlAttributes: ['class' => 'image image-inline'],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $dto2 = new ImageRenderingDto(
+            src: '/processed-b.jpg',
+            width: 50,
+            height: 50,
+            alt: 'B',
+            title: null,
+            htmlAttributes: ['class' => 'image image-inline'],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                    => '/a.jpg',
+                            'data-htmlarea-file-uid' => '1',
+                            'class'                  => 'image image-inline',
+                        ],
+                        'originalHtml' => $img1,
+                    ],
+                    [
+                        'attributes' => [
+                            'src'                    => '/b.jpg',
+                            'data-htmlarea-file-uid' => '2',
+                            'class'                  => 'image image-inline',
+                        ],
+                        'originalHtml' => $img2,
+                    ],
+                ],
+            ]);
+
+        $this->resolverService
+            ->expects(self::exactly(2))
+            ->method('resolve')
+            ->willReturnOnConsecutiveCalls($dto1, $dto2);
+
+        $this->renderingService
+            ->expects(self::exactly(2))
+            ->method('render')
+            ->willReturnOnConsecutiveCalls(
+                '<img src="/processed-a.jpg" class="image image-inline" />',
+                '<img src="/processed-b.jpg" class="image image-inline" />',
+            );
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        // Both images should be processed
+        self::assertStringContainsString('<img src="/processed-a.jpg"', $result);
+        self::assertStringContainsString('<img src="/processed-b.jpg"', $result);
+        self::assertStringContainsString('First:', $result);
+        self::assertStringContainsString('Second:', $result);
+    }
+
+    /**
+     * Test that renderLink accepts content from first parameter.
+     *
+     * externalBlocks passes content as first parameter, not just via cObj.
+     */
+    #[Test]
+    public function renderLinkAcceptsContentFromFirstParameter(): void
+    {
+        $linkHtml = '<a href="/page">Text only</a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        // cObj returns nothing, but content is passed as first param
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn(null);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->with($linkHtml)
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [],
+            ]);
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertSame($linkHtml, $result);
+    }
+
+    /**
+     * Test renderLink with text before and after inline image.
+     *
+     * Common pattern: "Click here <img> to visit TYPO3"
+     */
+    #[Test]
+    public function renderLinkWithTextBeforeAndAfterImage(): void
+    {
+        $originalImg = '<img src="/icon.jpg" data-htmlarea-file-uid="1" class="image image-inline" />';
+        $linkHtml    = '<a href="https://typo3.org" target="_blank">Click here ' . $originalImg . ' to visit TYPO3</a>';
+
+        $dto = new ImageRenderingDto(
+            src: '/processed-icon.jpg',
+            width: 24,
+            height: 24,
+            alt: 'TYPO3 Logo',
+            title: null,
+            htmlAttributes: ['class' => 'image image-inline'],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => 'https://typo3.org', 'target' => '_blank'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                    => '/icon.jpg',
+                            'data-htmlarea-file-uid' => '1',
+                            'class'                  => 'image image-inline',
+                        ],
+                        'originalHtml' => $originalImg,
+                    ],
+                ],
+            ]);
+
+        $this->resolverService
+            ->method('resolve')
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->method('render')
+            ->willReturn('<img src="/processed-icon.jpg" width="24" height="24" alt="TYPO3 Logo" class="image image-inline" />');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        // Verify complete structure
+        self::assertStringContainsString('<a href="https://typo3.org"', $result);
+        self::assertStringContainsString('target="_blank"', $result);
+        self::assertStringContainsString('Click here ', $result);
+        self::assertStringContainsString('<img src="/processed-icon.jpg"', $result);
+        self::assertStringContainsString(' to visit TYPO3', $result);
+        self::assertStringContainsString('</a>', $result);
+    }
+
+    /**
+     * Test renderLink with image at beginning of link text.
+     *
+     * Pattern: "<img> TYPO3 Documentation"
+     */
+    #[Test]
+    public function renderLinkWithImageAtBeginning(): void
+    {
+        $originalImg = '<img src="/logo.jpg" data-htmlarea-file-uid="1" class="image image-inline" />';
+        $linkHtml    = '<a href="/docs">' . $originalImg . ' TYPO3 Documentation</a>';
+
+        $dto = new ImageRenderingDto(
+            src: '/processed-logo.jpg',
+            width: 32,
+            height: 32,
+            alt: 'Logo',
+            title: null,
+            htmlAttributes: ['class' => 'image image-inline'],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/docs'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                    => '/logo.jpg',
+                            'data-htmlarea-file-uid' => '1',
+                            'class'                  => 'image image-inline',
+                        ],
+                        'originalHtml' => $originalImg,
+                    ],
+                ],
+            ]);
+
+        $this->resolverService
+            ->method('resolve')
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->method('render')
+            ->willReturn('<img src="/processed-logo.jpg" />');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertStringContainsString('<a href="/docs"', $result);
+        self::assertStringContainsString('<img src="/processed-logo.jpg"', $result);
+        self::assertStringContainsString('TYPO3 Documentation</a>', $result);
+    }
+
+    /**
+     * Test renderLink with image at end of link text.
+     *
+     * Pattern: "Download PDF <img>"
+     */
+    #[Test]
+    public function renderLinkWithImageAtEnd(): void
+    {
+        $originalImg = '<img src="/pdf-icon.jpg" data-htmlarea-file-uid="1" class="image image-inline" />';
+        $linkHtml    = '<a href="/download.pdf">Download PDF ' . $originalImg . '</a>';
+
+        $dto = new ImageRenderingDto(
+            src: '/processed-pdf-icon.jpg',
+            width: 16,
+            height: 16,
+            alt: 'PDF',
+            title: null,
+            htmlAttributes: ['class' => 'image image-inline'],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/download.pdf'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                    => '/pdf-icon.jpg',
+                            'data-htmlarea-file-uid' => '1',
+                            'class'                  => 'image image-inline',
+                        ],
+                        'originalHtml' => $originalImg,
+                    ],
+                ],
+            ]);
+
+        $this->resolverService
+            ->method('resolve')
+            ->willReturn($dto);
+
+        $this->renderingService
+            ->method('render')
+            ->willReturn('<img src="/processed-pdf-icon.jpg" />');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertStringContainsString('<a href="/download.pdf"', $result);
+        self::assertStringContainsString('Download PDF ', $result);
+        self::assertStringContainsString('<img src="/processed-pdf-icon.jpg"', $result);
+        self::assertStringContainsString('</a>', $result);
     }
 }

@@ -70,29 +70,52 @@ lib.parseFunc_RTE {
         #     maxFileSizeForAuto = 2000000
         # }
     }
-    tags.a = TEXT
-    tags.a {
-        current = 1
-        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImages
+    # Clear tags.a - we handle links via externalBlocks instead
+    # This is necessary because tags.X processes inner content recursively,
+    # which separates text from images before our handler is called.
+    tags.a >
+    # CRITICAL: Links with images must be processed as externalBlocks, NOT tags.
+    # Using tags.a would process inner content recursively, separating text
+    # from images before our handler is called. This breaks mixed content links
+    # like "<a>Click here <img> to visit</a>".
+    #
+    # Configuration:
+    # - callRecursive = 0: Prevents inner content from being processed before
+    #   our handler, keeping text and images together
+    # - stdWrap.preUserFunc: Processes the complete <a>...</a> HTML
+    externalBlocks.a {
+        callRecursive = 0
+        stdWrap {
+            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderLink
 
-        # noScale also available for linked images
-        # Same configuration options as tags.img above
-        # noScale = 1
-        # noScale {
-        #     maxFileSizeForAuto = 2000000
-        # }
+            # noScale configuration for linked images
+            # noScale = 1
+            # noScale {
+            #     maxFileSizeForAuto = 2000000
+            # }
+        }
     }
-    tags.figure = TEXT
-    tags.figure {
-        current = 1
-        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderFigure
 
-        # noScale configuration for figure-wrapped images
-        # Same options as tags.img above
-        # noScale = 1
-        # noScale {
-        #     maxFileSizeForAuto = 2000000
-        # }
+    # CRITICAL: Figure elements are processed as externalBlocks, NOT tags.
+    # The externalBlocks path in parseFunc handles block-level elements like figure.
+    # We must configure externalBlocks.figure, not tags.figure.
+    #
+    # Configuration:
+    # - callRecursive = 0: Prevents inner <a> tags from being processed before
+    #   our handler, which would break linked images in figures
+    # - stdWrap.preUserFunc: Processes the complete figure HTML through our adapter
+    externalBlocks.figure {
+        callRecursive = 0
+        stdWrap {
+            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderFigure
+
+            # noScale configuration for figure-wrapped images
+            # Same options as tags.img above
+            # noScale = 1
+            # noScale {
+            #     maxFileSizeForAuto = 2000000
+            # }
+        }
     }
     nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
         allparams.unset = 1
@@ -118,7 +141,10 @@ lib.parseFunc_RTE {
 # the parent <a> element when processing linked images.
 # See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/565
 #******************************************************
-lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img,figure,figcaption)
+# Adding 'a' prevents link content from being split into separate <p> tags
+# when the link contains inline images (encapsLines would otherwise split
+# the text around the image into separate paragraphs)
+lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(a,img,figure,figcaption)
 
 #******************************************************
 # Figure element configuration
@@ -126,7 +152,7 @@ lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img,f
 # ImageRenderingService templates already output complete figure elements
 # with proper structure - re-processing would add unwanted <p> tags.
 #******************************************************
-lib.parseFunc_RTE.allowTags := addToList(figure,figcaption)
+lib.parseFunc_RTE.allowTags := addToList(a,figure,figcaption)
 lib.parseFunc_RTE.denyTags := removeFromList(figure,figcaption)
 
 #******************************************************

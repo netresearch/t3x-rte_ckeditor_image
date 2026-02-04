@@ -12,3 +12,23 @@
 
 # Import the actual TypoScript from the standard location
 @import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
+
+####################################################
+# Frontend CSS for Image Alignment Classes
+####################################################
+# Include CSS for image alignment styles (image-left, image-center, image-right)
+# CKEditor 5 uses these classes but doesn't provide frontend CSS.
+page.includeCSS.rte_ckeditor_image_alignment = EXT:rte_ckeditor_image/Resources/Public/Css/image-alignment.css
+
+####################################################
+# Bootstrap Package Lightbox Compatibility
+####################################################
+# When using Bootstrap Package, configure the popup link
+# to use the 'lightbox' class for PhotoSwipe compatibility.
+# This requires adding rel attribute for proper grouping.
+lib.contentElement.settings.media.popup {
+    # Use 'lightbox' class for Bootstrap Package PhotoSwipe
+    linkClass = lightbox
+    # Direct image link (not JavaScript popup window)
+    directImageLink = 1
+}

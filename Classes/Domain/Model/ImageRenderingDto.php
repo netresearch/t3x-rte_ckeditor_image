@@ -34,6 +34,7 @@ final readonly class ImageRenderingDto
      * @param string|null         $caption        Caption text (already XSS-sanitized with htmlspecialchars)
      * @param LinkDto|null        $link           Link/popup configuration (nullable for linked images)
      * @param bool                $isMagicImage   Whether this is a magic image (TYPO3 processing enabled)
+     * @param string|null         $figureClass    Figure element class for alignment (image-left, image-center, image-right)
      */
     public function __construct(
         public string $src,
@@ -45,5 +46,6 @@ final readonly class ImageRenderingDto
         public ?string $caption,
         public ?LinkDto $link,
         public bool $isMagicImage,
+        public ?string $figureClass = null,
     ) {}
 }

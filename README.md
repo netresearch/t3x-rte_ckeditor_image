@@ -32,6 +32,7 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
 - **Quality Selector**: Quality multipliers for optimal display (Standard 1.0x, Retina 2.0x, Ultra 3.0x, Print 6.0x)
 - **SVG Support**: Intelligent dimension extraction from viewBox and width/height attributes
 - **Custom Styles**: Configurable image styles with CKEditor 5 style system
+- **Inline Images**: True inline image support with cursor positioning before/after (new in 13.6)
 - **Lazy Loading**: TYPO3 native browser lazyload support
 - **Event-Driven**: PSR-14 events for extensibility
 - **Security**: Protocol blocking, XSS prevention, file visibility validation

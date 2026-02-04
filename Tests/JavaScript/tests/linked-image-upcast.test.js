@@ -83,7 +83,12 @@ function linkedImageUpcastConverter(viewElement, conversionApi) {
     }
   }
 
-  return writer.createElement('typo3image', imageAttributes);
+  // Check if this should be an inline image based on class
+  const imgClass = imgElement.getAttribute('class') || '';
+  const classList = imgClass.split(/\s+/);
+  const isInlineImage = classList.includes('image-inline');
+
+  return writer.createElement(isInlineImage ? 'typo3imageInline' : 'typo3image', imageAttributes);
 }
 
 /**
@@ -284,6 +289,80 @@ describe('Linked Image Upcast Converter (#565)', () => {
 
       // Should return null - parent is <a>, so linkedImageUpcastConverter handles it
       expect(result).toBeNull();
+    });
+  });
+
+  describe('Linked Inline Images (#580)', () => {
+    it('should convert linked inline image to typo3imageInline', () => {
+      const { anchor } = createLinkedImageView(
+        { href: 'https://example.com', target: '_blank' },
+        {
+          'data-htmlarea-file-uid': '123',
+          'src': '/fileadmin/test.jpg',
+          'class': 'image-inline',
+          'width': '100',
+          'height': '80',
+          'alt': 'Inline image'
+        }
+      );
+
+      const result = linkedImageUpcastConverter(anchor, conversionApi);
+
+      expect(result).not.toBeNull();
+      expect(result.name).toBe('typo3imageInline');
+      expect(result.getAttribute('fileUid')).toBe('123');
+      expect(result.getAttribute('imageLinkHref')).toBe('https://example.com');
+      expect(result.getAttribute('imageLinkTarget')).toBe('_blank');
+    });
+
+    it('should convert linked block image to typo3image (not inline)', () => {
+      const { anchor } = createLinkedImageView(
+        { href: 'https://example.com' },
+        {
+          'data-htmlarea-file-uid': '456',
+          'src': '/fileadmin/block.jpg',
+          'class': 'image-block',
+          'width': '800',
+          'height': '600'
+        }
+      );
+
+      const result = linkedImageUpcastConverter(anchor, conversionApi);
+
+      expect(result).not.toBeNull();
+      expect(result.name).toBe('typo3image');
+      expect(result.getAttribute('fileUid')).toBe('456');
+    });
+
+    it('should handle image-inline alongside other classes', () => {
+      const { anchor } = createLinkedImageView(
+        { href: 'https://example.com' },
+        {
+          'data-htmlarea-file-uid': '789',
+          'src': '/fileadmin/multi.jpg',
+          'class': 'custom-class image-inline another-class'
+        }
+      );
+
+      const result = linkedImageUpcastConverter(anchor, conversionApi);
+
+      expect(result.name).toBe('typo3imageInline');
+    });
+
+    it('should NOT match image-inline-block as inline (exact class match)', () => {
+      const { anchor } = createLinkedImageView(
+        { href: 'https://example.com' },
+        {
+          'data-htmlarea-file-uid': '999',
+          'src': '/fileadmin/notinline.jpg',
+          'class': 'image-inline-block'
+        }
+      );
+
+      const result = linkedImageUpcastConverter(anchor, conversionApi);
+
+      // Should be typo3image, not typo3imageInline
+      expect(result.name).toBe('typo3image');
     });
   });
 

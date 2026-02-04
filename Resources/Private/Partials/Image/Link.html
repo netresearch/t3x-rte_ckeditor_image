@@ -2,5 +2,5 @@
 <a href="{image.link.urlWithParams}"
    {f:if(condition: image.link.target, then: 'target="{image.link.target}"')}
    {f:if(condition: image.link.class, then: 'class="{image.link.class}"')}
-   {f:if(condition: isPopup, then: 'data-popup="true"')}>{content -> f:format.raw()}</a>
+   {f:if(condition: isPopup, then: 'data-popup="true" rel="lightbox-group-rte"')}>{content -> f:format.raw()}</a>
 </html>
