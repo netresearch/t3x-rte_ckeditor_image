@@ -267,6 +267,13 @@ class ImageRenderingAdapter
             return $content;
         }
 
+        // SECURITY: Validate URL protocol to prevent XSS via javascript: and similar.
+        // Since this extension handles <a> tags via externalBlocks instead of the
+        // standard tags.a handler, we must validate protocols ourselves.
+        if (!$this->isAllowedLinkProtocol($attributes['href'])) {
+            return $content;
+        }
+
         $attrParts = [];
 
         foreach ($attributes as $name => $value) {
@@ -392,8 +399,90 @@ class ImageRenderingAdapter
             ? strtr($innerContent, $replacements)
             : $innerContent;
 
+        // Resolve t3:// links (not resolved by normal parseFunc since we use externalBlocks.a)
+        if (isset($linkAttributes['href'])) {
+            $linkAttributes['href'] = $this->resolveTypo3LinkUrl($linkAttributes['href'], $request);
+        }
+
         // Reconstruct the link with processed content
         return $this->wrapInLink($processedContent, $linkAttributes);
+    }
+
+    /**
+     * Resolve TYPO3 internal link references (t3://) to actual URLs.
+     *
+     * Since this extension handles <a> tags via externalBlocks instead of the
+     * standard tags.a handler, t3:// links are not automatically resolved
+     * by TYPO3's typolink processing. We must resolve them explicitly.
+     *
+     * @param string                 $url     The URL to resolve
+     * @param ServerRequestInterface $request Current request
+     *
+     * @return string Resolved URL, or original URL if resolution fails
+     */
+    private function resolveTypo3LinkUrl(string $url, ServerRequestInterface $request): string
+    {
+        if (!str_starts_with($url, 't3://') || !$this->cObj instanceof ContentObjectRenderer) {
+            return $url;
+        }
+
+        $this->cObj->setRequest($request);
+        $resolved = $this->cObj->typoLink_URL(['parameter' => $url]);
+
+        return $resolved !== '' ? $resolved : $url;
+    }
+
+    /**
+     * Validate URL protocol using an allowlist approach.
+     *
+     * SECURITY: Since this extension handles <a> tags via externalBlocks instead
+     * of the standard tags.a handler, we must validate URL protocols ourselves.
+     * Only explicitly allowed protocols are permitted (defense-in-depth).
+     *
+     * Allowed: http:, https:, mailto:, tel:, t3:, relative paths, anchors
+     * Blocked: javascript:, vbscript:, data:, file:, and all others
+     *
+     * @see ImageResolverService::validateLinkUrl() for the equivalent in the resolver path
+     */
+    private function isAllowedLinkProtocol(string $url): bool
+    {
+        $trimmedUrl = trim($url);
+
+        if ($trimmedUrl === '') {
+            return false;
+        }
+
+        $lowercaseUrl = strtolower($trimmedUrl);
+
+        // Allow relative paths and anchors
+        if (str_starts_with($lowercaseUrl, '/') || str_starts_with($lowercaseUrl, '#') || str_starts_with($lowercaseUrl, '?')) {
+            return true;
+        }
+
+        // Check for protocol separator
+        $colonPos = strpos($lowercaseUrl, ':');
+        $slashPos = strpos($lowercaseUrl, '/');
+
+        // No colon = no protocol = relative path
+        if ($colonPos === false) {
+            return true;
+        }
+
+        // Colon after slash = part of path, not protocol
+        if ($slashPos !== false && $slashPos < $colonPos) {
+            return true;
+        }
+
+        // Check against allowlist
+        $allowedProtocols = ['http:', 'https:', 'mailto:', 'tel:', 't3:'];
+
+        foreach ($allowedProtocols as $protocol) {
+            if (str_starts_with($lowercaseUrl, $protocol)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -474,6 +563,11 @@ class ImageRenderingAdapter
         // This also ensures backward compatibility with content that has figcaption but no data-caption
         if ($caption !== '') {
             $imageAttributes['data-caption'] = $caption;
+        }
+
+        // Resolve t3:// links before passing to service
+        if ($linkAttributes !== [] && isset($linkAttributes['href'])) {
+            $linkAttributes['href'] = $this->resolveTypo3LinkUrl($linkAttributes['href'], $request);
         }
 
         // Pass link attributes to resolver if image is wrapped in <a>
