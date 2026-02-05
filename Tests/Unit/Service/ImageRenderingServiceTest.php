@@ -389,6 +389,94 @@ class ImageRenderingServiceTest extends TestCase
         );
     }
 
+    // ========================================================================
+    // Issue #595: Alignment class without caption should NOT trigger figure
+    // ========================================================================
+
+    /**
+     * Image with figureClass but no caption should use Standalone template.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/595
+     */
+    public function testSelectTemplateWithAlignmentClassButNoCaptionUsesStandalone(): void
+    {
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: 'Title',
+            htmlAttributes: ['class' => 'image image-left'],
+            caption: null,
+            link: null,
+            isMagicImage: true,
+            figureClass: 'image image-left',
+        );
+
+        $template = $this->callProtectedMethod($this->service, 'selectTemplate', [$dto]);
+
+        self::assertSame('Image/Standalone', $template);
+    }
+
+    /**
+     * Linked image with figureClass but no caption should use Link template (not LinkWithCaption).
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/595
+     */
+    public function testSelectTemplateWithAlignmentClassLinkedNoCaptionUsesLink(): void
+    {
+        $linkDto = new LinkDto(
+            url: 'https://example.com',
+            target: '_blank',
+            class: null,
+            params: null,
+            isPopup: false,
+            jsConfig: null,
+        );
+
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: 'Title',
+            htmlAttributes: ['class' => 'image image-center'],
+            caption: null,
+            link: $linkDto,
+            isMagicImage: true,
+            figureClass: 'image image-center',
+        );
+
+        $template = $this->callProtectedMethod($this->service, 'selectTemplate', [$dto]);
+
+        self::assertSame('Image/Link', $template);
+    }
+
+    /**
+     * Image with BOTH alignment class AND caption should use WithCaption template.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/595
+     */
+    public function testSelectTemplateWithAlignmentClassAndCaptionUsesWithCaption(): void
+    {
+        $dto = new ImageRenderingDto(
+            src: '/image.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Alt',
+            title: 'Title',
+            htmlAttributes: [],
+            caption: 'A caption',
+            link: null,
+            isMagicImage: true,
+            figureClass: 'image image-right',
+        );
+
+        $template = $this->callProtectedMethod($this->service, 'selectTemplate', [$dto]);
+
+        self::assertSame('Image/WithCaption', $template);
+    }
+
     /**
      * Test that render() trims whitespace from Fluid template output.
      *
