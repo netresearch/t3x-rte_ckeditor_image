@@ -134,13 +134,11 @@ class ImageRenderingService
         $hasLink    = $imageData->link instanceof LinkDto;
         $isPopup    = $imageData->link instanceof LinkDto && $imageData->link->isPopup;
 
-        // Check for actual alignment classes (image-left, image-center, image-right)
-        // The generic "image" class alone should NOT trigger figure wrapper
-        $hasAlignmentClass = $imageData->figureClass !== null
-            && preg_match('/\bimage-(left|center|right)\b/', $imageData->figureClass) === 1;
-
-        // Figure wrapper is needed if there's a caption OR an alignment class
-        $needsFigureWrapper = $hasCaption || $hasAlignmentClass;
+        // Figure wrapper is only needed when there's a caption.
+        // Alignment classes (image-left, image-center, image-right) without caption
+        // should render as standalone <img> with the alignment class on the element.
+        // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/595
+        $needsFigureWrapper = $hasCaption;
 
         return match (true) {
             $isPopup && $needsFigureWrapper => self::TEMPLATE_POPUP_WITH_CAPTION,

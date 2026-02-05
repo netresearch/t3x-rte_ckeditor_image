@@ -185,6 +185,15 @@ class ImageResolverService
             // CRITICAL: Caption XSS prevention
             $caption = $this->sanitizeCaption($attributes['data-caption'] ?? '');
 
+            // When there's no caption, alignment class goes on the <img> element
+            // since no <figure> wrapper will be generated (see #595)
+            if ($caption === '' && $figureClass !== null && $figureClass !== '') {
+                $existingClass = $htmlAttributes['class'] ?? '';
+                $existingClass = is_string($existingClass) ? $existingClass : '';
+
+                $htmlAttributes['class'] = trim(($existingClass !== '' ? $existingClass . ' ' : '') . $figureClass);
+            }
+
             // Build link DTO if link attributes provided OR if popup attributes are present
             $link = null;
 

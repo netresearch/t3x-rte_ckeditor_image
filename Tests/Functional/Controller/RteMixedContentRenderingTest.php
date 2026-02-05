@@ -245,6 +245,145 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
     }
 
     // ========================================================================
+    // Issue #595: Alignment class without caption should NOT trigger figure
+    // ========================================================================
+
+    /**
+     * Test: Image with alignment class but no caption renders as standalone img.
+     *
+     * CKEditor 5 outputs: <figure class="image image-left"><img ...></figure>
+     * When there's no caption, the renderer should output just <img> with the
+     * alignment class on the element, not a <figure> wrapper.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/595
+     */
+    #[Test]
+    public function alignedImageWithoutCaptionOutputsStandaloneImg(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $inputHtml = '<figure class="image image-left">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="250" height="250" alt="Left aligned">'
+            . '</figure>';
+
+        $cObj->setCurrentVal($inputHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderFigure(null, [], $this->request);
+
+        // Without caption, should NOT have figure wrapper
+        self::assertStringNotContainsString('<figure', $result, 'Aligned image without caption should not have figure wrapper');
+        self::assertStringNotContainsString('<figcaption', $result, 'Should not have figcaption');
+        // Should have the alignment class on the img element
+        self::assertStringContainsString('image-left', $result, 'Alignment class should be on the img element');
+        self::assertStringContainsString('<img', $result, 'Should contain img element');
+    }
+
+    /**
+     * Test: Image with image-center class but no caption renders as standalone img.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/595
+     */
+    #[Test]
+    public function centeredImageWithoutCaptionOutputsStandaloneImg(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $inputHtml = '<figure class="image image-center">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="250" height="250" alt="Centered">'
+            . '</figure>';
+
+        $cObj->setCurrentVal($inputHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderFigure(null, [], $this->request);
+
+        self::assertStringNotContainsString('<figure', $result, 'Centered image without caption should not have figure wrapper');
+        self::assertStringContainsString('image-center', $result, 'Center alignment class should be on the img element');
+    }
+
+    /**
+     * Test: Image with image-right class but no caption renders as standalone img.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/595
+     */
+    #[Test]
+    public function rightAlignedImageWithoutCaptionOutputsStandaloneImg(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $inputHtml = '<figure class="image image-right">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="250" height="250" alt="Right aligned">'
+            . '</figure>';
+
+        $cObj->setCurrentVal($inputHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderFigure(null, [], $this->request);
+
+        self::assertStringNotContainsString('<figure', $result, 'Right-aligned image without caption should not have figure wrapper');
+        self::assertStringContainsString('image-right', $result, 'Right alignment class should be on the img element');
+    }
+
+    /**
+     * Test: Image with alignment class AND caption correctly uses figure wrapper.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/595
+     */
+    #[Test]
+    public function alignedImageWithCaptionUsesFigureWrapper(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $inputHtml = '<figure class="image image-left">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="250" height="250" alt="Left aligned">'
+            . '<figcaption>Caption for aligned image</figcaption>'
+            . '</figure>';
+
+        $cObj->setCurrentVal($inputHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderFigure(null, [], $this->request);
+
+        // With caption, SHOULD have figure wrapper
+        self::assertSame(1, substr_count($result, '<figure'), 'Aligned image with caption should have figure wrapper');
+        self::assertStringContainsString('<figcaption', $result, 'Should have figcaption');
+        self::assertStringContainsString('Caption for aligned image', $result, 'Caption text should be present');
+        // Alignment class should be on the figure element
+        self::assertStringContainsString('image-left', $result, 'Alignment class should be present');
+    }
+
+    /**
+     * Test: Linked image with alignment class but no caption uses Link template.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/595
+     */
+    #[Test]
+    public function linkedAlignedImageWithoutCaptionUsesLinkTemplate(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $inputHtml = '<figure class="image image-center">'
+            . '<a href="https://example.com">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="250" height="250" alt="Linked center">'
+            . '</a>'
+            . '</figure>';
+
+        $cObj->setCurrentVal($inputHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderFigure(null, [], $this->request);
+
+        // Without caption, should NOT have figure wrapper
+        self::assertStringNotContainsString('<figure', $result, 'Linked aligned image without caption should not have figure wrapper');
+        // Should have link
+        self::assertStringContainsString('<a', $result, 'Should contain link');
+        self::assertStringContainsString('href="https://example.com"', $result, 'Link href should be preserved');
+        // Alignment class should be on the img element
+        self::assertStringContainsString('image-center', $result, 'Center alignment class should be present');
+    }
+
+    // ========================================================================
     // Inline image handling inside paragraphs
     // ========================================================================
 
