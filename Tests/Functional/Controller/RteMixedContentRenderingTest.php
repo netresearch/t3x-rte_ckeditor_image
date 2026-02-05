@@ -15,8 +15,10 @@ use Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
@@ -63,6 +65,15 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
         $this->importCSVDataSet(__DIR__ . '/Fixtures/pages.csv');
         $this->importCSVDataSet(__DIR__ . '/Fixtures/sys_file_storage.csv');
         $this->importCSVDataSet(__DIR__ . '/Fixtures/sys_file.csv');
+
+        // Write site configuration to filesystem so SiteFinder can discover it.
+        // This is required for typoLink_URL() to resolve t3:// links.
+        $siteDir = Environment::getConfigPath() . '/sites/test';
+        GeneralUtility::mkdir_deep($siteDir);
+        file_put_contents(
+            $siteDir . '/config.yaml',
+            "rootPageId: 1\nbase: 'http://localhost/'\nlanguages:\n  -\n    languageId: 0\n    title: English\n    locale: en_US.UTF-8\n    base: '/'\n",
+        );
 
         // Create a minimal site configuration
         $site = new Site('test', 1, [
@@ -629,6 +640,35 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
 
         // External URL must remain unchanged
         self::assertStringContainsString('href="https://example.com/page"', $result, 'External URL must not be modified');
+    }
+
+    /**
+     * Test case 18d: JavaScript protocol in link href is blocked (XSS prevention).
+     *
+     * SECURITY: Since this extension handles <a> tags via externalBlocks instead of
+     * the standard tags.a handler, we must validate URL protocols ourselves.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/594
+     */
+    #[Test]
+    public function javascriptProtocolInLinkHrefIsBlocked(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $linkHtml = '<a href="javascript:alert(1)">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" class="image image-inline" width="50" height="50" alt="XSS">'
+            . '</a>';
+
+        $cObj->setCurrentVal($linkHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderLink($linkHtml, [], $this->request);
+
+        // javascript: URL must be stripped - no link should be rendered
+        self::assertStringNotContainsString('javascript:', $result, 'javascript: protocol must be blocked');
+        self::assertStringNotContainsString('<a ', $result, 'Link with blocked protocol must not be rendered');
+        // Image should still be present (just without the link)
+        self::assertStringContainsString('<img', $result, 'Image content should be preserved');
     }
 
     // ========================================================================
