@@ -550,16 +550,18 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
     }
 
     /**
-     * Test case 18: Link URLs using t3:// syntax must be preserved.
+     * Test case 18: Link URLs using t3:// syntax are resolved in renderFigure.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/594
      */
     #[Test]
-    public function linkUrlsWithT3SyntaxPreserved(): void
+    public function linkUrlsWithT3SyntaxAreResolvedInFigure(): void
     {
         ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
 
-        // Simulate linked image with t3:// URL
+        // Simulate linked image with t3:// URL (page uid=1 = root page)
         $figureHtml = '<figure class="image">'
-            . '<a href="t3://page?uid=123">'
+            . '<a href="t3://page?uid=1">'
             . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="250" height="250" alt="Linked">'
             . '</a>'
             . '<figcaption>T3 Link Caption</figcaption>'
@@ -572,6 +574,61 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
 
         // Should have one figure (has caption)
         self::assertSame(1, substr_count($result, '<figure'), 'Expected exactly 1 figure');
+        // Raw t3:// URL must be resolved
+        self::assertStringNotContainsString('t3://page', $result, 'Raw t3:// URL must be resolved');
+        // Resolved URL must be a path
+        self::assertStringContainsString('href="/', $result, 'Resolved URL must be a path');
+    }
+
+    /**
+     * Test case 18b: Link URLs using t3:// syntax are resolved in renderLink.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/594
+     */
+    #[Test]
+    public function linkUrlsWithT3SyntaxAreResolvedInLink(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        // Inline image inside link with t3:// URL
+        $linkHtml = '<a href="t3://page?uid=1">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" class="image image-inline" width="50" height="50" alt="Linked">'
+            . '</a>';
+
+        $cObj->setCurrentVal($linkHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderLink($linkHtml, [], $this->request);
+
+        // Raw t3:// URL must be resolved
+        self::assertStringNotContainsString('t3://page', $result, 'Raw t3:// URL must be resolved');
+        // Resolved URL must be a path
+        self::assertStringContainsString('href="/', $result, 'Resolved URL must be a path');
+        // Must have exactly one link
+        self::assertSame(1, substr_count($result, '<a '), 'Must have exactly one <a> tag');
+    }
+
+    /**
+     * Test case 18c: Non-t3:// URLs pass through unchanged in renderLink.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/594
+     */
+    #[Test]
+    public function nonT3UrlsPassThroughUnchangedInLink(): void
+    {
+        ['adapter' => $adapter, 'cObj' => $cObj] = $this->getAdapterWithCObj();
+
+        $linkHtml = '<a href="https://example.com/page">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" class="image image-inline" width="50" height="50" alt="Linked">'
+            . '</a>';
+
+        $cObj->setCurrentVal($linkHtml);
+
+        /** @var string $result */
+        $result = $adapter->renderLink($linkHtml, [], $this->request);
+
+        // External URL must remain unchanged
+        self::assertStringContainsString('href="https://example.com/page"', $result, 'External URL must not be modified');
     }
 
     // ========================================================================

@@ -392,8 +392,37 @@ class ImageRenderingAdapter
             ? strtr($innerContent, $replacements)
             : $innerContent;
 
+        // Resolve t3:// links (not resolved by normal parseFunc since we use externalBlocks.a)
+        if (isset($linkAttributes['href'])) {
+            $linkAttributes['href'] = $this->resolveTypo3LinkUrl($linkAttributes['href'], $request);
+        }
+
         // Reconstruct the link with processed content
         return $this->wrapInLink($processedContent, $linkAttributes);
+    }
+
+    /**
+     * Resolve TYPO3 internal link references (t3://) to actual URLs.
+     *
+     * Since this extension handles <a> tags via externalBlocks instead of the
+     * standard tags.a handler, t3:// links are not automatically resolved
+     * by TYPO3's typolink processing. We must resolve them explicitly.
+     *
+     * @param string                 $url     The URL to resolve
+     * @param ServerRequestInterface $request Current request
+     *
+     * @return string Resolved URL, or original URL if resolution fails
+     */
+    private function resolveTypo3LinkUrl(string $url, ServerRequestInterface $request): string
+    {
+        if (!str_starts_with($url, 't3://') || !$this->cObj instanceof ContentObjectRenderer) {
+            return $url;
+        }
+
+        $this->cObj->setRequest($request);
+        $resolved = $this->cObj->typoLink_URL(['parameter' => $url]);
+
+        return $resolved !== '' ? $resolved : $url;
     }
 
     /**
@@ -474,6 +503,11 @@ class ImageRenderingAdapter
         // This also ensures backward compatibility with content that has figcaption but no data-caption
         if ($caption !== '') {
             $imageAttributes['data-caption'] = $caption;
+        }
+
+        // Resolve t3:// links before passing to service
+        if ($linkAttributes !== [] && isset($linkAttributes['href'])) {
+            $linkAttributes['href'] = $this->resolveTypo3LinkUrl($linkAttributes['href'], $request);
         }
 
         // Pass link attributes to resolver if image is wrapped in <a>
