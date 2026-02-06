@@ -1,0 +1,21 @@
+imports:
+  - { resource: "EXT:rte_ckeditor_image/Configuration/RTE/rteWithImages.yaml" }
+
+editor:
+  config:
+    htmlSupport:
+      allow:
+        - { name: "div", classes: true, styles: true, attributes: true }
+        - { name: "span", classes: true, styles: true, attributes: true }
+        - { name: "small", classes: true }
+        - { name: "i", classes: true }
+        - { name: "p", classes: true, styles: true }
+        - { name: "ul", classes: true }
+        - { name: "ol", classes: true }
+        - { name: "li", classes: true }
+        - { name: "h1", classes: true, styles: true }
+        - { name: "h2", classes: true }
+        - { name: "h3", classes: true }
+        - { name: "h4", classes: true }
+        - { name: "h5", classes: true }
+        - { name: "h6", classes: true }
