@@ -39,15 +39,32 @@ vendor/bin/typo3 configuration:set 'SYS/devIPmask' '*'
 vendor/bin/typo3 configuration:set 'SYS/displayErrors' 1
 # Create additional.php for trustedHostsPattern (configuration:set doesn't work reliably for this)
 mkdir -p /var/www/html/$VERSION/config/system
-echo '<?php' > /var/www/html/$VERSION/config/system/additional.php
-echo '$GLOBALS["TYPO3_CONF_VARS"]["SYS"]["trustedHostsPattern"] = ".*";' >> /var/www/html/$VERSION/config/system/additional.php
+cat > /var/www/html/$VERSION/config/system/additional.php << 'ADDPHP'
+<?php
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['trustedHostsPattern'] = '.*';
+
+// Logging: Enable deprecation, error, and warning logging
+$GLOBALS['TYPO3_CONF_VARS']['LOG']['TYPO3']['CMS']['deprecations']['writerConfiguration'] = [
+    \TYPO3\CMS\Core\Log\LogLevel::NOTICE => [
+        \TYPO3\CMS\Core\Log\Writer\FileWriter::class => [
+            'logFileInfix' => 'deprecations',
+            'disabled' => false,
+        ],
+    ],
+];
+$GLOBALS['TYPO3_CONF_VARS']['LOG']['writerConfiguration'] = [
+    \TYPO3\CMS\Core\Log\LogLevel::WARNING => [
+        \TYPO3\CMS\Core\Log\Writer\FileWriter::class => [
+            'logFileInfix' => 'error',
+        ],
+    ],
+];
+ADDPHP
 vendor/bin/typo3 configuration:set 'MAIL/transport' 'smtp'
 vendor/bin/typo3 configuration:set 'MAIL/transport_smtp_server' 'localhost:1025'
 vendor/bin/typo3 configuration:set 'MAIL/defaultMailFromAddress' 'admin@example.com'
 vendor/bin/typo3 configuration:set 'GFX/processor' 'ImageMagick'
 vendor/bin/typo3 configuration:set 'GFX/processor_path' '/usr/bin/'
-
-sed -i "/'deprecations'/,/^[[:space:]]*'disabled' => true,/s/'disabled' => true,/'disabled' => false,/" /var/www/html/$VERSION/config/system/settings.php
 
 vendor/bin/typo3 extension:setup
 

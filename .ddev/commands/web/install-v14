@@ -54,6 +54,23 @@ $GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress'] = 'admin@example.c
 // Graphics
 $GLOBALS['TYPO3_CONF_VARS']['GFX']['processor'] = 'ImageMagick';
 $GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_path'] = '/usr/bin/';
+
+// Logging: Enable deprecation, error, and warning logging
+$GLOBALS['TYPO3_CONF_VARS']['LOG']['TYPO3']['CMS']['deprecations']['writerConfiguration'] = [
+    \TYPO3\CMS\Core\Log\LogLevel::NOTICE => [
+        \TYPO3\CMS\Core\Log\Writer\FileWriter::class => [
+            'logFileInfix' => 'deprecations',
+            'disabled' => false,
+        ],
+    ],
+];
+$GLOBALS['TYPO3_CONF_VARS']['LOG']['writerConfiguration'] = [
+    \TYPO3\CMS\Core\Log\LogLevel::WARNING => [
+        \TYPO3\CMS\Core\Log\Writer\FileWriter::class => [
+            'logFileInfix' => 'error',
+        ],
+    ],
+];
 ADDPHP
 
 vendor/bin/typo3 extension:setup
