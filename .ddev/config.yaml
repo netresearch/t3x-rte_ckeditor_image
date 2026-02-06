@@ -6,6 +6,7 @@ php_version: "8.4"
 
 # Security: Don't expose internal service ports to host
 host_db_port: ""
+host_mailpit_port: ""
 composer_version: "2"
 webserver_type: apache-fpm
 router_http_port: "80"
@@ -17,3 +18,7 @@ additional_hostnames:
     - v14.rte-ckeditor-image
 additional_fqdns: []
 use_dns_when_possible: true
+hooks:
+    post-start:
+        # Inject custom Traefik config for Mailpit subdomain routing
+        - exec-host: docker cp ${DDEV_APPROOT}/.ddev/traefik/config/rte-ckeditor-image-mailpit.yaml ddev-${DDEV_SITENAME}-web:/mnt/ddev-global-cache/traefik/config/rte-ckeditor-image-mailpit.yaml

@@ -1,0 +1,15 @@
+# Expose Mailpit UI via Traefik router on subdomain
+# Access at: https://mail.rte-ckeditor-image.ddev.site
+#
+# DDEV's Traefik uses file provider, so we:
+# 1. Put the mailpit container on ddev_default network (reachable by router)
+# 2. Copy a Traefik config file via post-start hook (see config.yaml)
+services:
+    mailpit:
+        networks:
+            - default
+            - ddev_default
+networks:
+    ddev_default:
+        name: ddev_default
+        external: true

@@ -1,0 +1,21 @@
+# Custom Traefik route: Mailpit UI on subdomain
+# mail.rte-ckeditor-image.ddev.site -> mailpit container:8025
+http:
+  routers:
+    rte-ckeditor-image-mailpit-https:
+      entrypoints:
+        - http-443
+      rule: "Host(`mail.rte-ckeditor-image.ddev.site`)"
+      service: "rte-ckeditor-image-mailpit"
+      tls: true
+    rte-ckeditor-image-mailpit-http:
+      entrypoints:
+        - http-80
+      rule: "Host(`mail.rte-ckeditor-image.ddev.site`)"
+      service: "rte-ckeditor-image-mailpit"
+      tls: false
+  services:
+    rte-ckeditor-image-mailpit:
+      loadbalancer:
+        servers:
+          - url: "http://ddev-rte-ckeditor-image-mailpit:8025"
