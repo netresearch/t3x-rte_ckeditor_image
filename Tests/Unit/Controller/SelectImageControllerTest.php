@@ -1119,6 +1119,26 @@ final class SelectImageControllerTest extends UnitTestCase
     }
 
     #[Test]
+    public function buildLinkBrowserParamsSkipsEmptyAllowedTypes(): void
+    {
+        // When removeItems removes all allowed types, don't pass empty allowedTypes
+        $rteConfig = [
+            'allowedTypes' => 'page',
+            'buttons'      => [
+                'link' => [
+                    'options' => [
+                        'removeItems' => 'page',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [$rteConfig]);
+
+        self::assertArrayNotHasKey('allowedTypes', $result);
+    }
+
+    #[Test]
     public function buildLinkBrowserParamsAllowedTypesTakesPrecedenceOverBlindLinkOptions(): void
     {
         $rteConfig = [

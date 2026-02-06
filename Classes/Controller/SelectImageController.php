@@ -283,14 +283,16 @@ class SelectImageController extends ElementBrowserController
                 );
             }
 
-            $params['allowedTypes'] = implode(',', $allowed);
+            if ($allowed !== []) {
+                $params['allowedTypes'] = implode(',', $allowed);
+            }
         } else {
             // Blacklist: combine blindLinkOptions and removeItems
-            $blind = [];
-
-            if (isset($rteConfig['blindLinkOptions']) && is_string($rteConfig['blindLinkOptions'])) {
-                $blind = GeneralUtility::trimExplode(',', $rteConfig['blindLinkOptions'], true);
-            }
+            $blind = GeneralUtility::trimExplode(
+                ',',
+                is_string($rteConfig['blindLinkOptions'] ?? null) ? $rteConfig['blindLinkOptions'] : '',
+                true,
+            );
 
             if ($removeItems !== '') {
                 $blind = array_unique(

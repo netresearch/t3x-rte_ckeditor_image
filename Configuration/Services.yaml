@@ -16,6 +16,7 @@ services:
       $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
       $uploadFolderResolver: '@TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver'
       $elementBrowserRegistry: '@TYPO3\CMS\Backend\ElementBrowser\ElementBrowserRegistry'
+      $richtext: '@TYPO3\CMS\Core\Configuration\Richtext'
 
   # TypoScript adapter for frontend image rendering
   # Bridges TypoScript preUserFunc to modern service architecture
