@@ -37,7 +37,7 @@ vendor/bin/typo3 configuration:set 'BE/debug' 1
 vendor/bin/typo3 configuration:set 'FE/debug' 1
 vendor/bin/typo3 configuration:set 'SYS/devIPmask' '*'
 vendor/bin/typo3 configuration:set 'SYS/displayErrors' 1
-# Create additional.php for trustedHostsPattern (configuration:set doesn't work reliably for this)
+# Create additional.php for trustedHostsPattern and demo RTE preset
 mkdir -p /var/www/html/$VERSION/config/system
 cat > /var/www/html/$VERSION/config/system/additional.php << 'ADDPHP'
 <?php
@@ -59,6 +59,9 @@ $GLOBALS['TYPO3_CONF_VARS']['LOG']['writerConfiguration'] = [
         ],
     ],
 ];
+
+// Register demo RTE preset with GHS (General HTML Support) for Bootstrap HTML preservation
+$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['demo_with_images'] = 'config/rte/demoWithImages.yaml';
 ADDPHP
 vendor/bin/typo3 configuration:set 'MAIL/transport' 'smtp'
 vendor/bin/typo3 configuration:set 'MAIL/transport_smtp_server' 'localhost:1025'
@@ -184,6 +187,11 @@ FILE2_INFO=($(get_file_info "public/fileadmin/user_upload/inline-small.jpg"))
 FILE3_INFO=($(get_file_info "public/fileadmin/user_upload/medium.jpg"))
 FILE4_INFO=($(get_file_info "public/fileadmin/user_upload/icon.jpg"))
 
+# Copy demo-specific RTE preset with GHS (General HTML Support)
+# This preserves Bootstrap HTML elements (div, span, etc.) when editing in CKEditor
+mkdir -p /var/www/html/$VERSION/config/rte
+cp /var/www/html/$EXTENSION_KEY/.ddev/assets/demoWithImages.yaml /var/www/html/$VERSION/config/rte/demoWithImages.yaml
+
 # Create FAL entries and demo content
 mysql -h "$DB_HOST" -u "$DB_USER" "$VERSION" << EOSQL
 -- =============================================================================
@@ -235,13 +243,20 @@ page.logo.subheader = RTE CKEditor Image Demo',
     include_static_file = 'EXT:bootstrap_package/Configuration/TypoScript/,EXT:bootstrap_package/Configuration/TypoScript/ContentElement/,EXT:fluid_styled_content/Configuration/TypoScript/,EXT:rte_ckeditor_image/Configuration/TypoScript/',
     config = 'lib.contentElement.settings.media.popup.linkClass = lightbox
 lib.contentElement.settings.media.popup.directImageLink = 1
-lib.contentElement.settings.media.popup.linkParams.ATagParams = rel="lightbox-group-rte"'
+lib.contentElement.settings.media.popup.linkParams.ATagParams = rel="lightbox-group-rte"
+page.cssInline.999 = TEXT
+page.cssInline.999.value (
+  .main-section { max-width: 1400px; margin: 0 auto; padding: 0 15px; }
+)'
 WHERE uid = 1;
 
 -- =============================================================================
--- Update page title for better presentation
+-- Update page title and assign demo RTE preset via PageTSconfig
 -- =============================================================================
-UPDATE pages SET title = 'RTE CKEditor Image Demo' WHERE uid = 1;
+UPDATE pages SET
+    title = 'RTE CKEditor Image Demo',
+    TSconfig = 'RTE.default.preset = demo_with_images'
+WHERE uid = 1;
 
 -- =============================================================================
 -- CONTENT ELEMENT 1: Hero Introduction with Feature Cards
