@@ -443,6 +443,107 @@ CONCAT(
 0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 500);
 
 -- =============================================================================
+-- CONTENT ELEMENT 5b: Alignment Caption vs No Caption (Issue #595)
+-- =============================================================================
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(135deg, #585961, #FF4D00); color: white;">
+<h3 class="mb-0">Alignment: Caption vs No Caption (Issue #595)</h3>
+<small class="opacity-75">Fixed behavior: figure wrapper only when caption is present</small>
+</div>
+<div class="card-body">
+
+<h5 class="border-bottom pb-2 mb-3">Without Caption &rarr; Standalone &lt;img&gt;</h5>
+<p>These aligned images have <strong>no caption</strong>. After the <a href="https://github.com/netresearch/t3x-rte_ckeditor_image/issues/595">#595</a> fix, they render as plain <code>&lt;img&gt;</code> elements with the alignment class directly on the image &mdash; no <code>&lt;figure&gt;</code> wrapper.</p>
+
+<div class="row mb-4">
+<div class="col-lg-4 mb-3">
+<div class="border rounded p-3">
+<h6 class="text-muted">Left-aligned, no caption</h6>
+<figure class="image image-left mb-0">
+<img src="fileadmin/user_upload/medium.jpg" alt="left no caption" width="150" height="113" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded">
+</figure>
+<p class="small">Text wraps around. Inspect: should be <code>&lt;img class="... image-left"&gt;</code> with no figure.</p>
+<div style="clear:both"></div>
+</div>
+</div>
+<div class="col-lg-4 mb-3">
+<div class="border rounded p-3 text-center">
+<h6 class="text-muted">Center-aligned, no caption</h6>
+<figure class="image image-center">
+<img src="fileadmin/user_upload/medium.jpg" alt="center no caption" width="150" height="113" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded">
+</figure>
+<p class="small mb-0">Inspect: should be <code>&lt;img class="... image-center"&gt;</code> with no figure.</p>
+</div>
+</div>
+<div class="col-lg-4 mb-3">
+<div class="border rounded p-3">
+<h6 class="text-muted">Right-aligned, no caption</h6>
+<figure class="image image-right mb-0">
+<img src="fileadmin/user_upload/medium.jpg" alt="right no caption" width="150" height="113" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded">
+</figure>
+<p class="small">Text wraps around. Inspect: should be <code>&lt;img class="... image-right"&gt;</code> with no figure.</p>
+<div style="clear:both"></div>
+</div>
+</div>
+</div>
+
+<hr class="my-4">
+
+<h5 class="border-bottom pb-2 mb-3">With Caption &rarr; &lt;figure&gt; wrapper</h5>
+<p>These aligned images have <strong>captions</strong>. They correctly render inside a <code>&lt;figure&gt;</code> wrapper with a <code>&lt;figcaption&gt;</code>, and the alignment class stays on the <code>&lt;figure&gt;</code>.</p>
+
+<div class="row mb-4">
+<div class="col-lg-4 mb-3">
+<div class="border rounded p-3">
+<h6 class="text-muted">Left-aligned, with caption</h6>
+<figure class="image image-left mb-0">
+<img src="fileadmin/user_upload/medium.jpg" alt="left with caption" width="150" height="113" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded">
+<figcaption class="small text-muted">Left-aligned caption</figcaption>
+</figure>
+<p class="small">Inspect: should be <code>&lt;figure class="... image-left"&gt;</code> with figcaption.</p>
+<div style="clear:both"></div>
+</div>
+</div>
+<div class="col-lg-4 mb-3">
+<div class="border rounded p-3 text-center">
+<h6 class="text-muted">Center-aligned, with caption</h6>
+<figure class="image image-center">
+<img src="fileadmin/user_upload/medium.jpg" alt="center with caption" width="150" height="113" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded">
+<figcaption class="small text-muted">Center-aligned caption</figcaption>
+</figure>
+<p class="small mb-0">Inspect: should be <code>&lt;figure class="... image-center"&gt;</code> with figcaption.</p>
+</div>
+</div>
+<div class="col-lg-4 mb-3">
+<div class="border rounded p-3">
+<h6 class="text-muted">Right-aligned, with caption</h6>
+<figure class="image image-right mb-0">
+<img src="fileadmin/user_upload/medium.jpg" alt="right with caption" width="150" height="113" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file" class="rounded">
+<figcaption class="small text-muted">Right-aligned caption</figcaption>
+</figure>
+<p class="small">Inspect: should be <code>&lt;figure class="... image-right"&gt;</code> with figcaption.</p>
+<div style="clear:both"></div>
+</div>
+</div>
+</div>
+
+<div class="alert alert-info">
+<strong>What changed in <a href="https://github.com/netresearch/t3x-rte_ckeditor_image/issues/595">#595</a>:</strong>
+<ul class="mb-0">
+<li><strong>Before fix:</strong> An alignment class (e.g. <code>image-left</code>) triggered a <code>&lt;figure&gt;</code> wrapper even without a caption, producing empty <code>&lt;figure&gt;</code> elements.</li>
+<li><strong>After fix:</strong> Only the presence of a <code>&lt;figcaption&gt;</code> triggers the <code>&lt;figure&gt;</code> wrapper. Without a caption, the alignment class is applied directly to the <code>&lt;img&gt;</code> element.</li>
+</ul>
+</div>
+
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 510);
+
+-- =============================================================================
 -- CONTENT ELEMENT 6: Images with Links Demo
 -- =============================================================================
 INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
@@ -944,7 +1045,7 @@ VALUES (1, 'text', '',
 <p class="mb-0"><strong>Password:</strong> <code>Joh316!!</code></p>
 </div>
 <div class="alert alert-success mt-3 small mb-0">
-<strong>Demo Coverage:</strong> This page tests 13 content scenarios covering the full feature matrix from functional tests.
+<strong>Demo Coverage:</strong> This page tests 14 content scenarios covering the full feature matrix from functional tests.
 </div>
 </div>
 </div>
