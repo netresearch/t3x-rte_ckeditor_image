@@ -20,6 +20,7 @@ use TYPO3\CMS\Backend\ElementBrowser\ElementBrowserRegistry;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
@@ -27,6 +28,7 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -69,12 +71,14 @@ class SelectImageController extends ElementBrowserController
      * @param DefaultUploadFolderResolver $uploadFolderResolver   Resolver for default upload folders
      * @param ElementBrowserRegistry      $elementBrowserRegistry Registry for element browsers (required by parent)
      * @param UriBuilder                  $uriBuilder             URI builder for backend routes
+     * @param Richtext                    $richtext               RTE configuration loader
      */
     public function __construct(
         private readonly ResourceFactory $resourceFactory,
         private readonly DefaultUploadFolderResolver $uploadFolderResolver,
         ElementBrowserRegistry $elementBrowserRegistry,
         private readonly UriBuilder $uriBuilder,
+        private readonly Richtext $richtext,
     ) {
         parent::__construct($elementBrowserRegistry);
     }
@@ -146,6 +150,11 @@ class SelectImageController extends ElementBrowserController
      * This action generates the proper URL for TYPO3's link browser wizard,
      * using the standard FormEngine pattern (not RTE-specific).
      *
+     * Link type restrictions (allowedTypes, blindLinkOptions) and field
+     * restrictions (allowedOptions, blindLinkFields) are automatically
+     * read from the active RTE preset configuration, providing parity
+     * with TYPO3 core's link browser behavior without extra configuration.
+     *
      * @param ServerRequestInterface $request The request object
      *
      * @return ResponseInterface JSON response with link browser URL
@@ -155,12 +164,19 @@ class SelectImageController extends ElementBrowserController
         try {
             $queryParams = $request->getQueryParams();
 
+            // Read from P array (set by RichTextElement via routeUrl) with top-level fallback
+            /** @var array<string, mixed> $p */
+            $p = is_array($queryParams['P'] ?? null) ? $queryParams['P'] : [];
+
             // Validate and sanitize pid - must be a non-negative integer
-            $pidParam = $queryParams['pid'] ?? 0;
+            $pidParam = $p['pid'] ?? $queryParams['pid'] ?? 0;
             $pid      = max(0, (int) (is_numeric($pidParam) ? $pidParam : 0));
 
             // Sanitize currentValue - ensure it's a string
             $currentValue = is_string($queryParams['currentValue'] ?? '') ? ($queryParams['currentValue'] ?? '') : '';
+
+            // Resolve link browser restrictions from RTE preset configuration
+            $linkBrowserParams = $this->resolveLinkBrowserParams($p, $pid);
 
             // Build URL using FormEngine-style parameters
             // This avoids loading the RTE-specific link browser adapter
@@ -176,10 +192,7 @@ class SelectImageController extends ElementBrowserController
                         'itemName'              => 'typo3image_link',
                         'currentValue'          => $currentValue,
                         'currentSelectedValues' => $currentValue,
-                        'params'                => [
-                            'blindLinkOptions' => '',
-                            'blindLinkFields'  => '',
-                        ],
+                        'params'                => $linkBrowserParams,
                     ],
                 ],
             );
@@ -193,6 +206,113 @@ class SelectImageController extends ElementBrowserController
                 'error' => 'Failed to generate link browser URL',
             ], 500);
         }
+    }
+
+    /**
+     * Resolve link browser restriction parameters from the active RTE preset.
+     *
+     * Reads allowedTypes/blindLinkOptions (link type restrictions) and
+     * allowedOptions/blindLinkFields (link field restrictions) from the
+     * RTE configuration, mirroring the logic in TYPO3 core's
+     * BrowseLinksController::getAllowedItems().
+     *
+     * @param array<string, mixed> $p   The P array from RichTextElement (table, fieldName, recordType, richtextConfigurationName)
+     * @param int                  $pid The page ID for TSconfig context
+     *
+     * @return array<string, string> Parameters for the wizard_link route
+     */
+    protected function resolveLinkBrowserParams(array $p, int $pid): array
+    {
+        $table      = is_string($p['table'] ?? null) ? $p['table'] : 'tt_content';
+        $field      = is_string($p['fieldName'] ?? null) ? $p['fieldName'] : 'bodytext';
+        $recordType = is_string($p['recordType'] ?? null) ? $p['recordType'] : '';
+
+        $richtextConfigName = is_string($p['richtextConfigurationName'] ?? null)
+            ? $p['richtextConfigurationName']
+            : null;
+
+        /** @var array<string, mixed> $rteConfig */
+        $rteConfig = $this->richtext->getConfiguration(
+            $table,
+            $field,
+            $pid,
+            $recordType,
+            [
+                'enableRichtext'        => true,
+                'richtextConfiguration' => $richtextConfigName,
+            ],
+        );
+
+        return $this->buildLinkBrowserParams($rteConfig);
+    }
+
+    /**
+     * Build link browser params from resolved RTE configuration.
+     *
+     * Priority for link types (mirrors BrowseLinksController::getAllowedItems):
+     * 1. allowedTypes (whitelist) takes precedence over blindLinkOptions
+     * 2. buttons.link.options.removeItems is always applied on top
+     *
+     * @param array<string, mixed> $rteConfig The resolved RTE configuration
+     *
+     * @return array<string, string> Parameters for the wizard_link route
+     */
+    protected function buildLinkBrowserParams(array $rteConfig): array
+    {
+        $params = [];
+
+        // Extract buttons.link.options.removeItems (always applied)
+        $buttons      = is_array($rteConfig['buttons'] ?? null) ? $rteConfig['buttons'] : [];
+        $buttonConfig = is_array($buttons['link'] ?? null) ? $buttons['link'] : [];
+
+        $removeItems = '';
+        if (
+            is_array($buttonConfig['options'] ?? null)
+            && is_string($buttonConfig['options']['removeItems'] ?? null)
+        ) {
+            $removeItems = $buttonConfig['options']['removeItems'];
+        }
+
+        // Link type restrictions: allowedTypes (whitelist) takes precedence
+        if (isset($rteConfig['allowedTypes']) && is_string($rteConfig['allowedTypes'])) {
+            $allowed = GeneralUtility::trimExplode(',', $rteConfig['allowedTypes'], true);
+
+            if ($removeItems !== '') {
+                $allowed = array_values(
+                    array_diff($allowed, GeneralUtility::trimExplode(',', $removeItems, true)),
+                );
+            }
+
+            if ($allowed !== []) {
+                $params['allowedTypes'] = implode(',', $allowed);
+            }
+        } else {
+            // Blacklist: combine blindLinkOptions and removeItems
+            $blind = GeneralUtility::trimExplode(
+                ',',
+                is_string($rteConfig['blindLinkOptions'] ?? null) ? $rteConfig['blindLinkOptions'] : '',
+                true,
+            );
+
+            if ($removeItems !== '') {
+                $blind = array_unique(
+                    array_merge($blind, GeneralUtility::trimExplode(',', $removeItems, true)),
+                );
+            }
+
+            if ($blind !== []) {
+                $params['blindLinkOptions'] = implode(',', $blind);
+            }
+        }
+
+        // Link field restrictions: allowedOptions (whitelist) takes precedence
+        if (isset($rteConfig['allowedOptions']) && is_string($rteConfig['allowedOptions'])) {
+            $params['allowedOptions'] = $rteConfig['allowedOptions'];
+        } elseif (isset($rteConfig['blindLinkFields']) && is_string($rteConfig['blindLinkFields'])) {
+            $params['blindLinkFields'] = $rteConfig['blindLinkFields'];
+        }
+
+        return $params;
     }
 
     /**

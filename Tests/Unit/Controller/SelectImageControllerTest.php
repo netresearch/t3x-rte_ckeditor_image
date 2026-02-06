@@ -24,6 +24,7 @@ use RuntimeException;
 use TYPO3\CMS\Backend\ElementBrowser\ElementBrowserRegistry;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
 use TYPO3\CMS\Core\Resource\File;
@@ -49,6 +50,9 @@ final class SelectImageControllerTest extends UnitTestCase
     /** @var DefaultUploadFolderResolver&MockObject */
     private DefaultUploadFolderResolver $uploadFolderResolverMock;
 
+    /** @var Richtext&MockObject */
+    private Richtext $richtextMock;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -65,13 +69,19 @@ final class SelectImageControllerTest extends UnitTestCase
         /** @var UriBuilder&MockObject $uriBuilderMock */
         $uriBuilderMock = $this->createMock(UriBuilder::class);
 
+        /** @var Richtext&MockObject $richtextMock */
+        $richtextMock = $this->createMock(Richtext::class);
+        $richtextMock->method('getConfiguration')->willReturn([]);
+
         $this->resourceFactoryMock      = $resourceFactoryMock;
         $this->uploadFolderResolverMock = $uploadFolderResolverMock;
+        $this->richtextMock             = $richtextMock;
         $this->subject                  = new SelectImageController(
             $this->resourceFactoryMock,
             $this->uploadFolderResolverMock,
             $elementBrowserRegistryMock,
             $uriBuilderMock,
+            $this->richtextMock,
         );
     }
 
@@ -727,6 +737,7 @@ final class SelectImageControllerTest extends UnitTestCase
             $this->uploadFolderResolverMock,
             $elementBrowserRegistryMock,
             $uriBuilderMock,
+            $this->richtextMock,
         );
 
         /** @var ServerRequestInterface&MockObject $requestMock */
@@ -766,6 +777,7 @@ final class SelectImageControllerTest extends UnitTestCase
             $this->uploadFolderResolverMock,
             $elementBrowserRegistryMock,
             $uriBuilderMock,
+            $this->richtextMock,
         );
 
         /** @var ServerRequestInterface&MockObject $requestMock */
@@ -800,6 +812,7 @@ final class SelectImageControllerTest extends UnitTestCase
             $this->uploadFolderResolverMock,
             $elementBrowserRegistryMock,
             $uriBuilderMock,
+            $this->richtextMock,
         );
 
         /** @var ServerRequestInterface&MockObject $requestMock */
@@ -838,6 +851,7 @@ final class SelectImageControllerTest extends UnitTestCase
             $this->uploadFolderResolverMock,
             $elementBrowserRegistryMock,
             $uriBuilderMock,
+            $this->richtextMock,
         );
 
         /** @var ServerRequestInterface&MockObject $requestMock */
@@ -882,6 +896,7 @@ final class SelectImageControllerTest extends UnitTestCase
             $this->uploadFolderResolverMock,
             $elementBrowserRegistryMock,
             $uriBuilderMock,
+            $this->richtextMock,
         );
 
         /** @var ServerRequestInterface&MockObject $requestMock */
@@ -911,6 +926,7 @@ final class SelectImageControllerTest extends UnitTestCase
             $this->uploadFolderResolverMock,
             $elementBrowserRegistryMock,
             $uriBuilderMock,
+            $this->richtextMock,
         );
 
         /** @var ServerRequestInterface&MockObject $requestMock */
@@ -962,13 +978,281 @@ final class SelectImageControllerTest extends UnitTestCase
             $this->uploadFolderResolverMock,
             $elementBrowserRegistryMock,
             $uriBuilderMock,
+            $this->richtextMock,
         );
 
         /** @var ServerRequestInterface&MockObject $requestMock */
         $requestMock = $this->createMock(ServerRequestInterface::class);
         $requestMock->method('getQueryParams')->willReturn([
-            'pid'          => 42,
+            'P' => [
+                'pid' => 42,
+            ],
             'currentValue' => 'https://example.com',
+        ]);
+
+        $controller->linkBrowserAction($requestMock);
+    }
+
+    #[Test]
+    public function linkBrowserActionReadsPidFromTopLevelFallback(): void
+    {
+        /** @var UriBuilder&MockObject $uriBuilderMock */
+        $uriBuilderMock = $this->createMock(UriBuilder::class);
+        $uriBuilderMock
+            ->expects(self::once())
+            ->method('buildUriFromRoute')
+            ->with('wizard_link', self::callback(static function (array $params): bool {
+                return $params['P']['pid'] === 42;
+            }))
+            ->willReturn('/typo3/wizard/link');
+
+        /** @var ElementBrowserRegistry&MockObject $elementBrowserRegistryMock */
+        $elementBrowserRegistryMock = $this->createMock(ElementBrowserRegistry::class);
+
+        $controller = new SelectImageController(
+            $this->resourceFactoryMock,
+            $this->uploadFolderResolverMock,
+            $elementBrowserRegistryMock,
+            $uriBuilderMock,
+            $this->richtextMock,
+        );
+
+        /** @var ServerRequestInterface&MockObject $requestMock */
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+        $requestMock->method('getQueryParams')->willReturn([
+            'pid' => 42, // Top-level fallback (backward compat)
+        ]);
+
+        $controller->linkBrowserAction($requestMock);
+    }
+
+    // ========================================================================
+    // buildLinkBrowserParams Tests
+    // ========================================================================
+
+    #[Test]
+    public function buildLinkBrowserParamsReturnsEmptyForEmptyConfig(): void
+    {
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [[]]);
+
+        self::assertSame([], $result);
+    }
+
+    #[Test]
+    public function buildLinkBrowserParamsReturnsAllowedTypes(): void
+    {
+        $rteConfig = [
+            'allowedTypes' => 'page,url,file',
+        ];
+
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [$rteConfig]);
+
+        self::assertSame(['allowedTypes' => 'page,url,file'], $result);
+    }
+
+    #[Test]
+    public function buildLinkBrowserParamsAllowedTypesMinusRemoveItems(): void
+    {
+        $rteConfig = [
+            'allowedTypes' => 'page,url,file,folder,email',
+            'buttons'      => [
+                'link' => [
+                    'options' => [
+                        'removeItems' => 'folder,email',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [$rteConfig]);
+
+        self::assertSame(['allowedTypes' => 'page,url,file'], $result);
+    }
+
+    #[Test]
+    public function buildLinkBrowserParamsReturnsBlindLinkOptions(): void
+    {
+        $rteConfig = [
+            'blindLinkOptions' => 'telephone,folder',
+        ];
+
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [$rteConfig]);
+
+        self::assertSame(['blindLinkOptions' => 'telephone,folder'], $result);
+    }
+
+    #[Test]
+    public function buildLinkBrowserParamsCombinesBlindLinkOptionsAndRemoveItems(): void
+    {
+        $rteConfig = [
+            'blindLinkOptions' => 'telephone',
+            'buttons'          => [
+                'link' => [
+                    'options' => [
+                        'removeItems' => 'folder',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [$rteConfig]);
+
+        self::assertSame(['blindLinkOptions' => 'telephone,folder'], $result);
+    }
+
+    #[Test]
+    public function buildLinkBrowserParamsRemoveItemsOnly(): void
+    {
+        $rteConfig = [
+            'buttons' => [
+                'link' => [
+                    'options' => [
+                        'removeItems' => 'telephone',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [$rteConfig]);
+
+        self::assertSame(['blindLinkOptions' => 'telephone'], $result);
+    }
+
+    #[Test]
+    public function buildLinkBrowserParamsSkipsEmptyAllowedTypes(): void
+    {
+        // When removeItems removes all allowed types, don't pass empty allowedTypes
+        $rteConfig = [
+            'allowedTypes' => 'page',
+            'buttons'      => [
+                'link' => [
+                    'options' => [
+                        'removeItems' => 'page',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [$rteConfig]);
+
+        self::assertArrayNotHasKey('allowedTypes', $result);
+    }
+
+    #[Test]
+    public function buildLinkBrowserParamsAllowedTypesTakesPrecedenceOverBlindLinkOptions(): void
+    {
+        $rteConfig = [
+            'allowedTypes'     => 'page,url',
+            'blindLinkOptions' => 'telephone', // Should be ignored when allowedTypes is set
+        ];
+
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [$rteConfig]);
+
+        self::assertSame(['allowedTypes' => 'page,url'], $result);
+        self::assertArrayNotHasKey('blindLinkOptions', $result);
+    }
+
+    #[Test]
+    public function buildLinkBrowserParamsReturnsAllowedOptions(): void
+    {
+        $rteConfig = [
+            'allowedOptions' => 'target,title,class',
+        ];
+
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [$rteConfig]);
+
+        self::assertSame(['allowedOptions' => 'target,title,class'], $result);
+    }
+
+    #[Test]
+    public function buildLinkBrowserParamsReturnsBlindLinkFields(): void
+    {
+        $rteConfig = [
+            'blindLinkFields' => 'params,rel',
+        ];
+
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [$rteConfig]);
+
+        self::assertSame(['blindLinkFields' => 'params,rel'], $result);
+    }
+
+    #[Test]
+    public function buildLinkBrowserParamsAllowedOptionsTakesPrecedenceOverBlindLinkFields(): void
+    {
+        $rteConfig = [
+            'allowedOptions'  => 'target,title',
+            'blindLinkFields' => 'params', // Should be ignored when allowedOptions is set
+        ];
+
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [$rteConfig]);
+
+        self::assertSame(['allowedOptions' => 'target,title'], $result);
+        self::assertArrayNotHasKey('blindLinkFields', $result);
+    }
+
+    #[Test]
+    public function buildLinkBrowserParamsCombinesTypeAndFieldRestrictions(): void
+    {
+        $rteConfig = [
+            'allowedTypes'   => 'page,url,file',
+            'allowedOptions' => 'target,title',
+        ];
+
+        $result = $this->callProtectedMethod('buildLinkBrowserParams', [$rteConfig]);
+
+        self::assertSame([
+            'allowedTypes'   => 'page,url,file',
+            'allowedOptions' => 'target,title',
+        ], $result);
+    }
+
+    #[Test]
+    public function linkBrowserActionPassesRteConfigRestrictionsToParams(): void
+    {
+        /** @var Richtext&MockObject $richtextMock */
+        $richtextMock = $this->createMock(Richtext::class);
+        $richtextMock->method('getConfiguration')->willReturn([
+            'allowedTypes' => 'page,url',
+            'buttons'      => [
+                'link' => [
+                    'options' => [
+                        'removeItems' => 'url',
+                    ],
+                ],
+            ],
+        ]);
+
+        /** @var UriBuilder&MockObject $uriBuilderMock */
+        $uriBuilderMock = $this->createMock(UriBuilder::class);
+        $uriBuilderMock
+            ->expects(self::once())
+            ->method('buildUriFromRoute')
+            ->with('wizard_link', self::callback(static function (array $params): bool {
+                $linkParams = $params['P']['params'] ?? [];
+
+                // Should have allowedTypes with 'url' removed by removeItems
+                return ($linkParams['allowedTypes'] ?? '') === 'page';
+            }))
+            ->willReturn('/typo3/wizard/link');
+
+        /** @var ElementBrowserRegistry&MockObject $elementBrowserRegistryMock */
+        $elementBrowserRegistryMock = $this->createMock(ElementBrowserRegistry::class);
+
+        $controller = new SelectImageController(
+            $this->resourceFactoryMock,
+            $this->uploadFolderResolverMock,
+            $elementBrowserRegistryMock,
+            $uriBuilderMock,
+            $richtextMock,
+        );
+
+        /** @var ServerRequestInterface&MockObject $requestMock */
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+        $requestMock->method('getQueryParams')->willReturn([
+            'P' => [
+                'pid'                       => 1,
+                'richtextConfigurationName' => 'default',
+            ],
         ]);
 
         $controller->linkBrowserAction($requestMock);
