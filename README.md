@@ -258,7 +258,7 @@ make up                      # Start DDEV + complete setup (ONE COMMAND!)
 # - TYPO3 v13:      https://v13.rte-ckeditor-image.ddev.site/
 # - TYPO3 v14:      https://v14.rte-ckeditor-image.ddev.site/
 # - Backend:        [version].rte-ckeditor-image.ddev.site/typo3/
-# - Credentials:    admin / Password:joh316
+# - Credentials:    admin / Joh316!!
 
 # Individual commands
 make start                   # Start DDEV environment

@@ -827,7 +827,7 @@ CONTENT_EOF
                 # All env vars prevent interactive prompts
                 # Use network alias 'mariadb-e2e' for database host
                 TYPO3_SETUP_ADMIN_USERNAME=admin \
-                TYPO3_SETUP_ADMIN_PASSWORD='Password:joh316' \
+                TYPO3_SETUP_ADMIN_PASSWORD='Joh316!!' \
                 TYPO3_SETUP_ADMIN_EMAIL='admin@example.com' \
                 vendor/bin/typo3 setup \
                     --driver=mysqli \
@@ -945,6 +945,7 @@ CONTENT_EOF
             -v ${ROOT_DIR}/Build/test-results:/app/test-results \
             -w /app \
             -e BASE_URL=http://webserver-e2e-${SUFFIX}:80 \
+            -e TYPO3_BACKEND_PASSWORD='Joh316!!' \
             -e CI=true \
             ${IMAGE_PLAYWRIGHT} /bin/bash -c "
                 # Skip npm install if node_modules exists (pre-cached in CI)
