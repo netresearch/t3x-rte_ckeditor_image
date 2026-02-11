@@ -348,9 +348,7 @@ class ImageRenderingAdapter
                 // Since tags.a is cleared, externalBlocks.a is the sole handler for all <a> tags,
                 // so we must validate protocols ourselves to block javascript:/data: etc.
                 if (!$this->isAllowedLinkProtocol($linkAttributes['href'])) {
-                    $innerContent = $this->extractLinkInnerContent($linkHtml);
-
-                    return $innerContent;
+                    return $this->extractLinkInnerContent($linkHtml);
                 }
 
                 // Resolve t3:// URLs that would normally be resolved by tags.a processing
