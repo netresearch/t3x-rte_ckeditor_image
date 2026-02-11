@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, cancelImageDialog, getEditorHtml, saveContentElement } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, cancelImageDialog, getEditorHtml, saveContentElement, requireCondition } from './helpers/typo3-backend';
 
 /**
  * E2E tests for verifying that image dialog changes are actually applied.
@@ -53,12 +53,12 @@ test.describe('Image Dialog - Apply Changes', () => {
     if (!loggedIn) {
       loggedIn = await loginToBackend(page);
     }
-    test.skip(!loggedIn, 'Backend login failed - check TYPO3_BACKEND_PASSWORD');
+    requireCondition(loggedIn, 'Backend login failed - check TYPO3_BACKEND_PASSWORD');
   });
 
   test('changing alt text in dialog updates the image', async ({ page }) => {
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
@@ -109,13 +109,13 @@ test.describe('Image Dialog - Apply Changes', () => {
     } else {
       // Take screenshot for debugging
       await page.screenshot({ path: 'test-results/dialog-no-alt-input.png' });
-      test.skip(true, 'Alt input not found in dialog');
+      requireCondition(false, 'Alt input not found in dialog');
     }
   });
 
   test('changing title in dialog updates the image', async ({ page }) => {
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
@@ -154,13 +154,13 @@ test.describe('Image Dialog - Apply Changes', () => {
       console.log('SUCCESS: Title was updated');
     } else {
       await page.screenshot({ path: 'test-results/dialog-no-title-input.png' });
-      test.skip(true, 'Title input not found in dialog');
+      requireCondition(false, 'Title input not found in dialog');
     }
   });
 
   test('adding link URL in dialog wraps image in anchor', async ({ page }) => {
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
@@ -198,13 +198,13 @@ test.describe('Image Dialog - Apply Changes', () => {
       console.log('SUCCESS: Image is wrapped in link');
     } else {
       await page.screenshot({ path: 'test-results/dialog-no-link-input.png' });
-      test.skip(true, 'Link input not found in dialog');
+      requireCondition(false, 'Link input not found in dialog');
     }
   });
 
   test('setting click-to-enlarge adds zoom attribute', async ({ page }) => {
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
@@ -230,13 +230,13 @@ test.describe('Image Dialog - Apply Changes', () => {
       console.log('SUCCESS: Zoom attribute was added');
     } else {
       await page.screenshot({ path: 'test-results/dialog-no-enlarge-radio.png' });
-      test.skip(true, 'Enlarge radio not found in dialog');
+      requireCondition(false, 'Enlarge radio not found in dialog');
     }
   });
 
   test('changing CSS class in dialog updates image class', async ({ page }) => {
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
@@ -272,7 +272,7 @@ test.describe('Image Dialog - Apply Changes', () => {
 
   test('changing dimensions in dialog updates image size', async ({ page }) => {
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
@@ -304,13 +304,13 @@ test.describe('Image Dialog - Apply Changes', () => {
       console.log('SUCCESS: Width was updated');
     } else {
       await page.screenshot({ path: 'test-results/dialog-no-width-input.png' });
-      test.skip(true, 'Width input not found in dialog');
+      requireCondition(false, 'Width input not found in dialog');
     }
   });
 
   test('link target is applied when set in dialog', async ({ page }) => {
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
@@ -348,13 +348,13 @@ test.describe('Image Dialog - Apply Changes', () => {
       console.log('SUCCESS: Link target was applied');
     } else {
       await page.screenshot({ path: 'test-results/dialog-no-target-select.png' });
-      test.skip(true, 'Target select not found in dialog');
+      requireCondition(false, 'Target select not found in dialog');
     }
   });
 
   test('link title is applied when set in dialog', async ({ page }) => {
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
@@ -393,13 +393,13 @@ test.describe('Image Dialog - Apply Changes', () => {
       console.log('SUCCESS: Link title was applied');
     } else {
       await page.screenshot({ path: 'test-results/dialog-no-link-title-input.png' });
-      test.skip(true, 'Link title input not found in dialog');
+      requireCondition(false, 'Link title input not found in dialog');
     }
   });
 
   test('dialog cancel does not apply changes', async ({ page }) => {
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
@@ -432,10 +432,10 @@ test.describe('Image Dialog - Apply Changes', () => {
 test.describe('Image Dialog - Save Persistence', () => {
   test('changes persist after saving content element', async ({ page }) => {
     const loggedIn = await loginToBackend(page);
-    test.skip(!loggedIn, 'Backend login failed');
+    requireCondition(loggedIn, 'Backend login failed');
 
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 

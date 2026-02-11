@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, waitForCKEditor, selectImageInEditor, openImageEditDialog } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, waitForCKEditor, selectImageInEditor, openImageEditDialog, requireCondition } from './helpers/typo3-backend';
 
 /**
  * E2E tests for the image dialog link browser functionality.
@@ -14,13 +14,13 @@ test.describe('Image Dialog Link Browser', () => {
   test('can open link browser from image edit dialog', async ({ page }) => {
     // Login to backend
     const loggedIn = await loginToBackend(page);
-    test.skip(!loggedIn, 'Backend login failed - check TYPO3_BACKEND_PASSWORD');
+    requireCondition(loggedIn, 'Backend login failed - check TYPO3_BACKEND_PASSWORD');
 
     // Navigate directly to edit a content element
     console.log('Step: navigateToContentEdit');
     const editFormLoaded = await navigateToContentEdit(page);
     console.log(`navigateToContentEdit result: ${editFormLoaded}`);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     console.log('Step: waitForCKEditor');
     await waitForCKEditor(page);
@@ -29,7 +29,7 @@ test.describe('Image Dialog Link Browser', () => {
     console.log('Step: selectImageInEditor');
     const hasImage = await selectImageInEditor(page);
     console.log(`selectImageInEditor result: ${hasImage}`);
-    test.skip(!hasImage, 'No image found in editor');
+    requireCondition(hasImage, 'No image found in editor');
 
     // Double-click to open edit dialog
     console.log('Step: openImageEditDialog');
@@ -73,16 +73,16 @@ test.describe('Image Dialog Link Browser', () => {
   test('selecting a page inserts link into dialog field', async ({ page }) => {
     // Login to backend
     const loggedIn = await loginToBackend(page);
-    test.skip(!loggedIn, 'Backend login failed');
+    requireCondition(loggedIn, 'Backend login failed');
 
     // Navigate to content edit
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
     const hasImage = await selectImageInEditor(page);
-    test.skip(!hasImage, 'No image found in editor');
+    requireCondition(hasImage, 'No image found in editor');
 
     // Open image edit dialog
     const dialogOpened = await openImageEditDialog(page);
@@ -128,7 +128,7 @@ test.describe('Image Dialog Link Browser', () => {
 
     if (homeRowCount === 0) {
       console.log('Could not find Home page row, skipping test');
-      test.skip(true, 'Home page row not found');
+      requireCondition(false, 'Home page row not found');
       return;
     }
 
@@ -171,22 +171,22 @@ test.describe('Image Dialog Link Browser', () => {
       } else {
         // Take screenshot for debugging
         await page.screenshot({ path: 'test-results/link-browser-no-pages.png' });
-        test.skip(true, 'No page links found in link browser');
+        requireCondition(false, 'No page links found in link browser');
       }
     }
   });
 
   test('selecting a page in link browser inserts link and closes browser', async ({ page }) => {
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
     const hasImage = await selectImageInEditor(page);
-    test.skip(!hasImage, 'No image found in editor');
+    requireCondition(hasImage, 'No image found in editor');
 
     const dialogOpened = await openImageEditDialog(page);
-    test.skip(!dialogOpened, 'Could not open image dialog');
+    requireCondition(dialogOpened, 'Could not open image dialog');
 
     // Select "Link" option
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
@@ -249,15 +249,15 @@ test.describe('Image Dialog Link Browser', () => {
 
   test('link browser closes without error on cancel', async ({ page }) => {
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
     const hasImage = await selectImageInEditor(page);
-    test.skip(!hasImage, 'No image found in editor');
+    requireCondition(hasImage, 'No image found in editor');
 
     const dialogOpened = await openImageEditDialog(page);
-    test.skip(!dialogOpened, 'Could not open image dialog');
+    requireCondition(dialogOpened, 'Could not open image dialog');
 
     // Select "Link" option
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
@@ -310,7 +310,7 @@ test.describe('Image Dialog Link Browser', () => {
 test.describe('Link Browser Error Handling', () => {
   test.beforeEach(async ({ page }) => {
     const loggedIn = await loginToBackend(page);
-    test.skip(!loggedIn, 'Backend login failed');
+    requireCondition(loggedIn, 'Backend login failed');
 
     // Capture console errors
     page.on('console', msg => {
@@ -327,15 +327,15 @@ test.describe('Link Browser Error Handling', () => {
     });
 
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
     const hasImage = await selectImageInEditor(page);
-    test.skip(!hasImage, 'No image found in editor');
+    requireCondition(hasImage, 'No image found in editor');
 
     const dialogOpened = await openImageEditDialog(page);
-    test.skip(!dialogOpened, 'Could not open image dialog');
+    requireCondition(dialogOpened, 'Could not open image dialog');
 
     // Select "Link" option
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
@@ -374,15 +374,15 @@ test.describe('Link Browser Error Handling', () => {
     });
 
     const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    requireCondition(editFormLoaded, 'Could not load content edit form');
 
     await waitForCKEditor(page);
 
     const hasImage = await selectImageInEditor(page);
-    test.skip(!hasImage, 'No image found in editor');
+    requireCondition(hasImage, 'No image found in editor');
 
     const dialogOpened = await openImageEditDialog(page);
-    test.skip(!dialogOpened, 'Could not open image dialog');
+    requireCondition(dialogOpened, 'Could not open image dialog');
 
     // Select "Link" option
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');

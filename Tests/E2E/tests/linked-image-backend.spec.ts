@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, BACKEND_PASSWORD, BASE_URL, navigateToContentEdit, getModuleFrame, waitForCKEditor } from './helpers/typo3-backend';
+import { loginToBackend, BASE_URL, navigateToContentEdit, getModuleFrame, waitForCKEditor, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
 
 /**
  * E2E tests for the actual CKEditor workflow where issue #565 manifests.
@@ -63,10 +63,7 @@ function countLinkWrappersAroundImages(html: string): { total: number; nested: n
 
 test.describe('CKEditor Backend Workflow (#565)', () => {
   test.beforeEach(async ({ page }) => {
-    // Skip all backend tests if no password is configured
-    if (!BACKEND_PASSWORD) {
-      test.skip(true, 'TYPO3_BACKEND_PASSWORD not configured - skipping backend tests');
-    }
+    requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
   });
 
   test('can login to TYPO3 backend', async ({ page }) => {
@@ -77,11 +74,11 @@ test.describe('CKEditor Backend Workflow (#565)', () => {
   test('CKEditor does not create duplicate links when linking an image', async ({ page }) => {
     // This test verifies the core bug fix
     const loggedIn = await loginToBackend(page);
-    test.skip(!loggedIn, 'Backend login failed');
+    requireCondition(loggedIn, 'Backend login failed');
 
     // Navigate to content editing
     const opened = await navigateToContentEdit(page);
-    test.skip(!opened, 'Could not open content element for editing');
+    requireCondition(opened, 'Could not open content element for editing');
 
     // Wait for CKEditor to initialize
     await waitForCKEditor(page);
@@ -101,10 +98,10 @@ test.describe('CKEditor Backend Workflow (#565)', () => {
 
   test('linked images in source view have exactly one <a> wrapper', async ({ page }) => {
     const loggedIn = await loginToBackend(page);
-    test.skip(!loggedIn, 'Backend login failed');
+    requireCondition(loggedIn, 'Backend login failed');
 
     const opened = await navigateToContentEdit(page);
-    test.skip(!opened, 'Could not open content element for editing');
+    requireCondition(opened, 'Could not open content element for editing');
 
     await waitForCKEditor(page);
 
@@ -168,11 +165,11 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
    */
   test('clicking linked image shows image toolbar, not link balloon', async ({ page }) => {
     const loggedIn = await loginToBackend(page);
-    test.skip(!loggedIn, 'Backend login failed');
+    requireCondition(loggedIn, 'Backend login failed');
 
     // Navigate to a content element that has a linked image
     const editLoaded = await navigateToContentEdit(page);
-    test.skip(!editLoaded, 'CKEditor not found in content element');
+    requireCondition(editLoaded, 'CKEditor not found in content element');
 
     await waitForCKEditor(page);
 
@@ -185,10 +182,10 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
     if (!hasLinkedImage) {
       // Try to find any image to add a link to for testing
       const anyImage = moduleFrame.locator('.ck-editor__editable img, .ck-editor__editable figure');
-      test.skip(await anyImage.count() === 0, 'No images found in content element');
+      requireCondition(await anyImage.count() > 0, 'No images found in content element');
 
       // Skip if no linked image - we need pre-existing linked image content
-      test.skip(true, 'No linked image found in content - add test content with linked image');
+      requireCondition(false, 'No linked image found in content - add test content with linked image');
     }
 
     // Click on the linked image to select it
@@ -234,10 +231,10 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
 
   test('regular text links still show link balloon', async ({ page }) => {
     const loggedIn = await loginToBackend(page);
-    test.skip(!loggedIn, 'Backend login failed');
+    requireCondition(loggedIn, 'Backend login failed');
 
     const editLoaded = await navigateToContentEdit(page);
-    test.skip(!editLoaded, 'CKEditor not found');
+    requireCondition(editLoaded, 'CKEditor not found');
 
     await waitForCKEditor(page);
 
@@ -247,7 +244,7 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
     const textLink = moduleFrame.locator('.ck-editor__editable a:not(:has(img)):not(:has(figure))');
     const hasTextLink = await textLink.count() > 0;
 
-    test.skip(!hasTextLink, 'No text links found in content');
+    requireCondition(hasTextLink, 'No text links found in content');
 
     // Click on the text link
     await textLink.first().click();
@@ -267,7 +264,7 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
 });
 
 test.describe('Documentation: Full Workflow Tests Needed', () => {
-  test.skip('insert image then add link - verify single <a> wrapper', async ({ page }) => {
+  test.fixme('insert image then add link - verify single <a> wrapper', async ({ page }) => {
     // TODO: Implement full CKEditor interaction test
     // This requires:
     // 1. Stable selectors for CKEditor toolbar buttons
@@ -276,13 +273,13 @@ test.describe('Documentation: Full Workflow Tests Needed', () => {
     // 4. Source view verification
   });
 
-  test.skip('edit existing linked image - verify no duplicate <a> on save', async ({ page }) => {
+  test.fixme('edit existing linked image - verify no duplicate <a> on save', async ({ page }) => {
     // TODO: Load content with existing <a><img></a>
     // Edit and save
     // Verify still single <a> wrapper
   });
 
-  test.skip('switch between visual and source view - verify no duplication', async ({ page }) => {
+  test.fixme('switch between visual and source view - verify no duplication', async ({ page }) => {
     // TODO: Toggle source view
     // Verify HTML structure is preserved correctly
   });

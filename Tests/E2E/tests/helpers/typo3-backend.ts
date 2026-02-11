@@ -1,4 +1,4 @@
-import { Page, FrameLocator, test } from '@playwright/test';
+import { Page, FrameLocator, expect } from '@playwright/test';
 
 /**
  * Shared helpers for TYPO3 backend E2E tests.
@@ -164,9 +164,11 @@ export async function selectImageInEditor(page: Page): Promise<boolean> {
 }
 
 /**
- * Skip the current test if backend password is not configured.
- * Use in test.beforeEach() for backend test suites.
+ * Assert a precondition — fails hard in every environment.
+ *
+ * Both CI and local dev have fixed test setups, so a failing
+ * precondition always indicates a real problem that must be fixed.
  */
-export function skipIfNoBackendPassword(): void {
-    test.skip(!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD not configured - skipping backend tests');
+export function requireCondition(condition: boolean, message: string): void {
+    expect(condition, message).toBe(true);
 }

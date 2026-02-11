@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { requireCondition } from './helpers/typo3-backend';
 
 /**
  * E2E tests for RTE CKEditor Image inline image functionality.
@@ -117,8 +118,8 @@ test.describe('Inline Image Differentiation', () => {
     const inlineCount = await inlineImages.count();
 
     // Skip if we don't have both types to compare
-    test.skip(
-      blockCount === 0 || inlineCount === 0,
+    requireCondition(
+      blockCount > 0 && inlineCount > 0,
       'Need both block and inline images to compare styling'
     );
 
