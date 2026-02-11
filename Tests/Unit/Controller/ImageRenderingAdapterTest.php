@@ -1675,4 +1675,190 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertStringContainsString('<img src="/processed-pdf-icon.jpg"', $result);
         self::assertStringContainsString('</a>', $result);
     }
+
+    // ========================================================================
+    // Issue #606 Tests - renderLink must resolve t3:// URLs in text-only links
+    // ========================================================================
+
+    /**
+     * Test that renderLink resolves t3:// URLs in links without images.
+     *
+     * Since externalBlocks.a bypasses TYPO3's normal link resolution (tags.a
+     * is cleared), t3:// links must be resolved explicitly even when the link
+     * contains only text and no images.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/606
+     */
+    #[Test]
+    public function renderLinkResolvesT3UrlInTextOnlyLink(): void
+    {
+        $linkHtml = '<a href="t3://page?uid=42">Visit our page</a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->expects(self::once())
+            ->method('parseLinkWithImages')
+            ->with($linkHtml)
+            ->willReturn([
+                'link'   => ['href' => 't3://page?uid=42'],
+                'images' => [],
+            ]);
+
+        // ContentObjectRenderer must be called to resolve the t3:// URL
+        $this->contentObjectRenderer
+            ->expects(self::once())
+            ->method('typoLink_URL')
+            ->with(['parameter' => 't3://page?uid=42'])
+            ->willReturn('/my-page/');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertStringContainsString('href="/my-page/"', $result);
+        self::assertStringContainsString('Visit our page', $result);
+        self::assertStringContainsString('</a>', $result);
+        // Must NOT contain unresolved t3:// URL
+        self::assertStringNotContainsString('t3://page', $result);
+    }
+
+    /**
+     * Test that renderLink resolves t3://file links in text-only links.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/606
+     */
+    #[Test]
+    public function renderLinkResolvesT3FileUrlInTextOnlyLink(): void
+    {
+        $linkHtml = '<a href="t3://file?uid=123" class="download">Download PDF</a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => 't3://file?uid=123', 'class' => 'download'],
+                'images' => [],
+            ]);
+
+        $this->contentObjectRenderer
+            ->expects(self::once())
+            ->method('typoLink_URL')
+            ->with(['parameter' => 't3://file?uid=123'])
+            ->willReturn('/fileadmin/document.pdf');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertStringContainsString('href="/fileadmin/document.pdf"', $result);
+        self::assertStringContainsString('class="download"', $result);
+        self::assertStringContainsString('Download PDF', $result);
+        self::assertStringNotContainsString('t3://file', $result);
+    }
+
+    /**
+     * Test that renderLink preserves all link attributes when resolving t3:// URLs.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/606
+     */
+    #[Test]
+    public function renderLinkPreservesLinkAttributesWhenResolvingT3Url(): void
+    {
+        $linkHtml = '<a href="t3://page?uid=42" target="_blank" class="external" title="My Page">Click here</a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => [
+                    'href'   => 't3://page?uid=42',
+                    'target' => '_blank',
+                    'class'  => 'external',
+                    'title'  => 'My Page',
+                ],
+                'images' => [],
+            ]);
+
+        $this->contentObjectRenderer
+            ->method('typoLink_URL')
+            ->willReturn('/my-page/');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertStringContainsString('href="/my-page/"', $result);
+        self::assertStringContainsString('target="_blank"', $result);
+        self::assertStringContainsString('class="external"', $result);
+        self::assertStringContainsString('title="My Page"', $result);
+        self::assertStringContainsString('Click here', $result);
+    }
+
+    /**
+     * Test that renderLink does NOT modify non-t3:// links without images.
+     *
+     * Regular https/mailto/relative links should be returned unchanged.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/606
+     */
+    #[Test]
+    public function renderLinkDoesNotModifyNonT3LinksWithoutImages(): void
+    {
+        $linkHtml = '<a href="https://example.com" target="_blank">External link</a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => 'https://example.com', 'target' => '_blank'],
+                'images' => [],
+            ]);
+
+        // typoLink_URL should NOT be called for non-t3:// URLs
+        $this->contentObjectRenderer
+            ->expects(self::never())
+            ->method('typoLink_URL');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        // Should return original HTML unchanged
+        self::assertSame($linkHtml, $result);
+    }
+
+    /**
+     * Test that renderLink handles t3:// resolution returning empty string.
+     *
+     * When typoLink_URL cannot resolve a t3:// URL, it returns empty string.
+     * The original t3:// URL should be preserved as fallback.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/606
+     */
+    #[Test]
+    public function renderLinkFallsBackToOriginalWhenT3ResolutionFails(): void
+    {
+        $linkHtml = '<a href="t3://page?uid=99999">Broken link</a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => 't3://page?uid=99999'],
+                'images' => [],
+            ]);
+
+        // typoLink_URL returns empty when resolution fails
+        $this->contentObjectRenderer
+            ->method('typoLink_URL')
+            ->willReturn('');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        // Should keep the original t3:// URL since resolution failed
+        self::assertStringContainsString('t3://page?uid=99999', $result);
+        self::assertStringContainsString('Broken link', $result);
+    }
 }

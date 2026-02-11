@@ -338,8 +338,20 @@ class ImageRenderingAdapter
         $linkAttributes = $parsed['link'];
         $images         = $parsed['images'];
 
-        // If no images found, return original HTML unchanged
+        // If no images found, still resolve t3:// links before returning.
+        // Since externalBlocks.a bypasses TYPO3's normal link resolution (tags.a is cleared),
+        // we must resolve t3:// links explicitly even for text-only links.
+        // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/606
         if ($images === []) {
+            if (isset($linkAttributes['href']) && str_starts_with($linkAttributes['href'], 't3://')) {
+                $linkAttributes['href'] = $this->resolveTypo3LinkUrl($linkAttributes['href'], $request);
+                $innerContent = $this->extractLinkInnerContent($linkHtml);
+
+                if ($innerContent !== '') {
+                    return $this->wrapInLink($innerContent, $linkAttributes);
+                }
+            }
+
             return $linkHtml;
         }
 
