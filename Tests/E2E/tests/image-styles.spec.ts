@@ -21,15 +21,14 @@ async function testImageStyle(
   page: Page,
   selector: string,
   cssProperty: string,
-  expectedValues: string | string[],
-  skipMessage: string
+  expectedValues: string | string[]
 ): Promise<void> {
   await page.goto('/');
 
   const elements = page.locator(selector);
   const count = await elements.count();
 
-  test.skip(count === 0, skipMessage);
+  expect(count, `Expected elements matching ${selector} in demo content`).toBeGreaterThan(0);
 
   const firstElement = elements.first();
   await expect(firstElement).toBeVisible();
@@ -57,8 +56,8 @@ test.describe('Image Style/Alignment Functionality', () => {
     // Log what we found for debugging
     console.log(`Found ${count} styled images/figures`);
 
-    // If no styled images exist, skip the test (content-dependent)
-    test.skip(count === 0, 'No styled images found - add images with alignment classes to validate');
+    // Fail if no styled images exist in demo content
+    expect(count, 'Expected styled images in demo content').toBeGreaterThan(0);
 
     // Verify at least one styled element is visible
     await expect(styledImages.first()).toBeVisible();
@@ -69,8 +68,7 @@ test.describe('Image Style/Alignment Functionality', () => {
       page,
       'img.image-left, figure.image-left',
       'float',
-      'left',
-      'No left-aligned images found'
+      'left'
     );
   });
 
@@ -79,8 +77,7 @@ test.describe('Image Style/Alignment Functionality', () => {
       page,
       'img.image-right, figure.image-right',
       'float',
-      'right',
-      'No right-aligned images found'
+      'right'
     );
   });
 
@@ -90,7 +87,7 @@ test.describe('Image Style/Alignment Functionality', () => {
     const centerImages = page.locator('img.image-center, figure.image-center');
     const count = await centerImages.count();
 
-    test.skip(count === 0, 'No center-aligned images found');
+    expect(count, 'Expected center-aligned images in demo content').toBeGreaterThan(0);
 
     const firstCenter = centerImages.first();
     await expect(firstCenter).toBeVisible();
@@ -109,8 +106,7 @@ test.describe('Image Style/Alignment Functionality', () => {
       page,
       'img.image-block, figure.image-block',
       'display',
-      'block',
-      'No block images found'
+      'block'
     );
   });
 
@@ -121,8 +117,7 @@ test.describe('Image Style/Alignment Functionality', () => {
       page,
       'img.image-inline',
       'display',
-      ['inline', 'inline-block'],
-      'No inline images found'
+      ['inline', 'inline-block']
     );
   });
 
@@ -164,8 +159,8 @@ test.describe('Image Style Class Preservation', () => {
     );
     const count = await styledImages.count();
 
-    // Skip if no styled images - test is content-dependent
-    test.skip(count === 0, 'No styled images found on page');
+    // Fail if no styled images exist in demo content
+    expect(count, 'Expected styled images in demo content').toBeGreaterThan(0);
 
     // Verify each styled image has the expected class preserved
     for (let i = 0; i < Math.min(count, 5); i++) {
@@ -187,8 +182,8 @@ test.describe('Image Style Class Preservation', () => {
     );
     const count = await styledFigures.count();
 
-    // Skip if no styled figures - test is content-dependent
-    test.skip(count === 0, 'No styled figure elements found on page');
+    // Fail if no styled figures exist in demo content
+    expect(count, 'Expected styled figure elements in demo content').toBeGreaterThan(0);
 
     // Verify each styled figure has class preserved and contains an image
     for (let i = 0; i < Math.min(count, 5); i++) {

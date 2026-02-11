@@ -25,8 +25,8 @@ test.describe('Click-to-Enlarge Functionality', () => {
     const popupLinks = page.locator('a[data-popup="true"]');
     const count = await popupLinks.count();
 
-    // Skip if no popup images exist
-    test.skip(count === 0, 'No popup images found - add images with click-to-enlarge enabled');
+    // Fail if no popup images exist in demo content
+    expect(count, 'Expected popup images in demo content').toBeGreaterThan(0);
 
     // Should have at least one popup link with an image
     await expect(popupLinks.first()).toBeVisible();
@@ -44,7 +44,7 @@ test.describe('Click-to-Enlarge Functionality', () => {
     const popupLinks = page.locator('a[data-popup="true"]');
     const count = await popupLinks.count();
 
-    test.skip(count === 0, 'No popup images found');
+    expect(count, 'Expected popup images in demo content').toBeGreaterThan(0);
 
     await expect(popupLinks.first()).toBeVisible();
 
@@ -64,7 +64,7 @@ test.describe('Click-to-Enlarge Functionality', () => {
     const popupLinks = page.locator('a[data-popup="true"]');
     const count = await popupLinks.count();
 
-    test.skip(count === 0, 'No popup images found');
+    expect(count, 'Expected popup images in demo content').toBeGreaterThan(0);
 
     const firstLink = popupLinks.first();
     await expect(firstLink).toBeVisible();
@@ -95,7 +95,7 @@ test.describe('Click-to-Enlarge Functionality', () => {
     const imagesInPopupLinks = page.locator('a[data-popup="true"] img');
     const count = await imagesInPopupLinks.count();
 
-    test.skip(count === 0, 'No popup images found');
+    expect(count, 'Expected popup images in demo content').toBeGreaterThan(0);
 
     await expect(imagesInPopupLinks.first()).toBeVisible();
 
@@ -180,10 +180,7 @@ test.describe('Caption Rendering (Whitespace Artifact Prevention)', () => {
     const figures = page.locator('figure');
     const figureCount = await figures.count();
 
-    if (figureCount === 0) {
-      console.log('No figure elements found - caption test skipped');
-      return;
-    }
+    expect(figureCount, 'Expected figure elements in demo content').toBeGreaterThan(0);
 
     // Check each figure for <p>&nbsp;</p> artifacts
     for (let i = 0; i < figureCount; i++) {
@@ -218,9 +215,8 @@ test.describe('Caption Rendering (Whitespace Artifact Prevention)', () => {
     const figuresWithCaption = page.locator('figure:has(figcaption)');
     const count = await figuresWithCaption.count();
 
-    // Skip test if no captioned images exist in test page
-    // This ensures test doesn't silently pass without validating anything
-    test.skip(count === 0, 'No figures with captions found on test page - add captioned images to validate');
+    // Fail if no captioned images exist in test page
+    expect(count, 'Expected figures with captions in demo content').toBeGreaterThan(0);
 
     // Verify figcaption contains text
     const firstCaption = figuresWithCaption.first().locator('figcaption');
@@ -255,8 +251,8 @@ test.describe('TypoScript Configuration Verification', () => {
     const popupLinks = page.locator('a[data-popup="true"]');
     const popupCount = await popupLinks.count();
 
-    // Skip if no test content with popup images exists
-    test.skip(popupCount === 0, 'No popup images found - add images with click-to-enlarge enabled');
+    // Fail if no test content with popup images exists
+    expect(popupCount, 'Expected popup images in demo content').toBeGreaterThan(0);
 
     // Should have at least one popup link (proves extension processed images)
     expect(popupCount).toBeGreaterThan(0);

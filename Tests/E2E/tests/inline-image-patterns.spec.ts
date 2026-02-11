@@ -1,4 +1,4 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 /**
  * E2E tests for common inline image patterns in RTE content.
@@ -32,8 +32,8 @@ test.describe('Links Spanning Text and Inline Images', () => {
     const linksWithInlineImages = page.locator('a:has(img.image-inline)');
     const count = await linksWithInlineImages.count();
 
-    // Skip if no such links exist (content-dependent)
-    test.skip(count === 0, 'No links with inline images found - add test content to validate');
+    // Fail if no such links exist in demo content
+    expect(count, 'Expected links with inline images in demo content').toBeGreaterThan(0);
 
     // Check the first matching link
     const link = linksWithInlineImages.first();
@@ -91,7 +91,7 @@ test.describe('Links Spanning Text and Inline Images', () => {
       }
     }
 
-    test.skip(!foundLinkWithImageAtStart, 'No links with inline image at start found');
+    expect(foundLinkWithImageAtStart, 'Expected links with inline image at start in demo content').toBe(true);
   });
 
   /**
@@ -127,7 +127,7 @@ test.describe('Links Spanning Text and Inline Images', () => {
       }
     }
 
-    test.skip(!foundLinkWithImageAtEnd, 'No links with inline image at end found');
+    expect(foundLinkWithImageAtEnd, 'Expected links with inline image at end in demo content').toBe(true);
   });
 
   /**
@@ -160,7 +160,7 @@ test.describe('Links Spanning Text and Inline Images', () => {
     const linksWithImages = page.locator('a:has(img.image-inline)');
     const count = await linksWithImages.count();
 
-    test.skip(count === 0, 'No links with inline images found');
+    expect(count, 'Expected links with inline images in demo content').toBeGreaterThan(0);
 
     for (let i = 0; i < Math.min(count, 5); i++) {
       const link = linksWithImages.nth(i);
@@ -353,7 +353,7 @@ test.describe('General Inline Image Rendering', () => {
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();
 
-    test.skip(count === 0, 'No inline images found on page');
+    expect(count, 'Expected inline images in demo content').toBeGreaterThan(0);
 
     console.log(`Found ${count} inline images`);
 
@@ -374,7 +374,7 @@ test.describe('General Inline Image Rendering', () => {
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();
 
-    test.skip(count === 0, 'No inline images found on page');
+    expect(count, 'Expected inline images in demo content').toBeGreaterThan(0);
 
     for (let i = 0; i < Math.min(count, 10); i++) {
       const img = inlineImages.nth(i);
@@ -395,7 +395,7 @@ test.describe('General Inline Image Rendering', () => {
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();
 
-    test.skip(count === 0, 'No inline images found on page');
+    expect(count, 'Expected inline images in demo content').toBeGreaterThan(0);
 
     for (let i = 0; i < Math.min(count, 5); i++) {
       const img = inlineImages.nth(i);

@@ -1,4 +1,5 @@
-import { test, expect, Page, FrameLocator } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, saveContentElement, getEditorHtml } from './helpers/typo3-backend';
 
 /**
  * E2E tests for link attributes round-trip persistence.
@@ -13,121 +14,6 @@ import { test, expect, Page, FrameLocator } from '@playwright/test';
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/565
  */
-
-const BACKEND_USER = process.env.TYPO3_BACKEND_USER || 'admin';
-const BACKEND_PASSWORD = process.env.TYPO3_BACKEND_PASSWORD || '';
-const BASE_URL = process.env.BASE_URL || 'https://v13.rte-ckeditor-image.ddev.site';
-
-/**
- * Login to TYPO3 backend
- */
-async function loginToBackend(page: Page): Promise<boolean> {
-  try {
-    await page.goto(`${BASE_URL}/typo3/`, { timeout: 30000 });
-
-    const loginForm = page.locator('form[name="loginform"], #typo3-login-form, input[name="username"], #t3-username');
-    const isLoginPage = await loginForm.count() > 0;
-
-    if (!isLoginPage) {
-      return true; // Already logged in
-    }
-
-    const usernameInput = page.locator('input[name="username"], #t3-username').first();
-    const passwordInput = page.locator('input[name="p_field"], input[name="password"], #t3-password').first();
-
-    await usernameInput.fill(BACKEND_USER);
-    await passwordInput.fill(BACKEND_PASSWORD);
-    await page.click('button[type="submit"]');
-
-    await page.waitForLoadState('networkidle', { timeout: 30000 });
-
-    const backendIndicators = page.locator('.modulemenu, .typo3-module-menu, [data-modulemenu], .scaffold');
-    return await backendIndicators.count() > 0;
-  } catch (error) {
-    console.log('Backend login failed:', error);
-    return false;
-  }
-}
-
-/**
- * Navigate to content element edit form
- */
-async function navigateToContentEdit(page: Page, contentId: number = 1): Promise<boolean> {
-  try {
-    const editUrl = `${BASE_URL}/typo3/record/edit?edit[tt_content][${contentId}]=edit&returnUrl=/typo3/`;
-    await page.goto(editUrl, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-
-    const moduleFrame = page.frameLocator('iframe').first();
-    await moduleFrame.locator('.ck-editor__editable, .ck-content').first().waitFor({ timeout: 20000 });
-    return true;
-  } catch (error) {
-    console.log('Failed to navigate to content edit:', error);
-    return false;
-  }
-}
-
-/**
- * Get the module frame locator
- */
-function getModuleFrame(page: Page): FrameLocator {
-  return page.frameLocator('iframe').first();
-}
-
-/**
- * Wait for CKEditor to be ready
- */
-async function waitForCKEditor(page: Page): Promise<void> {
-  const frame = getModuleFrame(page);
-  await frame.locator('.ck-editor__editable').first().waitFor({ timeout: 15000 });
-  await page.waitForTimeout(1000);
-}
-
-/**
- * Double-click image to open edit dialog
- */
-async function openImageEditDialog(page: Page): Promise<boolean> {
-  const frame = getModuleFrame(page);
-  const image = frame.locator('.ck-editor__editable img');
-  if (await image.count() > 0) {
-    await image.first().dblclick();
-    await page.waitForSelector('.modal-dialog, .t3js-modal', { timeout: 10000 });
-    await page.waitForTimeout(500); // Wait for dialog to fully render
-    return true;
-  }
-  return false;
-}
-
-/**
- * Close the image dialog by clicking the confirm/save button
- */
-async function confirmImageDialog(page: Page): Promise<void> {
-  const confirmButton = page.locator('.modal-footer button.btn-primary, .modal-footer button.btn-default:has-text("OK"), .modal-footer button:has-text("OK")').first();
-
-  if (await confirmButton.count() > 0) {
-    await confirmButton.evaluate((el: HTMLElement) => el.click());
-  }
-
-  // Wait for modal to close
-  await page.waitForTimeout(1000);
-}
-
-/**
- * Save the content element
- */
-async function saveContentElement(page: Page): Promise<void> {
-  const frame = getModuleFrame(page);
-
-  // Look for save button in the docheader
-  const saveButton = frame.locator('button[name="_savedok"], button[value="1"][name="_savedok"], .t3js-editform-submitButton').first();
-
-  if (await saveButton.count() > 0) {
-    await saveButton.click();
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-  }
-}
 
 /**
  * Get current values from the image dialog
@@ -192,14 +78,6 @@ async function setDialogValues(page: Page, values: {
   if (values.linkParams !== undefined) {
     await page.locator('#rteckeditorimage-linkParams').fill(values.linkParams);
   }
-}
-
-/**
- * Get the HTML from CKEditor to inspect link attributes
- */
-async function getEditorHtml(page: Page): Promise<string> {
-  const frame = getModuleFrame(page);
-  return await frame.locator('.ck-editor__editable').innerHTML();
 }
 
 test.describe('Link Attributes Round-Trip Persistence', () => {

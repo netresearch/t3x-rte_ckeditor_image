@@ -33,8 +33,8 @@ test.describe('Linked Image Rendering (#565)', () => {
     const linkedImages = page.locator('a.test-linked-image');
     const count = await linkedImages.count();
 
-    // Skip if no linked image test content exists
-    test.skip(count === 0, 'No test-linked-image content found');
+    // Fail if no linked image test content exists
+    expect(count, 'Expected test-linked-image content in demo content').toBeGreaterThan(0);
 
     // Should have exactly one link with this class
     expect(count).toBe(1);
@@ -60,7 +60,7 @@ test.describe('Linked Image Rendering (#565)', () => {
 
     // Look for the linked image section
     const hasLinkedImageTest = pageContent.includes('test-linked-image');
-    test.skip(!hasLinkedImageTest, 'No linked image test content found');
+    expect(hasLinkedImageTest, 'Expected linked image test content in demo content').toBe(true);
 
     // Find the content element containing our linked image test
     // The structure should be: <a class="test-linked-image"><img></a>
@@ -86,7 +86,7 @@ test.describe('Linked Image Rendering (#565)', () => {
     const simpleLinks = page.locator('a.test-simple-link');
     const count = await simpleLinks.count();
 
-    test.skip(count === 0, 'No test-simple-link content found');
+    expect(count, 'Expected test-simple-link content in demo content').toBeGreaterThan(0);
 
     // Should have exactly one
     expect(count).toBe(1);
@@ -112,7 +112,7 @@ test.describe('Linked Image Rendering (#565)', () => {
     const linkedImages = page.locator('a.test-figure-linked');
     const count = await linkedImages.count();
 
-    test.skip(count === 0, 'No test-figure-linked content found');
+    expect(count, 'Expected test-figure-linked content in demo content').toBeGreaterThan(0);
 
     // Should have exactly one link with this class
     expect(count).toBe(1);
@@ -137,7 +137,7 @@ test.describe('Linked Image Rendering (#565)', () => {
     const linkedImage = page.locator('a.test-linked-image');
     const count = await linkedImage.count();
 
-    test.skip(count === 0, 'No test-linked-image content found');
+    expect(count, 'Expected test-linked-image content in demo content').toBeGreaterThan(0);
 
     // Check href
     const href = await linkedImage.getAttribute('href');
@@ -161,7 +161,7 @@ test.describe('Linked Image vs Popup Image Distinction', () => {
     const linkedImage = page.locator('a.test-linked-image');
     const count = await linkedImage.count();
 
-    test.skip(count === 0, 'No test-linked-image content found');
+    expect(count, 'Expected test-linked-image content in demo content').toBeGreaterThan(0);
 
     // Should NOT have data-popup
     const popup = await linkedImage.getAttribute('data-popup');
@@ -175,7 +175,7 @@ test.describe('Linked Image vs Popup Image Distinction', () => {
     const popupLinks = page.locator('a[data-popup="true"]');
     const popupCount = await popupLinks.count();
 
-    test.skip(popupCount === 0, 'No popup images found');
+    expect(popupCount, 'Expected popup images in demo content').toBeGreaterThan(0);
 
     // Popup links should have data-popup="true"
     await expect(popupLinks.first()).toHaveAttribute('data-popup', 'true');
@@ -192,8 +192,8 @@ test.describe('Linked Image vs Popup Image Distinction', () => {
     const popupImages = page.locator('a[data-popup="true"] img');
     const popupCount = await popupImages.count();
 
-    // Skip if neither exists
-    test.skip(linkedCount === 0 && popupCount === 0, 'No linked or popup images found');
+    // Fail if neither exists in demo content
+    expect(linkedCount + popupCount, 'Expected linked or popup images in demo content').toBeGreaterThan(0);
 
     // Log what we found for debugging
     console.log(`Found ${linkedCount} linked images and ${popupCount} popup images`);
@@ -216,7 +216,7 @@ test.describe('Image Rendering Service Integration', () => {
     const linkedImage = page.locator('a.test-linked-image img');
     const count = await linkedImage.count();
 
-    test.skip(count === 0, 'No test-linked-image image found');
+    expect(count, 'Expected test-linked-image image in demo content').toBeGreaterThan(0);
 
     // Get the src attribute
     const src = await linkedImage.getAttribute('src');
@@ -233,7 +233,7 @@ test.describe('Image Rendering Service Integration', () => {
     const linkedImage = page.locator('a.test-linked-image img');
     const count = await linkedImage.count();
 
-    test.skip(count === 0, 'No test-linked-image image found');
+    expect(count, 'Expected test-linked-image image in demo content').toBeGreaterThan(0);
 
     const alt = await linkedImage.getAttribute('alt');
     expect(alt).toBeTruthy();
@@ -247,7 +247,7 @@ test.describe('Image Rendering Service Integration', () => {
     const linkedImages = page.locator('a.test-figure-linked');
     const count = await linkedImages.count();
 
-    test.skip(count === 0, 'No test-figure-linked content found');
+    expect(count, 'Expected test-figure-linked content in demo content').toBeGreaterThan(0);
 
     // The link should contain an image directly
     // NOT: a > a > img (duplicate links)

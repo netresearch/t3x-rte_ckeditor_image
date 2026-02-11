@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { loginToBackend, BACKEND_PASSWORD, BASE_URL, navigateToContentEdit, getModuleFrame, waitForCKEditor } from './helpers/typo3-backend';
 
 /**
  * E2E tests for the actual CKEditor workflow where issue #565 manifests.
@@ -16,82 +17,6 @@ import { test, expect, Page } from '@playwright/test';
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/565
  */
-
-// Backend credentials from environment
-const BACKEND_USER = process.env.TYPO3_BACKEND_USER || 'admin';
-const BACKEND_PASSWORD = process.env.TYPO3_BACKEND_PASSWORD || '';
-const BASE_URL = process.env.BASE_URL || 'https://v13.rte-ckeditor-image.ddev.site';
-
-/**
- * Login to TYPO3 backend
- */
-async function loginToBackend(page: Page): Promise<boolean> {
-  try {
-    await page.goto(`${BASE_URL}/typo3/`, { timeout: 30000 });
-
-    // Check if we're on the login page
-    const loginForm = page.locator('form[name="loginform"], #typo3-login-form, input[name="username"]');
-    const isLoginPage = await loginForm.count() > 0;
-
-    if (!isLoginPage) {
-      // Already logged in or different page
-      return true;
-    }
-
-    // Fill login form
-    await page.fill('input[name="username"]', BACKEND_USER);
-    await page.fill('input[name="p_field"], input[name="password"]', BACKEND_PASSWORD);
-    await page.click('button[type="submit"]');
-
-    // Wait for navigation to complete
-    await page.waitForLoadState('networkidle', { timeout: 30000 });
-
-    // Check if login was successful (look for module menu or backend elements)
-    const backendIndicators = page.locator('.modulemenu, .typo3-module-menu, [data-modulemenu]');
-    const loginSuccess = await backendIndicators.count() > 0;
-
-    return loginSuccess;
-  } catch (error) {
-    console.log('Backend login failed:', error);
-    return false;
-  }
-}
-
-/**
- * Navigate to Page module and open a content element for editing
- */
-async function openContentElementForEditing(page: Page, pageId: number = 1): Promise<boolean> {
-  try {
-    // Navigate to Page module
-    await page.click('text=Page, a[title="Page"]');
-    await page.waitForLoadState('networkidle');
-
-    // Click on page in page tree (if accessible)
-    // This will vary based on TYPO3 version and configuration
-    const pageTree = page.locator(`[data-page-id="${pageId}"], [data-uid="${pageId}"]`);
-    if (await pageTree.count() > 0) {
-      await pageTree.click();
-      await page.waitForLoadState('networkidle');
-    }
-
-    // Look for content elements in the page module
-    const contentElements = page.locator('.t3-page-ce, [data-colpos]');
-    if (await contentElements.count() > 0) {
-      // Click edit button on first content element
-      const editButton = contentElements.first().locator('.t3js-edit-btn, [title="Edit"]');
-      if (await editButton.count() > 0) {
-        await editButton.click();
-        await page.waitForLoadState('networkidle');
-        return true;
-      }
-    }
-
-    return false;
-  } catch (error) {
-    console.log('Failed to open content element:', error);
-    return false;
-  }
-}
 
 /**
  * Get the HTML source from CKEditor
@@ -155,11 +80,11 @@ test.describe('CKEditor Backend Workflow (#565)', () => {
     test.skip(!loggedIn, 'Backend login failed');
 
     // Navigate to content editing
-    const opened = await openContentElementForEditing(page);
+    const opened = await navigateToContentEdit(page);
     test.skip(!opened, 'Could not open content element for editing');
 
     // Wait for CKEditor to initialize
-    await page.waitForSelector('.ck-editor__editable, .cke_editable', { timeout: 10000 });
+    await waitForCKEditor(page);
 
     // Get initial source
     const initialSource = await getCKEditorSource(page);
@@ -178,10 +103,10 @@ test.describe('CKEditor Backend Workflow (#565)', () => {
     const loggedIn = await loginToBackend(page);
     test.skip(!loggedIn, 'Backend login failed');
 
-    const opened = await openContentElementForEditing(page);
+    const opened = await navigateToContentEdit(page);
     test.skip(!opened, 'Could not open content element for editing');
 
-    await page.waitForSelector('.ck-editor__editable, .cke_editable', { timeout: 10000 });
+    await waitForCKEditor(page);
 
     const source = await getCKEditorSource(page);
 
@@ -246,20 +171,12 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
     test.skip(!loggedIn, 'Backend login failed');
 
     // Navigate to a content element that has a linked image
-    // Using direct edit URL for content element 1
-    const editUrl = `${BASE_URL}/typo3/record/edit?edit[tt_content][1]=edit&returnUrl=/typo3/`;
-    await page.goto(editUrl, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
+    const editLoaded = await navigateToContentEdit(page);
+    test.skip(!editLoaded, 'CKEditor not found in content element');
 
-    // Wait for iframe to load
-    const moduleFrame = page.frameLocator('iframe').first();
+    await waitForCKEditor(page);
 
-    // Wait for CKEditor to be ready
-    try {
-      await moduleFrame.locator('.ck-editor__editable').first().waitFor({ timeout: 15000 });
-    } catch {
-      test.skip(true, 'CKEditor not found in content element');
-    }
+    const moduleFrame = getModuleFrame(page);
 
     // Check if there's a linked image in the editor
     const linkedImage = moduleFrame.locator('.ck-editor__editable a img, .ck-editor__editable figure a img');
@@ -319,17 +236,12 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
     const loggedIn = await loginToBackend(page);
     test.skip(!loggedIn, 'Backend login failed');
 
-    const editUrl = `${BASE_URL}/typo3/record/edit?edit[tt_content][1]=edit&returnUrl=/typo3/`;
-    await page.goto(editUrl, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
+    const editLoaded = await navigateToContentEdit(page);
+    test.skip(!editLoaded, 'CKEditor not found');
 
-    const moduleFrame = page.frameLocator('iframe').first();
+    await waitForCKEditor(page);
 
-    try {
-      await moduleFrame.locator('.ck-editor__editable').first().waitFor({ timeout: 15000 });
-    } catch {
-      test.skip(true, 'CKEditor not found');
-    }
+    const moduleFrame = getModuleFrame(page);
 
     // Find a text link (not an image link)
     const textLink = moduleFrame.locator('.ck-editor__editable a:not(:has(img)):not(:has(figure))');
