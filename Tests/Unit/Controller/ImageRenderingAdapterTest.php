@@ -1772,7 +1772,7 @@ final class ImageRenderingAdapterTest extends TestCase
         $this->attributeParser
             ->method('parseLinkWithImages')
             ->willReturn([
-                'link'   => [
+                'link' => [
                     'href'   => 't3://page?uid=42',
                     'target' => '_blank',
                     'class'  => 'external',
@@ -1860,5 +1860,36 @@ final class ImageRenderingAdapterTest extends TestCase
         // Should keep the original t3:// URL since resolution failed
         self::assertStringContainsString('t3://page?uid=99999', $result);
         self::assertStringContainsString('Broken link', $result);
+    }
+
+    /**
+     * Test that renderLink strips javascript: links in text-only anchors.
+     *
+     * SECURITY: Since externalBlocks.a is the sole handler for all <a> tags
+     * (tags.a is cleared), we must validate protocols ourselves.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/606
+     */
+    #[Test]
+    public function renderLinkStripsDisallowedProtocolInTextOnlyLink(): void
+    {
+        $linkHtml = '<a href="javascript:alert(1)">Click me</a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => 'javascript:alert(1)'],
+                'images' => [],
+            ]);
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        // Link wrapper must be stripped, only inner content returned
+        self::assertStringNotContainsString('<a ', $result);
+        self::assertStringNotContainsString('javascript:', $result);
+        self::assertStringContainsString('Click me', $result);
     }
 }
