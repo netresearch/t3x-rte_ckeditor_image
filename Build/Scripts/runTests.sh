@@ -781,6 +781,8 @@ CONTENT_EOF
         # TYPO3's database:updateschema works properly with MariaDB (not SQLite)
         # Use network alias so PHP scripts can use a fixed hostname
         echo "Starting MariaDB container..."
+        # Admin password used for TYPO3 setup and Playwright backend tests
+        E2E_ADMIN_PASSWORD="${TYPO3_BACKEND_PASSWORD:-Joh316!!}"
         # Set default MariaDB version for E2E (DBMS_VERSION is only set for functional tests)
         E2E_MARIADB_IMAGE="docker.io/mariadb:10.11"
         ${CONTAINER_BIN} run -d --rm ${CI_PARAMS} \
@@ -827,7 +829,7 @@ CONTENT_EOF
                 # All env vars prevent interactive prompts
                 # Use network alias 'mariadb-e2e' for database host
                 TYPO3_SETUP_ADMIN_USERNAME=admin \
-                TYPO3_SETUP_ADMIN_PASSWORD='Joh316!!' \
+                TYPO3_SETUP_ADMIN_PASSWORD="${E2E_ADMIN_PASSWORD}" \
                 TYPO3_SETUP_ADMIN_EMAIL='admin@example.com' \
                 vendor/bin/typo3 setup \
                     --driver=mysqli \
@@ -945,7 +947,7 @@ CONTENT_EOF
             -v ${ROOT_DIR}/Build/test-results:/app/test-results \
             -w /app \
             -e BASE_URL=http://webserver-e2e-${SUFFIX}:80 \
-            -e TYPO3_BACKEND_PASSWORD='Joh316!!' \
+            -e TYPO3_BACKEND_PASSWORD="${E2E_ADMIN_PASSWORD}" \
             -e CI=true \
             ${IMAGE_PLAYWRIGHT} /bin/bash -c "
                 # Skip npm install if node_modules exists (pre-cached in CI)

@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, saveContentElement, getEditorHtml, requireCondition } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, saveContentElement, getEditorHtml } from './helpers/typo3-backend';
 
 /**
  * E2E tests for link attributes round-trip persistence.
@@ -82,8 +82,7 @@ async function setDialogValues(page: Page, values: {
 
 test.describe('Link Attributes Round-Trip Persistence', () => {
   test.beforeEach(async ({ page }) => {
-    const loggedIn = await loginToBackend(page);
-    requireCondition(loggedIn, 'Backend login failed - check credentials');
+    await loginToBackend(page);
   });
 
   test('link attributes persist after save and reload', async ({ page }) => {
@@ -97,13 +96,11 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
     };
 
     // Step 1: Navigate to content edit
-    const editLoaded = await navigateToContentEdit(page);
-    requireCondition(editLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
     await waitForCKEditor(page);
 
     // Step 2: Open image dialog
-    const dialogOpened = await openImageEditDialog(page);
-    requireCondition(dialogOpened, 'Could not open image dialog - no image found');
+    await openImageEditDialog(page);
 
     // Step 3: Set all link values
     console.log('Setting link values:', testValues);
@@ -125,8 +122,7 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
     await page.waitForTimeout(2000);
 
     // Step 8: Navigate back to content edit
-    const reloadedEdit = await navigateToContentEdit(page);
-    requireCondition(reloadedEdit, 'Could not reload content edit form');
+    await navigateToContentEdit(page);
     await waitForCKEditor(page);
 
     // Step 9: Check HTML in editor after reload
@@ -134,8 +130,7 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
     console.log('HTML after reload:', htmlAfterReload.substring(0, 500));
 
     // Step 10: Open image dialog again
-    const dialogReopened = await openImageEditDialog(page);
-    requireCondition(dialogReopened, 'Could not reopen image dialog');
+    await openImageEditDialog(page);
 
     // Step 11: Get values from dialog
     const retrievedValues = await getDialogValues(page);
@@ -155,8 +150,7 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
 
   test('image alignment persists after save and reload', async ({ page }) => {
     // Step 1: Navigate to content edit
-    const editLoaded = await navigateToContentEdit(page);
-    requireCondition(editLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
     await waitForCKEditor(page);
 
     // Step 2: Get initial HTML
@@ -170,8 +164,7 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
     console.log('Initial alignment:', { hasImageLeft, hasImageRight, hasImageCenter });
 
     // Step 3: Open image dialog and set a link (this should NOT remove alignment)
-    const dialogOpened = await openImageEditDialog(page);
-    requireCondition(dialogOpened, 'Could not open image dialog');
+    await openImageEditDialog(page);
 
     await setDialogValues(page, {
       linkHref: 'https://example.com/alignment-test',
@@ -228,13 +221,11 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
       });
     });
 
-    const editLoaded = await navigateToContentEdit(page);
-    requireCondition(editLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
     await waitForCKEditor(page);
 
     // Set up a link with all attributes
-    const dialogOpened = await openImageEditDialog(page);
-    requireCondition(dialogOpened, 'Could not open image dialog');
+    await openImageEditDialog(page);
 
     await setDialogValues(page, {
       linkHref: 't3://page?uid=1',

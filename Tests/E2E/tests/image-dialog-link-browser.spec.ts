@@ -13,29 +13,22 @@ import { loginToBackend, navigateToContentEdit, waitForCKEditor, selectImageInEd
 test.describe('Image Dialog Link Browser', () => {
   test('can open link browser from image edit dialog', async ({ page }) => {
     // Login to backend
-    const loggedIn = await loginToBackend(page);
-    requireCondition(loggedIn, 'Backend login failed - check TYPO3_BACKEND_PASSWORD');
+    await loginToBackend(page);
 
     // Navigate directly to edit a content element
     console.log('Step: navigateToContentEdit');
-    const editFormLoaded = await navigateToContentEdit(page);
-    console.log(`navigateToContentEdit result: ${editFormLoaded}`);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     console.log('Step: waitForCKEditor');
     await waitForCKEditor(page);
 
     // Check if there's an image in the editor
     console.log('Step: selectImageInEditor');
-    const hasImage = await selectImageInEditor(page);
-    console.log(`selectImageInEditor result: ${hasImage}`);
-    requireCondition(hasImage, 'No image found in editor');
+    await selectImageInEditor(page);
 
     // Double-click to open edit dialog
     console.log('Step: openImageEditDialog');
-    const dialogOpened = await openImageEditDialog(page);
-    console.log(`openImageEditDialog result: ${dialogOpened}`);
-    expect(dialogOpened).toBe(true);
+    await openImageEditDialog(page);
 
     // Take screenshot of dialog
     await page.screenshot({ path: 'test-results/image-dialog-opened.png' });
@@ -72,21 +65,17 @@ test.describe('Image Dialog Link Browser', () => {
 
   test('selecting a page inserts link into dialog field', async ({ page }) => {
     // Login to backend
-    const loggedIn = await loginToBackend(page);
-    requireCondition(loggedIn, 'Backend login failed');
+    await loginToBackend(page);
 
     // Navigate to content edit
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
-    const hasImage = await selectImageInEditor(page);
-    requireCondition(hasImage, 'No image found in editor');
+    await selectImageInEditor(page);
 
     // Open image edit dialog
-    const dialogOpened = await openImageEditDialog(page);
-    expect(dialogOpened).toBe(true);
+    await openImageEditDialog(page);
 
     // Select "Link" radio button
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
@@ -177,16 +166,13 @@ test.describe('Image Dialog Link Browser', () => {
   });
 
   test('selecting a page in link browser inserts link and closes browser', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
-    const hasImage = await selectImageInEditor(page);
-    requireCondition(hasImage, 'No image found in editor');
+    await selectImageInEditor(page);
 
-    const dialogOpened = await openImageEditDialog(page);
-    requireCondition(dialogOpened, 'Could not open image dialog');
+    await openImageEditDialog(page);
 
     // Select "Link" option
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
@@ -248,16 +234,13 @@ test.describe('Image Dialog Link Browser', () => {
   });
 
   test('link browser closes without error on cancel', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
-    const hasImage = await selectImageInEditor(page);
-    requireCondition(hasImage, 'No image found in editor');
+    await selectImageInEditor(page);
 
-    const dialogOpened = await openImageEditDialog(page);
-    requireCondition(dialogOpened, 'Could not open image dialog');
+    await openImageEditDialog(page);
 
     // Select "Link" option
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
@@ -309,8 +292,7 @@ test.describe('Image Dialog Link Browser', () => {
 
 test.describe('Link Browser Error Handling', () => {
   test.beforeEach(async ({ page }) => {
-    const loggedIn = await loginToBackend(page);
-    requireCondition(loggedIn, 'Backend login failed');
+    await loginToBackend(page);
 
     // Capture console errors
     page.on('console', msg => {
@@ -326,16 +308,13 @@ test.describe('Link Browser Error Handling', () => {
       errors.push(error.message);
     });
 
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
-    const hasImage = await selectImageInEditor(page);
-    requireCondition(hasImage, 'No image found in editor');
+    await selectImageInEditor(page);
 
-    const dialogOpened = await openImageEditDialog(page);
-    requireCondition(dialogOpened, 'Could not open image dialog');
+    await openImageEditDialog(page);
 
     // Select "Link" option
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
@@ -373,16 +352,13 @@ test.describe('Link Browser Error Handling', () => {
       }
     });
 
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
-    const hasImage = await selectImageInEditor(page);
-    requireCondition(hasImage, 'No image found in editor');
+    await selectImageInEditor(page);
 
-    const dialogOpened = await openImageEditDialog(page);
-    requireCondition(dialogOpened, 'Could not open image dialog');
+    await openImageEditDialog(page);
 
     // Select "Link" option
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');

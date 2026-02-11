@@ -51,14 +51,13 @@ test.describe('Image Dialog - Apply Changes', () => {
 
   test.beforeEach(async ({ page }) => {
     if (!loggedIn) {
-      loggedIn = await loginToBackend(page);
+      await loginToBackend(page);
+      loggedIn = true;
     }
-    requireCondition(loggedIn, 'Backend login failed - check TYPO3_BACKEND_PASSWORD');
   });
 
   test('changing alt text in dialog updates the image', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -67,8 +66,7 @@ test.describe('Image Dialog - Apply Changes', () => {
     console.log(`Original alt: "${originalAttrs.alt}"`);
 
     // Open image dialog
-    const dialogOpened = await openImageEditDialog(page);
-    expect(dialogOpened).toBe(true);
+    await openImageEditDialog(page);
 
     // The alt input has ID 'rteckeditorimage-alt' and may be disabled
     // If disabled, we need to check the override checkbox first
@@ -114,13 +112,11 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('changing title in dialog updates the image', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
-    const dialogOpened = await openImageEditDialog(page);
-    expect(dialogOpened).toBe(true);
+    await openImageEditDialog(page);
 
     // The title input has ID 'rteckeditorimage-title' and may be disabled
     const titleInput = page.locator('#rteckeditorimage-title');
@@ -159,13 +155,11 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('adding link URL in dialog wraps image in anchor', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
-    const dialogOpened = await openImageEditDialog(page);
-    expect(dialogOpened).toBe(true);
+    await openImageEditDialog(page);
 
     // Select "Link" radio button to show link fields
     const linkRadio = page.locator('#clickBehavior-link');
@@ -203,13 +197,11 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('setting click-to-enlarge adds zoom attribute', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
-    const dialogOpened = await openImageEditDialog(page);
-    expect(dialogOpened).toBe(true);
+    await openImageEditDialog(page);
 
     // Select "Enlarge on click" radio button
     const enlargeRadio = page.locator('#clickBehavior-enlarge');
@@ -235,13 +227,11 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('changing CSS class in dialog updates image class', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
-    const dialogOpened = await openImageEditDialog(page);
-    expect(dialogOpened).toBe(true);
+    await openImageEditDialog(page);
 
     // Find CSS class input
     const classInput = page.locator('input[name="class"], input[id*="cssClass"], input.form-control[placeholder*="class"]').first();
@@ -271,8 +261,7 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('changing dimensions in dialog updates image size', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -280,8 +269,7 @@ test.describe('Image Dialog - Apply Changes', () => {
     const originalAttrs = await getImageAttributes(page);
     console.log(`Original dimensions: ${originalAttrs.width}x${originalAttrs.height}`);
 
-    const dialogOpened = await openImageEditDialog(page);
-    expect(dialogOpened).toBe(true);
+    await openImageEditDialog(page);
 
     // Find width input - uses ID rteckeditorimage-width
     const widthInput = page.locator('#rteckeditorimage-width');
@@ -309,13 +297,11 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('link target is applied when set in dialog', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
-    const dialogOpened = await openImageEditDialog(page);
-    expect(dialogOpened).toBe(true);
+    await openImageEditDialog(page);
 
     // Select "Link" option
     const linkRadio = page.locator('#clickBehavior-link');
@@ -353,13 +339,11 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('link title is applied when set in dialog', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
-    const dialogOpened = await openImageEditDialog(page);
-    expect(dialogOpened).toBe(true);
+    await openImageEditDialog(page);
 
     // Select "Link" option
     const linkRadio = page.locator('#clickBehavior-link');
@@ -398,8 +382,7 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('dialog cancel does not apply changes', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -407,8 +390,7 @@ test.describe('Image Dialog - Apply Changes', () => {
     const originalAttrs = await getImageAttributes(page);
     console.log(`Original alt: "${originalAttrs.alt}"`);
 
-    const dialogOpened = await openImageEditDialog(page);
-    expect(dialogOpened).toBe(true);
+    await openImageEditDialog(page);
 
     // Modify alt text
     const altInput = page.locator('input[name="alt"]').first();
@@ -431,16 +413,13 @@ test.describe('Image Dialog - Apply Changes', () => {
 
 test.describe('Image Dialog - Save Persistence', () => {
   test('changes persist after saving content element', async ({ page }) => {
-    const loggedIn = await loginToBackend(page);
-    requireCondition(loggedIn, 'Backend login failed');
+    await loginToBackend(page);
 
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
-    const dialogOpened = await openImageEditDialog(page);
-    expect(dialogOpened).toBe(true);
+    await openImageEditDialog(page);
 
     // Set a unique alt text
     const uniqueAlt = `Persist Test ${Date.now()}`;

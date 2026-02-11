@@ -58,5 +58,6 @@ export const CK_INLINE_WIDGET = '.ck-widget_inline-image';
 
 /** Template matrix test selectors (by alt text) */
 export function templateTestImage(templateName: string): string {
-    return `img[alt="Template ${templateName}"]`;
+    const escaped = templateName.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    return `img[alt="Template ${escaped}"]`;
 }

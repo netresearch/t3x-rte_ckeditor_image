@@ -83,14 +83,13 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
 
   test.beforeEach(async ({ page }) => {
     if (!loggedIn) {
-      loggedIn = await loginToBackend(page);
+      await loginToBackend(page);
+      loggedIn = true;
     }
-    requireCondition(loggedIn, 'Backend login failed - check TYPO3_BACKEND_PASSWORD environment variable');
   });
 
   test('can view images in CKEditor', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -104,8 +103,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('inline images render with correct widget class', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -126,8 +124,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('inline images allow cursor positioning on same line', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -168,8 +165,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('can type text before inline image in same paragraph', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -207,8 +203,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('can type text after inline image in same paragraph', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -243,8 +238,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('inline image and text are in same paragraph element', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -263,8 +257,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('block images are in figure elements, not paragraphs', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -289,14 +282,13 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
 
   test.beforeEach(async ({ page }) => {
     if (!loggedIn) {
-      loggedIn = await loginToBackend(page);
+      await loginToBackend(page);
+      loggedIn = true;
     }
-    requireCondition(loggedIn, 'Backend login failed');
   });
 
   test('toggle button exists in image toolbar', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -326,8 +318,7 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
   });
 
   test('clicking toggle converts block image to inline', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -370,8 +361,7 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
   });
 
   test('toggling to inline removes caption', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -414,11 +404,9 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
 
 test.describe('Inline Image Persistence (#580)', () => {
   test('inline images persist after save and reload', async ({ page }) => {
-    const loggedIn = await loginToBackend(page);
-    requireCondition(loggedIn, 'Backend login failed');
+    await loginToBackend(page);
 
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -451,11 +439,9 @@ test.describe('Inline Image Persistence (#580)', () => {
   });
 
   test('inline image class is preserved in saved HTML', async ({ page }) => {
-    const loggedIn = await loginToBackend(page);
-    requireCondition(loggedIn, 'Backend login failed');
+    await loginToBackend(page);
 
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -479,14 +465,13 @@ test.describe('Multiple Inline Images (#580)', () => {
 
   test.beforeEach(async ({ page }) => {
     if (!loggedIn) {
-      loggedIn = await loginToBackend(page);
+      await loginToBackend(page);
+      loggedIn = true;
     }
-    requireCondition(loggedIn, 'Backend login failed');
   });
 
   test('multiple inline images can exist in same paragraph', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -517,8 +502,7 @@ test.describe('Multiple Inline Images (#580)', () => {
   });
 
   test('inline and block images can coexist in content', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    requireCondition(editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 

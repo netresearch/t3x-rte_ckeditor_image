@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, BASE_URL, navigateToContentEdit, getModuleFrame, waitForCKEditor, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
+import { loginToBackend, BASE_URL, navigateToContentEdit, getModuleFrame, waitForCKEditor, requireCondition, BACKEND_PASSWORD, openImageEditDialog, confirmImageDialog, getEditorHtml, saveContentElement, selectImageInEditor } from './helpers/typo3-backend';
 
 /**
  * E2E tests for the actual CKEditor workflow where issue #565 manifests.
@@ -67,18 +67,15 @@ test.describe('CKEditor Backend Workflow (#565)', () => {
   });
 
   test('can login to TYPO3 backend', async ({ page }) => {
-    const loggedIn = await loginToBackend(page);
-    expect(loggedIn).toBe(true);
+    await loginToBackend(page);
   });
 
   test('CKEditor does not create duplicate links when linking an image', async ({ page }) => {
     // This test verifies the core bug fix
-    const loggedIn = await loginToBackend(page);
-    requireCondition(loggedIn, 'Backend login failed');
+    await loginToBackend(page);
 
     // Navigate to content editing
-    const opened = await navigateToContentEdit(page);
-    requireCondition(opened, 'Could not open content element for editing');
+    await navigateToContentEdit(page);
 
     // Wait for CKEditor to initialize
     await waitForCKEditor(page);
@@ -97,11 +94,9 @@ test.describe('CKEditor Backend Workflow (#565)', () => {
   });
 
   test('linked images in source view have exactly one <a> wrapper', async ({ page }) => {
-    const loggedIn = await loginToBackend(page);
-    requireCondition(loggedIn, 'Backend login failed');
+    await loginToBackend(page);
 
-    const opened = await navigateToContentEdit(page);
-    requireCondition(opened, 'Could not open content element for editing');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -136,22 +131,6 @@ test.describe('Backend Integration Smoke Tests', () => {
   });
 });
 
-/**
- * These tests document what PROPER E2E testing of #565 should look like.
- *
- * The full workflow to test is:
- * 1. Login to TYPO3 backend
- * 2. Create or edit a content element with RTE
- * 3. Insert an image via the RTE toolbar (Insert Image button)
- * 4. Select the image
- * 5. Click the Link button in the toolbar
- * 6. Add a link URL
- * 7. Save and check source view
- * 8. Verify: <a href="..."><img .../></a> (single link, not nested)
- *
- * Due to complexity of CKEditor interaction, these are currently
- * smoke tests that verify the infrastructure works.
- */
 test.describe('Image Toolbar vs Link Balloon Priority', () => {
   /**
    * Regression test for balloon toolbar conflict.
@@ -164,12 +143,10 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
    * @see https://github.com/ckeditor/ckeditor5/issues/9607
    */
   test('clicking linked image shows image toolbar, not link balloon', async ({ page }) => {
-    const loggedIn = await loginToBackend(page);
-    requireCondition(loggedIn, 'Backend login failed');
+    await loginToBackend(page);
 
     // Navigate to a content element that has a linked image
-    const editLoaded = await navigateToContentEdit(page);
-    requireCondition(editLoaded, 'CKEditor not found in content element');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -230,11 +207,9 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
   });
 
   test('regular text links still show link balloon', async ({ page }) => {
-    const loggedIn = await loginToBackend(page);
-    requireCondition(loggedIn, 'Backend login failed');
+    await loginToBackend(page);
 
-    const editLoaded = await navigateToContentEdit(page);
-    requireCondition(editLoaded, 'CKEditor not found');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -263,24 +238,86 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
   });
 });
 
-test.describe('Documentation: Full Workflow Tests Needed', () => {
-  test.fixme('insert image then add link - verify single <a> wrapper', async ({ page }) => {
-    // TODO: Implement full CKEditor interaction test
-    // This requires:
-    // 1. Stable selectors for CKEditor toolbar buttons
-    // 2. File browser/image selection interaction
-    // 3. Link dialog interaction
-    // 4. Source view verification
+test.describe('Linked Image Workflow (#565)', () => {
+  test.beforeEach(async () => {
+    requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
   });
 
-  test.fixme('edit existing linked image - verify no duplicate <a> on save', async ({ page }) => {
-    // TODO: Load content with existing <a><img></a>
-    // Edit and save
-    // Verify still single <a> wrapper
+  test('insert image then add link - verify single <a> wrapper', async ({ page }) => {
+    await loginToBackend(page);
+    await navigateToContentEdit(page);
+    await waitForCKEditor(page);
+
+    // Select an existing image in the editor
+    await selectImageInEditor(page);
+
+    // Double-click the image to open the edit dialog
+    await openImageEditDialog(page);
+
+    // If a link input field is available, set a link URL
+    const linkInput = page.locator(
+      '.modal-dialog input[name="link"], .modal-dialog input[placeholder*="Link"], .modal-dialog input[data-formengine-input-name*="link"]'
+    ).first();
+    if (await linkInput.count() > 0) {
+      await linkInput.fill('https://example.com');
+    }
+
+    await confirmImageDialog(page);
+
+    // Get the editor HTML and verify no nested <a> tags
+    const html = await getEditorHtml(page);
+    const { nested } = countLinkWrappersAroundImages(html);
+    expect(nested, 'Expected no nested <a> tags around images').toBe(0);
   });
 
-  test.fixme('switch between visual and source view - verify no duplication', async ({ page }) => {
-    // TODO: Toggle source view
-    // Verify HTML structure is preserved correctly
+  test('edit existing linked image - verify no duplicate <a> on save', async ({ page }) => {
+    await loginToBackend(page);
+    await navigateToContentEdit(page);
+    await waitForCKEditor(page);
+
+    // Verify the test content has linked images
+    const initialHtml = await getEditorHtml(page);
+    const initialCounts = countLinkWrappersAroundImages(initialHtml);
+    requireCondition(initialCounts.total > 0, 'No linked images found in test content');
+
+    // Open the image edit dialog and confirm without changes (the #565 trigger)
+    await openImageEditDialog(page);
+    await confirmImageDialog(page);
+
+    // Save the content element
+    await saveContentElement(page);
+
+    // Navigate back to the same content element
+    await navigateToContentEdit(page);
+    await waitForCKEditor(page);
+
+    // Verify no nested <a><a> patterns appeared after the round-trip
+    const savedHtml = await getEditorHtml(page);
+    const savedCounts = countLinkWrappersAroundImages(savedHtml);
+    expect(savedCounts.nested, 'Nested <a><a> pattern detected after save — #565 regression').toBe(0);
+    expect(savedCounts.total, 'Linked images should be preserved after save').toBeGreaterThanOrEqual(initialCounts.total);
+  });
+
+  test('save and reload preserves link structure', async ({ page }) => {
+    await loginToBackend(page);
+    await navigateToContentEdit(page);
+    await waitForCKEditor(page);
+
+    // Capture the initial link structure
+    const initialHtml = await getEditorHtml(page);
+    const initialCounts = countLinkWrappersAroundImages(initialHtml);
+
+    // Save the content element
+    await saveContentElement(page);
+
+    // Navigate back and wait for CKEditor to re-initialize
+    await navigateToContentEdit(page);
+    await waitForCKEditor(page);
+
+    // Verify link structure is preserved after the round-trip
+    const reloadedHtml = await getEditorHtml(page);
+    const reloadedCounts = countLinkWrappersAroundImages(reloadedHtml);
+    expect(reloadedCounts.total, 'Number of linked images changed after save/reload').toBe(initialCounts.total);
+    expect(reloadedCounts.nested, 'Nested <a> tags appeared after save/reload — #565 regression').toBe(0);
   });
 });
