@@ -1892,4 +1892,34 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertStringNotContainsString('javascript:', $result);
         self::assertStringContainsString('Click me', $result);
     }
+
+    /**
+     * Test that renderLink strips empty links with disallowed protocols.
+     *
+     * Edge case: <a href="javascript:..."></a> with no inner content must
+     * return empty string, not preserve the malicious link tag.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/606
+     */
+    #[Test]
+    public function renderLinkStripsEmptyLinkWithDisallowedProtocol(): void
+    {
+        $linkHtml = '<a href="javascript:alert(1)"></a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkHtml);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => 'javascript:alert(1)'],
+                'images' => [],
+            ]);
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        // Must return empty string, not the original malicious link
+        self::assertSame('', $result);
+        self::assertStringNotContainsString('javascript:', $result);
+    }
 }

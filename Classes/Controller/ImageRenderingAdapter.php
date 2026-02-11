@@ -350,7 +350,7 @@ class ImageRenderingAdapter
                 if (!$this->isAllowedLinkProtocol($linkAttributes['href'])) {
                     $innerContent = $this->extractLinkInnerContent($linkHtml);
 
-                    return $innerContent !== '' ? $innerContent : $linkHtml;
+                    return $innerContent;
                 }
 
                 // Resolve t3:// URLs that would normally be resolved by tags.a processing
