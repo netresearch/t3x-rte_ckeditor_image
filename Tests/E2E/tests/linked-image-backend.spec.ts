@@ -146,7 +146,7 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
     await loginToBackend(page);
 
     // Navigate to a content element that has a linked image
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 3);
 
     await waitForCKEditor(page);
 
@@ -209,7 +209,7 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
   test('regular text links still show link balloon', async ({ page }) => {
     await loginToBackend(page);
 
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 10);
 
     await waitForCKEditor(page);
 
@@ -272,7 +272,7 @@ test.describe('Linked Image Workflow (#565)', () => {
 
   test('edit existing linked image - verify no duplicate <a> on save', async ({ page }) => {
     await loginToBackend(page);
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 3);
     await waitForCKEditor(page);
 
     // Verify the test content has linked images
@@ -288,7 +288,7 @@ test.describe('Linked Image Workflow (#565)', () => {
     await saveContentElement(page);
 
     // Navigate back to the same content element
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 3);
     await waitForCKEditor(page);
 
     // Verify no nested <a><a> patterns appeared after the round-trip
@@ -300,7 +300,7 @@ test.describe('Linked Image Workflow (#565)', () => {
 
   test('save and reload preserves link structure', async ({ page }) => {
     await loginToBackend(page);
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 3);
     await waitForCKEditor(page);
 
     // Capture the initial link structure
@@ -311,7 +311,7 @@ test.describe('Linked Image Workflow (#565)', () => {
     await saveContentElement(page);
 
     // Navigate back and wait for CKEditor to re-initialize
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 3);
     await waitForCKEditor(page);
 
     // Verify link structure is preserved after the round-trip

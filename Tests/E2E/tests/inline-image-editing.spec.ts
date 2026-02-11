@@ -103,7 +103,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('inline images render with correct widget class', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
@@ -124,7 +124,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('inline images allow cursor positioning on same line', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
@@ -165,7 +165,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('can type text before inline image in same paragraph', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
@@ -203,7 +203,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('can type text after inline image in same paragraph', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
@@ -238,7 +238,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('inline image and text are in same paragraph element', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
@@ -361,7 +361,7 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
   });
 
   test('toggling to inline removes caption', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 2);
 
     await waitForCKEditor(page);
 
@@ -406,7 +406,7 @@ test.describe('Inline Image Persistence (#580)', () => {
   test('inline images persist after save and reload', async ({ page }) => {
     await loginToBackend(page);
 
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
@@ -426,7 +426,7 @@ test.describe('Inline Image Persistence (#580)', () => {
     await page.waitForTimeout(2000);
 
     // Navigate back to content edit
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 7);
     await waitForCKEditor(page);
 
     // Check inline images are still there

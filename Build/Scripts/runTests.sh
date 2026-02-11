@@ -775,6 +775,49 @@ echo "tt_content record with linked image created\n";
 $bodytextSimpleLinked = '<p>Simple linked image without caption:</p><p><a href="https://typo3.org" class="test-simple-link"><img src="fileadmin/user_upload/example.jpg" alt="Simple Link" width="300" height="225" data-htmlarea-file-uid="1" /></a></p>';
 $stmt->execute([1, 'text', 'Simple Linked Image', $bodytextSimpleLinked, 0, 0, $now, $now, 0, 1280]);
 echo "tt_content record with simple linked image created\n";
+
+// UID 6: Styled/Alignment Images (needed by image-styles.spec.ts)
+$bodytextStyles = '<p>Images with alignment classes:</p>'
+    . '<p><img class="image-left" src="fileadmin/user_upload/example.jpg" alt="Left Aligned" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-right" src="fileadmin/user_upload/example.jpg" alt="Right Aligned" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-center" src="fileadmin/user_upload/example.jpg" alt="Center Aligned" width="400" height="300" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-block" src="fileadmin/user_upload/example.jpg" alt="Block Image" width="400" height="300" data-htmlarea-file-uid="1" /></p>'
+    . '<figure class="image-center"><img src="fileadmin/user_upload/example.jpg" alt="Centered Figure" width="400" height="300" data-htmlarea-file-uid="1" /><figcaption>Centered figure with caption</figcaption></figure>';
+$stmt->execute([1, 'text', 'Styled/Alignment Images', $bodytextStyles, 0, 0, $now, $now, 0, 1536]);
+echo "tt_content record with styled/alignment images created\n";
+
+// UID 7: Inline Images (needed by inline-images.spec.ts and inline-image-editing.spec.ts)
+$bodytextInline = '<p>Text before <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Inline Example" width="100" height="75" data-htmlarea-file-uid="1" /> text after.</p>'
+    . '<p>A linked inline image: <a href="https://example.com"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Linked Inline" width="80" height="60" data-htmlarea-file-uid="1" /></a> in text.</p>'
+    . '<p>Multiple inline images: <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="First Inline" width="50" height="38" data-htmlarea-file-uid="1" /> and <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Second Inline" width="50" height="38" data-htmlarea-file-uid="1" /> in one paragraph.</p>';
+$stmt->execute([1, 'text', 'Inline Images', $bodytextInline, 0, 0, $now, $now, 0, 1792]);
+echo "tt_content record with inline images created\n";
+
+// UID 8: Inline Image Complex Patterns (needed by inline-image-patterns.spec.ts)
+$bodytextInlinePatterns = '<p>Link with inline image at start:</p>'
+    . '<p><a href="https://docs.example.com"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="docs" width="16" height="16" data-htmlarea-file-uid="1" /> Documentation</a></p>'
+    . '<p>Link with inline image at end:</p>'
+    . '<p><a href="https://download.example.com">Get the latest version <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="download" width="20" height="20" data-htmlarea-file-uid="1" /></a></p>'
+    . '<p>Link with text before and after image:</p>'
+    . '<p><a href="https://example.com">Check our <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="icon" width="16" height="16" data-htmlarea-file-uid="1" /> documentation</a></p>'
+    . '<table><tr><td>Feature <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="feature" width="24" height="24" data-htmlarea-file-uid="1" /></td><td>Works great</td></tr></table>'
+    . '<ul><li>Support for <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="feature" width="20" height="20" data-htmlarea-file-uid="1" /> inline images</li></ul>'
+    . '<h3>Features <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="feature" width="24" height="24" data-htmlarea-file-uid="1" /></h3>';
+$stmt->execute([1, 'text', 'Inline Image Complex Patterns', $bodytextInlinePatterns, 0, 0, $now, $now, 0, 2048]);
+echo "tt_content record with inline image complex patterns created\n";
+
+// UID 9: Multiple Popup/Zoom Images (needed by click-to-enlarge.spec.ts "multiple images all have popup functionality")
+$bodytextMultiZoom = '<p>Multiple images with click-to-enlarge:</p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="popup1" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="popup2" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="popup3" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Multiple Popup Images', $bodytextMultiZoom, 0, 0, $now, $now, 0, 2304]);
+echo "tt_content record with multiple popup images created\n";
+
+// UID 10: Mixed Content with Text Links (needed by linked-image-backend.spec.ts "regular text links still show link balloon")
+$bodytextMixed = '<p>Visit our <a href="https://example.com">website</a> for more info.</p><p><img src="fileadmin/user_upload/example.jpg" alt="Mixed Content" width="400" height="300" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Mixed Content with Text Links', $bodytextMixed, 0, 0, $now, $now, 0, 2560]);
+echo "tt_content record with mixed content created\n";
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
