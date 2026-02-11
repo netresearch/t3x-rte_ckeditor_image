@@ -338,8 +338,30 @@ class ImageRenderingAdapter
         $linkAttributes = $parsed['link'];
         $images         = $parsed['images'];
 
-        // If no images found, return original HTML unchanged
+        // If no images found, still resolve t3:// links and validate protocols before returning.
+        // Since externalBlocks.a bypasses TYPO3's normal link resolution (tags.a is cleared),
+        // we must resolve t3:// links explicitly and validate protocols even for text-only links.
+        // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/606
         if ($images === []) {
+            if (isset($linkAttributes['href'])) {
+                // SECURITY: Validate protocol for text-only links (defense-in-depth).
+                // Since tags.a is cleared, externalBlocks.a is the sole handler for all <a> tags,
+                // so we must validate protocols ourselves to block javascript:/data: etc.
+                if (!$this->isAllowedLinkProtocol($linkAttributes['href'])) {
+                    return $this->extractLinkInnerContent($linkHtml);
+                }
+
+                // Resolve t3:// URLs that would normally be resolved by tags.a processing
+                if (str_starts_with($linkAttributes['href'], 't3://')) {
+                    $linkAttributes['href'] = $this->resolveTypo3LinkUrl($linkAttributes['href'], $request);
+                    $innerContent           = $this->extractLinkInnerContent($linkHtml);
+
+                    if ($innerContent !== '') {
+                        return $this->wrapInLink($innerContent, $linkAttributes);
+                    }
+                }
+            }
+
             return $linkHtml;
         }
 
