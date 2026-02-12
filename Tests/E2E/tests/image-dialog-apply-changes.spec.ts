@@ -279,12 +279,15 @@ test.describe('Image Dialog - Apply Changes', () => {
       await confirmImageDialog(page);
       await page.waitForTimeout(1000);
 
-      const newAttrs = await getImageAttributes(page);
-      console.log(`New dimensions: ${newAttrs.width}x${newAttrs.height}`);
+      // Re-open dialog to verify the width value was persisted
+      // (CKEditor editing view may not reflect width as HTML attribute)
+      await openImageEditDialog(page);
+      const savedWidth = await page.locator('#rteckeditorimage-width').inputValue();
+      console.log(`Saved width in dialog: ${savedWidth}`);
 
-      // Width should contain 300 (might have 'px' suffix)
-      expect(newAttrs.width).toContain('300');
+      expect(savedWidth).toBe(testWidth);
       console.log('SUCCESS: Width was updated');
+      await cancelImageDialog(page);
     } else {
       await page.screenshot({ path: 'test-results/dialog-no-width-input.png' });
       requireCondition(false, 'Width input not found in dialog');

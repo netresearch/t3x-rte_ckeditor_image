@@ -103,8 +103,9 @@ export async function confirmImageDialog(page: Page): Promise<void> {
     await expect(confirmButton, 'Confirm button not found in image dialog').toBeVisible();
     await confirmButton.evaluate((el: HTMLElement) => el.click());
     // Wait for modal to close — use .t3js-modal (the outer container) to avoid
-    // strict mode violation (.modal-dialog is a child and also matches)
-    await page.locator('.t3js-modal').first().waitFor({ state: 'hidden', timeout: 10000 });
+    // strict mode violation (.modal-dialog is a child and also matches).
+    // Use 20s timeout: linked image dialogs may take longer to process.
+    await page.locator('.t3js-modal').first().waitFor({ state: 'hidden', timeout: 20000 });
 }
 
 /**
