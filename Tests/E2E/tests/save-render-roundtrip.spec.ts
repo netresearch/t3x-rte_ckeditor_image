@@ -41,13 +41,24 @@ test.describe('Save-Render Roundtrip', () => {
 
     // Step 3: Save without changes
     await saveContentElement(page);
+    // Wait for the iframe form submission to complete (save is inside iframe,
+    // page.waitForLoadState only watches the main page scaffold)
+    await page.waitForTimeout(2000);
 
     // Step 4: Navigate to frontend and verify images render
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
+    // CE 1 has an image with alt="Example" and data-htmlarea-zoom="true"
+    // After rendering, it should be inside a popup link wrapper
     const images = page.locator('img[alt="Example"]');
-    expect(await images.count(), 'Expected images on frontend after save').toBeGreaterThan(0);
+    const imageCount = await images.count();
+    if (imageCount === 0) {
+      // Diagnostic: log the page content to help debug rendering issues
+      const bodyHtml = await page.locator('body').innerHTML();
+      console.log('Frontend body content (first 500 chars):', bodyHtml.substring(0, 500));
+    }
+    expect(imageCount, 'Expected images on frontend after save').toBeGreaterThan(0);
     await expect(images.first()).toBeVisible();
 
     // Verify image has a valid src (not broken)
@@ -72,6 +83,7 @@ test.describe('Save-Render Roundtrip', () => {
 
     // Step 3: Save
     await saveContentElement(page);
+    await page.waitForTimeout(2000);
 
     // Step 4: Re-open the same CE
     await navigateToContentEdit(page, 1);
