@@ -896,6 +896,39 @@ $bodytextTplPopupCaption = '<figure class="image"><img src="fileadmin/user_uploa
 $stmt->execute([1, 'text', 'Template: PopupWithCaption', $bodytextTplPopupCaption, 0, 0, $now, $now, 0, 4864]);
 
 echo "Template matrix content elements (UIDs 14-19) created\n";
+
+// UID 20: Error handling — missing file UID (references non-existent sys_file)
+$bodytextMissingFile = '<p>Image with missing file:</p>'
+    . '<p><img src="fileadmin/user_upload/nonexistent.jpg" alt="Missing File" width="300" height="225" data-htmlarea-file-uid="9999" /></p>';
+$stmt->execute([1, 'text', 'Error: Missing File', $bodytextMissingFile, 0, 0, $now, $now, 0, 5120]);
+
+// UID 21: Error handling — XSS in alt/title/caption
+$bodytextXss = '<p>XSS test content:</p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="&lt;script&gt;alert(1)&lt;/script&gt;" title="&lt;img onerror=alert(1)&gt;" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="XSS Caption Test" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>&lt;script&gt;alert("xss")&lt;/script&gt;</figcaption></figure>';
+$stmt->execute([1, 'text', 'Error: XSS Payloads', $bodytextXss, 0, 0, $now, $now, 0, 5376]);
+
+// UID 22: Error handling — special characters in alt/title
+$bodytextSpecialChars = '<p>Special characters in attributes:</p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="Quotes &quot;double&quot; and &apos;single&apos;" title="Ampersand &amp; entities" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="Unicode: äöü éàè 日本語" width="300" height="225" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Error: Special Characters', $bodytextSpecialChars, 0, 0, $now, $now, 0, 5632]);
+
+// UID 23: Error handling — empty alt text
+$bodytextEmptyAlt = '<p>Image with empty alt:</p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="" width="300" height="225" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Error: Empty Alt', $bodytextEmptyAlt, 0, 0, $now, $now, 0, 5888]);
+
+// UID 24: Error handling — whitespace-only caption (should NOT render <figure>)
+$bodytextWhitespaceCaption = '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Whitespace Caption" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>   </figcaption></figure>';
+$stmt->execute([1, 'text', 'Error: Whitespace Caption', $bodytextWhitespaceCaption, 0, 0, $now, $now, 0, 6144]);
+
+// UID 25: Click behavior — image with both link and zoom (link takes priority)
+$bodytextLinkPriority = '<p>Link + zoom conflict:</p>'
+    . '<p><a href="https://example.com/priority-test"><img src="fileadmin/user_upload/example.jpg" alt="Link Priority Test" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></a></p>';
+$stmt->execute([1, 'text', 'Link Priority over Zoom', $bodytextLinkPriority, 0, 0, $now, $now, 0, 6400]);
+
+echo "Error handling & edge case content elements (UIDs 20-25) created\n";
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
