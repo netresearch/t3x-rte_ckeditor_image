@@ -19,6 +19,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Click-to-Enlarge Functionality', () => {
   test('images are wrapped in popup links', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Extension transforms data-htmlarea-zoom images into popup links
     // The rendered output has <a data-popup="true"><img></a>
@@ -38,6 +39,7 @@ test.describe('Click-to-Enlarge Functionality', () => {
 
   test('images are processed by ImageRenderingService', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Find popup links - their presence proves ImageRenderingService ran
     // and transformed data-htmlarea-zoom images into popup structure
@@ -59,6 +61,7 @@ test.describe('Click-to-Enlarge Functionality', () => {
 
   test('click-to-enlarge link structure', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Find popup links
     const popupLinks = page.locator('a[data-popup="true"]');
@@ -90,6 +93,7 @@ test.describe('Click-to-Enlarge Functionality', () => {
 
   test('ImageRenderingService processed the image correctly', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Find images inside popup links
     const imagesInPopupLinks = page.locator('a[data-popup="true"] img');
@@ -109,6 +113,7 @@ test.describe('Click-to-Enlarge Functionality', () => {
 
   test('multiple images all have popup functionality', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     const popupLinks = page.locator('a[data-popup="true"]');
     const count = await popupLinks.count();
@@ -128,6 +133,7 @@ test.describe('Click-to-Enlarge Functionality', () => {
 
   test('images without data-htmlarea-zoom are NOT wrapped in popup links', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Find all images on the page
     const allImages = page.locator('img');
@@ -175,6 +181,7 @@ test.describe('Caption Rendering (Whitespace Artifact Prevention)', () => {
    */
   test('figure elements do not contain p nbsp artifacts', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Find all figure elements (images with captions)
     const figures = page.locator('figure');
@@ -210,6 +217,7 @@ test.describe('Caption Rendering (Whitespace Artifact Prevention)', () => {
 
   test('images with captions render with figcaption', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Find figures with figcaption
     const figuresWithCaption = page.locator('figure:has(figcaption)');
@@ -228,6 +236,7 @@ test.describe('Caption Rendering (Whitespace Artifact Prevention)', () => {
 test.describe('TypoScript Configuration Verification', () => {
   test('page renders without TypoScript errors', async ({ page }) => {
     const response = await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Should return 200 OK
     expect(response?.status()).toBe(200);
@@ -240,6 +249,7 @@ test.describe('TypoScript Configuration Verification', () => {
 
   test('lib.parseFunc_RTE.tags.img is active', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // If parseFunc_RTE.tags.img is NOT configured, images with data-htmlarea-zoom
     // in the database would render as plain <img> without being transformed
