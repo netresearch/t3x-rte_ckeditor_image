@@ -24,7 +24,7 @@ import {
  * button but the modal does not close (PHP built-in server timing issue).
  */
 test.describe('Save-Render Roundtrip', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(() => {
     requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
   });
 
