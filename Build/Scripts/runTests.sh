@@ -648,10 +648,13 @@ if (count($tables) < 10) {
     echo "WARNING: Expected many tables from database:updateschema, but found only " . count($tables) . "\n";
 }
 
-// Insert default file storage if not exists
+// Ensure default file storage has correct configuration
+// TYPO3 setup may create uid=1 with empty configuration — we must fix it
 // CRITICAL: is_public = 1 is required for click-to-enlarge to work (imageLinkWrap)
-$pdo->exec("INSERT IGNORE INTO sys_file_storage (uid, name, driver, configuration, is_default, is_public, tstamp, crdate) VALUES (1, 'fileadmin', 'Local', '{\"basePath\":\"fileadmin/\",\"pathType\":\"relative\"}', 1, 1, $now, $now)");
-echo "Default file storage ensured\n";
+$storageConfig = '{"basePath":"fileadmin/","pathType":"relative"}';
+$pdo->prepare("INSERT INTO sys_file_storage (uid, name, driver, configuration, is_default, is_public, tstamp, crdate) VALUES (1, 'fileadmin', 'Local', ?, 1, 1, ?, ?) ON DUPLICATE KEY UPDATE configuration = VALUES(configuration), is_public = 1")
+    ->execute([$storageConfig, $now, $now]);
+echo "Default file storage ensured (with basePath configuration)\n";
 
 // Insert root page
 $pdo->exec("INSERT IGNORE INTO pages (uid, pid, title, slug, doktype, is_siteroot, hidden, deleted, tstamp, crdate) VALUES (1, 0, 'Home', '/', 1, 1, 0, 0, $now, $now)");
@@ -694,10 +697,11 @@ page.10 < styles.content.get
 page.includeCSS.rte_ckeditor_image_alignment = EXT:rte_ckeditor_image/Resources/Public/Css/image-alignment.css
 TYPOSCRIPT;
 
-// Insert sys_template with BOTH constants and config
-$stmt = $pdo->prepare("INSERT IGNORE INTO sys_template (uid, pid, root, title, clear, constants, config, hidden, deleted, tstamp, crdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+// Insert or update sys_template with BOTH constants and config
+// Use ON DUPLICATE KEY UPDATE to ensure our TypoScript is applied even if TYPO3 setup pre-created it
+$stmt = $pdo->prepare("INSERT INTO sys_template (uid, pid, root, title, clear, constants, config, hidden, deleted, tstamp, crdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE constants = VALUES(constants), config = VALUES(config), root = 1, clear = 1");
 $stmt->execute([1, 1, 1, 'Root', 1, $tsConstants, $tsConfig, 0, 0, $now, $now]);
-echo "sys_template record inserted with constants and config\n";
+echo "sys_template record ensured with constants and config\n";
 DBSETUP_EOF
 
         # site-config.yaml - Site configuration
@@ -739,11 +743,12 @@ $pdo = new PDO(
 );
 $now = time();
 
-// Create sys_file entry
+// Create or update sys_file entry
 $identifierHash = sha1('/user_upload/example.jpg');
 $folderHash = sha1('/user_upload/');
-$pdo->exec("INSERT IGNORE INTO sys_file (uid, storage, identifier, identifier_hash, folder_hash, name, extension, mime_type, size, tstamp, creation_date)
-            VALUES (1, 1, '/user_upload/example.jpg', '$identifierHash', '$folderHash', 'example.jpg', 'jpg', 'image/jpeg', 48000, $now, $now)");
+$pdo->exec("INSERT INTO sys_file (uid, storage, identifier, identifier_hash, folder_hash, name, extension, mime_type, size, tstamp, creation_date)
+            VALUES (1, 1, '/user_upload/example.jpg', '$identifierHash', '$folderHash', 'example.jpg', 'jpg', 'image/jpeg', 48000, $now, $now)
+            ON DUPLICATE KEY UPDATE storage = 1, identifier = '/user_upload/example.jpg', identifier_hash = '$identifierHash', folder_hash = '$folderHash'");
 echo "sys_file record created\n";
 
 // Insert test content with RTE image (no caption)
