@@ -38,15 +38,17 @@ test.describe('Image Insertion', () => {
       await navigateToContentEdit(page, 1);
       await waitForCKEditor(page);
 
+      // Wait for images to load — CKEditor renders asynchronously
+      const frame = getModuleFrame(page);
+      const image = frame.locator('.ck-editor__editable img').first();
+      await image.waitFor({ timeout: 15000 });
+
       const editorHtml = await getEditorHtml(page);
 
       // CE 1 has a pre-existing image with known attributes
       expect(editorHtml).toContain('<img');
       expect(editorHtml).toContain('data-htmlarea-file-uid');
 
-      // Verify the specific test image attributes
-      const frame = getModuleFrame(page);
-      const image = frame.locator('.ck-editor__editable img').first();
       await expect(image).toBeVisible();
 
       const alt = await image.getAttribute('alt');
@@ -65,9 +67,10 @@ test.describe('Image Insertion', () => {
       await navigateToContentEdit(page, 1);
       await waitForCKEditor(page);
 
+      // Wait for images to load — CKEditor renders asynchronously
       const frame = getModuleFrame(page);
       const image = frame.locator('.ck-editor__editable img').first();
-      await expect(image).toBeVisible();
+      await image.waitFor({ timeout: 15000 });
 
       const src = await image.getAttribute('src');
       expect(src).toBeTruthy();

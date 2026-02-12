@@ -82,13 +82,18 @@ export async function waitForCKEditor(page: Page): Promise<void> {
 
 /**
  * Double-click image to open edit dialog (inside module iframe).
+ *
+ * CKEditor renders the editable area before loading image content, so we
+ * must explicitly wait for images to appear (not just check the count).
  */
 export async function openImageEditDialog(page: Page, imageIndex: number = 0): Promise<void> {
     const frame = getModuleFrame(page);
     const images = frame.locator('.ck-editor__editable img');
+    // Wait for images to appear — CKEditor loads content asynchronously
+    await images.first().waitFor({ timeout: 15000 });
     expect(await images.count(), `Expected at least ${imageIndex + 1} image(s) in CKEditor`).toBeGreaterThan(imageIndex);
     await images.nth(imageIndex).dblclick();
-    await page.locator('.t3js-modal').first().waitFor({ state: 'visible', timeout: 10000 });
+    await page.locator('.t3js-modal').first().waitFor({ state: 'visible', timeout: 15000 });
     await expect(page.locator('.modal-title').first()).toBeVisible();
 }
 
@@ -148,6 +153,8 @@ export async function saveContentElement(page: Page): Promise<void> {
 export async function selectImageInEditor(page: Page): Promise<void> {
     const frame = getModuleFrame(page);
     const image = frame.locator('.ck-editor__editable img, .ck-editor__editable figure.image');
+    // Wait for images to appear — CKEditor loads content asynchronously
+    await image.first().waitFor({ timeout: 15000 });
     expect(await image.count(), 'No images found in CKEditor').toBeGreaterThan(0);
     await image.first().click();
 }
