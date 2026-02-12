@@ -166,6 +166,7 @@ test.describe('Image Dialog Link Browser', () => {
   });
 
   test('selecting a page in link browser inserts link and closes browser', async ({ page }) => {
+    await loginToBackend(page);
     await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
@@ -234,6 +235,7 @@ test.describe('Image Dialog Link Browser', () => {
   });
 
   test('link browser closes without error on cancel', async ({ page }) => {
+    await loginToBackend(page);
     await navigateToContentEdit(page);
 
     await waitForCKEditor(page);

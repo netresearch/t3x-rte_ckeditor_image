@@ -79,13 +79,8 @@ async function getEditorImages(page: Page): Promise<{
 // =============================================================================
 
 test.describe('Inline Image Editing in CKEditor (#580)', () => {
-  let loggedIn = false;
-
   test.beforeEach(async ({ page }) => {
-    if (!loggedIn) {
-      await loginToBackend(page);
-      loggedIn = true;
-    }
+    await loginToBackend(page);
   });
 
   test('can view images in CKEditor', async ({ page }) => {
@@ -278,13 +273,8 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
 });
 
 test.describe('Toggle Image Type in CKEditor (#580)', () => {
-  let loggedIn = false;
-
   test.beforeEach(async ({ page }) => {
-    if (!loggedIn) {
-      await loginToBackend(page);
-      loggedIn = true;
-    }
+    await loginToBackend(page);
   });
 
   test('toggle button exists in image toolbar', async ({ page }) => {
@@ -461,13 +451,8 @@ test.describe('Inline Image Persistence (#580)', () => {
 });
 
 test.describe('Multiple Inline Images (#580)', () => {
-  let loggedIn = false;
-
   test.beforeEach(async ({ page }) => {
-    if (!loggedIn) {
-      await loginToBackend(page);
-      loggedIn = true;
-    }
+    await loginToBackend(page);
   });
 
   test('multiple inline images can exist in same paragraph', async ({ page }) => {

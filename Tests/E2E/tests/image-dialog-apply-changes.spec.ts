@@ -47,13 +47,8 @@ async function getImageAttributes(page: Page): Promise<{
 }
 
 test.describe('Image Dialog - Apply Changes', () => {
-  let loggedIn = false;
-
   test.beforeEach(async ({ page }) => {
-    if (!loggedIn) {
-      await loginToBackend(page);
-      loggedIn = true;
-    }
+    await loginToBackend(page);
   });
 
   test('changing alt text in dialog updates the image', async ({ page }) => {
