@@ -554,6 +554,15 @@ case ${TEST_SUITE} in
                 typo3/cms-rte-ckeditor:^13.4 \\
                  || exit 1
             fi
+            if [ ${TYPO3_VERSION} -eq 14 ]; then
+              composer require --no-ansi --no-interaction --no-progress --no-install \
+                typo3/cms-core:^14.0 \\
+                typo3/cms-backend:^14.0 \\
+                typo3/cms-frontend:^14.0 \\
+                typo3/cms-extbase:^14.0 \\
+                typo3/cms-rte-ckeditor:^14.0 \\
+                 || exit 1
+            fi
             composer update --no-progress --no-interaction  || exit 1
             composer show || exit 1
         "
@@ -575,6 +584,10 @@ case ${TEST_SUITE} in
             if [ ${TYPO3_VERSION} -eq 13 ]; then
               composer require --no-ansi --no-interaction --no-progress --no-install \
                 typo3/cms-core:^13.4 || exit 1
+            fi
+            if [ ${TYPO3_VERSION} -eq 14 ]; then
+              composer require --no-ansi --no-interaction --no-progress --no-install \
+                typo3/cms-core:^14.0 || exit 1
             fi
             composer update --no-ansi --no-interaction --no-progress --with-dependencies --prefer-lowest || exit 1
             composer show || exit 1
@@ -906,9 +919,9 @@ CONTENT_EOF
         waitFor mariadb-e2e 3306
 
         # Determine TYPO3 version constraint for E2E
-        # Default to v13 unless explicitly set via -t flag
+        # E2E only supports v13+; fall back to v13 for unsupported versions
         E2E_TYPO3_VERSION=${TYPO3_VERSION}
-        if [ "${E2E_TYPO3_VERSION}" = "11" ] || [ "${E2E_TYPO3_VERSION}" = "12" ]; then
+        if [[ "${E2E_TYPO3_VERSION}" == "11" || "${E2E_TYPO3_VERSION}" == "12" ]]; then
             E2E_TYPO3_VERSION="13"
         fi
         case ${E2E_TYPO3_VERSION} in
