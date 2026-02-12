@@ -46,6 +46,8 @@ test.describe('Save-Render Roundtrip', () => {
     await page.waitForTimeout(2000);
 
     // Step 4: Navigate to frontend and verify images render
+    // Clear backend session cookies to avoid TYPO3 backend intercepting the request
+    await page.context().clearCookies();
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
@@ -54,7 +56,8 @@ test.describe('Save-Render Roundtrip', () => {
     const images = page.locator('img[alt="Example"]');
     const imageCount = await images.count();
     if (imageCount === 0) {
-      // Diagnostic: log the page content to help debug rendering issues
+      // Diagnostic: log the page URL and content to help debug rendering issues
+      console.log('Frontend URL after goto:', page.url());
       const bodyHtml = await page.locator('body').innerHTML();
       console.log('Frontend body content (first 500 chars):', bodyHtml.substring(0, 500));
     }
