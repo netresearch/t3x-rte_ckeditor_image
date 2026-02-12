@@ -61,7 +61,7 @@ test.describe('Error Handling & Edge Cases', () => {
       const containerHtml = await ceContainer.innerHTML();
 
       // Raw <script> tags must NOT appear in the rendered HTML
-      expect(containerHtml).not.toMatch(/<script[^<]*>.*?<\/script>/i);
+      expect(containerHtml).not.toMatch(/<script[\s>]/i);
 
       // The alt text should be HTML-escaped (e.g., &lt;script&gt;) or stripped
       const img = ceContainer.locator('img').first();
@@ -87,7 +87,7 @@ test.describe('Error Handling & Edge Cases', () => {
         const captionHtml = await figcaption.innerHTML();
 
         // Raw <script> must NOT appear in figcaption
-        expect(captionHtml).not.toMatch(/<script[^<]*>.*?<\/script>/i);
+        expect(captionHtml).not.toMatch(/<script[\s>]/i);
 
         // The text content should be safe (escaped or stripped)
         const captionText = await figcaption.textContent();
@@ -156,8 +156,6 @@ test.describe('Error Handling & Edge Cases', () => {
 
         // The alt attribute should contain quote characters
         // (either raw or HTML-entity encoded — both are valid)
-        const containerHtml = await ceContainer.innerHTML();
-
         // Verify the alt value is intact and not truncated by unescaped quotes
         // The getAttribute() call already decodes entities, so if we get a
         // non-empty string, the quotes were properly escaped in the HTML
