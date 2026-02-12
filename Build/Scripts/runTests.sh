@@ -689,6 +689,9 @@ lib.contentElement.settings.media.popup {
 page = PAGE
 page.typeNum = 0
 page.10 < styles.content.get
+
+# Include CSS for image alignment styles (image-left, image-center, image-right)
+page.includeCSS.rte_ckeditor_image_alignment = EXT:rte_ckeditor_image/Resources/Public/Css/image-alignment.css
 TYPOSCRIPT;
 
 // Insert sys_template with BOTH constants and config
@@ -711,8 +714,7 @@ languages:
     flag: us
 dependencies:
   - typo3/fluid-styled-content
-# Note: Site Sets for mounted extensions aren't auto-discovered
-# TypoScript loading is handled via @import in sys_template instead
+  - netresearch/rte-ckeditor-image
 SITECONFIG_EOF
 
         # create-test-content.php - Create test image and content records
@@ -926,6 +928,7 @@ CONTENT_EOF
         echo "Running cache warmup in separate container..."
         ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name e2e-cache-${SUFFIX} \
             -v ${E2E_ROOT}:/var/www/html \
+            -v ${ROOT_DIR}:/extension:ro \
             -w /var/www/html \
             ${IMAGE_PHP} /bin/bash -c "
                 echo '[CACHE] Flushing caches...'
@@ -949,7 +952,7 @@ CONTENT_EOF
             --name webserver-e2e-${SUFFIX} \
             --network ${NETWORK} \
             -v ${E2E_ROOT}:/var/www/html \
-            -v ${ROOT_DIR}:/ext-rte-ckeditor-image \
+            -v ${ROOT_DIR}:/extension:ro \
             -w /var/www/html \
             ${IMAGE_PHP} php -S 0.0.0.0:80 -t public/
 
