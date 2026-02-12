@@ -236,6 +236,7 @@ Options:
             - 12.4: use TYPO3 v12
             - 13.4: use TYPO3 v13
             - 14.0: use TYPO3 v14
+        Note: E2E tests (-s e2e) only support v13 and v14.
 
     -p <8.2|8.3|8.4|8.5>
         Specifies the PHP minor version to be used
