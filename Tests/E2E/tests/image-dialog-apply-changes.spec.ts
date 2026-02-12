@@ -315,7 +315,7 @@ test.describe('Image Dialog - Apply Changes', () => {
     const targetSelect = page.locator('#rteckeditorimage-linkTarget');
 
     if (await targetSelect.count() > 0) {
-      await targetSelect.selectOption('_blank');
+      await targetSelect.fill('_blank');
       console.log('Set link target to: _blank');
 
       await confirmImageDialog(page);
