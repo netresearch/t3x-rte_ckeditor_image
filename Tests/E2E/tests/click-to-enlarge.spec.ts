@@ -19,14 +19,15 @@ import { test, expect } from '@playwright/test';
 test.describe('Click-to-Enlarge Functionality', () => {
   test('images are wrapped in popup links', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Extension transforms data-htmlarea-zoom images into popup links
     // The rendered output has <a data-popup="true"><img></a>
     const popupLinks = page.locator('a[data-popup="true"]');
     const count = await popupLinks.count();
 
-    // Skip if no popup images exist
-    test.skip(count === 0, 'No popup images found - add images with click-to-enlarge enabled');
+    // Fail if no popup images exist in demo content
+    expect(count, 'Expected popup images in demo content').toBeGreaterThan(0);
 
     // Should have at least one popup link with an image
     await expect(popupLinks.first()).toBeVisible();
@@ -38,13 +39,14 @@ test.describe('Click-to-Enlarge Functionality', () => {
 
   test('images are processed by ImageRenderingService', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Find popup links - their presence proves ImageRenderingService ran
     // and transformed data-htmlarea-zoom images into popup structure
     const popupLinks = page.locator('a[data-popup="true"]');
     const count = await popupLinks.count();
 
-    test.skip(count === 0, 'No popup images found');
+    expect(count, 'Expected popup images in demo content').toBeGreaterThan(0);
 
     await expect(popupLinks.first()).toBeVisible();
 
@@ -59,12 +61,13 @@ test.describe('Click-to-Enlarge Functionality', () => {
 
   test('click-to-enlarge link structure', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Find popup links
     const popupLinks = page.locator('a[data-popup="true"]');
     const count = await popupLinks.count();
 
-    test.skip(count === 0, 'No popup images found');
+    expect(count, 'Expected popup images in demo content').toBeGreaterThan(0);
 
     const firstLink = popupLinks.first();
     await expect(firstLink).toBeVisible();
@@ -90,12 +93,13 @@ test.describe('Click-to-Enlarge Functionality', () => {
 
   test('ImageRenderingService processed the image correctly', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Find images inside popup links
     const imagesInPopupLinks = page.locator('a[data-popup="true"] img');
     const count = await imagesInPopupLinks.count();
 
-    test.skip(count === 0, 'No popup images found');
+    expect(count, 'Expected popup images in demo content').toBeGreaterThan(0);
 
     await expect(imagesInPopupLinks.first()).toBeVisible();
 
@@ -109,6 +113,7 @@ test.describe('Click-to-Enlarge Functionality', () => {
 
   test('multiple images all have popup functionality', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     const popupLinks = page.locator('a[data-popup="true"]');
     const count = await popupLinks.count();
@@ -128,6 +133,7 @@ test.describe('Click-to-Enlarge Functionality', () => {
 
   test('images without data-htmlarea-zoom are NOT wrapped in popup links', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Find all images on the page
     const allImages = page.locator('img');
@@ -175,15 +181,13 @@ test.describe('Caption Rendering (Whitespace Artifact Prevention)', () => {
    */
   test('figure elements do not contain p nbsp artifacts', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Find all figure elements (images with captions)
     const figures = page.locator('figure');
     const figureCount = await figures.count();
 
-    if (figureCount === 0) {
-      console.log('No figure elements found - caption test skipped');
-      return;
-    }
+    expect(figureCount, 'Expected figure elements in demo content').toBeGreaterThan(0);
 
     // Check each figure for <p>&nbsp;</p> artifacts
     for (let i = 0; i < figureCount; i++) {
@@ -213,14 +217,14 @@ test.describe('Caption Rendering (Whitespace Artifact Prevention)', () => {
 
   test('images with captions render with figcaption', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Find figures with figcaption
     const figuresWithCaption = page.locator('figure:has(figcaption)');
     const count = await figuresWithCaption.count();
 
-    // Skip test if no captioned images exist in test page
-    // This ensures test doesn't silently pass without validating anything
-    test.skip(count === 0, 'No figures with captions found on test page - add captioned images to validate');
+    // Fail if no captioned images exist in test page
+    expect(count, 'Expected figures with captions in demo content').toBeGreaterThan(0);
 
     // Verify figcaption contains text
     const firstCaption = figuresWithCaption.first().locator('figcaption');
@@ -232,6 +236,7 @@ test.describe('Caption Rendering (Whitespace Artifact Prevention)', () => {
 test.describe('TypoScript Configuration Verification', () => {
   test('page renders without TypoScript errors', async ({ page }) => {
     const response = await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // Should return 200 OK
     expect(response?.status()).toBe(200);
@@ -244,6 +249,7 @@ test.describe('TypoScript Configuration Verification', () => {
 
   test('lib.parseFunc_RTE.tags.img is active', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
 
     // If parseFunc_RTE.tags.img is NOT configured, images with data-htmlarea-zoom
     // in the database would render as plain <img> without being transformed
@@ -255,8 +261,8 @@ test.describe('TypoScript Configuration Verification', () => {
     const popupLinks = page.locator('a[data-popup="true"]');
     const popupCount = await popupLinks.count();
 
-    // Skip if no test content with popup images exists
-    test.skip(popupCount === 0, 'No popup images found - add images with click-to-enlarge enabled');
+    // Fail if no test content with popup images exists
+    expect(popupCount, 'Expected popup images in demo content').toBeGreaterThan(0);
 
     // Should have at least one popup link (proves extension processed images)
     expect(popupCount).toBeGreaterThan(0);

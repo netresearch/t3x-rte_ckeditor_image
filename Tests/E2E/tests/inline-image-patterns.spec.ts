@@ -1,4 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { requireCondition } from './helpers/typo3-backend';
 
 /**
  * E2E tests for common inline image patterns in RTE content.
@@ -32,8 +33,8 @@ test.describe('Links Spanning Text and Inline Images', () => {
     const linksWithInlineImages = page.locator('a:has(img.image-inline)');
     const count = await linksWithInlineImages.count();
 
-    // Skip if no such links exist (content-dependent)
-    test.skip(count === 0, 'No links with inline images found - add test content to validate');
+    // Fail if no such links exist in demo content
+    expect(count, 'Expected links with inline images in demo content').toBeGreaterThan(0);
 
     // Check the first matching link
     const link = linksWithInlineImages.first();
@@ -91,7 +92,7 @@ test.describe('Links Spanning Text and Inline Images', () => {
       }
     }
 
-    test.skip(!foundLinkWithImageAtStart, 'No links with inline image at start found');
+    expect(foundLinkWithImageAtStart, 'Expected links with inline image at start in demo content').toBe(true);
   });
 
   /**
@@ -127,7 +128,7 @@ test.describe('Links Spanning Text and Inline Images', () => {
       }
     }
 
-    test.skip(!foundLinkWithImageAtEnd, 'No links with inline image at end found');
+    expect(foundLinkWithImageAtEnd, 'Expected links with inline image at end in demo content').toBe(true);
   });
 
   /**
@@ -160,7 +161,7 @@ test.describe('Links Spanning Text and Inline Images', () => {
     const linksWithImages = page.locator('a:has(img.image-inline)');
     const count = await linksWithImages.count();
 
-    test.skip(count === 0, 'No links with inline images found');
+    expect(count, 'Expected links with inline images in demo content').toBeGreaterThan(0);
 
     for (let i = 0; i < Math.min(count, 5); i++) {
       const link = linksWithImages.nth(i);
@@ -191,7 +192,7 @@ test.describe('Inline Images in Tables', () => {
     const tablesWithImages = page.locator('table:has(img.image-inline)');
     const count = await tablesWithImages.count();
 
-    test.skip(count === 0, 'No tables with inline images found');
+    requireCondition(count > 0, 'No tables with inline images found');
 
     const table = tablesWithImages.first();
     await expect(table).toBeVisible();
@@ -223,7 +224,7 @@ test.describe('Inline Images in Tables', () => {
     const cellsWithImages = page.locator('td:has(img.image-inline), th:has(img.image-inline)');
     const count = await cellsWithImages.count();
 
-    test.skip(count === 0, 'No table cells with inline images found');
+    requireCondition(count > 0, 'No table cells with inline images found');
 
     // Verify cells maintain their content structure
     for (let i = 0; i < Math.min(count, 5); i++) {
@@ -247,7 +248,7 @@ test.describe('Inline Images in Lists', () => {
     const listItemsWithImages = page.locator('li:has(img.image-inline)');
     const count = await listItemsWithImages.count();
 
-    test.skip(count === 0, 'No list items with inline images found');
+    requireCondition(count > 0, 'No list items with inline images found');
 
     const listItem = listItemsWithImages.first();
     await expect(listItem).toBeVisible();
@@ -273,7 +274,7 @@ test.describe('Inline Images in Lists', () => {
     const ulCount = await ulWithImages.count();
     const olCount = await olWithImages.count();
 
-    test.skip(ulCount === 0 && olCount === 0, 'No lists with inline images found');
+    requireCondition(ulCount > 0 || olCount > 0, 'No lists with inline images found');
 
     if (ulCount > 0) {
       const ulImg = ulWithImages.first().locator('img.image-inline').first();
@@ -298,7 +299,7 @@ test.describe('Inline Images in Headings', () => {
     const headingsWithImages = page.locator('h1:has(img.image-inline), h2:has(img.image-inline), h3:has(img.image-inline), h4:has(img.image-inline), h5:has(img.image-inline), h6:has(img.image-inline)');
     const count = await headingsWithImages.count();
 
-    test.skip(count === 0, 'No headings with inline images found');
+    requireCondition(count > 0, 'No headings with inline images found');
 
     const heading = headingsWithImages.first();
     await expect(heading).toBeVisible();
@@ -325,7 +326,7 @@ test.describe('Inline Images in Headings', () => {
     const headingsWithImages = page.locator('h1:has(img.image-inline), h2:has(img.image-inline), h3:has(img.image-inline)');
     const count = await headingsWithImages.count();
 
-    test.skip(count === 0, 'No headings with inline images found');
+    requireCondition(count > 0, 'No headings with inline images found');
 
     for (let i = 0; i < Math.min(count, 3); i++) {
       const heading = headingsWithImages.nth(i);
@@ -353,7 +354,7 @@ test.describe('General Inline Image Rendering', () => {
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();
 
-    test.skip(count === 0, 'No inline images found on page');
+    expect(count, 'Expected inline images in demo content').toBeGreaterThan(0);
 
     console.log(`Found ${count} inline images`);
 
@@ -374,7 +375,7 @@ test.describe('General Inline Image Rendering', () => {
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();
 
-    test.skip(count === 0, 'No inline images found on page');
+    expect(count, 'Expected inline images in demo content').toBeGreaterThan(0);
 
     for (let i = 0; i < Math.min(count, 10); i++) {
       const img = inlineImages.nth(i);
@@ -395,7 +396,7 @@ test.describe('General Inline Image Rendering', () => {
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();
 
-    test.skip(count === 0, 'No inline images found on page');
+    expect(count, 'Expected inline images in demo content').toBeGreaterThan(0);
 
     for (let i = 0; i < Math.min(count, 5); i++) {
       const img = inlineImages.nth(i);

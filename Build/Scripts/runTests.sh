@@ -648,10 +648,14 @@ if (count($tables) < 10) {
     echo "WARNING: Expected many tables from database:updateschema, but found only " . count($tables) . "\n";
 }
 
-// Insert default file storage if not exists
+// Ensure default file storage has correct configuration
+// TYPO3 uses FlexForm XML format for sys_file_storage.configuration
+// TYPO3 setup may create uid=1 with empty configuration — we must fix it
 // CRITICAL: is_public = 1 is required for click-to-enlarge to work (imageLinkWrap)
-$pdo->exec("INSERT IGNORE INTO sys_file_storage (uid, name, driver, configuration, is_default, is_public, tstamp, crdate) VALUES (1, 'fileadmin', 'Local', '{\"basePath\":\"fileadmin/\",\"pathType\":\"relative\"}', 1, 1, $now, $now)");
-echo "Default file storage ensured\n";
+$storageConfig = '<?xml version="1.0" encoding="utf-8" standalone="yes" ?><T3FlexForms><data><sheet index="sDEF"><language index="lDEF"><field index="basePath"><value index="vDEF">fileadmin/</value></field><field index="pathType"><value index="vDEF">relative</value></field></language></sheet></data></T3FlexForms>';
+$pdo->prepare("INSERT INTO sys_file_storage (uid, name, driver, configuration, is_default, is_public, tstamp, crdate) VALUES (1, 'fileadmin', 'Local', ?, 1, 1, ?, ?) ON DUPLICATE KEY UPDATE configuration = VALUES(configuration), is_public = 1")
+    ->execute([$storageConfig, $now, $now]);
+echo "Default file storage ensured (FlexForm XML with basePath)\n";
 
 // Insert root page
 $pdo->exec("INSERT IGNORE INTO pages (uid, pid, title, slug, doktype, is_siteroot, hidden, deleted, tstamp, crdate) VALUES (1, 0, 'Home', '/', 1, 1, 0, 0, $now, $now)");
@@ -689,12 +693,16 @@ lib.contentElement.settings.media.popup {
 page = PAGE
 page.typeNum = 0
 page.10 < styles.content.get
+
+# Include CSS for image alignment styles (image-left, image-center, image-right)
+page.includeCSS.rte_ckeditor_image_alignment = EXT:rte_ckeditor_image/Resources/Public/Css/image-alignment.css
 TYPOSCRIPT;
 
-// Insert sys_template with BOTH constants and config
-$stmt = $pdo->prepare("INSERT IGNORE INTO sys_template (uid, pid, root, title, clear, constants, config, hidden, deleted, tstamp, crdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+// Insert or update sys_template with BOTH constants and config
+// Use ON DUPLICATE KEY UPDATE to ensure our TypoScript is applied even if TYPO3 setup pre-created it
+$stmt = $pdo->prepare("INSERT INTO sys_template (uid, pid, root, title, clear, constants, config, hidden, deleted, tstamp, crdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE constants = VALUES(constants), config = VALUES(config), root = 1, clear = 1");
 $stmt->execute([1, 1, 1, 'Root', 1, $tsConstants, $tsConfig, 0, 0, $now, $now]);
-echo "sys_template record inserted with constants and config\n";
+echo "sys_template record ensured with constants and config\n";
 DBSETUP_EOF
 
         # site-config.yaml - Site configuration
@@ -711,8 +719,7 @@ languages:
     flag: us
 dependencies:
   - typo3/fluid-styled-content
-# Note: Site Sets for mounted extensions aren't auto-discovered
-# TypoScript loading is handled via @import in sys_template instead
+  - netresearch/rte-ckeditor-image
 SITECONFIG_EOF
 
         # create-test-content.php - Create test image and content records
@@ -737,11 +744,12 @@ $pdo = new PDO(
 );
 $now = time();
 
-// Create sys_file entry
+// Create or update sys_file entry
 $identifierHash = sha1('/user_upload/example.jpg');
 $folderHash = sha1('/user_upload/');
-$pdo->exec("INSERT IGNORE INTO sys_file (uid, storage, identifier, identifier_hash, folder_hash, name, extension, mime_type, size, tstamp, creation_date)
-            VALUES (1, 1, '/user_upload/example.jpg', '$identifierHash', '$folderHash', 'example.jpg', 'jpg', 'image/jpeg', 48000, $now, $now)");
+$pdo->exec("INSERT INTO sys_file (uid, storage, identifier, identifier_hash, folder_hash, name, extension, mime_type, size, tstamp, creation_date)
+            VALUES (1, 1, '/user_upload/example.jpg', '$identifierHash', '$folderHash', 'example.jpg', 'jpg', 'image/jpeg', 48000, $now, $now)
+            ON DUPLICATE KEY UPDATE storage = 1, identifier = '/user_upload/example.jpg', identifier_hash = '$identifierHash', folder_hash = '$folderHash'");
 echo "sys_file record created\n";
 
 // Insert test content with RTE image (no caption)
@@ -751,8 +759,9 @@ $stmt->execute([1, 'text', 'RTE CKEditor Image Demo', $bodytext, 0, 0, $now, $no
 echo "tt_content record created\n";
 
 // Insert test content with RTE image WITH CAPTION (to test for <p>&nbsp;</p> artifacts)
-// This triggers the WithCaption.html template which has internal whitespace between img and figcaption
-$bodytextCaption = '<p>Image with caption test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Caption Test" width="400" height="300" data-htmlarea-file-uid="1" data-caption="Test Caption Text" /></p>';
+// Uses <figure><figcaption> markup which triggers the WithCaption.html Fluid template
+$bodytextCaption = '<p>Image with caption test:</p>'
+    . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Caption Test" width="400" height="300" data-htmlarea-file-uid="1" /><figcaption>Test Caption Text</figcaption></figure>';
 $stmt->execute([1, 'text', 'Caption Test', $bodytextCaption, 0, 0, $now, $now, 0, 512]);
 echo "tt_content record with caption created\n";
 
@@ -775,12 +784,58 @@ echo "tt_content record with linked image created\n";
 $bodytextSimpleLinked = '<p>Simple linked image without caption:</p><p><a href="https://typo3.org" class="test-simple-link"><img src="fileadmin/user_upload/example.jpg" alt="Simple Link" width="300" height="225" data-htmlarea-file-uid="1" /></a></p>';
 $stmt->execute([1, 'text', 'Simple Linked Image', $bodytextSimpleLinked, 0, 0, $now, $now, 0, 1280]);
 echo "tt_content record with simple linked image created\n";
+
+// UID 6: Styled/Alignment Images (needed by image-styles.spec.ts)
+$bodytextStyles = '<p>Images with alignment classes:</p>'
+    . '<p><img class="image-left" src="fileadmin/user_upload/example.jpg" alt="Left Aligned" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-right" src="fileadmin/user_upload/example.jpg" alt="Right Aligned" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-center" src="fileadmin/user_upload/example.jpg" alt="Center Aligned" width="400" height="300" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-block" src="fileadmin/user_upload/example.jpg" alt="Block Image" width="400" height="300" data-htmlarea-file-uid="1" /></p>'
+    . '<figure class="image-center"><img src="fileadmin/user_upload/example.jpg" alt="Centered Figure" width="400" height="300" data-htmlarea-file-uid="1" /><figcaption>Centered figure with caption</figcaption></figure>';
+$stmt->execute([1, 'text', 'Styled/Alignment Images', $bodytextStyles, 0, 0, $now, $now, 0, 1536]);
+echo "tt_content record with styled/alignment images created\n";
+
+// UID 7: Inline Images (needed by inline-images.spec.ts and inline-image-editing.spec.ts)
+$bodytextInline = '<p>Text before <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Inline Example" width="100" height="75" data-htmlarea-file-uid="1" /> text after.</p>'
+    . '<p>A linked inline image: <a href="https://example.com"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Linked Inline" width="80" height="60" data-htmlarea-file-uid="1" /></a> in text.</p>'
+    . '<p>Multiple inline images: <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="First Inline" width="50" height="38" data-htmlarea-file-uid="1" /> and <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Second Inline" width="50" height="38" data-htmlarea-file-uid="1" /> in one paragraph.</p>'
+    . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Block in Inline CE" width="400" height="300" data-htmlarea-file-uid="1" /></figure>';
+$stmt->execute([1, 'text', 'Inline Images', $bodytextInline, 0, 0, $now, $now, 0, 1792]);
+echo "tt_content record with inline images created\n";
+
+// UID 8: Inline Image Complex Patterns (needed by inline-image-patterns.spec.ts)
+$bodytextInlinePatterns = '<p>Link with inline image at start:</p>'
+    . '<p><a href="https://docs.example.com"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="docs" width="16" height="16" data-htmlarea-file-uid="1" /> Documentation</a></p>'
+    . '<p>Link with inline image at end:</p>'
+    . '<p><a href="https://download.example.com">Get the latest version <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="download" width="20" height="20" data-htmlarea-file-uid="1" /></a></p>'
+    . '<p>Link with text before and after image:</p>'
+    . '<p><a href="https://example.com">Check our <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="icon" width="16" height="16" data-htmlarea-file-uid="1" /> documentation</a></p>'
+    . '<table><tr><td>Feature <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="feature" width="24" height="24" data-htmlarea-file-uid="1" /></td><td>Works great</td></tr></table>'
+    . '<ul><li>Support for <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="feature" width="20" height="20" data-htmlarea-file-uid="1" /> inline images</li></ul>'
+    . '<h3>Features <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="feature" width="24" height="24" data-htmlarea-file-uid="1" /></h3>';
+$stmt->execute([1, 'text', 'Inline Image Complex Patterns', $bodytextInlinePatterns, 0, 0, $now, $now, 0, 2048]);
+echo "tt_content record with inline image complex patterns created\n";
+
+// UID 9: Multiple Popup/Zoom Images (needed by click-to-enlarge.spec.ts "multiple images all have popup functionality")
+$bodytextMultiZoom = '<p>Multiple images with click-to-enlarge:</p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="popup1" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="popup2" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="popup3" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Multiple Popup Images', $bodytextMultiZoom, 0, 0, $now, $now, 0, 2304]);
+echo "tt_content record with multiple popup images created\n";
+
+// UID 10: Mixed Content with Text Links (needed by linked-image-backend.spec.ts "regular text links still show link balloon")
+$bodytextMixed = '<p>Visit our <a href="https://example.com">website</a> for more info.</p><p><img src="fileadmin/user_upload/example.jpg" alt="Mixed Content" width="400" height="300" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Mixed Content with Text Links', $bodytextMixed, 0, 0, $now, $now, 0, 2560]);
+echo "tt_content record with mixed content created\n";
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
         # TYPO3's database:updateschema works properly with MariaDB (not SQLite)
         # Use network alias so PHP scripts can use a fixed hostname
         echo "Starting MariaDB container..."
+        # Admin password used for TYPO3 setup and Playwright backend tests
+        E2E_ADMIN_PASSWORD="${TYPO3_BACKEND_PASSWORD:-Joh316!!}"
         # Set default MariaDB version for E2E (DBMS_VERSION is only set for functional tests)
         E2E_MARIADB_IMAGE="docker.io/mariadb:10.11"
         ${CONTAINER_BIN} run -d --rm ${CI_PARAMS} \
@@ -827,7 +882,7 @@ CONTENT_EOF
                 # All env vars prevent interactive prompts
                 # Use network alias 'mariadb-e2e' for database host
                 TYPO3_SETUP_ADMIN_USERNAME=admin \
-                TYPO3_SETUP_ADMIN_PASSWORD='Password:joh316' \
+                TYPO3_SETUP_ADMIN_PASSWORD="${E2E_ADMIN_PASSWORD}" \
                 TYPO3_SETUP_ADMIN_EMAIL='admin@example.com' \
                 vendor/bin/typo3 setup \
                     --driver=mysqli \
@@ -881,6 +936,7 @@ CONTENT_EOF
         echo "Running cache warmup in separate container..."
         ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name e2e-cache-${SUFFIX} \
             -v ${E2E_ROOT}:/var/www/html \
+            -v ${ROOT_DIR}:/extension:ro \
             -w /var/www/html \
             ${IMAGE_PHP} /bin/bash -c "
                 echo '[CACHE] Flushing caches...'
@@ -904,7 +960,7 @@ CONTENT_EOF
             --name webserver-e2e-${SUFFIX} \
             --network ${NETWORK} \
             -v ${E2E_ROOT}:/var/www/html \
-            -v ${ROOT_DIR}:/ext-rte-ckeditor-image \
+            -v ${ROOT_DIR}:/extension:ro \
             -w /var/www/html \
             ${IMAGE_PHP} php -S 0.0.0.0:80 -t public/
 
@@ -945,6 +1001,7 @@ CONTENT_EOF
             -v ${ROOT_DIR}/Build/test-results:/app/test-results \
             -w /app \
             -e BASE_URL=http://webserver-e2e-${SUFFIX}:80 \
+            -e TYPO3_BACKEND_PASSWORD="${E2E_ADMIN_PASSWORD}" \
             -e CI=true \
             ${IMAGE_PLAYWRIGHT} /bin/bash -c "
                 # Skip npm install if node_modules exists (pre-cached in CI)

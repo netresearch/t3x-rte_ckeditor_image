@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { requireCondition } from './helpers/typo3-backend';
 
 /**
  * E2E tests for RTE CKEditor Image inline image functionality.
@@ -23,8 +24,8 @@ test.describe('Inline Image Functionality', () => {
     // Log what we found for debugging
     console.log(`Found ${count} inline images`);
 
-    // Skip if no inline images exist (content-dependent)
-    test.skip(count === 0, 'No inline images found - add images with image-inline class to validate');
+    // Fail if no inline images exist in demo content
+    expect(count, 'Expected inline images in demo content').toBeGreaterThan(0);
 
     // Verify at least one inline image is visible
     await expect(inlineImages.first()).toBeVisible();
@@ -36,7 +37,7 @@ test.describe('Inline Image Functionality', () => {
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();
 
-    test.skip(count === 0, 'No inline images found');
+    expect(count, 'Expected inline images in demo content').toBeGreaterThan(0);
 
     const firstInline = inlineImages.first();
     await expect(firstInline).toBeVisible();
@@ -53,7 +54,7 @@ test.describe('Inline Image Functionality', () => {
     const paragraphsWithInlineImages = page.locator('p:has(img.image-inline)');
     const count = await paragraphsWithInlineImages.count();
 
-    test.skip(count === 0, 'No paragraphs with inline images found');
+    expect(count, 'Expected paragraphs with inline images in demo content').toBeGreaterThan(0);
 
     // Verify the paragraph has text content alongside the image
     const firstParagraph = paragraphsWithInlineImages.first();
@@ -69,7 +70,7 @@ test.describe('Inline Image Functionality', () => {
     const inlineImages = page.locator('img.image-inline[data-htmlarea-file-uid]');
     const count = await inlineImages.count();
 
-    test.skip(count === 0, 'No inline TYPO3 images found');
+    expect(count, 'Expected inline TYPO3 images in demo content').toBeGreaterThan(0);
 
     // Verify data attributes are preserved
     const firstImage = inlineImages.first();
@@ -117,8 +118,8 @@ test.describe('Inline Image Differentiation', () => {
     const inlineCount = await inlineImages.count();
 
     // Skip if we don't have both types to compare
-    test.skip(
-      blockCount === 0 || inlineCount === 0,
+    requireCondition(
+      blockCount > 0 && inlineCount > 0,
       'Need both block and inline images to compare styling'
     );
 
@@ -147,7 +148,7 @@ test.describe('Linked Inline Images', () => {
     const linkedInlineImages = page.locator('a > img.image-inline');
     const count = await linkedInlineImages.count();
 
-    test.skip(count === 0, 'No linked inline images found');
+    expect(count, 'Expected linked inline images in demo content').toBeGreaterThan(0);
 
     // Verify the link wrapper exists
     const firstLinkedImage = linkedInlineImages.first();
@@ -163,7 +164,7 @@ test.describe('Linked Inline Images', () => {
     const linkedInlineImages = page.locator('a > img.image-inline');
     const count = await linkedInlineImages.count();
 
-    test.skip(count === 0, 'No linked inline images found');
+    expect(count, 'Expected linked inline images in demo content').toBeGreaterThan(0);
 
     const firstLinkedImage = linkedInlineImages.first();
     const display = await firstLinkedImage.evaluate(el => getComputedStyle(el).display);
@@ -180,7 +181,7 @@ test.describe('Inline Image Attributes', () => {
     const inlineImages = page.locator('img.image-inline[width][height]');
     const count = await inlineImages.count();
 
-    test.skip(count === 0, 'No inline images with dimensions found');
+    expect(count, 'Expected inline images with dimensions in demo content').toBeGreaterThan(0);
 
     const firstImage = inlineImages.first();
     const width = await firstImage.getAttribute('width');
@@ -198,7 +199,7 @@ test.describe('Inline Image Attributes', () => {
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();
 
-    test.skip(count === 0, 'No inline images found');
+    expect(count, 'Expected inline images in demo content').toBeGreaterThan(0);
 
     // Verify at least one has alt attribute (accessibility)
     const withAlt = page.locator('img.image-inline[alt]');

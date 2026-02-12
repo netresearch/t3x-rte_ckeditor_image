@@ -1,4 +1,5 @@
-import { test, expect, Page, FrameLocator } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, getEditorHtml, saveContentElement, requireCondition } from './helpers/typo3-backend';
 
 /**
  * E2E tests for inline image editing in CKEditor.
@@ -16,88 +17,11 @@ import { test, expect, Page, FrameLocator } from '@playwright/test';
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/580
  */
 
-const BACKEND_USER = process.env.TYPO3_BACKEND_USER || 'admin';
-const BACKEND_PASSWORD = process.env.TYPO3_BACKEND_PASSWORD || '';
-const BASE_URL = process.env.BASE_URL || 'https://v13.rte-ckeditor-image.ddev.site';
-
-/**
- * Login to TYPO3 backend
- */
-async function loginToBackend(page: Page): Promise<boolean> {
-  try {
-    await page.goto(`${BASE_URL}/typo3/`, { timeout: 30000 });
-
-    const loginForm = page.locator('form[name="loginform"], #typo3-login-form, input[name="username"], #t3-username');
-    const isLoginPage = await loginForm.count() > 0;
-
-    if (!isLoginPage) {
-      return true; // Already logged in
-    }
-
-    const usernameInput = page.locator('input[name="username"], #t3-username').first();
-    const passwordInput = page.locator('input[name="p_field"], input[name="password"], #t3-password').first();
-
-    await usernameInput.fill(BACKEND_USER);
-    await passwordInput.fill(BACKEND_PASSWORD);
-    await page.click('button[type="submit"]');
-
-    await page.waitForLoadState('networkidle', { timeout: 30000 });
-
-    const backendIndicators = page.locator('.modulemenu, .typo3-module-menu, [data-modulemenu], .scaffold');
-    return await backendIndicators.count() > 0;
-  } catch (error) {
-    console.log('Backend login failed:', error);
-    return false;
-  }
-}
-
-/**
- * Navigate to content element edit form
- */
-async function navigateToContentEdit(page: Page): Promise<boolean> {
-  try {
-    const editUrl = `${BASE_URL}/typo3/record/edit?edit[tt_content][1]=edit&returnUrl=/typo3/`;
-    await page.goto(editUrl, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-
-    const moduleFrame = page.frameLocator('iframe').first();
-    await moduleFrame.locator('.ck-editor__editable, .ck-content').first().waitFor({ timeout: 20000 });
-    return true;
-  } catch (error) {
-    console.log('Failed to navigate to content edit:', error);
-    return false;
-  }
-}
-
-/**
- * Get the module frame locator
- */
-function getModuleFrame(page: Page): FrameLocator {
-  return page.frameLocator('iframe').first();
-}
-
-/**
- * Wait for CKEditor to be ready
- */
-async function waitForCKEditor(page: Page): Promise<void> {
-  const frame = getModuleFrame(page);
-  await frame.locator('.ck-editor__editable').first().waitFor({ timeout: 15000 });
-  await page.waitForTimeout(1000);
-}
-
 /**
  * Get the CKEditor editable element
  */
 function getEditor(page: Page) {
   return getModuleFrame(page).locator('.ck-editor__editable').first();
-}
-
-/**
- * Get the HTML content of the editor
- */
-async function getEditorHtml(page: Page): Promise<string> {
-  return await getEditor(page).innerHTML();
 }
 
 /**
@@ -150,61 +74,17 @@ async function getEditorImages(page: Page): Promise<{
   });
 }
 
-/**
- * Double-click an image to open its edit dialog
- */
-async function openImageEditDialog(page: Page, imageIndex = 0): Promise<boolean> {
-  const frame = getModuleFrame(page);
-  const images = frame.locator('.ck-editor__editable img');
-
-  if (await images.count() > imageIndex) {
-    await images.nth(imageIndex).dblclick();
-    await page.waitForSelector('.modal-dialog, .t3js-modal', { timeout: 10000 });
-    await page.waitForTimeout(500);
-    return true;
-  }
-  return false;
-}
-
-/**
- * Close dialog by clicking OK/Confirm button
- */
-async function confirmDialog(page: Page): Promise<void> {
-  const confirmButton = page.locator('.modal-footer button.btn-primary, .modal-footer button:has-text("OK")').first();
-  if (await confirmButton.count() > 0) {
-    await confirmButton.evaluate((el: HTMLElement) => el.click());
-  }
-  await page.waitForTimeout(1000);
-}
-
-/**
- * Close dialog by clicking Cancel button
- */
-async function cancelDialog(page: Page): Promise<void> {
-  const cancelButton = page.locator('.modal-footer button:has-text("Cancel"), .modal-header .close').first();
-  if (await cancelButton.count() > 0) {
-    await cancelButton.click();
-  }
-  await page.waitForTimeout(500);
-}
-
 // =============================================================================
 // Test Suite: Inline Image Editing Experience
 // =============================================================================
 
 test.describe('Inline Image Editing in CKEditor (#580)', () => {
-  let loggedIn = false;
-
   test.beforeEach(async ({ page }) => {
-    if (!loggedIn) {
-      loggedIn = await loginToBackend(page);
-    }
-    test.skip(!loggedIn, 'Backend login failed - check TYPO3_BACKEND_PASSWORD environment variable');
+    await loginToBackend(page);
   });
 
   test('can view images in CKEditor', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
@@ -218,8 +98,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('inline images render with correct widget class', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
@@ -231,7 +110,7 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
     // Test passes if we can at least check for widgets
     // Skip assertion if no images exist in test content
     const images = await getEditorImages(page);
-    test.skip(images.total === 0, 'No images in test content');
+    requireCondition(images.total > 0, 'No images in test content');
 
     // If we have inline images, they should have the inline widget class
     if (images.inline > 0) {
@@ -240,13 +119,12 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('inline images allow cursor positioning on same line', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
     const images = await getEditorImages(page);
-    test.skip(images.inline === 0, 'No inline images in test content');
+    requireCondition(images.inline > 0, 'No inline images in test content');
 
     // Focus the editor
     await focusEditor(page);
@@ -282,13 +160,12 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('can type text before inline image in same paragraph', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
     const images = await getEditorImages(page);
-    test.skip(images.inline === 0, 'No inline images in test content - need inline image to test typing before it');
+    requireCondition(images.inline > 0, 'No inline images in test content - need inline image to test typing before it');
 
     // Focus editor and position cursor
     await focusEditor(page);
@@ -321,13 +198,12 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('can type text after inline image in same paragraph', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
     const images = await getEditorImages(page);
-    test.skip(images.inline === 0, 'No inline images in test content');
+    requireCondition(images.inline > 0, 'No inline images in test content');
 
     await focusEditor(page);
 
@@ -357,13 +233,12 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('inline image and text are in same paragraph element', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
     const images = await getEditorImages(page);
-    test.skip(images.inline === 0, 'No inline images in test content');
+    requireCondition(images.inline > 0, 'No inline images in test content');
 
     const frame = getModuleFrame(page);
 
@@ -377,13 +252,12 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
   });
 
   test('block images are in figure elements, not paragraphs', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
     const images = await getEditorImages(page);
-    test.skip(images.block === 0, 'No block images in test content');
+    requireCondition(images.block > 0, 'No block images in test content');
 
     const frame = getModuleFrame(page);
 
@@ -399,23 +273,17 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
 });
 
 test.describe('Toggle Image Type in CKEditor (#580)', () => {
-  let loggedIn = false;
-
   test.beforeEach(async ({ page }) => {
-    if (!loggedIn) {
-      loggedIn = await loginToBackend(page);
-    }
-    test.skip(!loggedIn, 'Backend login failed');
+    await loginToBackend(page);
   });
 
   test('toggle button exists in image toolbar', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
     const images = await getEditorImages(page);
-    test.skip(images.total === 0, 'No images in test content');
+    requireCondition(images.total > 0, 'No images in test content');
 
     // Click on an image to select it
     const frame = getModuleFrame(page);
@@ -440,13 +308,12 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
   });
 
   test('clicking toggle converts block image to inline', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page);
 
     await waitForCKEditor(page);
 
     const images = await getEditorImages(page);
-    test.skip(images.block === 0, 'No block images to toggle');
+    requireCondition(images.block > 0, 'No block images to toggle');
 
     // Record initial state
     const initialHtml = await getEditorHtml(page);
@@ -478,14 +345,13 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
       expect(nowHasInline).toBe(true);
     } else {
       console.log('Toggle button not found - implementation may differ');
-      // Don't fail test, just skip
-      test.skip(true, 'Toggle button not found in toolbar');
+      // Hard-fail: toggle button is expected in test content
+      requireCondition(false, 'Toggle button not found in toolbar');
     }
   });
 
   test('toggling to inline removes caption', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page, 2);
 
     await waitForCKEditor(page);
 
@@ -494,7 +360,7 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
     const captionedImages = frame.locator('.ck-editor__editable figure figcaption');
     const hasCaptions = await captionedImages.count() > 0;
 
-    test.skip(!hasCaptions, 'No captioned images to test');
+    requireCondition(hasCaptions, 'No captioned images to test');
 
     console.log(`Found ${await captionedImages.count()} captioned images`);
 
@@ -521,70 +387,56 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
       // Note: This assumes toggling removes the caption
     } else {
       console.log('Toggle button not found');
-      test.skip(true, 'Toggle button not found');
+      requireCondition(false, 'Toggle button not found');
     }
   });
 });
 
 test.describe('Inline Image Persistence (#580)', () => {
   test('inline images persist after save and reload', async ({ page }) => {
-    const loggedIn = await loginToBackend(page);
-    test.skip(!loggedIn, 'Backend login failed');
+    await loginToBackend(page);
 
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
     // Get initial inline image count
     const initialImages = await getEditorImages(page);
-    test.skip(initialImages.inline === 0, 'No inline images to test persistence');
+    requireCondition(initialImages.inline > 0, 'No inline images to test persistence');
 
     console.log(`Initial inline images: ${initialImages.inline}`);
 
     // Save the content
-    const frame = getModuleFrame(page);
-    const saveButton = frame.locator('button[name="_savedok"], button[value="1"][name="_savedok"]').first();
+    await saveContentElement(page);
+    console.log('Saved content element');
 
-    if (await saveButton.count() > 0) {
-      await saveButton.click();
-      console.log('Clicked save button');
+    // Reload the page
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
 
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(2000);
+    // Navigate back to content edit
+    await navigateToContentEdit(page, 7);
+    await waitForCKEditor(page);
 
-      // Reload the page
-      await page.reload();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(2000);
+    // Check inline images are still there
+    const afterReloadImages = await getEditorImages(page);
+    console.log(`After reload inline images: ${afterReloadImages.inline}`);
 
-      // Navigate back to content edit
-      await navigateToContentEdit(page);
-      await waitForCKEditor(page);
-
-      // Check inline images are still there
-      const afterReloadImages = await getEditorImages(page);
-      console.log(`After reload inline images: ${afterReloadImages.inline}`);
-
-      // Should have same number of inline images
-      expect(afterReloadImages.inline).toBe(initialImages.inline);
-      console.log('SUCCESS: Inline images persisted after save and reload');
-    } else {
-      test.skip(true, 'Save button not found');
-    }
+    // Should have same number of inline images
+    expect(afterReloadImages.inline).toBe(initialImages.inline);
+    console.log('SUCCESS: Inline images persisted after save and reload');
   });
 
   test('inline image class is preserved in saved HTML', async ({ page }) => {
-    const loggedIn = await loginToBackend(page);
-    test.skip(!loggedIn, 'Backend login failed');
+    await loginToBackend(page);
 
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
     const images = await getEditorImages(page);
-    test.skip(images.inline === 0, 'No inline images in test content');
+    requireCondition(images.inline > 0, 'No inline images in test content');
 
     // Get the raw HTML that would be saved
     const editorHtml = await getEditorHtml(page);
@@ -599,18 +451,12 @@ test.describe('Inline Image Persistence (#580)', () => {
 });
 
 test.describe('Multiple Inline Images (#580)', () => {
-  let loggedIn = false;
-
   test.beforeEach(async ({ page }) => {
-    if (!loggedIn) {
-      loggedIn = await loginToBackend(page);
-    }
-    test.skip(!loggedIn, 'Backend login failed');
+    await loginToBackend(page);
   });
 
   test('multiple inline images can exist in same paragraph', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
@@ -641,8 +487,7 @@ test.describe('Multiple Inline Images (#580)', () => {
   });
 
   test('inline and block images can coexist in content', async ({ page }) => {
-    const editFormLoaded = await navigateToContentEdit(page);
-    test.skip(!editFormLoaded, 'Could not load content edit form');
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
@@ -651,8 +496,8 @@ test.describe('Multiple Inline Images (#580)', () => {
 
     // Test passes if we can have both types
     // Skip if test content only has one type
-    test.skip(
-      images.inline === 0 || images.block === 0,
+    requireCondition(
+      images.inline > 0 && images.block > 0,
       'Need both inline and block images to test coexistence'
     );
 
