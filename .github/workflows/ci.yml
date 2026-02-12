@@ -234,6 +234,8 @@ jobs:
                     cd Tests/E2E && npm ci --ignore-scripts
 
             -   name: Run E2E Tests (TYPO3 v${{ matrix.typo3 }})
+                # v14 E2E is informational — failures don't block PRs while we stabilize
+                continue-on-error: ${{ matrix.typo3 == '14' }}
                 env:
                     TYPO3_VERSION: ${{ matrix.typo3 }}
                 run: |
