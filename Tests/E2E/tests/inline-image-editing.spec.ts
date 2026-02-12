@@ -431,7 +431,7 @@ test.describe('Inline Image Persistence (#580)', () => {
   test('inline image class is preserved in saved HTML', async ({ page }) => {
     await loginToBackend(page);
 
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
@@ -456,7 +456,7 @@ test.describe('Multiple Inline Images (#580)', () => {
   });
 
   test('multiple inline images can exist in same paragraph', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
@@ -487,7 +487,7 @@ test.describe('Multiple Inline Images (#580)', () => {
   });
 
   test('inline and block images can coexist in content', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 7);
 
     await waitForCKEditor(page);
 
