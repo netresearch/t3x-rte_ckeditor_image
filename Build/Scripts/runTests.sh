@@ -828,6 +828,59 @@ echo "tt_content record with multiple popup images created\n";
 $bodytextMixed = '<p>Visit our <a href="https://example.com">website</a> for more info.</p><p><img src="fileadmin/user_upload/example.jpg" alt="Mixed Content" width="400" height="300" data-htmlarea-file-uid="1" /></p>';
 $stmt->execute([1, 'text', 'Mixed Content with Text Links', $bodytextMixed, 0, 0, $now, $now, 0, 2560]);
 echo "tt_content record with mixed content created\n";
+
+// UID 11: t3:// link image (needed by t3-link-resolution.spec.ts — regression test for #594)
+$bodytextT3Link = '<p>Image linked with t3:// protocol:</p>'
+    . '<p><a href="t3://page?uid=1" class="test-t3-link"><img src="fileadmin/user_upload/example.jpg" alt="T3 Linked Image" width="400" height="300" data-htmlarea-file-uid="1" /></a></p>';
+$stmt->execute([1, 'text', 'T3 Link Image (#594)', $bodytextT3Link, 0, 0, $now, $now, 0, 2816]);
+echo "tt_content record with t3:// link created\n";
+
+// UID 12: Alignment WITHOUT caption (needed by alignment-no-caption.spec.ts — regression test for #595)
+// These should render as bare <img class="..."> NOT wrapped in <figure>
+$bodytextAlignNoCaption = '<p>Alignment classes without caption:</p>'
+    . '<p><img class="image-left" src="fileadmin/user_upload/example.jpg" alt="Align Left No Caption" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-center" src="fileadmin/user_upload/example.jpg" alt="Align Center No Caption" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-right" src="fileadmin/user_upload/example.jpg" alt="Align Right No Caption" width="300" height="225" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Alignment Without Caption (#595)', $bodytextAlignNoCaption, 0, 0, $now, $now, 0, 3072]);
+echo "tt_content record with alignment-no-caption created\n";
+
+// UID 13: Alignment WITH caption (needed by alignment-no-caption.spec.ts — contrast test)
+// These should render as <figure class="image-..."><img><figcaption>
+$bodytextAlignWithCaption = '<p>Alignment classes with caption:</p>'
+    . '<figure class="image image-left"><img src="fileadmin/user_upload/example.jpg" alt="Align Left With Caption" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>Left caption</figcaption></figure>'
+    . '<figure class="image image-center"><img src="fileadmin/user_upload/example.jpg" alt="Align Center With Caption" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>Center caption</figcaption></figure>'
+    . '<figure class="image image-right"><img src="fileadmin/user_upload/example.jpg" alt="Align Right With Caption" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>Right caption</figcaption></figure>';
+$stmt->execute([1, 'text', 'Alignment With Caption (#595)', $bodytextAlignWithCaption, 0, 0, $now, $now, 0, 3328]);
+echo "tt_content record with alignment-with-caption created\n";
+
+// UIDs 14-19: Template rendering matrix (one CE per Fluid template)
+// Each has identifiable alt text for precise assertion in rendering-template-matrix.spec.ts
+
+// UID 14: Standalone template — bare <img> without link or caption
+$bodytextTplStandalone = '<p><img src="fileadmin/user_upload/example.jpg" alt="Template Standalone" width="400" height="300" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Template: Standalone', $bodytextTplStandalone, 0, 0, $now, $now, 0, 3584]);
+
+// UID 15: WithCaption template — <figure><img><figcaption>
+$bodytextTplCaption = '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Template WithCaption" width="400" height="300" data-htmlarea-file-uid="1" /><figcaption>Template caption text</figcaption></figure>';
+$stmt->execute([1, 'text', 'Template: WithCaption', $bodytextTplCaption, 0, 0, $now, $now, 0, 3840]);
+
+// UID 16: Link template — <a href="..."><img>
+$bodytextTplLink = '<p><a href="https://example.com/template-link" class="test-template-link"><img src="fileadmin/user_upload/example.jpg" alt="Template Link" width="400" height="300" data-htmlarea-file-uid="1" /></a></p>';
+$stmt->execute([1, 'text', 'Template: Link', $bodytextTplLink, 0, 0, $now, $now, 0, 4096]);
+
+// UID 17: LinkWithCaption template — <figure><a><img></a><figcaption>
+$bodytextTplLinkCaption = '<figure class="image"><a href="https://example.com/template-link-caption" class="test-template-link-caption"><img src="fileadmin/user_upload/example.jpg" alt="Template LinkWithCaption" width="400" height="300" data-htmlarea-file-uid="1" /></a><figcaption>Linked caption text</figcaption></figure>';
+$stmt->execute([1, 'text', 'Template: LinkWithCaption', $bodytextTplLinkCaption, 0, 0, $now, $now, 0, 4352]);
+
+// UID 18: Popup template — <img data-htmlarea-zoom="true">
+$bodytextTplPopup = '<p><img src="fileadmin/user_upload/example.jpg" alt="Template Popup" width="400" height="300" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Template: Popup', $bodytextTplPopup, 0, 0, $now, $now, 0, 4608]);
+
+// UID 19: PopupWithCaption template — <figure><img data-htmlarea-zoom="true"><figcaption>
+$bodytextTplPopupCaption = '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Template PopupWithCaption" width="400" height="300" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /><figcaption>Popup caption text</figcaption></figure>';
+$stmt->execute([1, 'text', 'Template: PopupWithCaption', $bodytextTplPopupCaption, 0, 0, $now, $now, 0, 4864]);
+
+echo "Template matrix content elements (UIDs 14-19) created\n";
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
