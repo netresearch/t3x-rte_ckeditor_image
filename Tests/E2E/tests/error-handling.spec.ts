@@ -17,8 +17,12 @@ import { test, expect } from '@playwright/test';
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/619
  */
 test.describe('Error Handling & Edge Cases', () => {
+  // CEs 20-25 live on page 2 (/error-handling-tests) to isolate
+  // edge-case content from the main demo page
+  const ERROR_PAGE = '/error-handling-tests';
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto(ERROR_PAGE);
     await page.waitForLoadState('networkidle');
   });
 
@@ -44,7 +48,7 @@ test.describe('Error Handling & Edge Cases', () => {
 
     test('missing file does not cause 500 error', async ({ page }) => {
       // Navigate fresh and check the HTTP response status
-      const response = await page.goto('/');
+      const response = await page.goto(ERROR_PAGE);
       expect(response?.status(), 'Page should return 200, not 500').toBe(200);
     });
   });
@@ -105,7 +109,7 @@ test.describe('Error Handling & Edge Cases', () => {
       });
 
       // Re-navigate to trigger any XSS payloads
-      await page.goto('/');
+      await page.goto(ERROR_PAGE);
       await page.waitForLoadState('networkidle');
 
       // Give any deferred scripts a moment to execute
