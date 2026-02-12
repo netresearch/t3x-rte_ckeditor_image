@@ -17,114 +17,111 @@ import { test, expect } from '@playwright/test';
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/595
  */
 test.describe('Alignment Without Caption (#595)', () => {
-    test.beforeEach(async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('networkidle');
-    });
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+  });
 
-    test('image-left without caption renders as bare <img>, not <figure>', async ({ page }) => {
-        const img = page.locator('img[alt="Align Left No Caption"]');
-        expect(await img.count(), 'Expected left-aligned image without caption (CE 12)').toBeGreaterThan(0);
+  test('image-left without caption renders as bare <img>, not <figure>', async ({ page }) => {
+    const img = page.locator('img[alt="Align Left No Caption"]');
+    expect(await img.count(), 'Expected left-aligned image without caption (CE 12)').toBeGreaterThan(0);
 
-        await expect(img.first()).toBeVisible();
+    await expect(img.first()).toBeVisible();
 
-        // Should have the alignment class on the <img> element
-        await expect(img.first()).toHaveAttribute('class', /image-left/);
+    // Should have the alignment class on the <img> element
+    await expect(img.first()).toHaveAttribute('class', /image-left/);
 
-        // Should NOT be wrapped in a <figure> element
-        const parent = img.first().locator('..');
-        const parentTag = await parent.evaluate(el => el.tagName.toLowerCase());
-        expect(parentTag, 'Aligned image without caption should NOT be in a <figure>').not.toBe('figure');
-    });
+    // Should NOT be wrapped in a <figure> element
+    const figure = img.first().locator('xpath=ancestor::figure');
+    expect(await figure.count(), 'Aligned image without caption should NOT be in a <figure>').toBe(0);
+  });
 
-    test('image-center without caption renders as bare <img>, not <figure>', async ({ page }) => {
-        const img = page.locator('img[alt="Align Center No Caption"]');
-        expect(await img.count(), 'Expected center-aligned image without caption (CE 12)').toBeGreaterThan(0);
+  test('image-center without caption renders as bare <img>, not <figure>', async ({ page }) => {
+    const img = page.locator('img[alt="Align Center No Caption"]');
+    expect(await img.count(), 'Expected center-aligned image without caption (CE 12)').toBeGreaterThan(0);
 
-        await expect(img.first()).toBeVisible();
-        await expect(img.first()).toHaveAttribute('class', /image-center/);
+    await expect(img.first()).toBeVisible();
+    await expect(img.first()).toHaveAttribute('class', /image-center/);
 
-        const parent = img.first().locator('..');
-        const parentTag = await parent.evaluate(el => el.tagName.toLowerCase());
-        expect(parentTag, 'Aligned image without caption should NOT be in a <figure>').not.toBe('figure');
-    });
+    const figure = img.first().locator('xpath=ancestor::figure');
+    expect(await figure.count(), 'Aligned image without caption should NOT be in a <figure>').toBe(0);
+  });
 
-    test('image-right without caption renders as bare <img>, not <figure>', async ({ page }) => {
-        const img = page.locator('img[alt="Align Right No Caption"]');
-        expect(await img.count(), 'Expected right-aligned image without caption (CE 12)').toBeGreaterThan(0);
+  test('image-right without caption renders as bare <img>, not <figure>', async ({ page }) => {
+    const img = page.locator('img[alt="Align Right No Caption"]');
+    expect(await img.count(), 'Expected right-aligned image without caption (CE 12)').toBeGreaterThan(0);
 
-        await expect(img.first()).toBeVisible();
-        await expect(img.first()).toHaveAttribute('class', /image-right/);
+    await expect(img.first()).toBeVisible();
+    await expect(img.first()).toHaveAttribute('class', /image-right/);
 
-        const parent = img.first().locator('..');
-        const parentTag = await parent.evaluate(el => el.tagName.toLowerCase());
-        expect(parentTag, 'Aligned image without caption should NOT be in a <figure>').not.toBe('figure');
-    });
+    const figure = img.first().locator('xpath=ancestor::figure');
+    expect(await figure.count(), 'Aligned image without caption should NOT be in a <figure>').toBe(0);
+  });
 });
 
 test.describe('Alignment With Caption (#595)', () => {
-    test.beforeEach(async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('networkidle');
-    });
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+  });
 
-    test('image-left with caption renders as <figure> with figcaption', async ({ page }) => {
-        const img = page.locator('img[alt="Align Left With Caption"]');
-        expect(await img.count(), 'Expected left-aligned captioned image (CE 13)').toBeGreaterThan(0);
+  test('image-left with caption renders as <figure> with figcaption', async ({ page }) => {
+    const img = page.locator('img[alt="Align Left With Caption"]');
+    expect(await img.count(), 'Expected left-aligned captioned image (CE 13)').toBeGreaterThan(0);
 
-        // Should be inside a <figure> element
-        const figure = img.first().locator('xpath=ancestor::figure');
-        expect(await figure.count(), 'Captioned image should be in a <figure>').toBeGreaterThan(0);
+    // Should be inside a <figure> element
+    const figure = img.first().locator('xpath=ancestor::figure');
+    expect(await figure.count(), 'Captioned image should be in a <figure>').toBeGreaterThan(0);
 
-        // Figure should have the alignment class
-        const figureClass = await figure.first().getAttribute('class');
-        expect(figureClass).toMatch(/image-left/);
+    // Figure should have the alignment class
+    const figureClass = await figure.first().getAttribute('class');
+    expect(figureClass).toMatch(/image-left/);
 
-        // Should have a figcaption
-        const caption = figure.first().locator('figcaption');
-        expect(await caption.count(), 'Figure should have a <figcaption>').toBeGreaterThan(0);
-        const captionText = await caption.textContent();
-        expect(captionText?.trim()).toBe('Left caption');
-    });
+    // Should have a figcaption
+    const caption = figure.first().locator('figcaption');
+    expect(await caption.count(), 'Figure should have a <figcaption>').toBeGreaterThan(0);
+    const captionText = await caption.textContent();
+    expect(captionText?.trim()).toBe('Left caption');
+  });
 
-    test('image-center with caption renders as <figure> with figcaption', async ({ page }) => {
-        const img = page.locator('img[alt="Align Center With Caption"]');
-        expect(await img.count(), 'Expected center-aligned captioned image (CE 13)').toBeGreaterThan(0);
+  test('image-center with caption renders as <figure> with figcaption', async ({ page }) => {
+    const img = page.locator('img[alt="Align Center With Caption"]');
+    expect(await img.count(), 'Expected center-aligned captioned image (CE 13)').toBeGreaterThan(0);
 
-        const figure = img.first().locator('xpath=ancestor::figure');
-        expect(await figure.count(), 'Captioned image should be in a <figure>').toBeGreaterThan(0);
+    const figure = img.first().locator('xpath=ancestor::figure');
+    expect(await figure.count(), 'Captioned image should be in a <figure>').toBeGreaterThan(0);
 
-        const figureClass = await figure.first().getAttribute('class');
-        expect(figureClass).toMatch(/image-center/);
+    const figureClass = await figure.first().getAttribute('class');
+    expect(figureClass).toMatch(/image-center/);
 
-        const caption = figure.first().locator('figcaption');
-        const captionText = await caption.textContent();
-        expect(captionText?.trim()).toBe('Center caption');
-    });
+    const caption = figure.first().locator('figcaption');
+    const captionText = await caption.textContent();
+    expect(captionText?.trim()).toBe('Center caption');
+  });
 
-    test('image-right with caption renders as <figure> with figcaption', async ({ page }) => {
-        const img = page.locator('img[alt="Align Right With Caption"]');
-        expect(await img.count(), 'Expected right-aligned captioned image (CE 13)').toBeGreaterThan(0);
+  test('image-right with caption renders as <figure> with figcaption', async ({ page }) => {
+    const img = page.locator('img[alt="Align Right With Caption"]');
+    expect(await img.count(), 'Expected right-aligned captioned image (CE 13)').toBeGreaterThan(0);
 
-        const figure = img.first().locator('xpath=ancestor::figure');
-        expect(await figure.count(), 'Captioned image should be in a <figure>').toBeGreaterThan(0);
+    const figure = img.first().locator('xpath=ancestor::figure');
+    expect(await figure.count(), 'Captioned image should be in a <figure>').toBeGreaterThan(0);
 
-        const figureClass = await figure.first().getAttribute('class');
-        expect(figureClass).toMatch(/image-right/);
+    const figureClass = await figure.first().getAttribute('class');
+    expect(figureClass).toMatch(/image-right/);
 
-        const caption = figure.first().locator('figcaption');
-        const captionText = await caption.textContent();
-        expect(captionText?.trim()).toBe('Right caption');
-    });
+    const caption = figure.first().locator('figcaption');
+    const captionText = await caption.textContent();
+    expect(captionText?.trim()).toBe('Right caption');
+  });
 
-    test('alignment class is on <figure> not <img> when caption is present', async ({ page }) => {
-        // When a caption is present, the alignment class should move to <figure>
-        // and NOT remain on the <img> element (TagInFigure partial excludes class)
-        const img = page.locator('img[alt="Align Left With Caption"]');
-        expect(await img.count()).toBeGreaterThan(0);
+  test('alignment class is on <figure> not <img> when caption is present', async ({ page }) => {
+    // When a caption is present, the alignment class should move to <figure>
+    // and NOT remain on the <img> element (TagInFigure partial excludes class)
+    const img = page.locator('img[alt="Align Left With Caption"]');
+    expect(await img.count()).toBeGreaterThan(0);
 
-        const imgClass = await img.first().getAttribute('class');
-        // img inside figure should NOT have the alignment class
-        expect(imgClass || '').not.toMatch(/image-left/);
-    });
+    const imgClass = await img.first().getAttribute('class');
+    // img inside figure should NOT have the alignment class
+    expect(imgClass || '').not.toMatch(/image-left/);
+  });
 });
