@@ -88,7 +88,7 @@ export async function openImageEditDialog(page: Page, imageIndex: number = 0): P
     const images = frame.locator('.ck-editor__editable img');
     expect(await images.count(), 'No images found in CKEditor').toBeGreaterThan(imageIndex);
     await images.nth(imageIndex).dblclick();
-    await page.waitForSelector('.modal-dialog, .t3js-modal', { timeout: 10000 });
+    await page.locator('.t3js-modal').first().waitFor({ state: 'visible', timeout: 10000 });
     await expect(page.locator('.modal-title').first()).toBeVisible();
 }
 
@@ -102,7 +102,9 @@ export async function confirmImageDialog(page: Page): Promise<void> {
 
     await expect(confirmButton, 'Confirm button not found in image dialog').toBeVisible();
     await confirmButton.evaluate((el: HTMLElement) => el.click());
-    await expect(page.locator('.modal-dialog, .t3js-modal')).toBeHidden();
+    // Wait for modal to close — use .t3js-modal (the outer container) to avoid
+    // strict mode violation (.modal-dialog is a child and also matches)
+    await page.locator('.t3js-modal').first().waitFor({ state: 'hidden', timeout: 10000 });
 }
 
 /**
@@ -114,7 +116,7 @@ export async function cancelImageDialog(page: Page): Promise<void> {
     ).first();
     await expect(cancelButton, 'Cancel button not found in image dialog').toBeVisible();
     await cancelButton.click();
-    await expect(page.locator('.modal-dialog, .t3js-modal')).toBeHidden();
+    await page.locator('.t3js-modal').first().waitFor({ state: 'hidden', timeout: 10000 });
 }
 
 /**
