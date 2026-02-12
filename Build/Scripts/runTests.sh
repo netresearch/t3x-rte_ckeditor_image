@@ -229,12 +229,13 @@ Options:
             - 15    maintained until 2027-11-11
             - 16    maintained until 2028-11-09
 
-    -t <11|12|13>
-        Only with -s composerInstall|composerInstallMin|composerInstallMax
+    -t <11|12|13|14>
+        Only with -s composerInstall|composerInstallMin|composerInstallMax|e2e
         Specifies the TYPO3 CORE Version to be used
             - 11.5: use TYPO3 v11 (default)
             - 12.4: use TYPO3 v12
             - 13.4: use TYPO3 v13
+            - 14.0: use TYPO3 v14
 
     -p <8.2|8.3|8.4|8.5>
         Specifies the PHP minor version to be used
@@ -380,7 +381,7 @@ while getopts "a:b:s:d:i:p:e:t:xy:nhu" OPT; do
             ;;
         t)
             TYPO3_VERSION=${OPTARG}
-            if ! [[ ${TYPO3_VERSION} =~ ^(11|12|13)$ ]]; then
+            if ! [[ ${TYPO3_VERSION} =~ ^(11|12|13|14)$ ]]; then
                 INVALID_OPTIONS+=("-t ${OPTARG}")
             fi
             ;;
@@ -904,8 +905,19 @@ CONTENT_EOF
         # Wait for MariaDB to be ready (use network alias since waitFor runs in a container)
         waitFor mariadb-e2e 3306
 
-        # Install TYPO3 v13 with the extension FIRST (before starting services)
-        echo "Installing TYPO3 v13 for E2E tests..."
+        # Determine TYPO3 version constraint for E2E
+        # Default to v13 unless explicitly set via -t flag
+        E2E_TYPO3_VERSION=${TYPO3_VERSION}
+        if [ "${E2E_TYPO3_VERSION}" = "11" ] || [ "${E2E_TYPO3_VERSION}" = "12" ]; then
+            E2E_TYPO3_VERSION="13"
+        fi
+        case ${E2E_TYPO3_VERSION} in
+            14) E2E_TYPO3_CONSTRAINT="^14.0" ;;
+            *)  E2E_TYPO3_CONSTRAINT="^13.4" ;;
+        esac
+
+        # Install TYPO3 with the extension FIRST (before starting services)
+        echo "Installing TYPO3 v${E2E_TYPO3_VERSION} for E2E tests..."
         ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name e2e-setup-${SUFFIX} \
             -v ${E2E_ROOT}:/var/www/html \
             -v ${E2E_SCRIPTS}:/e2e-scripts:ro \
@@ -914,7 +926,7 @@ CONTENT_EOF
             -e COMPOSER_CACHE_DIR=/.cache/composer \
             ${IMAGE_PHP} /bin/bash -c "
                 # Create TYPO3 project (--no-scripts to prevent DB access before setup)
-                composer create-project typo3/cms-base-distribution:^13.4 . --no-interaction --no-progress --no-scripts
+                composer create-project typo3/cms-base-distribution:${E2E_TYPO3_CONSTRAINT} . --no-interaction --no-progress --no-scripts
 
                 # Install ALL packages with --no-scripts FIRST, so database:updateschema knows about all tables
                 # Mount extension at /extension and use that path for composer
