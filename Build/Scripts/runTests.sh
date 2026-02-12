@@ -649,12 +649,13 @@ if (count($tables) < 10) {
 }
 
 // Ensure default file storage has correct configuration
+// TYPO3 uses FlexForm XML format for sys_file_storage.configuration
 // TYPO3 setup may create uid=1 with empty configuration — we must fix it
 // CRITICAL: is_public = 1 is required for click-to-enlarge to work (imageLinkWrap)
-$storageConfig = '{"basePath":"fileadmin/","pathType":"relative"}';
+$storageConfig = '<?xml version="1.0" encoding="utf-8" standalone="yes" ?><T3FlexForms><data><sheet index="sDEF"><language index="lDEF"><field index="basePath"><value index="vDEF">fileadmin/</value></field><field index="pathType"><value index="vDEF">relative</value></field></language></sheet></data></T3FlexForms>';
 $pdo->prepare("INSERT INTO sys_file_storage (uid, name, driver, configuration, is_default, is_public, tstamp, crdate) VALUES (1, 'fileadmin', 'Local', ?, 1, 1, ?, ?) ON DUPLICATE KEY UPDATE configuration = VALUES(configuration), is_public = 1")
     ->execute([$storageConfig, $now, $now]);
-echo "Default file storage ensured (with basePath configuration)\n";
+echo "Default file storage ensured (FlexForm XML with basePath)\n";
 
 // Insert root page
 $pdo->exec("INSERT IGNORE INTO pages (uid, pid, title, slug, doktype, is_siteroot, hidden, deleted, tstamp, crdate) VALUES (1, 0, 'Home', '/', 1, 1, 0, 0, $now, $now)");
