@@ -759,7 +759,7 @@ $stmt->execute([1, 'text', 'RTE CKEditor Image Demo', $bodytext, 0, 0, $now, $no
 echo "tt_content record created\n";
 
 // Insert test content with RTE image WITH CAPTION (to test for <p>&nbsp;</p> artifacts)
-// This triggers the WithCaption.html template which has internal whitespace between img and figcaption
+// Uses <figure><figcaption> markup which triggers the WithCaption.html Fluid template
 $bodytextCaption = '<p>Image with caption test:</p>'
     . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Caption Test" width="400" height="300" data-htmlarea-file-uid="1" /><figcaption>Test Caption Text</figcaption></figure>';
 $stmt->execute([1, 'text', 'Caption Test', $bodytextCaption, 0, 0, $now, $now, 0, 512]);
