@@ -345,7 +345,7 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
       expect(nowHasInline).toBe(true);
     } else {
       console.log('Toggle button not found - implementation may differ');
-      // Don't fail test, just skip
+      // Hard-fail: toggle button is expected in test content
       requireCondition(false, 'Toggle button not found in toolbar');
     }
   });

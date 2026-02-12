@@ -86,7 +86,7 @@ export async function waitForCKEditor(page: Page): Promise<void> {
 export async function openImageEditDialog(page: Page, imageIndex: number = 0): Promise<void> {
     const frame = getModuleFrame(page);
     const images = frame.locator('.ck-editor__editable img');
-    expect(await images.count(), 'No images found in CKEditor').toBeGreaterThan(imageIndex);
+    expect(await images.count(), `Expected at least ${imageIndex + 1} image(s) in CKEditor`).toBeGreaterThan(imageIndex);
     await images.nth(imageIndex).dblclick();
     await page.locator('.t3js-modal').first().waitFor({ state: 'visible', timeout: 10000 });
     await expect(page.locator('.modal-title').first()).toBeVisible();

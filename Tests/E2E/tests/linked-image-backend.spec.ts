@@ -310,6 +310,7 @@ test.describe('Linked Image Workflow (#565)', () => {
     // Capture the initial link structure
     const initialHtml = await getEditorHtml(page);
     const initialCounts = countLinkWrappersAroundImages(initialHtml);
+    requireCondition(initialCounts.total > 0, 'No linked images found in test content');
 
     // Save the content element
     await saveContentElement(page);
