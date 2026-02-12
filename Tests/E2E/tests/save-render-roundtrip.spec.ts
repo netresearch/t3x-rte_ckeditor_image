@@ -110,12 +110,17 @@ test.describe('Save-Render Roundtrip', () => {
     // Open image dialog
     await openImageEditDialog(page);
 
-    // Change alt text
+    // Change alt text (may need to enable override checkbox first)
     const altInput = page.locator('#rteckeditorimage-alt, input[name="alt"]').first();
-    if (await altInput.count() > 0) {
-      await altInput.clear();
-      await altInput.fill('Roundtrip Alt Test');
+    const isDisabled = await altInput.isDisabled().catch(() => false);
+    if (isDisabled) {
+      const altCheckbox = page.locator('#checkbox-alt');
+      if (await altCheckbox.count() > 0) {
+        await altCheckbox.click();
+      }
     }
+    await altInput.clear();
+    await altInput.fill('Roundtrip Alt Test');
 
     // Confirm dialog and save
     await confirmImageDialog(page);
@@ -141,13 +146,9 @@ test.describe('Save-Render Roundtrip', () => {
     // Open image dialog
     await openImageEditDialog(page);
 
-    // Toggle zoom/click-to-enlarge checkbox
-    const zoomCheckbox = page.locator(
-      '#rteckeditorimage-zoom, input[name="zoom"], input[type="checkbox"]'
-    ).first();
-    if (await zoomCheckbox.count() > 0) {
-      await zoomCheckbox.check();
-    }
+    // Toggle click-to-enlarge radio button
+    const enlargeRadio = page.locator('#clickBehavior-enlarge');
+    await enlargeRadio.click();
 
     // Confirm and save
     await confirmImageDialog(page);
