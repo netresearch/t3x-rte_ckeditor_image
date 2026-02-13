@@ -766,14 +766,16 @@ $now = time();
 // Create or update sys_file entry
 $identifierHash = sha1('/user_upload/example.jpg');
 $folderHash = sha1('/user_upload/');
-$pdo->exec("INSERT INTO sys_file (uid, storage, identifier, identifier_hash, folder_hash, name, extension, mime_type, size, width, height, tstamp, creation_date)
-            VALUES (1, 1, '/user_upload/example.jpg', '$identifierHash', '$folderHash', 'example.jpg', 'jpg', 'image/jpeg', 48000, 800, 600, $now, $now)
-            ON DUPLICATE KEY UPDATE storage = 1, identifier = '/user_upload/example.jpg', identifier_hash = '$identifierHash', folder_hash = '$folderHash', width = 800, height = 600");
+$pdo->exec("INSERT INTO sys_file (uid, storage, identifier, identifier_hash, folder_hash, name, extension, mime_type, size, tstamp, creation_date)
+            VALUES (1, 1, '/user_upload/example.jpg', '$identifierHash', '$folderHash', 'example.jpg', 'jpg', 'image/jpeg', 48000, $now, $now)
+            ON DUPLICATE KEY UPDATE storage = 1, identifier = '/user_upload/example.jpg', identifier_hash = '$identifierHash', folder_hash = '$folderHash'");
 echo "sys_file record created\n";
 
-// Create sys_file_metadata with alt/title for override checkbox tests
-$pdo->exec("INSERT IGNORE INTO sys_file_metadata (uid, file, title, description, alternative, tstamp, crdate)
-            VALUES (1, 1, 'Example Image Title', 'Test image for E2E', 'Example Alt from Metadata', $now, $now)");
+// Create sys_file_metadata with dimensions, alt, and title
+// width/height are in sys_file_metadata (NOT sys_file) — used by getImageInfo() for dialog constraints
+// alternative/title provide FAL metadata defaults — enables override checkbox in image dialog
+$pdo->exec("INSERT IGNORE INTO sys_file_metadata (uid, file, title, description, alternative, width, height, tstamp, crdate)
+            VALUES (1, 1, 'Example Image Title', 'Test image for E2E', 'Example Alt from Metadata', 800, 600, $now, $now)");
 echo "sys_file_metadata record created\n";
 
 // Insert test content with RTE image (no caption)
