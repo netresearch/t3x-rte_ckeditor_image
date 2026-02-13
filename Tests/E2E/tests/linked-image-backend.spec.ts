@@ -276,11 +276,9 @@ test.describe('Linked Image Workflow (#565)', () => {
     expect(nested, 'Expected no nested <a> tags around images').toBe(0);
   });
 
-  test.skip('edit existing linked image - verify no duplicate <a> on save', async ({ page }) => {
-    // SKIP: confirmImageDialog() does not close modal for pre-linked images
-    // (CE 3). The confirm button click fires but the modal stays visible.
-    // The save/reload roundtrip is still covered by "save and reload preserves
-    // link structure" which doesn't require opening the image dialog.
+  test('edit existing linked image - verify no duplicate <a> on save', async ({ page }) => {
+    // CE 3 has pre-linked images. confirmImageDialog() uses 3-attempt retry
+    // to handle modals that don't close on first click.
     await loginToBackend(page);
     await navigateToContentEdit(page, 3);
     await waitForCKEditor(page);

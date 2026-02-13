@@ -977,7 +977,9 @@ $bodytextClickZoom = '<p>Click zoom test content:</p><p><img src="fileadmin/user
 $stmt->execute([1, 'text', 'Click Zoom Test CE', $bodytextClickZoom, 0, 0, $now, $now, 0, 7680]);
 
 // UID 31: For image-dialog-apply-changes.spec.ts (saves alt/title/dimension/link changes)
-$bodytextApply = '<p>Apply changes test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Apply Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of apply changes test.</p>';
+// No data-htmlarea-zoom: zoom is explicitly set by the "click-to-enlarge" test,
+// and having it pre-set makes confirmImageDialog() less reliable.
+$bodytextApply = '<p>Apply changes test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Apply Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of apply changes test.</p>';
 $stmt->execute([1, 'text', 'Apply Changes Test CE', $bodytextApply, 0, 0, $now, $now, 0, 7936]);
 
 // UID 32: For link-attributes-roundtrip.spec.ts (saves link attribute changes)
@@ -988,7 +990,17 @@ $stmt->execute([1, 'text', 'Roundtrip Test CE', $bodytextRoundtrip, 0, 0, $now, 
 $bodytextInsertion = '<p>Insertion test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Insertion Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of insertion test.</p>';
 $stmt->execute([1, 'text', 'Insertion Test CE', $bodytextInsertion, 0, 0, $now, $now, 0, 8448]);
 
-echo "Isolated test CEs (UIDs 26-33) created for saving specs\n";
+// UID 34: For link-attributes-roundtrip.spec.ts alignment test (saves link + alignment)
+// Separate from CE 32 to prevent parallel test pollution with fullyParallel=true
+$bodytextAlignRoundtrip = '<p>Alignment roundtrip test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Alignment Roundtrip Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of alignment roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Alignment Roundtrip Test CE', $bodytextAlignRoundtrip, 0, 0, $now, $now, 0, 8704]);
+
+// UID 35: For save-render-roundtrip.spec.ts zoom test (saves zoom toggle)
+// Needs surrounding text to avoid CKEditor block widget rendering.
+$bodytextZoomRoundtrip = '<p>Zoom roundtrip test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Zoom Roundtrip Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of zoom roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Zoom Roundtrip Test CE', $bodytextZoomRoundtrip, 0, 0, $now, $now, 0, 8960]);
+
+echo "Isolated test CEs (UIDs 26-35) created for saving specs\n";
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
@@ -1098,6 +1110,19 @@ CONTENT_EOF
                 mkdir -p public/fileadmin/user_upload
                 php /e2e-scripts/create-test-content.php || exit 1
 
+                # Create .htaccess for Apache URL rewriting (not needed with
+                # PHP built-in server, but required with Apache + PHP-FPM)
+                if [ ! -f public/.htaccess ]; then
+                    echo 'Creating .htaccess for Apache...'
+                    cat > public/.htaccess << 'HTACCESS'
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-l
+RewriteRule ^(.*)$ index.php [QSA,L]
+HTACCESS
+                fi
+
                 # Set permissions BEFORE cache operations
                 chmod -R 777 var/ public/typo3temp/ public/fileadmin/
 
@@ -1124,46 +1149,55 @@ CONTENT_EOF
                 echo '[CACHE] Done'
             "
 
-        # Start PHP built-in web server (simpler than Apache + PHP-FPM)
-        # This is the approach used by TYPO3 Core for functional testing
-        # trustedHostsPattern is set directly in settings.php during setup
-        echo "Starting PHP built-in web server..."
+        # Start Apache + PHP-FPM (replaces PHP built-in server).
+        # PHP built-in server has no URL rewriting, so FAL image processing
+        # routes fail (returns empty images after save). Apache + .htaccess
+        # provides proper TYPO3 URL routing — same pattern as TYPO3 Core
+        # acceptance tests.
+
+        # 1) PHP-FPM container — serves PHP requests on port 9000
+        # -R: allow running as root (required for Podman in CI)
+        # PHPFPM_USER/GROUP: configure FPM pool user (same as TYPO3 Core)
+        echo "Starting PHP-FPM container..."
         ${CONTAINER_BIN} run -d --rm ${CI_PARAMS} \
-            --name webserver-e2e-${SUFFIX} \
+            --name phpfpm-e2e-${SUFFIX} \
             --network ${NETWORK} \
+            --network-alias phpfpm \
             -v ${E2E_ROOT}:/var/www/html \
             -v ${ROOT_DIR}:/extension:ro \
             -w /var/www/html \
-            ${IMAGE_PHP} php -S 0.0.0.0:80 -t public/
+            -e PHPFPM_USER=0 \
+            -e PHPFPM_GROUP=0 \
+            ${IMAGE_PHP} php-fpm -R -F
 
-        # Wait for web server to be ready
-        waitFor webserver-e2e-${SUFFIX} 80
+        waitFor phpfpm-e2e-${SUFFIX} 9000
 
-        # Give services a moment to stabilize
+        # 2) Apache container — serves static files + proxies PHP to FPM
+        # Must also mount /extension because _assets/ symlinks chain
+        # through vendor/netresearch/rte-ckeditor-image → /extension
+        echo "Starting Apache container..."
+        ${CONTAINER_BIN} run -d --rm ${CI_PARAMS} \
+            --name apache-e2e-${SUFFIX} \
+            --network ${NETWORK} \
+            -v ${E2E_ROOT}:/var/www/html \
+            -v ${ROOT_DIR}:/extension:ro \
+            -e APACHE_RUN_USER="#$(id -u)" \
+            -e APACHE_RUN_GROUP="#$(id -g)" \
+            -e APACHE_RUN_SERVERNAME=apache-e2e-${SUFFIX} \
+            -e APACHE_RUN_DOCROOT=/var/www/html/public \
+            -e PHPFPM_HOST=phpfpm \
+            -e PHPFPM_PORT=9000 \
+            ${IMAGE_APACHE}
+
+        waitFor apache-e2e-${SUFFIX} 80
         sleep 2
 
-        # Debug: check what's in the document root
-        echo "DEBUG: Checking document root contents..."
-        ${CONTAINER_BIN} exec webserver-e2e-${SUFFIX} ls -la /var/www/html/public/ | head -20
-
-        echo ""
-        echo "DEBUG: Checking if index.php exists..."
-        ${CONTAINER_BIN} exec webserver-e2e-${SUFFIX} head -5 /var/www/html/public/index.php || echo "index.php not found!"
-
-        echo ""
-        echo "DEBUG: Fetching page content to check rendering..."
+        # Verify Apache + PHP-FPM are serving TYPO3
+        echo "Verifying TYPO3 frontend via Apache..."
         ${CONTAINER_BIN} run --rm ${CI_PARAMS} \
-            --name curl-debug-${SUFFIX} \
+            --name curl-check-${SUFFIX} \
             --network ${NETWORK} \
-            ${IMAGE_PHP} curl -sS -v http://webserver-e2e-${SUFFIX}:80/ 2>&1 | head -100
-
-        echo ""
-        echo "DEBUG: Checking TYPO3 error logs..."
-        ${CONTAINER_BIN} exec webserver-e2e-${SUFFIX} /bin/bash -c "if [ -f var/log/typo3_*.log ]; then tail -100 var/log/typo3_*.log; else echo 'No TYPO3 log files found'; fi" 2>/dev/null || true
-
-        echo ""
-        echo "DEBUG: Checking PHP built-in server stderr for errors..."
-        ${CONTAINER_BIN} logs webserver-e2e-${SUFFIX} 2>&1 | tail -50 || true
+            ${IMAGE_PHP} curl -sS -o /dev/null -w "Frontend: HTTP %{http_code}" http://apache-e2e-${SUFFIX}:80/ 2>&1
 
         echo "Running Playwright E2E tests..."
 
@@ -1172,7 +1206,7 @@ CONTENT_EOF
             -v ${ROOT_DIR}/Tests/E2E:/app \
             -v ${ROOT_DIR}/Build/test-results:/app/test-results \
             -w /app \
-            -e BASE_URL=http://webserver-e2e-${SUFFIX}:80 \
+            -e BASE_URL=http://apache-e2e-${SUFFIX}:80 \
             -e TYPO3_BACKEND_PASSWORD="${E2E_ADMIN_PASSWORD}" \
             -e CI=true \
             ${IMAGE_PLAYWRIGHT} /bin/bash -c "
@@ -1185,7 +1219,8 @@ CONTENT_EOF
         SUITE_EXIT_CODE=$?
 
         # Stop containers
-        ${CONTAINER_BIN} kill webserver-e2e-${SUFFIX} >/dev/null 2>&1 || true
+        ${CONTAINER_BIN} kill apache-e2e-${SUFFIX} >/dev/null 2>&1 || true
+        ${CONTAINER_BIN} kill phpfpm-e2e-${SUFFIX} >/dev/null 2>&1 || true
         ${CONTAINER_BIN} kill mariadb-e2e-${SUFFIX} >/dev/null 2>&1 || true
 
         # Clean up E2E directories (keep for debugging if failed)

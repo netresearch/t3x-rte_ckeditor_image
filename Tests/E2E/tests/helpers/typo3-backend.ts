@@ -94,6 +94,10 @@ export async function openImageEditDialog(page: Page, imageIndex: number = 0): P
 
 /**
  * Close the image dialog by clicking the confirm/save button.
+ *
+ * Uses retry logic with multiple click strategies because the TYPO3
+ * modal sometimes doesn't close on the first click (especially when
+ * CKEditor is still processing the confirm callback).
  */
 export async function confirmImageDialog(page: Page): Promise<void> {
     const confirmButton = page.locator(
@@ -101,11 +105,31 @@ export async function confirmImageDialog(page: Page): Promise<void> {
     ).first();
 
     await expect(confirmButton, 'Confirm button not found in image dialog').toBeVisible();
-    await confirmButton.evaluate((el: HTMLElement) => el.click());
-    // Wait for modal to close — use .t3js-modal (the outer container) to avoid
-    // strict mode violation (.modal-dialog is a child and also matches).
-    // Use 20s timeout: linked image dialogs may take longer to process.
-    await page.locator('.t3js-modal').first().waitFor({ state: 'hidden', timeout: 20000 });
+
+    // Use .t3js-modal (the outer container) to avoid strict mode violation
+    // (.modal-dialog is a child and also matches).
+    const modal = page.locator('.t3js-modal').first();
+
+    // Try up to 3 times with different click strategies.
+    // Each attempt uses a different method because the button click
+    // can fail silently when CKEditor JS handlers are still initializing.
+    const strategies = [
+        async () => { await confirmButton.evaluate((el: HTMLElement) => el.click()); },
+        async () => { await confirmButton.click({ force: true }); },
+        async () => { await confirmButton.focus(); await page.keyboard.press('Enter'); },
+    ];
+
+    for (let i = 0; i < strategies.length; i++) {
+        await strategies[i]();
+        try {
+            await modal.waitFor({ state: 'hidden', timeout: 7000 });
+            return;
+        } catch {
+            // Modal still visible — try next strategy
+        }
+    }
+
+    throw new Error('confirmImageDialog: modal did not close after 3 attempts');
 }
 
 /**

@@ -19,18 +19,15 @@ import {
  *
  * Test content: CE 1 has a basic image with data-htmlarea-zoom="true".
  *
- * NOTE: Frontend rendering tests are skipped because the PHP built-in server
- * cannot process FAL file references after save. Backend roundtrip tests
- * (save → reload → verify editor HTML) work reliably in CI.
+ * E2E tests use Apache + PHP-FPM (not PHP built-in server) to support
+ * TYPO3's URL rewriting and FAL image processing pipeline.
  */
 test.describe('Save-Render Roundtrip', () => {
   test.beforeEach(() => {
     requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
   });
 
-  test.skip('save unchanged content element — images still render on frontend', async ({ page }) => {
-    // SKIP: PHP built-in server FAL issue — image rendering pipeline produces
-    // empty output after save. Works correctly with Apache/nginx in production.
+  test('save unchanged content element — images still render on frontend', async ({ page }) => {
     await loginToBackend(page);
     await navigateToContentEdit(page, 1);
     await waitForCKEditor(page);
@@ -137,12 +134,11 @@ test.describe('Save-Render Roundtrip', () => {
     expect(editorHtml, 'Modified alt text should persist after save-reload').toContain('Roundtrip Alt Test');
   });
 
-  test.skip('enable zoom in dialog — data-htmlarea-zoom persists after save-reload', async ({ page }) => {
-    // SKIP: CE 14 has a standalone image that renders as CKEditor block widget.
-    // Double-click on a block widget doesn't open the image edit dialog.
-    // Needs a CE with surrounding text to avoid block widget rendering.
+  test('enable zoom in dialog — data-htmlarea-zoom persists after save-reload', async ({ page }) => {
+    // Uses CE 35 (dedicated zoom-roundtrip CE with surrounding text) instead
+    // of CE 14 which renders as CKEditor block widget (dblclick can't open dialog).
     await loginToBackend(page);
-    await navigateToContentEdit(page, 14);
+    await navigateToContentEdit(page, 35);
     await waitForCKEditor(page);
 
     // Open image dialog
@@ -158,7 +154,7 @@ test.describe('Save-Render Roundtrip', () => {
     await page.waitForTimeout(2000);
 
     // Re-open the same CE and verify zoom attribute persisted
-    await navigateToContentEdit(page, 14);
+    await navigateToContentEdit(page, 35);
     await waitForCKEditor(page);
 
     const editorHtml = await getEditorHtml(page);

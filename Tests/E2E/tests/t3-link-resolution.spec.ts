@@ -15,9 +15,9 @@ import { test, expect } from '@playwright/test';
  */
 test.describe('t3:// Link Resolution (#594)', () => {
   test.skip('t3:// links resolve to real URLs, not raw protocol', async ({ page }) => {
-    // SKIP: PHP built-in server — typoLink_URL() returns empty for t3://page links.
-    // Extension code is correct (proven by unit tests), but the CI server
-    // cannot resolve t3:// links. Works with Apache/nginx in production.
+    // SKIP: typoLink_URL() does not resolve t3://page?uid=1 in CI.
+    // The extension code is correct (proven by unit tests), but the
+    // minimal E2E site configuration lacks full routing context.
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
