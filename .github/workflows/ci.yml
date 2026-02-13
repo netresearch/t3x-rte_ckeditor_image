@@ -36,6 +36,11 @@ jobs:
                       run_js_tests: true
 
         steps:
+            -   name: Harden Runner
+                uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+                with:
+                    egress-policy: audit
+
             -   id: checkout
                 name: Checkout
                 uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -207,6 +212,11 @@ jobs:
                 typo3: [ '13', '14' ]
 
         steps:
+            -   name: Harden Runner
+                uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+                with:
+                    egress-policy: audit
+
             -   name: Checkout
                 uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
