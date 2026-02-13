@@ -259,3 +259,32 @@ jobs:
                     name: e2e-test-results-v${{ matrix.typo3 }}-shard${{ matrix.shard }}
                     path: Build/test-results/
                     retention-days: 7
+
+    build-required:
+        name: Build ✓
+        runs-on: ubuntu-latest
+        needs: build
+        if: always()
+        steps:
+            -   name: Verify all builds passed
+                run: |
+                    if [[ "${{ needs.build.result }}" != "success" ]]; then
+                        echo "::error::Build matrix failed"
+                        exit 1
+                    fi
+
+    e2e-required:
+        name: E2E ✓
+        runs-on: ubuntu-latest
+        needs: e2e
+        if: always()
+        steps:
+            -   name: Verify E2E passed
+                run: |
+                    # e2e matrix has continue-on-error for v14, so
+                    # needs.e2e.result is 'success' even if v14 fails.
+                    # Only v13 failures cause 'failure' result.
+                    if [[ "${{ needs.e2e.result }}" == "failure" ]]; then
+                        echo "::error::E2E tests (v13) failed"
+                        exit 1
+                    fi
