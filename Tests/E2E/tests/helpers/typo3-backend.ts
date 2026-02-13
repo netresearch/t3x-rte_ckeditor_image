@@ -47,9 +47,9 @@ export async function loginToBackend(page: Page): Promise<void> {
     await page.waitForLoadState('networkidle', { timeout: 30000 });
 
     const backendIndicators = page.locator(
-        '.modulemenu, .typo3-module-menu, [data-modulemenu], .scaffold'
+        '.modulemenu, .typo3-module-menu, [data-modulemenu], .scaffold, typo3-backend-sidebar-toggle'
     );
-    expect(await backendIndicators.count(), 'Backend login failed — check TYPO3_BACKEND_PASSWORD').toBeGreaterThan(0);
+    await backendIndicators.first().waitFor({ state: 'visible', timeout: 30000 });
 }
 
 /**
@@ -89,7 +89,7 @@ export async function openImageEditDialog(page: Page, imageIndex: number = 0): P
     expect(await images.count(), `Expected at least ${imageIndex + 1} image(s) in CKEditor`).toBeGreaterThan(imageIndex);
     await images.nth(imageIndex).dblclick();
     await page.locator('.t3js-modal').first().waitFor({ state: 'visible', timeout: 20000 });
-    await expect(page.locator('.modal-title').first()).toBeVisible();
+    await expect(page.locator('.modal-title, .modal-header-title, .t3js-modal-title').first()).toBeVisible();
 }
 
 /**
@@ -137,7 +137,7 @@ export async function confirmImageDialog(page: Page): Promise<void> {
  */
 export async function cancelImageDialog(page: Page): Promise<void> {
     const cancelButton = page.locator(
-        '.modal-footer button.btn-default, .modal-footer button[name="cancel"], button:has-text("Cancel"), .modal-header .close, button.close'
+        '.modal-footer button.btn-default, .modal-footer button[name="cancel"], button:has-text("Cancel"), .modal-header .close, button.close, .t3js-modal-close, .modal-header-close'
     ).first();
     await expect(cancelButton, 'Cancel button not found in image dialog').toBeVisible();
     await cancelButton.click();
