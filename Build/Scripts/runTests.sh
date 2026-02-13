@@ -937,6 +937,32 @@ $bodytextLinkPriority = '<p>Link + zoom conflict:</p>'
 $stmtP2->execute([2, 'text', 'Link Priority over Zoom', $bodytextLinkPriority, 0, 0, $now, $now, 0, 1536]);
 
 echo "Error handling & edge case content elements (UIDs 20-25) created on page 2\n";
+
+// UIDs 26-30: Isolated CEs for backend tests that SAVE content
+// Each saving spec gets its own CE to prevent cross-file pollution (#621)
+// (Parallel test execution with fullyParallel=true means save order is random)
+
+// UID 26: For image-dialog-dimensions.spec.ts (saves dimension changes)
+$bodytextDimensions = '<p><img src="fileadmin/user_upload/example.jpg" alt="Dimensions Test" width="800" height="600" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Dimensions Test CE', $bodytextDimensions, 0, 0, $now, $now, 0, 6656]);
+
+// UID 27: For image-dialog-quality.spec.ts (saves quality changes)
+$bodytextQuality = '<p><img src="fileadmin/user_upload/example.jpg" alt="Quality Test" width="800" height="600" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Quality Test CE', $bodytextQuality, 0, 0, $now, $now, 0, 6912]);
+
+// UID 28: For image-dialog-overrides.spec.ts (saves override state)
+$bodytextOverrides = '<p><img src="fileadmin/user_upload/example.jpg" alt="Overrides Test" width="800" height="600" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Overrides Test CE', $bodytextOverrides, 0, 0, $now, $now, 0, 7168]);
+
+// UID 29: For image-dialog-click-behavior.spec.ts (saves link/zoom changes)
+$bodytextClickBehavior = '<p><img src="fileadmin/user_upload/example.jpg" alt="Click Behavior Test" width="800" height="600" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Click Behavior Test CE', $bodytextClickBehavior, 0, 0, $now, $now, 0, 7424]);
+
+// UID 30: For image-dialog-click-behavior.spec.ts zoom tests (has zoom pre-set)
+$bodytextClickZoom = '<p><img src="fileadmin/user_upload/example.jpg" alt="Click Zoom Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Click Zoom Test CE', $bodytextClickZoom, 0, 0, $now, $now, 0, 7680]);
+
+echo "Isolated test CEs (UIDs 26-30) created for saving specs\n";
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests

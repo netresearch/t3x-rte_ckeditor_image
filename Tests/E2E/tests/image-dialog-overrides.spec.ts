@@ -39,7 +39,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('alt override checkbox exists in image dialog', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 28);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -49,7 +49,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('alt input is disabled when override is unchecked', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 28);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -79,7 +79,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('clicking alt override checkbox enables the input', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 28);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -116,7 +116,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('custom alt text is applied after enabling override', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 28);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -153,7 +153,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('title override checkbox exists in image dialog', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 28);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -163,7 +163,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('clicking title override checkbox enables the title input', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 28);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -200,7 +200,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('override state persists after save and reload', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 28);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -239,7 +239,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 28);
     await waitForCKEditor(page);
 
     // Re-open the image dialog
@@ -264,7 +264,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('cancel does not change override state', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 28);
     await waitForCKEditor(page);
 
     // First, open dialog and record the initial override state

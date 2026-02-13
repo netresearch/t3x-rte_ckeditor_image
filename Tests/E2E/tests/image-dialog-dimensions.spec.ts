@@ -25,7 +25,7 @@ test.describe('Image Dialog - Dimensions', () => {
   });
 
   test('width input is present and has a numeric value', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 26);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -41,7 +41,7 @@ test.describe('Image Dialog - Dimensions', () => {
   });
 
   test('height input is present and has a numeric value', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 26);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -57,7 +57,7 @@ test.describe('Image Dialog - Dimensions', () => {
   });
 
   test('changing width auto-adjusts height (aspect ratio)', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 26);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -97,7 +97,7 @@ test.describe('Image Dialog - Dimensions', () => {
   });
 
   test('changing height auto-adjusts width (aspect ratio)', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 26);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -137,7 +137,7 @@ test.describe('Image Dialog - Dimensions', () => {
   });
 
   test('dimension values persist after confirm and re-open', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 26);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -178,7 +178,7 @@ test.describe('Image Dialog - Dimensions', () => {
   });
 
   test('dimension values persist after save and reload', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 26);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -211,7 +211,7 @@ test.describe('Image Dialog - Dimensions', () => {
     console.log('Saved content element');
 
     // Navigate back to the same content element
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 26);
     await waitForCKEditor(page);
 
     // Re-open the dialog

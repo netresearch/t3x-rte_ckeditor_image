@@ -14,8 +14,8 @@ import { loginToBackend, navigateToContentEdit, waitForCKEditor, openImageEditDi
  */
 
 /** Content element IDs used in tests */
-const CE_WITH_ZOOM = 1;       // Image with data-htmlarea-zoom="true" (Enlarge selected)
-const CE_STANDALONE = 14;     // Standalone image, no zoom, no link (None selected)
+const CE_WITH_ZOOM = 30;      // Isolated CE with data-htmlarea-zoom="true" (Enlarge selected)
+const CE_STANDALONE = 29;     // Isolated standalone CE, no zoom, no link (None selected)
 
 /** Radio button selectors */
 const RADIO_NONE = '#clickBehavior-none';
@@ -47,30 +47,30 @@ test.describe('Image Dialog - Click Behavior', () => {
     console.log('All three click behavior radio buttons found in dialog');
   });
 
-  test('CE 1 has Enlarge selected by default', async ({ page }) => {
+  test('CE with zoom has Enlarge selected by default', async ({ page }) => {
     await navigateToContentEdit(page, CE_WITH_ZOOM);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
-    // CE 1 has data-htmlarea-zoom="true", so Enlarge should be checked
+    // CE 30 has data-htmlarea-zoom="true", so Enlarge should be checked
     await expect(page.locator(RADIO_ENLARGE)).toBeChecked();
     await expect(page.locator(RADIO_NONE)).not.toBeChecked();
     await expect(page.locator(RADIO_LINK)).not.toBeChecked();
 
-    console.log('CE 1: Enlarge radio is correctly selected by default');
+    console.log('CE 30: Enlarge radio is correctly selected by default');
   });
 
-  test('CE 14 has None selected by default', async ({ page }) => {
+  test('standalone CE has None selected by default', async ({ page }) => {
     await navigateToContentEdit(page, CE_STANDALONE);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
-    // CE 14 is a standalone image — None should be checked
+    // CE 29 is a standalone image — None should be checked
     await expect(page.locator(RADIO_NONE)).toBeChecked();
     await expect(page.locator(RADIO_ENLARGE)).not.toBeChecked();
     await expect(page.locator(RADIO_LINK)).not.toBeChecked();
 
-    console.log('CE 14: None radio is correctly selected by default');
+    console.log('CE 29: None radio is correctly selected by default');
   });
 
   test('selecting Link shows link fields', async ({ page }) => {
@@ -187,10 +187,10 @@ test.describe('Image Dialog - Click Behavior', () => {
     await navigateToContentEdit(page, CE_WITH_ZOOM);
     await waitForCKEditor(page);
 
-    // Verify CE 1 currently has zoom attribute
+    // Verify CE 30 currently has zoom attribute
     const initialHtml = await getEditorHtml(page);
     expect(initialHtml).toContain('data-htmlarea-zoom');
-    console.log('CE 1 initially has data-htmlarea-zoom attribute');
+    console.log('CE 30 initially has data-htmlarea-zoom attribute');
 
     // Open dialog
     await openImageEditDialog(page);

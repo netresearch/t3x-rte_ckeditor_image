@@ -25,7 +25,7 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('quality dropdown is present in dialog', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 27);
     await waitForCKEditor(page);
 
     await openImageEditDialog(page);
@@ -47,7 +47,7 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('quality dropdown has expected options', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 27);
     await waitForCKEditor(page);
 
     await openImageEditDialog(page);
@@ -80,7 +80,7 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('selecting quality updates data attribute in editor', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 27);
     await waitForCKEditor(page);
 
     await openImageEditDialog(page);
@@ -107,7 +107,7 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('quality persists after save and reload', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 27);
     await waitForCKEditor(page);
 
     // Open dialog and set quality to "print"
@@ -132,7 +132,7 @@ test.describe('Image Dialog - Quality Selector', () => {
     console.log('Content element saved');
 
     // Reload the page and navigate back to the content element
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 27);
     await waitForCKEditor(page);
 
     // Verify data-quality persisted in editor HTML
@@ -154,10 +154,10 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('default quality is retina for fresh image', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, 27);
     await waitForCKEditor(page);
 
-    // Open image dialog on CE 1 (800x600, alt="Example")
+    // Open image dialog on CE 27 (800x600, alt="Quality Test")
     await openImageEditDialog(page);
 
     const qualitySelect = page.locator('#rteckeditorimage-quality');
