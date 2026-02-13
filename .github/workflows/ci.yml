@@ -244,6 +244,15 @@ jobs:
                 run: |
                     cd Tests/E2E && npm ci --ignore-scripts
 
+            -   name: Cache Composer packages (E2E)
+                uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+                with:
+                    path: .Build/.cache/composer
+                    key: ${{ runner.os }}-composer-e2e-v${{ matrix.typo3 }}-${{ hashFiles('composer.json') }}
+                    restore-keys: |
+                        ${{ runner.os }}-composer-e2e-v${{ matrix.typo3 }}-
+                        ${{ runner.os }}-composer-e2e-
+
             -   name: Run E2E Tests (TYPO3 v${{ matrix.typo3 }}, shard ${{ matrix.shard }}/11)
                 # v14 E2E is informational — failures don't block PRs while we stabilize
                 continue-on-error: ${{ matrix.typo3 == '14' }}

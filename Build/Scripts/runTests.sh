@@ -1037,10 +1037,16 @@ CONTENT_EOF
 
         # Install TYPO3 with the extension FIRST (before starting services)
         echo "Installing TYPO3 v${E2E_TYPO3_VERSION} for E2E tests..."
+
+        # Persistent Composer cache — mount host dir so cached packages survive across runs
+        E2E_COMPOSER_CACHE="${ROOT_DIR}/.Build/.cache/composer"
+        mkdir -p "${E2E_COMPOSER_CACHE}"
+
         ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name e2e-setup-${SUFFIX} \
             -v ${E2E_ROOT}:/var/www/html \
             -v ${E2E_SCRIPTS}:/e2e-scripts:ro \
             -v ${ROOT_DIR}:/extension:ro \
+            -v ${E2E_COMPOSER_CACHE}:/.cache/composer \
             -w /var/www/html \
             -e COMPOSER_CACHE_DIR=/.cache/composer \
             ${IMAGE_PHP} /bin/bash -c "
