@@ -9,12 +9,10 @@ import { loginToBackend, navigateToContentEdit, waitForCKEditor, getEditorHtml, 
  * with TYPO3 RTE images in the CKEditor backend.
  *
  * IMPORTANT: CKEditor runs inside an iframe in the TYPO3 backend.
- * Keyboard events must be dispatched after focusing the editable element
- * inside the iframe. CKEditor intercepts clipboard events and uses its
- * own internal clipboard mechanism, which may not behave identically to
- * native browser clipboard operations. Many of these tests are marked
- * as fixme because clipboard/undo interactions inside an iframe-hosted
- * CKEditor are inherently fragile in automated testing.
+ * Ctrl+C/V does not trigger CKEditor's clipboard pipeline in CI (Playwright
+ * synthetic keyboard events inside iframe). Copy/paste tests are skipped.
+ * Cut (Ctrl+X) works because CKEditor handles widget deletion natively.
+ * Undo/redo of dialog changes works via CKEditor's model change tracking.
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/620
  */
@@ -69,14 +67,9 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
     await loginToBackend(page);
   });
 
-  test.fixme('select and copy image preserves attributes on paste', async ({ page }) => {
-    // FIXME: CKEditor intercepts clipboard events internally. Playwright's
-    // Ctrl+C / Ctrl+V may not trigger CKEditor's clipboard pipeline reliably
-    // inside an iframe context. The internal clipboard may serialize/deserialize
-    // the image differently than expected, potentially losing data attributes.
-    // Additionally, programmatic clipboard access is restricted by browser
-    // security policies, which may cause paste to silently fail.
-
+  test.skip('select and copy image preserves attributes on paste', async ({ page }) => {
+    // SKIP: Ctrl+C/V does not trigger CKEditor's clipboard pipeline inside
+    // the TYPO3 backend iframe — paste count stays at 1 (no image duplicated).
     await navigateToContentEdit(page);
     await waitForCKEditor(page);
 
@@ -121,14 +114,8 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
     expect(afterPasteUids.filter(uid => uid === initialUids[0]).length).toBe(2);
   });
 
-  test.fixme('undo removes pasted image', async ({ page }) => {
-    // FIXME: This test depends on copy/paste working correctly (see above),
-    // and then on CKEditor's undo stack recognizing the paste as a single
-    // undoable operation. CKEditor batches undo steps, so the undo may not
-    // remove exactly the pasted image — it might undo a different granularity
-    // of changes. Combined with the iframe clipboard issues, this test is
-    // doubly fragile.
-
+  test.skip('undo removes pasted image', async ({ page }) => {
+    // SKIP: Depends on copy/paste working (see above).
     await navigateToContentEdit(page);
     await waitForCKEditor(page);
 
@@ -166,13 +153,8 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
     expect(afterUndoCount).toBe(initialCount);
   });
 
-  test.fixme('redo restores pasted image after undo', async ({ page }) => {
-    // FIXME: Redo depends on both copy/paste and undo working correctly.
-    // CKEditor supports Ctrl+Y and Ctrl+Shift+Z for redo, but the redo
-    // stack may be cleared by intermediate operations. Additionally, the
-    // iframe keyboard routing may not reliably deliver the Ctrl+Shift+Z
-    // combination.
-
+  test.skip('redo restores pasted image after undo', async ({ page }) => {
+    // SKIP: Depends on copy/paste working (see above).
     await navigateToContentEdit(page);
     await waitForCKEditor(page);
 
@@ -221,14 +203,7 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
     }
   });
 
-  test.fixme('undo reverts alt text change made via dialog', async ({ page }) => {
-    // FIXME: CKEditor's undo system may not track changes made through
-    // external modal dialogs. The TYPO3 image dialog modifies the CKEditor
-    // model via plugin API calls, and it is unclear whether these changes
-    // are registered as undoable batches. If the plugin uses
-    // editor.model.change() correctly, undo should work; if it uses
-    // editor.model.enqueueChange('transparent', ...) or direct DOM
-    // manipulation, undo will not track the change.
+  test('undo reverts alt text change made via dialog', async ({ page }) => {
 
     await navigateToContentEdit(page);
     await waitForCKEditor(page);
@@ -280,13 +255,7 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
     expect(afterUndoAlt).toBe(originalAlt);
   });
 
-  test.fixme('cut and paste image moves it to new position', async ({ page }) => {
-    // FIXME: Cut (Ctrl+X) in CKEditor inside an iframe is even more fragile
-    // than copy/paste. The browser may block the cut operation due to security
-    // policies (clipboard write requires user gesture), and CKEditor's
-    // internal cut handling may not fire correctly from Playwright's synthetic
-    // keyboard events. If the cut does not remove the image, the subsequent
-    // paste would result in a duplicate rather than a move.
+  test('cut and paste image moves it to new position', async ({ page }) => {
 
     await navigateToContentEdit(page);
     await waitForCKEditor(page);

@@ -253,12 +253,10 @@ test.describe('Error Handling & Edge Cases', () => {
       ).toBeGreaterThan(0);
     });
 
-    test.fixme('link + zoom conflict does not produce nested links', async ({ page }) => {
-      // FIXME: When both <a href> wrapper and data-htmlarea-zoom are present,
-      // the extension currently produces nested <a> tags (one from the original
-      // link, one from the popup template). This is invalid HTML.
-      // Filed as bug: the extension should use ONLY the popup template's <a>
-      // and discard the original link wrapper when zoom takes priority.
+    test.skip('link + zoom conflict does not produce nested links', async ({ page }) => {
+      // SKIP: Blocked by bug #619 — extension produces nested <a> tags when
+      // both link and zoom are present. Zoom template's <a> should replace
+      // the original link wrapper.
       // @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/619
       const ceContainer = page.locator('#c25');
       expect(

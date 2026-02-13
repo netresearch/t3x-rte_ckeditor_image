@@ -105,12 +105,7 @@ test.describe('Image Insertion', () => {
       expect(buttonCount, 'Expected image insert button in CKEditor toolbar').toBeGreaterThan(0);
     });
 
-    test.fixme('clicking image insert button opens element browser modal', async ({ page }) => {
-      // FIXME: The element browser modal is a complex TYPO3-specific modal with
-      // nested iframes. Opening it requires clicking the correct toolbar button,
-      // which triggers a TYPO3 AJAX request to load the element browser. In CI,
-      // the PHP built-in server may not handle the element browser route correctly,
-      // and the modal structure varies between TYPO3 v12 and v13.
+    test('clicking image insert button opens element browser modal', async ({ page }) => {
       await loginToBackend(page);
       await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
@@ -148,23 +143,10 @@ test.describe('Image Insertion', () => {
   });
 
   test.describe('Image Insertion via File Browser', () => {
-    test.fixme('browse and select image via file browser inserts image into editor', async ({ page }) => {
-      // FIXME: This test exercises the full image insertion flow through TYPO3's
-      // element browser, which is a nested modal with its own iframe containing
-      // a file tree and file list. The interaction sequence is:
-      //   1. Click image insert button in CKEditor toolbar
-      //   2. Element browser modal opens with iframe
-      //   3. Navigate file tree inside iframe to find the target folder
-      //   4. Click on a file in the file list to select it
-      //   5. Modal closes and image is inserted into CKEditor
-      //
-      // This is extremely fragile in CI because:
-      // - The element browser iframe loads asynchronously
-      // - The file tree uses TYPO3's SVG tree component with lazy loading
-      // - File selection triggers a postMessage back to the parent window
-      // - The PHP built-in server may not serve FAL file references correctly
-      //
-      // When infrastructure supports it, enable this test by removing test.fixme().
+    test.skip('browse and select image via file browser inserts image into editor', async ({ page }) => {
+      // SKIP: Element browser file tree uses SVG tree with lazy loading +
+      // postMessage — too fragile for CI automation. Requires navigating
+      // TYPO3's file tree inside a nested modal iframe.
       await loginToBackend(page);
       await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
@@ -364,12 +346,9 @@ test.describe('Image Insertion', () => {
   });
 
   test.describe('Multiple Images in Single Content Element', () => {
-    test.fixme('can insert a second image into a content element', async ({ page }) => {
-      // FIXME: This test requires the full file browser interaction flow, which
-      // depends on the element browser modal working correctly in CI.
-      // Same infrastructure limitations as the "browse and select" test above.
-      // The test verifies that CKEditor and the TYPO3 extension support multiple
-      // images in a single RTE content element.
+    test.skip('can insert a second image into a content element', async ({ page }) => {
+      // SKIP: Depends on file browser selection flow which uses SVG tree +
+      // postMessage inside nested modal iframe (see "browse and select" test).
       await loginToBackend(page);
       await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
