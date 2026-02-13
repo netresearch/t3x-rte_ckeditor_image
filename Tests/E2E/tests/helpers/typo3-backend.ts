@@ -24,21 +24,28 @@ export async function gotoFrontendPage(page: Page, path: string = '/'): Promise<
     const maxAttempts = 3;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        await page.goto(url, { timeout: 30000 });
+        let response;
+        try {
+            response = await page.goto(url, { timeout: 30000 });
+        } catch (error) {
+            // Navigation itself failed (connection refused, proxy timeout)
+            if (attempt < maxAttempts) {
+                console.log(`Frontend navigation failed (attempt ${attempt}/${maxAttempts}), retrying in 2s...`);
+                await page.waitForTimeout(2000);
+                continue;
+            }
+            throw error;
+        }
         await page.waitForLoadState('networkidle');
 
-        // Check for proxy errors or TYPO3 503 pages
-        const bodyText = await page.locator('body').textContent() ?? '';
-        const isProxyError = bodyText.includes('Proxy Error') ||
-            bodyText.includes('Service Unavailable') ||
-            bodyText.includes('503');
-
-        if (!isProxyError) {
+        const status = response?.status() ?? 0;
+        if (status >= 200 && status < 500) {
             return;
         }
 
+        // 5xx — infrastructure not ready yet (502 proxy error, 503 service unavailable)
         if (attempt < maxAttempts) {
-            console.log(`Frontend not ready (attempt ${attempt}/${maxAttempts}), retrying in 2s...`);
+            console.log(`Frontend returned ${status} (attempt ${attempt}/${maxAttempts}), retrying in 2s...`);
             await page.waitForTimeout(2000);
         }
     }
