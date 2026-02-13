@@ -9,6 +9,9 @@ import {
   requireCondition,
 } from './helpers/typo3-backend';
 
+/** Dedicated CE for this spec to prevent cross-file pollution (parallel execution) */
+const CE_ID = 33;
+
 /**
  * E2E tests for image insertion methods in CKEditor within TYPO3.
  *
@@ -17,7 +20,7 @@ import {
  * 2. Selecting a file in the element browser inserts an image with correct attributes
  * 3. Multiple images can be inserted into a single content element
  *
- * Test content: CE 1 has an existing image (alt="Example", data-htmlarea-file-uid="1").
+ * Test content: CE 33 has an existing image (alt="Insertion Test", data-htmlarea-file-uid="1").
  *
  * NOTE: Image insertion via the TYPO3 element browser is inherently complex because
  * TYPO3's file browser is a nested modal containing its own iframe. The browser's
@@ -33,9 +36,9 @@ test.describe('Image Insertion', () => {
   });
 
   test.describe('Existing Image Verification', () => {
-    test('CE 1 contains an image with expected attributes', async ({ page }) => {
+    test('CE contains an image with expected attributes', async ({ page }) => {
       await loginToBackend(page);
-      await navigateToContentEdit(page, 1);
+      await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
 
       // Wait for images to load — CKEditor renders asynchronously
@@ -45,7 +48,7 @@ test.describe('Image Insertion', () => {
 
       const editorHtml = await getEditorHtml(page);
 
-      // CE 1 has a pre-existing image with known attributes
+      // CE has a pre-existing image with known attributes
       expect(editorHtml).toContain('<img');
       expect(editorHtml).toContain('data-htmlarea-file-uid');
 
@@ -55,7 +58,7 @@ test.describe('Image Insertion', () => {
       const fileUid = await image.getAttribute('data-htmlarea-file-uid');
       const src = await image.getAttribute('src');
 
-      expect(alt).toBe('Example');
+      expect(alt).toBe('Insertion Test');
       expect(fileUid).toBe('1');
       expect(src).toBeTruthy();
 
@@ -64,7 +67,7 @@ test.describe('Image Insertion', () => {
 
     test('existing image has a valid src path', async ({ page }) => {
       await loginToBackend(page);
-      await navigateToContentEdit(page, 1);
+      await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
 
       // Wait for images to load — CKEditor renders asynchronously
@@ -82,7 +85,7 @@ test.describe('Image Insertion', () => {
   test.describe('CKEditor Image Toolbar Button', () => {
     test('image insert button exists in CKEditor toolbar', async ({ page }) => {
       await loginToBackend(page);
-      await navigateToContentEdit(page, 1);
+      await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
 
       const frame = getModuleFrame(page);
@@ -109,7 +112,7 @@ test.describe('Image Insertion', () => {
       // the PHP built-in server may not handle the element browser route correctly,
       // and the modal structure varies between TYPO3 v12 and v13.
       await loginToBackend(page);
-      await navigateToContentEdit(page, 1);
+      await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
 
       const frame = getModuleFrame(page);
@@ -163,7 +166,7 @@ test.describe('Image Insertion', () => {
       //
       // When infrastructure supports it, enable this test by removing test.fixme().
       await loginToBackend(page);
-      await navigateToContentEdit(page, 1);
+      await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
 
       // Record initial image count
@@ -273,7 +276,7 @@ test.describe('Image Insertion', () => {
   test.describe('Inserted Image Attributes', () => {
     test('images in editor have data-htmlarea-file-uid attribute', async ({ page }) => {
       await loginToBackend(page);
-      await navigateToContentEdit(page, 1);
+      await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
 
       const frame = getModuleFrame(page);
@@ -293,7 +296,7 @@ test.describe('Image Insertion', () => {
 
     test('images in editor have alt attribute', async ({ page }) => {
       await loginToBackend(page);
-      await navigateToContentEdit(page, 1);
+      await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
 
       const frame = getModuleFrame(page);
@@ -311,7 +314,7 @@ test.describe('Image Insertion', () => {
 
     test('images in editor have src attribute pointing to fileadmin', async ({ page }) => {
       await loginToBackend(page);
-      await navigateToContentEdit(page, 1);
+      await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
 
       const frame = getModuleFrame(page);
@@ -330,7 +333,7 @@ test.describe('Image Insertion', () => {
 
     test('all images in editor have required TYPO3 attributes', async ({ page }) => {
       await loginToBackend(page);
-      await navigateToContentEdit(page, 1);
+      await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
 
       const frame = getModuleFrame(page);
@@ -368,7 +371,7 @@ test.describe('Image Insertion', () => {
       // The test verifies that CKEditor and the TYPO3 extension support multiple
       // images in a single RTE content element.
       await loginToBackend(page);
-      await navigateToContentEdit(page, 1);
+      await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
 
       const frame = getModuleFrame(page);
@@ -454,7 +457,7 @@ test.describe('Image Insertion', () => {
       // This test verifies the HTML structure can hold multiple images,
       // using the pre-existing content. It does not require file browser interaction.
       await loginToBackend(page);
-      await navigateToContentEdit(page, 1);
+      await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
 
       const editorHtml = await getEditorHtml(page);
@@ -476,7 +479,7 @@ test.describe('Image Insertion', () => {
 
     test('each image in editor has a unique data-htmlarea-file-uid or position', async ({ page }) => {
       await loginToBackend(page);
-      await navigateToContentEdit(page, 1);
+      await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
 
       const frame = getModuleFrame(page);

@@ -938,31 +938,45 @@ $stmtP2->execute([2, 'text', 'Link Priority over Zoom', $bodytextLinkPriority, 0
 
 echo "Error handling & edge case content elements (UIDs 20-25) created on page 2\n";
 
-// UIDs 26-30: Isolated CEs for backend tests that SAVE content
+// UIDs 26-35: Isolated CEs for backend tests that SAVE content
 // Each saving spec gets its own CE to prevent cross-file pollution (#621)
 // (Parallel test execution with fullyParallel=true means save order is random)
+// IMPORTANT: CKEditor needs surrounding text paragraphs — bare <p><img></p>
+// renders as a block widget where double-click doesn't trigger the image dialog.
 
 // UID 26: For image-dialog-dimensions.spec.ts (saves dimension changes)
-$bodytextDimensions = '<p><img src="fileadmin/user_upload/example.jpg" alt="Dimensions Test" width="800" height="600" data-htmlarea-file-uid="1" /></p>';
+$bodytextDimensions = '<p>Dimensions test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Dimensions Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of dimensions test.</p>';
 $stmt->execute([1, 'text', 'Dimensions Test CE', $bodytextDimensions, 0, 0, $now, $now, 0, 6656]);
 
 // UID 27: For image-dialog-quality.spec.ts (saves quality changes)
-$bodytextQuality = '<p><img src="fileadmin/user_upload/example.jpg" alt="Quality Test" width="800" height="600" data-htmlarea-file-uid="1" /></p>';
+$bodytextQuality = '<p>Quality test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Quality Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of quality test.</p>';
 $stmt->execute([1, 'text', 'Quality Test CE', $bodytextQuality, 0, 0, $now, $now, 0, 6912]);
 
 // UID 28: For image-dialog-overrides.spec.ts (saves override state)
-$bodytextOverrides = '<p><img src="fileadmin/user_upload/example.jpg" alt="Overrides Test" width="800" height="600" data-htmlarea-file-uid="1" /></p>';
+$bodytextOverrides = '<p>Overrides test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Overrides Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of overrides test.</p>';
 $stmt->execute([1, 'text', 'Overrides Test CE', $bodytextOverrides, 0, 0, $now, $now, 0, 7168]);
 
 // UID 29: For image-dialog-click-behavior.spec.ts (saves link/zoom changes)
-$bodytextClickBehavior = '<p><img src="fileadmin/user_upload/example.jpg" alt="Click Behavior Test" width="800" height="600" data-htmlarea-file-uid="1" /></p>';
+$bodytextClickBehavior = '<p>Click behavior test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Click Behavior Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of click behavior test.</p>';
 $stmt->execute([1, 'text', 'Click Behavior Test CE', $bodytextClickBehavior, 0, 0, $now, $now, 0, 7424]);
 
 // UID 30: For image-dialog-click-behavior.spec.ts zoom tests (has zoom pre-set)
-$bodytextClickZoom = '<p><img src="fileadmin/user_upload/example.jpg" alt="Click Zoom Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>';
+$bodytextClickZoom = '<p>Click zoom test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Click Zoom Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of click zoom test.</p>';
 $stmt->execute([1, 'text', 'Click Zoom Test CE', $bodytextClickZoom, 0, 0, $now, $now, 0, 7680]);
 
-echo "Isolated test CEs (UIDs 26-30) created for saving specs\n";
+// UID 31: For image-dialog-apply-changes.spec.ts (saves alt/title/dimension/link changes)
+$bodytextApply = '<p>Apply changes test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Apply Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of apply changes test.</p>';
+$stmt->execute([1, 'text', 'Apply Changes Test CE', $bodytextApply, 0, 0, $now, $now, 0, 7936]);
+
+// UID 32: For link-attributes-roundtrip.spec.ts (saves link attribute changes)
+$bodytextRoundtrip = '<p>Roundtrip test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Roundtrip Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Roundtrip Test CE', $bodytextRoundtrip, 0, 0, $now, $now, 0, 8192]);
+
+// UID 33: For image-insertion.spec.ts (read-only verification of image attributes)
+$bodytextInsertion = '<p>Insertion test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Insertion Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of insertion test.</p>';
+$stmt->execute([1, 'text', 'Insertion Test CE', $bodytextInsertion, 0, 0, $now, $now, 0, 8448]);
+
+echo "Isolated test CEs (UIDs 26-33) created for saving specs\n";
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
