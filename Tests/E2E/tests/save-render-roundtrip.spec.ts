@@ -19,9 +19,9 @@ import {
  *
  * Test content: CE 1 has a basic image with data-htmlarea-zoom="true".
  *
- * NOTE: Tests that require opening the image dialog and confirming are marked
- * as fixme due to a known CI issue where confirmImageDialog() clicks the
- * button but the modal does not close (PHP built-in server timing issue).
+ * NOTE: Frontend rendering tests are skipped because the PHP built-in server
+ * cannot process FAL file references after save. Backend roundtrip tests
+ * (save → reload → verify editor HTML) work reliably in CI.
  */
 test.describe('Save-Render Roundtrip', () => {
   test.beforeEach(() => {
@@ -93,10 +93,9 @@ test.describe('Save-Render Roundtrip', () => {
     expect(htmlAfter).toContain('fileadmin/user_upload/example.jpg');
   });
 
-  test.fixme('modify alt text in dialog — change reflected on frontend', async ({ page }) => {
-    // FIXME: Requires confirmImageDialog() which has a known modal-close issue in CI.
-    // When the modal close issue is resolved, this test verifies the full
-    // edit → save → render roundtrip for attribute changes.
+  test('modify alt text in dialog — change persists after save-reload', async ({ page }) => {
+    // Backend-only roundtrip: confirm dialog → save → reload CE → verify editor HTML.
+    // Avoids frontend navigation (PHP built-in server FAL issue).
     await loginToBackend(page);
     await navigateToContentEdit(page, 1);
     await waitForCKEditor(page);
@@ -110,7 +109,19 @@ test.describe('Save-Render Roundtrip', () => {
     if (isDisabled) {
       const altCheckbox = page.locator('#checkbox-alt');
       if (await altCheckbox.count() > 0) {
-        await altCheckbox.click();
+        // Use vanilla JS to toggle override checkbox (jQuery not on window in TYPO3 v13+)
+        await page.evaluate(() => {
+          const cb = document.querySelector('#checkbox-alt') as HTMLInputElement;
+          const input = document.querySelector('#rteckeditorimage-alt') as HTMLInputElement;
+          if (cb) {
+            cb.checked = true;
+            cb.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          if (input) {
+            input.disabled = false;
+          }
+        });
+        await page.waitForTimeout(300);
       }
     }
     await altInput.clear();
@@ -119,19 +130,19 @@ test.describe('Save-Render Roundtrip', () => {
     // Confirm dialog and save
     await confirmImageDialog(page);
     await saveContentElement(page);
+    await page.waitForTimeout(2000);
 
-    // Verify on frontend
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // Re-open the same CE and verify the alt text persisted
+    await navigateToContentEdit(page, 1);
+    await waitForCKEditor(page);
 
-    const img = page.locator('img[alt="Roundtrip Alt Test"]');
-    expect(await img.count(), 'Modified alt text should appear on frontend').toBeGreaterThan(0);
+    const editorHtml = await getEditorHtml(page);
+    expect(editorHtml, 'Modified alt text should persist after save-reload').toContain('Roundtrip Alt Test');
   });
 
-  test.fixme('enable zoom in dialog — popup wrapper appears on frontend', async ({ page }) => {
-    // FIXME: Requires confirmImageDialog() which has a known modal-close issue in CI.
-    // When fixed, this test verifies that toggling click-to-enlarge in the
-    // backend produces data-popup="true" links on the frontend.
+  test('enable zoom in dialog — data-htmlarea-zoom persists after save-reload', async ({ page }) => {
+    // Backend-only roundtrip: toggle zoom → confirm → save → reload CE → verify editor HTML.
+    // Avoids frontend navigation (PHP built-in server FAL issue).
     await loginToBackend(page);
     // Use CE 14 (Standalone template — no zoom initially)
     await navigateToContentEdit(page, 14);
@@ -147,15 +158,13 @@ test.describe('Save-Render Roundtrip', () => {
     // Confirm and save
     await confirmImageDialog(page);
     await saveContentElement(page);
+    await page.waitForTimeout(2000);
 
-    // Verify popup wrapper on frontend
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // Re-open the same CE and verify zoom attribute persisted
+    await navigateToContentEdit(page, 14);
+    await waitForCKEditor(page);
 
-    const popupLink = page.locator('a[data-popup="true"] img[alt="Template Standalone"]');
-    expect(
-      await popupLink.count(),
-      'Image should be wrapped in popup link after enabling zoom'
-    ).toBeGreaterThan(0);
+    const editorHtml = await getEditorHtml(page);
+    expect(editorHtml, 'data-htmlarea-zoom should persist after save-reload').toContain('data-htmlarea-zoom');
   });
 });

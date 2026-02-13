@@ -221,14 +221,7 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
     }
   });
 
-  test.fixme('undo reverts alt text change made via dialog', async ({ page }) => {
-    // FIXME: CKEditor's undo system may not track changes made through
-    // external modal dialogs. The TYPO3 image dialog modifies the CKEditor
-    // model via plugin API calls, and it is unclear whether these changes
-    // are registered as undoable batches. If the plugin uses
-    // editor.model.change() correctly, undo should work; if it uses
-    // editor.model.enqueueChange('transparent', ...) or direct DOM
-    // manipulation, undo will not track the change.
+  test('undo reverts alt text change made via dialog', async ({ page }) => {
 
     await navigateToContentEdit(page);
     await waitForCKEditor(page);
