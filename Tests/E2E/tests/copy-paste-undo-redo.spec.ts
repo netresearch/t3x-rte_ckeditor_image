@@ -69,13 +69,7 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
     await loginToBackend(page);
   });
 
-  test.fixme('select and copy image preserves attributes on paste', async ({ page }) => {
-    // FIXME: CKEditor intercepts clipboard events internally. Playwright's
-    // Ctrl+C / Ctrl+V may not trigger CKEditor's clipboard pipeline reliably
-    // inside an iframe context. The internal clipboard may serialize/deserialize
-    // the image differently than expected, potentially losing data attributes.
-    // Additionally, programmatic clipboard access is restricted by browser
-    // security policies, which may cause paste to silently fail.
+  test('select and copy image preserves attributes on paste', async ({ page }) => {
 
     await navigateToContentEdit(page);
     await waitForCKEditor(page);
@@ -121,13 +115,7 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
     expect(afterPasteUids.filter(uid => uid === initialUids[0]).length).toBe(2);
   });
 
-  test.fixme('undo removes pasted image', async ({ page }) => {
-    // FIXME: This test depends on copy/paste working correctly (see above),
-    // and then on CKEditor's undo stack recognizing the paste as a single
-    // undoable operation. CKEditor batches undo steps, so the undo may not
-    // remove exactly the pasted image — it might undo a different granularity
-    // of changes. Combined with the iframe clipboard issues, this test is
-    // doubly fragile.
+  test('undo removes pasted image', async ({ page }) => {
 
     await navigateToContentEdit(page);
     await waitForCKEditor(page);
@@ -166,12 +154,7 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
     expect(afterUndoCount).toBe(initialCount);
   });
 
-  test.fixme('redo restores pasted image after undo', async ({ page }) => {
-    // FIXME: Redo depends on both copy/paste and undo working correctly.
-    // CKEditor supports Ctrl+Y and Ctrl+Shift+Z for redo, but the redo
-    // stack may be cleared by intermediate operations. Additionally, the
-    // iframe keyboard routing may not reliably deliver the Ctrl+Shift+Z
-    // combination.
+  test('redo restores pasted image after undo', async ({ page }) => {
 
     await navigateToContentEdit(page);
     await waitForCKEditor(page);
@@ -273,13 +256,7 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
     expect(afterUndoAlt).toBe(originalAlt);
   });
 
-  test.fixme('cut and paste image moves it to new position', async ({ page }) => {
-    // FIXME: Cut (Ctrl+X) in CKEditor inside an iframe is even more fragile
-    // than copy/paste. The browser may block the cut operation due to security
-    // policies (clipboard write requires user gesture), and CKEditor's
-    // internal cut handling may not fire correctly from Playwright's synthetic
-    // keyboard events. If the cut does not remove the image, the subsequent
-    // paste would result in a duplicate rather than a move.
+  test('cut and paste image moves it to new position', async ({ page }) => {
 
     await navigateToContentEdit(page);
     await waitForCKEditor(page);
