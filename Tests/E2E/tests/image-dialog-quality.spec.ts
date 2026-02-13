@@ -122,6 +122,29 @@ test.describe('Image Dialog - Quality Selector', () => {
     }
   });
 
+  test('default quality is retina for fresh image', async ({ page }) => {
+    // IMPORTANT: This test must run BEFORE saving tests that modify CE 27's
+    // data-quality attribute, since tests run sequentially within a spec file.
+    await navigateToContentEdit(page, 27);
+    await waitForCKEditor(page);
+
+    // Open image dialog on CE 27 (800x600, alt="Quality Test")
+    await openImageEditDialog(page);
+
+    const qualitySelect = page.locator('#rteckeditorimage-quality');
+    await expect(qualitySelect).toBeVisible();
+
+    // For a non-SVG image without existing data-quality attribute,
+    // the default quality is "retina" (see typo3image.js defaultQuality logic)
+    const selectedValue = await qualitySelect.inputValue();
+    console.log(`Default quality value: "${selectedValue}"`);
+
+    // The default for a fresh raster image is "retina"
+    // (Priority: data-quality > data-noscale > SVG > default "retina")
+    expect(selectedValue).toBe('retina');
+    console.log('SUCCESS: Default quality is "retina" for fresh image');
+  });
+
   test('selecting quality updates data attribute in editor', async ({ page }) => {
     await navigateToContentEdit(page, 27);
     await waitForCKEditor(page);
@@ -194,26 +217,5 @@ test.describe('Image Dialog - Quality Selector', () => {
 
     expect(selectedValue).toBe('print');
     console.log('SUCCESS: Quality selection persisted after save/reload');
-  });
-
-  test('default quality is retina for fresh image', async ({ page }) => {
-    await navigateToContentEdit(page, 27);
-    await waitForCKEditor(page);
-
-    // Open image dialog on CE 27 (800x600, alt="Quality Test")
-    await openImageEditDialog(page);
-
-    const qualitySelect = page.locator('#rteckeditorimage-quality');
-    await expect(qualitySelect).toBeVisible();
-
-    // For a non-SVG image without existing data-quality attribute,
-    // the default quality is "retina" (see typo3image.js defaultQuality logic)
-    const selectedValue = await qualitySelect.inputValue();
-    console.log(`Default quality value: "${selectedValue}"`);
-
-    // The default for a fresh raster image is "retina"
-    // (Priority: data-quality > data-noscale > SVG > default "retina")
-    expect(selectedValue).toBe('retina');
-    console.log('SUCCESS: Default quality is "retina" for fresh image');
   });
 });

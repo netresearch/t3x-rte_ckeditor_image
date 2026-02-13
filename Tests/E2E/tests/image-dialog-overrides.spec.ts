@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import {
   loginToBackend,
   navigateToContentEdit,
@@ -20,12 +20,26 @@ import {
  * (showing FAL metadata as placeholder text).
  *
  * IMPORTANT: The toggle handler is bound to the LABEL element's click event
- * (typo3image.js cboxLabel.on('click', ...)), NOT to the checkbox's change event.
- * Clicking the checkbox directly does NOT trigger the toggle. Always click the
- * label to toggle override state: page.locator('label[for="checkbox-alt"]').click()
+ * (typo3image.js cboxLabel.on('click', ...)). It reads the checkbox's OLD state
+ * to determine disabled: `$el.prop('disabled', !cbox.prop('checked'))`. This
+ * relies on jQuery's `.click()` double-firing (label click → checkbox toggle →
+ * bubble → label click again). Playwright's native click doesn't reproduce this,
+ * so we use jQuery's `.click()` via page.evaluate() for reliable toggling.
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/616
  */
+
+/**
+ * Toggle an override checkbox by triggering jQuery's `.click()` on its label.
+ * This ensures the handler fires correctly with the checkbox's state changes.
+ */
+async function clickOverrideLabel(page: Page, checkboxId: string): Promise<void> {
+  await page.evaluate((id) => {
+    const $ = (window as any).jQuery || (window as any).$;
+    $(`label[for="${id}"]`).click();
+  }, checkboxId);
+  await page.waitForTimeout(300);
+}
 
 test.describe('Image Dialog - Override Checkboxes', () => {
   test.beforeEach(async ({ page }) => {
@@ -66,18 +80,15 @@ test.describe('Image Dialog - Override Checkboxes', () => {
 
     const altInput = page.locator('#rteckeditorimage-alt');
     const altCheckbox = page.locator('#checkbox-alt');
-    const altLabel = page.locator('label[for="checkbox-alt"]');
 
     await expect(altInput, 'Alt input not found').toBeVisible();
-    await expect(altLabel, 'Alt override label not found').toBeVisible();
 
     // CE 28 starts with override unchecked, input disabled
     await expect(altCheckbox).not.toBeChecked();
     await expect(altInput).toBeDisabled();
 
-    // Click the LABEL (not checkbox) to toggle — the handler is on the label
-    await altLabel.click();
-    await page.waitForTimeout(300);
+    // Click override label via jQuery to toggle — see doc comment above
+    await clickOverrideLabel(page, 'checkbox-alt');
 
     // Now the checkbox should be checked and input enabled
     await expect(altCheckbox).toBeChecked();
@@ -91,13 +102,11 @@ test.describe('Image Dialog - Override Checkboxes', () => {
     await openImageEditDialog(page);
 
     const altInput = page.locator('#rteckeditorimage-alt');
-    const altLabel = page.locator('label[for="checkbox-alt"]');
 
     await expect(altInput, 'Alt input not found').toBeVisible();
 
     // Enable override by clicking the label
-    await altLabel.click();
-    await page.waitForTimeout(300);
+    await clickOverrideLabel(page, 'checkbox-alt');
     await expect(altInput).toBeEnabled();
 
     // Type a unique custom alt text
@@ -131,18 +140,15 @@ test.describe('Image Dialog - Override Checkboxes', () => {
 
     const titleInput = page.locator('#rteckeditorimage-title');
     const titleCheckbox = page.locator('#checkbox-title');
-    const titleLabel = page.locator('label[for="checkbox-title"]');
 
     await expect(titleInput, 'Title input not found').toBeVisible();
-    await expect(titleLabel, 'Title override label not found').toBeVisible();
 
     // CE 28 starts with title override unchecked, input disabled
     await expect(titleCheckbox).not.toBeChecked();
     await expect(titleInput).toBeDisabled();
 
-    // Click the LABEL to toggle override
-    await titleLabel.click();
-    await page.waitForTimeout(300);
+    // Click override label via jQuery to toggle
+    await clickOverrideLabel(page, 'checkbox-title');
 
     // Now the checkbox should be checked and input enabled
     await expect(titleCheckbox).toBeChecked();
@@ -156,13 +162,11 @@ test.describe('Image Dialog - Override Checkboxes', () => {
     await openImageEditDialog(page);
 
     const altInput = page.locator('#rteckeditorimage-alt');
-    const altLabel = page.locator('label[for="checkbox-alt"]');
 
     await expect(altInput, 'Alt input not found').toBeVisible();
 
     // Enable override by clicking label
-    await altLabel.click();
-    await page.waitForTimeout(300);
+    await clickOverrideLabel(page, 'checkbox-alt');
     await expect(altInput).toBeEnabled();
 
     // Set a unique value to verify persistence
@@ -212,7 +216,6 @@ test.describe('Image Dialog - Override Checkboxes', () => {
 
     const altInput = page.locator('#rteckeditorimage-alt');
     const altCheckbox = page.locator('#checkbox-alt');
-    const altLabel = page.locator('label[for="checkbox-alt"]');
 
     await expect(altInput, 'Alt input not found').toBeVisible();
     await expect(altCheckbox, 'Alt override checkbox not found').toBeVisible();
@@ -222,9 +225,8 @@ test.describe('Image Dialog - Override Checkboxes', () => {
     const initialValue = await altInput.inputValue();
     console.log(`Initial state — checked: ${initialChecked}, value: "${initialValue}"`);
 
-    // Toggle the override by clicking the label (change state)
-    await altLabel.click();
-    await page.waitForTimeout(300);
+    // Toggle the override via jQuery label click
+    await clickOverrideLabel(page, 'checkbox-alt');
 
     // If we just enabled the override, type a different value
     if (!initialChecked) {
