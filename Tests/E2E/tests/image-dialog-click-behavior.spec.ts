@@ -26,7 +26,7 @@ const RADIO_LINK = '#clickBehavior-link';
 const LINK_HREF = '#rteckeditorimage-linkHref';
 const LINK_TARGET = '#rteckeditorimage-linkTarget';
 const LINK_TITLE = '#rteckeditorimage-linkTitle';
-const LINK_CLASS = '#rteckeditorimage-linkClass';
+const LINK_CLASS = '#input-linkCssClass';
 
 test.describe('Image Dialog - Click Behavior', () => {
   test.beforeEach(async ({ page }) => {
