@@ -119,10 +119,7 @@ test.describe('Link Browser - All Types', () => {
     await page.screenshot({ path: 'test-results/link-browser-all-types-tabs.png' });
   });
 
-  test.fixme('external URL tab allows entering a URL', async ({ page }) => {
-    // This test interacts with the link browser iframe content (tab switching
-    // and form filling inside nested modals), which is fragile across TYPO3
-    // versions. Marked as fixme until the link browser structure stabilizes.
+  test('external URL tab allows entering a URL', async ({ page }) => {
 
     await openLinkBrowser(page);
 
@@ -167,9 +164,7 @@ test.describe('Link Browser - All Types', () => {
     await page.screenshot({ path: 'test-results/link-browser-url-entered.png' });
   });
 
-  test.fixme('email tab generates mailto link', async ({ page }) => {
-    // Fragile: requires navigating inside nested modal iframe, switching tabs,
-    // and filling forms. Marked as fixme.
+  test('email tab generates mailto link', async ({ page }) => {
 
     await openLinkBrowser(page);
 
@@ -216,10 +211,7 @@ test.describe('Link Browser - All Types', () => {
     await page.screenshot({ path: 'test-results/link-browser-email-entered.png' });
   });
 
-  test.fixme('telephone tab generates tel link', async ({ page }) => {
-    // Fragile: requires navigating inside nested modal iframe, switching tabs,
-    // and filling forms. The telephone tab may not be present in all TYPO3
-    // configurations. Marked as fixme.
+  test('telephone tab generates tel link', async ({ page }) => {
 
     await openLinkBrowser(page);
 

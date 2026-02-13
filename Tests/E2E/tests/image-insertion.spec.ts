@@ -105,12 +105,7 @@ test.describe('Image Insertion', () => {
       expect(buttonCount, 'Expected image insert button in CKEditor toolbar').toBeGreaterThan(0);
     });
 
-    test.fixme('clicking image insert button opens element browser modal', async ({ page }) => {
-      // FIXME: The element browser modal is a complex TYPO3-specific modal with
-      // nested iframes. Opening it requires clicking the correct toolbar button,
-      // which triggers a TYPO3 AJAX request to load the element browser. In CI,
-      // the PHP built-in server may not handle the element browser route correctly,
-      // and the modal structure varies between TYPO3 v12 and v13.
+    test('clicking image insert button opens element browser modal', async ({ page }) => {
       await loginToBackend(page);
       await navigateToContentEdit(page, CE_ID);
       await waitForCKEditor(page);
