@@ -28,14 +28,9 @@ test.describe('Save-Render Roundtrip', () => {
     requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
   });
 
-  test.fixme('save unchanged content element — images still render on frontend', async ({ page }) => {
-    // FIXME: In CI (PHP built-in server), saving through the backend causes the
-    // image rendering pipeline to produce empty output. The CE frame renders
-    // (<div id="c1" class="frame ...">) but the image is stripped. This happens
-    // because after CKEditor re-serializes the content, the parseFunc/
-    // ImageRenderingAdapter re-processes the image reference and fails silently
-    // in the PHP built-in server environment (likely FAL/file processing issue).
-    // Works correctly with Apache/nginx in production.
+  test.skip('save unchanged content element — images still render on frontend', async ({ page }) => {
+    // SKIP: PHP built-in server FAL issue — image rendering pipeline produces
+    // empty output after save. Works correctly with Apache/nginx in production.
     await loginToBackend(page);
     await navigateToContentEdit(page, 1);
     await waitForCKEditor(page);
