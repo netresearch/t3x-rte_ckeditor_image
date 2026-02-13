@@ -379,7 +379,7 @@ test.describe('Image Insertion', () => {
       // Record initial state
       const initialImageCount = await frame.locator('.ck-editor__editable img').count();
       console.log(`Initial image count: ${initialImageCount}`);
-      expect(initialImageCount, 'CE 1 should have at least one image').toBeGreaterThan(0);
+      expect(initialImageCount, `CE ${CE_ID} should have at least one image`).toBeGreaterThan(0);
 
       // Focus the editor and position cursor after the existing image
       const editor = frame.locator('.ck-editor__editable').first();
@@ -468,7 +468,7 @@ test.describe('Image Insertion', () => {
 
       console.log(`Images found in editor HTML: ${imageCount}`);
 
-      // CE 1 has at least one image
+      // CE has at least one image
       expect(imageCount).toBeGreaterThan(0);
 
       // Verify the HTML structure is valid for image elements

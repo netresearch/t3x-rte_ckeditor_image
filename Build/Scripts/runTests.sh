@@ -940,14 +940,14 @@ $stmtP2->execute([2, 'text', 'Error: Empty Alt', $bodytextEmptyAlt, 0, 0, $now, 
 $bodytextWhitespaceCaption = '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Whitespace Caption" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>   </figcaption></figure>';
 $stmtP2->execute([2, 'text', 'Error: Whitespace Caption', $bodytextWhitespaceCaption, 0, 0, $now, $now, 0, 1280]);
 
-// UID 25: Click behavior — image with both link and zoom (link takes priority)
+// UID 25: Click behavior — image with both link and zoom (popup takes priority per selectTemplate())
 $bodytextLinkPriority = '<p>Link + zoom conflict:</p>'
     . '<p><a href="https://example.com/priority-test"><img src="fileadmin/user_upload/example.jpg" alt="Link Priority Test" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></a></p>';
-$stmtP2->execute([2, 'text', 'Link Priority over Zoom', $bodytextLinkPriority, 0, 0, $now, $now, 0, 1536]);
+$stmtP2->execute([2, 'text', 'Popup Priority over Link', $bodytextLinkPriority, 0, 0, $now, $now, 0, 1536]);
 
 echo "Error handling & edge case content elements (UIDs 20-25) created on page 2\n";
 
-// UIDs 26-35: Isolated CEs for backend tests that SAVE content
+// UIDs 26-33: Isolated CEs for backend tests that SAVE content
 // Each saving spec gets its own CE to prevent cross-file pollution (#621)
 // (Parallel test execution with fullyParallel=true means save order is random)
 // IMPORTANT: CKEditor needs surrounding text paragraphs — bare <p><img></p>

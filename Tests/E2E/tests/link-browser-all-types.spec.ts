@@ -20,7 +20,7 @@ import { loginToBackend, navigateToContentEdit, waitForCKEditor, openImageEditDi
 
 /**
  * Helper: Select the "Link" radio button and click Browse to open the link browser.
- * Returns the link browser iframe FrameLocator for further interaction.
+ * Waits for the nested link browser iframe to become visible.
  */
 async function openLinkBrowser(page: import('@playwright/test').Page): Promise<void> {
   // Select "Link" radio button in click behavior section
@@ -234,7 +234,7 @@ test.describe('Link Browser - All Types', () => {
     const telTabCount = await telTab.count();
     if (telTabCount === 0) {
       console.log('Telephone tab not found in link browser - may not be enabled');
-      test.skip();
+      test.skip(true, 'Telephone tab not available in this TYPO3 configuration');
       return;
     }
 
