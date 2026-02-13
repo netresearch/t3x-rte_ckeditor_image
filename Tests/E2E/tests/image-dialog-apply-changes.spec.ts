@@ -1,5 +1,8 @@
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, cancelImageDialog, getEditorHtml, saveContentElement, requireCondition } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, cancelImageDialog, getEditorHtml, saveContentElement, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
+
+/** Dedicated CE for this spec to prevent cross-file pollution (parallel execution) */
+const CE_ID = 31;
 
 /**
  * E2E tests for verifying that image dialog changes are actually applied.
@@ -48,11 +51,12 @@ async function getImageAttributes(page: Page): Promise<{
 
 test.describe('Image Dialog - Apply Changes', () => {
   test.beforeEach(async ({ page }) => {
+    requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
     await loginToBackend(page);
   });
 
   test('changing alt text in dialog updates the image', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
 
     await waitForCKEditor(page);
 
@@ -107,7 +111,7 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('changing title in dialog updates the image', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
 
     await waitForCKEditor(page);
 
@@ -150,7 +154,7 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('adding link URL in dialog wraps image in anchor', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
 
     await waitForCKEditor(page);
 
@@ -192,7 +196,7 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('setting click-to-enlarge adds zoom attribute', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
 
     await waitForCKEditor(page);
 
@@ -222,7 +226,7 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('changing CSS class in dialog updates image class', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
 
     await waitForCKEditor(page);
 
@@ -256,7 +260,7 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('changing dimensions in dialog updates image size', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
 
     await waitForCKEditor(page);
 
@@ -284,7 +288,7 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('link target is applied when set in dialog', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
 
     await waitForCKEditor(page);
 
@@ -326,7 +330,7 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('link title is applied when set in dialog', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
 
     await waitForCKEditor(page);
 
@@ -369,7 +373,7 @@ test.describe('Image Dialog - Apply Changes', () => {
   });
 
   test('dialog cancel does not apply changes', async ({ page }) => {
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
 
     await waitForCKEditor(page);
 
@@ -402,7 +406,7 @@ test.describe('Image Dialog - Save Persistence', () => {
   test('changes persist after saving content element', async ({ page }) => {
     await loginToBackend(page);
 
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
 
     await waitForCKEditor(page);
 
@@ -430,7 +434,7 @@ test.describe('Image Dialog - Save Persistence', () => {
     await page.waitForTimeout(2000);
 
     // Navigate back to content edit
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     // Check if alt text persisted

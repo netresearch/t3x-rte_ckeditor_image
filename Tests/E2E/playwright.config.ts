@@ -7,6 +7,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   /* Allow parallel workers in CI - improves speed for larger test suites */
   workers: process.env.CI ? 2 : undefined,
+  timeout: 30_000,
   reporter: 'html',
   use: {
     baseURL: process.env.BASE_URL || 'https://v13.rte-ckeditor-image.ddev.site',

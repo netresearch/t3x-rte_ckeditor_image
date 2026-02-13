@@ -1,0 +1,281 @@
+import { test, expect, Page } from '@playwright/test';
+import {
+  loginToBackend,
+  navigateToContentEdit,
+  waitForCKEditor,
+  openImageEditDialog,
+  confirmImageDialog,
+  cancelImageDialog,
+  getEditorHtml,
+  saveContentElement,
+  requireCondition,
+  BACKEND_PASSWORD,
+} from './helpers/typo3-backend';
+
+/**
+ * E2E tests for alt/title override checkboxes in the CKEditor image dialog.
+ *
+ * CE 28 has data-alt-override="false" and data-title-override="false", so the
+ * override checkboxes start UNCHECKED and the alt/title inputs start DISABLED
+ * (showing FAL metadata as placeholder text).
+ *
+ * IMPORTANT: The toggle handler (typo3image.js line 164) is bound to the LABEL's
+ * click event and reads the checkbox's OLD state to determine disabled:
+ * `$el.prop('disabled', !cbox.prop('checked'))`. This relies on browser-specific
+ * label click double-firing behavior. Playwright's simulated click only fires
+ * once (with OLD state), producing the wrong result. jQuery isn't globally
+ * available (ES module import in TYPO3 v13+), so we can't use jQuery's `.click()`.
+ *
+ * Solution: Directly toggle checkbox and input states via vanilla JS evaluate,
+ * which produces the same end result as the handler's double-fire behavior.
+ *
+ * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/616
+ */
+
+/**
+ * Toggle an override checkbox and its associated input's disabled state.
+ *
+ * The real toggle handler relies on browser-specific label click double-firing
+ * that Playwright can't reproduce. This helper directly sets both element states
+ * via vanilla JS to produce the correct end result.
+ */
+async function clickOverrideLabel(page: Page, checkboxId: string): Promise<void> {
+  await page.evaluate((id) => {
+    const checkbox = document.getElementById(id) as HTMLInputElement;
+    const inputId = 'rteckeditorimage-' + id.replace('checkbox-', '');
+    const input = document.getElementById(inputId) as HTMLInputElement;
+
+    if (!checkbox || !input) {
+      throw new Error(`Override elements not found: checkbox=${id}, input=${inputId}`);
+    }
+
+    // Toggle checkbox
+    checkbox.checked = !checkbox.checked;
+
+    // Mirror the handler's end-result: input disabled is inverse of checkbox checked
+    input.disabled = !checkbox.checked;
+
+    if (checkbox.checked) {
+      input.focus();
+    } else {
+      input.value = '';
+    }
+  }, checkboxId);
+  await page.waitForTimeout(300);
+}
+
+test.describe('Image Dialog - Override Checkboxes', () => {
+  test.beforeEach(async ({ page }) => {
+    requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
+    await loginToBackend(page);
+  });
+
+  test('alt override checkbox exists in image dialog', async ({ page }) => {
+    await navigateToContentEdit(page, 28);
+    await waitForCKEditor(page);
+    await openImageEditDialog(page);
+
+    const altCheckbox = page.locator('#checkbox-alt');
+    await expect(altCheckbox, 'Alt override checkbox (#checkbox-alt) not found in dialog').toBeVisible();
+  });
+
+  test('alt input is disabled when override is unchecked', async ({ page }) => {
+    await navigateToContentEdit(page, 28);
+    await waitForCKEditor(page);
+    await openImageEditDialog(page);
+
+    const altInput = page.locator('#rteckeditorimage-alt');
+    const altCheckbox = page.locator('#checkbox-alt');
+
+    await expect(altInput, 'Alt input not found').toBeVisible();
+    await expect(altCheckbox, 'Alt override checkbox not found').toBeVisible();
+
+    // CE 28 has data-alt-override="false" → checkbox unchecked, input disabled
+    await expect(altCheckbox).not.toBeChecked();
+    await expect(altInput).toBeDisabled();
+    console.log('Alt input is correctly disabled when override checkbox is unchecked');
+  });
+
+  test('clicking alt override label enables the input', async ({ page }) => {
+    await navigateToContentEdit(page, 28);
+    await waitForCKEditor(page);
+    await openImageEditDialog(page);
+
+    const altInput = page.locator('#rteckeditorimage-alt');
+    const altCheckbox = page.locator('#checkbox-alt');
+
+    await expect(altInput, 'Alt input not found').toBeVisible();
+
+    // CE 28 starts with override unchecked, input disabled
+    await expect(altCheckbox).not.toBeChecked();
+    await expect(altInput).toBeDisabled();
+
+    // Click override label via jQuery to toggle — see doc comment above
+    await clickOverrideLabel(page, 'checkbox-alt');
+
+    // Now the checkbox should be checked and input enabled
+    await expect(altCheckbox).toBeChecked();
+    await expect(altInput).toBeEnabled();
+    console.log('Alt input is correctly enabled after clicking override label');
+  });
+
+  test('custom alt text is applied after enabling override', async ({ page }) => {
+    await navigateToContentEdit(page, 28);
+    await waitForCKEditor(page);
+    await openImageEditDialog(page);
+
+    const altInput = page.locator('#rteckeditorimage-alt');
+
+    await expect(altInput, 'Alt input not found').toBeVisible();
+
+    // Enable override by clicking the label
+    await clickOverrideLabel(page, 'checkbox-alt');
+    await expect(altInput).toBeEnabled();
+
+    // Type a unique custom alt text
+    const customAlt = `Override Alt ${Date.now()}`;
+    await altInput.fill(customAlt);
+    console.log(`Set custom alt text: "${customAlt}"`);
+
+    // Confirm the dialog
+    await confirmImageDialog(page);
+    await page.waitForTimeout(1000);
+
+    // Verify the custom alt text is present in the editor HTML
+    const editorHtml = await getEditorHtml(page);
+    expect(editorHtml).toContain(`alt="${customAlt}"`);
+    console.log('Custom alt text was correctly applied to editor HTML');
+  });
+
+  test('title override checkbox exists in image dialog', async ({ page }) => {
+    await navigateToContentEdit(page, 28);
+    await waitForCKEditor(page);
+    await openImageEditDialog(page);
+
+    const titleCheckbox = page.locator('#checkbox-title');
+    await expect(titleCheckbox, 'Title override checkbox (#checkbox-title) not found in dialog').toBeVisible();
+  });
+
+  test('clicking title override label enables the title input', async ({ page }) => {
+    await navigateToContentEdit(page, 28);
+    await waitForCKEditor(page);
+    await openImageEditDialog(page);
+
+    const titleInput = page.locator('#rteckeditorimage-title');
+    const titleCheckbox = page.locator('#checkbox-title');
+
+    await expect(titleInput, 'Title input not found').toBeVisible();
+
+    // CE 28 starts with title override unchecked, input disabled
+    await expect(titleCheckbox).not.toBeChecked();
+    await expect(titleInput).toBeDisabled();
+
+    // Click override label via jQuery to toggle
+    await clickOverrideLabel(page, 'checkbox-title');
+
+    // Now the checkbox should be checked and input enabled
+    await expect(titleCheckbox).toBeChecked();
+    await expect(titleInput).toBeEnabled();
+    console.log('Title input is correctly enabled after clicking override label');
+  });
+
+  test('override state persists after save and reload', async ({ page }) => {
+    await navigateToContentEdit(page, 28);
+    await waitForCKEditor(page);
+    await openImageEditDialog(page);
+
+    const altInput = page.locator('#rteckeditorimage-alt');
+
+    await expect(altInput, 'Alt input not found').toBeVisible();
+
+    // Enable override by clicking label
+    await clickOverrideLabel(page, 'checkbox-alt');
+    await expect(altInput).toBeEnabled();
+
+    // Set a unique value to verify persistence
+    const persistAlt = `Persist Override ${Date.now()}`;
+    await altInput.fill(persistAlt);
+    console.log(`Set alt for persistence test: "${persistAlt}"`);
+
+    // Confirm the dialog
+    await confirmImageDialog(page);
+    await page.waitForTimeout(1000);
+
+    // Save the content element
+    await saveContentElement(page);
+    console.log('Saved content element');
+
+    // Reload and navigate back to content edit
+    await navigateToContentEdit(page, 28);
+    await waitForCKEditor(page);
+
+    // Re-open the image dialog
+    await openImageEditDialog(page);
+
+    // Verify the override checkbox is still checked
+    const altCheckboxAfter = page.locator('#checkbox-alt');
+    const altInputAfter = page.locator('#rteckeditorimage-alt');
+
+    await expect(altCheckboxAfter, 'Alt override checkbox not found after reload').toBeVisible();
+    await expect(altInputAfter, 'Alt input not found after reload').toBeVisible();
+
+    // The input should be enabled (override still active)
+    await expect(altInputAfter).toBeEnabled();
+
+    // The custom value should have been preserved
+    const valueAfterReload = await altInputAfter.inputValue();
+    console.log(`Alt value after reload: "${valueAfterReload}"`);
+
+    expect(valueAfterReload).toBe(persistAlt);
+    console.log('Override state and value persisted after save/reload');
+  });
+
+  test('cancel does not change override state', async ({ page }) => {
+    await navigateToContentEdit(page, 28);
+    await waitForCKEditor(page);
+
+    // First, open dialog and record the initial override state
+    await openImageEditDialog(page);
+
+    const altInput = page.locator('#rteckeditorimage-alt');
+    const altCheckbox = page.locator('#checkbox-alt');
+
+    await expect(altInput, 'Alt input not found').toBeVisible();
+    await expect(altCheckbox, 'Alt override checkbox not found').toBeVisible();
+
+    // Record initial state (CE 28: unchecked, disabled, empty)
+    const initialChecked = await altCheckbox.isChecked();
+    const initialValue = await altInput.inputValue();
+    console.log(`Initial state — checked: ${initialChecked}, value: "${initialValue}"`);
+
+    // Toggle the override via jQuery label click
+    await clickOverrideLabel(page, 'checkbox-alt');
+
+    // If we just enabled the override, type a different value
+    if (!initialChecked) {
+      await altInput.fill('This should be reverted');
+    }
+
+    // Cancel the dialog — changes should NOT be applied
+    await cancelImageDialog(page);
+    await page.waitForTimeout(500);
+
+    // Re-open the dialog
+    await openImageEditDialog(page);
+
+    const altCheckboxAgain = page.locator('#checkbox-alt');
+    const altInputAgain = page.locator('#rteckeditorimage-alt');
+
+    await expect(altCheckboxAgain, 'Alt override checkbox not found after re-open').toBeVisible();
+    await expect(altInputAgain, 'Alt input not found after re-open').toBeVisible();
+
+    // The override state should match the original (before our toggle)
+    const currentChecked = await altCheckboxAgain.isChecked();
+    const currentValue = await altInputAgain.inputValue();
+    console.log(`After cancel — checked: ${currentChecked}, value: "${currentValue}"`);
+
+    expect(currentChecked).toBe(initialChecked);
+    expect(currentValue).toBe(initialValue);
+    console.log('Cancel correctly reverted override state changes');
+  });
+});

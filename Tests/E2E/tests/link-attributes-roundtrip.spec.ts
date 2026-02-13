@@ -1,5 +1,8 @@
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, saveContentElement, getEditorHtml } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, saveContentElement, getEditorHtml, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
+
+/** Dedicated CE for this spec to prevent cross-file pollution (parallel execution) */
+const CE_ID = 32;
 
 /**
  * E2E tests for link attributes round-trip persistence.
@@ -82,6 +85,7 @@ async function setDialogValues(page: Page, values: {
 
 test.describe('Link Attributes Round-Trip Persistence', () => {
   test.beforeEach(async ({ page }) => {
+    requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
     await loginToBackend(page);
   });
 
@@ -96,7 +100,7 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
     };
 
     // Step 1: Navigate to content edit
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     // Step 2: Open image dialog
@@ -122,7 +126,7 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
     await page.waitForTimeout(2000);
 
     // Step 8: Navigate back to content edit
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     // Step 9: Check HTML in editor after reload
@@ -150,7 +154,7 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
 
   test('image alignment persists after save and reload', async ({ page }) => {
     // Step 1: Navigate to content edit
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     // Step 2: Get initial HTML
@@ -183,7 +187,7 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
     // Step 6: Reload
     await page.reload();
     await page.waitForLoadState('networkidle');
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     // Step 7: Check HTML after reload
@@ -221,7 +225,7 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
       });
     });
 
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     // Set up a link with all attributes
@@ -260,7 +264,7 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
 
     // Reload and get HTML
     await page.reload();
-    await navigateToContentEdit(page);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     const htmlAfterReload = await getEditorHtml(page);

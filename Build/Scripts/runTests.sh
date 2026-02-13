@@ -676,6 +676,10 @@ echo "Default file storage ensured (FlexForm XML with basePath)\n";
 $pdo->exec("INSERT IGNORE INTO pages (uid, pid, title, slug, doktype, is_siteroot, hidden, deleted, tstamp, crdate) VALUES (1, 0, 'Home', '/', 1, 1, 0, 0, $now, $now)");
 echo "Pages record inserted\n";
 
+// Insert error handling test page (child of root) — isolates edge-case CEs from main page
+$pdo->exec("INSERT IGNORE INTO pages (uid, pid, title, slug, doktype, is_siteroot, hidden, deleted, tstamp, crdate) VALUES (2, 1, 'Error Handling Tests', '/error-handling-tests', 1, 0, 0, 0, $now, $now)");
+echo "Error handling test page (uid=2) inserted\n";
+
 // TypoScript CONSTANTS - defines default values used by setup
 // fluid_styled_content needs these constants for proper operation
 $tsConstants = <<<'TYPOSCRIPT'
@@ -766,6 +770,15 @@ $pdo->exec("INSERT INTO sys_file (uid, storage, identifier, identifier_hash, fol
             VALUES (1, 1, '/user_upload/example.jpg', '$identifierHash', '$folderHash', 'example.jpg', 'jpg', 'image/jpeg', 48000, $now, $now)
             ON DUPLICATE KEY UPDATE storage = 1, identifier = '/user_upload/example.jpg', identifier_hash = '$identifierHash', folder_hash = '$folderHash'");
 echo "sys_file record created\n";
+
+// Create sys_file_metadata with dimensions, alt, and title
+// width/height are TCA columns on sys_file_metadata — used by getImageInfo() for dialog constraints
+// alternative/title provide FAL metadata defaults — enables override checkbox in image dialog
+// Use DELETE + INSERT to ensure our values win over any auto-indexed metadata
+$pdo->exec("DELETE FROM sys_file_metadata WHERE file = 1");
+$pdo->exec("INSERT INTO sys_file_metadata (uid, file, title, description, alternative, width, height, tstamp, crdate)
+            VALUES (1, 1, 'Example Image Title', 'Test image for E2E', 'Example Alt from Metadata', 800, 600, $now, $now)");
+echo "sys_file_metadata record created\n";
 
 // Insert test content with RTE image (no caption)
 $bodytext = '<p>This is a test page with an RTE image:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Example" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>Click the image to see click-to-enlarge.</p>';
@@ -896,6 +909,86 @@ $bodytextTplPopupCaption = '<figure class="image"><img src="fileadmin/user_uploa
 $stmt->execute([1, 'text', 'Template: PopupWithCaption', $bodytextTplPopupCaption, 0, 0, $now, $now, 0, 4864]);
 
 echo "Template matrix content elements (UIDs 14-19) created\n";
+
+// UIDs 20-25: Error handling & edge cases — on PAGE 2 to isolate from main page
+// These CEs test error handling and security edge cases that could affect page rendering
+$stmtP2 = $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+// UID 20: Error handling — missing file UID (references non-existent sys_file)
+$bodytextMissingFile = '<p>Image with missing file:</p>'
+    . '<p><img src="fileadmin/user_upload/nonexistent.jpg" alt="Missing File" width="300" height="225" data-htmlarea-file-uid="9999" /></p>';
+$stmtP2->execute([2, 'text', 'Error: Missing File', $bodytextMissingFile, 0, 0, $now, $now, 0, 256]);
+
+// UID 21: Error handling — XSS in alt/title/caption
+$bodytextXss = '<p>XSS test content:</p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="&lt;script&gt;alert(1)&lt;/script&gt;" title="&lt;img onerror=alert(1)&gt;" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="XSS Caption Test" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>&lt;script&gt;alert("xss")&lt;/script&gt;</figcaption></figure>';
+$stmtP2->execute([2, 'text', 'Error: XSS Payloads', $bodytextXss, 0, 0, $now, $now, 0, 512]);
+
+// UID 22: Error handling — special characters in alt/title
+$bodytextSpecialChars = '<p>Special characters in attributes:</p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="Quotes &quot;double&quot; and &apos;single&apos;" title="Ampersand &amp; entities" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="Unicode: äöü éàè 日本語" width="300" height="225" data-htmlarea-file-uid="1" /></p>';
+$stmtP2->execute([2, 'text', 'Error: Special Characters', $bodytextSpecialChars, 0, 0, $now, $now, 0, 768]);
+
+// UID 23: Error handling — empty alt text
+$bodytextEmptyAlt = '<p>Image with empty alt:</p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="" width="300" height="225" data-htmlarea-file-uid="1" /></p>';
+$stmtP2->execute([2, 'text', 'Error: Empty Alt', $bodytextEmptyAlt, 0, 0, $now, $now, 0, 1024]);
+
+// UID 24: Error handling — whitespace-only caption (should NOT render <figure>)
+$bodytextWhitespaceCaption = '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Whitespace Caption" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>   </figcaption></figure>';
+$stmtP2->execute([2, 'text', 'Error: Whitespace Caption', $bodytextWhitespaceCaption, 0, 0, $now, $now, 0, 1280]);
+
+// UID 25: Click behavior — image with both link and zoom (popup takes priority per selectTemplate())
+$bodytextLinkPriority = '<p>Link + zoom conflict:</p>'
+    . '<p><a href="https://example.com/priority-test"><img src="fileadmin/user_upload/example.jpg" alt="Link Priority Test" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></a></p>';
+$stmtP2->execute([2, 'text', 'Popup Priority over Link', $bodytextLinkPriority, 0, 0, $now, $now, 0, 1536]);
+
+echo "Error handling & edge case content elements (UIDs 20-25) created on page 2\n";
+
+// UIDs 26-33: Isolated CEs for backend tests that SAVE content
+// Each saving spec gets its own CE to prevent cross-file pollution (#621)
+// (Parallel test execution with fullyParallel=true means save order is random)
+// IMPORTANT: CKEditor needs surrounding text paragraphs — bare <p><img></p>
+// renders as a block widget where double-click doesn't trigger the image dialog.
+
+// UID 26: For image-dialog-dimensions.spec.ts (saves dimension changes)
+$bodytextDimensions = '<p>Dimensions test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Dimensions Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of dimensions test.</p>';
+$stmt->execute([1, 'text', 'Dimensions Test CE', $bodytextDimensions, 0, 0, $now, $now, 0, 6656]);
+
+// UID 27: For image-dialog-quality.spec.ts (saves quality changes)
+$bodytextQuality = '<p>Quality test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Quality Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of quality test.</p>';
+$stmt->execute([1, 'text', 'Quality Test CE', $bodytextQuality, 0, 0, $now, $now, 0, 6912]);
+
+// UID 28: For image-dialog-overrides.spec.ts (saves override state)
+// data-alt-override="false" and data-title-override="false" ensure override checkboxes
+// start UNCHECKED — alt/title inputs are disabled, showing FAL metadata as placeholder.
+// Without these attributes, typo3image.js defaults to override=checked (inputs enabled).
+$bodytextOverrides = '<p>Overrides test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="" data-alt-override="false" data-title-override="false" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of overrides test.</p>';
+$stmt->execute([1, 'text', 'Overrides Test CE', $bodytextOverrides, 0, 0, $now, $now, 0, 7168]);
+
+// UID 29: For image-dialog-click-behavior.spec.ts (saves link/zoom changes)
+$bodytextClickBehavior = '<p>Click behavior test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Click Behavior Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of click behavior test.</p>';
+$stmt->execute([1, 'text', 'Click Behavior Test CE', $bodytextClickBehavior, 0, 0, $now, $now, 0, 7424]);
+
+// UID 30: For image-dialog-click-behavior.spec.ts zoom tests (has zoom pre-set)
+$bodytextClickZoom = '<p>Click zoom test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Click Zoom Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of click zoom test.</p>';
+$stmt->execute([1, 'text', 'Click Zoom Test CE', $bodytextClickZoom, 0, 0, $now, $now, 0, 7680]);
+
+// UID 31: For image-dialog-apply-changes.spec.ts (saves alt/title/dimension/link changes)
+$bodytextApply = '<p>Apply changes test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Apply Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of apply changes test.</p>';
+$stmt->execute([1, 'text', 'Apply Changes Test CE', $bodytextApply, 0, 0, $now, $now, 0, 7936]);
+
+// UID 32: For link-attributes-roundtrip.spec.ts (saves link attribute changes)
+$bodytextRoundtrip = '<p>Roundtrip test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Roundtrip Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Roundtrip Test CE', $bodytextRoundtrip, 0, 0, $now, $now, 0, 8192]);
+
+// UID 33: For image-insertion.spec.ts (read-only verification of image attributes)
+$bodytextInsertion = '<p>Insertion test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Insertion Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of insertion test.</p>';
+$stmt->execute([1, 'text', 'Insertion Test CE', $bodytextInsertion, 0, 0, $now, $now, 0, 8448]);
+
+echo "Isolated test CEs (UIDs 26-33) created for saving specs\n";
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
