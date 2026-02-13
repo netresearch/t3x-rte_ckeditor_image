@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { gotoFrontendPage } from './helpers/typo3-backend';
 
 /**
  * Regression tests for t3:// link resolution in rendered images.
@@ -18,8 +19,7 @@ test.describe('t3:// Link Resolution (#594)', () => {
     // SKIP: typoLink_URL() does not resolve t3://page?uid=1 in CI.
     // The extension code is correct (proven by unit tests), but the
     // minimal E2E site configuration lacks full routing context.
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await gotoFrontendPage(page);
 
     const t3Links = page.locator('a.test-t3-link');
     const count = await t3Links.count();
@@ -37,8 +37,7 @@ test.describe('t3:// Link Resolution (#594)', () => {
   });
 
   test('image inside resolved t3:// link renders correctly', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await gotoFrontendPage(page);
 
     const t3Links = page.locator('a.test-t3-link');
     expect(await t3Links.count(), 'Expected t3:// linked images in demo content (CE 11)').toBeGreaterThan(0);
@@ -57,8 +56,7 @@ test.describe('t3:// Link Resolution (#594)', () => {
   });
 
   test('t3:// linked image has single <a> wrapper (no duplicates)', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await gotoFrontendPage(page);
 
     const t3Links = page.locator('a.test-t3-link');
     expect(await t3Links.count(), 'Expected t3:// linked images in demo content (CE 11)').toBeGreaterThan(0);

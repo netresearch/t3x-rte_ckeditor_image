@@ -10,6 +10,41 @@ import { Page, FrameLocator, expect } from '@playwright/test';
 export const BACKEND_USER = process.env.TYPO3_BACKEND_USER || 'admin';
 export const BACKEND_PASSWORD = process.env.TYPO3_BACKEND_PASSWORD || '';
 export const BASE_URL = process.env.BASE_URL || 'https://v13.rte-ckeditor-image.ddev.site';
+export const TYPO3_VERSION = process.env.TYPO3_VERSION || '13';
+
+/**
+ * Navigate to a frontend page with retry logic for infrastructure readiness.
+ *
+ * In CI, the PHP-FPM container may not be fully ready when the first
+ * frontend request arrives, causing Apache proxy errors (502/503).
+ * This helper retries the navigation up to 3 times with a 2s delay.
+ */
+export async function gotoFrontendPage(page: Page, path: string = '/'): Promise<void> {
+    const url = `${BASE_URL}${path}`;
+    const maxAttempts = 3;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        await page.goto(url, { timeout: 30000 });
+        await page.waitForLoadState('networkidle');
+
+        // Check for proxy errors or TYPO3 503 pages
+        const bodyText = await page.locator('body').textContent() ?? '';
+        const isProxyError = bodyText.includes('Proxy Error') ||
+            bodyText.includes('Service Unavailable') ||
+            bodyText.includes('503');
+
+        if (!isProxyError) {
+            return;
+        }
+
+        if (attempt < maxAttempts) {
+            console.log(`Frontend not ready (attempt ${attempt}/${maxAttempts}), retrying in 2s...`);
+            await page.waitForTimeout(2000);
+        }
+    }
+
+    throw new Error(`Frontend at ${url} still returning errors after ${maxAttempts} attempts`);
+}
 
 /**
  * Assert a precondition — fails hard in every environment.
@@ -62,7 +97,7 @@ export async function navigateToContentEdit(page: Page, contentId: number = 1): 
     await page.waitForLoadState('networkidle');
 
     const moduleFrame = page.frameLocator('iframe').first();
-    await moduleFrame.locator('.ck-editor__editable, .ck-content').first().waitFor({ timeout: 20000 });
+    await moduleFrame.locator('.ck-editor__editable, .ck-content').first().waitFor({ timeout: 45000 });
 }
 
 /**

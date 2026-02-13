@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { requireCondition } from './helpers/typo3-backend';
+import { gotoFrontendPage, requireCondition } from './helpers/typo3-backend';
 
 /**
  * E2E tests for RTE CKEditor Image inline image functionality.
@@ -15,7 +15,7 @@ import { requireCondition } from './helpers/typo3-backend';
 
 test.describe('Inline Image Functionality', () => {
   test('inline images with image-inline class render correctly', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find images with inline class
     const inlineImages = page.locator('img.image-inline');
@@ -32,7 +32,7 @@ test.describe('Inline Image Functionality', () => {
   });
 
   test('image-inline class applies inline-block display', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();
@@ -48,7 +48,7 @@ test.describe('Inline Image Functionality', () => {
   });
 
   test('inline images allow text flow on same line', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find paragraphs containing inline images
     const paragraphsWithInlineImages = page.locator('p:has(img.image-inline)');
@@ -65,7 +65,7 @@ test.describe('Inline Image Functionality', () => {
   });
 
   test('inline images preserve data attributes', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const inlineImages = page.locator('img.image-inline[data-htmlarea-file-uid]');
     const count = await inlineImages.count();
@@ -82,7 +82,7 @@ test.describe('Inline Image Functionality', () => {
 
 test.describe('Inline Image CSS', () => {
   test('inline image CSS styles are loaded', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Check if inline image styles are available by creating a test element
     const hasInlineStyles = await page.evaluate(() => {
@@ -106,7 +106,7 @@ test.describe('Inline Image CSS', () => {
 
 test.describe('Inline Image Differentiation', () => {
   test('block and inline images have different display styles', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const blockImages = page.locator(
       'img.image-block, img.image-left, img.image-right, img.image-center, ' +
@@ -142,7 +142,7 @@ test.describe('Inline Image Differentiation', () => {
 
 test.describe('Linked Inline Images', () => {
   test('inline images can be wrapped in links', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find linked inline images
     const linkedInlineImages = page.locator('a > img.image-inline');
@@ -159,7 +159,7 @@ test.describe('Linked Inline Images', () => {
   });
 
   test('linked inline images maintain inline display', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const linkedInlineImages = page.locator('a > img.image-inline');
     const count = await linkedInlineImages.count();
@@ -176,7 +176,7 @@ test.describe('Linked Inline Images', () => {
 
 test.describe('Inline Image Attributes', () => {
   test('inline images preserve width and height attributes', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const inlineImages = page.locator('img.image-inline[width][height]');
     const count = await inlineImages.count();
@@ -194,7 +194,7 @@ test.describe('Inline Image Attributes', () => {
   });
 
   test('inline images preserve alt text', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();

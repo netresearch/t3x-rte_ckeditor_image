@@ -8,6 +8,7 @@ import {
   saveContentElement,
   openImageEditDialog,
   confirmImageDialog,
+  gotoFrontendPage,
   requireCondition,
 } from './helpers/typo3-backend';
 
@@ -41,8 +42,7 @@ test.describe('Save-Render Roundtrip', () => {
 
     // Clear backend session before frontend navigation
     await page.context().clearCookies();
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await gotoFrontendPage(page);
 
     const images = page.locator('img[alt="Example"]');
     expect(await images.count(), 'Expected images on frontend after save').toBeGreaterThan(0);

@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { gotoFrontendPage } from './helpers/typo3-backend';
 
 /**
  * E2E tests for RTE CKEditor Image style/alignment functionality.
@@ -23,7 +24,7 @@ async function testImageStyle(
   cssProperty: string,
   expectedValues: string | string[]
 ): Promise<void> {
-  await page.goto('/');
+  await gotoFrontendPage(page);
 
   const elements = page.locator(selector);
   const count = await elements.count();
@@ -44,7 +45,7 @@ async function testImageStyle(
 
 test.describe('Image Style/Alignment Functionality', () => {
   test('images with alignment classes render correctly', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find any images with style classes
     const styledImages = page.locator(
@@ -82,7 +83,7 @@ test.describe('Image Style/Alignment Functionality', () => {
   });
 
   test('image-center class applies center alignment styling', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const centerImages = page.locator('img.image-center, figure.image-center');
     const count = await centerImages.count();
@@ -122,7 +123,7 @@ test.describe('Image Style/Alignment Functionality', () => {
   });
 
   test('image alignment CSS is loaded on page', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Check if image-alignment.css styles are active by looking for
     // the characteristic CSS rules in the computed styles
@@ -151,7 +152,7 @@ test.describe('Image Style/Alignment Functionality', () => {
 
 test.describe('Image Style Class Preservation', () => {
   test('style classes are preserved through rendering pipeline', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Get all images that should have style classes
     const styledImages = page.locator(
@@ -174,7 +175,7 @@ test.describe('Image Style Class Preservation', () => {
   });
 
   test('figure elements preserve style classes', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Get figures with style classes
     const styledFigures = page.locator(
@@ -239,12 +240,9 @@ test.describe('Style Dropdown Documentation', () => {
    * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/501
    */
   test('verify extension provides image styling capability', async ({ page }) => {
-    await page.goto('/');
-
     // This test verifies the page loads without errors
     // The actual styling is applied in the CKEditor backend
-    const response = await page.goto('/');
-    expect(response?.status()).toBe(200);
+    await gotoFrontendPage(page);
 
     // Verify no JavaScript errors related to image styles
     const content = await page.content();

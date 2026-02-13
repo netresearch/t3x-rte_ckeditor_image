@@ -715,6 +715,16 @@ page.10 < styles.content.get
 
 # Include CSS for image alignment styles (image-left, image-center, image-right)
 page.includeCSS.rte_ckeditor_image_alignment = EXT:rte_ckeditor_image/Resources/Public/Css/image-alignment.css
+
+# E2E: Ensure heading tags are in allowTags for parseFunc_RTE.
+# fluid_styled_content may not include all heading tags in its allowTags
+# across TYPO3 versions. Our test data (CE 8) contains <h3> with inline
+# images, which would be HTML-escaped if h1-h6 are not allowed.
+lib.parseFunc_RTE.allowTags := addToList(h1,h2,h3,h4,h5,h6)
+
+# E2E: Ensure table/list tags are in allowTags for the same reason.
+# CE 8 test data contains <table>, <ul>, <li> elements.
+lib.parseFunc_RTE.allowTags := addToList(table,thead,tbody,tr,th,td,ul,ol,li)
 TYPOSCRIPT;
 
 // Insert or update sys_template with BOTH constants and config
