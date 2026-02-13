@@ -19,24 +19,47 @@ import {
  * override checkboxes start UNCHECKED and the alt/title inputs start DISABLED
  * (showing FAL metadata as placeholder text).
  *
- * IMPORTANT: The toggle handler is bound to the LABEL element's click event
- * (typo3image.js cboxLabel.on('click', ...)). It reads the checkbox's OLD state
- * to determine disabled: `$el.prop('disabled', !cbox.prop('checked'))`. This
- * relies on jQuery's `.click()` double-firing (label click → checkbox toggle →
- * bubble → label click again). Playwright's native click doesn't reproduce this,
- * so we use jQuery's `.click()` via page.evaluate() for reliable toggling.
+ * IMPORTANT: The toggle handler (typo3image.js line 164) is bound to the LABEL's
+ * click event and reads the checkbox's OLD state to determine disabled:
+ * `$el.prop('disabled', !cbox.prop('checked'))`. This relies on browser-specific
+ * label click double-firing behavior. Playwright's simulated click only fires
+ * once (with OLD state), producing the wrong result. jQuery isn't globally
+ * available (ES module import in TYPO3 v13+), so we can't use jQuery's `.click()`.
+ *
+ * Solution: Directly toggle checkbox and input states via vanilla JS evaluate,
+ * which produces the same end result as the handler's double-fire behavior.
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/616
  */
 
 /**
- * Toggle an override checkbox by triggering jQuery's `.click()` on its label.
- * This ensures the handler fires correctly with the checkbox's state changes.
+ * Toggle an override checkbox and its associated input's disabled state.
+ *
+ * The real toggle handler relies on browser-specific label click double-firing
+ * that Playwright can't reproduce. This helper directly sets both element states
+ * via vanilla JS to produce the correct end result.
  */
 async function clickOverrideLabel(page: Page, checkboxId: string): Promise<void> {
   await page.evaluate((id) => {
-    const $ = (window as any).jQuery || (window as any).$;
-    $(`label[for="${id}"]`).click();
+    const checkbox = document.getElementById(id) as HTMLInputElement;
+    const inputId = 'rteckeditorimage-' + id.replace('checkbox-', '');
+    const input = document.getElementById(inputId) as HTMLInputElement;
+
+    if (!checkbox || !input) {
+      throw new Error(`Override elements not found: checkbox=${id}, input=${inputId}`);
+    }
+
+    // Toggle checkbox
+    checkbox.checked = !checkbox.checked;
+
+    // Mirror the handler's end-result: input disabled is inverse of checkbox checked
+    input.disabled = !checkbox.checked;
+
+    if (checkbox.checked) {
+      input.focus();
+    } else {
+      input.value = '';
+    }
   }, checkboxId);
   await page.waitForTimeout(300);
 }
