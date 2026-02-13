@@ -412,14 +412,25 @@ test.describe('Image Dialog - Save Persistence', () => {
 
     await openImageEditDialog(page);
 
-    // Set a unique alt text
+    // Set a unique alt text via the override checkbox + input
     const uniqueAlt = `Persist Test ${Date.now()}`;
-    const altInput = page.locator('input[name="alt"]').first();
+    const altInput = page.locator('#rteckeditorimage-alt');
+    requireCondition(await altInput.count() > 0, 'Alt input (#rteckeditorimage-alt) not found in dialog');
 
-    if (await altInput.count() > 0) {
-      await altInput.fill(uniqueAlt);
-      console.log(`Set alt to: "${uniqueAlt}"`);
+    // Enable override checkbox if alt input is disabled (vanilla JS for TYPO3 v13+)
+    const isDisabled = await altInput.isDisabled();
+    if (isDisabled) {
+      await page.evaluate(() => {
+        const cb = document.querySelector('#checkbox-alt') as HTMLInputElement;
+        const input = document.querySelector('#rteckeditorimage-alt') as HTMLInputElement;
+        if (cb) { cb.checked = true; cb.dispatchEvent(new Event('change', { bubbles: true })); }
+        if (input) { input.disabled = false; }
+      });
+      await expect(altInput).toBeEnabled();
     }
+
+    await altInput.fill(uniqueAlt);
+    console.log(`Set alt to: "${uniqueAlt}"`);
 
     await confirmImageDialog(page);
     await page.waitForTimeout(1000);
