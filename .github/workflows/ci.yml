@@ -288,8 +288,7 @@ jobs:
         steps:
             -   name: Verify E2E passed
                 run: |
-                    # All E2E shards (v13 + v14) must pass
-                    if [[ "${{ needs.e2e.result }}" == "failure" ]]; then
-                        echo "::error::E2E tests failed"
+                    if [[ "${{ needs.e2e.result }}" != "success" ]]; then
+                        echo "::error::E2E tests did not complete successfully (result: ${{ needs.e2e.result }})"
                         exit 1
                     fi
