@@ -1214,6 +1214,7 @@ HTACCESS
             -w /app \
             -e BASE_URL=http://apache-e2e-${SUFFIX}:80 \
             -e TYPO3_BACKEND_PASSWORD="${E2E_ADMIN_PASSWORD}" \
+            -e TYPO3_VERSION="${E2E_TYPO3_VERSION}" \
             -e CI=true \
             ${IMAGE_PLAYWRIGHT} /bin/bash -c "
                 # Skip npm install if node_modules exists (pre-cached in CI)

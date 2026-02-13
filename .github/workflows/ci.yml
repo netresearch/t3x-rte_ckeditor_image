@@ -254,8 +254,6 @@ jobs:
                         ${{ runner.os }}-composer-e2e-
 
             -   name: Run E2E Tests (TYPO3 v${{ matrix.typo3 }}, shard ${{ matrix.shard }}/11)
-                # v14 E2E is informational — failures don't block PRs while we stabilize
-                continue-on-error: ${{ matrix.typo3 == '14' }}
                 env:
                     TYPO3_VERSION: ${{ matrix.typo3 }}
                 run: |
@@ -290,10 +288,8 @@ jobs:
         steps:
             -   name: Verify E2E passed
                 run: |
-                    # e2e matrix has continue-on-error for v14, so
-                    # needs.e2e.result is 'success' even if v14 fails.
-                    # Only v13 failures cause 'failure' result.
+                    # All E2E shards (v13 + v14) must pass
                     if [[ "${{ needs.e2e.result }}" == "failure" ]]; then
-                        echo "::error::E2E tests (v13) failed"
+                        echo "::error::E2E tests failed"
                         exit 1
                     fi
