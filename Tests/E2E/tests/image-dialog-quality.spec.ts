@@ -18,6 +18,49 @@ import { loginToBackend, navigateToContentEdit, waitForCKEditor, openImageEditDi
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/615
  */
 
+/**
+ * Confirm image dialog with AJAX error detection.
+ * The confirm handler calls getImageInfo() (AJAX) which must complete before
+ * the modal closes. If the AJAX fails, the modal stays open. This helper
+ * captures console errors and network failures for better CI diagnostics.
+ */
+async function confirmImageDialogWithDiagnostics(page: import('@playwright/test').Page): Promise<void> {
+  const errors: string[] = [];
+  const failedRequests: string[] = [];
+
+  // Capture console errors during confirm
+  const consoleHandler = (msg: import('@playwright/test').ConsoleMessage) => {
+    if (msg.type() === 'error') {
+      errors.push(msg.text());
+    }
+  };
+  page.on('console', consoleHandler);
+
+  // Capture failed network requests (AJAX failures)
+  const responseHandler = (response: import('@playwright/test').Response) => {
+    if (response.status() >= 400 && response.url().includes('action=info')) {
+      failedRequests.push(`${response.status()} ${response.url()}`);
+    }
+  };
+  page.on('response', responseHandler);
+
+  try {
+    await confirmImageDialog(page);
+  } catch (error) {
+    // Log diagnostics before rethrowing
+    if (errors.length > 0) {
+      console.log(`Console errors during confirm: ${JSON.stringify(errors)}`);
+    }
+    if (failedRequests.length > 0) {
+      console.log(`Failed AJAX requests during confirm: ${JSON.stringify(failedRequests)}`);
+    }
+    throw error;
+  } finally {
+    page.off('console', consoleHandler);
+    page.off('response', responseHandler);
+  }
+}
+
 test.describe('Image Dialog - Quality Selector', () => {
   test.beforeEach(async ({ page }) => {
     requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
@@ -94,8 +137,8 @@ test.describe('Image Dialog - Quality Selector', () => {
     console.log(`Selected quality: "${selectedValue}"`);
     expect(selectedValue).toBe('ultra');
 
-    // Confirm the dialog to apply changes
-    await confirmImageDialog(page);
+    // Confirm the dialog to apply changes — with diagnostics for CI debugging
+    await confirmImageDialogWithDiagnostics(page);
     await page.waitForTimeout(1000);
 
     // Verify data-quality attribute is set in editor HTML
@@ -119,7 +162,7 @@ test.describe('Image Dialog - Quality Selector', () => {
     await qualitySelect.selectOption('print');
     console.log('Selected quality: print');
 
-    await confirmImageDialog(page);
+    await confirmImageDialogWithDiagnostics(page);
     await page.waitForTimeout(1000);
 
     // Verify it was applied

@@ -772,9 +772,11 @@ $pdo->exec("INSERT INTO sys_file (uid, storage, identifier, identifier_hash, fol
 echo "sys_file record created\n";
 
 // Create sys_file_metadata with dimensions, alt, and title
-// width/height are in sys_file_metadata (NOT sys_file) — used by getImageInfo() for dialog constraints
+// width/height are TCA columns on sys_file_metadata — used by getImageInfo() for dialog constraints
 // alternative/title provide FAL metadata defaults — enables override checkbox in image dialog
-$pdo->exec("INSERT IGNORE INTO sys_file_metadata (uid, file, title, description, alternative, width, height, tstamp, crdate)
+// Use DELETE + INSERT to ensure our values win over any auto-indexed metadata
+$pdo->exec("DELETE FROM sys_file_metadata WHERE file = 1");
+$pdo->exec("INSERT INTO sys_file_metadata (uid, file, title, description, alternative, width, height, tstamp, crdate)
             VALUES (1, 1, 'Example Image Title', 'Test image for E2E', 'Example Alt from Metadata', 800, 600, $now, $now)");
 echo "sys_file_metadata record created\n";
 
@@ -960,7 +962,10 @@ $bodytextQuality = '<p>Quality test content:</p><p><img src="fileadmin/user_uplo
 $stmt->execute([1, 'text', 'Quality Test CE', $bodytextQuality, 0, 0, $now, $now, 0, 6912]);
 
 // UID 28: For image-dialog-overrides.spec.ts (saves override state)
-$bodytextOverrides = '<p>Overrides test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Overrides Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of overrides test.</p>';
+// data-alt-override="false" and data-title-override="false" ensure override checkboxes
+// start UNCHECKED — alt/title inputs are disabled, showing FAL metadata as placeholder.
+// Without these attributes, typo3image.js defaults to override=checked (inputs enabled).
+$bodytextOverrides = '<p>Overrides test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="" data-alt-override="false" data-title-override="false" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of overrides test.</p>';
 $stmt->execute([1, 'text', 'Overrides Test CE', $bodytextOverrides, 0, 0, $now, $now, 0, 7168]);
 
 // UID 29: For image-dialog-click-behavior.spec.ts (saves link/zoom changes)
