@@ -17,6 +17,7 @@ use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel as PsrLogLevel;
+use Throwable;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
@@ -220,6 +221,14 @@ class ImageResolverService
             $this->logger->log(
                 PsrLogLevel::ERROR,
                 'Unable to find requested file',
+                ['fileUid' => $fileUid, 'exception' => $exception],
+            );
+
+            return null;
+        } catch (Throwable $exception) {
+            $this->logger->log(
+                PsrLogLevel::ERROR,
+                'Unexpected error during image resolution',
                 ['fileUid' => $fileUid, 'exception' => $exception],
             );
 

@@ -17,7 +17,9 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 use ReflectionMethod;
+use RuntimeException;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -1218,5 +1220,23 @@ final class ImageResolverServiceTest extends TestCase
         $result = $this->callPrivateMethod($this->service, 'getQualityMultiplier', ['']);
 
         self::assertSame(1.0, $result);
+    }
+
+    #[Test]
+    public function resolveReturnsNullOnUnexpectedException(): void
+    {
+        $this->resourceFactoryMock
+            ->method('getFileObject')
+            ->willThrowException(new RuntimeException('Database connection lost'));
+
+        $request = $this->createMock(ServerRequestInterface::class);
+
+        $result = $this->service->resolve(
+            ['data-htmlarea-file-uid' => '9999', 'src' => 'test.jpg'],
+            [],
+            $request,
+        );
+
+        self::assertNull($result, 'resolve() must return null on unexpected exceptions, not throw');
     }
 }
