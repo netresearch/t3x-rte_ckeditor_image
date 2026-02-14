@@ -18,7 +18,8 @@ import {
  * Tests the critical path: save in CKEditor backend, verify rendered output
  * on the frontend. Catches "works in editor, broken on frontend" bugs.
  *
- * Test content: CE 1 has a basic image with data-htmlarea-zoom="true".
+ * Test content: CE 36 is a dedicated CE for save-unchanged tests.
+ * CE 1 is shared by many read-only specs so saving it causes pollution.
  *
  * E2E tests use Apache + PHP-FPM (not PHP built-in server) to support
  * TYPO3's URL rewriting and FAL image processing pipeline.
@@ -30,7 +31,7 @@ test.describe('Save-Render Roundtrip', () => {
 
   test('save unchanged content element — images still render on frontend', async ({ page }) => {
     await loginToBackend(page);
-    await navigateToContentEdit(page, 1);
+    await navigateToContentEdit(page, 36);
     await waitForCKEditor(page);
 
     const editorHtml = await getEditorHtml(page);
@@ -44,7 +45,7 @@ test.describe('Save-Render Roundtrip', () => {
     await page.context().clearCookies();
     await gotoFrontendPage(page);
 
-    const images = page.locator('img[alt="Example"]');
+    const images = page.locator('img[alt="Save Roundtrip"]');
     expect(await images.count(), 'Expected images on frontend after save').toBeGreaterThan(0);
     await expect(images.first()).toBeVisible();
 
@@ -54,9 +55,9 @@ test.describe('Save-Render Roundtrip', () => {
   });
 
   test('editor HTML preserves key attributes after save-reload', async ({ page }) => {
-    // Step 1: Login and open CE 1
+    // Step 1: Login and open CE 37 (dedicated for attribute preservation test)
     await loginToBackend(page);
-    await navigateToContentEdit(page, 1);
+    await navigateToContentEdit(page, 37);
     await waitForCKEditor(page);
 
     // Step 2: Capture key attributes from editor HTML
@@ -72,7 +73,7 @@ test.describe('Save-Render Roundtrip', () => {
     await page.waitForTimeout(2000);
 
     // Step 4: Re-open the same CE
-    await navigateToContentEdit(page, 1);
+    await navigateToContentEdit(page, 37);
     await waitForCKEditor(page);
 
     // Step 5: Verify key attributes are preserved
@@ -89,7 +90,7 @@ test.describe('Save-Render Roundtrip', () => {
     // Backend-only roundtrip: confirm dialog → save → reload CE → verify editor HTML.
     // Avoids frontend navigation (PHP built-in server FAL issue).
     await loginToBackend(page);
-    await navigateToContentEdit(page, 1);
+    await navigateToContentEdit(page, 38);
     await waitForCKEditor(page);
 
     // Open image dialog
@@ -127,7 +128,7 @@ test.describe('Save-Render Roundtrip', () => {
     await page.waitForTimeout(2000);
 
     // Re-open the same CE and verify the alt text persisted
-    await navigateToContentEdit(page, 1);
+    await navigateToContentEdit(page, 38);
     await waitForCKEditor(page);
 
     const editorHtml = await getEditorHtml(page);
