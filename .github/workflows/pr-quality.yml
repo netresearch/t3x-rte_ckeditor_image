@@ -1,0 +1,80 @@
+name: PR Quality Gates
+
+on:
+    pull_request:
+        branches: [TYPO3_12]
+        types: [opened, synchronize, reopened, ready_for_review]
+    pull_request_review:
+        types: [submitted]
+
+permissions:
+    contents: read
+
+jobs:
+    auto-approve:
+        name: Auto-Approve (Solo Maintainer)
+        runs-on: ubuntu-latest
+        if: |
+            github.event.pull_request.draft == false &&
+            github.event.pull_request.head.repo.full_name == github.repository
+
+        permissions:
+            contents: read
+            pull-requests: write
+
+        steps:
+            -   name: Check review status
+                id: check-reviewers
+                uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+                with:
+                    script: |
+                        const prNumber = context.payload.pull_request.number;
+                        const { data: reviews } = await github.rest.pulls.listReviews({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          pull_number: prNumber,
+                        });
+                        const latestByReviewer = new Map();
+                        for (const review of reviews) {
+                          if (review.state === 'APPROVED' || review.state === 'CHANGES_REQUESTED') {
+                            latestByReviewer.set(review.user.login, review.state);
+                          }
+                        }
+                        const changesRequested = [...latestByReviewer.entries()]
+                          .filter(([login, state]) => state === 'CHANGES_REQUESTED' && !login.includes('[bot]'))
+                          .map(([login]) => login);
+
+                        if (changesRequested.length > 0) {
+                          console.log(`Changes requested by: ${changesRequested.join(', ')}`);
+                          core.setOutput('ready', 'false');
+                        } else {
+                          console.log('No human reviewer has requested changes — ready to approve');
+                          core.setOutput('ready', 'true');
+                        }
+
+            -   name: Auto-approve PR
+                if: steps.check-reviewers.outputs.ready == 'true'
+                uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+                with:
+                    script: |
+                        const prNumber = context.payload.pull_request.number;
+                        const { data: reviews } = await github.rest.pulls.listReviews({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          pull_number: prNumber,
+                        });
+                        const alreadyApproved = reviews.some(
+                          r => r.user.login === 'github-actions[bot]' && r.state === 'APPROVED'
+                        );
+                        if (alreadyApproved) {
+                          console.log('Already approved by automation, skipping');
+                          return;
+                        }
+
+                        await github.rest.pulls.createReview({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          pull_number: prNumber,
+                          event: 'APPROVE',
+                          body: '**Automated approval for solo maintainer project**'
+                        });
