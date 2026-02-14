@@ -228,19 +228,30 @@ class RteImagesDbHook
                 if (($key % 2) === 1) {
                     // Get the attributes of the img tag
                     [$attribArray] = $rteHtmlParser->get_tag_attributes($v, true);
-                    $absoluteUrl   = trim((string) $attribArray['src']);
+                    $imageSource   = trim($attribArray['src'] ?? '');
+
+                    // Check if we need to regenerate the processed image
+                    if (($attribArray['data-htmlarea-file-uid'] ?? false) && ($imageSource === '' || !is_file($imageSource))) {
+                        $imageSource = $this->getProcessedFile($attribArray);
+                    }
 
                     // Transform the src attribute into an absolute url, if it not already
-                    if (strncasecmp($absoluteUrl, 'http', 4) !== 0) {
+                    if (
+                        $imageSource !== ''
+                        && strncasecmp($imageSource, 'http', 4) !== 0
+                        && !str_starts_with($imageSource, 'data:image')
+                    ) {
                         // If site is in a sub path (e.g. /~user_jim/) this path needs to be
                         // removed because it will be added with $siteUrl
-                        $attribArray['src'] = preg_replace(
+                        $imageSource = preg_replace(
                             '#^' . preg_quote($sitePath, '#') . '#',
                             '',
-                            (string) $attribArray['src'],
+                            $imageSource,
                         );
 
-                        $attribArray['src'] = $siteUrl . $attribArray['src'];
+                        $attribArray['src'] = $siteUrl . $imageSource;
+                    } else {
+                        $attribArray['src'] = $imageSource;
                     }
 
                     // Must have alt attribute
@@ -257,6 +268,67 @@ class RteImagesDbHook
 
         // Return processed content:
         return implode('', $imgSplit);
+    }
+
+    /**
+     * Regenerates a processed image file for backend preview.
+     *
+     * This method is called when an image reference exists (data-htmlarea-file-uid)
+     * but the processed image file is missing or invalid. This can happen after
+     * TYPO3 version upgrades or when processed images are deleted.
+     *
+     * @param array<string, mixed> $attribArray Image tag attributes including file UID
+     *
+     * @return string The public URL of the regenerated processed image, or empty string on failure
+     */
+    protected function getProcessedFile(array $attribArray): string
+    {
+        $resourceFactory   = GeneralUtility::makeInstance(ResourceFactory::class);
+        $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
+
+        try {
+            $originalImageFile = $resourceFactory
+                ->getFileObject((int) $attribArray['data-htmlarea-file-uid']);
+        } catch (FileDoesNotExistException $exception) {
+            if ($this->logger instanceof LoggerInterface) {
+                $this->logger->error(
+                    'Could not regenerate processed image: Original file not found',
+                    [
+                        'file_uid'  => $attribArray['data-htmlarea-file-uid'],
+                        'exception' => $exception,
+                    ],
+                );
+            }
+
+            return '';
+        }
+
+        if ($originalImageFile instanceof File) {
+            // Magic image case: get a processed file with the requested configuration
+            $imageConfiguration = [
+                'width'  => $this->getImageWidthFromAttributes($attribArray),
+                'height' => $this->getImageHeightFromAttributes($attribArray),
+            ];
+
+            // Ensure we do get a processed file
+            GeneralUtility::makeInstance(Context::class)
+                ->setAspect('fileProcessing', new FileProcessingAspect(false));
+
+            $magicImage = $magicImageService
+                ->createMagicImage($originalImageFile, $imageConfiguration);
+
+            $imgSrc = $magicImage->getPublicUrl();
+
+            // publicUrl like 'https://www.domain.xy/typo3/image/process?token=...'?
+            // -> generate img source from storage basepath and identifier instead
+            if ($imgSrc !== null && str_contains($imgSrc, 'process?token=')) {
+                $imgSrc = $originalImageFile->getStorage()->getPublicUrl($magicImage);
+            }
+
+            return $imgSrc ?? '';
+        }
+
+        return '';
     }
 
     /**
@@ -469,7 +541,7 @@ class RteImagesDbHook
                 }
 
                 // Determine application type - fail secure: require backend context
-                if (!(($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface)) {
+                if (!($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface) {
                     throw new RuntimeException('Invalid request context: ServerRequest required', 1734278400);
                 }
 
