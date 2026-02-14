@@ -102,3 +102,16 @@ jobs:
                 with:
                     files: .Build/logs/clover.xml
                     fail_ci_if_error: false
+
+    build-summary:
+        name: "Build ✓"
+        if: always()
+        needs: [build]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check build matrix status
+              run: |
+                  if [ "${{ needs.build.result }}" != "success" ]; then
+                    echo "Build matrix failed"
+                    exit 1
+                  fi
