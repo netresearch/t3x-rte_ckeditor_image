@@ -286,8 +286,6 @@ class RteImagesDbHook
         $resourceFactory   = GeneralUtility::makeInstance(ResourceFactory::class);
         $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
-        $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
-
         try {
             $originalImageFile = $resourceFactory
                 ->getFileObject((int) $attribArray['data-htmlarea-file-uid']);
