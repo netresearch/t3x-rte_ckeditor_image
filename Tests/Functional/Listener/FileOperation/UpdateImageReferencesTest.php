@@ -15,6 +15,7 @@ use Netresearch\RteCKEditorImage\Listener\FileOperation\UpdateImageReferences;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Resource\Event\AfterFileMovedEvent;
 use TYPO3\CMS\Core\Resource\Event\AfterFileRenamedEvent;
+use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
@@ -41,7 +42,6 @@ class UpdateImageReferencesTest extends FunctionalTestCase
         $listener        = $this->get(UpdateImageReferences::class);
         $resourceFactory = $this->get(ResourceFactory::class);
 
-        // Get the file and simulate rename (file is already at new location in FAL)
         $file = $resourceFactory->getFileObject(1);
 
         $event = new AfterFileRenamedEvent($file, 'old-name.jpg');
@@ -58,9 +58,12 @@ class UpdateImageReferencesTest extends FunctionalTestCase
         $listener        = $this->get(UpdateImageReferences::class);
         $resourceFactory = $this->get(ResourceFactory::class);
 
-        $file         = $resourceFactory->getFileObject(1);
-        $targetFolder = $resourceFactory->getFolderObjectFromCombinedIdentifier('1:/subdir/');
-        $sourceFolder = $resourceFactory->getFolderObjectFromCombinedIdentifier('1:/');
+        $file = $resourceFactory->getFileObject(1);
+
+        // Use mock folders — the listener only reads file UID and public URL,
+        // it doesn't interact with the folder objects from the event
+        $targetFolder = $this->createMock(Folder::class);
+        $sourceFolder = $this->createMock(Folder::class);
 
         $event = new AfterFileMovedEvent($file, $targetFolder, $sourceFolder);
         $listener->handleFileMoved($event);

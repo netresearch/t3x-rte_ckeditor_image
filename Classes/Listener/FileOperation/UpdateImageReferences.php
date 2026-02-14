@@ -100,13 +100,19 @@ class UpdateImageReferences
 
         foreach ($affectedRecords as $record) {
             $tableName = $record['tablename'];
-            $recuid    = $record['recuid'];
+            $rawRecuid = $record['recuid'];
             $field     = $record['field'];
 
-            if (!is_string($tableName) || !is_string($field) || !is_int($recuid)) {
+            if (!is_string($tableName) || !is_string($field)) {
                 continue;
             }
 
+            // Database drivers may return int or string for integer columns
+            if (!is_int($rawRecuid) && !is_string($rawRecuid)) {
+                continue;
+            }
+
+            $recuid = (int) $rawRecuid;
 
             $currentValue = $this->fetchFieldValue($tableName, $recuid, $field);
 
