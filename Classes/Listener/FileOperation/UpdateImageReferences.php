@@ -245,13 +245,21 @@ class UpdateImageReferences
 
             $uid = $tagAttributes['data-htmlarea-file-uid'] ?? '';
 
-            if (!is_string($uid) || $uid !== (string) $fileUid) {
+            if (!is_string($uid)) {
+                continue;
+            }
+
+            if ($uid !== (string) $fileUid) {
                 continue;
             }
 
             $currentSrc = $tagAttributes['src'] ?? '';
 
-            if (!is_string($currentSrc) || $currentSrc === $newSrc) {
+            if (!is_string($currentSrc)) {
+                continue;
+            }
+
+            if ($currentSrc === $newSrc) {
                 continue;
             }
 
