@@ -239,7 +239,7 @@ class RteImagesDbHook
                     if (
                         $imageSource !== ''
                         && strncasecmp($imageSource, 'http', 4) !== 0
-                        && strpos($imageSource, 'data:image') !== 0
+                        && !str_starts_with($imageSource, 'data:image')
                     ) {
                         // If site is in a sub path (e.g. /~user_jim/) this path needs to be
                         // removed because it will be added with $siteUrl
