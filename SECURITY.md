@@ -1,6 +1,6 @@
 ## Security
 
-We take security very seriously and are always grateful for reports about potential problems or vulnerabilities.
+We take security very seriously and are grateful for reports about potential problems or vulnerabilities.
 
 ## Security Measures
 
