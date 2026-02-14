@@ -150,6 +150,22 @@ services:
     arguments:
       $imageProcessor: '@Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorInterface'
 
+  # Event listener: update stale src attributes when FAL files move/rename (#612)
+  Netresearch\RteCKEditorImage\Listener\FileOperation\UpdateImageReferences:
+    arguments:
+      $connectionPool: '@TYPO3\CMS\Core\Database\ConnectionPool'
+      $htmlParser: '@TYPO3\CMS\Core\Html\HtmlParser'
+      $logManager: '@TYPO3\CMS\Core\Log\LogManager'
+    tags:
+      - name: event.listener
+        identifier: 'nr-rte-update-image-references-moved'
+        event: TYPO3\CMS\Core\Resource\Event\AfterFileMovedEvent
+        method: handleFileMoved
+      - name: event.listener
+        identifier: 'nr-rte-update-image-references-renamed'
+        event: TYPO3\CMS\Core\Resource\Event\AfterFileRenamedEvent
+        method: handleFileRenamed
+
   # Event listener for automatic RTE softref enforcement
   Netresearch\RteCKEditorImage\Listener\TCA\RteSoftrefEnforcer:
     arguments:

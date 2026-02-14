@@ -1,0 +1,21 @@
+"pages",,,,
+,"uid","pid","title","slug"
+,1,0,"Root","/root"
+
+"sys_file_storage",,,,
+,"uid","pid","name","driver"
+,1,0,"fileadmin","Local"
+
+"sys_file",,,,,,,
+,"uid","pid","storage","identifier","name","extension","mime_type"
+,1,0,1,"/new.jpg","new.jpg","jpg","image/jpeg"
+
+"tt_content",,,,,,
+,"uid","pid","sys_language_uid","deleted","hidden","bodytext"
+,1,1,0,0,0,"<img data-htmlarea-file-uid=""1"" src=""/fileadmin/old.jpg"" />"
+,2,1,0,0,0,"<p><img data-htmlarea-file-uid=""1"" src=""/fileadmin/old.jpg"" /> text</p>"
+
+"sys_refindex",,,,,,,
+,"hash","tablename","recuid","field","softref_key","ref_table","ref_uid"
+,"aaa111","tt_content",1,"bodytext","rtehtmlarea_images","sys_file",1
+,"bbb222","tt_content",2,"bodytext","rtehtmlarea_images","sys_file",1
