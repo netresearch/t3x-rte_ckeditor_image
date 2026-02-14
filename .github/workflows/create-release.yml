@@ -14,12 +14,15 @@ on:
                 default: ''
 
 permissions:
-    contents: write
+    contents: read
 
 jobs:
     create-release:
         name: Create Release
         runs-on: ubuntu-latest
+
+        permissions:
+            contents: write
 
         env:
             INPUT_VERSION: ${{ inputs.version }}

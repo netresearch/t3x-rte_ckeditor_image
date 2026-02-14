@@ -22,15 +22,28 @@ Some security aspects are handled by TYPO3 Core, not this extension:
 
 For details, see [ADR-003: Security Responsibility Boundaries](Documentation/Architecture/ADR-003-Security-Responsibility-Boundaries.rst).
 
-## Reporting a security problem
+## Reporting a Vulnerability
 
-* Create a new Github issue using the "bug report" template.
-* Explain the problem as detailed as possible:
-  - What is the type of the problem (SQL injection, cross-site scripting, etc.)?
-  - Is any special configuration required to reproduce it?
-  - What steps must be taken to reproduce it?
-  - How could an attacker exploit the issue?
-* Fill in all the remaining information in the template. The more information, the better.
-* Finally, add the label "security" to the Github issue.
+**Please do NOT report security vulnerabilities through public GitHub issues.**
 
-We look through the open issues regularly and will pick it up ASAP.
+Instead, use [GitHub's private vulnerability reporting](https://github.com/netresearch/t3x-rte_ckeditor_image/security/advisories/new)
+to report security issues confidentially. This ensures the vulnerability can be assessed and
+a fix prepared before public disclosure.
+
+When reporting, please include:
+
+- A description of the vulnerability and its potential impact
+- Steps to reproduce the issue
+- The type of the problem (e.g., SQL injection, cross-site scripting, path traversal)
+- Any special configuration required to reproduce it
+
+We will acknowledge receipt within 48 hours and aim to provide a fix within 7 days
+for critical vulnerabilities.
+
+## Coordinated Disclosure
+
+We follow coordinated disclosure practices. After a fix is released, we will:
+
+1. Publish a [GitHub Security Advisory](https://github.com/netresearch/t3x-rte_ckeditor_image/security/advisories)
+2. Credit the reporter (unless anonymity is requested)
+3. Include the fix in the next release with a CVE identifier if applicable
