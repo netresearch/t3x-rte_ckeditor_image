@@ -103,7 +103,11 @@ class UpdateImageReferences
             $rawRecuid = $record['recuid'];
             $field     = $record['field'];
 
-            if (!is_string($tableName) || !is_string($field)) {
+            if (!is_string($tableName)) {
+                continue;
+            }
+
+            if (!is_string($field)) {
                 continue;
             }
 
@@ -224,7 +228,11 @@ class UpdateImageReferences
         $changed      = false;
 
         foreach ($splitContent as $key => $part) {
-            if (!is_string($part) || !str_starts_with($part, '<img')) {
+            if (!is_string($part)) {
+                continue;
+            }
+
+            if (!str_starts_with($part, '<img')) {
                 continue;
             }
 
