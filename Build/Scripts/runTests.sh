@@ -1010,7 +1010,20 @@ $stmt->execute([1, 'text', 'Alignment Roundtrip Test CE', $bodytextAlignRoundtri
 $bodytextZoomRoundtrip = '<p>Zoom roundtrip test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Zoom Roundtrip Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of zoom roundtrip test.</p>';
 $stmt->execute([1, 'text', 'Zoom Roundtrip Test CE', $bodytextZoomRoundtrip, 0, 0, $now, $now, 0, 8960]);
 
-echo "Isolated test CEs (UIDs 26-35) created for saving specs\n";
+// UID 36: For save-render-roundtrip.spec.ts "save unchanged" test (saves CE without changes)
+// Dedicated CE to avoid corrupting CE 1 which is used by read-only tests.
+$bodytextSaveRoundtrip = '<p>Save roundtrip test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Save Roundtrip" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of save roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Save Roundtrip Test CE', $bodytextSaveRoundtrip, 0, 0, $now, $now, 0, 9216]);
+
+// UID 37: For save-render-roundtrip.spec.ts "preserves attributes" test
+$bodytextAttrRoundtrip = '<p>Attribute roundtrip test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Attr Roundtrip" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of attribute roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Attr Roundtrip Test CE', $bodytextAttrRoundtrip, 0, 0, $now, $now, 0, 9472]);
+
+// UID 38: For save-render-roundtrip.spec.ts "modify alt text" test
+$bodytextAltRoundtrip = '<p>Alt text roundtrip test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Alt Roundtrip" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of alt text roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Alt Roundtrip Test CE', $bodytextAltRoundtrip, 0, 0, $now, $now, 0, 9728]);
+
+echo "Isolated test CEs (UIDs 26-38) created for saving specs\n";
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
