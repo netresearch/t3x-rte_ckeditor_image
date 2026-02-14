@@ -244,9 +244,16 @@ jobs:
                 run: |
                     cd Tests/E2E && npm ci --ignore-scripts
 
+            -   name: Cache Composer packages (E2E)
+                uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+                with:
+                    path: .Build/.cache/composer
+                    key: ${{ runner.os }}-composer-e2e-v${{ matrix.typo3 }}-${{ hashFiles('composer.json', 'Build/Scripts/runTests.sh') }}
+                    restore-keys: |
+                        ${{ runner.os }}-composer-e2e-v${{ matrix.typo3 }}-
+                        ${{ runner.os }}-composer-e2e-
+
             -   name: Run E2E Tests (TYPO3 v${{ matrix.typo3 }}, shard ${{ matrix.shard }}/11)
-                # v14 E2E is informational — failures don't block PRs while we stabilize
-                continue-on-error: ${{ matrix.typo3 == '14' }}
                 env:
                     TYPO3_VERSION: ${{ matrix.typo3 }}
                 run: |
@@ -259,3 +266,29 @@ jobs:
                     name: e2e-test-results-v${{ matrix.typo3 }}-shard${{ matrix.shard }}
                     path: Build/test-results/
                     retention-days: 7
+
+    build-required:
+        name: Build ✓
+        runs-on: ubuntu-latest
+        needs: build
+        if: always()
+        steps:
+            -   name: Verify all builds passed
+                run: |
+                    if [[ "${{ needs.build.result }}" != "success" ]]; then
+                        echo "::error::Build matrix failed"
+                        exit 1
+                    fi
+
+    e2e-required:
+        name: E2E ✓
+        runs-on: ubuntu-latest
+        needs: e2e
+        if: always()
+        steps:
+            -   name: Verify E2E passed
+                run: |
+                    if [[ "${{ needs.e2e.result }}" != "success" ]]; then
+                        echo "::error::E2E tests did not complete successfully (result: ${{ needs.e2e.result }})"
+                        exit 1
+                    fi

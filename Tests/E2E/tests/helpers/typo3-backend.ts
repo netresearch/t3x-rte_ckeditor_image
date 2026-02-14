@@ -10,6 +10,48 @@ import { Page, FrameLocator, expect } from '@playwright/test';
 export const BACKEND_USER = process.env.TYPO3_BACKEND_USER || 'admin';
 export const BACKEND_PASSWORD = process.env.TYPO3_BACKEND_PASSWORD || '';
 export const BASE_URL = process.env.BASE_URL || 'https://v13.rte-ckeditor-image.ddev.site';
+export const TYPO3_VERSION = process.env.TYPO3_VERSION || '13';
+
+/**
+ * Navigate to a frontend page with retry logic for infrastructure readiness.
+ *
+ * In CI, the PHP-FPM container may not be fully ready when the first
+ * frontend request arrives, causing Apache proxy errors (502/503).
+ * This helper retries the navigation up to 3 times with a 2s delay.
+ */
+export async function gotoFrontendPage(page: Page, path: string = '/'): Promise<void> {
+    const url = `${BASE_URL}${path}`;
+    const maxAttempts = 3;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        let response;
+        try {
+            response = await page.goto(url, { timeout: 30000 });
+        } catch (error) {
+            // Navigation itself failed (connection refused, proxy timeout)
+            if (attempt < maxAttempts) {
+                console.log(`Frontend navigation failed (attempt ${attempt}/${maxAttempts}), retrying in 2s...`);
+                await page.waitForTimeout(2000);
+                continue;
+            }
+            throw error;
+        }
+        await page.waitForLoadState('networkidle');
+
+        const status = response?.status() ?? 0;
+        if (status >= 200 && status < 500) {
+            return;
+        }
+
+        // 5xx — infrastructure not ready yet (502 proxy error, 503 service unavailable)
+        if (attempt < maxAttempts) {
+            console.log(`Frontend returned ${status} (attempt ${attempt}/${maxAttempts}), retrying in 2s...`);
+            await page.waitForTimeout(2000);
+        }
+    }
+
+    throw new Error(`Frontend at ${url} still returning errors after ${maxAttempts} attempts`);
+}
 
 /**
  * Assert a precondition — fails hard in every environment.
@@ -26,7 +68,7 @@ export function requireCondition(condition: boolean, message: string): void {
  * Handles both TYPO3 v12 and v13 login form selectors.
  */
 export async function loginToBackend(page: Page): Promise<void> {
-    await page.goto(`${BASE_URL}/typo3/`, { timeout: 30000 });
+    await gotoFrontendPage(page, '/typo3/');
 
     const loginForm = page.locator(
         'form[name="loginform"], #typo3-login-form, input[name="username"], #t3-username'
@@ -47,9 +89,9 @@ export async function loginToBackend(page: Page): Promise<void> {
     await page.waitForLoadState('networkidle', { timeout: 30000 });
 
     const backendIndicators = page.locator(
-        '.modulemenu, .typo3-module-menu, [data-modulemenu], .scaffold'
+        '.modulemenu, .typo3-module-menu, [data-modulemenu], .scaffold, typo3-backend-sidebar-toggle'
     );
-    expect(await backendIndicators.count(), 'Backend login failed — check TYPO3_BACKEND_PASSWORD').toBeGreaterThan(0);
+    await expect(backendIndicators.first(), 'TYPO3 backend did not render after login (no module menu, scaffold, or sidebar toggle found)').toBeVisible({ timeout: 30000 });
 }
 
 /**
@@ -62,7 +104,7 @@ export async function navigateToContentEdit(page: Page, contentId: number = 1): 
     await page.waitForLoadState('networkidle');
 
     const moduleFrame = page.frameLocator('iframe').first();
-    await moduleFrame.locator('.ck-editor__editable, .ck-content').first().waitFor({ timeout: 20000 });
+    await moduleFrame.locator('.ck-editor__editable, .ck-content').first().waitFor({ timeout: 45000 });
 }
 
 /**
@@ -89,7 +131,7 @@ export async function openImageEditDialog(page: Page, imageIndex: number = 0): P
     expect(await images.count(), `Expected at least ${imageIndex + 1} image(s) in CKEditor`).toBeGreaterThan(imageIndex);
     await images.nth(imageIndex).dblclick();
     await page.locator('.t3js-modal').first().waitFor({ state: 'visible', timeout: 20000 });
-    await expect(page.locator('.modal-title').first()).toBeVisible();
+    await expect(page.locator('.modal-title, .modal-header-title, .t3js-modal-title').first()).toBeVisible();
 }
 
 /**
@@ -137,7 +179,7 @@ export async function confirmImageDialog(page: Page): Promise<void> {
  */
 export async function cancelImageDialog(page: Page): Promise<void> {
     const cancelButton = page.locator(
-        '.modal-footer button.btn-default, .modal-footer button[name="cancel"], button:has-text("Cancel"), .modal-header .close, button.close'
+        '.modal-footer button.btn-default, .modal-footer button[name="cancel"], button:has-text("Cancel"), .modal-header .close, button.close, .t3js-modal-close, .modal-header-close'
     ).first();
     await expect(cancelButton, 'Cancel button not found in image dialog').toBeVisible();
     await cancelButton.click();

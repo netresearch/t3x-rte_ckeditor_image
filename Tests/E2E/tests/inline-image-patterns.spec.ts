@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { requireCondition } from './helpers/typo3-backend';
+import { gotoFrontendPage, requireCondition } from './helpers/typo3-backend';
 
 /**
  * E2E tests for common inline image patterns in RTE content.
@@ -27,7 +27,7 @@ test.describe('Links Spanning Text and Inline Images', () => {
    * (text + image + text) must be preserved.
    */
   test('link with text before and after inline image renders correctly', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find links containing inline images with surrounding text
     const linksWithInlineImages = page.locator('a:has(img.image-inline)');
@@ -67,7 +67,7 @@ test.describe('Links Spanning Text and Inline Images', () => {
    * Pattern: <a href="..."><img> Documentation</a>
    */
   test('link with inline image at beginning renders correctly', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find links starting with inline images
     const links = page.locator('a');
@@ -101,7 +101,7 @@ test.describe('Links Spanning Text and Inline Images', () => {
    * Pattern: <a href="...">Download PDF <img></a>
    */
   test('link with inline image at end renders correctly', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find links ending with inline images
     const links = page.locator('a');
@@ -138,7 +138,7 @@ test.describe('Links Spanning Text and Inline Images', () => {
    * sometimes get double-wrapped with anchor tags: <a><a><img></a></a>
    */
   test('no duplicate anchor tags around inline images', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Check for the malformed pattern: nested <a> tags
     const nestedAnchors = await page.evaluate(() => {
@@ -156,7 +156,7 @@ test.describe('Links Spanning Text and Inline Images', () => {
    * not separated into different elements.
    */
   test('links with inline images maintain text-image structure', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const linksWithImages = page.locator('a:has(img.image-inline)');
     const count = await linksWithImages.count();
@@ -186,7 +186,7 @@ test.describe('Inline Images in Tables', () => {
    * Test: Inline images in table cells render correctly.
    */
   test('inline images in table cells render correctly', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find tables containing inline images
     const tablesWithImages = page.locator('table:has(img.image-inline)');
@@ -219,7 +219,7 @@ test.describe('Inline Images in Tables', () => {
    * Test: Table cell text and inline images are not separated.
    */
   test('table cell text and inline images remain together', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const cellsWithImages = page.locator('td:has(img.image-inline), th:has(img.image-inline)');
     const count = await cellsWithImages.count();
@@ -242,7 +242,7 @@ test.describe('Inline Images in Lists', () => {
    * Test: Inline images in list items render correctly.
    */
   test('inline images in list items render correctly', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find list items containing inline images
     const listItemsWithImages = page.locator('li:has(img.image-inline)');
@@ -266,7 +266,7 @@ test.describe('Inline Images in Lists', () => {
    * Test: Both ordered and unordered lists work with inline images.
    */
   test('both ordered and unordered lists support inline images', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const ulWithImages = page.locator('ul li:has(img.image-inline)');
     const olWithImages = page.locator('ol li:has(img.image-inline)');
@@ -293,7 +293,7 @@ test.describe('Inline Images in Headings', () => {
    * Test: Inline images in headings render correctly.
    */
   test('inline images in headings render correctly', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find headings containing inline images
     const headingsWithImages = page.locator('h1:has(img.image-inline), h2:has(img.image-inline), h3:has(img.image-inline), h4:has(img.image-inline), h5:has(img.image-inline), h6:has(img.image-inline)');
@@ -321,7 +321,7 @@ test.describe('Inline Images in Headings', () => {
    * Test: Heading text and inline image are preserved together.
    */
   test('heading text and inline image maintain structure', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const headingsWithImages = page.locator('h1:has(img.image-inline), h2:has(img.image-inline), h3:has(img.image-inline)');
     const count = await headingsWithImages.count();
@@ -349,7 +349,7 @@ test.describe('General Inline Image Rendering', () => {
    * Test: All inline images have the image-inline class preserved.
    */
   test('inline images preserve image-inline class', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();
@@ -370,7 +370,7 @@ test.describe('General Inline Image Rendering', () => {
    * Test: Inline images are not wrapped in figure elements.
    */
   test('inline images are not wrapped in figure elements', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();
@@ -391,7 +391,7 @@ test.describe('General Inline Image Rendering', () => {
    * Test: Inline images display inline (not block).
    */
   test('inline images have inline display styling', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const inlineImages = page.locator('img.image-inline');
     const count = await inlineImages.count();

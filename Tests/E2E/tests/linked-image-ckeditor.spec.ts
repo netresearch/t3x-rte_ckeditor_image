@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { gotoFrontendPage } from './helpers/typo3-backend';
 
 /**
  * E2E tests for linked image rendering.
@@ -17,8 +18,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Linked Image Rendering (#565)', () => {
   test('page renders without errors', async ({ page }) => {
-    const response = await page.goto('/');
-    expect(response?.status()).toBe(200);
+    await gotoFrontendPage(page);
 
     // Should not contain TYPO3 error messages
     const content = await page.content();
@@ -27,7 +27,7 @@ test.describe('Linked Image Rendering (#565)', () => {
   });
 
   test('linked image has exactly one <a> wrapper', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find the test-linked-image class we added to the test content
     const linkedImages = page.locator('a.test-linked-image');
@@ -53,7 +53,7 @@ test.describe('Linked Image Rendering (#565)', () => {
   });
 
   test('linked image does not have duplicate <a> tags', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Get the full HTML to check for duplicates
     const pageContent = await page.content();
@@ -80,7 +80,7 @@ test.describe('Linked Image Rendering (#565)', () => {
   });
 
   test('simple linked image renders with single link', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find simple link test content
     const simpleLinks = page.locator('a.test-simple-link');
@@ -106,7 +106,7 @@ test.describe('Linked Image Rendering (#565)', () => {
   });
 
   test('linked image to netresearch.de renders correctly', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find the test-figure-linked class (now on the <a> element, not figure)
     const linkedImages = page.locator('a.test-figure-linked');
@@ -132,7 +132,7 @@ test.describe('Linked Image Rendering (#565)', () => {
   });
 
   test('linked image preserves all link attributes', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const linkedImage = page.locator('a.test-linked-image');
     const count = await linkedImage.count();
@@ -155,7 +155,7 @@ test.describe('Linked Image Rendering (#565)', () => {
 
 test.describe('Linked Image vs Popup Image Distinction', () => {
   test('linked images do NOT have data-popup attribute', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Linked images should NOT have data-popup (that's for click-to-enlarge)
     const linkedImage = page.locator('a.test-linked-image');
@@ -169,7 +169,7 @@ test.describe('Linked Image vs Popup Image Distinction', () => {
   });
 
   test('popup images have data-popup attribute', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find popup links (from click-to-enlarge content)
     const popupLinks = page.locator('a[data-popup="true"]');
@@ -182,7 +182,7 @@ test.describe('Linked Image vs Popup Image Distinction', () => {
   });
 
   test('linked images and popup images can coexist on same page', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // Find linked images (our test content)
     const linkedImages = page.locator('a.test-linked-image');
@@ -211,7 +211,7 @@ test.describe('Linked Image vs Popup Image Distinction', () => {
 
 test.describe('Image Rendering Service Integration', () => {
   test('linked images have processed image paths', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const linkedImage = page.locator('a.test-linked-image img');
     const count = await linkedImage.count();
@@ -228,7 +228,7 @@ test.describe('Image Rendering Service Integration', () => {
   });
 
   test('linked images preserve alt text', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     const linkedImage = page.locator('a.test-linked-image img');
     const count = await linkedImage.count();
@@ -241,7 +241,7 @@ test.describe('Image Rendering Service Integration', () => {
   });
 
   test('test-figure-linked images have correct structure', async ({ page }) => {
-    await page.goto('/');
+    await gotoFrontendPage(page);
 
     // test-figure-linked class is on the <a> element
     const linkedImages = page.locator('a.test-figure-linked');

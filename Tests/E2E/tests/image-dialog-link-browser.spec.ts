@@ -93,11 +93,11 @@ test.describe('Image Dialog Link Browser', () => {
 
     // Wait for link browser iframe to load
     console.log('Waiting for link browser iframe...');
-    await page.waitForSelector('.modal-dialog iframe', { timeout: 10000 });
+    await page.waitForSelector('.t3js-modal iframe, .modal-dialog iframe', { timeout: 10000 });
     await page.waitForTimeout(2000); // Wait for iframe content to load
 
     // Get the link browser iframe
-    const linkBrowserFrame = page.frameLocator('.modal-dialog iframe').last();
+    const linkBrowserFrame = page.frameLocator('.t3js-modal iframe, .modal-dialog iframe').last();
 
     // Take screenshot of link browser
     await page.screenshot({ path: 'test-results/link-browser-before-select.png' });
@@ -204,7 +204,7 @@ test.describe('Image Dialog Link Browser', () => {
       await page.waitForTimeout(2000);
 
       // Check if the link browser modal closed (no remaining link browser iframes)
-      await expect(page.locator('.modal-dialog iframe')).toHaveCount(0);
+      await expect(page.locator('.t3js-modal iframe, .modal-dialog iframe')).toHaveCount(0);
 
       // The link input should now have a value
       const newValue = await linkInput.inputValue();
@@ -259,7 +259,7 @@ test.describe('Image Dialog Link Browser', () => {
     await page.waitForSelector('.modal-dialog iframe, .t3js-modal iframe', { timeout: 10000 });
 
     // Close the link browser modal (click outside or close button)
-    const closeButton = page.locator('.modal .close, .modal [data-bs-dismiss="modal"], .t3js-modal-close').last();
+    const closeButton = page.locator('.modal .close, .modal [data-bs-dismiss="modal"], .t3js-modal-close, .modal-header-close').last();
     if (await closeButton.count() > 0) {
       await closeButton.click();
     } else {
@@ -279,8 +279,8 @@ test.describe('Image Dialog Link Browser', () => {
     });
 
     // The image edit dialog should still be visible
-    const imageDialog = page.locator('.modal-dialog:has(input[name="alt"])');
-    await expect(imageDialog).toBeVisible();
+    const imageDialog = page.locator('.t3js-modal:has(input[name="alt"]), .modal-dialog:has(input[name="alt"])');
+    await expect(imageDialog.first()).toBeVisible();
     // Should not have critical JS errors
     const criticalErrors = consoleErrors.filter(e =>
       e.includes('Cannot read properties') ||

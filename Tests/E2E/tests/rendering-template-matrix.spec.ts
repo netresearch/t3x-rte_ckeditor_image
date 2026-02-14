@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { templateTestImage } from './helpers/selectors';
+import { gotoFrontendPage } from './helpers/typo3-backend';
 
 /**
  * Template rendering matrix — one test per Fluid template.
@@ -19,8 +20,7 @@ import { templateTestImage } from './helpers/selectors';
  */
 test.describe('Rendering Template Matrix', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await gotoFrontendPage(page);
   });
 
   test('Standalone template: bare <img> without wrapper', async ({ page }) => {

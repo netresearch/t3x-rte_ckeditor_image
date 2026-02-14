@@ -715,6 +715,16 @@ page.10 < styles.content.get
 
 # Include CSS for image alignment styles (image-left, image-center, image-right)
 page.includeCSS.rte_ckeditor_image_alignment = EXT:rte_ckeditor_image/Resources/Public/Css/image-alignment.css
+
+# E2E: Ensure heading tags are in allowTags for parseFunc_RTE.
+# fluid_styled_content may not include all heading tags in its allowTags
+# across TYPO3 versions. Our test data (CE 8) contains <h3> with inline
+# images, which would be HTML-escaped if h1-h6 are not allowed.
+lib.parseFunc_RTE.allowTags := addToList(h1,h2,h3,h4,h5,h6)
+
+# E2E: Ensure table/list tags are in allowTags for the same reason.
+# CE 8 test data contains <table>, <ul>, <li> elements.
+lib.parseFunc_RTE.allowTags := addToList(table,thead,tbody,tr,th,td,ul,ol,li)
 TYPOSCRIPT;
 
 // Insert or update sys_template with BOTH constants and config
@@ -1037,10 +1047,16 @@ CONTENT_EOF
 
         # Install TYPO3 with the extension FIRST (before starting services)
         echo "Installing TYPO3 v${E2E_TYPO3_VERSION} for E2E tests..."
+
+        # Persistent Composer cache — mount host dir so cached packages survive across runs
+        E2E_COMPOSER_CACHE="${ROOT_DIR}/.Build/.cache/composer"
+        mkdir -p "${E2E_COMPOSER_CACHE}"
+
         ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name e2e-setup-${SUFFIX} \
             -v ${E2E_ROOT}:/var/www/html \
             -v ${E2E_SCRIPTS}:/e2e-scripts:ro \
             -v ${ROOT_DIR}:/extension:ro \
+            -v ${E2E_COMPOSER_CACHE}:/.cache/composer \
             -w /var/www/html \
             -e COMPOSER_CACHE_DIR=/.cache/composer \
             ${IMAGE_PHP} /bin/bash -c "
@@ -1208,6 +1224,7 @@ HTACCESS
             -w /app \
             -e BASE_URL=http://apache-e2e-${SUFFIX}:80 \
             -e TYPO3_BACKEND_PASSWORD="${E2E_ADMIN_PASSWORD}" \
+            -e TYPO3_VERSION="${E2E_TYPO3_VERSION}" \
             -e CI=true \
             ${IMAGE_PLAYWRIGHT} /bin/bash -c "
                 # Skip npm install if node_modules exists (pre-cached in CI)

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { gotoFrontendPage } from './helpers/typo3-backend';
 
 /**
  * Regression tests for alignment classes without caption.
@@ -18,8 +19,7 @@ import { test, expect } from '@playwright/test';
  */
 test.describe('Alignment Without Caption (#595)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await gotoFrontendPage(page);
   });
 
   test('image-left without caption renders as bare <img>, not <figure>', async ({ page }) => {
@@ -61,8 +61,7 @@ test.describe('Alignment Without Caption (#595)', () => {
 
 test.describe('Alignment With Caption (#595)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await gotoFrontendPage(page);
   });
 
   test('image-left with caption renders as <figure> with figcaption', async ({ page }) => {
