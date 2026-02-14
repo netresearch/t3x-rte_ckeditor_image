@@ -270,9 +270,8 @@ class UpdateImageReferences
                     'src="' . $newSrc . '"',
                     $part,
                 );
+                $changed = true;
             }
-
-            $changed = true;
         }
 
         if (!$changed) {
