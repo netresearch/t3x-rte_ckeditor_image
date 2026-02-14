@@ -1,0 +1,21 @@
+"pages",,,,
+,"uid","pid","title","slug"
+,1,0,"Root","/root"
+
+"sys_file_storage",,,,,,,,,
+,"uid","pid","name","driver","configuration","is_default","is_browsable","is_public","is_writable","is_online"
+,"1","0","fileadmin","Local","<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes"" ?><T3FlexForms><data><sheet index=""sDEF""><language index=""lDEF""><field index=""basePath""><value index=""vDEF"">fileadmin/</value></field><field index=""pathType""><value index=""vDEF"">relative</value></field><field index=""caseSensitive""><value index=""vDEF"">1</value></field></language></sheet></data></T3FlexForms>","1","1","1","1","1"
+
+"sys_file",,,,,,,,,
+,"uid","pid","storage","identifier","name","type","mime_type","size","sha1","extension"
+,"1","0","1","/new.jpg","new.jpg","2","image/jpeg","12345","da39a3ee5e6b4b0d3255bfef95601890afd80709","jpg"
+
+"tt_content",,,,,,
+,"uid","pid","sys_language_uid","deleted","hidden","bodytext"
+,1,1,0,0,0,"<img data-htmlarea-file-uid=""1"" src=""/fileadmin/old.jpg"" />"
+,2,1,0,0,0,"<p><img data-htmlarea-file-uid=""1"" src=""/fileadmin/old.jpg"" /> text</p>"
+
+"sys_refindex",,,,,,
+,"hash","tablename","recuid","field","softref_key","ref_table","ref_uid"
+,"aaa111","tt_content",1,"bodytext","rtehtmlarea_images","sys_file",1
+,"bbb222","tt_content",2,"bodytext","rtehtmlarea_images","sys_file",1
