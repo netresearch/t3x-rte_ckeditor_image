@@ -1,4 +1,4 @@
 "tt_content",,,,,,
 ,"uid","pid","sys_language_uid","deleted","hidden","bodytext"
-,1,1,0,0,0,"<img data-htmlarea-file-uid=""1"" src=""/fileadmin/new.jpg"" />"
-,2,1,0,0,0,"<p><img data-htmlarea-file-uid=""1"" src=""/fileadmin/new.jpg"" /> text</p>"
+,1,1,0,0,0,"<img data-htmlarea-file-uid=""1"" src=""fileadmin/new.jpg"" />"
+,2,1,0,0,0,"<p><img data-htmlarea-file-uid=""1"" src=""fileadmin/new.jpg"" /> text</p>"
