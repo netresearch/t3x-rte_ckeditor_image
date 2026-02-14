@@ -68,7 +68,7 @@ export function requireCondition(condition: boolean, message: string): void {
  * Handles both TYPO3 v12 and v13 login form selectors.
  */
 export async function loginToBackend(page: Page): Promise<void> {
-    await page.goto(`${BASE_URL}/typo3/`, { timeout: 30000 });
+    await gotoFrontendPage(page, '/typo3/');
 
     const loginForm = page.locator(
         'form[name="loginform"], #typo3-login-form, input[name="username"], #t3-username'
@@ -91,7 +91,7 @@ export async function loginToBackend(page: Page): Promise<void> {
     const backendIndicators = page.locator(
         '.modulemenu, .typo3-module-menu, [data-modulemenu], .scaffold, typo3-backend-sidebar-toggle'
     );
-    await backendIndicators.first().waitFor({ state: 'visible', timeout: 30000 });
+    await expect(backendIndicators.first(), 'TYPO3 backend did not render after login (no module menu, scaffold, or sidebar toggle found)').toBeVisible({ timeout: 30000 });
 }
 
 /**

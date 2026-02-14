@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, BASE_URL, navigateToContentEdit, getModuleFrame, waitForCKEditor, requireCondition, BACKEND_PASSWORD, openImageEditDialog, confirmImageDialog, getEditorHtml, saveContentElement, selectImageInEditor } from './helpers/typo3-backend';
+import { loginToBackend, BASE_URL, navigateToContentEdit, getModuleFrame, waitForCKEditor, requireCondition, BACKEND_PASSWORD, openImageEditDialog, confirmImageDialog, getEditorHtml, saveContentElement, selectImageInEditor, gotoFrontendPage } from './helpers/typo3-backend';
 
 /**
  * E2E tests for the actual CKEditor workflow where issue #565 manifests.
@@ -115,14 +115,12 @@ test.describe('CKEditor Backend Workflow (#565)', () => {
 
 test.describe('Backend Integration Smoke Tests', () => {
   test('TYPO3 backend is accessible', async ({ page }) => {
-    const response = await page.goto(`${BASE_URL}/typo3/`);
-
-    // Should get a response (even if redirect to login)
-    expect(response?.status()).toBeLessThan(500);
+    // Use gotoFrontendPage for retry logic — PHP-FPM may not be ready yet in CI
+    await gotoFrontendPage(page, '/typo3/');
   });
 
   test('backend login page renders without errors', async ({ page }) => {
-    await page.goto(`${BASE_URL}/typo3/`);
+    await gotoFrontendPage(page, '/typo3/');
 
     // Should not have TYPO3 error messages
     const content = await page.content();

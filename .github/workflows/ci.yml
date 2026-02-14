@@ -248,7 +248,7 @@ jobs:
                 uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
                 with:
                     path: .Build/.cache/composer
-                    key: ${{ runner.os }}-composer-e2e-v${{ matrix.typo3 }}-${{ hashFiles('composer.json') }}
+                    key: ${{ runner.os }}-composer-e2e-v${{ matrix.typo3 }}-${{ hashFiles('composer.json', 'Build/Scripts/runTests.sh') }}
                     restore-keys: |
                         ${{ runner.os }}-composer-e2e-v${{ matrix.typo3 }}-
                         ${{ runner.os }}-composer-e2e-
