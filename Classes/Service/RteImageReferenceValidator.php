@@ -52,7 +52,11 @@ class RteImageReferenceValidator
             $rawRecuid = $record['recuid'];
             $field     = $record['field'];
 
-            if (!is_string($tableName) || !is_string($field)) {
+            if (!is_string($tableName)) {
+                continue;
+            }
+
+            if (!is_string($field)) {
                 continue;
             }
 
@@ -64,7 +68,11 @@ class RteImageReferenceValidator
 
             $currentValue = $this->fetchFieldValue($tableName, $recuid, $field);
 
-            if ($currentValue === null || $currentValue === '') {
+            if ($currentValue === null) {
+                continue;
+            }
+
+            if ($currentValue === '') {
                 continue;
             }
 
@@ -176,7 +184,11 @@ class RteImageReferenceValidator
         $imgIndex     = 0;
 
         foreach ($splitContent as $part) {
-            if (!is_string($part) || !str_starts_with($part, '<img')) {
+            if (!is_string($part)) {
+                continue;
+            }
+
+            if (!str_starts_with($part, '<img')) {
                 continue;
             }
 
@@ -196,7 +208,7 @@ class RteImageReferenceValidator
 
             $issue = $this->detectIssue($src, $fileUid, $table, $uid, $field, $imgIndex);
 
-            if ($issue !== null) {
+            if ($issue instanceof ValidationIssue) {
                 $issues[] = $issue;
             }
 
@@ -270,7 +282,7 @@ class RteImageReferenceValidator
         }
 
         // Check for src mismatch
-        if ($src !== null && $src !== '' && $src !== $publicUrl) {
+        if (!in_array($src, [null, '', $publicUrl], true)) {
             return new ValidationIssue(
                 type: ValidationIssueType::SrcMismatch,
                 table: $table,
@@ -324,7 +336,11 @@ class RteImageReferenceValidator
         $changed      = false;
 
         foreach ($splitContent as $key => $part) {
-            if (!is_string($part) || !str_starts_with($part, '<img')) {
+            if (!is_string($part)) {
+                continue;
+            }
+
+            if (!str_starts_with($part, '<img')) {
                 continue;
             }
 
