@@ -4,4 +4,4 @@
 ,2,1,0,0,0,"<p><img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""1"" src=""fileadmin/photo.jpg"" /></p>"
 ,3,1,0,0,0,"<p>Clean <img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""2"" src=""fileadmin/banner.png"" /> content</p>"
 ,4,1,0,0,0,"<p><img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""999"" src=""/fileadmin/deleted.jpg"" /></p>"
-,5,1,0,0,0,"<p><img src=""fileadmin/banner.png"" data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""2"" src="""" alt=""broken src"" /></p>"
+,5,1,0,0,0,"<p><img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""2"" src=""fileadmin/banner.png"" alt=""broken src"" /></p>"

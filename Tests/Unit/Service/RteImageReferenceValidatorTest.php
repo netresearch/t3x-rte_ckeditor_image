@@ -423,7 +423,7 @@ class RteImageReferenceValidatorTest extends TestCase
         ];
 
         $html     = '<p><img data-htmlarea-file-uid="2" src="" alt="banner" /></p>';
-        $expected = '<p><img src="/fileadmin/banner.png" data-htmlarea-file-uid="2" src="" alt="banner" /></p>';
+        $expected = '<p><img data-htmlarea-file-uid="2" src="/fileadmin/banner.png" alt="banner" /></p>';
 
         self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
     }

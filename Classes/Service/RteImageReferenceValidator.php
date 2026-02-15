@@ -370,17 +370,18 @@ class RteImageReferenceValidator
                 continue;
             }
 
-            if ($currentSrc !== null && $currentSrc !== '') {
-                $splitContent[$key] = str_replace(
-                    'src="' . $currentSrc . '"',
-                    'src="' . $newSrc . '"',
-                    $part,
-                );
-            } else {
-                // Insert src attribute after <img
+            if ($currentSrc === null) {
+                // No src attribute exists — insert one after <img
                 $splitContent[$key] = str_replace(
                     '<img ',
                     '<img src="' . $newSrc . '" ',
+                    $part,
+                );
+            } else {
+                // Replace existing src (empty or non-empty)
+                $splitContent[$key] = str_replace(
+                    'src="' . $currentSrc . '"',
+                    'src="' . $newSrc . '"',
                     $part,
                 );
             }
