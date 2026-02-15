@@ -301,4 +301,64 @@ class RteImageReferenceValidatorTest extends TestCase
         self::assertSame(3, count($result->getIssues()));
         self::assertSame(2, $result->getAffectedRecords());
     }
+
+    #[Test]
+    public function detectsBrokenSrcWithNullSrc(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('/fileadmin/image.jpg');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(3)
+            ->willReturn($file);
+
+        // img tag with data-htmlarea-file-uid but NO src attribute at all
+        $html = '<p><img data-htmlarea-file-uid="3" alt="no src attribute" /></p>';
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 15, 'bodytext');
+
+        self::assertCount(1, $issues);
+        self::assertSame(ValidationIssueType::BrokenSrc, $issues[0]->type);
+        self::assertNull($issues[0]->currentSrc);
+        self::assertSame('/fileadmin/image.jpg', $issues[0]->expectedSrc);
+        self::assertSame(3, $issues[0]->fileUid);
+        self::assertTrue($issues[0]->isFixable());
+    }
+
+    #[Test]
+    public function returnsNullForEmptyPublicUrl(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn(null);
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(4)
+            ->willReturn($file);
+
+        $html = '<p><img data-htmlarea-file-uid="4" src="/fileadmin/image.jpg" /></p>';
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 20, 'bodytext');
+
+        self::assertSame([], $issues);
+    }
+
+    #[Test]
+    public function returnsNullForEmptyStringPublicUrl(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(6)
+            ->willReturn($file);
+
+        $html = '<p><img data-htmlarea-file-uid="6" src="/fileadmin/image.jpg" /></p>';
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 25, 'bodytext');
+
+        self::assertSame([], $issues);
+    }
 }
