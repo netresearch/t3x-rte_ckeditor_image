@@ -150,6 +150,31 @@ services:
     arguments:
       $imageProcessor: '@Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorInterface'
 
+  # =========================================================================
+  # Image Reference Validation (CLI command + Upgrade wizard)
+  # =========================================================================
+
+  Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator:
+    public: true
+    arguments:
+      $connectionPool: '@TYPO3\CMS\Core\Database\ConnectionPool'
+      $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
+      $htmlParser: '@TYPO3\CMS\Core\Html\HtmlParser'
+
+  # CLI: bin/typo3 rte_ckeditor_image:validate [--fix] [--table=tt_content]
+  # Auto-registered via #[AsCommand] attribute
+  Netresearch\RteCKEditorImage\Command\ValidateImageReferencesCommand:
+    arguments:
+      $validator: '@Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator'
+    tags:
+      - name: console.command
+        command: 'rte_ckeditor_image:validate'
+
+  # Upgrade wizard: auto-discovered via #[UpgradeWizard] attribute
+  Netresearch\RteCKEditorImage\Updates\ValidateRteImageReferencesWizard:
+    arguments:
+      $validator: '@Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator'
+
   # Event listener: update stale src attributes when FAL files move/rename (#612)
   Netresearch\RteCKEditorImage\Listener\FileOperation\UpdateImageReferences:
     arguments:

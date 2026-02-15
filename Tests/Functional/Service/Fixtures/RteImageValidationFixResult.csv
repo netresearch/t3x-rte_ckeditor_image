@@ -1,0 +1,6 @@
+"tt_content",,,,,,
+,"uid","pid","sys_language_uid","deleted","hidden","bodytext"
+,1,1,0,0,0,"<p>Text <img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""1"" src=""fileadmin/photo.jpg"" /> more</p>"
+,2,1,0,0,0,"<p><img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""1"" src=""fileadmin/photo.jpg"" /></p>"
+,3,1,0,0,0,"<p>Clean <img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""2"" src=""fileadmin/banner.png"" /> content</p>"
+,4,1,0,0,0,"<p><img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""999"" src=""/fileadmin/deleted.jpg"" /></p>"
