@@ -169,6 +169,13 @@ Troubleshooting Topics
         ..  card-footer:: :ref:`Read more <troubleshooting-performance-issues>`
             :button-style: btn btn-primary stretched-link
 
+    ..  card:: 🔍 Image Reference Validation
+
+        Detect and fix stale image references, processed URLs, orphaned file UIDs, and broken src attributes
+
+        ..  card-footer:: :ref:`Read more <troubleshooting-image-reference-validation>`
+            :button-style: btn btn-primary stretched-link
+
 Related Documentation
 =====================
 
@@ -215,3 +222,4 @@ Related Documentation
    Editor-Issues
    Frontend-Issues
    Performance-Issues
+   Image-Reference-Validation

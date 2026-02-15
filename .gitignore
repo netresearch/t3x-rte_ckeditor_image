@@ -63,3 +63,4 @@ Tests/JavaScript/coverage/
 # Local dev config
 config/
 .beads/
+.worktrees/

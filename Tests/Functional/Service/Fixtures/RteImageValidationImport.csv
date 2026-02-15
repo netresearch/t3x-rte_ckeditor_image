@@ -1,0 +1,31 @@
+"pages",,,,
+,"uid","pid","title","slug"
+,1,0,"Root","/root"
+
+"sys_file_storage",,,,,,,,,
+,"uid","pid","name","driver","configuration","is_default","is_browsable","is_public","is_writable","is_online"
+,"1","0","fileadmin","Local","<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes"" ?><T3FlexForms><data><sheet index=""sDEF""><language index=""lDEF""><field index=""basePath""><value index=""vDEF"">fileadmin/</value></field><field index=""pathType""><value index=""vDEF"">relative</value></field><field index=""caseSensitive""><value index=""vDEF"">1</value></field></language></sheet></data></T3FlexForms>","1","1","1","1","1"
+
+"sys_file",,,,,,,,,
+,"uid","pid","storage","identifier","name","type","mime_type","size","sha1","extension"
+,"1","0","1","/photo.jpg","photo.jpg","2","image/jpeg","12345","da39a3ee5e6b4b0d3255bfef95601890afd80709","jpg"
+,"2","0","1","/banner.png","banner.png","2","image/png","67890","da39a3ee5e6b4b0d3255bfef95601890afd80709","png"
+
+"tt_content",,,,,,
+,"uid","pid","sys_language_uid","deleted","hidden","bodytext"
+,1,1,0,0,0,"<p>Text <img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""1"" src=""/fileadmin/_processed_/a/b/csm_photo_abc123.jpg"" /> more</p>"
+,2,1,0,0,0,"<p><img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""1"" src=""/fileadmin/old-location/photo.jpg"" /></p>"
+,3,1,0,0,0,"<p>Clean <img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""2"" src=""fileadmin/banner.png"" /> content</p>"
+,4,1,0,0,0,"<p><img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""999"" src=""/fileadmin/deleted.jpg"" /></p>"
+,5,1,0,0,0,"<p><img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""2"" src="""" alt=""broken src"" /></p>"
+,6,1,0,0,0,""
+
+"sys_refindex",,,,,,
+,"hash","tablename","recuid","field","softref_key","ref_table","ref_uid"
+,"hash01","tt_content",1,"bodytext","rtehtmlarea_images","sys_file",1
+,"hash02","tt_content",2,"bodytext","rtehtmlarea_images","sys_file",1
+,"hash03","tt_content",3,"bodytext","rtehtmlarea_images","sys_file",2
+,"hash04","tt_content",4,"bodytext","rtehtmlarea_images","sys_file",999
+,"hash05","tt_content",5,"bodytext","rtehtmlarea_images","sys_file",2
+,"hash06","tt_content",6,"bodytext","rtehtmlarea_images","sys_file",1
+,"hash07","tt_content",999,"bodytext","rtehtmlarea_images","sys_file",1
