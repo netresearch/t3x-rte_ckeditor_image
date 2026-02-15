@@ -129,8 +129,8 @@ class ValidateImageReferencesCommand extends Command
                 (string) $issue->uid,
                 $issue->field,
                 $issue->fileUid !== null ? (string) $issue->fileUid : '-',
-                $this->truncate($issue->currentSrc ?? '-', 50),
-                $this->truncate($issue->expectedSrc ?? '-', 50),
+                $this->truncate($issue->currentSrc, 50),
+                $this->truncate($issue->expectedSrc, 50),
                 $issue->isFixable() ? 'yes' : 'no',
             ]);
         }

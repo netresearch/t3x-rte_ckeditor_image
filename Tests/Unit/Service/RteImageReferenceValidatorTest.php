@@ -15,8 +15,10 @@ use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssueType;
 use Netresearch\RteCKEditorImage\Dto\ValidationResult;
 use Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Html\HtmlParser;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
@@ -29,6 +31,7 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
  * Tests the HTML parsing and issue detection logic in isolation.
  * Database-dependent tests are in the functional test suite.
  */
+#[CoversClass(RteImageReferenceValidator::class)]
 class RteImageReferenceValidatorTest extends TestCase
 {
     private RteImageReferenceValidator $subject;
@@ -360,5 +363,203 @@ class RteImageReferenceValidatorTest extends TestCase
         $issues = $this->subject->validateHtml($html, 'tt_content', 25, 'bodytext');
 
         self::assertSame([], $issues);
+    }
+
+    // -------------------------------------------------------------------------
+    // applyFixes() edge cases via reflection
+    // -------------------------------------------------------------------------
+
+    /**
+     * Invoke the private applyFixes() method via reflection.
+     *
+     * @param list<ValidationIssue> $issues
+     */
+    private function invokeApplyFixes(string $html, array $issues): string
+    {
+        $method = new ReflectionMethod(RteImageReferenceValidator::class, 'applyFixes');
+
+        $result = $method->invoke($this->subject, $html, $issues);
+        self::assertIsString($result);
+
+        return $result;
+    }
+
+    #[Test]
+    public function applyFixesReturnsUnchangedHtmlWhenFixMapIsEmpty(): void
+    {
+        // Issue with null fileUid (MissingFileUid) produces an empty fixMap
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::MissingFileUid,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: null,
+                currentSrc: '/fileadmin/img.jpg',
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+        ];
+
+        $html = '<p><img src="/fileadmin/img.jpg" /></p>';
+
+        self::assertSame($html, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesInsertsSrcWhenCurrentSrcIsEmpty(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::BrokenSrc,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 2,
+                currentSrc: '',
+                expectedSrc: '/fileadmin/banner.png',
+                imgIndex: 0,
+            ),
+        ];
+
+        $html     = '<p><img data-htmlarea-file-uid="2" src="" alt="banner" /></p>';
+        $expected = '<p><img src="/fileadmin/banner.png" data-htmlarea-file-uid="2" src="" alt="banner" /></p>';
+
+        self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesInsertsSrcWhenCurrentSrcIsNull(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::BrokenSrc,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 3,
+                currentSrc: null,
+                expectedSrc: '/fileadmin/image.jpg',
+                imgIndex: 0,
+            ),
+        ];
+
+        $html     = '<p><img data-htmlarea-file-uid="3" alt="no src" /></p>';
+        $expected = '<p><img src="/fileadmin/image.jpg" data-htmlarea-file-uid="3" alt="no src" /></p>';
+
+        self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesReturnsUnchangedHtmlWhenSrcAlreadyCorrect(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::SrcMismatch,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 1,
+                currentSrc: '/fileadmin/image.jpg',
+                expectedSrc: '/fileadmin/image.jpg',
+                imgIndex: 0,
+            ),
+        ];
+
+        $html = '<p><img data-htmlarea-file-uid="1" src="/fileadmin/image.jpg" /></p>';
+
+        // src already matches expectedSrc, so no change should be applied
+        self::assertSame($html, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesReplacesSrcWhenMismatched(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::SrcMismatch,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 5,
+                currentSrc: '/fileadmin/old-location/photo.jpg',
+                expectedSrc: '/fileadmin/new-location/photo.jpg',
+                imgIndex: 0,
+            ),
+        ];
+
+        $html     = '<p><img data-htmlarea-file-uid="5" src="/fileadmin/old-location/photo.jpg" /></p>';
+        $expected = '<p><img data-htmlarea-file-uid="5" src="/fileadmin/new-location/photo.jpg" /></p>';
+
+        self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesSkipsImgWithoutFileUidAttribute(): void
+    {
+        // Issue references fileUid=1, but the img tag in HTML has no data-htmlarea-file-uid
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::SrcMismatch,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 1,
+                currentSrc: '/fileadmin/old.jpg',
+                expectedSrc: '/fileadmin/new.jpg',
+                imgIndex: 0,
+            ),
+        ];
+
+        $html = '<p><img src="/fileadmin/old.jpg" alt="no uid" /></p>';
+
+        // No data-htmlarea-file-uid attribute, so the fix cannot be applied
+        self::assertSame($html, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesHandlesIssueWithNullExpectedSrc(): void
+    {
+        // OrphanedFileUid with null expectedSrc: should not be added to fixMap
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::OrphanedFileUid,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 999,
+                currentSrc: '/fileadmin/deleted.jpg',
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+        ];
+
+        $html = '<p><img data-htmlarea-file-uid="999" src="/fileadmin/deleted.jpg" /></p>';
+
+        // null expectedSrc means fixMap is empty, so HTML is returned unchanged
+        self::assertSame($html, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesSkipsImgWithDifferentFileUid(): void
+    {
+        // Issue references fileUid=1, but the img tag has fileUid=99
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::SrcMismatch,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 1,
+                currentSrc: '/fileadmin/old.jpg',
+                expectedSrc: '/fileadmin/new.jpg',
+                imgIndex: 0,
+            ),
+        ];
+
+        $html = '<p><img data-htmlarea-file-uid="99" src="/fileadmin/old.jpg" /></p>';
+
+        // The img tag's file UID (99) is not in the fixMap, so no fix applied
+        self::assertSame($html, $this->invokeApplyFixes($html, $issues));
     }
 }

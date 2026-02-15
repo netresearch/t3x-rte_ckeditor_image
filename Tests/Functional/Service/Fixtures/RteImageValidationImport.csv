@@ -17,6 +17,7 @@
 ,2,1,0,0,0,"<p><img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""1"" src=""/fileadmin/old-location/photo.jpg"" /></p>"
 ,3,1,0,0,0,"<p>Clean <img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""2"" src=""fileadmin/banner.png"" /> content</p>"
 ,4,1,0,0,0,"<p><img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""999"" src=""/fileadmin/deleted.jpg"" /></p>"
+,5,1,0,0,0,"<p><img data-htmlarea-file-table=""sys_file"" data-htmlarea-file-uid=""2"" src="""" alt=""broken src"" /></p>"
 
 "sys_refindex",,,,,,
 ,"hash","tablename","recuid","field","softref_key","ref_table","ref_uid"
@@ -24,3 +25,4 @@
 ,"hash02","tt_content",2,"bodytext","rtehtmlarea_images","sys_file",1
 ,"hash03","tt_content",3,"bodytext","rtehtmlarea_images","sys_file",2
 ,"hash04","tt_content",4,"bodytext","rtehtmlarea_images","sys_file",999
+,"hash05","tt_content",5,"bodytext","rtehtmlarea_images","sys_file",2

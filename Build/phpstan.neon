@@ -102,3 +102,6 @@ parameters:
         - identifier: classConstant.deprecatedClass
           path: %currentWorkingDirectory%/Classes/Updates/*
           reportUnmatched: false
+        - identifier: classConstant.deprecatedClass
+          path: %currentWorkingDirectory%/Tests/Unit/Updates/*
+          reportUnmatched: false

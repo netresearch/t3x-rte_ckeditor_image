@@ -109,13 +109,25 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function validateFindsBrokenSrc(): void
+    {
+        $result = $this->getSubject()->validate();
+        $issue  = $this->findFirstIssueOfType($result->getIssues(), ValidationIssueType::BrokenSrc);
+
+        self::assertSame(5, $issue->uid);
+        self::assertSame(2, $issue->fileUid);
+        self::assertSame('', $issue->currentSrc);
+        self::assertTrue($issue->isFixable());
+    }
+
+    #[Test]
     public function validateReportsScanCounts(): void
     {
         $result = $this->getSubject()->validate();
 
-        self::assertSame(4, $result->getScannedRecords());
-        self::assertSame(4, $result->getScannedImages());
-        self::assertGreaterThanOrEqual(3, count($result->getIssues()));
+        self::assertSame(5, $result->getScannedRecords());
+        self::assertSame(5, $result->getScannedImages());
+        self::assertGreaterThanOrEqual(4, count($result->getIssues()));
     }
 
     #[Test]
@@ -137,8 +149,8 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         $updatedCount = $validator->fix($result);
 
-        // Records 1 (processed src) and 2 (src mismatch) should be fixed
-        self::assertSame(2, $updatedCount);
+        // Records 1 (processed src), 2 (src mismatch), and 5 (broken src) should be fixed
+        self::assertSame(3, $updatedCount);
 
         $this->assertCSVDataSet(__DIR__ . '/Fixtures/RteImageValidationFixResult.csv');
     }
@@ -151,7 +163,7 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         $validator->fix($result);
 
-        // Re-validate: records 1 and 2 should be clean now; record 4 (orphaned) still has issue
+        // Re-validate: records 1, 2, and 5 should be clean now; record 4 (orphaned) still has issue
         $resultAfterFix = $validator->validate();
         $remainingTypes = array_map(
             static fn (ValidationIssue $issue): ValidationIssueType => $issue->type,
@@ -160,6 +172,7 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         self::assertNotContains(ValidationIssueType::ProcessedImageSrc, $remainingTypes);
         self::assertNotContains(ValidationIssueType::SrcMismatch, $remainingTypes);
+        self::assertNotContains(ValidationIssueType::BrokenSrc, $remainingTypes);
         self::assertContains(ValidationIssueType::OrphanedFileUid, $remainingTypes);
     }
 }
