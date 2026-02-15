@@ -13,6 +13,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Functional\Service;
 
 use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssueType;
+use Netresearch\RteCKEditorImage\Dto\ValidationResult;
 use Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\Connection;
@@ -269,5 +270,14 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
             '<p><img data-htmlarea-file-table="sys_file" data-htmlarea-file-uid="999" src="/fileadmin/deleted.jpg" /></p>',
             $bodytext,
         );
+    }
+
+    #[Test]
+    public function fixReturnsZeroForEmptyResult(): void
+    {
+        $validator   = $this->getSubject();
+        $emptyResult = new ValidationResult();
+
+        self::assertSame(0, $validator->fix($emptyResult));
     }
 }
