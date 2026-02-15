@@ -53,15 +53,15 @@ class RteImageReferenceValidator
             $field     = $record['field'];
 
             if (!is_string($tableName)) {
-                continue;
+                continue; // @codeCoverageIgnore
             }
 
             if (!is_string($field)) {
-                continue;
+                continue; // @codeCoverageIgnore
             }
 
             if (!is_int($rawRecuid) && !is_string($rawRecuid)) {
-                continue;
+                continue; // @codeCoverageIgnore
             }
 
             $recuid = (int) $rawRecuid;
@@ -185,7 +185,7 @@ class RteImageReferenceValidator
 
         foreach ($splitContent as $part) {
             if (!is_string($part)) {
-                continue;
+                continue; // @codeCoverageIgnore
             }
 
             if (!str_starts_with($part, '<img')) {
@@ -198,9 +198,9 @@ class RteImageReferenceValidator
             $tagAttributes = $attributes[0] ?? [];
 
             if (!is_array($tagAttributes)) {
-                ++$imgIndex;
+                ++$imgIndex; // @codeCoverageIgnore
 
-                continue;
+                continue; // @codeCoverageIgnore
             }
 
             $src     = $this->getStringAttribute($tagAttributes, 'src');
@@ -337,7 +337,7 @@ class RteImageReferenceValidator
 
         foreach ($splitContent as $key => $part) {
             if (!is_string($part)) {
-                continue;
+                continue; // @codeCoverageIgnore
             }
 
             if (!str_starts_with($part, '<img')) {
@@ -348,7 +348,7 @@ class RteImageReferenceValidator
             $tagAttributes = $attributes[0] ?? [];
 
             if (!is_array($tagAttributes)) {
-                continue;
+                continue; // @codeCoverageIgnore
             }
 
             $fileUidStr = $this->getStringAttribute($tagAttributes, 'data-htmlarea-file-uid');

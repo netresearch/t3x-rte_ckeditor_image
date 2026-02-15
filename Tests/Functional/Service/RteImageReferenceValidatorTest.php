@@ -15,6 +15,8 @@ use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssueType;
 use Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator;
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
@@ -174,5 +176,98 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
         self::assertNotContains(ValidationIssueType::SrcMismatch, $remainingTypes);
         self::assertNotContains(ValidationIssueType::BrokenSrc, $remainingTypes);
         self::assertContains(ValidationIssueType::OrphanedFileUid, $remainingTypes);
+    }
+
+    #[Test]
+    public function validateSkipsRefindexEntryForDeletedRecord(): void
+    {
+        // sys_refindex has hash07 pointing to tt_content uid=999, which doesn't exist.
+        // fetchFieldValue() returns null → the record is skipped (not counted as scanned).
+        $result = $this->getSubject()->validate();
+
+        $record999Issues = array_filter(
+            $result->getIssues(),
+            static fn (ValidationIssue $issue): bool => $issue->uid === 999,
+        );
+
+        self::assertCount(0, $record999Issues);
+        // uid=999 must not be counted as a scanned record
+        self::assertSame(5, $result->getScannedRecords());
+    }
+
+    #[Test]
+    public function validateSkipsRecordWithEmptyBodytext(): void
+    {
+        // tt_content uid=6 has empty bodytext; fetchFieldValue() returns '' → skipped.
+        $result = $this->getSubject()->validate();
+
+        $record6Issues = array_filter(
+            $result->getIssues(),
+            static fn (ValidationIssue $issue): bool => $issue->uid === 6,
+        );
+
+        self::assertCount(0, $record6Issues);
+        // uid=6 must not be counted as a scanned record
+        self::assertSame(5, $result->getScannedRecords());
+    }
+
+    #[Test]
+    public function fixSkipsRecordDeletedBetweenValidateAndFix(): void
+    {
+        // Validate first to capture issues, then delete a record before fixing.
+        $validator = $this->getSubject();
+        $result    = $validator->validate();
+
+        // Delete record uid=1 (processed src) from tt_content between validate and fix
+        $connectionPool = $this->get(ConnectionPool::class);
+        self::assertInstanceOf(ConnectionPool::class, $connectionPool);
+
+        $connection = $connectionPool->getConnectionForTable('tt_content');
+        $connection->delete('tt_content', ['uid' => 1]);
+
+        $updatedCount = $validator->fix($result);
+
+        // Only records 2 and 5 should be fixed; record 1 is gone (null), record 4 has no change
+        self::assertSame(2, $updatedCount);
+    }
+
+    #[Test]
+    public function fixSkipsOrphanedFileUidWithUnchangedHtml(): void
+    {
+        // Record uid=4 has OrphanedFileUid (fixable), but applyFixes() returns unchanged HTML
+        // because expectedSrc is null, producing an empty fixMap.
+        $validator = $this->getSubject();
+        $result    = $validator->validate();
+
+        // Verify the OrphanedFileUid issue exists and is fixable
+        $orphanedIssues = array_filter(
+            $result->getFixableIssues(),
+            static fn (ValidationIssue $issue): bool => $issue->type === ValidationIssueType::OrphanedFileUid,
+        );
+        self::assertCount(1, $orphanedIssues);
+
+        $updatedCount = $validator->fix($result);
+
+        // Records 1, 2, 5 get fixed; record 4 (orphaned) goes through fix() but produces no change
+        self::assertSame(3, $updatedCount);
+
+        // Verify record 4's bodytext is unchanged
+        $connectionPool = $this->get(ConnectionPool::class);
+        self::assertInstanceOf(ConnectionPool::class, $connectionPool);
+
+        $queryBuilder = $connectionPool->getQueryBuilderForTable('tt_content');
+        $queryBuilder->getRestrictions()->removeAll();
+
+        $bodytext = $queryBuilder
+            ->select('bodytext')
+            ->from('tt_content')
+            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter(4, Connection::PARAM_INT)))
+            ->executeQuery()
+            ->fetchOne();
+
+        self::assertSame(
+            '<p><img data-htmlarea-file-table="sys_file" data-htmlarea-file-uid="999" src="/fileadmin/deleted.jpg" /></p>',
+            $bodytext,
+        );
     }
 }

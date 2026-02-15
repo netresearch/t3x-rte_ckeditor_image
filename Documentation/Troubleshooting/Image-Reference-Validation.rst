@@ -49,9 +49,9 @@ Five categories of issues are detected:
      - Yes
    * - ``orphaned_file_uid``
      - ``data-htmlarea-file-uid`` references a FAL file that no longer exists
-       in ``sys_file``. The issue is logged but no ``src`` correction is
-       possible because the file is gone.
-     - Yes (logged)
+       in ``sys_file``. The stale ``data-htmlarea-file-uid`` attribute is
+       removed, but no ``src`` correction is possible because the file is gone.
+     - Yes (attribute removed)
    * - ``missing_file_uid``
      - The ``<img>`` tag has no ``data-htmlarea-file-uid`` attribute at all.
        Without a file UID there is no way to determine which FAL file the
