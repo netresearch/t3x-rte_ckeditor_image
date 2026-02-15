@@ -91,3 +91,14 @@ parameters:
         - identifier: instanceof.alwaysTrue
           path: %currentWorkingDirectory%/Classes/Service/Processor/RteImageProcessor.php
           reportUnmatched: false
+        # TYPO3 v13/v14 compatibility: upgrade wizard uses Install\Updates namespace (v13)
+        # which is deprecated in v14 (Deprecation-106947). Migrate to Core\Upgrades when dropping v13.
+        - identifier: attribute.deprecated
+          path: %currentWorkingDirectory%/Classes/Updates/*
+          reportUnmatched: false
+        - identifier: class.implementsDeprecatedInterface
+          path: %currentWorkingDirectory%/Classes/Updates/*
+          reportUnmatched: false
+        - identifier: classConstant.deprecatedClass
+          path: %currentWorkingDirectory%/Classes/Updates/*
+          reportUnmatched: false

@@ -12,10 +12,10 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Updates;
 
 use Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator;
-use TYPO3\CMS\Core\Attribute\UpgradeWizard;
-use TYPO3\CMS\Core\Upgrades\DatabaseUpdatedPrerequisite;
-use TYPO3\CMS\Core\Upgrades\RepeatableInterface;
-use TYPO3\CMS\Core\Upgrades\UpgradeWizardInterface;
+use TYPO3\CMS\Install\Attribute\UpgradeWizard;
+use TYPO3\CMS\Install\Updates\DatabaseUpdatedPrerequisite;
+use TYPO3\CMS\Install\Updates\RepeatableInterface;
+use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
 
 /**
  * Upgrade wizard that validates and fixes RTE image references.
@@ -27,6 +27,9 @@ use TYPO3\CMS\Core\Upgrades\UpgradeWizardInterface;
  * - Broken/empty src attributes
  *
  * Repeatable: Can be run multiple times safely.
+ *
+ * Uses Install\Updates namespace for v13 compatibility (deprecated in v14,
+ * see Deprecation-106947). Migrate to Core\Upgrades when dropping v13 support.
  */
 #[UpgradeWizard('rteImageReferenceValidation')]
 final readonly class ValidateRteImageReferencesWizard implements UpgradeWizardInterface, RepeatableInterface
