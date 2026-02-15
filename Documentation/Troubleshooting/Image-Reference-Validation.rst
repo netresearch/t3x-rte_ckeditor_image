@@ -82,6 +82,12 @@ The output shows a summary of scanned records and images, followed by a table
 listing every issue found, including the current ``src``, the expected ``src``,
 and whether the issue is auto-fixable.
 
+.. figure:: /Images/cli-validate-references.png
+   :alt: CLI command output showing RTE image reference validation results
+   :class: with-shadow
+
+   Example output of ``bin/typo3 rte_ckeditor_image:validate`` in dry-run mode.
+
 Apply fixes
 -----------
 
@@ -149,6 +155,12 @@ To run it:
 The wizard scans all RTE fields, and if fixable issues are found it
 automatically applies corrections. It implements ``RepeatableInterface``, so it
 can be executed multiple times safely.
+
+.. figure:: /Images/upgrade-wizard-validate-references.png
+   :alt: TYPO3 Upgrade Wizard showing the Validate RTE Image References wizard
+   :class: with-shadow
+
+   The Upgrade Wizard panel with detected issues and the Execute button.
 
 .. tip::
    The wizard requires the database to be up-to-date (``DatabaseUpdatedPrerequisite``).
