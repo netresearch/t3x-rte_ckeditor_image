@@ -778,10 +778,14 @@ function getImageDialog(editor, img, attributes) {
  * @param img
  * @param attributes
  * @param table
- * @return {$.Deferred}
+ * @return {Promise}
  */
 function askImageAttributes(editor, img, attributes, table) {
-    var deferred = $.Deferred();
+    var resolvePromise, rejectPromise;
+    var promise = new Promise(function(resolve, reject) {
+        resolvePromise = resolve;
+        rejectPromise = reject;
+    });
     var dialog = getImageDialog(editor, img, { ...img.processed, ...attributes });
 
     const modal = Modal.advanced({
@@ -794,7 +798,7 @@ function askImageAttributes(editor, img, attributes, table) {
                 icon: 'actions-close',
                 trigger: function () {
                     modal.hideModal();
-                    deferred.reject();
+                    rejectPromise();
                 }
             },
             {
@@ -835,7 +839,7 @@ function askImageAttributes(editor, img, attributes, table) {
                                 fileTable: table
                             });
                             modal.hideModal('hide');
-                            deferred.resolve(filteredAttr);
+                            resolvePromise(filteredAttr);
                         });
 
                 }
@@ -843,7 +847,7 @@ function askImageAttributes(editor, img, attributes, table) {
         ]
     });
 
-    return deferred;
+    return promise;
 }
 
 /**
@@ -853,7 +857,7 @@ function askImageAttributes(editor, img, attributes, table) {
  * @param table
  * @param uid
  * @param params
- * @return {$.Deferred}
+ * @return {Promise}
  */
 function getImageInfo(editor, table, uid, params) {
     let url = editor.config.get('typo3image').routeUrl + '&action=info&fileId=' + encodeURIComponent(uid) + '&table=' + encodeURIComponent(table);
@@ -880,7 +884,10 @@ function getImageInfo(editor, table, uid, params) {
 }
 
 function selectImage(editor) {
-    const deferred = $.Deferred();
+    var resolvePromise;
+    var promise = new Promise(function(resolve) {
+        resolvePromise = resolve;
+    });
     const bparams = [
         '',
         '',
@@ -909,13 +916,13 @@ function selectImage(editor) {
                         table: 'sys_file',
                     }
                     currentModal.hideModal();
-                    deferred.resolve(selectedItem);
+                    resolvePromise(selectedItem);
                 });
             });
         }
     });
 
-    return deferred;
+    return promise;
 }
 
 /**
@@ -1102,17 +1109,22 @@ function encodeTypoLink(linkData) {
  *
  * @param {Object} editor - The CKEditor instance
  * @param {string} currentValue - Current link value (optional)
- * @return {$.Deferred} Promise that resolves with link data {href, target, title, class}
+ * @return {Promise} Promise that resolves with link data {href, target, title, class}
  */
 function openLinkBrowser(editor, currentValue) {
-    const deferred = $.Deferred();
+    var resolvePromise, rejectPromise;
+    var settled = false;
+    var promise = new Promise(function(resolve, reject) {
+        resolvePromise = function(value) { settled = true; resolve(value); };
+        rejectPromise = function(reason) { settled = true; reject(reason); };
+    });
 
     // Use the typo3image route with action=linkBrowser
     const baseUrl = editor.config.get('typo3image').routeUrl;
     if (!baseUrl) {
         console.error('typo3image.routeUrl not configured');
-        deferred.reject('Link browser route not configured');
-        return deferred;
+        rejectPromise('Link browser route not configured');
+        return promise;
     }
 
     // Build URL for linkBrowser action
@@ -1128,7 +1140,7 @@ function openLinkBrowser(editor, currentValue) {
     }).then(function(response) {
         if (response.error) {
             console.error('Link browser error:', response.error);
-            deferred.reject(response.error);
+            rejectPromise(response.error);
             return;
         }
 
@@ -1182,7 +1194,7 @@ function openLinkBrowser(editor, currentValue) {
 
                 // Don't call Modal.dismiss() - the adapter already handles this
                 // The modal will close and our typo3-modal-hidden handler will clean up
-                deferred.resolve(linkData);
+                resolvePromise(linkData);
             }
         };
         hiddenInput.addEventListener('change', changeHandler);
@@ -1203,17 +1215,17 @@ function openLinkBrowser(editor, currentValue) {
                 form.remove();
             }
 
-            if (deferred.state() === 'pending') {
-                deferred.reject();
+            if (!settled) {
+                rejectPromise();
             }
         });
 
     }).catch(function(error) {
         console.error('Failed to get link browser URL:', error);
-        deferred.reject('Failed to get link browser URL');
+        rejectPromise('Failed to get link browser URL');
     });
 
-    return deferred;
+    return promise;
 }
 
 
