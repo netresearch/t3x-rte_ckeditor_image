@@ -329,7 +329,9 @@ function getImageDialog(editor, img, attributes) {
     rows[3].after(clickBehaviorSection);
     const clickBehaviorHeader = h('div', 'col-xs-12', clickBehaviorSection);
     clickBehaviorHeader.style.marginBottom = '12px';
-    clickBehaviorHeader.insertAdjacentHTML('beforeend', `<strong>${img.lang.clickBehavior || 'Click Behavior'}</strong>`);
+    const clickBehaviorStrong = document.createElement('strong');
+    clickBehaviorStrong.textContent = img.lang.clickBehavior || 'Click Behavior';
+    clickBehaviorHeader.appendChild(clickBehaviorStrong);
 
     // Radio button container
     const radioContainer = h('div', 'col-xs-12', clickBehaviorSection);
@@ -409,7 +411,11 @@ function getImageDialog(editor, img, attributes) {
         // Add info message explaining why options are disabled
         const externalLinkInfo = h('div', 'alert alert-info', radioContainer);
         externalLinkInfo.style.cssText = 'margin-top: 12px; padding: 10px; font-size: 13px;';
-        externalLinkInfo.insertAdjacentHTML('beforeend', `<strong>${img.lang.imageInsideLinkTitle || 'Image is inside a link'}</strong><br>${img.lang.imageInsideLinkMessage || 'Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.'}`);
+        const infoStrong = document.createElement('strong');
+        infoStrong.textContent = img.lang.imageInsideLinkTitle || 'Image is inside a link';
+        externalLinkInfo.appendChild(infoStrong);
+        externalLinkInfo.appendChild(document.createElement('br'));
+        externalLinkInfo.appendChild(document.createTextNode(img.lang.imageInsideLinkMessage || 'Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.'));
     }
 
     // ========================================
@@ -617,27 +623,43 @@ function getImageDialog(editor, img, attributes) {
         };
     }
 
+    // Build a quality indicator message div using safe DOM construction
+    // (avoids insertAdjacentHTML with interpolated values — CodeQL js/xss-through-dom)
+    function buildQualityDiv(color, label, text, qualityColor, qualityText) {
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = `color: ${color}; font-size: 13px; line-height: 1.5;`;
+        const strong = document.createElement('strong');
+        strong.textContent = label;
+        wrapper.appendChild(strong);
+        wrapper.appendChild(document.createTextNode(text));
+        if (qualityText) {
+            const span = document.createElement('span');
+            span.style.cssText = `color: ${qualityColor}; font-weight: bold;`;
+            span.textContent = `\u25cf ${qualityText}`;
+            wrapper.appendChild(span);
+        }
+        return wrapper;
+    }
+
+    function setQualityIndicator(element) {
+        qualityIndicator.textContent = '';
+        qualityIndicator.appendChild(element);
+        qualityIndicator.style.display = '';
+    }
+
     function renderQualityIndicator(displayWidth, displayHeight) {
         const intrinsicWidth = img.width;
         const intrinsicHeight = img.height;
 
         // Guard against zero dimensions to prevent division by zero
         if (displayWidth === 0 || displayHeight === 0) {
-            qualityIndicator.textContent = '';
-            qualityIndicator.insertAdjacentHTML('beforeend',
-                `<div style="color: #dc3545; font-size: 13px; line-height: 1.5;"><strong>Error:</strong> Display dimensions cannot be zero.</div>`
-            );
-            qualityIndicator.style.display = '';
+            setQualityIndicator(buildQualityDiv('#dc3545', 'Error:', ' Display dimensions cannot be zero.'));
             return;
         }
 
         // Handle SVG files
         if (img.extension === 'svg') {
-            qualityIndicator.textContent = '';
-            qualityIndicator.insertAdjacentHTML('beforeend',
-                `<div style="color: #666; font-size: 13px; line-height: 1.5;"><strong>Processing Info:</strong> Vector image will not be processed (scales perfectly at any resolution).</div>`
-            );
-            qualityIndicator.style.display = '';
+            setQualityIndicator(buildQualityDiv('#666', 'Processing Info:', ' Vector image will not be processed (scales perfectly at any resolution).'));
             return;
         }
 
@@ -693,41 +715,39 @@ function getImageDialog(editor, img, attributes) {
         // Check UNCAPPED requested size against original (not the capped requiredWidth/Height)
         const canAchieveRequested = (requestedWidth <= intrinsicWidth && requestedHeight <= intrinsicHeight);
 
-        // Build processing info message
-        let message = '';
-        let messageColor = '#666';
+        // Build processing info message using safe DOM construction
+        const dims = `${intrinsicWidth}\u00d7${intrinsicHeight}`;
+        const displayDims = `${displayWidth}\u00d7${displayHeight}`;
 
-        // Handle "No Scaling" option
         if (selectedQuality === 'none') {
             // No processing - show actual quality based on image/display ratio
-            message = `<strong>Processing Info:</strong> Image ${intrinsicWidth}\u00d7${intrinsicHeight} px will be displayed at ${displayWidth}\u00d7${displayHeight} px = <span style="color: ${expectedQualityColor}; font-weight: bold;">\u25cf ${expectedQualityName} Quality (${qualityRatio.toFixed(1)}x scaling)</span>`;
-            messageColor = expectedQualityColor;
+            setQualityIndicator(buildQualityDiv(
+                expectedQualityColor, 'Processing Info:',
+                ` Image ${dims} px will be displayed at ${displayDims} px = `,
+                expectedQualityColor, `${expectedQualityName} Quality (${qualityRatio.toFixed(1)}x scaling)`
+            ));
         } else if (!canAchieveRequested) {
             // Cannot achieve requested quality - show what will actually happen
-            message = `<strong>Processing Info:</strong> Image ${intrinsicWidth}\u00d7${intrinsicHeight} px will be displayed at ${displayWidth}\u00d7${displayHeight} px = <span style="color: ${expectedQualityColor}; font-weight: bold;">\u25cf ${expectedQualityName} Quality (${actualQuality.toFixed(1)}x scaling)</span>`;
-            messageColor = expectedQualityColor;
+            setQualityIndicator(buildQualityDiv(
+                expectedQualityColor, 'Processing Info:',
+                ` Image ${dims} px will be displayed at ${displayDims} px = `,
+                expectedQualityColor, `${expectedQualityName} Quality (${actualQuality.toFixed(1)}x scaling)`
+            ));
         } else {
             // Can achieve requested quality - normal processing
             const qualityName = `${selectedQuality.charAt(0).toUpperCase()}${selectedQuality.slice(1)}`;
-
-            // Check if resized dimensions match original (no need to mention "resized to" if same size)
             const resizeMatchesOriginal = (Math.round(requiredWidth) === intrinsicWidth && Math.round(requiredHeight) === intrinsicHeight);
+            const resizeDims = `${Math.round(requiredWidth)}\u00d7${Math.round(requiredHeight)}`;
 
-            if (resizeMatchesOriginal) {
-                // No need to mention resize when it matches original
-                message = `<strong>Processing Info:</strong> Image ${intrinsicWidth}\u00d7${intrinsicHeight} px will be displayed at ${displayWidth}\u00d7${displayHeight} px = <span style="color: ${selectedColor}; font-weight: bold;">\u25cf ${qualityName} Quality (${selectedMultiplier.toFixed(1)}x scaling)</span>`;
-            } else {
-                // Different resize size - mention it
-                message = `<strong>Processing Info:</strong> Image ${intrinsicWidth}\u00d7${intrinsicHeight} px will be resized to ${Math.round(requiredWidth)}\u00d7${Math.round(requiredHeight)} px and displayed at ${displayWidth}\u00d7${displayHeight} px = <span style="color: ${selectedColor}; font-weight: bold;">\u25cf ${qualityName} Quality (${selectedMultiplier.toFixed(1)}x scaling)</span>`;
-            }
-            messageColor = selectedColor;
+            const text = resizeMatchesOriginal
+                ? ` Image ${dims} px will be displayed at ${displayDims} px = `
+                : ` Image ${dims} px will be resized to ${resizeDims} px and displayed at ${displayDims} px = `;
+
+            setQualityIndicator(buildQualityDiv(
+                selectedColor, 'Processing Info:', text,
+                selectedColor, `${qualityName} Quality (${selectedMultiplier.toFixed(1)}x scaling)`
+            ));
         }
-
-        const html = `<div style="color: ${messageColor}; font-size: 13px; line-height: 1.5;">${message}</div>`;
-
-        qualityIndicator.textContent = '';
-        qualityIndicator.insertAdjacentHTML('beforeend', html);
-        qualityIndicator.style.display = '';
     }
 
     function updateQualityIndicator() {
