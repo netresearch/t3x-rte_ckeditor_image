@@ -871,7 +871,12 @@ function getImageInfo(editor, table, uid, params) {
         url += '&P[quality]=' + encodeURIComponent(params['data-quality']);
     }
 
-    return $.getJSON(url);
+    return fetch(url).then(function(response) {
+        if (!response.ok) {
+            throw new Error('Image info request failed: ' + response.status);
+        }
+        return response.json();
+    });
 }
 
 function selectImage(editor) {
@@ -1115,9 +1120,11 @@ function openLinkBrowser(editor, currentValue) {
     const linkBrowserActionUrl = baseUrl + separator + 'action=linkBrowser&currentValue=' + encodeURIComponent(currentValue || '');
 
     // Fetch the wizard_link URL from our backend
-    $.ajax({
-        url: linkBrowserActionUrl,
-        dataType: 'json'
+    fetch(linkBrowserActionUrl).then(function(response) {
+        if (!response.ok) {
+            throw new Error('Link browser request failed: ' + response.status);
+        }
+        return response.json();
     }).then(function(response) {
         if (response.error) {
             console.error('Link browser error:', response.error);
@@ -1201,7 +1208,7 @@ function openLinkBrowser(editor, currentValue) {
             }
         });
 
-    }).fail(function(xhr, status, error) {
+    }).catch(function(error) {
         console.error('Failed to get link browser URL:', error);
         deferred.reject('Failed to get link browser URL');
     });
@@ -1579,7 +1586,11 @@ export default class Typo3Image extends Plugin {
             const url = routeUrl + '&action=info&fileId=translations';
 
             try {
-                const response = await $.getJSON(url);
+                const fetchResponse = await fetch(url);
+                if (!fetchResponse.ok) {
+                    throw new Error('Translations request failed: ' + fetchResponse.status);
+                }
+                const response = await fetchResponse.json();
                 translationsCache = response.lang;
                 return translationsCache;
             } catch (error) {
