@@ -55,28 +55,40 @@ CKEditor Plugin Extension
 
            // Modify image dialog
            editor.on('typo3image:dialog', (evt, { dialog, modelElement }) => {
-               // Add custom fields to dialog
-               const customFields = $(`
-                   <div class="form-group">
-                       <label>Custom Caption</label>
-                       <input type="text" class="form-control" name="customCaption"
-                              value="${modelElement.getAttribute('customCaption') || ''}" />
-                   </div>
-                   <div class="form-group">
-                       <label>Copyright</label>
-                       <input type="text" class="form-control" name="customCopyright"
-                              value="${modelElement.getAttribute('customCopyright') || ''}" />
-                   </div>
-               `);
+               // Add custom fields to dialog using native DOM
+               const group1 = document.createElement('div');
+               group1.className = 'form-group';
+               const label1 = document.createElement('label');
+               label1.textContent = 'Custom Caption';
+               group1.appendChild(label1);
+               const captionInput = document.createElement('input');
+               captionInput.type = 'text';
+               captionInput.className = 'form-control';
+               captionInput.name = 'customCaption';
+               captionInput.value = modelElement.getAttribute('customCaption') || '';
+               group1.appendChild(captionInput);
 
-               dialog.$el.append(customFields);
+               const group2 = document.createElement('div');
+               group2.className = 'form-group';
+               const label2 = document.createElement('label');
+               label2.textContent = 'Copyright';
+               group2.appendChild(label2);
+               const copyrightInput = document.createElement('input');
+               copyrightInput.type = 'text';
+               copyrightInput.className = 'form-control';
+               copyrightInput.name = 'customCopyright';
+               copyrightInput.value = modelElement.getAttribute('customCopyright') || '';
+               group2.appendChild(copyrightInput);
+
+               dialog.el.appendChild(group1);
+               dialog.el.appendChild(group2);
 
                // Override dialog.get() to include custom fields
                const originalGet = dialog.get;
                dialog.get = function() {
                    const attrs = originalGet.call(this);
-                   attrs.customCaption = customFields.find('[name="customCaption"]').val();
-                   attrs.customCopyright = customFields.find('[name="customCopyright"]').val();
+                   attrs.customCaption = captionInput.value;
+                   attrs.customCopyright = copyrightInput.value;
                    return attrs;
                };
            });

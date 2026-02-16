@@ -242,13 +242,6 @@ Common Errors
    imports:
      - { resource: "EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml" }
 
-3. jQuery Errors
-""""""""""""""""
-
-**Cause:** jQuery not available in context
-
-**Solution:** The plugin requires jQuery. Ensure TYPO3 backend context loads it (typically automatic).
-
 ----
 
 Issue: Double-Click on Image Does Nothing

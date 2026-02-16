@@ -219,7 +219,9 @@ Opens TYPO3 Modal with file browser:
 .. code-block:: javascript
 
    function selectImage(editor) {
-       const deferred = $.Deferred();
+       let resolvePromise;
+       const promise = new Promise((resolve) => { resolvePromise = resolve; });
+
        const bparams = ['', '', '', ''];
        const contentUrl = editor.config.get('style').typo3image.routeUrl
            + '&contentsLanguage=en&editorId=123&bparams=' + bparams.join('|');
@@ -230,24 +232,25 @@ Opens TYPO3 Modal with file browser:
            content: contentUrl,
            size: Modal.sizes.large,
            callback: function (currentModal) {
-               $(currentModal).find('iframe').on('load', function (e) {
-                   $(this).contents().on('click', '[data-filelist-element]', function (e) {
-                       if ($(this).data('filelist-type') !== 'file') {
-                           return;
-                       }
+               const iframe = currentModal.querySelector('iframe');
+               iframe.addEventListener('load', () => {
+                   const doc = iframe.contentDocument;
+                   doc.addEventListener('click', (e) => {
+                       const el = e.target.closest('[data-filelist-element]');
+                       if (!el || el.dataset.filelistType !== 'file') return;
 
                        const selectedItem = {
-                           uid: $(this).data('filelist-uid'),
+                           uid: el.dataset.filelistUid,
                            table: 'sys_file',
                        };
                        currentModal.hideModal();
-                       deferred.resolve(selectedItem);
+                       resolvePromise(selectedItem);
                    });
                });
            }
        });
 
-       return deferred;
+       return promise;
    }
 
 Image Properties Dialog
@@ -273,23 +276,25 @@ Creates image properties form:
            }
        ];
 
-       // Create form elements
-       d.$el = $('<div class="rteckeditorimage">');
+       // Create form elements using native DOM
+       const container = document.createElement('div');
+       container.className = 'rteckeditorimage';
+       d.el = container;
 
        // ... form generation code ...
 
        // Aspect ratio preservation for width/height
-       $el.on('input', function () {
+       el.addEventListener('input', () => {
            const ratio = img.width / img.height;
            const newHeight = Math.ceil(newWidth / ratio);
-           $opposite.val(newHeight);
+           oppositeEl.value = newHeight;
        });
 
        // Override checkboxes for title/alt
-       cbox.on('click', function () {
-           $el.prop('disabled', !cbox.prop('checked'));
-           if (!cbox.prop('checked')) {
-               $el.val('');  // Clear custom value
+       cboxLabel.addEventListener('click', () => {
+           el.disabled = !cbox.checked;
+           if (!cbox.checked) {
+               el.value = '';  // Clear custom value
            }
        });
 
@@ -480,7 +485,9 @@ Fetches image data from backend:
            url += '&P[height]=' + params.height;
        }
 
-       return $.getJSON(url);
+       const response = await fetch(url);
+       if (!response.ok) throw new Error(`HTTP ${response.status}`);
+       return response.json();
    }
 
 Plugin Configuration
