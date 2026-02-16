@@ -833,10 +833,18 @@ $bodytextStyles = '<p>Images with alignment classes:</p>'
 $stmt->execute([1, 'text', 'Styled/Alignment Images', $bodytextStyles, 0, 0, $now, $now, 0, 1536]);
 echo "tt_content record with styled/alignment images created\n";
 
-// UID 7: Inline Images (needed by inline-images.spec.ts and inline-image-editing.spec.ts)
+// UID 7: Inline Images (needed by inline-images.spec.ts, inline-image-editing.spec.ts, inline-image-issues.spec.ts)
+// Line 1: Plain inline (no zoom, no link) — used by "no indicators" test
+// Line 2: Linked inline — used by linked inline tests
+// Line 3: Multiple inline images in one paragraph
+// Line 4: Inline with zoom — demonstrates #639 fix (zoom indicator)
+// Line 5: Inline with link + zoom — demonstrates combined indicators
+// Line 6: Block image coexistence
 $bodytextInline = '<p>Text before <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Inline Example" width="100" height="75" data-htmlarea-file-uid="1" /> text after.</p>'
     . '<p>A linked inline image: <a href="https://example.com"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Linked Inline" width="80" height="60" data-htmlarea-file-uid="1" /></a> in text.</p>'
     . '<p>Multiple inline images: <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="First Inline" width="50" height="38" data-htmlarea-file-uid="1" /> and <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Second Inline" width="50" height="38" data-htmlarea-file-uid="1" /> in one paragraph.</p>'
+    . '<p>Inline with zoom: <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Zoom Inline" width="80" height="60" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /> click to enlarge.</p>'
+    . '<p>Inline with link and zoom: <a href="https://example.com"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Link+Zoom Inline" width="80" height="60" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></a> both indicators.</p>'
     . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Block in Inline CE" width="400" height="300" data-htmlarea-file-uid="1" /></figure>';
 $stmt->execute([1, 'text', 'Inline Images', $bodytextInline, 0, 0, $now, $now, 0, 1792]);
 echo "tt_content record with inline images created\n";
@@ -1024,6 +1032,35 @@ $bodytextAltRoundtrip = '<p>Alt text roundtrip test:</p><p><img src="fileadmin/u
 $stmt->execute([1, 'text', 'Alt Roundtrip Test CE', $bodytextAltRoundtrip, 0, 0, $now, $now, 0, 9728]);
 
 echo "Isolated test CEs (UIDs 26-38) created for saving specs\n";
+
+// UIDs 39-41: Inline image issues (#636, #637, #638, #639)
+// These CEs provide test data for inline image bug fixes.
+// CE 39: Double-link corrupted inline image — tests upcast recovery (#638)
+// CE 40: Inline image with zoom — tests zoom indicator in editor (#639)
+// CE 41: Inline image with link — tests link indicator in editor (#639)
+
+// UID 39: Double-link corrupted inline image (<a><a><img class="image-inline"></a></a>)
+// This simulates content corrupted by previous save cycles where the double-link
+// recovery upcast would incorrectly create a block element instead of inline.
+$bodytextDoubleLinkInline = '<p>Double-link inline image recovery test:</p>'
+    . '<p>Text before <a href="https://example.com"><a href="https://example.com"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Double Link Inline" width="100" height="75" data-htmlarea-file-uid="1" /></a></a> text after.</p>'
+    . '<p>End of double-link inline test.</p>';
+// Page 2: corrupted data should not appear on the main frontend page
+$stmtP2->execute([2, 'text', 'Double-Link Inline (#638)', $bodytextDoubleLinkInline, 0, 0, $now, $now, 0, 1792]);
+
+// UID 40: Inline image with zoom — should show zoom indicator in CKEditor editing view
+$bodytextInlineZoom = '<p>Inline zoom indicator test:</p>'
+    . '<p>Text before <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Inline Zoom" width="100" height="75" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /> text after zoom image.</p>'
+    . '<p>End of inline zoom test.</p>';
+$stmt->execute([1, 'text', 'Inline Zoom (#639)', $bodytextInlineZoom, 0, 0, $now, $now, 0, 10240]);
+
+// UID 41: Inline image with link — should show link indicator in CKEditor editing view
+$bodytextInlineLink = '<p>Inline link indicator test:</p>'
+    . '<p>Text before <a href="https://example.com/inline-link"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Inline Link" width="100" height="75" data-htmlarea-file-uid="1" /></a> text after linked image.</p>'
+    . '<p>End of inline link test.</p>';
+$stmt->execute([1, 'text', 'Inline Link (#639)', $bodytextInlineLink, 0, 0, $now, $now, 0, 10496]);
+
+echo "Inline image issue CEs (UIDs 39-41) created for #636/#637/#638/#639\n";
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
