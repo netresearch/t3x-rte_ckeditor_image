@@ -134,29 +134,26 @@ Issue: Broken Image Links
 
 **Solution:**
 
-1. **Verify File Exists:**
+1. **Run the image reference validator** (recommended):
 
 .. code-block:: bash
 
-   # Check if file exists in fileadmin
-   ls -la fileadmin/path/to/image.jpg
+   # Dry-run: detect broken references
+   ./vendor/bin/typo3 rte_ckeditor_image:validate
 
-2. **Check File References:**
+   # Apply fixes automatically
+   ./vendor/bin/typo3 rte_ckeditor_image:validate --fix
 
-.. code-block:: sql
+See :ref:`troubleshooting-image-reference-validation` for full details, including
+the Upgrade Wizard alternative.
 
-   -- Find images in RTE content
-   SELECT uid, pid, bodytext
-   FROM tt_content
-   WHERE bodytext LIKE '%data-htmlarea-file-uid%';
-
-3. **Rebuild Reference Index:**
+2. **Rebuild Reference Index** (required before validation on fresh installs):
 
 .. code-block:: bash
 
    ./vendor/bin/typo3 referenceindex:update
 
-4. **Clear File Caches:**
+3. **Clear File Caches:**
 
 .. code-block:: bash
 
@@ -535,6 +532,7 @@ Related Documentation
 
 **Other Troubleshooting Topics:**
 
+* :ref:`troubleshooting-image-reference-validation` - Validate and fix broken image references
 * :ref:`troubleshooting-installation-issues` - Installation and setup problems
 * :ref:`troubleshooting-editor-issues` - Editor and backend problems
 * :ref:`troubleshooting-performance-issues` - Performance optimization
