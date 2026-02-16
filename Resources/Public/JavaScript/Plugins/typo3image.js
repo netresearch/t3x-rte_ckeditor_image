@@ -1927,7 +1927,10 @@ export default class Typo3Image extends Plugin {
                         }
                     }
 
-                    return writer.createElement('typo3image', imageAttributes);
+                    // Check image class to create correct element type (inline vs block)
+                    const imgClass = (imageAttributes.class || '').toString();
+                    const isInline = imgClass.split(/\s+/).includes('image-inline');
+                    return writer.createElement(isInline ? 'typo3imageInline' : 'typo3image', imageAttributes);
                 },
                 converterPriority: 'highest'
             });
@@ -2781,6 +2784,35 @@ export default class Typo3Image extends Plugin {
                     });
 
                     writer.insert(writer.createPositionAt(wrapper, 0), imageElement);
+
+                    // Add visual indicators for link and zoom (same as block images)
+                    const linkHref = modelElement.getAttribute('imageLinkHref');
+                    const hasLink = linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/';
+                    const hasZoom = modelElement.getAttribute('enableZoom');
+
+                    if (hasLink || hasZoom) {
+                        const indicatorContainer = writer.createContainerElement('span', {
+                            class: 'ck-image-indicators'
+                        });
+
+                        if (hasZoom) {
+                            const zoomIndicator = writer.createContainerElement('span', {
+                                class: 'ck-image-indicator ck-image-indicator--zoom',
+                                title: 'Click to enlarge'
+                            });
+                            writer.insert(writer.createPositionAt(indicatorContainer, 'end'), zoomIndicator);
+                        }
+
+                        if (hasLink) {
+                            const linkIndicator = writer.createContainerElement('span', {
+                                class: 'ck-image-indicator ck-image-indicator--link',
+                                title: linkHref
+                            });
+                            writer.insert(writer.createPositionAt(indicatorContainer, 'end'), linkIndicator);
+                        }
+
+                        writer.insert(writer.createPositionAt(wrapper, 'end'), indicatorContainer);
+                    }
 
                     return toWidget(wrapper, writer, {
                         label: 'inline image widget',
