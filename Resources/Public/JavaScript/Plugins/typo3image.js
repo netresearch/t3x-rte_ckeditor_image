@@ -109,11 +109,11 @@ function getImageDialog(editor, img, attributes) {
 
     d.$el = $('<div class="rteckeditorimage">');
 
-    $.each(fields, function () {
+    for (const fieldGroup of fields) {
         var $row = $('<div class="row">').appendTo(d.$el);
 
         $rows.push($row);
-        $.each(this, function (key, config) {
+        for (const [key, config] of Object.entries(fieldGroup)) {
             // Use full width for title, alt, and caption fields, otherwise use col-sm-4
             var colClass = (key === 'title' || key === 'alt' || key === 'caption') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
             var $group = $('<div class="form-group">').appendTo($('<div class="' + colClass + '">').appendTo($row));
@@ -238,7 +238,7 @@ function getImageDialog(editor, img, attributes) {
                     { value: 'print', label: img.lang.qualityPrint || 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
                 ];
 
-                $.each(qualityOptions, function(i, option) {
+                for (const option of qualityOptions) {
                     var $option = $('<option>')
                         .val(option.value)
                         .text(option.marker + ' ' + option.label)
@@ -246,7 +246,7 @@ function getImageDialog(editor, img, attributes) {
                         .data('color', option.color)
                         .css('color', option.color);
                     $option.appendTo($el);
-                });
+                }
 
                 // Determine default quality based on image type and existing attributes
                 // Priority: 1) data-quality 2) data-noscale→'none' 3) SVG→'print' 4) default→'retina'
@@ -271,8 +271,8 @@ function getImageDialog(editor, img, attributes) {
 
             $group.append($el);
             elements[key] = $el;
-        });
-    });
+        }
+    }
 
     // Create quality indicator container (inserted after first row with dimensions)
     var $qualityIndicator = $('<div class="image-quality-indicator" style="margin: 12px 0; font-size: 13px; line-height: 1.6;">');
@@ -641,15 +641,15 @@ function getImageDialog(editor, img, attributes) {
     updateQualityIndicator();
 
     d.get = function () {
-        $.each(fields, function () {
-            $.each(this, function (key) {
+        for (const fieldGroup of fields) {
+            for (const key of Object.keys(fieldGroup)) {
                 var value = elements[key].val();
 
                 if (typeof value !== 'undefined') {
                     attributes[key] = value;
                 }
-            });
-        });
+            }
+        }
 
         // Extract and preserve alignment classes from original class attribute
         // These are set via the bubble toolbar and must be preserved when saving
