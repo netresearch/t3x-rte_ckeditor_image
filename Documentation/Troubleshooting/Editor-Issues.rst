@@ -394,6 +394,7 @@ Related Documentation
 
 **Other Troubleshooting Topics:**
 
+* :ref:`troubleshooting-image-reference-validation` - Validate and fix broken image references
 * :ref:`troubleshooting-installation-issues` - Installation and setup problems
 * :ref:`troubleshooting-frontend-issues` - Frontend rendering issues
 * :ref:`troubleshooting-performance-issues` - Performance optimization

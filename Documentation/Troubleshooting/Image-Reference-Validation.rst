@@ -63,6 +63,21 @@ current ``getPublicUrl()`` value. The ``orphaned_file_uid`` type is treated as
 fixable in the scan (it is counted and reported), but no ``src`` update is
 applied because the underlying file no longer exists.
 
+Prerequisites
+=============
+
+The validator relies on the TYPO3 **reference index** (``sys_refindex``) to
+discover which RTE fields contain image references. On a fresh installation or
+after large imports, the reference index may be empty or out of date. Always
+update it before running the validator:
+
+.. code-block:: bash
+
+   bin/typo3 referenceindex:update
+
+If the validator reports "Scanned records: 0" despite images existing in RTE
+content, this is almost certainly the cause.
+
 CLI Command
 ===========
 
