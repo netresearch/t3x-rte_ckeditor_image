@@ -59,7 +59,7 @@ function urlToRelative(url, storageDriver) {
         return u.pathname + u.search;
     } else {
         if (url[0] !== "/") {
-            return "/" + url;
+            return `/${url}`;
         }
     }
 
@@ -125,7 +125,7 @@ function getImageDialog(editor, img, attributes) {
             const colClass = (key === 'title' || key === 'alt' || key === 'caption') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
             const col = h('div', colClass, row);
             const group = h('div', 'form-group', col);
-            const id = 'rteckeditorimage-' + key;
+            const id = `rteckeditorimage-${key}`;
             const label = h('label', 'form-label', group);
             label.htmlFor = id;
             label.textContent = config.label;
@@ -165,13 +165,13 @@ function getImageDialog(editor, img, attributes) {
                 const cbox = document.createElement('input');
                 cbox.type = 'checkbox';
                 cbox.className = 'form-check-input';
-                cbox.id = 'checkbox-' + key;
+                cbox.id = `checkbox-${key}`;
                 cbox.checked = !!value || !hasDefault;
                 cbox.disabled = !hasDefault;
 
                 const cboxLabel = document.createElement('label');
                 cboxLabel.className = 'form-check-label';
-                cboxLabel.htmlFor = 'checkbox-' + key;
+                cboxLabel.htmlFor = `checkbox-${key}`;
                 cboxLabel.textContent = hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault;
 
                 // Add tooltip when checkbox is disabled (no default value from file)
@@ -204,11 +204,11 @@ function getImageDialog(editor, img, attributes) {
 
                 // Initally read/set title/alt attributes and check if override is enabled
                 if (key === 'title' || key === 'alt') {
-                    if (attributes['data-' + key + '-override'] === 'false') {
+                    if (attributes[`data-${key}-override`] === 'false') {
                         cbox.checked = false;
                         el.disabled = true;
                         el.value = '';
-                        attributes['data-' + key + '-override'] = false;
+                        attributes[`data-${key}-override`] = false;
                         delete attributes[key];
                     } else {
                         cbox.checked = true;
@@ -269,7 +269,7 @@ function getImageDialog(editor, img, attributes) {
                 for (const option of qualityOptions) {
                     const optEl = document.createElement('option');
                     optEl.value = option.value;
-                    optEl.textContent = option.marker + ' ' + option.label;
+                    optEl.textContent = `${option.marker} ${option.label}`;
                     optEl.dataset.multiplier = option.multiplier;
                     optEl.dataset.color = option.color;
                     optEl.style.color = option.color;
@@ -329,7 +329,7 @@ function getImageDialog(editor, img, attributes) {
     rows[3].after(clickBehaviorSection);
     const clickBehaviorHeader = h('div', 'col-xs-12', clickBehaviorSection);
     clickBehaviorHeader.style.marginBottom = '12px';
-    clickBehaviorHeader.insertAdjacentHTML('beforeend', '<strong>' + (img.lang.clickBehavior || 'Click Behavior') + '</strong>');
+    clickBehaviorHeader.insertAdjacentHTML('beforeend', `<strong>${img.lang.clickBehavior || 'Click Behavior'}</strong>`);
 
     // Radio button container
     const radioContainer = h('div', 'col-xs-12', clickBehaviorSection);
@@ -409,8 +409,7 @@ function getImageDialog(editor, img, attributes) {
         // Add info message explaining why options are disabled
         const externalLinkInfo = h('div', 'alert alert-info', radioContainer);
         externalLinkInfo.style.cssText = 'margin-top: 12px; padding: 10px; font-size: 13px;';
-        externalLinkInfo.insertAdjacentHTML('beforeend', '<strong>' + (img.lang.imageInsideLinkTitle || 'Image is inside a link') + '</strong><br>' +
-              (img.lang.imageInsideLinkMessage || 'Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.'));
+        externalLinkInfo.insertAdjacentHTML('beforeend', `<strong>${img.lang.imageInsideLinkTitle || 'Image is inside a link'}</strong><br>${img.lang.imageInsideLinkMessage || 'Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.'}`);
     }
 
     // ========================================
@@ -626,9 +625,7 @@ function getImageDialog(editor, img, attributes) {
         if (displayWidth === 0 || displayHeight === 0) {
             qualityIndicator.textContent = '';
             qualityIndicator.insertAdjacentHTML('beforeend',
-                '<div style="color: #dc3545; font-size: 13px; line-height: 1.5;">' +
-                '<strong>Error:</strong> Display dimensions cannot be zero.' +
-                '</div>'
+                `<div style="color: #dc3545; font-size: 13px; line-height: 1.5;"><strong>Error:</strong> Display dimensions cannot be zero.</div>`
             );
             qualityIndicator.style.display = '';
             return;
@@ -638,9 +635,7 @@ function getImageDialog(editor, img, attributes) {
         if (img.extension === 'svg') {
             qualityIndicator.textContent = '';
             qualityIndicator.insertAdjacentHTML('beforeend',
-                '<div style="color: #666; font-size: 13px; line-height: 1.5;">' +
-                '<strong>Processing Info:</strong> Vector image will not be processed (scales perfectly at any resolution).' +
-                '</div>'
+                `<div style="color: #666; font-size: 13px; line-height: 1.5;"><strong>Processing Info:</strong> Vector image will not be processed (scales perfectly at any resolution).</div>`
             );
             qualityIndicator.style.display = '';
             return;
@@ -705,43 +700,30 @@ function getImageDialog(editor, img, attributes) {
         // Handle "No Scaling" option
         if (selectedQuality === 'none') {
             // No processing - show actual quality based on image/display ratio
-            message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
-                      'will be displayed at ' + displayWidth + '×' + displayHeight + ' px = ' +
-                      '<span style="color: ' + expectedQualityColor + '; font-weight: bold;">● ' +
-                      expectedQualityName + ' Quality (' + qualityRatio.toFixed(1) + 'x scaling)</span>';
+            message = `<strong>Processing Info:</strong> Image ${intrinsicWidth}\u00d7${intrinsicHeight} px will be displayed at ${displayWidth}\u00d7${displayHeight} px = <span style="color: ${expectedQualityColor}; font-weight: bold;">\u25cf ${expectedQualityName} Quality (${qualityRatio.toFixed(1)}x scaling)</span>`;
             messageColor = expectedQualityColor;
         } else if (!canAchieveRequested) {
             // Cannot achieve requested quality - show what will actually happen
-            message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
-                      'will be displayed at ' + displayWidth + '×' + displayHeight + ' px = ' +
-                      '<span style="color: ' + expectedQualityColor + '; font-weight: bold;">● ' +
-                      expectedQualityName + ' Quality (' + actualQuality.toFixed(1) + 'x scaling)</span>';
+            message = `<strong>Processing Info:</strong> Image ${intrinsicWidth}\u00d7${intrinsicHeight} px will be displayed at ${displayWidth}\u00d7${displayHeight} px = <span style="color: ${expectedQualityColor}; font-weight: bold;">\u25cf ${expectedQualityName} Quality (${actualQuality.toFixed(1)}x scaling)</span>`;
             messageColor = expectedQualityColor;
         } else {
             // Can achieve requested quality - normal processing
-            const qualityName = selectedQuality.charAt(0).toUpperCase() + selectedQuality.slice(1);
+            const qualityName = `${selectedQuality.charAt(0).toUpperCase()}${selectedQuality.slice(1)}`;
 
             // Check if resized dimensions match original (no need to mention "resized to" if same size)
             const resizeMatchesOriginal = (Math.round(requiredWidth) === intrinsicWidth && Math.round(requiredHeight) === intrinsicHeight);
 
             if (resizeMatchesOriginal) {
                 // No need to mention resize when it matches original
-                message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
-                          'will be displayed at ' + displayWidth + '×' + displayHeight + ' px = ' +
-                          '<span style="color: ' + selectedColor + '; font-weight: bold;">● ' +
-                          qualityName + ' Quality (' + selectedMultiplier.toFixed(1) + 'x scaling)</span>';
+                message = `<strong>Processing Info:</strong> Image ${intrinsicWidth}\u00d7${intrinsicHeight} px will be displayed at ${displayWidth}\u00d7${displayHeight} px = <span style="color: ${selectedColor}; font-weight: bold;">\u25cf ${qualityName} Quality (${selectedMultiplier.toFixed(1)}x scaling)</span>`;
             } else {
                 // Different resize size - mention it
-                message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
-                          'will be resized to ' + Math.round(requiredWidth) + '×' + Math.round(requiredHeight) + ' px and displayed at ' +
-                          displayWidth + '×' + displayHeight + ' px = ' +
-                          '<span style="color: ' + selectedColor + '; font-weight: bold;">● ' +
-                          qualityName + ' Quality (' + selectedMultiplier.toFixed(1) + 'x scaling)</span>';
+                message = `<strong>Processing Info:</strong> Image ${intrinsicWidth}\u00d7${intrinsicHeight} px will be resized to ${Math.round(requiredWidth)}\u00d7${Math.round(requiredHeight)} px and displayed at ${displayWidth}\u00d7${displayHeight} px = <span style="color: ${selectedColor}; font-weight: bold;">\u25cf ${qualityName} Quality (${selectedMultiplier.toFixed(1)}x scaling)</span>`;
             }
             messageColor = selectedColor;
         }
 
-        const html = '<div style="color: ' + messageColor + '; font-size: 13px; line-height: 1.5;">' + message + '</div>';
+        const html = `<div style="color: ${messageColor}; font-size: 13px; line-height: 1.5;">${message}</div>`;
 
         qualityIndicator.textContent = '';
         qualityIndicator.insertAdjacentHTML('beforeend', html);
@@ -881,10 +863,10 @@ function getImageDialog(editor, img, attributes) {
 
         // When saving, check title/alt for override mode
         ['title', 'alt'].forEach(function (item) {
-            const curCheckbox = container.querySelector('#checkbox-' + item);
+            const curCheckbox = container.querySelector(`#checkbox-${item}`);
 
             // When saving, check title for override mode
-            attributes['data-' + item + '-override'] = curCheckbox ? curCheckbox.checked : false;
+            attributes[`data-${item}-override`] = curCheckbox ? curCheckbox.checked : false;
             if (curCheckbox && curCheckbox.checked) {
                 // Allow empty title/alt values
                 attributes[item] = attributes[item] || '';
@@ -987,24 +969,24 @@ function askImageAttributes(editor, img, attributes, table) {
  * @return {Promise}
  */
 function getImageInfo(editor, table, uid, params) {
-    let url = editor.config.get('typo3image').routeUrl + '&action=info&fileId=' + encodeURIComponent(uid) + '&table=' + encodeURIComponent(table);
+    let url = `${editor.config.get('typo3image').routeUrl}&action=info&fileId=${encodeURIComponent(uid)}&table=${encodeURIComponent(table)}`;
 
     // SECURITY: Encode URL parameters to prevent injection attacks
     if (typeof params.width !== 'undefined' && params.width.length) {
-        url += '&P[width]=' + encodeURIComponent(params.width);
+        url += `&P[width]=${encodeURIComponent(params.width)}`;
     }
 
     if (typeof params.height !== 'undefined' && params.height.length) {
-        url += '&P[height]=' + encodeURIComponent(params.height);
+        url += `&P[height]=${encodeURIComponent(params.height)}`;
     }
 
     if (typeof params['data-quality'] !== 'undefined' && params['data-quality']) {
-        url += '&P[quality]=' + encodeURIComponent(params['data-quality']);
+        url += `&P[quality]=${encodeURIComponent(params['data-quality'])}`;
     }
 
     return fetch(url).then(function(response) {
         if (!response.ok) {
-            throw new Error('Image info request failed: ' + response.status);
+            throw new Error(`Image info request failed: ${response.status}`);
         }
         return response.json();
     });
@@ -1022,7 +1004,7 @@ function selectImage(editor) {
         '',
     ];
 
-    const contentUrl = editor.config.get('typo3image').routeUrl + '&bparams=' + bparams.join('|');
+    const contentUrl = `${editor.config.get('typo3image').routeUrl}&bparams=${bparams.join('|')}`;
 
     const modal = Modal.advanced({
         type: Modal.types.iframe,
@@ -1200,7 +1182,7 @@ function encodeTypoLink(linkData) {
         if (value.indexOf(' ') !== -1 || value.indexOf('"') !== -1 || value.indexOf('\\') !== -1) {
             // Escape backslashes and quotes
             const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-            return '"' + escaped + '"';
+            return `"${escaped}"`;
         }
         return value;
     };
@@ -1261,12 +1243,12 @@ function openLinkBrowser(editor, currentValue) {
 
     // Build URL for linkBrowser action
     const separator = baseUrl.indexOf('?') === -1 ? '?' : '&';
-    const linkBrowserActionUrl = baseUrl + separator + 'action=linkBrowser&currentValue=' + encodeURIComponent(currentValue || '');
+    const linkBrowserActionUrl = `${baseUrl}${separator}action=linkBrowser&currentValue=${encodeURIComponent(currentValue || '')}`;
 
     // Fetch the wizard_link URL from our backend
     fetch(linkBrowserActionUrl).then(function(response) {
         if (!response.ok) {
-            throw new Error('Link browser request failed: ' + response.status);
+            throw new Error(`Link browser request failed: ${response.status}`);
         }
         return response.json();
     }).then(function(response) {
@@ -1290,7 +1272,7 @@ function openLinkBrowser(editor, currentValue) {
         const targetDoc = document;
 
         // Remove any existing form from previous link browser sessions
-        const existingForm = targetDoc.querySelector('form[name="' + formName + '"]');
+        const existingForm = targetDoc.querySelector(`form[name="${formName}"]`);
         if (existingForm) {
             existingForm.remove();
         }
@@ -1342,7 +1324,7 @@ function openLinkBrowser(editor, currentValue) {
         // Handle modal close without selection
         modal.addEventListener('typo3-modal-hidden', function() {
             // Clean up hidden form from the target document
-            const form = targetDoc.querySelector('form[name="' + formName + '"]');
+            const form = targetDoc.querySelector(`form[name="${formName}"]`);
             if (form) {
                 form.remove();
             }
