@@ -74,12 +74,20 @@ function urlToRelative(url, storageDriver) {
  * @param {Object} editor
  * @param {Object} img
  * @param {Object} attributes
- * @return {{$el: {jquery}, get: {function}}}
+ * @return {{el: {Element}, get: {function}}}
  */
 function getImageDialog(editor, img, attributes) {
     var d = {},
-        $rows = [],
+        rows = [],
         elements = {};
+
+    // Helper: create element with optional class, append to parent
+    function h(tag, className, parent) {
+        var el = document.createElement(tag);
+        if (className) el.className = className;
+        if (parent) parent.appendChild(el);
+        return el;
+    }
 
     const fields = [
         {
@@ -107,84 +115,105 @@ function getImageDialog(editor, img, attributes) {
     // Check if the image is SVG
     const isSvg = img.url && (img.url.endsWith('.svg') || img.url.includes('.svg?')) || false;
 
-    d.$el = $('<div class="rteckeditorimage">');
+    var container = h('div', 'rteckeditorimage');
 
     for (const fieldGroup of fields) {
-        var $row = $('<div class="row">').appendTo(d.$el);
+        var row = h('div', 'row', container);
 
-        $rows.push($row);
+        rows.push(row);
         for (const [key, config] of Object.entries(fieldGroup)) {
             // Use full width for title, alt, and caption fields, otherwise use col-sm-4
             var colClass = (key === 'title' || key === 'alt' || key === 'caption') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
-            var $group = $('<div class="form-group">').appendTo($('<div class="' + colClass + '">').appendTo($row));
+            var col = h('div', colClass, row);
+            var group = h('div', 'form-group', col);
             var id = 'rteckeditorimage-' + key;
-            $('<label class="form-label" for="' + id + '">' + config.label + '</label>').appendTo($group);
+            var label = h('label', 'form-label', group);
+            label.htmlFor = id;
+            label.textContent = config.label;
 
-            var $el;
+            var el;
             if (config.type === 'select') {
-                $el = $('<select id="' + id + '" name="' + key + '" class="form-select"></select>');
+                el = document.createElement('select');
+                el.id = id;
+                el.name = key;
+                el.className = 'form-select';
             } else if (config.type === 'textarea') {
-                $el = $('<textarea id="' + id + '" name="' + key + '" class="form-control" rows="' + (config.rows || 3) + '"></textarea>');
+                el = document.createElement('textarea');
+                el.id = id;
+                el.name = key;
+                el.className = 'form-control';
+                el.rows = config.rows || 3;
             } else {
-                $el = $('<input type="' + config.type + '" id ="' + id + '" name="' + key + '" class="form-control">');
+                el = document.createElement('input');
+                el.type = config.type;
+                el.id = id;
+                el.name = key;
+                el.className = 'form-control';
             }
 
             var placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
             var value = ((attributes[key] || '') + '').trim();
 
             if (config.type !== 'select') {
-                $el.attr('placeholder', placeholder);
-                $el.val(value);
+                el.placeholder = placeholder;
+                el.value = value;
             }
 
             if (config.type === 'text' || config.type === 'textarea') {
                 var startVal = value,
-                    hasDefault = img[key] && img[key].trim(),
-                    cbox = $('<input type="checkbox" class="form-check-input">')
-                        .attr('id', 'checkbox-' + key)
-                        .prop('checked', !!value || !hasDefault)
-                        .prop('disabled', !hasDefault),
-                    cboxLabel = $('<label class="form-check-label"></label>')
-                        .attr('for', 'checkbox-' + key)
-                        .text(hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault);
+                    hasDefault = img[key] && img[key].trim();
+
+                var cbox = document.createElement('input');
+                cbox.type = 'checkbox';
+                cbox.className = 'form-check-input';
+                cbox.id = 'checkbox-' + key;
+                cbox.checked = !!value || !hasDefault;
+                cbox.disabled = !hasDefault;
+
+                var cboxLabel = document.createElement('label');
+                cboxLabel.className = 'form-check-label';
+                cboxLabel.htmlFor = 'checkbox-' + key;
+                cboxLabel.textContent = hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault;
 
                 // Add tooltip when checkbox is disabled (no default value from file)
                 if (!hasDefault) {
                     const noDefaultMsg = img.lang.noDefaultMetadata.replace('%s', key);
-                    cbox.attr('title', noDefaultMsg);
-                    cboxLabel.css('cursor', 'not-allowed').attr('title', noDefaultMsg);
+                    cbox.title = noDefaultMsg;
+                    cboxLabel.style.cursor = 'not-allowed';
+                    cboxLabel.title = noDefaultMsg;
                 }
 
-                $el.prop('disabled', hasDefault && !value);
+                el.disabled = hasDefault && !value;
 
-                var $checkboxContainer = $('<div class="form-check form-check-type-toggle" style="margin: 0 0 6px;">').appendTo($group);
-                cbox.appendTo($checkboxContainer);
-                cboxLabel.appendTo($checkboxContainer);
+                var checkboxContainer = h('div', 'form-check form-check-type-toggle', group);
+                checkboxContainer.style.cssText = 'margin: 0 0 6px;';
+                checkboxContainer.appendChild(cbox);
+                checkboxContainer.appendChild(cboxLabel);
 
-                cboxLabel.on('click', function () {
-                    $el.prop('disabled', !cbox.prop('checked'));
-                    startVal = $el.val() || startVal;
+                cboxLabel.addEventListener('click', function () {
+                    el.disabled = !cbox.checked;
+                    startVal = el.value || startVal;
 
                     // Clear value or set to startvalue when clicking checkbox
-                    if (!cbox.prop('checked')) {
-                        $el.val('');
+                    if (!cbox.checked) {
+                        el.value = '';
                     } else {
-                        $el.val(startVal);
-                        $el.focus();
+                        el.value = startVal;
+                        el.focus();
                     }
                 });
 
                 // Initally read/set title/alt attributes and check if override is enabled
                 if (key === 'title' || key === 'alt') {
                     if (attributes['data-' + key + '-override'] === 'false') {
-                        cbox.prop('checked', false);
-                        $el.prop('disabled', true);
-                        $el.val('');
+                        cbox.checked = false;
+                        el.disabled = true;
+                        el.value = '';
                         attributes['data-' + key + '-override'] = false;
                         delete attributes[key];
                     } else {
-                        cbox.prop('checked', true);
-                        $el.prop('disabled', false);
+                        cbox.checked = true;
+                        el.disabled = false;
                     }
                 }
             } else if (config.type === 'number') {
@@ -195,39 +224,39 @@ function getImageDialog(editor, img, attributes) {
                 var opposite = 1;
                 var max = img[key];
                 var min = Math.ceil(opposite * ratio);
-                $el.attr('max', max);
-                $el.attr('min', min);
+                el.max = max;
+                el.min = min;
 
                 var constrainDimensions = function (currentMin, delta) {
-                    value = parseInt($el.val().replace(/[^0-9]/g, '') || max);
+                    value = parseInt(el.value.replace(/[^0-9]/g, '') || max);
                     if (delta) {
                         value += delta;
                     }
                     value = Math.max(currentMin, Math.min(value, max));
-                    var $opposite = elements[key === 'width' ? 'height' : 'width'],
-                        oppositeMax = parseInt($opposite.attr('max')),
+                    var oppositeEl = elements[key === 'width' ? 'height' : 'width'],
+                        oppositeMax = parseInt(oppositeEl.max),
                         ratio = oppositeMax / max;
 
-                    $opposite.val(value === max ? oppositeMax : Math.ceil(value * ratio));
-                    $el.val(value);
+                    oppositeEl.value = value === max ? oppositeMax : Math.ceil(value * ratio);
+                    el.value = value;
                 };
 
-                $el.on('input', function () {
+                el.addEventListener('input', function () {
                     // Allow empty input during typing (fixes #140)
-                    var val = $el.val().replace(/[^0-9]/g, '');
+                    var val = el.value.replace(/[^0-9]/g, '');
                     if (val !== '') {
                         constrainDimensions(1);
                     }
                 });
-                $el.on('change', function () {
+                el.addEventListener('change', function () {
                     constrainDimensions(min);
                 });
-                $el.on('mousewheel', function (e) {
-                    constrainDimensions(min, e.originalEvent.wheelDelta > 0 ? 1 : -1);
+                el.addEventListener('wheel', function (e) {
+                    constrainDimensions(min, e.deltaY < 0 ? 1 : -1);
                     e.preventDefault();
                     e.stopPropagation();
                     e.stopImmediatePropagation();
-                });
+                }, { passive: false });
             } else if (config.type === 'select' && key === 'quality') {
                 // Image Processing quality dropdown - sorted by quality ascending
                 var qualityOptions = [
@@ -239,13 +268,13 @@ function getImageDialog(editor, img, attributes) {
                 ];
 
                 for (const option of qualityOptions) {
-                    var $option = $('<option>')
-                        .val(option.value)
-                        .text(option.marker + ' ' + option.label)
-                        .data('multiplier', option.multiplier)
-                        .data('color', option.color)
-                        .css('color', option.color);
-                    $option.appendTo($el);
+                    var optEl = document.createElement('option');
+                    optEl.value = option.value;
+                    optEl.textContent = option.marker + ' ' + option.label;
+                    optEl.dataset.multiplier = option.multiplier;
+                    optEl.dataset.color = option.color;
+                    optEl.style.color = option.color;
+                    el.appendChild(optEl);
                 }
 
                 // Determine default quality based on image type and existing attributes
@@ -261,33 +290,34 @@ function getImageDialog(editor, img, attributes) {
                 } else {
                     defaultQuality = 'retina';
                 }
-                $el.val(defaultQuality);
+                el.value = defaultQuality;
 
                 // Disable for SVG (vector images don't need quality processing)
                 if (isSvg) {
-                    $el.prop('disabled', true);
+                    el.disabled = true;
                 }
             }
 
-            $group.append($el);
-            elements[key] = $el;
+            group.appendChild(el);
+            elements[key] = el;
         }
     }
 
     // Create quality indicator container (inserted after first row with dimensions)
-    var $qualityIndicator = $('<div class="image-quality-indicator" style="margin: 12px 0; font-size: 13px; line-height: 1.6;">');
-    $qualityIndicator.insertAfter($rows[0]);
+    var qualityIndicator = h('div', 'image-quality-indicator');
+    qualityIndicator.style.cssText = 'margin: 12px 0; font-size: 13px; line-height: 1.6;';
+    rows[0].after(qualityIndicator);
 
-    var $checkboxTitle = d.$el.find('#checkbox-title'),
-        $checkboxAlt = d.$el.find('#checkbox-alt'),
-        $inputWidth = d.$el.find('#rteckeditorimage-width'),
-        $inputHeight = d.$el.find('#rteckeditorimage-height'),
-        $qualityDropdown = d.$el.find('#rteckeditorimage-quality'),
-        $noScale = $('<input id="checkbox-noscale" type="checkbox">');
+    var inputWidth = container.querySelector('#rteckeditorimage-width'),
+        inputHeight = container.querySelector('#rteckeditorimage-height'),
+        qualityDropdown = container.querySelector('#rteckeditorimage-quality'),
+        noScale = document.createElement('input');
+    noScale.id = 'checkbox-noscale';
+    noScale.type = 'checkbox';
 
     // Check for existing noScale attribute (for backward compatibility)
     if (attributes['data-noscale']) {
-        $noScale.prop('checked', true);
+        noScale.checked = true;
     }
 
     // ========================================
@@ -295,11 +325,16 @@ function getImageDialog(editor, img, attributes) {
     // Implements fix for issue #565: prevents conflict between
     // "Click to Enlarge" and "Link" (both create <a> wrappers)
     // ========================================
-    var $clickBehaviorSection = $('<div class="row" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #dee2e6;">').insertAfter($rows[3]);
-    var $clickBehaviorHeader = $('<div class="col-xs-12" style="margin-bottom: 12px;"><strong>' + (img.lang.clickBehavior || 'Click Behavior') + '</strong></div>').appendTo($clickBehaviorSection);
+    var clickBehaviorSection = h('div', 'row');
+    clickBehaviorSection.style.cssText = 'margin-top: 16px; padding-top: 16px; border-top: 1px solid #dee2e6;';
+    rows[3].after(clickBehaviorSection);
+    var clickBehaviorHeader = h('div', 'col-xs-12', clickBehaviorSection);
+    clickBehaviorHeader.style.marginBottom = '12px';
+    clickBehaviorHeader.insertAdjacentHTML('beforeend', '<strong>' + (img.lang.clickBehavior || 'Click Behavior') + '</strong>');
 
     // Radio button container
-    var $radioContainer = $('<div class="col-xs-12" style="margin-bottom: 12px;">').appendTo($clickBehaviorSection);
+    var radioContainer = h('div', 'col-xs-12', clickBehaviorSection);
+    radioContainer.style.marginBottom = '12px';
 
     // Extract non-alignment CSS classes for the CSS class input fields
     // Alignment classes (image-left, image-center, etc.) are controlled via bubble toolbar
@@ -318,25 +353,49 @@ function getImageDialog(editor, img, attributes) {
     }
 
     // Radio: None
-    var $radioNoneWrapper = $('<div class="form-check" style="margin-bottom: 8px;">').appendTo($radioContainer);
-    var $radioNone = $('<input type="radio" name="clickBehavior" id="clickBehavior-none" value="none" class="form-check-input">')
-        .prop('checked', initialBehavior === 'none')
-        .appendTo($radioNoneWrapper);
-    $('<label class="form-check-label" for="clickBehavior-none">').text(img.lang.clickBehaviorNone || 'None - image is not clickable').appendTo($radioNoneWrapper);
+    var radioNoneWrapper = h('div', 'form-check', radioContainer);
+    radioNoneWrapper.style.marginBottom = '8px';
+    var radioNone = document.createElement('input');
+    radioNone.type = 'radio';
+    radioNone.name = 'clickBehavior';
+    radioNone.id = 'clickBehavior-none';
+    radioNone.value = 'none';
+    radioNone.className = 'form-check-input';
+    radioNone.checked = initialBehavior === 'none';
+    radioNoneWrapper.appendChild(radioNone);
+    var radioNoneLabel = h('label', 'form-check-label', radioNoneWrapper);
+    radioNoneLabel.htmlFor = 'clickBehavior-none';
+    radioNoneLabel.textContent = img.lang.clickBehaviorNone || 'None - image is not clickable';
 
     // Radio: Enlarge
-    var $radioEnlargeWrapper = $('<div class="form-check" style="margin-bottom: 8px;">').appendTo($radioContainer);
-    var $radioEnlarge = $('<input type="radio" name="clickBehavior" id="clickBehavior-enlarge" value="enlarge" class="form-check-input">')
-        .prop('checked', initialBehavior === 'enlarge')
-        .appendTo($radioEnlargeWrapper);
-    $('<label class="form-check-label" for="clickBehavior-enlarge">').text(img.lang.clickBehaviorEnlarge || 'Enlarge - opens full-size in lightbox').appendTo($radioEnlargeWrapper);
+    var radioEnlargeWrapper = h('div', 'form-check', radioContainer);
+    radioEnlargeWrapper.style.marginBottom = '8px';
+    var radioEnlarge = document.createElement('input');
+    radioEnlarge.type = 'radio';
+    radioEnlarge.name = 'clickBehavior';
+    radioEnlarge.id = 'clickBehavior-enlarge';
+    radioEnlarge.value = 'enlarge';
+    radioEnlarge.className = 'form-check-input';
+    radioEnlarge.checked = initialBehavior === 'enlarge';
+    radioEnlargeWrapper.appendChild(radioEnlarge);
+    var radioEnlargeLabel = h('label', 'form-check-label', radioEnlargeWrapper);
+    radioEnlargeLabel.htmlFor = 'clickBehavior-enlarge';
+    radioEnlargeLabel.textContent = img.lang.clickBehaviorEnlarge || 'Enlarge - opens full-size in lightbox';
 
     // Radio: Link
-    var $radioLinkWrapper = $('<div class="form-check" style="margin-bottom: 8px;">').appendTo($radioContainer);
-    var $radioLink = $('<input type="radio" name="clickBehavior" id="clickBehavior-link" value="link" class="form-check-input">')
-        .prop('checked', initialBehavior === 'link')
-        .appendTo($radioLinkWrapper);
-    $('<label class="form-check-label" for="clickBehavior-link">').text(img.lang.clickBehaviorLink || 'Link - opens custom URL').appendTo($radioLinkWrapper);
+    var radioLinkWrapper = h('div', 'form-check', radioContainer);
+    radioLinkWrapper.style.marginBottom = '8px';
+    var radioLink = document.createElement('input');
+    radioLink.type = 'radio';
+    radioLink.name = 'clickBehavior';
+    radioLink.id = 'clickBehavior-link';
+    radioLink.value = 'link';
+    radioLink.className = 'form-check-input';
+    radioLink.checked = initialBehavior === 'link';
+    radioLinkWrapper.appendChild(radioLink);
+    var radioLinkLabel = h('label', 'form-check-label', radioLinkWrapper);
+    radioLinkLabel.htmlFor = 'clickBehavior-link';
+    radioLinkLabel.textContent = img.lang.clickBehaviorLink || 'Link - opens custom URL';
 
     // ========================================
     // Disable click behavior when image is inside an external link
@@ -344,137 +403,198 @@ function getImageDialog(editor, img, attributes) {
     // ========================================
     if (attributes.isInsideExternalLink) {
         // Disable all radio buttons
-        $radioNone.prop('disabled', true);
-        $radioEnlarge.prop('disabled', true);
-        $radioLink.prop('disabled', true);
+        radioNone.disabled = true;
+        radioEnlarge.disabled = true;
+        radioLink.disabled = true;
 
         // Add info message explaining why options are disabled
-        var $externalLinkInfo = $('<div class="alert alert-info" style="margin-top: 12px; padding: 10px; font-size: 13px;">')
-            .html('<strong>' + (img.lang.imageInsideLinkTitle || 'Image is inside a link') + '</strong><br>' +
-                  (img.lang.imageInsideLinkMessage || 'Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.'))
-            .appendTo($radioContainer);
+        var externalLinkInfo = h('div', 'alert alert-info', radioContainer);
+        externalLinkInfo.style.cssText = 'margin-top: 12px; padding: 10px; font-size: 13px;';
+        externalLinkInfo.insertAdjacentHTML('beforeend', '<strong>' + (img.lang.imageInsideLinkTitle || 'Image is inside a link') + '</strong><br>' +
+              (img.lang.imageInsideLinkMessage || 'Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.'));
     }
 
     // ========================================
     // Dynamic fields container (shown/hidden based on radio selection)
     // ========================================
-    var $dynamicFieldsContainer = $('<div class="col-xs-12" id="clickBehavior-fields">').appendTo($clickBehaviorSection);
+    var dynamicFieldsContainer = h('div', 'col-xs-12', clickBehaviorSection);
+    dynamicFieldsContainer.id = 'clickBehavior-fields';
 
     // --- Enlarge fields (only CSS class) ---
-    var $enlargeFields = $('<div id="enlargeFields" style="display: none;">').appendTo($dynamicFieldsContainer);
-    var $enlargeCssGroup = $('<div class="form-group">').appendTo($enlargeFields);
-    $('<label class="form-label" for="input-linkCssClass-enlarge">').text(img.lang.linkCssClass || 'Link CSS Class').appendTo($enlargeCssGroup);
-    var $inputCssClassEnlarge = $('<input type="text" id="input-linkCssClass-enlarge" class="form-control" placeholder="e.g., lightbox-trigger">')
-        .val(initialBehavior === 'enlarge' ? nonAlignmentClasses : '')
-        .appendTo($enlargeCssGroup);
+    var enlargeFields = document.createElement('div');
+    enlargeFields.id = 'enlargeFields';
+    enlargeFields.style.display = 'none';
+    dynamicFieldsContainer.appendChild(enlargeFields);
+    var enlargeCssGroup = h('div', 'form-group', enlargeFields);
+    var enlargeCssLabel = h('label', 'form-label', enlargeCssGroup);
+    enlargeCssLabel.htmlFor = 'input-linkCssClass-enlarge';
+    enlargeCssLabel.textContent = img.lang.linkCssClass || 'Link CSS Class';
+    var inputCssClassEnlarge = document.createElement('input');
+    inputCssClassEnlarge.type = 'text';
+    inputCssClassEnlarge.id = 'input-linkCssClass-enlarge';
+    inputCssClassEnlarge.className = 'form-control';
+    inputCssClassEnlarge.placeholder = 'e.g., lightbox-trigger';
+    inputCssClassEnlarge.value = initialBehavior === 'enlarge' ? nonAlignmentClasses : '';
+    enlargeCssGroup.appendChild(inputCssClassEnlarge);
 
     // --- Link fields (URL, Target, Title, CSS class) ---
-    var $linkFields = $('<div id="linkFields" style="display: none;">').appendTo($dynamicFieldsContainer);
+    var linkFields = document.createElement('div');
+    linkFields.id = 'linkFields';
+    linkFields.style.display = 'none';
+    dynamicFieldsContainer.appendChild(linkFields);
 
     // Link URL with Browse button
-    var $linkUrlGroup = $('<div class="form-group">').appendTo($linkFields);
-    $('<label class="form-label" for="rteckeditorimage-linkHref">').text(img.lang.linkUrl || 'Link URL').appendTo($linkUrlGroup);
-    var $linkUrlInputGroup = $('<div class="input-group">').appendTo($linkUrlGroup);
-    var $inputLinkHref = $('<input type="text" id="rteckeditorimage-linkHref" name="linkHref" class="form-control" placeholder="https://example.com or t3://page?uid=123">')
-        .val(attributes.linkHref || '')
-        .appendTo($linkUrlInputGroup);
-    var $browseButton = $('<button type="button" class="btn btn-default">')
-        .text(img.lang.browse || 'Browse...')
-        .appendTo($linkUrlInputGroup);
+    var linkUrlGroup = h('div', 'form-group', linkFields);
+    var linkUrlLabel = h('label', 'form-label', linkUrlGroup);
+    linkUrlLabel.htmlFor = 'rteckeditorimage-linkHref';
+    linkUrlLabel.textContent = img.lang.linkUrl || 'Link URL';
+    var linkUrlInputGroup = h('div', 'input-group', linkUrlGroup);
+    var inputLinkHref = document.createElement('input');
+    inputLinkHref.type = 'text';
+    inputLinkHref.id = 'rteckeditorimage-linkHref';
+    inputLinkHref.name = 'linkHref';
+    inputLinkHref.className = 'form-control';
+    inputLinkHref.placeholder = 'https://example.com or t3://page?uid=123';
+    inputLinkHref.value = attributes.linkHref || '';
+    linkUrlInputGroup.appendChild(inputLinkHref);
+    var browseButton = document.createElement('button');
+    browseButton.type = 'button';
+    browseButton.className = 'btn btn-default';
+    browseButton.textContent = img.lang.browse || 'Browse...';
+    linkUrlInputGroup.appendChild(browseButton);
 
     // Link Target and Title row
-    var $linkOptionsRow = $('<div class="row">').appendTo($linkFields);
-    var $linkTargetCol = $('<div class="col-xs-12 col-sm-6">').appendTo($linkOptionsRow);
-    var $linkTitleCol = $('<div class="col-xs-12 col-sm-6">').appendTo($linkOptionsRow);
+    var linkOptionsRow = h('div', 'row', linkFields);
+    var linkTargetCol = h('div', 'col-xs-12 col-sm-6', linkOptionsRow);
+    var linkTitleCol = h('div', 'col-xs-12 col-sm-6', linkOptionsRow);
 
     // Link Target input with datalist for common values
     // Changed from <select> to <input> to support free text targets like "nav_frame"
-    var $linkTargetGroup = $('<div class="form-group">').appendTo($linkTargetCol);
-    $('<label class="form-label" for="rteckeditorimage-linkTarget">').text(img.lang.linkTarget || 'Link Target').appendTo($linkTargetGroup);
-    var $inputLinkTarget = $('<input type="text" id="rteckeditorimage-linkTarget" name="linkTarget" class="form-control" list="rteckeditorimage-linkTarget-options" placeholder="' + (img.lang.linkTargetPlaceholder || 'e.g. _blank, _top, nav_frame') + '">')
-        .val(attributes.linkTarget || '')
-        .appendTo($linkTargetGroup);
+    var linkTargetGroup = h('div', 'form-group', linkTargetCol);
+    var linkTargetLabel = h('label', 'form-label', linkTargetGroup);
+    linkTargetLabel.htmlFor = 'rteckeditorimage-linkTarget';
+    linkTargetLabel.textContent = img.lang.linkTarget || 'Link Target';
+    var inputLinkTarget = document.createElement('input');
+    inputLinkTarget.type = 'text';
+    inputLinkTarget.id = 'rteckeditorimage-linkTarget';
+    inputLinkTarget.name = 'linkTarget';
+    inputLinkTarget.className = 'form-control';
+    inputLinkTarget.setAttribute('list', 'rteckeditorimage-linkTarget-options');
+    inputLinkTarget.placeholder = img.lang.linkTargetPlaceholder || 'e.g. _blank, _top, nav_frame';
+    inputLinkTarget.value = attributes.linkTarget || '';
+    linkTargetGroup.appendChild(inputLinkTarget);
     // Datalist provides suggestions but allows any value
-    var $linkTargetDatalist = $('<datalist id="rteckeditorimage-linkTarget-options">').appendTo($linkTargetGroup);
-    $('<option>').attr('value', '_blank').text(img.lang.linkTargetBlank || 'New window').appendTo($linkTargetDatalist);
-    $('<option>').attr('value', '_top').text(img.lang.linkTargetTop || 'Top frame').appendTo($linkTargetDatalist);
-    $('<option>').attr('value', '_self').text(img.lang.linkTargetSelf || 'Same window').appendTo($linkTargetDatalist);
-    $('<option>').attr('value', '_parent').text(img.lang.linkTargetParent || 'Parent frame').appendTo($linkTargetDatalist);
+    var linkTargetDatalist = document.createElement('datalist');
+    linkTargetDatalist.id = 'rteckeditorimage-linkTarget-options';
+    linkTargetGroup.appendChild(linkTargetDatalist);
+    var datalistOptions = [
+        { value: '_blank', text: img.lang.linkTargetBlank || 'New window' },
+        { value: '_top', text: img.lang.linkTargetTop || 'Top frame' },
+        { value: '_self', text: img.lang.linkTargetSelf || 'Same window' },
+        { value: '_parent', text: img.lang.linkTargetParent || 'Parent frame' }
+    ];
+    for (var di = 0; di < datalistOptions.length; di++) {
+        var opt = document.createElement('option');
+        opt.value = datalistOptions[di].value;
+        opt.textContent = datalistOptions[di].text;
+        linkTargetDatalist.appendChild(opt);
+    }
 
     // Link Title input
-    var $linkTitleGroup = $('<div class="form-group">').appendTo($linkTitleCol);
-    $('<label class="form-label" for="rteckeditorimage-linkTitle">').text(img.lang.linkTitle || 'Link Title').appendTo($linkTitleGroup);
-    var $inputLinkTitle = $('<input type="text" id="rteckeditorimage-linkTitle" name="linkTitle" class="form-control">')
-        .val(attributes.linkTitle || '')
-        .appendTo($linkTitleGroup);
+    var linkTitleGroup = h('div', 'form-group', linkTitleCol);
+    var linkTitleLabel = h('label', 'form-label', linkTitleGroup);
+    linkTitleLabel.htmlFor = 'rteckeditorimage-linkTitle';
+    linkTitleLabel.textContent = img.lang.linkTitle || 'Link Title';
+    var inputLinkTitle = document.createElement('input');
+    inputLinkTitle.type = 'text';
+    inputLinkTitle.id = 'rteckeditorimage-linkTitle';
+    inputLinkTitle.name = 'linkTitle';
+    inputLinkTitle.className = 'form-control';
+    inputLinkTitle.value = attributes.linkTitle || '';
+    linkTitleGroup.appendChild(inputLinkTitle);
 
     // Link CSS Class (separate from image class - stored on <a> element)
-    var $linkCssGroup = $('<div class="form-group">').appendTo($linkFields);
-    $('<label class="form-label" for="input-linkCssClass">').text(img.lang.linkCssClass || 'Link CSS Class').appendTo($linkCssGroup);
-    var $inputCssClassLink = $('<input type="text" id="input-linkCssClass" class="form-control">')
-        .val(attributes.linkClass || '')
-        .appendTo($linkCssGroup);
+    var linkCssGroup = h('div', 'form-group', linkFields);
+    var linkCssLabel = h('label', 'form-label', linkCssGroup);
+    linkCssLabel.htmlFor = 'input-linkCssClass';
+    linkCssLabel.textContent = img.lang.linkCssClass || 'Link CSS Class';
+    var inputCssClassLink = document.createElement('input');
+    inputCssClassLink.type = 'text';
+    inputCssClassLink.id = 'input-linkCssClass';
+    inputCssClassLink.className = 'form-control';
+    inputCssClassLink.value = attributes.linkClass || '';
+    linkCssGroup.appendChild(inputCssClassLink);
 
     // Additional Link Parameters (for advanced use cases like &L=1, &type=123, etc.)
-    var $linkParamsGroup = $('<div class="form-group">').appendTo($linkFields);
-    $('<label class="form-label" for="rteckeditorimage-linkParams">').text(img.lang.linkParams || 'Additional Parameters').appendTo($linkParamsGroup);
-    var $inputLinkParams = $('<input type="text" id="rteckeditorimage-linkParams" name="linkParams" class="form-control" placeholder="' + (img.lang.linkParamsPlaceholder || 'e.g. &L=1&type=123') + '">')
-        .val(attributes.linkParams || '')
-        .appendTo($linkParamsGroup);
+    var linkParamsGroup = h('div', 'form-group', linkFields);
+    var linkParamsLabel = h('label', 'form-label', linkParamsGroup);
+    linkParamsLabel.htmlFor = 'rteckeditorimage-linkParams';
+    linkParamsLabel.textContent = img.lang.linkParams || 'Additional Parameters';
+    var inputLinkParams = document.createElement('input');
+    inputLinkParams.type = 'text';
+    inputLinkParams.id = 'rteckeditorimage-linkParams';
+    inputLinkParams.name = 'linkParams';
+    inputLinkParams.className = 'form-control';
+    inputLinkParams.placeholder = img.lang.linkParamsPlaceholder || 'e.g. &L=1&type=123';
+    inputLinkParams.value = attributes.linkParams || '';
+    linkParamsGroup.appendChild(inputLinkParams);
 
     // Store elements for d.get()
-    elements.linkHref = $inputLinkHref;
-    elements.linkTarget = $inputLinkTarget;
-    elements.linkTitle = $inputLinkTitle;
-    elements.linkClass = $inputCssClassLink;
-    elements.linkParams = $inputLinkParams;
+    elements.linkHref = inputLinkHref;
+    elements.linkTarget = inputLinkTarget;
+    elements.linkTitle = inputLinkTitle;
+    elements.linkClass = inputCssClassLink;
+    elements.linkParams = inputLinkParams;
 
     // ========================================
     // Field visibility toggle function
     // ========================================
     function updateClickBehaviorFields() {
         // Scope selector to dialog container to avoid conflicts with multiple editors
-        var selectedBehavior = d.$el.find('input[name="clickBehavior"]:checked').val();
+        var sel = container.querySelector('input[name="clickBehavior"]:checked');
+        var selectedBehavior = sel ? sel.value : 'none';
 
         // Hide all dynamic fields first
-        $enlargeFields.hide();
-        $linkFields.hide();
+        enlargeFields.style.display = 'none';
+        linkFields.style.display = 'none';
 
         // Show relevant fields based on selection
         if (selectedBehavior === 'enlarge') {
-            $enlargeFields.show();
+            enlargeFields.style.display = '';
         } else if (selectedBehavior === 'link') {
-            $linkFields.show();
+            linkFields.style.display = '';
         }
     }
 
     // Bind radio button change events (scoped to dialog container)
-    d.$el.find('input[name="clickBehavior"]').on('change', updateClickBehaviorFields);
+    container.querySelectorAll('input[name="clickBehavior"]').forEach(function(radio) {
+        radio.addEventListener('change', updateClickBehaviorFields);
+    });
 
     // Initial field visibility
     updateClickBehaviorFields();
 
     // Browse button click handler - opens TYPO3 link browser
-    $browseButton.on('click', function() {
+    browseButton.addEventListener('click', function() {
         // Construct full TypoLink from all current dialog fields
         // This ensures target, class, title, additionalParams are preserved when reopening the browser
         var currentLinkData = {
-            href: $inputLinkHref.val() || '',
-            target: $inputLinkTarget.val() || '',
-            class: $inputCssClassLink.val() || '',
-            title: $inputLinkTitle.val() || '',
-            additionalParams: $inputLinkParams.val() || ''
+            href: inputLinkHref.value || '',
+            target: inputLinkTarget.value || '',
+            class: inputCssClassLink.value || '',
+            title: inputLinkTitle.value || '',
+            additionalParams: inputLinkParams.value || ''
         };
         var currentLinkValue = encodeTypoLink(currentLinkData);
         openLinkBrowser(editor, currentLinkValue).then(function(linkData) {
             if (linkData && linkData.href) {
                 // Always update all fields to ensure stale values are cleared
                 // when the user selects a link without certain attributes
-                $inputLinkHref.val(linkData.href);
-                $inputLinkTarget.val(linkData.target || '');
-                $inputLinkTitle.val(linkData.title || '');
-                $inputCssClassLink.val(linkData.class || '');
-                $inputLinkParams.val(linkData.additionalParams || '');
+                inputLinkHref.value = linkData.href;
+                inputLinkTarget.value = linkData.target || '';
+                inputLinkTitle.value = linkData.title || '';
+                inputCssClassLink.value = linkData.class || '';
+                inputLinkParams.value = linkData.additionalParams || '';
             }
         });
     });
@@ -505,29 +625,33 @@ function getImageDialog(editor, img, attributes) {
 
         // Guard against zero dimensions to prevent division by zero
         if (displayWidth === 0 || displayHeight === 0) {
-            $qualityIndicator.html(
+            qualityIndicator.textContent = '';
+            qualityIndicator.insertAdjacentHTML('beforeend',
                 '<div style="color: #dc3545; font-size: 13px; line-height: 1.5;">' +
                 '<strong>Error:</strong> Display dimensions cannot be zero.' +
                 '</div>'
-            ).show();
+            );
+            qualityIndicator.style.display = '';
             return;
         }
 
         // Handle SVG files
         if (img.extension === 'svg') {
-            $qualityIndicator.html(
+            qualityIndicator.textContent = '';
+            qualityIndicator.insertAdjacentHTML('beforeend',
                 '<div style="color: #666; font-size: 13px; line-height: 1.5;">' +
                 '<strong>Processing Info:</strong> Vector image will not be processed (scales perfectly at any resolution).' +
                 '</div>'
-            ).show();
+            );
+            qualityIndicator.style.display = '';
             return;
         }
 
         // Get selected quality multiplier and color from dropdown
-        var selectedQuality = $qualityDropdown.val();
-        var $selectedOption = $qualityDropdown.find('option:selected');
-        var selectedMultiplier = $selectedOption.data('multiplier');
-        var selectedColor = $selectedOption.data('color');
+        var selectedQuality = qualityDropdown.value;
+        var selectedOption = qualityDropdown.options[qualityDropdown.selectedIndex];
+        var selectedMultiplier = parseFloat(selectedOption.dataset.multiplier);
+        var selectedColor = selectedOption.dataset.color;
 
         // Calculate requested source dimensions for selected quality (BEFORE capping)
         var requestedWidth = displayWidth * selectedMultiplier;
@@ -620,22 +744,24 @@ function getImageDialog(editor, img, attributes) {
 
         var html = '<div style="color: ' + messageColor + '; font-size: 13px; line-height: 1.5;">' + message + '</div>';
 
-        $qualityIndicator.html(html).show();
+        qualityIndicator.textContent = '';
+        qualityIndicator.insertAdjacentHTML('beforeend', html);
+        qualityIndicator.style.display = '';
     }
 
     function updateQualityIndicator() {
-        var displayWidth = parseInt($inputWidth.val(), 10) || 0;
-        var displayHeight = parseInt($inputHeight.val(), 10) || 0;
+        var displayWidth = parseInt(inputWidth.value, 10) || 0;
+        var displayHeight = parseInt(inputHeight.value, 10) || 0;
         renderQualityIndicator(displayWidth, displayHeight);
     }
 
     // Wire up quality indicator event handlers
     var debouncedUpdateQualityIndicator = debounce(updateQualityIndicator, 250);
-    $inputWidth.on('input', debouncedUpdateQualityIndicator);
-    $inputHeight.on('input', debouncedUpdateQualityIndicator);
-    $inputWidth.on('change', updateQualityIndicator);
-    $inputHeight.on('change', updateQualityIndicator);
-    $qualityDropdown.on('change', updateQualityIndicator);
+    inputWidth.addEventListener('input', debouncedUpdateQualityIndicator);
+    inputHeight.addEventListener('input', debouncedUpdateQualityIndicator);
+    inputWidth.addEventListener('change', updateQualityIndicator);
+    inputHeight.addEventListener('change', updateQualityIndicator);
+    qualityDropdown.addEventListener('change', updateQualityIndicator);
 
     // Initial quality indicator update
     updateQualityIndicator();
@@ -643,7 +769,7 @@ function getImageDialog(editor, img, attributes) {
     d.get = function () {
         for (const fieldGroup of fields) {
             for (const key of Object.keys(fieldGroup)) {
-                var value = elements[key].val();
+                var value = elements[key].value;
 
                 if (typeof value !== 'undefined') {
                     attributes[key] = value;
@@ -661,7 +787,8 @@ function getImageDialog(editor, img, attributes) {
 
         // Handle Click Behavior radio button selection
         // IMPORTANT: Scope selector to dialog container to avoid conflicts with multiple editors
-        var selectedClickBehavior = d.$el.find('input[name="clickBehavior"]:checked').val();
+        var selRadio = container.querySelector('input[name="clickBehavior"]:checked');
+        var selectedClickBehavior = selRadio ? selRadio.value : 'none';
 
         if (selectedClickBehavior === 'enlarge') {
             // Enlarge mode: set zoom attribute, clear link attributes
@@ -671,7 +798,7 @@ function getImageDialog(editor, img, attributes) {
             delete attributes.linkTitle;
             delete attributes.linkParams;
             // Set CSS class from enlarge field (sanitized to valid CSS class characters)
-            var enlargeCssVal = $inputCssClassEnlarge.val();
+            var enlargeCssVal = inputCssClassEnlarge.value;
             var enlargeCss = enlargeCssVal ? enlargeCssVal.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
             // Combine preserved alignment classes with enlarge CSS class
             var combinedEnlargeClasses = preservedAlignmentClasses.slice();
@@ -684,10 +811,10 @@ function getImageDialog(editor, img, attributes) {
             delete attributes['data-htmlarea-zoom'];
             delete attributes['data-htmlarea-clickenlarge'];
             // Collect link field values
-            var linkHrefVal = $inputLinkHref.val().trim();
-            var linkTargetVal = $inputLinkTarget.val().trim();
-            var linkTitleVal = $inputLinkTitle.val().trim();
-            var linkParamsVal = $inputLinkParams.val().trim();
+            var linkHrefVal = inputLinkHref.value.trim();
+            var linkTargetVal = inputLinkTarget.value.trim();
+            var linkTitleVal = inputLinkTitle.value.trim();
+            var linkParamsVal = inputLinkParams.value.trim();
 
             if (linkHrefVal !== '') {
                 attributes.linkHref = linkHrefVal;
@@ -710,7 +837,7 @@ function getImageDialog(editor, img, attributes) {
                 delete attributes.linkParams;
             }
             // Set link CSS class (stored on <a> element, separate from image class)
-            var linkCssVal = $inputCssClassLink.val();
+            var linkCssVal = inputCssClassLink.value;
             var linkCss = linkCssVal ? linkCssVal.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
             if (linkCss) {
                 attributes.linkClass = linkCss;
@@ -733,7 +860,7 @@ function getImageDialog(editor, img, attributes) {
         }
 
         // Save quality attribute and sync with noScale
-        var qualityValue = $qualityDropdown.val();
+        var qualityValue = qualityDropdown.value;
         if (qualityValue && qualityValue !== '') {
             attributes['data-quality'] = qualityValue;
             // Sync noScale attribute: set to true when quality is 'none' (No Scaling)
@@ -748,17 +875,18 @@ function getImageDialog(editor, img, attributes) {
             delete attributes['data-noscale'];
         }
 
-        if ($checkboxTitle.length && !$checkboxTitle.is(":checked")) {
+        var titleCheckbox = container.querySelector('#checkbox-title');
+        if (titleCheckbox && !titleCheckbox.checked) {
             delete attributes.title;
         }
 
         // When saving, check title/alt for override mode
         ['title', 'alt'].forEach(function (item) {
-            var $curCheckbox = d.$el.find('#checkbox-' + item);
+            var curCheckbox = container.querySelector('#checkbox-' + item);
 
             // When saving, check title for override mode
-            attributes['data-' + item + '-override'] = $curCheckbox.prop('checked');
-            if ($curCheckbox.prop('checked')) {
+            attributes['data-' + item + '-override'] = curCheckbox ? curCheckbox.checked : false;
+            if (curCheckbox && curCheckbox.checked) {
                 // Allow empty title/alt values
                 attributes[item] = attributes[item] || '';
             } else {
@@ -768,6 +896,7 @@ function getImageDialog(editor, img, attributes) {
 
         return attributes;
     };
+    d.el = container;
     return d;
 }
 
@@ -790,7 +919,7 @@ function askImageAttributes(editor, img, attributes, table) {
 
     const modal = Modal.advanced({
         title: img.lang.imageProperties,
-        content: dialog.$el,
+        content: dialog.el,
         buttons: [
             {
                 text: img.lang.cancel,
