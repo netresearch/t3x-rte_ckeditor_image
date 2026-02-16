@@ -1,5 +1,5 @@
 /*jslint browser: true, this: true, multivar: true, white: true, devel: true*/
-/*global $, $$, jquery, window, document, require, CKEDITOR*/
+/*global window, document, CKEDITOR*/
 
 /**
  * This file is part of the TYPO3 CMS project.
@@ -18,7 +18,6 @@ import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
 import { toWidget, toWidgetEditable, WidgetToolbarRepository } from '@ckeditor/ckeditor5-widget';
 import { default as Modal } from '@typo3/backend/modal.js';
-import $ from 'jquery';
 
 
 class Typo3ImageDoubleClickObserver extends DomEventObserver {
