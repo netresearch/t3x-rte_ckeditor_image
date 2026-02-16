@@ -12,8 +12,36 @@ permissions:
     contents: read
 
 jobs:
+    changes:
+        name: Detect changes
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        outputs:
+            code: ${{ steps.filter.outputs.code }}
+        steps:
+            -   uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+            -   uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+                id: filter
+                with:
+                    filters: |
+                        code:
+                            - 'Classes/**'
+                            - 'Configuration/**'
+                            - 'Resources/**'
+                            - 'Tests/**'
+                            - 'Build/**'
+                            - 'composer.json'
+                            - 'ext_emconf.php'
+                            - 'ext_localconf.php'
+                            - 'ext_tables.sql'
+                            - '.github/workflows/**'
+                            - 'package.json'
+
     build:
         runs-on: ubuntu-latest
+        needs: changes
+        if: needs.changes.outputs.code == 'true'
 
         permissions:
             contents: read
@@ -201,7 +229,8 @@ jobs:
 
     e2e:
         runs-on: ubuntu-latest
-        needs: build
+        needs: [changes, build]
+        if: needs.changes.outputs.code == 'true'
 
         permissions:
             contents: read
@@ -270,12 +299,12 @@ jobs:
     build-required:
         name: Build ✓
         runs-on: ubuntu-latest
-        needs: build
+        needs: [changes, build]
         if: always()
         steps:
             -   name: Verify all builds passed
                 run: |
-                    if [[ "${{ needs.build.result }}" != "success" ]]; then
+                    if [[ "${{ needs.build.result }}" == "failure" || "${{ needs.build.result }}" == "cancelled" ]]; then
                         echo "::error::Build matrix failed"
                         exit 1
                     fi
@@ -283,12 +312,12 @@ jobs:
     e2e-required:
         name: E2E ✓
         runs-on: ubuntu-latest
-        needs: e2e
+        needs: [changes, e2e]
         if: always()
         steps:
             -   name: Verify E2E passed
                 run: |
-                    if [[ "${{ needs.e2e.result }}" != "success" ]]; then
+                    if [[ "${{ needs.e2e.result }}" == "failure" || "${{ needs.e2e.result }}" == "cancelled" ]]; then
                         echo "::error::E2E tests did not complete successfully (result: ${{ needs.e2e.result }})"
                         exit 1
                     fi
