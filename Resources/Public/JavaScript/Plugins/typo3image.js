@@ -782,7 +782,7 @@ function getImageDialog(editor, img, attributes) {
  */
 function askImageAttributes(editor, img, attributes, table) {
     var deferred = $.Deferred();
-    var dialog = getImageDialog(editor, img, $.extend({}, img.processed, attributes));
+    var dialog = getImageDialog(editor, img, { ...img.processed, ...attributes });
 
     const modal = Modal.advanced({
         title: img.lang.imageProperties,
@@ -809,7 +809,7 @@ function askImageAttributes(editor, img, attributes, table) {
                             '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-quality', 'data-title-override', 'data-alt-override', 'caption',
                             'linkHref', 'linkTarget', 'linkTitle', 'linkClass', 'linkParams'
                         ],
-                        attributesNew = $.extend({}, img, dialogInfo);
+                        attributesNew = { ...img, ...dialogInfo };
 
                     filteredAttr = Object.keys(attributesNew)
                         .filter(function (key) {
@@ -827,7 +827,7 @@ function askImageAttributes(editor, img, attributes, table) {
                             const userWidth = filteredAttr.width;
                             const userHeight = filteredAttr.height;
 
-                            $.extend(filteredAttr, {
+                            Object.assign(filteredAttr, {
                                 src: urlToRelative(getImg.url, getImg.storageDriver),
                                 width: userWidth || getImg.processed.width || getImg.width,
                                 height: userHeight || getImg.processed.height || getImg.height,
