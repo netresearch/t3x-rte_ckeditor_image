@@ -903,18 +903,23 @@ function selectImage(editor) {
         content: contentUrl,
         size: Modal.sizes.large,
         callback: function (currentModal) {
-            $(currentModal).find('iframe').on('load', function (e) {
-                $(this).contents().on('click', '[data-filelist-element]', function (e) {
+            var iframe = currentModal.querySelector('iframe');
+            if (!iframe) return;
+
+            iframe.addEventListener('load', function() {
+                var doc = iframe.contentDocument;
+                if (!doc) return;
+
+                doc.addEventListener('click', function(e) {
+                    var el = e.target.closest('[data-filelist-element]');
+                    if (!el || el.dataset.filelistType !== 'file') return;
+
                     e.stopImmediatePropagation();
 
-                    if ($(this).data('filelist-type') !== 'file') {
-                        return;
-                    }
-
                     const selectedItem = {
-                        uid: $(this).data('filelist-uid'),
+                        uid: el.dataset.filelistUid,
                         table: 'sys_file',
-                    }
+                    };
                     currentModal.hideModal();
                     resolvePromise(selectedItem);
                 });
