@@ -1,5 +1,5 @@
 /*jslint browser: true, this: true, multivar: true, white: true, devel: true*/
-/*global $, $$, jquery, window, document, require, CKEDITOR*/
+/*global window, document, CKEDITOR*/
 
 /**
  * This file is part of the TYPO3 CMS project.
@@ -18,7 +18,6 @@ import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
 import { toWidget, toWidgetEditable, WidgetToolbarRepository } from '@ckeditor/ckeditor5-widget';
 import { default as Modal } from '@typo3/backend/modal.js';
-import $ from 'jquery';
 
 
 class Typo3ImageDoubleClickObserver extends DomEventObserver {
@@ -56,11 +55,11 @@ function urlToRelative(url, storageDriver) {
 
     // Convert local storage URLs to relative for site portability
     if (url.indexOf("http://") !== -1 || url.indexOf("https://") !== -1) {
-        var u = new URL(url);
+        const u = new URL(url);
         return u.pathname + u.search;
     } else {
         if (url[0] !== "/") {
-            return "/" + url;
+            return `/${url}`;
         }
     }
 
@@ -74,12 +73,20 @@ function urlToRelative(url, storageDriver) {
  * @param {Object} editor
  * @param {Object} img
  * @param {Object} attributes
- * @return {{$el: {jquery}, get: {function}}}
+ * @return {{el: {Element}, get: {function}}}
  */
 function getImageDialog(editor, img, attributes) {
-    var d = {},
-        $rows = [],
+    const d = {},
+        rows = [],
         elements = {};
+
+    // Helper: create element with optional class, append to parent
+    function h(tag, className, parent) {
+        const el = document.createElement(tag);
+        if (className) el.className = className;
+        if (parent) parent.appendChild(el);
+        return el;
+    }
 
     const fields = [
         {
@@ -107,130 +114,151 @@ function getImageDialog(editor, img, attributes) {
     // Check if the image is SVG
     const isSvg = img.url && (img.url.endsWith('.svg') || img.url.includes('.svg?')) || false;
 
-    d.$el = $('<div class="rteckeditorimage">');
+    const container = h('div', 'rteckeditorimage');
 
-    $.each(fields, function () {
-        var $row = $('<div class="row">').appendTo(d.$el);
+    for (const fieldGroup of fields) {
+        const row = h('div', 'row', container);
 
-        $rows.push($row);
-        $.each(this, function (key, config) {
+        rows.push(row);
+        for (const [key, config] of Object.entries(fieldGroup)) {
             // Use full width for title, alt, and caption fields, otherwise use col-sm-4
-            var colClass = (key === 'title' || key === 'alt' || key === 'caption') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
-            var $group = $('<div class="form-group">').appendTo($('<div class="' + colClass + '">').appendTo($row));
-            var id = 'rteckeditorimage-' + key;
-            $('<label class="form-label" for="' + id + '">' + config.label + '</label>').appendTo($group);
+            const colClass = (key === 'title' || key === 'alt' || key === 'caption') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
+            const col = h('div', colClass, row);
+            const group = h('div', 'form-group', col);
+            const id = `rteckeditorimage-${key}`;
+            const label = h('label', 'form-label', group);
+            label.htmlFor = id;
+            label.textContent = config.label;
 
-            var $el;
+            let el;
             if (config.type === 'select') {
-                $el = $('<select id="' + id + '" name="' + key + '" class="form-select"></select>');
+                el = document.createElement('select');
+                el.id = id;
+                el.name = key;
+                el.className = 'form-select';
             } else if (config.type === 'textarea') {
-                $el = $('<textarea id="' + id + '" name="' + key + '" class="form-control" rows="' + (config.rows || 3) + '"></textarea>');
+                el = document.createElement('textarea');
+                el.id = id;
+                el.name = key;
+                el.className = 'form-control';
+                el.rows = config.rows || 3;
             } else {
-                $el = $('<input type="' + config.type + '" id ="' + id + '" name="' + key + '" class="form-control">');
+                el = document.createElement('input');
+                el.type = config.type;
+                el.id = id;
+                el.name = key;
+                el.className = 'form-control';
             }
 
-            var placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
-            var value = ((attributes[key] || '') + '').trim();
+            const placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
+            const value = ((attributes[key] || '') + '').trim();
 
             if (config.type !== 'select') {
-                $el.attr('placeholder', placeholder);
-                $el.val(value);
+                el.placeholder = placeholder;
+                el.value = value;
             }
 
             if (config.type === 'text' || config.type === 'textarea') {
-                var startVal = value,
-                    hasDefault = img[key] && img[key].trim(),
-                    cbox = $('<input type="checkbox" class="form-check-input">')
-                        .attr('id', 'checkbox-' + key)
-                        .prop('checked', !!value || !hasDefault)
-                        .prop('disabled', !hasDefault),
-                    cboxLabel = $('<label class="form-check-label"></label>')
-                        .attr('for', 'checkbox-' + key)
-                        .text(hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault);
+                let startVal = value;
+                const hasDefault = img[key] && img[key].trim();
+
+                const cbox = document.createElement('input');
+                cbox.type = 'checkbox';
+                cbox.className = 'form-check-input';
+                cbox.id = `checkbox-${key}`;
+                cbox.checked = !!value || !hasDefault;
+                cbox.disabled = !hasDefault;
+
+                const cboxLabel = document.createElement('label');
+                cboxLabel.className = 'form-check-label';
+                cboxLabel.htmlFor = `checkbox-${key}`;
+                cboxLabel.textContent = hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault;
 
                 // Add tooltip when checkbox is disabled (no default value from file)
                 if (!hasDefault) {
                     const noDefaultMsg = img.lang.noDefaultMetadata.replace('%s', key);
-                    cbox.attr('title', noDefaultMsg);
-                    cboxLabel.css('cursor', 'not-allowed').attr('title', noDefaultMsg);
+                    cbox.title = noDefaultMsg;
+                    cboxLabel.style.cursor = 'not-allowed';
+                    cboxLabel.title = noDefaultMsg;
                 }
 
-                $el.prop('disabled', hasDefault && !value);
+                el.disabled = hasDefault && !value;
 
-                var $checkboxContainer = $('<div class="form-check form-check-type-toggle" style="margin: 0 0 6px;">').appendTo($group);
-                cbox.appendTo($checkboxContainer);
-                cboxLabel.appendTo($checkboxContainer);
+                const checkboxContainer = h('div', 'form-check form-check-type-toggle', group);
+                checkboxContainer.style.cssText = 'margin: 0 0 6px;';
+                checkboxContainer.appendChild(cbox);
+                checkboxContainer.appendChild(cboxLabel);
 
-                cboxLabel.on('click', function () {
-                    $el.prop('disabled', !cbox.prop('checked'));
-                    startVal = $el.val() || startVal;
+                cboxLabel.addEventListener('click', function () {
+                    el.disabled = !cbox.checked;
+                    startVal = el.value || startVal;
 
                     // Clear value or set to startvalue when clicking checkbox
-                    if (!cbox.prop('checked')) {
-                        $el.val('');
+                    if (!cbox.checked) {
+                        el.value = '';
                     } else {
-                        $el.val(startVal);
-                        $el.focus();
+                        el.value = startVal;
+                        el.focus();
                     }
                 });
 
                 // Initally read/set title/alt attributes and check if override is enabled
                 if (key === 'title' || key === 'alt') {
-                    if (attributes['data-' + key + '-override'] === 'false') {
-                        cbox.prop('checked', false);
-                        $el.prop('disabled', true);
-                        $el.val('');
-                        attributes['data-' + key + '-override'] = false;
+                    if (attributes[`data-${key}-override`] === 'false') {
+                        cbox.checked = false;
+                        el.disabled = true;
+                        el.value = '';
+                        attributes[`data-${key}-override`] = false;
                         delete attributes[key];
                     } else {
-                        cbox.prop('checked', true);
-                        $el.prop('disabled', false);
+                        cbox.checked = true;
+                        el.disabled = false;
                     }
                 }
             } else if (config.type === 'number') {
-                var ratio = img.width / img.height;
+                let ratio = img.width / img.height;
                 if (key === 'height') {
                     ratio = 1 / ratio;
                 }
-                var opposite = 1;
-                var max = img[key];
-                var min = Math.ceil(opposite * ratio);
-                $el.attr('max', max);
-                $el.attr('min', min);
+                const opposite = 1;
+                const max = img[key];
+                const min = Math.ceil(opposite * ratio);
+                el.max = max;
+                el.min = min;
 
-                var constrainDimensions = function (currentMin, delta) {
-                    value = parseInt($el.val().replace(/[^0-9]/g, '') || max);
+                const constrainDimensions = function (currentMin, delta) {
+                    let value = parseInt(el.value.replace(/[^0-9]/g, '') || max);
                     if (delta) {
                         value += delta;
                     }
                     value = Math.max(currentMin, Math.min(value, max));
-                    var $opposite = elements[key === 'width' ? 'height' : 'width'],
-                        oppositeMax = parseInt($opposite.attr('max')),
+                    const oppositeEl = elements[key === 'width' ? 'height' : 'width'],
+                        oppositeMax = parseInt(oppositeEl.max),
                         ratio = oppositeMax / max;
 
-                    $opposite.val(value === max ? oppositeMax : Math.ceil(value * ratio));
-                    $el.val(value);
+                    oppositeEl.value = value === max ? oppositeMax : Math.ceil(value * ratio);
+                    el.value = value;
                 };
 
-                $el.on('input', function () {
+                el.addEventListener('input', function () {
                     // Allow empty input during typing (fixes #140)
-                    var val = $el.val().replace(/[^0-9]/g, '');
+                    const val = el.value.replace(/[^0-9]/g, '');
                     if (val !== '') {
                         constrainDimensions(1);
                     }
                 });
-                $el.on('change', function () {
+                el.addEventListener('change', function () {
                     constrainDimensions(min);
                 });
-                $el.on('mousewheel', function (e) {
-                    constrainDimensions(min, e.originalEvent.wheelDelta > 0 ? 1 : -1);
+                el.addEventListener('wheel', function (e) {
+                    constrainDimensions(min, e.deltaY < 0 ? 1 : -1);
                     e.preventDefault();
                     e.stopPropagation();
                     e.stopImmediatePropagation();
-                });
+                }, { passive: false });
             } else if (config.type === 'select' && key === 'quality') {
                 // Image Processing quality dropdown - sorted by quality ascending
-                var qualityOptions = [
+                const qualityOptions = [
                     { value: 'none', label: img.lang.qualityNone || 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
                     { value: 'standard', label: img.lang.qualityStandard || 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
                     { value: 'retina', label: img.lang.qualityRetina || 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
@@ -238,19 +266,19 @@ function getImageDialog(editor, img, attributes) {
                     { value: 'print', label: img.lang.qualityPrint || 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
                 ];
 
-                $.each(qualityOptions, function(i, option) {
-                    var $option = $('<option>')
-                        .val(option.value)
-                        .text(option.marker + ' ' + option.label)
-                        .data('multiplier', option.multiplier)
-                        .data('color', option.color)
-                        .css('color', option.color);
-                    $option.appendTo($el);
-                });
+                for (const option of qualityOptions) {
+                    const optEl = document.createElement('option');
+                    optEl.value = option.value;
+                    optEl.textContent = `${option.marker} ${option.label}`;
+                    optEl.dataset.multiplier = option.multiplier;
+                    optEl.dataset.color = option.color;
+                    optEl.style.color = option.color;
+                    el.appendChild(optEl);
+                }
 
                 // Determine default quality based on image type and existing attributes
                 // Priority: 1) data-quality 2) data-noscale→'none' 3) SVG→'print' 4) default→'retina'
-                var defaultQuality;
+                let defaultQuality;
                 if (attributes['data-quality']) {
                     defaultQuality = attributes['data-quality'];
                 } else if (attributes['data-noscale']) {
@@ -261,33 +289,34 @@ function getImageDialog(editor, img, attributes) {
                 } else {
                     defaultQuality = 'retina';
                 }
-                $el.val(defaultQuality);
+                el.value = defaultQuality;
 
                 // Disable for SVG (vector images don't need quality processing)
                 if (isSvg) {
-                    $el.prop('disabled', true);
+                    el.disabled = true;
                 }
             }
 
-            $group.append($el);
-            elements[key] = $el;
-        });
-    });
+            group.appendChild(el);
+            elements[key] = el;
+        }
+    }
 
     // Create quality indicator container (inserted after first row with dimensions)
-    var $qualityIndicator = $('<div class="image-quality-indicator" style="margin: 12px 0; font-size: 13px; line-height: 1.6;">');
-    $qualityIndicator.insertAfter($rows[0]);
+    const qualityIndicator = h('div', 'image-quality-indicator');
+    qualityIndicator.style.cssText = 'margin: 12px 0; font-size: 13px; line-height: 1.6;';
+    rows[0].after(qualityIndicator);
 
-    var $checkboxTitle = d.$el.find('#checkbox-title'),
-        $checkboxAlt = d.$el.find('#checkbox-alt'),
-        $inputWidth = d.$el.find('#rteckeditorimage-width'),
-        $inputHeight = d.$el.find('#rteckeditorimage-height'),
-        $qualityDropdown = d.$el.find('#rteckeditorimage-quality'),
-        $noScale = $('<input id="checkbox-noscale" type="checkbox">');
+    const inputWidth = container.querySelector('#rteckeditorimage-width'),
+        inputHeight = container.querySelector('#rteckeditorimage-height'),
+        qualityDropdown = container.querySelector('#rteckeditorimage-quality'),
+        noScale = document.createElement('input');
+    noScale.id = 'checkbox-noscale';
+    noScale.type = 'checkbox';
 
     // Check for existing noScale attribute (for backward compatibility)
     if (attributes['data-noscale']) {
-        $noScale.prop('checked', true);
+        noScale.checked = true;
     }
 
     // ========================================
@@ -295,22 +324,29 @@ function getImageDialog(editor, img, attributes) {
     // Implements fix for issue #565: prevents conflict between
     // "Click to Enlarge" and "Link" (both create <a> wrappers)
     // ========================================
-    var $clickBehaviorSection = $('<div class="row" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #dee2e6;">').insertAfter($rows[3]);
-    var $clickBehaviorHeader = $('<div class="col-xs-12" style="margin-bottom: 12px;"><strong>' + (img.lang.clickBehavior || 'Click Behavior') + '</strong></div>').appendTo($clickBehaviorSection);
+    const clickBehaviorSection = h('div', 'row');
+    clickBehaviorSection.style.cssText = 'margin-top: 16px; padding-top: 16px; border-top: 1px solid #dee2e6;';
+    rows[3].after(clickBehaviorSection);
+    const clickBehaviorHeader = h('div', 'col-xs-12', clickBehaviorSection);
+    clickBehaviorHeader.style.marginBottom = '12px';
+    const clickBehaviorStrong = document.createElement('strong');
+    clickBehaviorStrong.textContent = img.lang.clickBehavior || 'Click Behavior';
+    clickBehaviorHeader.appendChild(clickBehaviorStrong);
 
     // Radio button container
-    var $radioContainer = $('<div class="col-xs-12" style="margin-bottom: 12px;">').appendTo($clickBehaviorSection);
+    const radioContainer = h('div', 'col-xs-12', clickBehaviorSection);
+    radioContainer.style.marginBottom = '12px';
 
     // Extract non-alignment CSS classes for the CSS class input fields
     // Alignment classes (image-left, image-center, etc.) are controlled via bubble toolbar
-    var alignmentClassList = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
-    var allClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
-    var nonAlignmentClasses = allClasses.filter(function(c) {
+    const alignmentClassList = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
+    const allClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
+    const nonAlignmentClasses = allClasses.filter(function(c) {
         return alignmentClassList.indexOf(c) === -1;
     }).join(' ');
 
     // Determine initial selection based on existing attributes
-    var initialBehavior = 'none';
+    let initialBehavior = 'none';
     if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
         initialBehavior = 'enlarge';
     } else if (attributes.linkHref && attributes.linkHref.trim() !== '') {
@@ -318,25 +354,49 @@ function getImageDialog(editor, img, attributes) {
     }
 
     // Radio: None
-    var $radioNoneWrapper = $('<div class="form-check" style="margin-bottom: 8px;">').appendTo($radioContainer);
-    var $radioNone = $('<input type="radio" name="clickBehavior" id="clickBehavior-none" value="none" class="form-check-input">')
-        .prop('checked', initialBehavior === 'none')
-        .appendTo($radioNoneWrapper);
-    $('<label class="form-check-label" for="clickBehavior-none">').text(img.lang.clickBehaviorNone || 'None - image is not clickable').appendTo($radioNoneWrapper);
+    const radioNoneWrapper = h('div', 'form-check', radioContainer);
+    radioNoneWrapper.style.marginBottom = '8px';
+    const radioNone = document.createElement('input');
+    radioNone.type = 'radio';
+    radioNone.name = 'clickBehavior';
+    radioNone.id = 'clickBehavior-none';
+    radioNone.value = 'none';
+    radioNone.className = 'form-check-input';
+    radioNone.checked = initialBehavior === 'none';
+    radioNoneWrapper.appendChild(radioNone);
+    const radioNoneLabel = h('label', 'form-check-label', radioNoneWrapper);
+    radioNoneLabel.htmlFor = 'clickBehavior-none';
+    radioNoneLabel.textContent = img.lang.clickBehaviorNone || 'None - image is not clickable';
 
     // Radio: Enlarge
-    var $radioEnlargeWrapper = $('<div class="form-check" style="margin-bottom: 8px;">').appendTo($radioContainer);
-    var $radioEnlarge = $('<input type="radio" name="clickBehavior" id="clickBehavior-enlarge" value="enlarge" class="form-check-input">')
-        .prop('checked', initialBehavior === 'enlarge')
-        .appendTo($radioEnlargeWrapper);
-    $('<label class="form-check-label" for="clickBehavior-enlarge">').text(img.lang.clickBehaviorEnlarge || 'Enlarge - opens full-size in lightbox').appendTo($radioEnlargeWrapper);
+    const radioEnlargeWrapper = h('div', 'form-check', radioContainer);
+    radioEnlargeWrapper.style.marginBottom = '8px';
+    const radioEnlarge = document.createElement('input');
+    radioEnlarge.type = 'radio';
+    radioEnlarge.name = 'clickBehavior';
+    radioEnlarge.id = 'clickBehavior-enlarge';
+    radioEnlarge.value = 'enlarge';
+    radioEnlarge.className = 'form-check-input';
+    radioEnlarge.checked = initialBehavior === 'enlarge';
+    radioEnlargeWrapper.appendChild(radioEnlarge);
+    const radioEnlargeLabel = h('label', 'form-check-label', radioEnlargeWrapper);
+    radioEnlargeLabel.htmlFor = 'clickBehavior-enlarge';
+    radioEnlargeLabel.textContent = img.lang.clickBehaviorEnlarge || 'Enlarge - opens full-size in lightbox';
 
     // Radio: Link
-    var $radioLinkWrapper = $('<div class="form-check" style="margin-bottom: 8px;">').appendTo($radioContainer);
-    var $radioLink = $('<input type="radio" name="clickBehavior" id="clickBehavior-link" value="link" class="form-check-input">')
-        .prop('checked', initialBehavior === 'link')
-        .appendTo($radioLinkWrapper);
-    $('<label class="form-check-label" for="clickBehavior-link">').text(img.lang.clickBehaviorLink || 'Link - opens custom URL').appendTo($radioLinkWrapper);
+    const radioLinkWrapper = h('div', 'form-check', radioContainer);
+    radioLinkWrapper.style.marginBottom = '8px';
+    const radioLink = document.createElement('input');
+    radioLink.type = 'radio';
+    radioLink.name = 'clickBehavior';
+    radioLink.id = 'clickBehavior-link';
+    radioLink.value = 'link';
+    radioLink.className = 'form-check-input';
+    radioLink.checked = initialBehavior === 'link';
+    radioLinkWrapper.appendChild(radioLink);
+    const radioLinkLabel = h('label', 'form-check-label', radioLinkWrapper);
+    radioLinkLabel.htmlFor = 'clickBehavior-link';
+    radioLinkLabel.textContent = img.lang.clickBehaviorLink || 'Link - opens custom URL';
 
     // ========================================
     // Disable click behavior when image is inside an external link
@@ -344,137 +404,201 @@ function getImageDialog(editor, img, attributes) {
     // ========================================
     if (attributes.isInsideExternalLink) {
         // Disable all radio buttons
-        $radioNone.prop('disabled', true);
-        $radioEnlarge.prop('disabled', true);
-        $radioLink.prop('disabled', true);
+        radioNone.disabled = true;
+        radioEnlarge.disabled = true;
+        radioLink.disabled = true;
 
         // Add info message explaining why options are disabled
-        var $externalLinkInfo = $('<div class="alert alert-info" style="margin-top: 12px; padding: 10px; font-size: 13px;">')
-            .html('<strong>' + (img.lang.imageInsideLinkTitle || 'Image is inside a link') + '</strong><br>' +
-                  (img.lang.imageInsideLinkMessage || 'Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.'))
-            .appendTo($radioContainer);
+        const externalLinkInfo = h('div', 'alert alert-info', radioContainer);
+        externalLinkInfo.style.cssText = 'margin-top: 12px; padding: 10px; font-size: 13px;';
+        const infoStrong = document.createElement('strong');
+        infoStrong.textContent = img.lang.imageInsideLinkTitle || 'Image is inside a link';
+        externalLinkInfo.appendChild(infoStrong);
+        externalLinkInfo.appendChild(document.createElement('br'));
+        externalLinkInfo.appendChild(document.createTextNode(img.lang.imageInsideLinkMessage || 'Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.'));
     }
 
     // ========================================
     // Dynamic fields container (shown/hidden based on radio selection)
     // ========================================
-    var $dynamicFieldsContainer = $('<div class="col-xs-12" id="clickBehavior-fields">').appendTo($clickBehaviorSection);
+    const dynamicFieldsContainer = h('div', 'col-xs-12', clickBehaviorSection);
+    dynamicFieldsContainer.id = 'clickBehavior-fields';
 
     // --- Enlarge fields (only CSS class) ---
-    var $enlargeFields = $('<div id="enlargeFields" style="display: none;">').appendTo($dynamicFieldsContainer);
-    var $enlargeCssGroup = $('<div class="form-group">').appendTo($enlargeFields);
-    $('<label class="form-label" for="input-linkCssClass-enlarge">').text(img.lang.linkCssClass || 'Link CSS Class').appendTo($enlargeCssGroup);
-    var $inputCssClassEnlarge = $('<input type="text" id="input-linkCssClass-enlarge" class="form-control" placeholder="e.g., lightbox-trigger">')
-        .val(initialBehavior === 'enlarge' ? nonAlignmentClasses : '')
-        .appendTo($enlargeCssGroup);
+    const enlargeFields = document.createElement('div');
+    enlargeFields.id = 'enlargeFields';
+    enlargeFields.style.display = 'none';
+    dynamicFieldsContainer.appendChild(enlargeFields);
+    const enlargeCssGroup = h('div', 'form-group', enlargeFields);
+    const enlargeCssLabel = h('label', 'form-label', enlargeCssGroup);
+    enlargeCssLabel.htmlFor = 'input-linkCssClass-enlarge';
+    enlargeCssLabel.textContent = img.lang.linkCssClass || 'Link CSS Class';
+    const inputCssClassEnlarge = document.createElement('input');
+    inputCssClassEnlarge.type = 'text';
+    inputCssClassEnlarge.id = 'input-linkCssClass-enlarge';
+    inputCssClassEnlarge.className = 'form-control';
+    inputCssClassEnlarge.placeholder = 'e.g., lightbox-trigger';
+    inputCssClassEnlarge.value = initialBehavior === 'enlarge' ? nonAlignmentClasses : '';
+    enlargeCssGroup.appendChild(inputCssClassEnlarge);
 
     // --- Link fields (URL, Target, Title, CSS class) ---
-    var $linkFields = $('<div id="linkFields" style="display: none;">').appendTo($dynamicFieldsContainer);
+    const linkFields = document.createElement('div');
+    linkFields.id = 'linkFields';
+    linkFields.style.display = 'none';
+    dynamicFieldsContainer.appendChild(linkFields);
 
     // Link URL with Browse button
-    var $linkUrlGroup = $('<div class="form-group">').appendTo($linkFields);
-    $('<label class="form-label" for="rteckeditorimage-linkHref">').text(img.lang.linkUrl || 'Link URL').appendTo($linkUrlGroup);
-    var $linkUrlInputGroup = $('<div class="input-group">').appendTo($linkUrlGroup);
-    var $inputLinkHref = $('<input type="text" id="rteckeditorimage-linkHref" name="linkHref" class="form-control" placeholder="https://example.com or t3://page?uid=123">')
-        .val(attributes.linkHref || '')
-        .appendTo($linkUrlInputGroup);
-    var $browseButton = $('<button type="button" class="btn btn-default">')
-        .text(img.lang.browse || 'Browse...')
-        .appendTo($linkUrlInputGroup);
+    const linkUrlGroup = h('div', 'form-group', linkFields);
+    const linkUrlLabel = h('label', 'form-label', linkUrlGroup);
+    linkUrlLabel.htmlFor = 'rteckeditorimage-linkHref';
+    linkUrlLabel.textContent = img.lang.linkUrl || 'Link URL';
+    const linkUrlInputGroup = h('div', 'input-group', linkUrlGroup);
+    const inputLinkHref = document.createElement('input');
+    inputLinkHref.type = 'text';
+    inputLinkHref.id = 'rteckeditorimage-linkHref';
+    inputLinkHref.name = 'linkHref';
+    inputLinkHref.className = 'form-control';
+    inputLinkHref.placeholder = 'https://example.com or t3://page?uid=123';
+    inputLinkHref.value = attributes.linkHref || '';
+    linkUrlInputGroup.appendChild(inputLinkHref);
+    const browseButton = document.createElement('button');
+    browseButton.type = 'button';
+    browseButton.className = 'btn btn-default';
+    browseButton.textContent = img.lang.browse || 'Browse...';
+    linkUrlInputGroup.appendChild(browseButton);
 
     // Link Target and Title row
-    var $linkOptionsRow = $('<div class="row">').appendTo($linkFields);
-    var $linkTargetCol = $('<div class="col-xs-12 col-sm-6">').appendTo($linkOptionsRow);
-    var $linkTitleCol = $('<div class="col-xs-12 col-sm-6">').appendTo($linkOptionsRow);
+    const linkOptionsRow = h('div', 'row', linkFields);
+    const linkTargetCol = h('div', 'col-xs-12 col-sm-6', linkOptionsRow);
+    const linkTitleCol = h('div', 'col-xs-12 col-sm-6', linkOptionsRow);
 
     // Link Target input with datalist for common values
     // Changed from <select> to <input> to support free text targets like "nav_frame"
-    var $linkTargetGroup = $('<div class="form-group">').appendTo($linkTargetCol);
-    $('<label class="form-label" for="rteckeditorimage-linkTarget">').text(img.lang.linkTarget || 'Link Target').appendTo($linkTargetGroup);
-    var $inputLinkTarget = $('<input type="text" id="rteckeditorimage-linkTarget" name="linkTarget" class="form-control" list="rteckeditorimage-linkTarget-options" placeholder="' + (img.lang.linkTargetPlaceholder || 'e.g. _blank, _top, nav_frame') + '">')
-        .val(attributes.linkTarget || '')
-        .appendTo($linkTargetGroup);
+    const linkTargetGroup = h('div', 'form-group', linkTargetCol);
+    const linkTargetLabel = h('label', 'form-label', linkTargetGroup);
+    linkTargetLabel.htmlFor = 'rteckeditorimage-linkTarget';
+    linkTargetLabel.textContent = img.lang.linkTarget || 'Link Target';
+    const inputLinkTarget = document.createElement('input');
+    inputLinkTarget.type = 'text';
+    inputLinkTarget.id = 'rteckeditorimage-linkTarget';
+    inputLinkTarget.name = 'linkTarget';
+    inputLinkTarget.className = 'form-control';
+    inputLinkTarget.setAttribute('list', 'rteckeditorimage-linkTarget-options');
+    inputLinkTarget.placeholder = img.lang.linkTargetPlaceholder || 'e.g. _blank, _top, nav_frame';
+    inputLinkTarget.value = attributes.linkTarget || '';
+    linkTargetGroup.appendChild(inputLinkTarget);
     // Datalist provides suggestions but allows any value
-    var $linkTargetDatalist = $('<datalist id="rteckeditorimage-linkTarget-options">').appendTo($linkTargetGroup);
-    $('<option>').attr('value', '_blank').text(img.lang.linkTargetBlank || 'New window').appendTo($linkTargetDatalist);
-    $('<option>').attr('value', '_top').text(img.lang.linkTargetTop || 'Top frame').appendTo($linkTargetDatalist);
-    $('<option>').attr('value', '_self').text(img.lang.linkTargetSelf || 'Same window').appendTo($linkTargetDatalist);
-    $('<option>').attr('value', '_parent').text(img.lang.linkTargetParent || 'Parent frame').appendTo($linkTargetDatalist);
+    const linkTargetDatalist = document.createElement('datalist');
+    linkTargetDatalist.id = 'rteckeditorimage-linkTarget-options';
+    linkTargetGroup.appendChild(linkTargetDatalist);
+    const datalistOptions = [
+        { value: '_blank', text: img.lang.linkTargetBlank || 'New window' },
+        { value: '_top', text: img.lang.linkTargetTop || 'Top frame' },
+        { value: '_self', text: img.lang.linkTargetSelf || 'Same window' },
+        { value: '_parent', text: img.lang.linkTargetParent || 'Parent frame' }
+    ];
+    for (let di = 0; di < datalistOptions.length; di++) {
+        const opt = document.createElement('option');
+        opt.value = datalistOptions[di].value;
+        opt.textContent = datalistOptions[di].text;
+        linkTargetDatalist.appendChild(opt);
+    }
 
     // Link Title input
-    var $linkTitleGroup = $('<div class="form-group">').appendTo($linkTitleCol);
-    $('<label class="form-label" for="rteckeditorimage-linkTitle">').text(img.lang.linkTitle || 'Link Title').appendTo($linkTitleGroup);
-    var $inputLinkTitle = $('<input type="text" id="rteckeditorimage-linkTitle" name="linkTitle" class="form-control">')
-        .val(attributes.linkTitle || '')
-        .appendTo($linkTitleGroup);
+    const linkTitleGroup = h('div', 'form-group', linkTitleCol);
+    const linkTitleLabel = h('label', 'form-label', linkTitleGroup);
+    linkTitleLabel.htmlFor = 'rteckeditorimage-linkTitle';
+    linkTitleLabel.textContent = img.lang.linkTitle || 'Link Title';
+    const inputLinkTitle = document.createElement('input');
+    inputLinkTitle.type = 'text';
+    inputLinkTitle.id = 'rteckeditorimage-linkTitle';
+    inputLinkTitle.name = 'linkTitle';
+    inputLinkTitle.className = 'form-control';
+    inputLinkTitle.value = attributes.linkTitle || '';
+    linkTitleGroup.appendChild(inputLinkTitle);
 
     // Link CSS Class (separate from image class - stored on <a> element)
-    var $linkCssGroup = $('<div class="form-group">').appendTo($linkFields);
-    $('<label class="form-label" for="input-linkCssClass">').text(img.lang.linkCssClass || 'Link CSS Class').appendTo($linkCssGroup);
-    var $inputCssClassLink = $('<input type="text" id="input-linkCssClass" class="form-control">')
-        .val(attributes.linkClass || '')
-        .appendTo($linkCssGroup);
+    const linkCssGroup = h('div', 'form-group', linkFields);
+    const linkCssLabel = h('label', 'form-label', linkCssGroup);
+    linkCssLabel.htmlFor = 'input-linkCssClass';
+    linkCssLabel.textContent = img.lang.linkCssClass || 'Link CSS Class';
+    const inputCssClassLink = document.createElement('input');
+    inputCssClassLink.type = 'text';
+    inputCssClassLink.id = 'input-linkCssClass';
+    inputCssClassLink.className = 'form-control';
+    inputCssClassLink.value = attributes.linkClass || '';
+    linkCssGroup.appendChild(inputCssClassLink);
 
     // Additional Link Parameters (for advanced use cases like &L=1, &type=123, etc.)
-    var $linkParamsGroup = $('<div class="form-group">').appendTo($linkFields);
-    $('<label class="form-label" for="rteckeditorimage-linkParams">').text(img.lang.linkParams || 'Additional Parameters').appendTo($linkParamsGroup);
-    var $inputLinkParams = $('<input type="text" id="rteckeditorimage-linkParams" name="linkParams" class="form-control" placeholder="' + (img.lang.linkParamsPlaceholder || 'e.g. &L=1&type=123') + '">')
-        .val(attributes.linkParams || '')
-        .appendTo($linkParamsGroup);
+    const linkParamsGroup = h('div', 'form-group', linkFields);
+    const linkParamsLabel = h('label', 'form-label', linkParamsGroup);
+    linkParamsLabel.htmlFor = 'rteckeditorimage-linkParams';
+    linkParamsLabel.textContent = img.lang.linkParams || 'Additional Parameters';
+    const inputLinkParams = document.createElement('input');
+    inputLinkParams.type = 'text';
+    inputLinkParams.id = 'rteckeditorimage-linkParams';
+    inputLinkParams.name = 'linkParams';
+    inputLinkParams.className = 'form-control';
+    inputLinkParams.placeholder = img.lang.linkParamsPlaceholder || 'e.g. &L=1&type=123';
+    inputLinkParams.value = attributes.linkParams || '';
+    linkParamsGroup.appendChild(inputLinkParams);
 
     // Store elements for d.get()
-    elements.linkHref = $inputLinkHref;
-    elements.linkTarget = $inputLinkTarget;
-    elements.linkTitle = $inputLinkTitle;
-    elements.linkClass = $inputCssClassLink;
-    elements.linkParams = $inputLinkParams;
+    elements.linkHref = inputLinkHref;
+    elements.linkTarget = inputLinkTarget;
+    elements.linkTitle = inputLinkTitle;
+    elements.linkClass = inputCssClassLink;
+    elements.linkParams = inputLinkParams;
 
     // ========================================
     // Field visibility toggle function
     // ========================================
     function updateClickBehaviorFields() {
         // Scope selector to dialog container to avoid conflicts with multiple editors
-        var selectedBehavior = d.$el.find('input[name="clickBehavior"]:checked').val();
+        const sel = container.querySelector('input[name="clickBehavior"]:checked');
+        const selectedBehavior = sel ? sel.value : 'none';
 
         // Hide all dynamic fields first
-        $enlargeFields.hide();
-        $linkFields.hide();
+        enlargeFields.style.display = 'none';
+        linkFields.style.display = 'none';
 
         // Show relevant fields based on selection
         if (selectedBehavior === 'enlarge') {
-            $enlargeFields.show();
+            enlargeFields.style.display = '';
         } else if (selectedBehavior === 'link') {
-            $linkFields.show();
+            linkFields.style.display = '';
         }
     }
 
     // Bind radio button change events (scoped to dialog container)
-    d.$el.find('input[name="clickBehavior"]').on('change', updateClickBehaviorFields);
+    container.querySelectorAll('input[name="clickBehavior"]').forEach(function(radio) {
+        radio.addEventListener('change', updateClickBehaviorFields);
+    });
 
     // Initial field visibility
     updateClickBehaviorFields();
 
     // Browse button click handler - opens TYPO3 link browser
-    $browseButton.on('click', function() {
+    browseButton.addEventListener('click', function() {
         // Construct full TypoLink from all current dialog fields
         // This ensures target, class, title, additionalParams are preserved when reopening the browser
-        var currentLinkData = {
-            href: $inputLinkHref.val() || '',
-            target: $inputLinkTarget.val() || '',
-            class: $inputCssClassLink.val() || '',
-            title: $inputLinkTitle.val() || '',
-            additionalParams: $inputLinkParams.val() || ''
+        const currentLinkData = {
+            href: inputLinkHref.value || '',
+            target: inputLinkTarget.value || '',
+            class: inputCssClassLink.value || '',
+            title: inputLinkTitle.value || '',
+            additionalParams: inputLinkParams.value || ''
         };
-        var currentLinkValue = encodeTypoLink(currentLinkData);
+        const currentLinkValue = encodeTypoLink(currentLinkData);
         openLinkBrowser(editor, currentLinkValue).then(function(linkData) {
             if (linkData && linkData.href) {
                 // Always update all fields to ensure stale values are cleared
                 // when the user selects a link without certain attributes
-                $inputLinkHref.val(linkData.href);
-                $inputLinkTarget.val(linkData.target || '');
-                $inputLinkTitle.val(linkData.title || '');
-                $inputCssClassLink.val(linkData.class || '');
-                $inputLinkParams.val(linkData.additionalParams || '');
+                inputLinkHref.value = linkData.href;
+                inputLinkTarget.value = linkData.target || '';
+                inputLinkTitle.value = linkData.title || '';
+                inputCssClassLink.value = linkData.class || '';
+                inputLinkParams.value = linkData.additionalParams || '';
             }
         });
     });
@@ -488,10 +612,10 @@ function getImageDialog(editor, img, attributes) {
      * @return {Function} Debounced function
      */
     function debounce(func, wait) {
-        var timeout;
+        let timeout;
         return function() {
-            var context = this;
-            var args = arguments;
+            const context = this;
+            const args = arguments;
             clearTimeout(timeout);
             timeout = setTimeout(function() {
                 func.apply(context, args);
@@ -499,56 +623,72 @@ function getImageDialog(editor, img, attributes) {
         };
     }
 
+    // Build a quality indicator message div using safe DOM construction
+    // (avoids insertAdjacentHTML with interpolated values — CodeQL js/xss-through-dom)
+    function buildQualityDiv(color, label, text, qualityColor, qualityText) {
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = `color: ${color}; font-size: 13px; line-height: 1.5;`;
+        const strong = document.createElement('strong');
+        strong.textContent = label;
+        wrapper.appendChild(strong);
+        wrapper.appendChild(document.createTextNode(text));
+        if (qualityText) {
+            const span = document.createElement('span');
+            span.style.cssText = `color: ${qualityColor}; font-weight: bold;`;
+            span.textContent = `\u25cf ${qualityText}`;
+            wrapper.appendChild(span);
+        }
+        return wrapper;
+    }
+
+    function setQualityIndicator(element) {
+        qualityIndicator.textContent = '';
+        qualityIndicator.appendChild(element);
+        qualityIndicator.style.display = '';
+    }
+
     function renderQualityIndicator(displayWidth, displayHeight) {
-        var intrinsicWidth = img.width;
-        var intrinsicHeight = img.height;
+        const intrinsicWidth = img.width;
+        const intrinsicHeight = img.height;
 
         // Guard against zero dimensions to prevent division by zero
         if (displayWidth === 0 || displayHeight === 0) {
-            $qualityIndicator.html(
-                '<div style="color: #dc3545; font-size: 13px; line-height: 1.5;">' +
-                '<strong>Error:</strong> Display dimensions cannot be zero.' +
-                '</div>'
-            ).show();
+            setQualityIndicator(buildQualityDiv('#dc3545', 'Error:', ' Display dimensions cannot be zero.'));
             return;
         }
 
         // Handle SVG files
         if (img.extension === 'svg') {
-            $qualityIndicator.html(
-                '<div style="color: #666; font-size: 13px; line-height: 1.5;">' +
-                '<strong>Processing Info:</strong> Vector image will not be processed (scales perfectly at any resolution).' +
-                '</div>'
-            ).show();
+            setQualityIndicator(buildQualityDiv('#666', 'Processing Info:', ' Vector image will not be processed (scales perfectly at any resolution).'));
             return;
         }
 
         // Get selected quality multiplier and color from dropdown
-        var selectedQuality = $qualityDropdown.val();
-        var $selectedOption = $qualityDropdown.find('option:selected');
-        var selectedMultiplier = $selectedOption.data('multiplier');
-        var selectedColor = $selectedOption.data('color');
+        const selectedQuality = qualityDropdown.value;
+        const selectedOption = qualityDropdown.options[qualityDropdown.selectedIndex];
+        const selectedMultiplier = parseFloat(selectedOption.dataset.multiplier);
+        const selectedColor = selectedOption.dataset.color;
 
         // Calculate requested source dimensions for selected quality (BEFORE capping)
-        var requestedWidth = displayWidth * selectedMultiplier;
-        var requestedHeight = displayHeight * selectedMultiplier;
+        const requestedWidth = displayWidth * selectedMultiplier;
+        const requestedHeight = displayHeight * selectedMultiplier;
 
         // Calculate required source dimensions (capped at original size)
         // IMPORTANT: Never upscale beyond original image dimensions
-        var requiredWidth = Math.min(requestedWidth, intrinsicWidth);
-        var requiredHeight = Math.min(requestedHeight, intrinsicHeight);
+        const requiredWidth = Math.min(requestedWidth, intrinsicWidth);
+        const requiredHeight = Math.min(requestedHeight, intrinsicHeight);
 
         // Check if dimensions match exactly
-        var dimensionsMatch = (displayWidth === intrinsicWidth && displayHeight === intrinsicHeight);
+        const dimensionsMatch = (displayWidth === intrinsicWidth && displayHeight === intrinsicHeight);
 
         // Check if display size exceeds image size
-        var displayExceedsImage = (displayWidth > intrinsicWidth || displayHeight > intrinsicHeight);
+        const displayExceedsImage = (displayWidth > intrinsicWidth || displayHeight > intrinsicHeight);
 
         // Calculate expected quality (ratio of image pixels to display pixels)
         // Quality = Image / Display (higher = better quality)
-        var qualityRatio = Math.min(intrinsicWidth / displayWidth, intrinsicHeight / displayHeight);
-        var expectedQualityName = '';
-        var expectedQualityColor = '';
+        const qualityRatio = Math.min(intrinsicWidth / displayWidth, intrinsicHeight / displayHeight);
+        let expectedQualityName = '';
+        let expectedQualityColor = '';
 
         // Determine quality level based on ratio
         if (qualityRatio >= 6.0) {
@@ -570,98 +710,86 @@ function getImageDialog(editor, img, attributes) {
 
         // Calculate actual achievable quality
         // If requested processing size exceeds original, we can only achieve what the original provides
-        var actualQuality = Math.min(intrinsicWidth / displayWidth, intrinsicHeight / displayHeight);
-        var requestedQuality = selectedMultiplier;
+        const actualQuality = Math.min(intrinsicWidth / displayWidth, intrinsicHeight / displayHeight);
+        const requestedQuality = selectedMultiplier;
         // Check UNCAPPED requested size against original (not the capped requiredWidth/Height)
-        var canAchieveRequested = (requestedWidth <= intrinsicWidth && requestedHeight <= intrinsicHeight);
+        const canAchieveRequested = (requestedWidth <= intrinsicWidth && requestedHeight <= intrinsicHeight);
 
-        // Build processing info message
-        var message = '';
-        var messageColor = '#666';
+        // Build processing info message using safe DOM construction
+        const dims = `${intrinsicWidth}\u00d7${intrinsicHeight}`;
+        const displayDims = `${displayWidth}\u00d7${displayHeight}`;
 
-        // Handle "No Scaling" option
         if (selectedQuality === 'none') {
             // No processing - show actual quality based on image/display ratio
-            message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
-                      'will be displayed at ' + displayWidth + '×' + displayHeight + ' px = ' +
-                      '<span style="color: ' + expectedQualityColor + '; font-weight: bold;">● ' +
-                      expectedQualityName + ' Quality (' + qualityRatio.toFixed(1) + 'x scaling)</span>';
-            messageColor = expectedQualityColor;
+            setQualityIndicator(buildQualityDiv(
+                expectedQualityColor, 'Processing Info:',
+                ` Image ${dims} px will be displayed at ${displayDims} px = `,
+                expectedQualityColor, `${expectedQualityName} Quality (${qualityRatio.toFixed(1)}x scaling)`
+            ));
         } else if (!canAchieveRequested) {
             // Cannot achieve requested quality - show what will actually happen
-            message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
-                      'will be displayed at ' + displayWidth + '×' + displayHeight + ' px = ' +
-                      '<span style="color: ' + expectedQualityColor + '; font-weight: bold;">● ' +
-                      expectedQualityName + ' Quality (' + actualQuality.toFixed(1) + 'x scaling)</span>';
-            messageColor = expectedQualityColor;
+            setQualityIndicator(buildQualityDiv(
+                expectedQualityColor, 'Processing Info:',
+                ` Image ${dims} px will be displayed at ${displayDims} px = `,
+                expectedQualityColor, `${expectedQualityName} Quality (${actualQuality.toFixed(1)}x scaling)`
+            ));
         } else {
             // Can achieve requested quality - normal processing
-            var qualityName = selectedQuality.charAt(0).toUpperCase() + selectedQuality.slice(1);
+            const qualityName = `${selectedQuality.charAt(0).toUpperCase()}${selectedQuality.slice(1)}`;
+            const resizeMatchesOriginal = (Math.round(requiredWidth) === intrinsicWidth && Math.round(requiredHeight) === intrinsicHeight);
+            const resizeDims = `${Math.round(requiredWidth)}\u00d7${Math.round(requiredHeight)}`;
 
-            // Check if resized dimensions match original (no need to mention "resized to" if same size)
-            var resizeMatchesOriginal = (Math.round(requiredWidth) === intrinsicWidth && Math.round(requiredHeight) === intrinsicHeight);
+            const text = resizeMatchesOriginal
+                ? ` Image ${dims} px will be displayed at ${displayDims} px = `
+                : ` Image ${dims} px will be resized to ${resizeDims} px and displayed at ${displayDims} px = `;
 
-            if (resizeMatchesOriginal) {
-                // No need to mention resize when it matches original
-                message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
-                          'will be displayed at ' + displayWidth + '×' + displayHeight + ' px = ' +
-                          '<span style="color: ' + selectedColor + '; font-weight: bold;">● ' +
-                          qualityName + ' Quality (' + selectedMultiplier.toFixed(1) + 'x scaling)</span>';
-            } else {
-                // Different resize size - mention it
-                message = '<strong>Processing Info:</strong> Image ' + intrinsicWidth + '×' + intrinsicHeight + ' px ' +
-                          'will be resized to ' + Math.round(requiredWidth) + '×' + Math.round(requiredHeight) + ' px and displayed at ' +
-                          displayWidth + '×' + displayHeight + ' px = ' +
-                          '<span style="color: ' + selectedColor + '; font-weight: bold;">● ' +
-                          qualityName + ' Quality (' + selectedMultiplier.toFixed(1) + 'x scaling)</span>';
-            }
-            messageColor = selectedColor;
+            setQualityIndicator(buildQualityDiv(
+                selectedColor, 'Processing Info:', text,
+                selectedColor, `${qualityName} Quality (${selectedMultiplier.toFixed(1)}x scaling)`
+            ));
         }
-
-        var html = '<div style="color: ' + messageColor + '; font-size: 13px; line-height: 1.5;">' + message + '</div>';
-
-        $qualityIndicator.html(html).show();
     }
 
     function updateQualityIndicator() {
-        var displayWidth = parseInt($inputWidth.val(), 10) || 0;
-        var displayHeight = parseInt($inputHeight.val(), 10) || 0;
+        const displayWidth = parseInt(inputWidth.value, 10) || 0;
+        const displayHeight = parseInt(inputHeight.value, 10) || 0;
         renderQualityIndicator(displayWidth, displayHeight);
     }
 
     // Wire up quality indicator event handlers
-    var debouncedUpdateQualityIndicator = debounce(updateQualityIndicator, 250);
-    $inputWidth.on('input', debouncedUpdateQualityIndicator);
-    $inputHeight.on('input', debouncedUpdateQualityIndicator);
-    $inputWidth.on('change', updateQualityIndicator);
-    $inputHeight.on('change', updateQualityIndicator);
-    $qualityDropdown.on('change', updateQualityIndicator);
+    const debouncedUpdateQualityIndicator = debounce(updateQualityIndicator, 250);
+    inputWidth.addEventListener('input', debouncedUpdateQualityIndicator);
+    inputHeight.addEventListener('input', debouncedUpdateQualityIndicator);
+    inputWidth.addEventListener('change', updateQualityIndicator);
+    inputHeight.addEventListener('change', updateQualityIndicator);
+    qualityDropdown.addEventListener('change', updateQualityIndicator);
 
     // Initial quality indicator update
     updateQualityIndicator();
 
     d.get = function () {
-        $.each(fields, function () {
-            $.each(this, function (key) {
-                var value = elements[key].val();
+        for (const fieldGroup of fields) {
+            for (const key of Object.keys(fieldGroup)) {
+                const value = elements[key].value;
 
                 if (typeof value !== 'undefined') {
                     attributes[key] = value;
                 }
-            });
-        });
+            }
+        }
 
         // Extract and preserve alignment classes from original class attribute
         // These are set via the bubble toolbar and must be preserved when saving
-        var alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
-        var originalClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
-        var preservedAlignmentClasses = originalClasses.filter(function(c) {
+        const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
+        const originalClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
+        const preservedAlignmentClasses = originalClasses.filter(function(c) {
             return alignmentClasses.indexOf(c) !== -1;
         });
 
         // Handle Click Behavior radio button selection
         // IMPORTANT: Scope selector to dialog container to avoid conflicts with multiple editors
-        var selectedClickBehavior = d.$el.find('input[name="clickBehavior"]:checked').val();
+        const selRadio = container.querySelector('input[name="clickBehavior"]:checked');
+        const selectedClickBehavior = selRadio ? selRadio.value : 'none';
 
         if (selectedClickBehavior === 'enlarge') {
             // Enlarge mode: set zoom attribute, clear link attributes
@@ -671,10 +799,10 @@ function getImageDialog(editor, img, attributes) {
             delete attributes.linkTitle;
             delete attributes.linkParams;
             // Set CSS class from enlarge field (sanitized to valid CSS class characters)
-            var enlargeCssVal = $inputCssClassEnlarge.val();
-            var enlargeCss = enlargeCssVal ? enlargeCssVal.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
+            const enlargeCssVal = inputCssClassEnlarge.value;
+            const enlargeCss = enlargeCssVal ? enlargeCssVal.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
             // Combine preserved alignment classes with enlarge CSS class
-            var combinedEnlargeClasses = preservedAlignmentClasses.slice();
+            const combinedEnlargeClasses = preservedAlignmentClasses.slice();
             if (enlargeCss) {
                 combinedEnlargeClasses.push(enlargeCss);
             }
@@ -684,10 +812,10 @@ function getImageDialog(editor, img, attributes) {
             delete attributes['data-htmlarea-zoom'];
             delete attributes['data-htmlarea-clickenlarge'];
             // Collect link field values
-            var linkHrefVal = $inputLinkHref.val().trim();
-            var linkTargetVal = $inputLinkTarget.val().trim();
-            var linkTitleVal = $inputLinkTitle.val().trim();
-            var linkParamsVal = $inputLinkParams.val().trim();
+            const linkHrefVal = inputLinkHref.value.trim();
+            const linkTargetVal = inputLinkTarget.value.trim();
+            const linkTitleVal = inputLinkTitle.value.trim();
+            const linkParamsVal = inputLinkParams.value.trim();
 
             if (linkHrefVal !== '') {
                 attributes.linkHref = linkHrefVal;
@@ -710,8 +838,8 @@ function getImageDialog(editor, img, attributes) {
                 delete attributes.linkParams;
             }
             // Set link CSS class (stored on <a> element, separate from image class)
-            var linkCssVal = $inputCssClassLink.val();
-            var linkCss = linkCssVal ? linkCssVal.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
+            const linkCssVal = inputCssClassLink.value;
+            const linkCss = linkCssVal ? linkCssVal.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
             if (linkCss) {
                 attributes.linkClass = linkCss;
             } else {
@@ -733,7 +861,7 @@ function getImageDialog(editor, img, attributes) {
         }
 
         // Save quality attribute and sync with noScale
-        var qualityValue = $qualityDropdown.val();
+        const qualityValue = qualityDropdown.value;
         if (qualityValue && qualityValue !== '') {
             attributes['data-quality'] = qualityValue;
             // Sync noScale attribute: set to true when quality is 'none' (No Scaling)
@@ -748,17 +876,18 @@ function getImageDialog(editor, img, attributes) {
             delete attributes['data-noscale'];
         }
 
-        if ($checkboxTitle.length && !$checkboxTitle.is(":checked")) {
+        const titleCheckbox = container.querySelector('#checkbox-title');
+        if (titleCheckbox && !titleCheckbox.checked) {
             delete attributes.title;
         }
 
         // When saving, check title/alt for override mode
         ['title', 'alt'].forEach(function (item) {
-            var $curCheckbox = d.$el.find('#checkbox-' + item);
+            const curCheckbox = container.querySelector(`#checkbox-${item}`);
 
             // When saving, check title for override mode
-            attributes['data-' + item + '-override'] = $curCheckbox.prop('checked');
-            if ($curCheckbox.prop('checked')) {
+            attributes[`data-${item}-override`] = curCheckbox ? curCheckbox.checked : false;
+            if (curCheckbox && curCheckbox.checked) {
                 // Allow empty title/alt values
                 attributes[item] = attributes[item] || '';
             } else {
@@ -768,6 +897,7 @@ function getImageDialog(editor, img, attributes) {
 
         return attributes;
     };
+    d.el = container;
     return d;
 }
 
@@ -778,15 +908,19 @@ function getImageDialog(editor, img, attributes) {
  * @param img
  * @param attributes
  * @param table
- * @return {$.Deferred}
+ * @return {Promise}
  */
 function askImageAttributes(editor, img, attributes, table) {
-    var deferred = $.Deferred();
-    var dialog = getImageDialog(editor, img, $.extend({}, img.processed, attributes));
+    let resolvePromise, rejectPromise;
+    const promise = new Promise(function(resolve, reject) {
+        resolvePromise = resolve;
+        rejectPromise = reject;
+    });
+    const dialog = getImageDialog(editor, img, { ...img.processed, ...attributes });
 
     const modal = Modal.advanced({
         title: img.lang.imageProperties,
-        content: dialog.$el,
+        content: dialog.el,
         buttons: [
             {
                 text: img.lang.cancel,
@@ -794,7 +928,7 @@ function askImageAttributes(editor, img, attributes, table) {
                 icon: 'actions-close',
                 trigger: function () {
                     modal.hideModal();
-                    deferred.reject();
+                    rejectPromise();
                 }
             },
             {
@@ -803,15 +937,14 @@ function askImageAttributes(editor, img, attributes, table) {
                 icon: 'actions-document-save',
                 trigger: function () {
 
-                    var dialogInfo = dialog.get(),
-                        filteredAttr = {},
-                        allowedAttributes = [
+                    const dialogInfo = dialog.get();
+                    const allowedAttributes = [
                             '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-quality', 'data-title-override', 'data-alt-override', 'caption',
                             'linkHref', 'linkTarget', 'linkTitle', 'linkClass', 'linkParams'
-                        ],
-                        attributesNew = $.extend({}, img, dialogInfo);
+                        ];
+                    const attributesNew = { ...img, ...dialogInfo };
 
-                    filteredAttr = Object.keys(attributesNew)
+                    let filteredAttr = Object.keys(attributesNew)
                         .filter(function (key) {
                             return allowedAttributes.includes(key)
                         })
@@ -827,7 +960,7 @@ function askImageAttributes(editor, img, attributes, table) {
                             const userWidth = filteredAttr.width;
                             const userHeight = filteredAttr.height;
 
-                            $.extend(filteredAttr, {
+                            Object.assign(filteredAttr, {
                                 src: urlToRelative(getImg.url, getImg.storageDriver),
                                 width: userWidth || getImg.processed.width || getImg.width,
                                 height: userHeight || getImg.processed.height || getImg.height,
@@ -835,7 +968,7 @@ function askImageAttributes(editor, img, attributes, table) {
                                 fileTable: table
                             });
                             modal.hideModal('hide');
-                            deferred.resolve(filteredAttr);
+                            resolvePromise(filteredAttr);
                         });
 
                 }
@@ -843,7 +976,7 @@ function askImageAttributes(editor, img, attributes, table) {
         ]
     });
 
-    return deferred;
+    return promise;
 }
 
 /**
@@ -853,29 +986,37 @@ function askImageAttributes(editor, img, attributes, table) {
  * @param table
  * @param uid
  * @param params
- * @return {$.Deferred}
+ * @return {Promise}
  */
 function getImageInfo(editor, table, uid, params) {
-    let url = editor.config.get('typo3image').routeUrl + '&action=info&fileId=' + encodeURIComponent(uid) + '&table=' + encodeURIComponent(table);
+    let url = `${editor.config.get('typo3image').routeUrl}&action=info&fileId=${encodeURIComponent(uid)}&table=${encodeURIComponent(table)}`;
 
     // SECURITY: Encode URL parameters to prevent injection attacks
     if (typeof params.width !== 'undefined' && params.width.length) {
-        url += '&P[width]=' + encodeURIComponent(params.width);
+        url += `&P[width]=${encodeURIComponent(params.width)}`;
     }
 
     if (typeof params.height !== 'undefined' && params.height.length) {
-        url += '&P[height]=' + encodeURIComponent(params.height);
+        url += `&P[height]=${encodeURIComponent(params.height)}`;
     }
 
     if (typeof params['data-quality'] !== 'undefined' && params['data-quality']) {
-        url += '&P[quality]=' + encodeURIComponent(params['data-quality']);
+        url += `&P[quality]=${encodeURIComponent(params['data-quality'])}`;
     }
 
-    return $.getJSON(url);
+    return fetch(url).then(function(response) {
+        if (!response.ok) {
+            throw new Error(`Image info request failed: ${response.status}`);
+        }
+        return response.json();
+    });
 }
 
 function selectImage(editor) {
-    const deferred = $.Deferred();
+    let resolvePromise;
+    const promise = new Promise(function(resolve) {
+        resolvePromise = resolve;
+    });
     const bparams = [
         '',
         '',
@@ -883,7 +1024,7 @@ function selectImage(editor) {
         '',
     ];
 
-    const contentUrl = editor.config.get('typo3image').routeUrl + '&bparams=' + bparams.join('|');
+    const contentUrl = `${editor.config.get('typo3image').routeUrl}&bparams=${bparams.join('|')}`;
 
     const modal = Modal.advanced({
         type: Modal.types.iframe,
@@ -891,26 +1032,31 @@ function selectImage(editor) {
         content: contentUrl,
         size: Modal.sizes.large,
         callback: function (currentModal) {
-            $(currentModal).find('iframe').on('load', function (e) {
-                $(this).contents().on('click', '[data-filelist-element]', function (e) {
+            const iframe = currentModal.querySelector('iframe');
+            if (!iframe) return;
+
+            iframe.addEventListener('load', function() {
+                const doc = iframe.contentDocument;
+                if (!doc) return;
+
+                doc.addEventListener('click', function(e) {
+                    const el = e.target.closest('[data-filelist-element]');
+                    if (!el || el.dataset.filelistType !== 'file') return;
+
                     e.stopImmediatePropagation();
 
-                    if ($(this).data('filelist-type') !== 'file') {
-                        return;
-                    }
-
                     const selectedItem = {
-                        uid: $(this).data('filelist-uid'),
+                        uid: el.dataset.filelistUid,
                         table: 'sys_file',
-                    }
+                    };
                     currentModal.hideModal();
-                    deferred.resolve(selectedItem);
+                    resolvePromise(selectedItem);
                 });
             });
         }
     });
 
-    return deferred;
+    return promise;
 }
 
 /**
@@ -1056,7 +1202,7 @@ function encodeTypoLink(linkData) {
         if (value.indexOf(' ') !== -1 || value.indexOf('"') !== -1 || value.indexOf('\\') !== -1) {
             // Escape backslashes and quotes
             const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-            return '"' + escaped + '"';
+            return `"${escaped}"`;
         }
         return value;
     };
@@ -1097,31 +1243,38 @@ function encodeTypoLink(linkData) {
  *
  * @param {Object} editor - The CKEditor instance
  * @param {string} currentValue - Current link value (optional)
- * @return {$.Deferred} Promise that resolves with link data {href, target, title, class}
+ * @return {Promise} Promise that resolves with link data {href, target, title, class}
  */
 function openLinkBrowser(editor, currentValue) {
-    const deferred = $.Deferred();
+    let resolvePromise, rejectPromise;
+    let settled = false;
+    const promise = new Promise(function(resolve, reject) {
+        resolvePromise = function(value) { settled = true; resolve(value); };
+        rejectPromise = function(reason) { settled = true; reject(reason); };
+    });
 
     // Use the typo3image route with action=linkBrowser
     const baseUrl = editor.config.get('typo3image').routeUrl;
     if (!baseUrl) {
         console.error('typo3image.routeUrl not configured');
-        deferred.reject('Link browser route not configured');
-        return deferred;
+        rejectPromise('Link browser route not configured');
+        return promise;
     }
 
     // Build URL for linkBrowser action
     const separator = baseUrl.indexOf('?') === -1 ? '?' : '&';
-    const linkBrowserActionUrl = baseUrl + separator + 'action=linkBrowser&currentValue=' + encodeURIComponent(currentValue || '');
+    const linkBrowserActionUrl = `${baseUrl}${separator}action=linkBrowser&currentValue=${encodeURIComponent(currentValue || '')}`;
 
     // Fetch the wizard_link URL from our backend
-    $.ajax({
-        url: linkBrowserActionUrl,
-        dataType: 'json'
+    fetch(linkBrowserActionUrl).then(function(response) {
+        if (!response.ok) {
+            throw new Error(`Link browser request failed: ${response.status}`);
+        }
+        return response.json();
     }).then(function(response) {
         if (response.error) {
             console.error('Link browser error:', response.error);
-            deferred.reject(response.error);
+            rejectPromise(response.error);
             return;
         }
 
@@ -1139,7 +1292,7 @@ function openLinkBrowser(editor, currentValue) {
         const targetDoc = document;
 
         // Remove any existing form from previous link browser sessions
-        const existingForm = targetDoc.querySelector('form[name="' + formName + '"]');
+        const existingForm = targetDoc.querySelector(`form[name="${formName}"]`);
         if (existingForm) {
             existingForm.remove();
         }
@@ -1175,7 +1328,7 @@ function openLinkBrowser(editor, currentValue) {
 
                 // Don't call Modal.dismiss() - the adapter already handles this
                 // The modal will close and our typo3-modal-hidden handler will clean up
-                deferred.resolve(linkData);
+                resolvePromise(linkData);
             }
         };
         hiddenInput.addEventListener('change', changeHandler);
@@ -1191,22 +1344,22 @@ function openLinkBrowser(editor, currentValue) {
         // Handle modal close without selection
         modal.addEventListener('typo3-modal-hidden', function() {
             // Clean up hidden form from the target document
-            const form = targetDoc.querySelector('form[name="' + formName + '"]');
+            const form = targetDoc.querySelector(`form[name="${formName}"]`);
             if (form) {
                 form.remove();
             }
 
-            if (deferred.state() === 'pending') {
-                deferred.reject();
+            if (!settled) {
+                rejectPromise();
             }
         });
 
-    }).fail(function(xhr, status, error) {
+    }).catch(function(error) {
         console.error('Failed to get link browser URL:', error);
-        deferred.reject('Failed to get link browser URL');
+        rejectPromise('Failed to get link browser URL');
     });
 
-    return deferred;
+    return promise;
 }
 
 
@@ -1579,7 +1732,11 @@ export default class Typo3Image extends Plugin {
             const url = routeUrl + '&action=info&fileId=translations';
 
             try {
-                const response = await $.getJSON(url);
+                const fetchResponse = await fetch(url);
+                if (!fetchResponse.ok) {
+                    throw new Error('Translations request failed: ' + fetchResponse.status);
+                }
+                const response = await fetchResponse.json();
                 translationsCache = response.lang;
                 return translationsCache;
             } catch (error) {
