@@ -103,13 +103,13 @@ figure.ck-widget.image:hover .ck-image-indicator {
 
 /* ==========================================================================
    Inline Image Widget Styles
+   Only add position:relative for indicator placement — do NOT override
+   CKEditor's own display, margin, or vertical-align on inline widgets,
+   as that breaks cursor placement around widgets.
    ========================================================================== */
 
-/* Inline image widget wrapper - allows cursor placement before/after on same line */
+/* Relative positioning for indicator overlay */
 .ck-widget.ck-widget_inline-image {
-    display: inline-block;
-    vertical-align: middle;
-    margin: 0 0.25em;
     position: relative;
 }
 
@@ -126,18 +126,4 @@ figure.ck-widget.image:hover .ck-image-indicator {
 
 .ck-widget_inline-image:hover .ck-image-indicator {
     background: rgba(0, 0, 0, 0.8);
-}
-
-/* Ensure inline image doesn't break text flow */
-.ck-widget.ck-widget_inline-image > img,
-.ck-widget.ck-widget_inline-image > a > img {
-    display: inline-block;
-    vertical-align: middle;
-    max-width: 100%;
-}
-
-/* Selection styling for inline images */
-.ck-widget.ck-widget_inline-image.ck-widget_selected {
-    outline: 3px solid var(--ck-color-focus-border);
-    outline-offset: 1px;
 }
