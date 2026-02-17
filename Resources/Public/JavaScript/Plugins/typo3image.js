@@ -2967,6 +2967,11 @@ export default class Typo3Image extends Plugin {
                     const hasZoom = modelElement.getAttribute('enableZoom');
 
                     if (hasLink || hasZoom) {
+                        // Set position:relative via inline style only when indicators
+                        // are present — applying it via CSS to all inline widgets
+                        // breaks CKEditor cursor placement around widgets.
+                        writer.setStyle('position', 'relative', wrapper);
+
                         const indicatorContainer = writer.createContainerElement('span', {
                             class: 'ck-image-indicators'
                         });
