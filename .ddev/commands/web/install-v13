@@ -189,8 +189,8 @@ FILE4_INFO=($(get_file_info "public/fileadmin/user_upload/icon.jpg"))
 
 # Copy demo-specific RTE preset with GHS (General HTML Support)
 # This preserves Bootstrap HTML elements (div, span, etc.) when editing in CKEditor
-mkdir -p /var/www/html/$VERSION/config/rte
-cp /var/www/$EXTENSION_KEY/.ddev/assets/demoWithImages.yaml /var/www/html/$VERSION/config/rte/demoWithImages.yaml
+mkdir -p /var/www/html/$VERSION/public/config/rte
+cp /var/www/$EXTENSION_KEY/.ddev/assets/demoWithImages.yaml /var/www/html/$VERSION/public/config/rte/demoWithImages.yaml
 
 # Create FAL entries and demo content
 mysql -h "$DB_HOST" -u "$DB_USER" "$VERSION" << EOSQL
