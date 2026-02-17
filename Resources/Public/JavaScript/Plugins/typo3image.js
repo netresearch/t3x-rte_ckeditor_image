@@ -2711,7 +2711,13 @@ export default class Typo3Image extends Plugin {
                     attributes: [
                         'fileUid',
                         'fileTable',
-                        'src'
+                        'src',
+                        'enableZoom',
+                        'imageLinkHref',
+                        'imageLinkTarget',
+                        'imageLinkTitle',
+                        'imageLinkClass',
+                        'imageLinkParams'
                     ]
                 },
                 view: (modelElement, { writer }) => {
@@ -2931,7 +2937,20 @@ export default class Typo3Image extends Plugin {
         editor.conversion
             .for('editingDowncast')
             .elementToElement({
-                model: 'typo3imageInline',
+                model: {
+                    name: 'typo3imageInline',
+                    attributes: [
+                        'fileUid',
+                        'fileTable',
+                        'src',
+                        'enableZoom',
+                        'imageLinkHref',
+                        'imageLinkTarget',
+                        'imageLinkTitle',
+                        'imageLinkClass',
+                        'imageLinkParams'
+                    ]
+                },
                 view: (modelElement, { writer }) => {
                     const imageElement = createInlineImageViewElement(modelElement, writer);
 
@@ -2948,6 +2967,11 @@ export default class Typo3Image extends Plugin {
                     const hasZoom = modelElement.getAttribute('enableZoom');
 
                     if (hasLink || hasZoom) {
+                        // Set position:relative via inline style only when indicators
+                        // are present — applying it via CSS to all inline widgets
+                        // breaks CKEditor cursor placement around widgets.
+                        writer.setStyle('position', 'relative', wrapper);
+
                         const indicatorContainer = writer.createContainerElement('span', {
                             class: 'ck-image-indicators'
                         });
