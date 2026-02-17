@@ -1,12 +1,17 @@
 /**
  * CKEditor Image Widget Styles
  *
- * Fixes for widget sizing and display in the TYPO3 CKEditor
+ * Fixes for widget sizing and display in the TYPO3 CKEditor.
+ *
+ * NOTE: TYPO3's CKEditor 5 integration prefixes all selectors from contentsCss
+ * files with "#<element-id> .ck-content". Since .ck-content IS .ck-editor__editable
+ * (same element), selectors here must NOT include .ck-editor__editable — otherwise
+ * the prefixed selector creates an impossible descendant relationship.
  */
 
 /* Fix figure widget to fit image size exactly (no extra whitespace) */
-.ck-editor__editable .ck-widget.image,
-.ck-editor__editable figure.ck-widget.image {
+.ck-widget.image,
+figure.ck-widget.image {
     display: table;
     clear: both;
     text-align: center;
@@ -15,17 +20,17 @@
 }
 
 /* Make the figure fit the image width precisely */
-.ck-editor__editable figure.ck-widget.image:not(.image-inline) {
+figure.ck-widget.image:not(.image-inline) {
     display: table;
 }
 
 /* Inline images should not have table display */
-.ck-editor__editable figure.ck-widget.image.image-inline {
+figure.ck-widget.image.image-inline {
     display: inline-table;
 }
 
 /* Ensure image fills the figure width */
-.ck-editor__editable figure.ck-widget.image > img {
+figure.ck-widget.image > img {
     display: block;
     margin: 0 auto;
     max-width: 100%;
@@ -33,7 +38,7 @@
 }
 
 /* Caption should match image width */
-.ck-editor__editable figure.ck-widget.image > figcaption {
+figure.ck-widget.image > figcaption {
     display: table-caption;
     caption-side: bottom;
     word-wrap: break-word;
@@ -50,7 +55,7 @@
    ======================================== */
 
 /* Container for indicators - positioned at top-right of image */
-.ck-editor__editable figure.ck-widget.image .ck-image-indicators {
+figure.ck-widget.image .ck-image-indicators {
     position: absolute;
     top: 8px;
     right: 8px;
@@ -61,12 +66,12 @@
 }
 
 /* Ensure figure has relative positioning for indicator placement */
-.ck-editor__editable figure.ck-widget.image {
+figure.ck-widget.image {
     position: relative;
 }
 
 /* Base indicator style */
-.ck-editor__editable .ck-image-indicator {
+.ck-image-indicator {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -80,19 +85,19 @@
 }
 
 /* Link indicator - chain link icon */
-.ck-editor__editable .ck-image-indicator--link::before {
-    content: "🔗";
+.ck-image-indicator--link::before {
+    content: "\1F517";
     font-size: 12px;
 }
 
 /* Zoom/enlarge indicator - magnifying glass icon */
-.ck-editor__editable .ck-image-indicator--zoom::before {
-    content: "🔍";
+.ck-image-indicator--zoom::before {
+    content: "\1F50D";
     font-size: 12px;
 }
 
 /* Hover effect to make indicators more visible */
-.ck-editor__editable figure.ck-widget.image:hover .ck-image-indicator {
+figure.ck-widget.image:hover .ck-image-indicator {
     background: rgba(0, 0, 0, 0.8);
 }
 
@@ -101,7 +106,7 @@
    ========================================================================== */
 
 /* Inline image widget wrapper - allows cursor placement before/after on same line */
-.ck-editor__editable .ck-widget.ck-widget_inline-image {
+.ck-widget.ck-widget_inline-image {
     display: inline-block;
     vertical-align: middle;
     margin: 0 0.25em;
@@ -109,7 +114,7 @@
 }
 
 /* Indicator support for inline images */
-.ck-editor__editable .ck-widget_inline-image .ck-image-indicators {
+.ck-widget_inline-image .ck-image-indicators {
     position: absolute;
     top: -4px;
     right: -4px;
@@ -119,20 +124,20 @@
     pointer-events: none;
 }
 
-.ck-editor__editable .ck-widget_inline-image:hover .ck-image-indicator {
+.ck-widget_inline-image:hover .ck-image-indicator {
     background: rgba(0, 0, 0, 0.8);
 }
 
 /* Ensure inline image doesn't break text flow */
-.ck-editor__editable .ck-widget.ck-widget_inline-image > img,
-.ck-editor__editable .ck-widget.ck-widget_inline-image > a > img {
+.ck-widget.ck-widget_inline-image > img,
+.ck-widget.ck-widget_inline-image > a > img {
     display: inline-block;
     vertical-align: middle;
     max-width: 100%;
 }
 
 /* Selection styling for inline images */
-.ck-editor__editable .ck-widget.ck-widget_inline-image.ck-widget_selected {
+.ck-widget.ck-widget_inline-image.ck-widget_selected {
     outline: 3px solid var(--ck-color-focus-border);
     outline-offset: 1px;
 }
