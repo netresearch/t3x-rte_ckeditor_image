@@ -1,58 +1,28 @@
 /**
- * CKEditor Image Widget Styles
+ * CKEditor Image Widget Styles — Click Behavior Indicators
  *
- * Fixes for widget sizing and display in the TYPO3 CKEditor.
+ * Visual indicators (zoom/link badges) for images in the CKEditor editing view.
  *
  * NOTE: TYPO3's CKEditor 5 integration prefixes all selectors from contentsCss
  * files with "#<element-id> .ck-content". Since .ck-content IS .ck-editor__editable
  * (same element), selectors here must NOT include .ck-editor__editable — otherwise
  * the prefixed selector creates an impossible descendant relationship.
+ *
+ * IMPORTANT: Do NOT add layout-affecting rules (display, margin, position, etc.)
+ * to CKEditor widget elements here. CKEditor manages widget layout internally,
+ * and overriding it via contentsCss breaks cursor placement and editing behavior.
+ * The block image sizing rules that were here previously were always dead code
+ * (broken selectors) and have been intentionally removed.
  */
 
-/* Fix figure widget to fit image size exactly (no extra whitespace) */
-.ck-widget.image,
-figure.ck-widget.image {
-    display: table;
-    clear: both;
-    text-align: center;
-    margin: 0.9em auto;
-    min-width: 50px;
-}
-
-/* Make the figure fit the image width precisely */
-figure.ck-widget.image:not(.image-inline) {
-    display: table;
-}
-
-/* Inline images should not have table display */
-figure.ck-widget.image.image-inline {
-    display: inline-table;
-}
-
-/* Ensure image fills the figure width */
-figure.ck-widget.image > img {
-    display: block;
-    margin: 0 auto;
-    max-width: 100%;
-    min-width: 100%;
-}
-
-/* Caption should match image width */
-figure.ck-widget.image > figcaption {
-    display: table-caption;
-    caption-side: bottom;
-    word-wrap: break-word;
-    color: var(--ck-color-image-caption-text);
-    background-color: var(--ck-color-image-caption-background);
-    padding: 0.6em;
-    font-size: 0.75em;
-    outline-offset: -1px;
-}
-
 /* ========================================
-   Image Click Behavior Indicators
-   Visual indicators for linked and zoomable images
+   Block Image Indicators
    ======================================== */
+
+/* Ensure figure has relative positioning for indicator placement */
+figure.ck-widget.image {
+    position: relative;
+}
 
 /* Container for indicators - positioned at top-right of image */
 figure.ck-widget.image .ck-image-indicators {
@@ -65,12 +35,11 @@ figure.ck-widget.image .ck-image-indicators {
     pointer-events: none;
 }
 
-/* Ensure figure has relative positioning for indicator placement */
-figure.ck-widget.image {
-    position: relative;
-}
+/* ========================================
+   Shared Indicator Styles
+   ======================================== */
 
-/* Base indicator style */
+/* Base indicator badge */
 .ck-image-indicator {
     display: inline-flex;
     align-items: center;
@@ -96,20 +65,18 @@ figure.ck-widget.image {
     font-size: 12px;
 }
 
-/* Hover effect to make indicators more visible */
+/* Hover effect */
 figure.ck-widget.image:hover .ck-image-indicator {
     background: rgba(0, 0, 0, 0.8);
 }
 
-/* ==========================================================================
-   Inline Image Widget Styles
-   NOTE: Do NOT add display, margin, vertical-align, or position to
-   .ck-widget_inline-image here — CKEditor manages inline widget layout
-   and overriding it breaks cursor placement. position:relative for
-   indicator overlays is set via inline style in the JS downcast converter.
-   ========================================================================== */
+/* ========================================
+   Inline Image Indicators
+   NOTE: position:relative is set via inline style in the JS downcast
+   converter only when indicators are present, to avoid breaking
+   CKEditor's cursor placement on inline widgets without indicators.
+   ======================================== */
 
-/* Indicator support for inline images */
 .ck-widget_inline-image .ck-image-indicators {
     position: absolute;
     top: -4px;
