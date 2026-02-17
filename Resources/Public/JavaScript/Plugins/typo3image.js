@@ -2711,7 +2711,9 @@ export default class Typo3Image extends Plugin {
                     attributes: [
                         'fileUid',
                         'fileTable',
-                        'src'
+                        'src',
+                        'enableZoom',
+                        'imageLinkHref'
                     ]
                 },
                 view: (modelElement, { writer }) => {
@@ -2931,7 +2933,13 @@ export default class Typo3Image extends Plugin {
         editor.conversion
             .for('editingDowncast')
             .elementToElement({
-                model: 'typo3imageInline',
+                model: {
+                    name: 'typo3imageInline',
+                    attributes: [
+                        'enableZoom',
+                        'imageLinkHref'
+                    ]
+                },
                 view: (modelElement, { writer }) => {
                     const imageElement = createInlineImageViewElement(modelElement, writer);
 
