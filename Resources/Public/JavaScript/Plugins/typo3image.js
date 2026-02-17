@@ -2713,7 +2713,11 @@ export default class Typo3Image extends Plugin {
                         'fileTable',
                         'src',
                         'enableZoom',
-                        'imageLinkHref'
+                        'imageLinkHref',
+                        'imageLinkTarget',
+                        'imageLinkTitle',
+                        'imageLinkClass',
+                        'imageLinkParams'
                     ]
                 },
                 view: (modelElement, { writer }) => {
@@ -2936,8 +2940,15 @@ export default class Typo3Image extends Plugin {
                 model: {
                     name: 'typo3imageInline',
                     attributes: [
+                        'fileUid',
+                        'fileTable',
+                        'src',
                         'enableZoom',
-                        'imageLinkHref'
+                        'imageLinkHref',
+                        'imageLinkTarget',
+                        'imageLinkTitle',
+                        'imageLinkClass',
+                        'imageLinkParams'
                     ]
                 },
                 view: (modelElement, { writer }) => {
