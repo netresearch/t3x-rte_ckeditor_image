@@ -32,11 +32,14 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
 - **Quality Selector**: Quality multipliers for optimal display (Standard 1.0x, Retina 2.0x, Ultra 3.0x, Print 6.0x)
 - **SVG Support**: Intelligent dimension extraction from viewBox and width/height attributes
 - **Custom Styles**: Configurable image styles with CKEditor 5 style system
-- **Inline Images**: True inline image support with cursor positioning before/after (new in 13.6)
+- **Inline Images**: True inline image support with cursor positioning before/after
 - **Lazy Loading**: TYPO3 native browser lazyload support
 - **Event-Driven**: PSR-14 events for extensibility
 - **Security**: Protocol blocking, XSS prevention, file visibility validation
 - **Fluid Templates**: Customizable output via template overrides
+- **Image Validation**: CLI command and upgrade wizard to detect and fix broken image references
+- **Preview Renderer**: Images preserved in page module preview with broken reference warnings
+- **Automatic Softref**: RTE image references tracked automatically across all tables
 
 ## Requirements
 
@@ -123,6 +126,16 @@ If you need to customize the RTE configuration or create your own preset:
 
 **fetchExternalImages**: By default, if an img source is an external URL, this image will be fetched and uploaded
 to the current BE users uploads folder. The default behaviour can be turned off with this option.
+
+**enableAutomaticRteSoftref**: Automatically adds `rtehtmlarea_images` soft reference to all RTE-enabled text fields. Ensures images are tracked in the reference index. Default: on.
+
+**enableAutomaticPreviewRenderer**: Registers an image-aware preview renderer for all record types with RTE bodytext. Shows images in page module preview and warns about broken references. Default: on.
+
+**excludedTables**: Comma-separated table names to exclude from automatic softref and preview renderer processing.
+
+**includedTablesOnly**: Whitelist mode — if set, only these tables are processed. Overrides excludedTables.
+
+See the [full configuration reference](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/Integration/Advanced-Configuration.html) for details.
 
 ### Maximum width/height
 

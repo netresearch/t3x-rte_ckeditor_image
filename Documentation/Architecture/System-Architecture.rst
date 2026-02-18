@@ -94,14 +94,16 @@ Backend Layer
 1. Controllers (``Classes/Controller/``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **SelectImageController**: Handles image selection and processing
-- **ImageRenderingController**: Frontend image rendering
-- **ImageLinkRenderingController**: Renders images within links
+- **SelectImageController**: Backend image selection wizard for FAL integration
+- **ImageRenderingAdapter**: TypoScript adapter bridging ``preUserFunc`` to modern service architecture
 
-2. Event Listeners (``Classes/EventListener/``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2. Event Listeners (``Classes/EventListener/``, ``Classes/Listener/``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **RteConfigurationListener**: Customizes RTE configuration before initialization
+- **RteConfigurationListener**: Injects backend route configuration into CKEditor RTE
+- **RteSoftrefEnforcer**: Auto-adds ``rtehtmlarea_images`` softref to all RTE fields
+- **RtePreviewRendererRegistrar**: Auto-registers image-aware preview renderer for all CTypes
+- **UpdateImageReferences**: Syncs ``src`` attributes when FAL files are moved or renamed
 
 3. Database Hooks (``Classes/Database/``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
