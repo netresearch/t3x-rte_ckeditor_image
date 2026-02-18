@@ -179,6 +179,71 @@ preview for all record types.
 The listener respects the same ``excludedTables`` and ``includedTablesOnly`` settings
 as ``RteSoftrefEnforcer``. See :ref:`Extension Configuration <integration-configuration-extension-settings>`.
 
+RteSoftrefEnforcer
+===================
+
+.. _api-rtesoftrefenforcer:
+
+:Namespace: ``Netresearch\RteCKEditorImage\Listener\TCA``
+:Purpose: Automatically adds ``rtehtmlarea_images`` soft reference to all RTE-enabled text fields
+:Event: ``TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent``
+
+Without soft references, images inserted via CKEditor are not tracked in TYPO3's
+reference index. This means images could be lost when records are moved, copied,
+or deleted. The listener scans all TCA tables for RTE-enabled ``bodytext`` fields
+and adds the ``rtehtmlarea_images`` softref parser key.
+
+**Service Configuration:**
+
+.. code-block:: yaml
+
+   Netresearch\RteCKEditorImage\Listener\TCA\RteSoftrefEnforcer:
+     tags:
+       - name: event.listener
+         identifier: 'nr-rte-softref-enforcer'
+         event: TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent
+         after: '*'
+
+**Configuration options:**
+
+Controlled via :confval:`enableAutomaticRteSoftref <confval-enableautomaticrtesoftref>`,
+:confval:`excludedTables <confval-excludedtables>`, and
+:confval:`includedTablesOnly <confval-includedtablesonly>`.
+
+UpdateImageReferences
+======================
+
+.. _api-updateimagereferences:
+
+:Namespace: ``Netresearch\RteCKEditorImage\Listener\FileOperation``
+:Purpose: Updates stale ``src`` attributes when FAL files are moved or renamed
+:Events: ``AfterFileMovedEvent``, ``AfterFileRenamedEvent``
+
+When a file is moved or renamed in TYPO3's Filelist module, the ``src`` attribute
+stored in RTE HTML content becomes stale. The ``data-htmlarea-file-uid`` attribute
+still points to the correct FAL file, but the ``src`` path no longer matches.
+This listener detects affected records via the reference index and updates their
+``src`` attributes to the file's current public URL.
+
+**Service Configuration:**
+
+.. code-block:: yaml
+
+   Netresearch\RteCKEditorImage\Listener\FileOperation\UpdateImageReferences:
+     tags:
+       - name: event.listener
+         identifier: 'nr-rte-update-image-references-moved'
+         event: TYPO3\CMS\Core\Resource\Event\AfterFileMovedEvent
+         method: handleFileMoved
+       - name: event.listener
+         identifier: 'nr-rte-update-image-references-renamed'
+         event: TYPO3\CMS\Core\Resource\Event\AfterFileRenamedEvent
+         method: handleFileRenamed
+
+.. note::
+   This listener requires the reference index to be up to date. Run
+   ``bin/typo3 referenceindex:update`` if file operations are not detected.
+
 AfterPrepareConfigurationForEditorEvent
 ========================================
 
@@ -635,5 +700,5 @@ Related Documentation
 - :ref:`Controllers API <api-controllers>`
 - :ref:`Data Handling API <api-datahandling>`
 - :ref:`CKEditor Plugin Development <ckeditor-plugin-development>`
-- :ref:`Configuration Guide <integration-configuration>`
+- :ref:`Configuration Guide <integration>`
 - :ref:`Architecture Overview <architecture-overview>`
