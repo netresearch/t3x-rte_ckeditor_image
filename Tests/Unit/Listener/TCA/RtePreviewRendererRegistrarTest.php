@@ -513,4 +513,259 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
             $modifiedTca['tt_content']['types']['text']['previewRenderer'],
         );
     }
+
+    // ========================================================================
+    // Edge case / defensive branch coverage
+    // ========================================================================
+
+    #[Test]
+    public function handlesNonStringConfigurationValues(): void
+    {
+        $tca = [
+            'tt_content' => [
+                'columns' => [
+                    'bodytext' => [
+                        'config' => [
+                            'type'           => 'text',
+                            'enableRichtext' => true,
+                        ],
+                    ],
+                ],
+                'types' => [
+                    'text' => [
+                        'showitem' => 'bodytext',
+                    ],
+                ],
+            ],
+        ];
+
+        $modifiedTca = $this->invokeListenerAndGetTca($tca, [
+            'enableAutomaticPreviewRenderer' => true,
+            'includedTablesOnly'             => 12345,
+            'excludedTables'                 => ['array'],
+        ]);
+
+        // Non-string values treated as empty string -> no filtering applied
+        self::assertSame(
+            RteImagePreviewRenderer::class,
+            $modifiedTca['tt_content']['types']['text']['previewRenderer'],
+        );
+    }
+
+    #[Test]
+    public function handlesNonArrayTypesValueGracefully(): void
+    {
+        $tca = [
+            'tt_content' => [
+                'columns' => [
+                    'bodytext' => [
+                        'config' => [
+                            'type'           => 'text',
+                            'enableRichtext' => true,
+                        ],
+                    ],
+                ],
+                'types' => 'not an array',
+            ],
+        ];
+
+        $modifiedTca = $this->invokeListenerAndGetTca($tca);
+
+        // types should remain unchanged (string, not array)
+        self::assertSame('not an array', $modifiedTca['tt_content']['types']);
+    }
+
+    #[Test]
+    public function handlesNonArrayTypeConfigGracefully(): void
+    {
+        $tca = [
+            'tt_content' => [
+                'columns' => [
+                    'bodytext' => [
+                        'config' => [
+                            'type'           => 'text',
+                            'enableRichtext' => true,
+                        ],
+                    ],
+                ],
+                'types' => [
+                    'text' => 'string value',
+                ],
+            ],
+        ];
+
+        $modifiedTca = $this->invokeListenerAndGetTca($tca);
+
+        // Non-array type config should be skipped, value remains unchanged
+        self::assertSame('string value', $modifiedTca['tt_content']['types']['text']);
+    }
+
+    #[Test]
+    public function overwritesEmptyStringPreviewRenderer(): void
+    {
+        $tca = [
+            'tt_content' => [
+                'columns' => [
+                    'bodytext' => [
+                        'config' => [
+                            'type' => 'text',
+                        ],
+                    ],
+                ],
+                'types' => [
+                    'textmedia' => [
+                        'previewRenderer'  => '',
+                        'columnsOverrides' => [
+                            'bodytext' => [
+                                'config' => [
+                                    'enableRichtext' => true,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $modifiedTca = $this->invokeListenerAndGetTca($tca);
+
+        // Empty string previewRenderer should be overwritten
+        self::assertSame(
+            RteImagePreviewRenderer::class,
+            $modifiedTca['tt_content']['types']['textmedia']['previewRenderer'],
+        );
+    }
+
+    #[Test]
+    public function handlesNonArrayTableConfigGracefully(): void
+    {
+        $tca = [
+            'some_table' => 'not an array',
+        ];
+
+        $modifiedTca = $this->invokeListenerAndGetTca($tca);
+
+        // Non-array table config should be skipped, value remains unchanged
+        self::assertSame('not an array', $modifiedTca['some_table']);
+    }
+
+    #[Test]
+    public function parseTableListFiltersEmptyStringsAfterTrim(): void
+    {
+        $tca = [
+            'tt_content' => [
+                'columns' => [
+                    'bodytext' => [
+                        'config' => [
+                            'type'           => 'text',
+                            'enableRichtext' => true,
+                        ],
+                    ],
+                ],
+                'types' => [
+                    'text' => [
+                        'showitem' => 'bodytext',
+                    ],
+                ],
+            ],
+            'table_a' => [
+                'columns' => [
+                    'bodytext' => [
+                        'config' => [
+                            'type'           => 'text',
+                            'enableRichtext' => true,
+                        ],
+                    ],
+                ],
+                'types' => [
+                    '0' => [
+                        'showitem' => 'bodytext',
+                    ],
+                ],
+            ],
+        ];
+
+        $modifiedTca = $this->invokeListenerAndGetTca($tca, [
+            'enableAutomaticPreviewRenderer' => true,
+            'includedTablesOnly'             => 'table_a,  ,  ',
+        ]);
+
+        // tt_content should NOT get previewRenderer (not in inclusion list)
+        self::assertArrayNotHasKey(
+            'previewRenderer',
+            $modifiedTca['tt_content']['types']['text'],
+        );
+
+        // table_a should get previewRenderer
+        self::assertSame(
+            RteImagePreviewRenderer::class,
+            $modifiedTca['table_a']['types']['0']['previewRenderer'],
+        );
+    }
+
+    #[Test]
+    public function handlesNonArrayBodytextColumnGracefully(): void
+    {
+        $tca = [
+            'tt_content' => [
+                'columns' => [
+                    'bodytext' => 'not an array',
+                ],
+                'types' => [
+                    'text' => [
+                        'showitem' => 'bodytext',
+                    ],
+                ],
+            ],
+        ];
+
+        $modifiedTca = $this->invokeListenerAndGetTca($tca);
+
+        // Non-array bodytext column should not register previewRenderer
+        self::assertArrayNotHasKey('previewRenderer', $modifiedTca['tt_content']['types']['text']);
+    }
+
+    #[Test]
+    public function handlesBodytextWithoutConfigGracefully(): void
+    {
+        $tca = [
+            'tt_content' => [
+                'columns' => [
+                    'bodytext' => [
+                        'label' => 'Text',
+                    ],
+                ],
+                'types' => [
+                    'text' => [
+                        'showitem' => 'bodytext',
+                    ],
+                ],
+            ],
+        ];
+
+        $modifiedTca = $this->invokeListenerAndGetTca($tca);
+
+        // bodytext without config key should not register previewRenderer
+        self::assertArrayNotHasKey('previewRenderer', $modifiedTca['tt_content']['types']['text']);
+    }
+
+    #[Test]
+    public function handlesNonArrayColumnsGracefully(): void
+    {
+        $tca = [
+            'tt_content' => [
+                'columns' => 'not an array',
+                'types'   => [
+                    'text' => [
+                        'showitem' => 'bodytext',
+                    ],
+                ],
+            ],
+        ];
+
+        $modifiedTca = $this->invokeListenerAndGetTca($tca);
+
+        // Non-array columns should not register previewRenderer
+        self::assertArrayNotHasKey('previewRenderer', $modifiedTca['tt_content']['types']['text']);
+    }
 }
