@@ -4,6 +4,7 @@
 [![CodeQL](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/codeql-analysis.yml)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/netresearch/t3x-rte_ckeditor_image/badge)](https://securityscorecards.dev/viewer/?uri=github.com/netresearch/t3x-rte_ckeditor_image)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/11718/badge)](https://www.bestpractices.dev/projects/11718)
+[![OpenSSF Baseline](https://www.bestpractices.dev/projects/11718/baseline)](https://www.bestpractices.dev/en/projects/11718#openssf_security_baseline)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%2010-brightgreen.svg)](https://phpstan.org/)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![codecov](https://codecov.io/gh/netresearch/t3x-rte_ckeditor_image/graph/badge.svg)](https://codecov.io/gh/netresearch/t3x-rte_ckeditor_image)
