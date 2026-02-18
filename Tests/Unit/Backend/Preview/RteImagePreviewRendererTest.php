@@ -12,6 +12,9 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Backend\Preview;
 
 use Netresearch\RteCKEditorImage\Backend\Preview\RteImagePreviewRenderer;
+use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
+use Netresearch\RteCKEditorImage\Dto\ValidationIssueType;
+use Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -504,5 +507,268 @@ class RteImagePreviewRendererTest extends TestCase
         self::assertStringNotContainsString('<div', $result);
         self::assertStringNotContainsString('<strong', $result);
         self::assertStringNotContainsString('<ul', $result);
+    }
+
+    // ========================================================================
+    // Issue Warning Tests (broken image detection in page module preview)
+    // ========================================================================
+
+    #[Test]
+    public function noWarningWhenValidatorReturnsEmptyList(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->method('validateHtml')
+            ->willReturn([]);
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p><img src="fileadmin/test.jpg" data-htmlarea-file-uid="1" /></p>',
+            ['uid' => 42],
+        ]);
+
+        self::assertSame('', $result);
+    }
+
+    #[Test]
+    public function warningRenderedForOrphanedFileUids(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->method('validateHtml')
+            ->willReturn([
+                new ValidationIssue(
+                    type: ValidationIssueType::OrphanedFileUid,
+                    table: 'tt_content',
+                    uid: 42,
+                    field: 'bodytext',
+                    fileUid: 999,
+                    currentSrc: 'fileadmin/gone.jpg',
+                    expectedSrc: null,
+                    imgIndex: 0,
+                ),
+            ]);
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p><img src="fileadmin/gone.jpg" data-htmlarea-file-uid="999" /></p>',
+            ['uid' => 42],
+        ]);
+
+        self::assertStringContainsString('callout-warning', $result);
+        self::assertStringContainsString('orphaned file reference', $result);
+        self::assertStringContainsString('rteImageReferenceValidation', $result);
+        self::assertStringContainsString('rte_ckeditor_image:validate --fix', $result);
+    }
+
+    #[Test]
+    public function warningRenderedForSrcMismatch(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->method('validateHtml')
+            ->willReturn([
+                new ValidationIssue(
+                    type: ValidationIssueType::SrcMismatch,
+                    table: 'tt_content',
+                    uid: 42,
+                    field: 'bodytext',
+                    fileUid: 5,
+                    currentSrc: 'fileadmin/old-path.jpg',
+                    expectedSrc: 'fileadmin/new-path.jpg',
+                    imgIndex: 0,
+                ),
+            ]);
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p><img src="fileadmin/old-path.jpg" data-htmlarea-file-uid="5" /></p>',
+            ['uid' => 42],
+        ]);
+
+        self::assertStringContainsString('callout-warning', $result);
+        self::assertStringContainsString('outdated src path', $result);
+    }
+
+    #[Test]
+    public function warningRenderedForProcessedImageSrc(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->method('validateHtml')
+            ->willReturn([
+                new ValidationIssue(
+                    type: ValidationIssueType::ProcessedImageSrc,
+                    table: 'tt_content',
+                    uid: 42,
+                    field: 'bodytext',
+                    fileUid: 7,
+                    currentSrc: 'fileadmin/_processed_/1/csm_test_abc123.jpg',
+                    expectedSrc: 'fileadmin/test.jpg',
+                    imgIndex: 0,
+                ),
+            ]);
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p><img src="fileadmin/_processed_/1/csm_test_abc123.jpg" data-htmlarea-file-uid="7" /></p>',
+            ['uid' => 42],
+        ]);
+
+        self::assertStringContainsString('callout-warning', $result);
+        self::assertStringContainsString('processed image URL', $result);
+    }
+
+    #[Test]
+    public function warningRenderedForMixedIssueTypes(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->method('validateHtml')
+            ->willReturn([
+                new ValidationIssue(
+                    type: ValidationIssueType::OrphanedFileUid,
+                    table: 'tt_content',
+                    uid: 42,
+                    field: 'bodytext',
+                    fileUid: 999,
+                    currentSrc: 'fileadmin/gone.jpg',
+                    expectedSrc: null,
+                    imgIndex: 0,
+                ),
+                new ValidationIssue(
+                    type: ValidationIssueType::OrphanedFileUid,
+                    table: 'tt_content',
+                    uid: 42,
+                    field: 'bodytext',
+                    fileUid: 998,
+                    currentSrc: 'fileadmin/also-gone.jpg',
+                    expectedSrc: null,
+                    imgIndex: 1,
+                ),
+                new ValidationIssue(
+                    type: ValidationIssueType::SrcMismatch,
+                    table: 'tt_content',
+                    uid: 42,
+                    field: 'bodytext',
+                    fileUid: 5,
+                    currentSrc: 'fileadmin/old.jpg',
+                    expectedSrc: 'fileadmin/new.jpg',
+                    imgIndex: 2,
+                ),
+            ]);
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p><img src="fileadmin/gone.jpg" data-htmlarea-file-uid="999" /><img src="fileadmin/old.jpg" data-htmlarea-file-uid="5" /></p>',
+            ['uid' => 42],
+        ]);
+
+        self::assertStringContainsString('callout-warning', $result);
+        self::assertStringContainsString('2 orphaned file reference(s)', $result);
+        self::assertStringContainsString('1 outdated src path(s)', $result);
+    }
+
+    #[Test]
+    public function noWarningForEmptyBodytext(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->expects(self::never())
+            ->method('validateHtml');
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '',
+            ['uid' => 42],
+        ]);
+
+        self::assertSame('', $result);
+    }
+
+    #[Test]
+    public function noWarningWhenValidatorIsNull(): void
+    {
+        $renderer = new RteImagePreviewRenderer();
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p><img src="fileadmin/test.jpg" data-htmlarea-file-uid="1" /></p>',
+            ['uid' => 42],
+        ]);
+
+        self::assertSame('', $result);
+    }
+
+    #[Test]
+    public function warningMentionsWizardNameAndCliCommand(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->method('validateHtml')
+            ->willReturn([
+                new ValidationIssue(
+                    type: ValidationIssueType::BrokenSrc,
+                    table: 'tt_content',
+                    uid: 42,
+                    field: 'bodytext',
+                    fileUid: 3,
+                    currentSrc: null,
+                    expectedSrc: 'fileadmin/test.jpg',
+                    imgIndex: 0,
+                ),
+            ]);
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p><img data-htmlarea-file-uid="3" /></p>',
+            ['uid' => 42],
+        ]);
+
+        self::assertStringContainsString('rteImageReferenceValidation', $result);
+        self::assertStringContainsString('bin/typo3 rte_ckeditor_image:validate --fix', $result);
+        self::assertStringContainsString('broken src attribute', $result);
+    }
+
+    #[Test]
+    public function warningRenderedForMissingFileUid(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->method('validateHtml')
+            ->willReturn([
+                new ValidationIssue(
+                    type: ValidationIssueType::MissingFileUid,
+                    table: 'tt_content',
+                    uid: 42,
+                    field: 'bodytext',
+                    fileUid: null,
+                    currentSrc: 'fileadmin/test.jpg',
+                    expectedSrc: null,
+                    imgIndex: 0,
+                ),
+            ]);
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p><img src="fileadmin/test.jpg" /></p>',
+            ['uid' => 42],
+        ]);
+
+        self::assertStringContainsString('callout-warning', $result);
+        self::assertStringContainsString('missing file UID', $result);
+    }
+
+    #[Test]
+    public function truncateResetsStateBetweenConsecutiveCalls(): void
+    {
+        $renderer  = new RteImagePreviewRenderer();
+        $longText  = '<p>' . str_repeat('a', 100) . '</p>';
+        $shortText = '<p>Short</p>';
+
+        $result1 = $this->callMethod($renderer, 'truncate', [$longText, 50]);
+        self::assertStringContainsString('...', $result1);
+
+        $result2 = $this->callMethod($renderer, 'truncate', [$shortText, 1000]);
+        self::assertStringNotContainsString('...', $result2);
+        self::assertStringContainsString('Short', $result2);
     }
 }

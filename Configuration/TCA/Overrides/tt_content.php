@@ -9,8 +9,6 @@
 
 declare(strict_types=1);
 
-use Netresearch\RteCKEditorImage\Backend\Preview\RteImagePreviewRenderer;
-
 defined('TYPO3') || exit;
 
 /**
@@ -35,8 +33,8 @@ call_user_func(
             $cleanSoftReferences,
         );
 
-        // Register preview renderer
-        $GLOBALS['TCA']['tt_content']['types']['text']['previewRenderer']
-            = RteImagePreviewRenderer::class;
+        // Preview renderer is now registered dynamically via RtePreviewRendererRegistrar
+        // for ALL CTypes with RTE-enabled bodytext (not just CType "text").
+        // See: Classes/Listener/TCA/RtePreviewRendererRegistrar.php
     },
 );

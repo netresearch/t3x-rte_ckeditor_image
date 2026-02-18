@@ -1,11 +1,14 @@
 # cat=basic; type=boolean; label=Enable Automatic RTE Softref: Automatically add rtehtmlarea_images soft reference to all RTE-enabled text fields. This ensures images inserted via CKEditor are properly tracked in TYPO3's reference index across all tables. (Default is on)
 enableAutomaticRteSoftref = 1
 
-# cat=basic; type=string; label=Excluded Tables: Comma-separated list of table names to exclude from automatic softref processing (e.g., tx_form_formframework,sys_template). Leave empty to process all tables.
+# cat=basic; type=string; label=Excluded Tables: Comma-separated list of table names to exclude from automatic softref and preview renderer processing (e.g., tx_form_formframework,sys_template). Leave empty to process all tables.
 excludedTables =
 
-# cat=basic; type=string; label=Included Tables Only (Whitelist): If set, ONLY these comma-separated table names will be processed. Whitelist mode overrides the excluded tables setting. Leave empty to process all tables (default behavior).
+# cat=basic; type=string; label=Included Tables Only (Whitelist): If set, ONLY these comma-separated table names will be processed for softref and preview renderer registration. Whitelist mode overrides the excluded tables setting. Leave empty to process all tables (default behavior).
 includedTablesOnly =
+
+# cat=basic; type=boolean; label=Enable Automatic Preview Renderer: Automatically register image-aware preview renderer for all record types with RTE-enabled bodytext. Disabling falls back to TYPO3's default preview which strips images. (Default is on)
+enableAutomaticPreviewRenderer = 1
 
 # cat=basic; type=boolean; label=Fetch external images and load them into the user default upload folder (default is on)
 fetchExternalImages = 1
