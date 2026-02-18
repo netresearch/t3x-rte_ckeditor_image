@@ -139,6 +139,46 @@ __invoke()
         }
       }
 
+RtePreviewRendererRegistrar
+============================
+
+.. _api-rtepreviewrendererregistrar:
+
+.. versionadded:: 13.5.0
+
+:Namespace: ``Netresearch\RteCKEditorImage\Listener\TCA``
+:Purpose: Automatically registers ``RteImagePreviewRenderer`` for all CTypes with RTE-enabled bodytext fields
+:Event: ``TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent``
+
+Without this listener, CTypes like ``textmedia`` and ``textpic`` use TYPO3's
+``StandardContentPreviewRenderer``, which strips ``<img>`` tags via ``strip_tags()``.
+This listener ensures images inserted via CKEditor are visible in the page module
+preview for all record types.
+
+**Service Configuration:**
+
+.. code-block:: yaml
+
+   Netresearch\RteCKEditorImage\Listener\TCA\RtePreviewRendererRegistrar:
+     tags:
+       - name: event.listener
+         identifier: 'rte-ckeditor-image/preview-renderer-registrar'
+         event: TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent
+
+**Processing logic:**
+
+1. Check if ``enableAutomaticPreviewRenderer`` is enabled (default: ``true``)
+2. Parse inclusion/exclusion table lists from extension configuration
+3. Iterate all TCA tables and types
+4. For each type with RTE-enabled ``bodytext`` (via ``columnsOverrides`` or base column):
+   - Skip if a custom ``previewRenderer`` is already set
+   - Register ``RteImagePreviewRenderer``
+
+**Configuration options:**
+
+The listener respects the same ``excludedTables`` and ``includedTablesOnly`` settings
+as ``RteSoftrefEnforcer``. See :ref:`Extension Configuration <integration-configuration-extension-settings>`.
+
 AfterPrepareConfigurationForEditorEvent
 ========================================
 

@@ -181,6 +181,42 @@ can be executed multiple times safely.
    The wizard requires the database to be up-to-date (``DatabaseUpdatedPrerequisite``).
    Run all database schema migrations before executing this wizard.
 
+Page Module Preview Warning
+===========================
+
+.. versionadded:: 13.5.0
+
+In addition to the CLI command and upgrade wizard, the extension now detects broken
+image references directly in the **TYPO3 page module** preview. When a content element
+contains images with validation issues, a yellow warning callout is shown above the
+content preview:
+
+.. code-block:: text
+
+   ┌─────────────────────────────────────────────┐
+   │ ⚠ Image reference issues detected           │
+   │ 2 orphaned file reference(s),               │
+   │ 1 outdated src path(s).                     │
+   │ Run the upgrade wizard                      │
+   │ rteImageReferenceValidation or CLI command   │
+   │ bin/typo3 rte_ckeditor_image:validate --fix  │
+   │ to repair.                                   │
+   └─────────────────────────────────────────────┘
+
+This warning appears automatically for all CTypes that use the
+``RteImagePreviewRenderer`` (see :ref:`api-rtepreviewrendererregistrar`).
+The detection happens during page module rendering and requires no additional
+configuration.
+
+The same five issue types detected by the CLI command are shown in the warning:
+``orphaned_file_uid``, ``src_mismatch``, ``processed_image_src``,
+``missing_file_uid``, and ``broken_src``.
+
+.. tip::
+   The warning is purely informational and does not block editing. Editors can
+   continue working with the content element while an administrator runs the
+   upgrade wizard or CLI command to fix the references.
+
 When to Use
 ===========
 

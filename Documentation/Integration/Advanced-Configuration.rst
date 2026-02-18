@@ -431,6 +431,27 @@ You can customize the automatic behavior via Extension Configuration:
 
     This overrides the :confval:`excludedTables <confval-excludedtables>` setting. Leave empty to process all tables (recommended).
 
+..  confval:: enableAutomaticPreviewRenderer
+    :name: confval-enableautomaticpreviewrenderer
+    :type: boolean
+    :Default: 1 (enabled)
+
+    .. versionadded:: 13.5.0
+
+    Toggle automatic registration of ``RteImagePreviewRenderer`` for all record
+    types with RTE-enabled ``bodytext`` fields.
+
+    When enabled, the extension registers a custom preview renderer that preserves
+    ``<img>`` tags in the page module preview. Without this, TYPO3's default
+    ``StandardContentPreviewRenderer`` strips images via ``strip_tags()``.
+
+    The preview renderer also detects broken image references and displays a
+    warning callout above the content preview (see
+    :ref:`troubleshooting-image-reference-validation`).
+
+    This setting respects :confval:`excludedTables <confval-excludedtables>` and
+    :confval:`includedTablesOnly <confval-includedtablesonly>`.
+
 Configuration Examples
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -461,6 +482,16 @@ Configuration Examples
 
     $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['rte_ckeditor_image'] = [
         'enableAutomaticRteSoftref' => false,
+    ];
+
+**Disable Preview Renderer Only:**
+
+..  code-block:: php
+    :caption: settings.php or LocalConfiguration.php
+
+    $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['rte_ckeditor_image'] = [
+        'enableAutomaticRteSoftref' => true,
+        'enableAutomaticPreviewRenderer' => false,
     ];
 
 .. note::
