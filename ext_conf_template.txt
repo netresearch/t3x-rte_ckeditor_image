@@ -7,5 +7,8 @@ excludedTables =
 # cat=basic; type=string; label=Included Tables Only (Whitelist): If set, ONLY these comma-separated table names will be processed. Whitelist mode overrides the excluded tables setting. Leave empty to process all tables (default behavior).
 includedTablesOnly =
 
+# cat=basic; type=boolean; label=Enable Automatic Preview Renderer: Automatically register image-aware preview renderer for all CTypes with RTE-enabled bodytext. Disabling falls back to TYPO3's default preview which strips images. (Default is on)
+enableAutomaticPreviewRenderer = 1
+
 # cat=basic; type=boolean; label=Fetch external images and load them into the user default upload folder (default is on)
 fetchExternalImages = 1

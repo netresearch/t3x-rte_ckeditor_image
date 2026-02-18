@@ -187,6 +187,18 @@ parameters:
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
+			message: '#^Parameter \#1 \$typeConfig of method Netresearch\\RteCKEditorImage\\Listener\\TCA\\RtePreviewRendererRegistrar\:\:hasRteEnabledBodytext\(\) expects array\<string, mixed\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: ../Classes/Listener/TCA/RtePreviewRendererRegistrar.php
+
+		-
+			message: '#^Parameter \#2 \$tableConfig of method Netresearch\\RteCKEditorImage\\Listener\\TCA\\RtePreviewRendererRegistrar\:\:hasRteEnabledBodytext\(\) expects array\<string, mixed\>, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: ../Classes/Listener/TCA/RtePreviewRendererRegistrar.php
+
+		-
 			message: '#^Cannot access offset ''columns'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -301,33 +313,15 @@ parameters:
 			path: ../Configuration/TCA/Overrides/tt_content.php
 
 		-
-			message: '#^Cannot access offset ''previewRenderer'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Configuration/TCA/Overrides/tt_content.php
-
-		-
 			message: '#^Cannot access offset ''softref'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 2
 			path: ../Configuration/TCA/Overrides/tt_content.php
 
 		-
-			message: '#^Cannot access offset ''text'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: ../Configuration/TCA/Overrides/tt_content.php
-
-		-
 			message: '#^Cannot access offset ''tt_content'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 2
-			path: ../Configuration/TCA/Overrides/tt_content.php
-
-		-
-			message: '#^Cannot access offset ''types'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
 			path: ../Configuration/TCA/Overrides/tt_content.php
 
 		-
@@ -407,6 +401,12 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: ../Tests/Functional/Database/RteImagesDbHookTest.php
+
+		-
+			message: '#^Method Netresearch\\RteCKEditorImage\\Tests\\Unit\\Listener\\TCA\\RtePreviewRendererRegistrarTest\:\:invokeListenerAndGetTca\(\) should return array\<string, array\<string, mixed\>\> but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: ../Tests/Unit/Listener/TCA/RtePreviewRendererRegistrarTest.php
 
 		-
 			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'

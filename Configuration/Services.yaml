@@ -7,6 +7,12 @@ services:
   Netresearch\RteCKEditorImage\:
     resource: '../Classes/*'
 
+  # Backend preview renderer with broken image detection (#636)
+  Netresearch\RteCKEditorImage\Backend\Preview\RteImagePreviewRenderer:
+    public: true
+    arguments:
+      $validator: '@Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator'
+
   # Explicitly configure controllers with dependencies
   Netresearch\RteCKEditorImage\Controller\SelectImageController:
     public: true
@@ -198,5 +204,15 @@ services:
     tags:
       - name: event.listener
         identifier: 'nr-rte-softref-enforcer'
+        event: TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent
+        after: '*'
+
+  # Event listener for automatic preview renderer registration (#636)
+  Netresearch\RteCKEditorImage\Listener\TCA\RtePreviewRendererRegistrar:
+    arguments:
+      $extensionConfiguration: '@TYPO3\CMS\Core\Configuration\ExtensionConfiguration'
+    tags:
+      - name: event.listener
+        identifier: 'nr-rte-preview-renderer-registrar'
         event: TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent
         after: '*'

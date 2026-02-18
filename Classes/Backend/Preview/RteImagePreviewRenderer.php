@@ -14,6 +14,9 @@ namespace Netresearch\RteCKEditorImage\Backend\Preview;
 use DOMDocument;
 use DOMNode;
 use DOMText;
+use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
+use Netresearch\RteCKEditorImage\Dto\ValidationIssueType;
+use Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator;
 use TYPO3\CMS\Backend\Preview\StandardContentPreviewRenderer;
 use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
 
@@ -21,6 +24,9 @@ use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
  * Renders the preview of TCA "text" elements. This class overrides the
  * default \TYPO3\CMS\Frontend\Preview\TextPreviewRenderer and extends its functionality to
  * include images in the preview.
+ *
+ * Additionally detects broken image references and shows a warning callout
+ * in the page module preview.
  *
  * @author  Rico Sonntag <rico.sonntag@netresearch.de>
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
@@ -35,6 +41,10 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
 
     /** @var DOMNode[] */
     private array $toRemove = [];
+
+    public function __construct(
+        private readonly ?RteImageReferenceValidator $validator = null,
+    ) {}
 
     /**
      * Dedicated method for rendering preview body HTML for the page module only.
@@ -64,11 +74,14 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
             $html,
         );
 
-        return $this
-            ->linkEditContent(
-                $this->renderTextWithHtml($html),
-                $record,
-            )
+        $warning = $this->detectIssuesAndRenderWarning($html, $row);
+
+        return $warning
+            . $this
+                ->linkEditContent(
+                    $this->renderTextWithHtml($html),
+                    $record,
+                )
             . '<br />';
     }
 
@@ -85,6 +98,80 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
         $input = strip_tags($input, '<img><p>');
 
         return $this->truncate($input, 1500);
+    }
+
+    /**
+     * Detect broken image references and render a warning callout if issues exist.
+     *
+     * @param string|null          $html Sanitized HTML from bodytext
+     * @param array<string, mixed> $row  The database row
+     */
+    private function detectIssuesAndRenderWarning(?string $html, array $row): string
+    {
+        if ($this->validator === null) {
+            return '';
+        }
+
+        if ($html === null || $html === '') {
+            return '';
+        }
+
+        $rawUid = $row['uid'] ?? 0;
+
+        if (is_int($rawUid)) {
+            $uid = $rawUid;
+        } elseif (is_string($rawUid)) {
+            $uid = (int) $rawUid;
+        } else {
+            $uid = 0;
+        }
+
+        $issues = $this->validator->validateHtml($html, 'tt_content', $uid, 'bodytext');
+
+        if ($issues === []) {
+            return '';
+        }
+
+        return $this->renderIssueWarning($issues);
+    }
+
+    /**
+     * Render a warning callout summarizing the detected issues.
+     *
+     * @param list<ValidationIssue> $issues
+     */
+    private function renderIssueWarning(array $issues): string
+    {
+        $counts = [];
+
+        foreach ($issues as $issue) {
+            $label = match ($issue->type) {
+                ValidationIssueType::OrphanedFileUid   => 'orphaned file reference(s)',
+                ValidationIssueType::SrcMismatch       => 'outdated src path(s)',
+                ValidationIssueType::ProcessedImageSrc => 'processed image URL(s)',
+                ValidationIssueType::MissingFileUid    => 'missing file UID(s)',
+                ValidationIssueType::BrokenSrc         => 'broken src attribute(s)',
+            };
+
+            $counts[$label] = ($counts[$label] ?? 0) + 1;
+        }
+
+        $parts = [];
+
+        foreach ($counts as $label => $count) {
+            $parts[] = $count . ' ' . $label;
+        }
+
+        $summary = implode(', ', $parts);
+
+        return '<div class="callout callout-warning">'
+            . '<div class="callout-title">Image reference issues detected</div>'
+            . '<div class="callout-body">'
+            . '<p>' . htmlspecialchars($summary, ENT_QUOTES, 'UTF-8') . '.</p>'
+            . '<p>Run the upgrade wizard <strong>rteImageReferenceValidation</strong> or CLI command '
+            . '<code>bin/typo3 rte_ckeditor_image:validate --fix</code> to repair.</p>'
+            . '</div>'
+            . '</div>';
     }
 
     /**
