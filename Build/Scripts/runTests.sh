@@ -1110,12 +1110,12 @@ CONTENT_EOF
             -w /var/www/html \
             -e COMPOSER_CACHE_DIR=/.cache/composer \
             ${IMAGE_PHP} /bin/bash -c "
+                # Disable Composer's block-insecure feature for transient upstream advisories
+                # (e.g., CVE-2025-45769 in firebase/php-jwt <7.0, a TYPO3 Core dependency)
+                composer config --global audit.block-insecure false
+
                 # Create TYPO3 project (--no-scripts to prevent DB access before setup)
                 composer create-project typo3/cms-base-distribution:${E2E_TYPO3_CONSTRAINT} . --no-interaction --no-progress --no-scripts
-
-                # Ignore upstream security advisory for firebase/php-jwt <7.0 (CVE-2025-45769)
-                # TYPO3 Core depends on ^6.10.2 — can only be fixed by TYPO3 Core updating to ^7.0
-                composer config --json --merge audit.ignore '{"PKSA-y2cr-5h3j-g3ys": "Upstream TYPO3 Core dependency"}'
 
                 # Install ALL packages with --no-scripts FIRST, so database:updateschema knows about all tables
                 # Mount extension at /extension and use that path for composer
