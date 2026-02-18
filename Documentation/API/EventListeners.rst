@@ -12,25 +12,6 @@ Complete API reference for PSR-14 event listeners in the rte_ckeditor_image exte
    :depth: 3
    :local:
 
-RteConfigurationListener
-=========================
-
-.. _api-rteconfigurationlistener:
-
-:Namespace: ``Netresearch\RteCKEditorImage\EventListener``
-:Purpose: Injects backend route configuration into CKEditor RTE configuration for image plugin integration
-:Event: ``TYPO3\CMS\RteCKEditor\Form\Element\Event\AfterPrepareConfigurationForEditorEvent``
-
-**Service Configuration:**
-
-.. code-block:: yaml
-
-   Netresearch\RteCKEditorImage\EventListener\RteConfigurationListener:
-     tags:
-       - name: event.listener
-         identifier: 'rte_configuration_listener'
-         event: TYPO3\CMS\RteCKEditor\Form\Element\Event\AfterPrepareConfigurationForEditorEvent
-
 PSR-14 Event System
 ===================
 
@@ -71,73 +52,14 @@ Event Flow
        ↓
    AfterPrepareConfigurationForEditorEvent dispatched
        ↓
-   RteConfigurationListener invoked
+   Custom listeners can modify configuration
        ↓
-   Configuration injected with route URL
-       ↓
-   CKEditor loads with typo3image plugin config
+   CKEditor loads with final config
 
-RteConfigurationListener API
-=============================
-
-__invoke()
-----------
-
-.. php:method:: __invoke(AfterPrepareConfigurationForEditorEvent $event): void
-
-   Main listener method that modifies RTE configuration before it's sent to the CKEditor instance.
-
-   :param AfterPrepareConfigurationForEditorEvent $event: Event object containing mutable RTE configuration
-
-   **Processing Steps:**
-
-   **1. URI Builder Instantiation:**
-
-   .. code-block:: php
-
-      $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-
-   Creates TYPO3 URI builder for backend route generation.
-
-   **2. Configuration Retrieval:**
-
-   .. code-block:: php
-
-      $configuration = $event->getConfiguration();
-
-   Gets current RTE configuration array from event.
-
-   **3. Route URL Injection:**
-
-   .. code-block:: php
-
-      $configuration['style']['typo3image'] = [
-          'routeUrl' => (string) $uriBuilder->buildUriFromRoute('rteckeditorimage_wizard_select_image'),
-      ];
-
-   Adds backend route URL to configuration under ``style.typo3image.routeUrl``.
-
-   **4. Configuration Update:**
-
-   .. code-block:: php
-
-      $event->setConfiguration($configuration);
-
-   Updates event with modified configuration.
-
-   **Result:**
-
-   CKEditor receives configuration like:
-
-   .. code-block:: javascript
-
-      {
-        style: {
-          typo3image: {
-            routeUrl: '/typo3/rte/wizard/selectimage?...'
-          }
-        }
-      }
+.. note::
+   The image plugin route URL is configured declaratively via
+   ``Configuration/RTE/Plugin.yaml`` (``externalPlugins.typo3image.route``),
+   not through a PHP event listener.
 
 RtePreviewRendererRegistrar
 ============================
@@ -190,8 +112,9 @@ RteSoftrefEnforcer
 
 Without soft references, images inserted via CKEditor are not tracked in TYPO3's
 reference index. This means images could be lost when records are moved, copied,
-or deleted. The listener scans all TCA tables for RTE-enabled ``bodytext`` fields
-and adds the ``rtehtmlarea_images`` softref parser key.
+or deleted. The listener scans all TCA tables, removes the obsolete ``images``
+softref, and adds the ``rtehtmlarea_images`` softref parser key to any
+``type=text`` column with ``enableRichtext`` enabled.
 
 **Service Configuration:**
 

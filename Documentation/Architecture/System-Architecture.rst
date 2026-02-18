@@ -97,10 +97,9 @@ Backend Layer
 - **SelectImageController**: Backend image selection wizard for FAL integration
 - **ImageRenderingAdapter**: TypoScript adapter bridging ``preUserFunc`` to modern service architecture
 
-2. Event Listeners (``Classes/EventListener/``, ``Classes/Listener/``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2. Event Listeners (``Classes/Listener/``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **RteConfigurationListener**: Injects backend route configuration into CKEditor RTE
 - **RteSoftrefEnforcer**: Auto-adds ``rtehtmlarea_images`` softref to all RTE fields
 - **RtePreviewRendererRegistrar**: Auto-registers image-aware preview renderer for all CTypes
 - **UpdateImageReferences**: Syncs ``src`` attributes when FAL files are moved or renamed
