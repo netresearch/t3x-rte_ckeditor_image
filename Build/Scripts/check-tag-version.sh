@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Validates that ext_emconf.php version matches any semver tag pointing at HEAD.
-# Used as a CaptainHook pre-push hook to prevent pushing mismatched versions.
+# Used as a pre-push hook to prevent pushing mismatched versions.
 set -euo pipefail
 
 # Find semver tags (with or without v prefix) pointing at HEAD, normalize to bare version
@@ -15,16 +15,16 @@ fi
 EMCONF_VERSION=$(sed -nE "s/.*'version'[[:space:]]*=>[[:space:]]*'([^']+)'.*/\1/p" ext_emconf.php)
 
 if [[ -z "${EMCONF_VERSION}" ]]; then
-    echo "ERROR: Could not extract version from ext_emconf.php"
+    echo "ERROR: Could not extract version from ext_emconf.php" >&2
     exit 1
 fi
 
 # Check if ext_emconf.php version matches any of the tags at HEAD
-if ! echo "${TAGS}" | grep -qFx "${EMCONF_VERSION}"; then
-    echo "ERROR: ext_emconf.php version (${EMCONF_VERSION}) does not match any semver tag at HEAD."
-    echo "Tags found at HEAD:"
-    echo "${TAGS}"
-    echo "Update ext_emconf.php version to match the tag and amend your commit before pushing."
+if ! echo "${TAGS}" | grep -qFx -e "${EMCONF_VERSION}"; then
+    echo "ERROR: ext_emconf.php version (${EMCONF_VERSION}) does not match any semver tag at HEAD." >&2
+    echo "Tags found at HEAD:" >&2
+    echo "${TAGS}" >&2
+    echo "Update ext_emconf.php version to match the tag and amend your commit before pushing." >&2
     exit 1
 fi
 

@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+# Validate ext_emconf.php version matches any semver tag at HEAD
+Build/Scripts/check-tag-version.sh
