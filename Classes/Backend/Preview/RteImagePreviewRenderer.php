@@ -108,11 +108,11 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
      */
     private function detectIssuesAndRenderWarning(?string $html, array $row): string
     {
-        if ($this->validator === null) {
+        if (!$this->validator instanceof RteImageReferenceValidator) {
             return '';
         }
 
-        if ($html === null || $html === '') {
+        if ($html === null || $html === '' || !str_contains($html, '<img')) {
             return '';
         }
 

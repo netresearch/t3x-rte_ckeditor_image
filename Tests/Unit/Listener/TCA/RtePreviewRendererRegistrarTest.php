@@ -33,7 +33,7 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
      * @param array<string, mixed> $tca
      * @param array<string, mixed> $config
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, mixed>
      */
     private function invokeListenerAndGetTca(array $tca, array $config = ['enableAutomaticPreviewRenderer' => true]): array
     {
@@ -48,6 +48,7 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
 
         $listener($event);
 
+        /** @var array<string, mixed> */
         return $event->getTca();
     }
 

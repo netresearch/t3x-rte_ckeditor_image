@@ -660,7 +660,7 @@ class RteImagePreviewRendererTest extends TestCase
 
         $renderer = new RteImagePreviewRenderer($validator);
         $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
-            '<p>Mixed content</p>',
+            '<p><img src="fileadmin/gone.jpg" data-htmlarea-file-uid="999" /><img src="fileadmin/old.jpg" data-htmlarea-file-uid="5" /></p>',
             ['uid' => 42],
         ]);
 

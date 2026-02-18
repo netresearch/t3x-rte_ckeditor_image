@@ -187,18 +187,6 @@ parameters:
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
-			message: '#^Parameter \#1 \$typeConfig of method Netresearch\\RteCKEditorImage\\Listener\\TCA\\RtePreviewRendererRegistrar\:\:hasRteEnabledBodytext\(\) expects array\<string, mixed\>, array\<mixed, mixed\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Listener/TCA/RtePreviewRendererRegistrar.php
-
-		-
-			message: '#^Parameter \#2 \$tableConfig of method Netresearch\\RteCKEditorImage\\Listener\\TCA\\RtePreviewRendererRegistrar\:\:hasRteEnabledBodytext\(\) expects array\<string, mixed\>, array given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Listener/TCA/RtePreviewRendererRegistrar.php
-
-		-
 			message: '#^Cannot access offset ''columns'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -401,12 +389,6 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: ../Tests/Functional/Database/RteImagesDbHookTest.php
-
-		-
-			message: '#^Method Netresearch\\RteCKEditorImage\\Tests\\Unit\\Listener\\TCA\\RtePreviewRendererRegistrarTest\:\:invokeListenerAndGetTca\(\) should return array\<string, array\<string, mixed\>\> but returns array\.$#'
-			identifier: return.type
-			count: 1
-			path: ../Tests/Unit/Listener/TCA/RtePreviewRendererRegistrarTest.php
 
 		-
 			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'

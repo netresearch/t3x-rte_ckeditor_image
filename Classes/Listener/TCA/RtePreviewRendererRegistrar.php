@@ -86,7 +86,11 @@ final readonly class RtePreviewRendererRegistrar
                 continue;
             }
 
-            if (!isset($tableConfig['types']) || !is_array($tableConfig['types'])) {
+            if (!isset($tableConfig['types'])) {
+                continue;
+            }
+
+            if (!is_array($tableConfig['types'])) {
                 continue;
             }
 
@@ -139,8 +143,10 @@ final readonly class RtePreviewRendererRegistrar
     /**
      * Check if a type has RTE-enabled bodytext (via columnsOverrides or base column).
      *
-     * @param array<string, mixed> $typeConfig
-     * @param array<string, mixed> $tableConfig
+     * Accepts untyped arrays because TCA structures are deeply nested mixed types.
+     *
+     * @param array<mixed> $typeConfig
+     * @param array<mixed> $tableConfig
      */
     private function hasRteEnabledBodytext(array $typeConfig, array $tableConfig): bool
     {
