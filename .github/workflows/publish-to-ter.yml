@@ -66,6 +66,21 @@ jobs:
                   ref: v${{ env.version }}
                   fetch-tags: true
 
+            - name: Validate ext_emconf.php version
+              env:
+                  TAG_VERSION: ${{ env.version }}
+              run: |
+                  EMCONF_VERSION=$(sed -nE "s/.*'version'[[:space:]]*=>[[:space:]]*'([^']+)'.*/\1/p" ext_emconf.php)
+                  if [[ -z "${EMCONF_VERSION}" ]]; then
+                    echo "::error file=ext_emconf.php::Could not extract version from ext_emconf.php"
+                    exit 1
+                  fi
+                  if [[ "${TAG_VERSION}" != "${EMCONF_VERSION}" ]]; then
+                    echo "::error file=ext_emconf.php::Tag version (${TAG_VERSION}) does not match ext_emconf.php version (${EMCONF_VERSION}). Update ext_emconf.php before tagging."
+                    exit 1
+                  fi
+                  echo "Version validated: ${TAG_VERSION} matches ext_emconf.php"
+
             - name: Prepare release comment
               id: get-comment
               env:
