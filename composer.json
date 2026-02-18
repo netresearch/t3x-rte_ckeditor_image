@@ -65,7 +65,10 @@
         "optimize-autoloader": true,
         "platform-check": false,
         "audit": {
-            "abandoned": "report"
+            "abandoned": "report",
+            "ignore": {
+                "PKSA-y2cr-5h3j-g3ys": "CVE-2025-45769 in firebase/php-jwt <7.0 — upstream TYPO3 Core dependency, awaiting Core update"
+            }
         },
         "allow-plugins": {
             "typo3/cms-composer-installers": true,
