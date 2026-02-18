@@ -15,12 +15,39 @@ If you'd like to ask a question or report a problem, please follow these steps:
 If you want to contribute code, please follow these steps:
 
 1. Clone the repository and checkout a local working branch.
-2. Make your changes and commit them.
-3. Push your working branch to the Github repository.
-4. Create a pull request (PR) for your branch on Github.
+2. Make your changes and commit them with DCO sign-off:
+   ```bash
+   git commit -s -m "feat: your change description"
+   ```
+   The `-s` flag adds a `Signed-off-by` line certifying you have the right to submit the code under the project's license ([Developer Certificate of Origin](https://developercertificate.org/)).
+3. Push your working branch to the GitHub repository.
+4. Create a pull request (PR) for your branch on GitHub.
 5. Create an issue and [link it to your pull request](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue).
 
 We look through the issues and pull requests regularly.
+
+## Project Access & Roles
+
+The following teams have access to sensitive project resources:
+
+| Team | Access Level | Scope |
+|------|-------------|-------|
+| [@netresearch/typo3](https://github.com/orgs/netresearch/teams/typo3) | Write | Source code, CI/CD workflows, issue management |
+| [@netresearch/sec](https://github.com/orgs/netresearch/teams/sec) | Security | Security advisories, vulnerability reports, SECURITY.md |
+| Repository Admins | Admin | Branch protection, secrets, team membership, releases |
+
+**Secrets** (managed via GitHub Encrypted Secrets, admin-only):
+- `CODECOV_TOKEN` — Code coverage reporting
+- `TYPO3_TER_ACCESS_TOKEN` — TYPO3 Extension Repository publishing
+
+### Permission escalation
+
+Before granting elevated permissions to a contributor:
+
+1. The contributor must have a history of quality contributions (reviewed PRs, issue reports)
+2. An existing team member must sponsor the request
+3. At least one repository admin must approve the access change
+4. The change is logged in GitHub's organization audit log
 
 ## Help translate this extension
 

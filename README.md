@@ -311,6 +311,25 @@ See [AGENTS.md](AGENTS.md) for complete development guide, code standards, and P
 - [TYPO3 Extension Repository](https://extensions.typo3.org/extension/rte_ckeditor_image)
 - New versions automatically uploaded to TER via GitHub Action when creating a release
 
+## Verifying Releases
+
+Release tags are GPG-signed and include [SLSA Level 3](https://slsa.dev) provenance attestation for supply chain integrity.
+
+### Verify tag signature
+
+```bash
+# Verify the GPG signature on a release tag
+git tag -v v13.5.0
+```
+
+### Verify SLSA provenance
+
+```bash
+# Verify provenance of a release asset (when assets are attached)
+gh attestation verify <downloaded-file> \
+  --repo netresearch/t3x-rte_ckeditor_image
+```
+
 ## About
 
 Developed and maintained by [Netresearch DTT GmbH](https://www.netresearch.de/).
