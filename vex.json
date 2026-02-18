@@ -1,0 +1,27 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://github.com/netresearch/t3x-rte_ckeditor_image/vex/2026-02-18",
+  "author": "Netresearch DTT GmbH",
+  "timestamp": "2026-02-18T00:00:00Z",
+  "version": 1,
+  "statements": [
+    {
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-45769",
+        "name": "CVE-2025-45769",
+        "description": "Vulnerability in firebase/php-jwt allowing certain JWT validation bypass"
+      },
+      "products": [
+        {
+          "@id": "pkg:composer/netresearch/rte-ckeditor-image",
+          "identifiers": {
+            "purl": "pkg:composer/netresearch/rte-ckeditor-image"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "This extension does not use firebase/php-jwt directly. The dependency is transitive via typo3/cms-core. This extension does not perform JWT validation, token parsing, or any cryptographic operations. The vulnerable code path is never executed by this extension. Remediation is pending upstream TYPO3 Core update."
+    }
+  ]
+}
