@@ -771,4 +771,90 @@ class RteImagePreviewRendererTest extends TestCase
         self::assertStringNotContainsString('...', $result2);
         self::assertStringContainsString('Short', $result2);
     }
+
+    // ========================================================================
+    // UID handling and null/empty HTML branch coverage
+    // ========================================================================
+
+    #[Test]
+    public function detectIssuesHandlesStringUid(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->expects(self::once())
+            ->method('validateHtml')
+            ->with(
+                self::anything(),
+                self::identicalTo('tt_content'),
+                self::identicalTo(42),
+                self::identicalTo('bodytext'),
+            )
+            ->willReturn([]);
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p><img src="fileadmin/test.jpg" data-htmlarea-file-uid="1" /></p>',
+            ['uid' => '42'],
+        ]);
+
+        self::assertSame('', $result);
+    }
+
+    #[Test]
+    public function detectIssuesHandlesNonScalarUid(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->expects(self::once())
+            ->method('validateHtml')
+            ->with(
+                self::anything(),
+                self::identicalTo('tt_content'),
+                self::identicalTo(0),
+                self::identicalTo('bodytext'),
+            )
+            ->willReturn([]);
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p><img src="fileadmin/test.jpg" data-htmlarea-file-uid="1" /></p>',
+            ['uid' => ['nested' => 'array']],
+        ]);
+
+        self::assertSame('', $result);
+    }
+
+    #[Test]
+    public function noWarningForNullBodytext(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->expects(self::never())
+            ->method('validateHtml');
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            null,
+            ['uid' => 42],
+        ]);
+
+        self::assertSame('', $result);
+    }
+
+    #[Test]
+    public function noWarningForHtmlWithoutImages(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->expects(self::never())
+            ->method('validateHtml');
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p>Just text, no images</p>',
+            ['uid' => 42],
+        ]);
+
+        self::assertSame('', $result);
+    }
 }
