@@ -42,7 +42,7 @@ This extension follows the [TYPO3 release lifecycle](https://get.typo3.org/):
 
 | Extension Version | TYPO3 Version | PHP Version | Status |
 |-------------------|---------------|-------------|--------|
-| 13.x | 13.4 LTS, 14.x | 8.2 – 8.5 | Active support |
+| 13.x | 13.4 LTS, 14.x | >=8.2 | Active support |
 | 12.x | 12.4 LTS | 8.1 – 8.3 | Security fixes only |
 | 11.x | 11.5 LTS | 7.4 – 8.1 | End of life |
 

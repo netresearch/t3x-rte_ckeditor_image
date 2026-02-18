@@ -313,29 +313,22 @@ See [AGENTS.md](AGENTS.md) for complete development guide, code standards, and P
 
 ## Verifying Releases
 
-All releases include [SLSA Level 3](https://slsa.dev) provenance attestation for supply chain integrity.
+Release tags are GPG-signed and include [SLSA Level 3](https://slsa.dev) provenance attestation for supply chain integrity.
 
-### Verify release integrity
+### Verify tag signature
 
 ```bash
-# Verify SLSA provenance of a release asset
+# Verify the GPG signature on a release tag
+git tag -v v13.5.0
+```
+
+### Verify SLSA provenance
+
+```bash
+# Verify provenance of a release asset (when assets are attached)
 gh attestation verify <downloaded-file> \
   --repo netresearch/t3x-rte_ckeditor_image
 ```
-
-### Verify release author
-
-Release tags are GPG-signed. To verify the author:
-
-```bash
-# Verify tag signature
-git tag -v v13.5.0
-
-# Check the signer identity matches a known maintainer
-git log --show-signature -1 v13.5.0
-```
-
-Known maintainer GPG keys are listed in [Contributors.md](Contributors.md).
 
 ## About
 

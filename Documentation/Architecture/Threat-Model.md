@@ -55,7 +55,7 @@ This extension provides image handling for CKEditor in TYPO3. It operates in two
 | **Attack Vector** | Editor pastes image URL pointing to internal network (169.254.x.x, 10.x.x.x, cloud metadata endpoints) |
 | **Impact** | Internal network scanning, cloud credential theft |
 | **Likelihood** | Medium (requires backend access + fetchExternalImages enabled) |
-| **Mitigation** | DNS rebinding prevention, private/reserved IP blocking, cloud metadata endpoint blocking in `RteImagesDbHook::getSafeIpForExternalFetch()` |
+| **Mitigation** | DNS rebinding prevention, private/reserved IP blocking, cloud metadata endpoint blocking in `SecurityValidator::getValidatedIpForUrl()` (used by `ExternalImageFetcher`) |
 | **Status** | Mitigated |
 
 ### T3: CSS Injection via Style Attributes
@@ -75,7 +75,7 @@ This extension provides image handling for CKEditor in TYPO3. It operates in two
 | **Attack Vector** | Image src set to `javascript:`, `vbscript:`, `data:text/html`, or `file:` URI |
 | **Impact** | Script execution, local file access |
 | **Likelihood** | Medium |
-| **Mitigation** | Protocol blocklist in `ImageResolverService::DANGEROUS_PROTOCOLS`. SVG data URIs sanitized via TYPO3 `SvgSanitizer`. |
+| **Mitigation** | Protocol allowlist in `ImageResolverService::ALLOWED_LINK_PROTOCOLS` (only `http:`, `https:`, `mailto:`, `tel:`, `t3:` permitted) via `validateLinkUrl()`. SVG data URIs sanitized via TYPO3 `SvgSanitizer`. |
 | **Status** | Mitigated |
 
 ### T5: Privilege Escalation via Non-Public Files
@@ -95,7 +95,7 @@ This extension provides image handling for CKEditor in TYPO3. It operates in two
 | **Attack Vector** | Crafted HTML content with deeply nested tags causing catastrophic regex backtracking |
 | **Impact** | Server-side denial of service during content rendering |
 | **Likelihood** | Low |
-| **Mitigation** | Atomic groups and possessive quantifiers in regex patterns. PCRE backtrack/recursion limits set to 100,000. |
+| **Mitigation** | Primary HTML parsing uses `DOMDocument` instead of regex, eliminating catastrophic backtracking. The single remaining regex (class extraction in `ImageRenderingAdapter`) uses a simple non-backtracking pattern. |
 | **Status** | Mitigated |
 
 ### T7: SVG-Based XSS via Data URIs

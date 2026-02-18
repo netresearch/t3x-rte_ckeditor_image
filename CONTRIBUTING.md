@@ -20,8 +20,8 @@ If you want to contribute code, please follow these steps:
    git commit -s -m "feat: your change description"
    ```
    The `-s` flag adds a `Signed-off-by` line certifying you have the right to submit the code under the project's license ([Developer Certificate of Origin](https://developercertificate.org/)).
-3. Push your working branch to the Github repository.
-4. Create a pull request (PR) for your branch on Github.
+3. Push your working branch to the GitHub repository.
+4. Create a pull request (PR) for your branch on GitHub.
 5. Create an issue and [link it to your pull request](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue).
 
 We look through the issues and pull requests regularly.
