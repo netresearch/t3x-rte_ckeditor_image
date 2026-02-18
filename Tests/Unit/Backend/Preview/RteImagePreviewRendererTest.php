@@ -727,4 +727,48 @@ class RteImagePreviewRendererTest extends TestCase
         self::assertStringContainsString('bin/typo3 rte_ckeditor_image:validate --fix', $result);
         self::assertStringContainsString('broken src attribute', $result);
     }
+
+    #[Test]
+    public function warningRenderedForMissingFileUid(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->method('validateHtml')
+            ->willReturn([
+                new ValidationIssue(
+                    type: ValidationIssueType::MissingFileUid,
+                    table: 'tt_content',
+                    uid: 42,
+                    field: 'bodytext',
+                    fileUid: null,
+                    currentSrc: 'fileadmin/test.jpg',
+                    expectedSrc: null,
+                    imgIndex: 0,
+                ),
+            ]);
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p><img src="fileadmin/test.jpg" /></p>',
+            ['uid' => 42],
+        ]);
+
+        self::assertStringContainsString('callout-warning', $result);
+        self::assertStringContainsString('missing file UID', $result);
+    }
+
+    #[Test]
+    public function truncateResetsStateBetweenConsecutiveCalls(): void
+    {
+        $renderer  = new RteImagePreviewRenderer();
+        $longText  = '<p>' . str_repeat('a', 100) . '</p>';
+        $shortText = '<p>Short</p>';
+
+        $result1 = $this->callMethod($renderer, 'truncate', [$longText, 50]);
+        self::assertStringContainsString('...', $result1);
+
+        $result2 = $this->callMethod($renderer, 'truncate', [$shortText, 1000]);
+        self::assertStringNotContainsString('...', $result2);
+        self::assertStringContainsString('Short', $result2);
+    }
 }

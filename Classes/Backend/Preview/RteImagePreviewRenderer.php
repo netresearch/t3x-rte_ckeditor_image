@@ -72,7 +72,7 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
             '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF][\x80-\xBF]|\xEF\xBF[\xBE\xBF]/',
             "\xEF\xBF\xBD",
             $html,
-        );
+        ) ?? '';
 
         $warning = $this->detectIssuesAndRenderWarning($html, $row);
 
@@ -186,6 +186,11 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
      */
     private function truncate(string $html, int $length): string
     {
+        // Reset state from previous invocations (instance may be reused by DI)
+        $this->reachedLimit = false;
+        $this->totalLength  = 0;
+        $this->toRemove     = [];
+
         // Set error level
         $internalErrors = libxml_use_internal_errors(true);
 
