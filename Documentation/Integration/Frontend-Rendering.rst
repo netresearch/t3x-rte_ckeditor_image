@@ -340,6 +340,38 @@ Encapsulation Configuration
         remapTag.img = p
     }
 
+Backend Preview Styling
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: 13.5
+   The extension automatically registers an image-aware preview renderer for
+   all CTypes with RTE-enabled bodytext (e.g. ``text``, ``textmedia``,
+   ``textpic``). This ensures images are visible in the Page module preview.
+
+By default, preview images render at their original size. To limit image
+dimensions in the backend Page module, add a custom backend stylesheet:
+
+..  code-block:: css
+    :caption: EXT:your_sitepackage/Resources/Public/Css/backend.css
+
+    /* Limit RTE image preview size in Page module */
+    .t3-page-ce-body img {
+        max-width: 200px;
+        max-height: 150px;
+    }
+
+Register the stylesheet in your site package:
+
+..  code-block:: php
+    :caption: EXT:your_sitepackage/ext_localconf.php
+
+    $GLOBALS['TYPO3_CONF_VARS']['BE']['stylesheets']['your_sitepackage']
+        = 'EXT:your_sitepackage/Resources/Public/Css/backend.css';
+
+.. seealso::
+   `TYPO3 Changelog: Load additional stylesheets in backend
+   <https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.3/Feature-100232-LoadAdditionalStylesheetsInTYPO3Backend.html>`__
+
 Related Documentation
 =====================
 

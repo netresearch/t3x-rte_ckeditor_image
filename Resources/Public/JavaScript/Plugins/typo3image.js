@@ -1367,6 +1367,8 @@ function edit(selectedImage, editor, imageAttributes) {
     // Capture whether this is an inline image BEFORE the async operations
     // This flag is passed from the caller and indicates the original element type
     const isInlineImage = imageAttributes.isInlineImage || false;
+    // Detect new insertion: callers pass {} for new images, populated object for edits
+    const isNewImage = !('class' in imageAttributes);
 
     getImageInfo(editor, selectedImage.table, selectedImage.uid, {})
         .then(function (img) {
@@ -1374,13 +1376,19 @@ function edit(selectedImage, editor, imageAttributes) {
         })
         .then(function (attributes) {
             editor.model.change(writer => {
+                // Default class for NEW block images when dialog returns empty class
+                // (e.g. new insertion with "none" click behavior).
+                // For existing images, preserve the current class even if empty.
+                // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/655
+                const imageClass = attributes.class || (isNewImage ? (isInlineImage ? 'image-inline' : 'image-block') : '');
+
                 const newImageAttributes = {
                     fileUid: attributes.fileUid,
                     fileTable: attributes.fileTable,
                     src: attributes.src,
                     height: attributes.height,
                     width: attributes.width,
-                    class: attributes.class,
+                    class: imageClass,
                     title: attributes.title,
                     titleOverride: attributes['data-title-override'],
                     alt: attributes.alt,
@@ -1650,6 +1658,24 @@ class ToggleImageTypeCommand extends Command {
             }
 
             attributes['class'] = classValue;
+
+            // Clean alignment classes from imageLinkClass during toggle
+            // Prevents 'image-inline' from persisting on <a> tag after inline→block
+            // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/655
+            const linkClassValue = imageElement.getAttribute('imageLinkClass') || '';
+            if (linkClassValue) {
+                const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
+                const cleanedLinkClass = linkClassValue
+                    .split(' ')
+                    .filter(cls => !alignmentClasses.includes(cls))
+                    .join(' ')
+                    .trim();
+                if (cleanedLinkClass) {
+                    attributes['imageLinkClass'] = cleanedLinkClass;
+                } else {
+                    delete attributes['imageLinkClass'];
+                }
+            }
 
             // Create new element with appropriate type
             const newElementName = isCurrentlyInline ? 'typo3image' : 'typo3imageInline';
@@ -2492,7 +2518,7 @@ export default class Typo3Image extends Plugin {
                         'src',
                     ]
                 },
-                model: (viewElement, { writer }) => {
+                model: (viewElement, { writer, consumable }) => {
                     // Check if this image should be inline
                     const className = viewElement.getAttribute('class') || '';
                     const classList = className.split(/\s+/);
@@ -2525,6 +2551,13 @@ export default class Typo3Image extends Plugin {
 
                     // Extract link attributes only if link wraps ONLY this image
                     const effectiveLinkElement = (linkElement && linkHasOnlyImage) ? linkElement : null;
+
+                    // Consume the parent <a> element to prevent CKEditor's link plugin
+                    // from also processing it, which would create double <a> tags
+                    // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/655
+                    if (effectiveLinkElement) {
+                        consumable.consume(effectiveLinkElement, { name: true });
+                    }
                     const linkHref = effectiveLinkElement?.getAttribute('href') || '';
                     const linkTarget = effectiveLinkElement?.getAttribute('target') || '';
                     const linkTitle = effectiveLinkElement?.getAttribute('title') || '';
@@ -2556,8 +2589,13 @@ export default class Typo3Image extends Plugin {
                         if (linkTitle && linkTitle.trim() !== '') {
                             imageAttributes.imageLinkTitle = linkTitle;
                         }
-                        if (linkClass && linkClass.trim() !== '') {
-                            imageAttributes.imageLinkClass = linkClass;
+                        // Filter out alignment classes from link class
+                        // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/655
+                        const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
+                        const linkClassParts = (linkClass || '').split(' ').filter(c => c.trim() !== '');
+                        const actualLinkClass = linkClassParts.filter(c => !alignmentClasses.includes(c)).join(' ');
+                        if (actualLinkClass) {
+                            imageAttributes.imageLinkClass = actualLinkClass;
                         }
                         if (linkParams && linkParams.trim() !== '') {
                             imageAttributes.imageLinkParams = linkParams;
