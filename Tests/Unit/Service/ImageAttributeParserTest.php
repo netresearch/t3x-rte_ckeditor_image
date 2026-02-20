@@ -683,6 +683,20 @@ class ImageAttributeParserTest extends TestCase
     }
 
     /**
+     * Test that hasFigureWrapper works with UTF-8 characters.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/662
+     */
+    #[Test]
+    public function hasFigureWrapperHandlesUtf8Characters(): void
+    {
+        $html = '<figure class="image"><img src="test.jpg" alt="Ärztliche Überweisung" />'
+            . '<figcaption>Überschrift mit Umlauten: äöü ß</figcaption></figure>';
+
+        self::assertTrue($this->parser->hasFigureWrapper($html));
+    }
+
+    /**
      * Test that parseLinkWithImages preserves Umlauts in link title.
      *
      * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/662
