@@ -70,30 +70,18 @@ lib.parseFunc_RTE {
         #     maxFileSizeForAuto = 2000000
         # }
     }
-    # Clear tags.a - we handle links via externalBlocks instead
-    # This is necessary because tags.X processes inner content recursively,
-    # which separates text from images before our handler is called.
+    # Link processing: Resolve t3:// URLs and validate link protocols.
+    # parseFunc's tags.X processing is depth-first (inner tags first), so by
+    # the time tags.a fires, tags.img has already processed any <img> inside
+    # via renderImageAttributes(). This handler only needs to:
+    # 1. Reconstruct the <a> wrapper with resolved href
+    # 2. Validate link protocol (security)
+    # 3. Resolve t3:// URLs to actual URLs
     tags.a >
-    # CRITICAL: Links with images must be processed as externalBlocks, NOT tags.
-    # Using tags.a would process inner content recursively, separating text
-    # from images before our handler is called. This breaks mixed content links
-    # like "<a>Click here <img> to visit</a>".
-    #
-    # Configuration:
-    # - callRecursive = 0: Prevents inner content from being processed before
-    #   our handler, keeping text and images together
-    # - stdWrap.preUserFunc: Processes the complete <a>...</a> HTML
-    externalBlocks.a {
-        callRecursive = 0
-        stdWrap {
-            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderLink
-
-            # noScale configuration for linked images
-            # noScale = 1
-            # noScale {
-            #     maxFileSizeForAuto = 2000000
-            # }
-        }
+    tags.a = TEXT
+    tags.a {
+        current = 1
+        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderInlineLink
     }
 
     # CRITICAL: Figure elements are processed as externalBlocks, NOT tags.

@@ -1922,4 +1922,250 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertSame('', $result);
         self::assertStringNotContainsString('javascript:', $result);
     }
+
+    // ========================================================================
+    // renderInlineLink() Tests - tags.a handler for t3:// resolution
+    // ========================================================================
+
+    /**
+     * Test that renderInlineLink returns empty string when no inner content.
+     */
+    #[Test]
+    public function renderInlineLinkReturnsEmptyStringWhenNoContent(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => '/page'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        self::assertSame('', $result);
+    }
+
+    /**
+     * Test that renderInlineLink returns content without wrapper when no href.
+     */
+    #[Test]
+    public function renderInlineLinkReturnsContentWithoutWrapperWhenNoHref(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['class' => 'no-link'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('Just text');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        self::assertSame('Just text', $result);
+    }
+
+    /**
+     * Test that renderInlineLink resolves t3://page URLs.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/659
+     */
+    #[Test]
+    public function renderInlineLinkResolvesT3PageUrl(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = [
+            'href'   => 't3://page?uid=1#1',
+            'target' => '_blank',
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn(
+            '<img src="/fileadmin/_processed_/csm_moto_dog_1_274710645e.jpg" class="image image-inline" />',
+        );
+
+        $this->contentObjectRenderer
+            ->expects(self::once())
+            ->method('typoLink_URL')
+            ->with(['parameter' => 't3://page?uid=1#1'])
+            ->willReturn('/my-page/#1');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        self::assertStringContainsString('href="/my-page/#1"', $result);
+        self::assertStringContainsString('target="_blank"', $result);
+        self::assertStringContainsString('<img src="/fileadmin/_processed_/', $result);
+        self::assertStringNotContainsString('t3://page', $result);
+    }
+
+    /**
+     * Test that renderInlineLink preserves all link attributes.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/659
+     */
+    #[Test]
+    public function renderInlineLinkPreservesAllLinkAttributes(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = [
+            'href'   => 'https://example.com',
+            'target' => '_blank',
+            'class'  => 'image image-inline',
+            'title'  => 'Example Link',
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('Link content');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        self::assertStringContainsString('href="https://example.com"', $result);
+        self::assertStringContainsString('target="_blank"', $result);
+        self::assertStringContainsString('class="image image-inline"', $result);
+        self::assertStringContainsString('title="Example Link"', $result);
+        self::assertStringContainsString('Link content', $result);
+        self::assertStringContainsString('</a>', $result);
+    }
+
+    /**
+     * Test that renderInlineLink blocks javascript: protocol links.
+     *
+     * SECURITY: Prevents XSS via javascript: URLs.
+     */
+    #[Test]
+    public function renderInlineLinkBlocksJavascriptProtocol(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => 'javascript:alert(1)'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('Click me');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        // Link wrapper must be stripped, only inner content returned
+        self::assertSame('Click me', $result);
+        self::assertStringNotContainsString('<a ', $result);
+        self::assertStringNotContainsString('javascript:', $result);
+    }
+
+    /**
+     * Test that renderInlineLink passes through non-t3:// links unchanged.
+     */
+    #[Test]
+    public function renderInlineLinkPassesThroughRegularUrls(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => 'https://typo3.org'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('TYPO3');
+
+        // typoLink_URL should NOT be called for non-t3:// URLs
+        $this->contentObjectRenderer
+            ->expects(self::never())
+            ->method('typoLink_URL');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        self::assertSame('<a href="https://typo3.org">TYPO3</a>', $result);
+    }
+
+    /**
+     * Test that renderInlineLink handles t3:// resolution failure gracefully.
+     *
+     * When typoLink_URL returns empty string, original URL is preserved.
+     */
+    #[Test]
+    public function renderInlineLinkFallsBackWhenT3ResolutionFails(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => 't3://page?uid=99999'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('Broken link');
+
+        $this->contentObjectRenderer
+            ->method('typoLink_URL')
+            ->willReturn('');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        // Original t3:// URL preserved as fallback
+        self::assertStringContainsString('t3://page?uid=99999', $result);
+        self::assertStringContainsString('Broken link', $result);
+    }
+
+    /**
+     * Test that renderInlineLink blocks data: protocol links.
+     *
+     * SECURITY: Prevents XSS via data: URLs.
+     */
+    #[Test]
+    public function renderInlineLinkBlocksDataProtocol(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => 'data:text/html,<script>alert(1)</script>'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('Malicious');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        self::assertSame('Malicious', $result);
+        self::assertStringNotContainsString('data:', $result);
+    }
+
+    /**
+     * Test that renderInlineLink works with already-processed image content.
+     *
+     * This is the key scenario: tags.img processes the image first (depth-first),
+     * then tags.a wraps the result. The inner content is already a processed <img>.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/659
+     */
+    #[Test]
+    public function renderInlineLinkWrapsAlreadyProcessedImageContent(): void
+    {
+        $processedImg = '<img src="/fileadmin/_processed_/0/0/csm_moto_dog_1_274710645e.jpg" '
+            . 'width="200" height="150" alt="Dog" class="image image-inline" '
+            . 'decoding="async" loading="lazy" />';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = [
+            'href'   => 't3://page?uid=1',
+            'target' => '_blank',
+            'class'  => 'image image-inline',
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($processedImg);
+
+        $this->contentObjectRenderer
+            ->method('typoLink_URL')
+            ->with(['parameter' => 't3://page?uid=1'])
+            ->willReturn('/home/');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        self::assertStringContainsString('<a href="/home/"', $result);
+        self::assertStringContainsString('target="_blank"', $result);
+        self::assertStringContainsString('class="image image-inline"', $result);
+        self::assertStringContainsString($processedImg, $result);
+        self::assertStringContainsString('</a>', $result);
+        self::assertStringNotContainsString('t3://', $result);
+    }
+
+    /**
+     * Test that renderInlineLink returns empty when cObj is not set.
+     */
+    #[Test]
+    public function renderInlineLinkReturnsEmptyWhenNoCObj(): void
+    {
+        // Don't call setContentObjectRenderer
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        self::assertSame('', $result);
+    }
+
+    /**
+     * Test that renderInlineLink filters non-string parameters.
+     *
+     * cObj->parameters may contain non-string values; they must be skipped.
+     */
+    #[Test]
+    public function renderInlineLinkFiltersNonStringParameters(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = [
+            'href'  => '/page',
+            0       => 'numeric-key', // Non-string key
+            'valid' => 'attribute',
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('Content');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        self::assertStringContainsString('href="/page"', $result);
+        self::assertStringContainsString('valid="attribute"', $result);
+        self::assertStringNotContainsString('numeric-key', $result);
+    }
 }

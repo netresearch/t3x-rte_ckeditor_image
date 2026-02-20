@@ -32,7 +32,8 @@ TypoScript configuration for frontend image rendering, CSS classes, lazy loading
    This loads:
 
    -  Image rendering hooks (:typoscript:`lib.parseFunc_RTE.tags.img`).
-   -  Link rendering hooks (:typoscript:`lib.parseFunc_RTE.tags.a`).
+   -  Link rendering hooks (:typoscript:`lib.parseFunc_RTE.tags.a`) — resolves ``t3://`` URLs and validates protocols.
+   -  Figure rendering hooks (:typoscript:`lib.parseFunc_RTE.externalBlocks.figure`).
    -  HTMLparser configuration for data attribute cleanup.
 
    Using direct import gives you full control over the TypoScript load order,
@@ -69,7 +70,7 @@ The extension provides default configuration. You can customize it:
         tags.a = TEXT
         tags.a {
             current = 1
-            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderLinkedImageAttributes
+            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderInlineLink
         }
 
         nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
@@ -262,7 +263,7 @@ Link Rendering
         tags.a = TEXT
         tags.a {
             current = 1
-            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderLinkedImageAttributes
+            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderInlineLink
         }
     }
 

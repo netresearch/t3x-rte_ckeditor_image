@@ -141,9 +141,65 @@ class ImageRenderingAdapter
     }
 
     /**
-     * Render images inside <a> tags.
+     * Render inline links: resolve t3:// URLs and validate protocols.
      *
      * TypoScript: lib.parseFunc_RTE.tags.a.preUserFunc
+     *
+     * parseFunc's tags.X processing is depth-first (inner tags first), so by
+     * the time tags.a fires, tags.img has already processed any <img> inside
+     * via renderImageAttributes(). This handler only needs to:
+     * 1. Get the already-processed inner content (getCurrentVal())
+     * 2. Extract link attributes from cObj->parameters
+     * 3. Validate link protocol (security)
+     * 4. Resolve t3:// URLs to actual URLs
+     * 5. Wrap content in <a> tag
+     *
+     * @param string|null            $content Content input (not used)
+     * @param array<string, mixed>   $conf    TypoScript configuration
+     * @param ServerRequestInterface $request Current request
+     *
+     * @return string Rendered HTML with link wrapper
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/659
+     */
+    #[AsAllowedCallable]
+    public function renderInlineLink(?string $content, array $conf, ServerRequestInterface $request): string
+    {
+        // Get inner content (already processed by tags.img via depth-first recursion)
+        $currentVal = $this->cObj instanceof ContentObjectRenderer
+            ? $this->cObj->getCurrentVal()
+            : null;
+
+        if (!is_string($currentVal) || $currentVal === '') {
+            return '';
+        }
+
+        // Get link attributes from tag parameters (populated by parseFunc for tags.a)
+        $linkAttributes = $this->extractLinkAttributes();
+
+        if (!isset($linkAttributes['href'])) {
+            // No href - return content without link wrapper
+            return $currentVal;
+        }
+
+        // SECURITY: Validate URL protocol to prevent XSS via javascript: and similar
+        if (!$this->isAllowedLinkProtocol($linkAttributes['href'])) {
+            return $currentVal;
+        }
+
+        // Resolve t3:// URLs to actual URLs
+        $linkAttributes['href'] = $this->resolveTypo3LinkUrl($linkAttributes['href'], $request);
+
+        // Wrap in <a> tag
+        return $this->wrapInLink($currentVal, $linkAttributes);
+    }
+
+    /**
+     * Render images inside <a> tags (tags.a handler with image parsing).
+     *
+     * Note: The default TypoScript now uses renderInlineLink() instead, which is
+     * simpler since tags.img processes images first (depth-first). This method
+     * is kept for backward compatibility with custom TypoScript configurations.
      *
      * IMPORTANT: When tags.a is configured as TEXT with current=1, parseFunc only
      * passes the inner content of the <a> tag, not the wrapper. We must reconstruct
@@ -268,8 +324,6 @@ class ImageRenderingAdapter
         }
 
         // SECURITY: Validate URL protocol to prevent XSS via javascript: and similar.
-        // Since this extension handles <a> tags via externalBlocks instead of the
-        // standard tags.a handler, we must validate protocols ourselves.
         if (!$this->isAllowedLinkProtocol($attributes['href'])) {
             return $content;
         }
@@ -294,16 +348,38 @@ class ImageRenderingAdapter
     }
 
     /**
+     * Extract link attributes from ContentObjectRenderer parameters.
+     *
+     * Filters to string-only key/value pairs for type safety.
+     * Same extraction pattern as renderImages() uses for cObj->parameters.
+     *
+     * @return array<string,string> Link attributes (href, target, class, etc.)
+     */
+    private function extractLinkAttributes(): array
+    {
+        $linkAttributes = [];
+
+        if ($this->cObj instanceof ContentObjectRenderer) {
+            foreach ($this->cObj->parameters as $key => $value) {
+                if (is_string($key) && is_string($value)) {
+                    $linkAttributes[$key] = $value;
+                }
+            }
+        }
+
+        return $linkAttributes;
+    }
+
+    /**
      * Render link elements containing images (externalBlocks handler).
      *
-     * TypoScript: lib.parseFunc_RTE.externalBlocks.a.stdWrap.preUserFunc
+     * Note: The default TypoScript now uses renderInlineLink() via tags.a instead.
+     * The externalBlocks.a approach required adding 'a' to the externalBlocks list.
+     * This method is kept for backward compatibility with custom TypoScript configurations.
      *
      * This handler receives the COMPLETE <a>...</a> HTML including all inner content.
      * Unlike tags.a which only receives inner content after recursive processing,
      * externalBlocks.a with callRecursive=0 preserves the full link structure.
-     *
-     * This is necessary for links containing mixed text + image content like:
-     * <a href="...">Click here <img class="image-inline"...> to visit</a>
      *
      * @param string|null            $content Full <a>...</a> HTML from externalBlocks
      * @param array<string, mixed>   $conf    TypoScript configuration
@@ -433,10 +509,6 @@ class ImageRenderingAdapter
     /**
      * Resolve TYPO3 internal link references (t3://) to actual URLs.
      *
-     * Since this extension handles <a> tags via externalBlocks instead of the
-     * standard tags.a handler, t3:// links are not automatically resolved
-     * by TYPO3's typolink processing. We must resolve them explicitly.
-     *
      * @param string                 $url     The URL to resolve
      * @param ServerRequestInterface $request Current request
      *
@@ -457,9 +529,7 @@ class ImageRenderingAdapter
     /**
      * Validate URL protocol using an allowlist approach.
      *
-     * SECURITY: Since this extension handles <a> tags via externalBlocks instead
-     * of the standard tags.a handler, we must validate URL protocols ourselves.
-     * Only explicitly allowed protocols are permitted (defense-in-depth).
+     * SECURITY: Only explicitly allowed protocols are permitted (defense-in-depth).
      *
      * Allowed: http:, https:, mailto:, tel:, t3:, relative paths, anchors
      * Blocked: javascript:, vbscript:, data:, file:, and all others
