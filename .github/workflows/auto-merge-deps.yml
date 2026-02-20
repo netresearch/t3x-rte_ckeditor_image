@@ -9,9 +9,9 @@ permissions:
 
 jobs:
   auto-merge:
+    name: Auto-merge dependency PRs
     runs-on: ubuntu-latest
-    # Only run for bot accounts
-    if: github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]'
+    if: github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'renovate[bot]'
 
     permissions:
       contents: write
@@ -33,4 +33,14 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr merge --auto --rebase "$PR_URL"
+        run: |
+          # Detect allowed merge strategy
+          # Prefer squash (works with signed commit requirements, clean for single-commit PRs)
+          # then merge (also works with signed commits), then rebase (cannot be auto-signed)
+          STRATEGY=$(gh api "repos/${{ github.repository }}" --jq '
+            if .allow_squash_merge then "--squash"
+            elif .allow_merge_commit then "--merge"
+            elif .allow_rebase_merge then "--rebase"
+            else "--squash" end')
+          echo "Using merge strategy: $STRATEGY"
+          gh pr merge --auto $STRATEGY "$PR_URL"
