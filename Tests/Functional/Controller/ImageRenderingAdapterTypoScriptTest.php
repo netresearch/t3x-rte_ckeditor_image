@@ -165,5 +165,24 @@ final class ImageRenderingAdapterTypoScriptTest extends FunctionalTestCase
             $hasAsAllowedCallable,
             'Method renderImages must have #[AsAllowedCallable] attribute for TYPO3 v14+ compatibility',
         );
+
+        // Check renderInlineLink method (primary tags.a handler)
+        $renderInlineLinkMethod = $reflection->getMethod('renderInlineLink');
+        $attributes             = $renderInlineLinkMethod->getAttributes();
+
+        $hasAsAllowedCallable = false;
+
+        foreach ($attributes as $attribute) {
+            if (str_contains($attribute->getName(), 'AsAllowedCallable')) {
+                $hasAsAllowedCallable = true;
+
+                break;
+            }
+        }
+
+        self::assertTrue(
+            $hasAsAllowedCallable,
+            'Method renderInlineLink must have #[AsAllowedCallable] attribute for TYPO3 v14+ compatibility',
+        );
     }
 }
