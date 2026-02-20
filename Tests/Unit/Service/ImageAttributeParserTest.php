@@ -630,4 +630,70 @@ class ImageAttributeParserTest extends TestCase
         // No caption
         self::assertSame('', $result['caption']);
     }
+
+    // ========================================================================
+    // UTF-8 encoding tests — German Umlauts and special characters
+    // ========================================================================
+
+    /**
+     * Test that parseFigureWithCaption preserves German Umlauts in figcaptions.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/662
+     */
+    #[Test]
+    public function parseFigureWithCaptionPreservesGermanUmlauts(): void
+    {
+        $html = '<figure class="image"><img src="test.jpg" data-htmlarea-file-uid="1" />'
+            . '<figcaption>Überschrift mit Umlauten: äöü ß</figcaption></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('Überschrift mit Umlauten: äöü ß', $result['caption']);
+    }
+
+    /**
+     * Test that parseFigureWithCaption preserves accented characters.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/662
+     */
+    #[Test]
+    public function parseFigureWithCaptionPreservesAccentedCharacters(): void
+    {
+        $html = '<figure class="image"><img src="test.jpg" data-htmlarea-file-uid="1" />'
+            . '<figcaption>Café résumé naïve</figcaption></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('Café résumé naïve', $result['caption']);
+    }
+
+    /**
+     * Test that parseImageAttributes preserves Umlauts in alt attribute.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/662
+     */
+    #[Test]
+    public function parseImageAttributesPreservesUmlautsInAlt(): void
+    {
+        $html = '<img src="test.jpg" alt="Ärztliche Überweisung für Büro" />';
+
+        $attributes = $this->parser->parseImageAttributes($html);
+
+        self::assertSame('Ärztliche Überweisung für Büro', $attributes['alt']);
+    }
+
+    /**
+     * Test that parseLinkWithImages preserves Umlauts in link title.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/662
+     */
+    #[Test]
+    public function parseLinkWithImagesPreservesUmlautsInLinkTitle(): void
+    {
+        $html = '<a href="/page" title="Über uns"><img src="test.jpg" data-htmlarea-file-uid="1" class="image image-inline" /></a>';
+
+        $result = $this->parser->parseLinkWithImages($html);
+
+        self::assertSame('Über uns', $result['link']['title']);
+    }
 }
