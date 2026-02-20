@@ -421,7 +421,7 @@ For multi-line visual appearance, use CSS to control the caption width:
 
 .. note::
    This limitation applies to all CKEditor 5 figcaptions, not just images
-   from this extension. See `CKEditor 5 figcaption schema
+   from this extension. See `CKEditor 5 image captions documentation
    <https://ckeditor.com/docs/ckeditor5/latest/features/images/images-captions.html>`__
    for details.
 
