@@ -13,6 +13,7 @@ import {
   MockViewElement,
   MockConversionApi,
   createLinkedImageView,
+  createDoubleWrappedLinkedImageView,
   createStandaloneImageView,
 } from '../mocks/ckeditor-mocks.js';
 
@@ -29,15 +30,47 @@ function linkedImageUpcastConverter(viewElement, conversionApi) {
 
   // Find img child with data-htmlarea-file-uid
   let imgElement = null;
+  let nestedLinkElement = null;
+  let hasOtherContent = false;
+
   for (const child of viewElement.getChildren()) {
     if (child.is('element', 'img') && child.getAttribute('data-htmlarea-file-uid')) {
+      if (imgElement) {
+        hasOtherContent = true;
+      }
       imgElement = child;
-      break;
+    } else if (child.is('element', 'img')) {
+      hasOtherContent = true;
+    } else if (child.is('$text') && child.data.trim() !== '') {
+      hasOtherContent = true;
+    } else if (child.is('element', 'a')) {
+      // Handle double-wrapped links: <a><a><img></a></a> — see #667
+      let nestedImg = null;
+      for (const grandchild of child.getChildren()) {
+        if (grandchild.is('element', 'img') && grandchild.getAttribute('data-htmlarea-file-uid')) {
+          nestedImg = grandchild;
+          break;
+        }
+      }
+      if (nestedImg && !imgElement) {
+        imgElement = nestedImg;
+        nestedLinkElement = child;
+      } else {
+        hasOtherContent = true;
+      }
+    } else if (child.is('element')) {
+      hasOtherContent = true;
     }
   }
 
   // If no TYPO3 image found, let other converters handle this <a>
   if (!imgElement) {
+    return null;
+  }
+
+  // If link contains text or other elements besides the image,
+  // do NOT consume the link - let normal link handling preserve the text.
+  if (hasOtherContent) {
     return null;
   }
 
@@ -61,6 +94,11 @@ function linkedImageUpcastConverter(viewElement, conversionApi) {
   // Note: Only consume 'name' - consuming all attributes causes iteration error
   consumable.consume(viewElement, { name: true });
   consumable.consume(imgElement, { name: true });
+
+  // Also consume the nested <a> if present (double-wrapped links from #667)
+  if (nestedLinkElement) {
+    consumable.consume(nestedLinkElement, { name: true });
+  }
 
   // Build image attributes from the img element
   const imageAttributes = {
@@ -385,6 +423,88 @@ describe('Linked Image Upcast Converter (#565)', () => {
 
       // The model element should have link attributes (not duplicated)
       expect(linkResult.getAttribute('imageLinkHref')).toBe('https://example.com');
+    });
+  });
+
+  describe('Double-wrapped links (#667)', () => {
+    it('should convert <a><a><img data-htmlarea-file-uid="..."/></a></a> to model element', () => {
+      const { outerAnchor } = createDoubleWrappedLinkedImageView(
+        { href: 't3://page?uid=1#1', target: '_blank', class: 'image image-inline' },
+        { href: 't3://page?uid=1#1', target: '_blank', class: 'image image-inline' },
+        {
+          'data-htmlarea-file-uid': '2',
+          'src': '/fileadmin/test.jpg',
+          'class': 'image-inline',
+          'width': '300',
+          'height': '200',
+          'alt': 'Test'
+        }
+      );
+
+      const result = linkedImageUpcastConverter(outerAnchor, conversionApi);
+
+      expect(result).not.toBeNull();
+      expect(result.name).toBe('typo3imageInline');
+      expect(result.getAttribute('fileUid')).toBe('2');
+      expect(result.getAttribute('imageLinkHref')).toBe('t3://page?uid=1#1');
+      expect(result.getAttribute('imageLinkTarget')).toBe('_blank');
+    });
+
+    it('should consume all three elements: outer <a>, inner <a>, and <img>', () => {
+      const { outerAnchor, innerAnchor, img } = createDoubleWrappedLinkedImageView(
+        { href: 'https://example.com' },
+        { href: 'https://example.com' },
+        { 'data-htmlarea-file-uid': '123', 'src': '/test.jpg' }
+      );
+
+      linkedImageUpcastConverter(outerAnchor, conversionApi);
+
+      // All three elements must be consumed to prevent GHS from re-processing
+      expect(conversionApi.consumable.isConsumed(outerAnchor)).toBe(true);
+      expect(conversionApi.consumable.isConsumed(innerAnchor)).toBe(true);
+      expect(conversionApi.consumable.isConsumed(img)).toBe(true);
+    });
+
+    it('should use link attributes from outer <a> (not inner)', () => {
+      const { outerAnchor } = createDoubleWrappedLinkedImageView(
+        { href: 'https://outer.com', target: '_blank', title: 'Outer Title' },
+        { href: 'https://inner.com', target: '_self', title: 'Inner Title' },
+        { 'data-htmlarea-file-uid': '456', 'src': '/test.jpg' }
+      );
+
+      const result = linkedImageUpcastConverter(outerAnchor, conversionApi);
+
+      // Link attributes should come from the outer <a> (the one being converted)
+      expect(result.getAttribute('imageLinkHref')).toBe('https://outer.com');
+      expect(result.getAttribute('imageLinkTarget')).toBe('_blank');
+      expect(result.getAttribute('imageLinkTitle')).toBe('Outer Title');
+    });
+
+    it('should return null for nested <a> without TYPO3 image', () => {
+      const innerImg = new MockViewElement('img', { src: '/external.jpg' }); // No file-uid
+      const innerAnchor = new MockViewElement('a', { href: '/page' }, [innerImg]);
+      const outerAnchor = new MockViewElement('a', { href: '/page' }, [innerAnchor]);
+
+      const result = linkedImageUpcastConverter(outerAnchor, conversionApi);
+
+      // No TYPO3 image found (even in nested <a>), should return null
+      expect(result).toBeNull();
+      expect(conversionApi.consumable.isConsumed(outerAnchor)).toBe(false);
+    });
+
+    it('should treat nested <a> with text content alongside img as hasOtherContent', () => {
+      // <a outer><a inner><img file-uid="1"/></a><text>extra</text></a>
+      const img = new MockViewElement('img', {
+        'data-htmlarea-file-uid': '1', 'src': '/test.jpg'
+      });
+      const innerAnchor = new MockViewElement('a', { href: '/page' }, [img]);
+      const textNode = { is: (type) => type === '$text', data: 'extra text' };
+      const outerAnchor = new MockViewElement('a', { href: '/page' }, [innerAnchor, textNode]);
+
+      const result = linkedImageUpcastConverter(outerAnchor, conversionApi);
+
+      // Link has other content (text node) besides the nested link, so null
+      expect(result).toBeNull();
     });
   });
 });

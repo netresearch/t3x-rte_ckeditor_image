@@ -2190,6 +2190,114 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertStringNotContainsString('t3://', $result);
     }
 
+    // ========================================================================
+    // Issue #667 Tests - renderInlineLink must handle double-wrapped <a> tags
+    // ========================================================================
+
+    /**
+     * Test that renderInlineLink strips nested <a> wrapper from double-wrapped content.
+     *
+     * When DB has historical <a><a><img></a></a>, parseFunc's tags.a passes the
+     * content between outer <a> and first </a> as currentVal, which includes the
+     * inner <a> opening tag: <a class="..." href="..."><img ...>
+     * renderInlineLink must strip this nested <a> before re-wrapping.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+     */
+    #[Test]
+    public function renderInlineLinkStripsNestedLinkWrapperFromDoubleWrappedContent(): void
+    {
+        // parseFunc gives us the content between outer <a> and first </a>:
+        // <a class="image image-inline" href="t3://page?uid=1#1" target="_blank"><img class="image-inline" src="/fileadmin/test.jpg" data-htmlarea-file-uid="2">
+        $innerContent = '<a class="image image-inline" href="t3://page?uid=1#1" target="_blank">'
+            . '<img class="image-inline" src="/fileadmin/test.jpg" data-htmlarea-file-uid="2">';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        // Outer <a> attributes are in cObj->parameters
+        $this->contentObjectRenderer->parameters = [
+            'href'   => 't3://page?uid=1#1',
+            'target' => '_blank',
+            'class'  => 'image image-inline',
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($innerContent);
+
+        $this->contentObjectRenderer
+            ->method('typoLink_URL')
+            ->with(['parameter' => 't3://page?uid=1#1'])
+            ->willReturn('/my-page/#1');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        // Should have a single <a> wrapping just the <img> (no nested <a>)
+        self::assertStringContainsString('href="/my-page/#1"', $result);
+        self::assertStringContainsString('target="_blank"', $result);
+        self::assertStringContainsString('<img class="image-inline"', $result);
+        // Must have exactly one opening <a> tag
+        self::assertSame(1, substr_count($result, '<a '));
+        // Must have exactly one closing </a> tag
+        self::assertSame(1, substr_count($result, '</a>'));
+        // Must NOT contain unresolved t3:// URL
+        self::assertStringNotContainsString('t3://page', $result);
+    }
+
+    /**
+     * Test that renderInlineLink handles double-wrapped content with closing </a>.
+     *
+     * When parseFunc collects up to the first </a>, the result may include
+     * the inner <a>'s closing tag: <a ...><img ...></a>
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+     */
+    #[Test]
+    public function renderInlineLinkStripsNestedLinkWrapperWithClosingTag(): void
+    {
+        $innerContent = '<a class="image image-inline" href="t3://page?uid=1#1" target="_blank">'
+            . '<img class="image-inline" src="/fileadmin/test.jpg" data-htmlarea-file-uid="2" />'
+            . '</a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = [
+            'href' => 'https://example.com',
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($innerContent);
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        // Should have a single <a> wrapping just the <img>
+        self::assertSame(1, substr_count($result, '<a '));
+        self::assertSame(1, substr_count($result, '</a>'));
+        self::assertStringContainsString('href="https://example.com"', $result);
+        self::assertStringContainsString('<img class="image-inline"', $result);
+    }
+
+    /**
+     * Test that renderInlineLink does NOT strip text links (only img-only nested wrappers).
+     *
+     * Conservative: the nested <a> stripping only applies when the entire content
+     * is <a ...><img ...></a>. Text links like <a href="...">Click here</a>
+     * should pass through unchanged.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+     */
+    #[Test]
+    public function renderInlineLinkDoesNotStripTextLinks(): void
+    {
+        $innerContent = '<a href="https://other.com">Click here</a>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = [
+            'href' => 'https://example.com',
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($innerContent);
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        // The nested text link should NOT be stripped — it's not an img-only wrapper
+        self::assertStringContainsString('Click here', $result);
+        // Outer <a> wraps the inner content (which itself contains an <a>)
+        self::assertStringContainsString('href="https://example.com"', $result);
+    }
+
     /**
      * Test that renderInlineLink returns empty when cObj is not set.
      */
