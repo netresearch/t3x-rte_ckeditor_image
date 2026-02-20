@@ -224,16 +224,7 @@ class ImageRenderingAdapter
         }
 
         // Get link attributes from tag parameters (populated by parseFunc for tags.a)
-        // Filter to string values only for type safety
-        $linkAttributes = [];
-
-        if ($this->cObj instanceof ContentObjectRenderer) {
-            foreach ($this->cObj->parameters as $key => $value) {
-                if (is_string($key) && is_string($value)) {
-                    $linkAttributes[$key] = $value;
-                }
-            }
-        }
+        $linkAttributes = $this->extractLinkAttributes();
 
         // Parse images from link content
         $parsed = $this->attributeParser->parseLinkWithImages($linkContent);

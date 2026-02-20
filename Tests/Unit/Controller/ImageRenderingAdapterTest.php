@@ -2097,6 +2097,62 @@ final class ImageRenderingAdapterTest extends TestCase
     }
 
     /**
+     * Test that renderInlineLink blocks vbscript: protocol links.
+     *
+     * SECURITY: Prevents XSS via vbscript: URLs.
+     */
+    #[Test]
+    public function renderInlineLinkBlocksVbscriptProtocol(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => 'vbscript:MsgBox("XSS")'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('Malicious');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        self::assertSame('Malicious', $result);
+        self::assertStringNotContainsString('vbscript:', $result);
+    }
+
+    /**
+     * Test that renderInlineLink passes through mailto: links unchanged.
+     */
+    #[Test]
+    public function renderInlineLinkPassesThroughMailtoLinks(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => 'mailto:info@example.com'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('Email us');
+
+        $this->contentObjectRenderer
+            ->expects(self::never())
+            ->method('typoLink_URL');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        self::assertSame('<a href="mailto:info@example.com">Email us</a>', $result);
+    }
+
+    /**
+     * Test that renderInlineLink passes through tel: links unchanged.
+     */
+    #[Test]
+    public function renderInlineLinkPassesThroughTelLinks(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => 'tel:+491234567890'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('Call us');
+
+        $this->contentObjectRenderer
+            ->expects(self::never())
+            ->method('typoLink_URL');
+
+        $result = $this->adapter->renderInlineLink(null, [], $this->request);
+
+        self::assertSame('<a href="tel:+491234567890">Call us</a>', $result);
+    }
+
+    /**
      * Test that renderInlineLink works with already-processed image content.
      *
      * This is the key scenario: tags.img processes the image first (depth-first),

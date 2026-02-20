@@ -174,7 +174,7 @@ lib.parseFunc_RTE {
         preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
     }
     tags.a {
-        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImages
+        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderInlineLink
     }
 }
 ```
