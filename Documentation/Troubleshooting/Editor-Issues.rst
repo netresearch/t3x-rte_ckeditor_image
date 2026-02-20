@@ -389,8 +389,12 @@ Check if images have required attributes:
 
 ----
 
+.. _troubleshooting-known-limitations:
+
 Known Limitations
 =================
+
+.. _troubleshooting-figcaption-line-breaks:
 
 Figcaption Line Breaks
 ----------------------
@@ -435,9 +439,9 @@ Related Documentation
 
 **Additional Resources:**
 
-* :ref:`integration-configuration` - Configuration guide
+* :ref:`integration` - Configuration guide
 * :ref:`ckeditor-plugin-development` - CKEditor plugin architecture
-* :ref:`integration-configuration` - Image selection features
+* :ref:`integration-configuration-rte-setup` - RTE setup and image selection
 
 Getting Help
 ============
