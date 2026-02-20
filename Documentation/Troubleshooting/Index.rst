@@ -150,7 +150,7 @@ Troubleshooting Topics
 
     ..  card:: ✏️ Editor Issues
 
-        Image button problems, style dropdown issues, file browser problems, and CKEditor errors
+        Image button problems, style dropdown issues, file browser problems, CKEditor errors, and known limitations
 
         ..  card-footer:: :ref:`Read more <troubleshooting-editor-issues>`
             :button-style: btn btn-primary stretched-link
