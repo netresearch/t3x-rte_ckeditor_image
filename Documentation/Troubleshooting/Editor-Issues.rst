@@ -389,6 +389,40 @@ Check if images have required attributes:
 
 ----
 
+Known Limitations
+=================
+
+Figcaption Line Breaks
+----------------------
+
+**Symptoms:**
+
+* Pressing Shift+Enter in figcaption does not insert a line break
+* Adding ``<br>`` in source mode is removed after saving
+* Caption text always appears on a single line
+
+**Cause:** CKEditor 5's ``figcaption`` content model only supports inline
+text — it does not allow ``<br>`` tags or block-level elements. The editor
+strips unsupported elements during content serialization. This is a CKEditor 5
+limitation, not a bug in this extension.
+
+**Workaround:** Captions wrap naturally based on the figure container width.
+For multi-line visual appearance, use CSS to control the caption width:
+
+.. code-block:: css
+
+   figure figcaption {
+       max-width: 300px; /* Caption wraps at this width */
+   }
+
+.. note::
+   This limitation applies to all CKEditor 5 figcaptions, not just images
+   from this extension. See `CKEditor 5 figcaption schema
+   <https://ckeditor.com/docs/ckeditor5/latest/features/images/images-captions.html>`__
+   for details.
+
+----
+
 Related Documentation
 =====================
 
