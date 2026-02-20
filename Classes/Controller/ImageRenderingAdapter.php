@@ -556,7 +556,7 @@ class ImageRenderingAdapter
             return true;
         }
 
-        // Check against allowlist
+        // Check against allowlist — keep in sync with ImageResolverService::ALLOWED_LINK_PROTOCOLS
         $allowedProtocols = ['http:', 'https:', 'mailto:', 'tel:', 't3:'];
 
         foreach ($allowedProtocols as $protocol) {

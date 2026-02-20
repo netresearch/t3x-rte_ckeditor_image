@@ -78,7 +78,7 @@ The extension provides default configuration. You can customize it:
             allparams.unset = 1
             data-htmlarea-file-uid.unset = 1
             data-htmlarea-file-table.unset = 1
-            # Keep zoom attributes for popup/lightbox rendering (ImageRenderingController.php)
+            # Keep zoom attributes for popup/lightbox rendering (ImageRenderingAdapter.php)
             # data-htmlarea-zoom.unset = 1
             # data-htmlarea-clickenlarge.unset = 1
             data-title-override.unset = 1
@@ -278,7 +278,7 @@ HTML Parser Configuration
             # Remove internal data attributes
             data-htmlarea-file-uid.unset = 1
             data-htmlarea-file-table.unset = 1
-            # Keep zoom attributes for popup/lightbox rendering (ImageRenderingController.php)
+            # Keep zoom attributes for popup/lightbox rendering (ImageRenderingAdapter.php)
             # data-htmlarea-zoom.unset = 1
             # data-htmlarea-clickenlarge.unset = 1
             data-title-override.unset = 1
