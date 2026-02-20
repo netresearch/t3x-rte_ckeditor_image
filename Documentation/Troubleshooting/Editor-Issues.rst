@@ -415,7 +415,7 @@ For multi-line visual appearance, use CSS to control the caption width:
 
 .. code-block:: css
 
-   figure figcaption {
+   figure.image figcaption {
        max-width: 300px; /* Caption wraps at this width */
    }
 
