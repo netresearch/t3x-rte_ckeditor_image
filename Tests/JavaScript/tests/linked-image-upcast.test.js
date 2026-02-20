@@ -18,6 +18,74 @@ import {
 } from '../mocks/ckeditor-mocks.js';
 
 /**
+ * Dedicated upcast converter for corrupted double-link structure: <a><a><img></a></a>
+ * Mirrors the production converter at typo3image.js lines ~2028-2116.
+ *
+ * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+ */
+function doubleLinkedImageUpcastConverter(viewOuterLink, conversionApi) {
+  const { writer, consumable } = conversionApi;
+
+  let innerLink = null;
+  let imgElement = null;
+
+  for (const child of viewOuterLink.getChildren()) {
+    if (child.is('element', 'a')) {
+      innerLink = child;
+      for (const innerChild of child.getChildren()) {
+        if (innerChild.is('element', 'img') && innerChild.getAttribute('data-htmlarea-file-uid')) {
+          imgElement = innerChild;
+          break;
+        }
+      }
+    }
+  }
+
+  if (!innerLink || !imgElement) {
+    return null;
+  }
+
+  if (!consumable.test(viewOuterLink, { name: true }) ||
+      !consumable.test(innerLink, { name: true }) ||
+      !consumable.test(imgElement, { name: true })) {
+    return null;
+  }
+
+  consumable.consume(viewOuterLink, { name: true });
+  consumable.consume(innerLink, { name: true });
+  consumable.consume(imgElement, { name: true });
+
+  // Use inner link attributes (they have more complete info like data-link-params)
+  const linkHref = innerLink.getAttribute('href') || viewOuterLink.getAttribute('href') || '';
+  const linkTarget = innerLink.getAttribute('target') || viewOuterLink.getAttribute('target') || '';
+  const linkTitle = innerLink.getAttribute('title') || viewOuterLink.getAttribute('title') || '';
+
+  const imageAttributes = {
+    fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
+    fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
+    src: imgElement.getAttribute('src'),
+    width: imgElement.getAttribute('width') || '',
+    height: imgElement.getAttribute('height') || '',
+    class: imgElement.getAttribute('class') || '',
+    alt: imgElement.getAttribute('alt') || ''
+  };
+
+  if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+    imageAttributes.imageLinkHref = linkHref;
+    if (linkTarget && linkTarget.trim() !== '') {
+      imageAttributes.imageLinkTarget = linkTarget;
+    }
+    if (linkTitle && linkTitle.trim() !== '') {
+      imageAttributes.imageLinkTitle = linkTitle;
+    }
+  }
+
+  const imgClass = (imageAttributes.class || '').toString();
+  const isInline = imgClass.split(/\s+/).includes('image-inline');
+  return writer.createElement(isInline ? 'typo3imageInline' : 'typo3image', imageAttributes);
+}
+
+/**
  * Extract the converter logic from typo3image.js for testing.
  * This mirrors the linked image upcast converter added in the fix.
  *
@@ -30,47 +98,15 @@ function linkedImageUpcastConverter(viewElement, conversionApi) {
 
   // Find img child with data-htmlarea-file-uid
   let imgElement = null;
-  let nestedLinkElement = null;
-  let hasOtherContent = false;
-
   for (const child of viewElement.getChildren()) {
     if (child.is('element', 'img') && child.getAttribute('data-htmlarea-file-uid')) {
-      if (imgElement) {
-        hasOtherContent = true;
-      }
       imgElement = child;
-    } else if (child.is('element', 'img')) {
-      hasOtherContent = true;
-    } else if (child.is('$text') && child.data.trim() !== '') {
-      hasOtherContent = true;
-    } else if (child.is('element', 'a')) {
-      // Handle double-wrapped links: <a><a><img></a></a> — see #667
-      let nestedImg = null;
-      for (const grandchild of child.getChildren()) {
-        if (grandchild.is('element', 'img') && grandchild.getAttribute('data-htmlarea-file-uid')) {
-          nestedImg = grandchild;
-          break;
-        }
-      }
-      if (nestedImg && !imgElement) {
-        imgElement = nestedImg;
-        nestedLinkElement = child;
-      } else {
-        hasOtherContent = true;
-      }
-    } else if (child.is('element')) {
-      hasOtherContent = true;
+      break;
     }
   }
 
   // If no TYPO3 image found, let other converters handle this <a>
   if (!imgElement) {
-    return null;
-  }
-
-  // If link contains text or other elements besides the image,
-  // do NOT consume the link - let normal link handling preserve the text.
-  if (hasOtherContent) {
     return null;
   }
 
@@ -94,11 +130,6 @@ function linkedImageUpcastConverter(viewElement, conversionApi) {
   // Note: Only consume 'name' - consuming all attributes causes iteration error
   consumable.consume(viewElement, { name: true });
   consumable.consume(imgElement, { name: true });
-
-  // Also consume the nested <a> if present (double-wrapped links from #667)
-  if (nestedLinkElement) {
-    consumable.consume(nestedLinkElement, { name: true });
-  }
 
   // Build image attributes from the img element
   const imageAttributes = {
@@ -426,7 +457,7 @@ describe('Linked Image Upcast Converter (#565)', () => {
     });
   });
 
-  describe('Double-wrapped links (#667)', () => {
+  describe('Double-wrapped links — dedicated converter (#667)', () => {
     it('should convert <a><a><img data-htmlarea-file-uid="..."/></a></a> to model element', () => {
       const { outerAnchor } = createDoubleWrappedLinkedImageView(
         { href: 't3://page?uid=1#1', target: '_blank', class: 'image image-inline' },
@@ -441,7 +472,7 @@ describe('Linked Image Upcast Converter (#565)', () => {
         }
       );
 
-      const result = linkedImageUpcastConverter(outerAnchor, conversionApi);
+      const result = doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
 
       expect(result).not.toBeNull();
       expect(result.name).toBe('typo3imageInline');
@@ -457,7 +488,7 @@ describe('Linked Image Upcast Converter (#565)', () => {
         { 'data-htmlarea-file-uid': '123', 'src': '/test.jpg' }
       );
 
-      linkedImageUpcastConverter(outerAnchor, conversionApi);
+      doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
 
       // All three elements must be consumed to prevent GHS from re-processing
       expect(conversionApi.consumable.isConsumed(outerAnchor)).toBe(true);
@@ -465,19 +496,32 @@ describe('Linked Image Upcast Converter (#565)', () => {
       expect(conversionApi.consumable.isConsumed(img)).toBe(true);
     });
 
-    it('should use link attributes from outer <a> (not inner)', () => {
+    it('should prefer inner <a> link attributes (more complete info)', () => {
       const { outerAnchor } = createDoubleWrappedLinkedImageView(
         { href: 'https://outer.com', target: '_blank', title: 'Outer Title' },
         { href: 'https://inner.com', target: '_self', title: 'Inner Title' },
         { 'data-htmlarea-file-uid': '456', 'src': '/test.jpg' }
       );
 
-      const result = linkedImageUpcastConverter(outerAnchor, conversionApi);
+      const result = doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
 
-      // Link attributes should come from the outer <a> (the one being converted)
+      // Inner link attributes take precedence (they have more complete info)
+      expect(result.getAttribute('imageLinkHref')).toBe('https://inner.com');
+      expect(result.getAttribute('imageLinkTarget')).toBe('_self');
+      expect(result.getAttribute('imageLinkTitle')).toBe('Inner Title');
+    });
+
+    it('should fall back to outer <a> attributes when inner has none', () => {
+      const { outerAnchor } = createDoubleWrappedLinkedImageView(
+        { href: 'https://outer.com', target: '_blank' },
+        {},
+        { 'data-htmlarea-file-uid': '789', 'src': '/test.jpg' }
+      );
+
+      const result = doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
+
       expect(result.getAttribute('imageLinkHref')).toBe('https://outer.com');
       expect(result.getAttribute('imageLinkTarget')).toBe('_blank');
-      expect(result.getAttribute('imageLinkTitle')).toBe('Outer Title');
     });
 
     it('should return null for nested <a> without TYPO3 image', () => {
@@ -485,26 +529,47 @@ describe('Linked Image Upcast Converter (#565)', () => {
       const innerAnchor = new MockViewElement('a', { href: '/page' }, [innerImg]);
       const outerAnchor = new MockViewElement('a', { href: '/page' }, [innerAnchor]);
 
-      const result = linkedImageUpcastConverter(outerAnchor, conversionApi);
+      const result = doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
 
-      // No TYPO3 image found (even in nested <a>), should return null
       expect(result).toBeNull();
       expect(conversionApi.consumable.isConsumed(outerAnchor)).toBe(false);
     });
 
-    it('should treat nested <a> with text content alongside img as hasOtherContent', () => {
-      // <a outer><a inner><img file-uid="1"/></a><text>extra</text></a>
-      const img = new MockViewElement('img', {
-        'data-htmlarea-file-uid': '1', 'src': '/test.jpg'
-      });
-      const innerAnchor = new MockViewElement('a', { href: '/page' }, [img]);
-      const textNode = { is: (type) => type === '$text', data: 'extra text' };
-      const outerAnchor = new MockViewElement('a', { href: '/page' }, [innerAnchor, textNode]);
+    it('should return null when outer <a> is already consumed', () => {
+      const { outerAnchor } = createDoubleWrappedLinkedImageView(
+        { href: 'https://example.com' },
+        { href: 'https://example.com' },
+        { 'data-htmlarea-file-uid': '123', 'src': '/test.jpg' }
+      );
 
-      const result = linkedImageUpcastConverter(outerAnchor, conversionApi);
+      // Pre-consume outer to simulate another converter
+      conversionApi.consumable.consume(outerAnchor, { name: true });
 
-      // Link has other content (text node) besides the nested link, so null
+      const result = doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
+
       expect(result).toBeNull();
+    });
+
+    it('should delegate double-wrapped links from generic converter to dedicated one', () => {
+      const { outerAnchor, innerAnchor, img } = createDoubleWrappedLinkedImageView(
+        { href: 'https://example.com' },
+        { href: 'https://example.com' },
+        { 'data-htmlarea-file-uid': '123', 'src': '/test.jpg' }
+      );
+
+      // Generic converter should return null (nested <a> is "other content")
+      const genericResult = linkedImageUpcastConverter(outerAnchor, conversionApi);
+      expect(genericResult).toBeNull();
+
+      // Dedicated converter handles it
+      const dedicatedResult = doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
+      expect(dedicatedResult).not.toBeNull();
+      expect(dedicatedResult.getAttribute('fileUid')).toBe('123');
+
+      // All elements consumed
+      expect(conversionApi.consumable.isConsumed(outerAnchor)).toBe(true);
+      expect(conversionApi.consumable.isConsumed(innerAnchor)).toBe(true);
+      expect(conversionApi.consumable.isConsumed(img)).toBe(true);
     });
   });
 });

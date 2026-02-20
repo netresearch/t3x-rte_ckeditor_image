@@ -2404,7 +2404,6 @@ export default class Typo3Image extends Plugin {
                     // Find img child with data-htmlarea-file-uid
                     // Also check if link contains ONLY the image (no other content)
                     let imgElement = null;
-                    let nestedLinkElement = null;
                     let hasOtherContent = false;
 
                     for (const child of viewElement.getChildren()) {
@@ -2420,25 +2419,10 @@ export default class Typo3Image extends Plugin {
                         } else if (child.is('$text') && child.data.trim() !== '') {
                             // Link contains text content besides the image
                             hasOtherContent = true;
-                        } else if (child.is('element', 'a')) {
-                            // Handle double-wrapped links from historical data: <a><a><img></a></a>
-                            // When DB has nested <a> tags, the outer <a>'s direct child is the
-                            // inner <a>, not <img>. Look inside for a TYPO3 image. See #667.
-                            let nestedImg = null;
-                            for (const grandchild of child.getChildren()) {
-                                if (grandchild.is('element', 'img') && grandchild.getAttribute('data-htmlarea-file-uid')) {
-                                    nestedImg = grandchild;
-                                    break;
-                                }
-                            }
-                            if (nestedImg && !imgElement) {
-                                imgElement = nestedImg;
-                                nestedLinkElement = child;
-                            } else {
-                                hasOtherContent = true;
-                            }
                         } else if (child.is('element')) {
-                            // Link contains other elements
+                            // Link contains other elements (including nested <a> from #667).
+                            // Double-wrapped <a><a><img></a></a> is handled by a dedicated
+                            // upcast converter registered earlier in this file.
                             hasOtherContent = true;
                         }
                     }
@@ -2478,11 +2462,6 @@ export default class Typo3Image extends Plugin {
                     // Note: Only consume 'name' - consuming all attributes causes iteration error
                     consumable.consume(viewElement, { name: true });
                     consumable.consume(imgElement, { name: true });
-
-                    // Also consume the nested <a> if present (double-wrapped links from #667)
-                    if (nestedLinkElement) {
-                        consumable.consume(nestedLinkElement, { name: true });
-                    }
 
                     // Build image attributes from the img element
                     const imageAttributes = {

@@ -2232,10 +2232,10 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertStringContainsString('href="/my-page/#1"', $result);
         self::assertStringContainsString('target="_blank"', $result);
         self::assertStringContainsString('<img class="image-inline"', $result);
-        // Must have exactly one opening <a> tag
-        self::assertSame(1, substr_count($result, '<a '));
+        // Must have exactly one opening <a> tag (match <a>, <a >, <a\n..., etc.)
+        self::assertSame(1, preg_match_all('/\<a\b/i', $result));
         // Must have exactly one closing </a> tag
-        self::assertSame(1, substr_count($result, '</a>'));
+        self::assertSame(1, preg_match_all('/\<\/a\>/i', $result));
         // Must NOT contain unresolved t3:// URL
         self::assertStringNotContainsString('t3://page', $result);
     }
@@ -2264,8 +2264,8 @@ final class ImageRenderingAdapterTest extends TestCase
         $result = $this->adapter->renderInlineLink(null, [], $this->request);
 
         // Should have a single <a> wrapping just the <img>
-        self::assertSame(1, substr_count($result, '<a '));
-        self::assertSame(1, substr_count($result, '</a>'));
+        self::assertSame(1, preg_match_all('/\<a\b/i', $result));
+        self::assertSame(1, preg_match_all('/\<\/a\>/i', $result));
         self::assertStringContainsString('href="https://example.com"', $result);
         self::assertStringContainsString('<img class="image-inline"', $result);
     }
