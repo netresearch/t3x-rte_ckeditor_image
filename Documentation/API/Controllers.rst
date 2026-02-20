@@ -154,28 +154,32 @@ renderImageAttributes()
         }
     }
 
-renderLinkedImageAttributes()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+renderInlineLink()
+~~~~~~~~~~~~~~~~~~
 
-..  php:method:: renderLinkedImageAttributes($content, $conf)
+..  php:method:: renderInlineLink($content, $conf, $request)
 
-    Processes :html:`<img>` tags within :html:`<a>` tags (linked images).
+    Renders inline links: resolves ``t3://`` URLs and validates protocols.
+    Since ``parseFunc`` processes tags depth-first (inner first), ``tags.img``
+    fires before ``tags.a``, so this handler receives already-processed image
+    content and only needs to reconstruct the ``<a>`` wrapper.
 
-    :param string $content: HTML content (complete :html:`<a>` tag with nested :html:`<img>`).
+    :param string|null $content: Content input (not used).
     :param array $conf: TypoScript configuration.
-    :returns: Processed HTML with both link and image correctly rendered.
+    :param ServerRequestInterface $request: Current request.
+    :returns: Rendered HTML with link wrapper.
     :returntype: string
 
 **TypoScript integration:**
 
 ..  code-block:: typoscript
-    :caption: Linked image processing configuration
+    :caption: Link processing configuration
 
     lib.parseFunc_RTE {
         tags.a = TEXT
         tags.a {
             current = 1
-            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderLinkedImageAttributes
+            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderInlineLink
         }
     }
 

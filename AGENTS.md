@@ -22,7 +22,7 @@ Handles image insertion, processing, rendering with captions, links, popups, qua
 
 Three-layer design for frontend image rendering:
 
-1. **ImageRenderingAdapter** (Controller) -- TypoScript entry points: `renderImageAttributes()`, `renderLink()`, `renderFigure()`
+1. **ImageRenderingAdapter** (Controller) -- TypoScript entry points: `renderImageAttributes()`, `renderInlineLink()`, `renderFigure()`
 2. **ImageResolverService** -- Business logic: file resolution, security validation, quality multipliers, builds `ImageRenderingDto`
 3. **ImageRenderingService** -- Presentation: template selection via `match(true)` (Popup > Link > Caption > Standalone), Fluid rendering
 

@@ -17,7 +17,7 @@ TypoScript parseFunc_RTE
     v
 ImageRenderingAdapter (Controller)     <-- TypoScript entry points
     |                                       renderImageAttributes() -> standalone <img>
-    |                                       renderLink()            -> <a> with images
+    |                                       renderInlineLink()      -> <a> (resolve t3://, validate protocol)
     |                                       renderFigure()          -> <figure> with caption
     v
 ImageResolverService (Service)         <-- Business logic + security
@@ -43,7 +43,7 @@ RteImagesDbHook -> RteImageProcessor -> ImageTagParser + ImageFileResolver + Ima
 
 | File | Purpose |
 |------|---------|
-| `Controller/ImageRenderingAdapter.php` | TypoScript adapter: `renderImageAttributes()`, `renderLink()`, `renderFigure()` entry points |
+| `Controller/ImageRenderingAdapter.php` | TypoScript adapter: `renderImageAttributes()`, `renderInlineLink()`, `renderFigure()` entry points |
 | `Controller/SelectImageController.php` | Backend AJAX controller for image select wizard and file browser |
 | `Service/ImageResolverService.php` | Core business logic: file resolution, security validation, quality, DTO building |
 | `Service/ImageRenderingService.php` | Presentation: template selection (`selectTemplate()`), Fluid rendering, whitespace normalization |
