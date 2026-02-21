@@ -24,7 +24,7 @@ tag that carries a ``data-htmlarea-file-uid`` attribute, resolves the
 corresponding FAL file, and compares the ``src`` attribute against the file's
 current public URL.
 
-Five categories of issues are detected:
+Six categories of issues are detected:
 
 .. list-table:: Issue types
    :header-rows: 1
@@ -57,6 +57,14 @@ Five categories of issues are detected:
        Without a file UID there is no way to determine which FAL file the
        image should reference, so this issue requires manual intervention.
      - No
+   * - ``nested_link_wrapper``
+     - The ``<img>`` tag is wrapped in two or more nested ``<a>`` tags
+       (e.g., ``<a><a><img></a></a>``). This typically occurs after
+       upgrading from older extension versions where the ``tags.a`` and
+       ``externalBlocks.a`` handlers both wrapped the same image. The
+       inner duplicate ``<a>`` wrapper is removed, preserving the outer
+       link and its attributes.
+     - Yes
 
 For fixable issues the validator replaces the ``src`` attribute with the file's
 current ``getPublicUrl()`` value. The ``orphaned_file_uid`` type is treated as

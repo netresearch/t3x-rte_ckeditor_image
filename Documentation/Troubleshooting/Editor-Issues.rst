@@ -389,6 +389,51 @@ Check if images have required attributes:
 
 ----
 
+Resolved Issues
+================
+
+.. _troubleshooting-utf8-figcaptions:
+
+UTF-8 characters in figcaptions
+-------------------------------
+
+.. versionchanged:: 13.6.0
+
+**Symptoms:**
+
+* German umlauts (ä, ö, ü, ß) corrupted in figcaptions on the frontend
+* Accented characters (é, ç, ñ) replaced with garbled text
+* Only figcaptions affected, image alt/title attributes rendered correctly
+
+**Cause:** PHP's ``DOMDocument::loadHTML()`` defaults to ISO-8859-1
+encoding, which corrupts multi-byte UTF-8 characters during HTML parsing.
+
+**Status:** Fixed. All ``DOMDocument::loadHTML()`` calls now prefix the
+HTML with ``<?xml encoding="UTF-8">`` before parsing. No action required.
+
+.. _troubleshooting-inline-link-resolution:
+
+Inline linked images with unresolved t3:// URLs
+------------------------------------------------
+
+.. versionchanged:: 13.6.0
+
+**Symptoms:**
+
+* Inline linked images show ``t3://page?uid=123`` as literal text in the
+  frontend ``href`` instead of the resolved URL
+* Links work in the backend but not on the frontend
+
+**Cause:** The ``externalBlocks.a`` configuration was dead code — the
+``<a>`` tag was never listed in the ``externalBlocks`` comma list, so the
+per-tag configuration was silently ignored by TYPO3's parseFunc.
+
+**Status:** Fixed. Link resolution now uses ``tags.a`` with a dedicated
+``renderInlineLink()`` method in the ``ImageRenderingAdapter``. No action
+required.
+
+----
+
 .. _troubleshooting-known-limitations:
 
 Known Limitations
@@ -396,7 +441,7 @@ Known Limitations
 
 .. _troubleshooting-figcaption-line-breaks:
 
-Figcaption Line Breaks
+Figcaption line breaks
 ----------------------
 
 **Symptoms:**
@@ -411,13 +456,10 @@ strips unsupported elements during content serialization. This is a CKEditor 5
 limitation, not a bug in this extension.
 
 **Workaround:** Captions wrap naturally based on the figure container width.
-For multi-line visual appearance, use CSS to control the caption width:
-
-.. code-block:: css
-
-   figure.image figcaption {
-       max-width: 300px; /* Caption wraps at this width */
-   }
+Since version 13.6.0, the ``<figure>`` element is automatically constrained
+to the image width via ``max-width``, so captions wrap within the image
+boundary without additional CSS. See :ref:`examples-image-styles` for
+details.
 
 .. note::
    This limitation applies to all CKEditor 5 figcaptions, not just images

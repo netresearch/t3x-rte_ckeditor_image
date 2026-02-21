@@ -134,6 +134,36 @@ The extension provides CSS styles in :file:`image-alignment.css`:
             }
         }
 
+Caption width constraint
+------------------------
+
+.. versionadded:: 13.6.0
+
+Figures with captions are automatically constrained to the image width
+via an inline ``max-width`` style on the ``<figure>`` element. This
+prevents long caption text from expanding the figure beyond the image
+boundary.
+
+.. figure:: /Images/caption-width-fix-667.png
+    :alt: Before and after comparison of figcaption width constraint
+    :class: with-shadow
+
+    Left: caption overflows image. Right: caption wraps within
+    image width.
+
+The constraint is applied by the Fluid partial
+:file:`Partials/Image/Figure.html`:
+
+.. code-block:: html
+    :caption: Figure.html — conditional max-width
+
+    <figure class="{figureClasses}{additionalClass}"
+            {f:if(condition: image.width,
+              then: ' style="max-width: {image.width}px"')}>
+
+Long unbreakable words or URLs in captions break via
+``overflow-wrap: break-word`` in :file:`image-alignment.css`.
+
 Native CKEditor style dropdown (advanced)
 =========================================
 

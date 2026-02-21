@@ -121,6 +121,24 @@ Key Features
       .. card-footer:: :ref:`Linked Images <examples-linked-images>`
          :button-style: btn btn-secondary stretched-link
 
+   .. card:: Caption Width Constraint
+
+      .. versionadded:: 13.6.0
+
+      Figcaptions automatically constrained to image width via ``max-width`` on ``<figure>``.
+
+      .. card-footer:: :ref:`Image Styles <examples-image-styles>`
+         :button-style: btn btn-secondary stretched-link
+
+   .. card:: Image Validation
+
+      .. versionadded:: 13.5.0
+
+      CLI command and upgrade wizard to detect and fix broken image references and nested links.
+
+      .. card-footer:: :ref:`Validation <troubleshooting-image-reference-validation>`
+         :button-style: btn btn-secondary stretched-link
+
    .. card:: TYPO3 v14 & PHP 8.5
 
       .. versionadded:: 13.2.0
