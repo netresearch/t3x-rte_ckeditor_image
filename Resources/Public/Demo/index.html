@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RTE CKEditor Image - Feature Showcase</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&family=Open+Sans:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../Css/image-alignment.css">
     <style>
         /* ============================================================
            Page Layout & Branding
@@ -27,7 +25,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Open Sans', sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
             line-height: 1.7;
             color: var(--nr-gray);
             background: var(--nr-gray-light);
@@ -52,7 +50,7 @@
             pointer-events: none;
         }
         .hero h1 {
-            font-family: 'Raleway', sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
             font-weight: 800;
             font-size: clamp(2rem, 5vw, 3.2rem);
             letter-spacing: -.02em;
@@ -134,7 +132,7 @@
             margin-bottom: 1.5rem;
         }
         .section-header h2 {
-            font-family: 'Raleway', sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
             font-weight: 700;
             font-size: 1.6rem;
             color: var(--nr-gray);
@@ -168,7 +166,7 @@
         .example-label {
             background: var(--nr-gray-light);
             padding: 10px 20px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
             font-size: .78rem;
             font-weight: 500;
             color: var(--nr-teal-dark);
@@ -230,7 +228,7 @@
             border-right: 1px solid var(--nr-border);
         }
         .comparison-label {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
             font-size: .72rem;
             font-weight: 500;
             text-transform: uppercase;
@@ -264,7 +262,7 @@
 
         /* -- Inline code ------------------------------------------- */
         code {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
             font-size: .82em;
             background: var(--nr-teal-light);
             color: var(--nr-teal-dark);
@@ -292,109 +290,6 @@
             object-fit: cover;
         }
 
-
-        /* ============================================================
-           Extension CSS: image-alignment.css (embedded for standalone use)
-           ============================================================ */
-
-        /* Image aligned to the left with text wrapping */
-        .image-left,
-        img.image-left,
-        figure.image-left {
-            float: left;
-            margin: 0 1rem 1rem 0;
-            clear: left;
-        }
-
-        /* Image aligned to the right with text wrapping */
-        .image-right,
-        img.image-right,
-        figure.image-right {
-            float: right;
-            margin: 0 0 1rem 1rem;
-            clear: right;
-        }
-
-        /* Image centered as block element */
-        .image-center,
-        img.image-center,
-        figure.image-center {
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            margin-bottom: 1rem;
-        }
-
-        /* Image displayed inline with text */
-        .image-inline,
-        img.image-inline,
-        figure.image-inline {
-            display: inline-block;
-            vertical-align: middle;
-            margin: 0 0.25rem;
-        }
-
-        /* Image displayed as block element (full width) */
-        .image-block,
-        img.image-block,
-        figure.image-block {
-            display: block;
-            width: 100%;
-            margin: 1rem 0;
-        }
-
-        /* Clear floats after floated images */
-        .image-left:after,
-        .image-right:after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .image-left,
-            .image-right {
-                float: none;
-                display: block;
-                margin: 1rem auto;
-            }
-        }
-
-        /* Image Caption Styles */
-        figure.image figcaption,
-        figure figcaption {
-            display: block;
-            margin-top: 0.5rem;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-            line-height: 1.5;
-            color: #666;
-            font-style: italic;
-            text-align: center;
-            background-color: transparent;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-
-        /* Caption for left/right aligned images */
-        figure.image-left figcaption,
-        figure.image-right figcaption {
-            text-align: left;
-        }
-
-        /* Caption for centered images */
-        figure.image-center figcaption {
-            text-align: center;
-        }
-
-        /* Dark mode caption support */
-        @media (prefers-color-scheme: dark) {
-            figure.image figcaption,
-            figure figcaption {
-                color: #aaa;
-            }
-        }
 
         /* ============================================================
            Demo-only: link & popup styling (simulates frontend output)
