@@ -30,4 +30,7 @@ enum ValidationIssueType: string
 
     /** src contains a broken/non-existent path (no FAL file can be resolved) */
     case BrokenSrc = 'broken_src';
+
+    /** Image is wrapped in nested <a><a><img></a></a> tags (#667) */
+    case NestedLinkWrapper = 'nested_link_wrapper';
 }
