@@ -62,7 +62,8 @@ Six categories of issues are detected:
        (e.g., ``<a><a><img></a></a>``). This typically occurs after
        upgrading from older extension versions where the ``tags.a`` and
        ``externalBlocks.a`` handlers both wrapped the same image. The
-       outer duplicate ``<a>`` is removed, keeping the inner link intact.
+       inner duplicate ``<a>`` wrapper is removed, preserving the outer
+       link and its attributes.
      - Yes
 
 For fixable issues the validator replaces the ``src`` attribute with the file's

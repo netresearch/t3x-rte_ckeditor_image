@@ -397,7 +397,7 @@ Resolved Issues
 UTF-8 characters in figcaptions
 -------------------------------
 
-.. versionchanged:: 13.5.0
+.. versionchanged:: 13.6.0
 
 **Symptoms:**
 
@@ -416,7 +416,7 @@ HTML with ``<?xml encoding="UTF-8">`` before parsing. No action required.
 Inline linked images with unresolved t3:// URLs
 ------------------------------------------------
 
-.. versionchanged:: 13.5.0
+.. versionchanged:: 13.6.0
 
 **Symptoms:**
 
