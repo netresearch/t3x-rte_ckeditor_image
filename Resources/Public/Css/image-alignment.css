@@ -81,6 +81,8 @@ figure figcaption {
     font-style: italic;
     text-align: center;
     background-color: transparent;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 /* Caption for left/right aligned images */

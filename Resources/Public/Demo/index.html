@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RTE CKEditor Image - Feature Showcase</title>
+    <link rel="stylesheet" href="../Css/image-alignment.css">
+    <style>
+        /* ============================================================
+           Page Layout & Branding
+           ============================================================ */
+        :root {
+            --nr-teal: #2F99A4;
+            --nr-teal-dark: #267883;
+            --nr-teal-light: #e8f5f7;
+            --nr-orange: #FF4D00;
+            --nr-gray: #585961;
+            --nr-gray-light: #f4f4f5;
+            --nr-white: #ffffff;
+            --nr-border: #e2e4e8;
+            --section-gap: 4rem;
+            --example-radius: 10px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+            line-height: 1.7;
+            color: var(--nr-gray);
+            background: var(--nr-gray-light);
+        }
+
+        /* -- Hero -------------------------------------------------- */
+        .hero {
+            background: linear-gradient(135deg, var(--nr-teal) 0%, var(--nr-teal-dark) 60%, #1d5f66 100%);
+            color: var(--nr-white);
+            padding: 4rem 2rem 3.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(255,77,0,.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,.06) 0%, transparent 40%);
+            pointer-events: none;
+        }
+        .hero h1 {
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+            font-weight: 800;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            letter-spacing: -.02em;
+            margin-bottom: .5rem;
+            position: relative;
+        }
+        .hero p {
+            font-size: 1.15rem;
+            opacity: .9;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .hero .badge-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+            position: relative;
+        }
+        .hero .badge {
+            background: rgba(255,255,255,.15);
+            backdrop-filter: blur(4px);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: .82rem;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,.2);
+        }
+
+        /* -- Navigation -------------------------------------------- */
+        .nav {
+            background: var(--nr-white);
+            border-bottom: 1px solid var(--nr-border);
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+        }
+        .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            gap: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-inner::-webkit-scrollbar { display: none; }
+        .nav a {
+            display: block;
+            padding: 14px 18px;
+            color: var(--nr-gray);
+            text-decoration: none;
+            font-size: .85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: color .2s, border-color .2s;
+        }
+        .nav a:hover {
+            color: var(--nr-teal);
+            border-bottom-color: var(--nr-teal);
+        }
+
+        /* -- Main Content ------------------------------------------ */
+        .main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 2rem 4rem;
+        }
+
+        /* -- Section ----------------------------------------------- */
+        .section {
+            margin-bottom: var(--section-gap);
+        }
+        .section-header {
+            margin-bottom: 1.5rem;
+        }
+        .section-header h2 {
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: var(--nr-gray);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-header h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 1.3em;
+            background: var(--nr-teal);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        .section-header p {
+            margin-top: .4rem;
+            color: #888;
+            font-size: .95rem;
+        }
+
+        /* -- Example Block ----------------------------------------- */
+        .example {
+            background: var(--nr-white);
+            border: 1px solid var(--nr-border);
+            border-radius: var(--example-radius);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .example-label {
+            background: var(--nr-gray-light);
+            padding: 10px 20px;
+            font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+            font-size: .78rem;
+            font-weight: 500;
+            color: var(--nr-teal-dark);
+            border-bottom: 1px solid var(--nr-border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .example-label .tag {
+            background: var(--nr-teal);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: .7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .example-label .tag--fix {
+            background: var(--nr-orange);
+        }
+        .example-label .tag--template {
+            background: #7c3aed;
+        }
+        .example-label .tag--css {
+            background: #2563eb;
+        }
+        .example-render {
+            padding: 30px;
+        }
+        .example-render::after {
+            content: '';
+            display: table;
+            clear: both;
+        }
+
+        /* -- Descriptive text inside render areas ------------------ */
+        .demo-text {
+            font-size: .95rem;
+            line-height: 1.7;
+            color: var(--nr-gray);
+        }
+        .demo-text-sm {
+            font-size: .85rem;
+            color: #999;
+            margin-top: .5rem;
+        }
+
+        /* -- Comparison side-by-side ------------------------------- */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+        .comparison > div {
+            padding: 30px;
+        }
+        .comparison > div:first-child {
+            border-right: 1px solid var(--nr-border);
+        }
+        .comparison-label {
+            font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+            font-size: .72rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .comparison-label--before { color: #dc2626; }
+        .comparison-label--after  { color: #16a34a; }
+        @media (max-width: 700px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            .comparison > div:first-child {
+                border-right: none;
+                border-bottom: 1px solid var(--nr-border);
+            }
+        }
+
+        /* -- Template grid ----------------------------------------- */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .template-grid .example {
+            margin-bottom: 0;
+        }
+
+        /* -- Inline code ------------------------------------------- */
+        code {
+            font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+            font-size: .82em;
+            background: var(--nr-teal-light);
+            color: var(--nr-teal-dark);
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        /* -- Footer ------------------------------------------------ */
+        .footer {
+            background: var(--nr-gray);
+            color: rgba(255,255,255,.8);
+            text-align: center;
+            padding: 2rem;
+            font-size: .85rem;
+        }
+        .footer a {
+            color: var(--nr-teal);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* -- Placeholder images via inline SVG --------------------- */
+        .ph-img {
+            display: block;
+            object-fit: cover;
+        }
+
+
+        /* ============================================================
+           Demo-only: link & popup styling (simulates frontend output)
+           ============================================================ */
+        .example-render a.popup-link {
+            text-decoration: none;
+            position: relative;
+        }
+        .example-render a.popup-link::after {
+            content: '\1F50D';
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0,0,0,.55);
+            color: #fff;
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            pointer-events: none;
+        }
+        .example-render a:not(.popup-link) img {
+            transition: opacity .15s;
+        }
+        .example-render a:not(.popup-link):hover img {
+            opacity: .85;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- ============================================================
+     Hero
+     ============================================================ -->
+<header class="hero">
+    <h1>Image Rendering Showcase</h1>
+    <p>Visual reference for every rendering feature of the
+       <strong>rte_ckeditor_image</strong> TYPO3 extension</p>
+    <div class="badge-row">
+        <span class="badge">5 Alignments</span>
+        <span class="badge">6 Templates</span>
+        <span class="badge">Captions</span>
+        <span class="badge">Links &amp; Zoom</span>
+        <span class="badge">Responsive</span>
+    </div>
+</header>
+
+<!-- ============================================================
+     Navigation
+     ============================================================ -->
+<nav class="nav" aria-label="Section navigation">
+    <div class="nav-inner">
+        <a href="#alignments">Alignments</a>
+        <a href="#captions">Captions</a>
+        <a href="#caption-width">Width Fix</a>
+        <a href="#links">Links</a>
+        <a href="#templates">Templates</a>
+        <a href="#responsive">Responsive</a>
+    </div>
+</nav>
+
+<main class="main">
+
+<!-- ============================================================
+     1. Image Alignments
+     ============================================================ -->
+<section class="section" id="alignments">
+    <div class="section-header">
+        <h2>Image Alignments</h2>
+        <p>Five built-in alignment classes control image positioning within rich text content.</p>
+    </div>
+
+    <!-- image-left -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--css">css</span>
+            <code>.image-left</code> &mdash; Float left with text wrapping
+        </div>
+        <div class="example-render">
+            <img class="image-left ph-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='120'%3E%3Crect width='180' height='120' fill='%232F99A4'/%3E%3Ctext x='90' y='64' text-anchor='middle' fill='white' font-family='sans-serif' font-size='13' font-weight='600'%3E180 %C3%97 120%3C/text%3E%3C/svg%3E" alt="Left-aligned 180 by 120 image" width="180" height="120">
+            <p class="demo-text">The image floats to the left and surrounding text wraps around it. This is the most common layout for editorial content where an image illustrates a point while the narrative continues alongside it. The float is cleared automatically via the <code>::after</code> pseudo-element to prevent layout collisions with subsequent content. On screens narrower than 768px, the float is removed and the image becomes a centered block element for better readability on mobile devices.</p>
+        </div>
+    </div>
+
+    <!-- image-right -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--css">css</span>
+            <code>.image-right</code> &mdash; Float right with text wrapping
+        </div>
+        <div class="example-render">
+            <img class="image-right ph-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='120'%3E%3Crect width='180' height='120' fill='%23FF4D00'/%3E%3Ctext x='90' y='64' text-anchor='middle' fill='white' font-family='sans-serif' font-size='13' font-weight='600'%3E180 %C3%97 120%3C/text%3E%3C/svg%3E" alt="Right-aligned 180 by 120 image" width="180" height="120">
+            <p class="demo-text">The image floats to the right. This is useful for pull-quotes, secondary illustrations, or sidebar content that accompanies the main text flow. Like <code>.image-left</code>, the float clears automatically and becomes a centered block on narrow viewports. The margin is applied on the left side to create space between the image and the text.</p>
+        </div>
+    </div>
+
+    <!-- image-center -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--css">css</span>
+            <code>.image-center</code> &mdash; Centered block element
+        </div>
+        <div class="example-render">
+            <p class="demo-text">Content before the centered image.</p>
+            <img class="image-center ph-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='140'%3E%3Crect width='300' height='140' fill='%23585961'/%3E%3Ctext x='150' y='74' text-anchor='middle' fill='white' font-family='sans-serif' font-size='13' font-weight='600'%3E300 %C3%97 140%3C/text%3E%3C/svg%3E" alt="Centered 300 by 140 image" width="300" height="140">
+            <p class="demo-text">Content after the centered image. The image is displayed as a block element with automatic left and right margins. Text does not wrap around it &mdash; it creates a visual break in the content flow, ideal for hero images or key illustrations.</p>
+        </div>
+    </div>
+
+    <!-- image-inline -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--css">css</span>
+            <code>.image-inline</code> &mdash; Inline with text flow
+        </div>
+        <div class="example-render">
+            <p class="demo-text">
+                Inline images sit within the text flow, like this
+                <img class="image-inline ph-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect width='24' height='24' rx='4' fill='%232F99A4'/%3E%3Ctext x='12' y='16' text-anchor='middle' fill='white' font-family='sans-serif' font-size='9' font-weight='700'%3Eic%3C/text%3E%3C/svg%3E" alt="icon" width="24" height="24">
+                icon or this larger
+                <img class="image-inline ph-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='40'%3E%3Crect width='60' height='40' rx='4' fill='%23FF4D00'/%3E%3Ctext x='30' y='24' text-anchor='middle' fill='white' font-family='sans-serif' font-size='9' font-weight='600'%3E60%C3%9740%3C/text%3E%3C/svg%3E" alt="badge" width="60" height="40">
+                badge. They are vertically aligned to the middle of the text baseline. Useful for icons, emoji-like images, or small decorative elements within a paragraph.
+            </p>
+        </div>
+    </div>
+
+    <!-- image-block -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--css">css</span>
+            <code>.image-block</code> &mdash; Full-width block element
+        </div>
+        <div class="example-render">
+            <p class="demo-text">Content before the block image.</p>
+            <img class="image-block ph-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='120'%3E%3Crect width='800' height='120' fill='%23267883'/%3E%3Ctext x='400' y='64' text-anchor='middle' fill='white' font-family='sans-serif' font-size='13' font-weight='600'%3Efull width (100%25)%3C/text%3E%3C/svg%3E" alt="Full-width image" width="800" height="120">
+            <p class="demo-text">Content after. The image stretches to 100% of the container width, creating a strong visual break. Ideal for banner images, section dividers, or full-bleed photography.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     2. Captions
+     ============================================================ -->
+<section class="section" id="captions">
+    <div class="section-header">
+        <h2>Captions &amp; Figures</h2>
+        <p>Images with captions are wrapped in <code>&lt;figure&gt;</code> with <code>&lt;figcaption&gt;</code>.
+           Caption alignment follows the figure alignment class.</p>
+    </div>
+
+    <!-- Centered caption -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--template">template</span>
+            WithCaption.html &mdash; Centered figure with caption
+        </div>
+        <div class="example-render">
+            <figure class="image-center" style="max-width: 280px">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='180'%3E%3Cdefs%3E%3ClinearGradient id='g1' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%232F99A4'/%3E%3Cstop offset='100%25' stop-color='%23267883'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='280' height='180' fill='url(%23g1)'/%3E%3Ccircle cx='200' cy='50' r='30' fill='rgba(255,255,255,.15)'/%3E%3Cpath d='M0 130 Q70 90 140 120 T280 100 V180 H0Z' fill='rgba(255,255,255,.1)'/%3E%3Ctext x='140' y='95' text-anchor='middle' fill='white' font-family='sans-serif' font-size='13' font-weight='600'%3E280 %C3%97 180%3C/text%3E%3C/svg%3E" alt="Mountain landscape" width="280" height="180" decoding="async">
+                <figcaption>A centered caption below a landscape image</figcaption>
+            </figure>
+            <p class="demo-text">The figure is centered via <code>.image-center</code> and constrained to the image width via <code>max-width</code>. The caption text is centered within the figure.</p>
+        </div>
+    </div>
+
+    <!-- Left-aligned caption -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--template">template</span>
+            WithCaption.html &mdash; Left-aligned figure with caption
+        </div>
+        <div class="example-render">
+            <figure class="image-left" style="max-width: 200px">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect width='200' height='150' fill='%23FF4D00'/%3E%3Ccircle cx='140' cy='45' r='25' fill='rgba(255,255,255,.2)'/%3E%3Cpath d='M0 110 Q50 80 100 100 T200 85 V150 H0Z' fill='rgba(255,255,255,.12)'/%3E%3Ctext x='100' y='80' text-anchor='middle' fill='white' font-family='sans-serif' font-size='13' font-weight='600'%3E200 %C3%97 150%3C/text%3E%3C/svg%3E" alt="Sunset" width="200" height="150" decoding="async">
+                <figcaption>Left-aligned caption stays within image width</figcaption>
+            </figure>
+            <p class="demo-text">When a figure uses <code>.image-left</code>, the caption aligns left and text wraps around both the image and its caption. The <code>max-width</code> on the figure ensures the caption never extends beyond the image boundary, keeping the layout clean even with longer caption text. This is the fix introduced in issue #667.</p>
+        </div>
+    </div>
+
+    <!-- Right-aligned caption -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--template">template</span>
+            WithCaption.html &mdash; Right-aligned figure with caption
+        </div>
+        <div class="example-render">
+            <figure class="image-right" style="max-width: 200px">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='130'%3E%3Crect width='200' height='130' fill='%23585961'/%3E%3Ccircle cx='50' cy='40' r='20' fill='rgba(255,255,255,.15)'/%3E%3Cpath d='M0 95 Q50 70 100 85 T200 75 V130 H0Z' fill='rgba(255,255,255,.1)'/%3E%3Ctext x='100' y='68' text-anchor='middle' fill='white' font-family='sans-serif' font-size='13' font-weight='600'%3E200 %C3%97 130%3C/text%3E%3C/svg%3E" alt="City skyline" width="200" height="130" decoding="async">
+                <figcaption>Right-aligned with text wrapping around both image and caption</figcaption>
+            </figure>
+            <p class="demo-text">A right-aligned figure with caption demonstrates the same width constraint behavior. The caption text is left-aligned (matching left/right float convention) and contained within the image width. The wrapping text fills the space to the left of the floated figure.</p>
+        </div>
+    </div>
+
+    <!-- Block caption -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--template">template</span>
+            WithCaption.html &mdash; Full-width block figure with caption
+        </div>
+        <div class="example-render">
+            <figure class="image-block" style="max-width: 400px">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120'%3E%3Crect width='400' height='120' fill='%23267883'/%3E%3Ctext x='200' y='64' text-anchor='middle' fill='white' font-family='sans-serif' font-size='13' font-weight='600'%3E400 %C3%97 120 (block)%3C/text%3E%3C/svg%3E" alt="Full-width block image with caption" width="400" height="120" decoding="async">
+                <figcaption>A block-level figure with caption. The CSS sets width: 100% but max-width constrains it to the image width, preventing the figure from stretching beyond 400px.</figcaption>
+            </figure>
+            <p class="demo-text">With <code>.image-block</code>, the figure uses <code>width: 100%</code> but the inline <code>max-width</code> caps it at the image width. This prevents the caption from spanning the full container while keeping the block display behavior.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     3. Caption Width Constraint (Issue #667 Fix)
+     ============================================================ -->
+<section class="section" id="caption-width">
+    <div class="section-header">
+        <h2>Caption Width Constraint</h2>
+        <p>Fix for <a href="https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667" style="color:var(--nr-teal);font-weight:600">#667</a>:
+           figcaptions are now constrained to the image width via <code>max-width</code>.
+           Long words break via <code>overflow-wrap: break-word</code>.</p>
+    </div>
+
+    <!-- Before / After -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--fix">fix</span>
+            Before vs. After &mdash; Small image (75 &times; 100) with long caption
+        </div>
+        <div class="comparison">
+            <div>
+                <div class="comparison-label comparison-label--before">&#x2717; Before (no max-width)</div>
+                <figure class="image-left">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='75' height='100'%3E%3Crect width='75' height='100' fill='%23dc2626'/%3E%3Ctext x='37' y='54' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11' font-weight='600'%3E75%C3%97100%3C/text%3E%3C/svg%3E" alt="Small image" width="75" height="100" decoding="async">
+                    <figcaption>This caption overflows far beyond the image boundary because the figure has no width constraint applied</figcaption>
+                </figure>
+                <p class="demo-text-sm">The figcaption expands the figure width beyond the image, breaking the layout.</p>
+            </div>
+            <div>
+                <div class="comparison-label comparison-label--after">&#x2713; After (max-width: 75px)</div>
+                <figure class="image-left" style="max-width: 75px">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='75' height='100'%3E%3Crect width='75' height='100' fill='%2316a34a'/%3E%3Ctext x='37' y='54' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11' font-weight='600'%3E75%C3%97100%3C/text%3E%3C/svg%3E" alt="Small image" width="75" height="100" decoding="async">
+                    <figcaption>This caption wraps neatly within the image width boundary</figcaption>
+                </figure>
+                <p class="demo-text-sm">With <code>max-width: 75px</code>, the caption wraps within the image width.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Long URL breaking -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--fix">fix</span>
+            Long unbreakable word / URL in caption &mdash; <code>overflow-wrap: break-word</code>
+        </div>
+        <div class="comparison">
+            <div>
+                <div class="comparison-label comparison-label--before">&#x2717; Without overflow-wrap</div>
+                <figure class="image-center" style="max-width: 150px">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='100'%3E%3Crect width='150' height='100' fill='%23dc2626'/%3E%3Ctext x='75' y='54' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11' font-weight='600'%3E150%C3%97100%3C/text%3E%3C/svg%3E" alt="Demo" width="150" height="100" decoding="async">
+                    <figcaption style="overflow-wrap: normal">https://example.com/very/long/path/that/cannot/break/naturally</figcaption>
+                </figure>
+            </div>
+            <div>
+                <div class="comparison-label comparison-label--after">&#x2713; With overflow-wrap</div>
+                <figure class="image-center" style="max-width: 150px">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='100'%3E%3Crect width='150' height='100' fill='%2316a34a'/%3E%3Ctext x='75' y='54' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11' font-weight='600'%3E150%C3%97100%3C/text%3E%3C/svg%3E" alt="Demo" width="150" height="100" decoding="async">
+                    <figcaption>https://example.com/very/long/path/that/cannot/break/naturally</figcaption>
+                </figure>
+            </div>
+        </div>
+    </div>
+
+    <!-- Various image sizes with captions -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--fix">fix</span>
+            Multiple image sizes &mdash; captions always constrained to image width
+        </div>
+        <div class="example-render" style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;">
+            <figure class="image" style="max-width: 80px; flex-shrink: 0;">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect width='80' height='80' fill='%232F99A4'/%3E%3Ctext x='40' y='44' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11'%3E80%C3%9780%3C/text%3E%3C/svg%3E" alt="Tiny" width="80" height="80" decoding="async">
+                <figcaption>Tiny image with a longer caption text</figcaption>
+            </figure>
+            <figure class="image" style="max-width: 150px; flex-shrink: 0;">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='100'%3E%3Crect width='150' height='100' fill='%23FF4D00'/%3E%3Ctext x='75' y='54' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11'%3E150%C3%97100%3C/text%3E%3C/svg%3E" alt="Small" width="150" height="100" decoding="async">
+                <figcaption>Small image caption</figcaption>
+            </figure>
+            <figure class="image" style="max-width: 250px; flex-shrink: 0;">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='160'%3E%3Crect width='250' height='160' fill='%23585961'/%3E%3Ctext x='125' y='84' text-anchor='middle' fill='white' font-family='sans-serif' font-size='12'%3E250%C3%97160%3C/text%3E%3C/svg%3E" alt="Medium" width="250" height="160" decoding="async">
+                <figcaption>Medium image with a caption that demonstrates proper wrapping behavior</figcaption>
+            </figure>
+        </div>
+    </div>
+
+    <!-- German Umlauts (Issue #662) -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--fix">fix</span>
+            UTF-8 captions &mdash; German umlauts, accented characters (#662)
+        </div>
+        <div class="example-render">
+            <figure class="image-center" style="max-width: 250px">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='140'%3E%3Crect width='250' height='140' fill='%232F99A4'/%3E%3Ctext x='125' y='74' text-anchor='middle' fill='white' font-family='sans-serif' font-size='12'%3EUTF-8 %E2%9C%93%3C/text%3E%3C/svg%3E" alt="UTF-8 test" width="250" height="140" decoding="async">
+                <figcaption>Pr&uuml;fung der Umlaute: &Auml;pfel, &Ouml;sterreich, &Uuml;bung, Stra&szlig;e, caf&eacute;, na&iuml;ve, fa&ccedil;ade</figcaption>
+            </figure>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     4. Links & Zoom
+     ============================================================ -->
+<section class="section" id="links">
+    <div class="section-header">
+        <h2>Links &amp; Click-to-Enlarge</h2>
+        <p>Images can be wrapped in links for navigation or popup/zoom functionality.
+           The extension resolves <code>t3://</code> URLs and validates protocols.</p>
+    </div>
+
+    <!-- Linked image -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--template">template</span>
+            Link.html &mdash; Image with regular link
+        </div>
+        <div class="example-render">
+            <a href="#link-demo">
+                <img class="image-center ph-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='160'%3E%3Crect width='280' height='160' fill='%232563eb'/%3E%3Ctext x='140' y='75' text-anchor='middle' fill='white' font-family='sans-serif' font-size='12' font-weight='600'%3EClick me (linked)%3C/text%3E%3Ctext x='140' y='100' text-anchor='middle' fill='rgba(255,255,255,.6)' font-family='sans-serif' font-size='11'%3Ehref=%22/some-page%22%3C/text%3E%3C/svg%3E" alt="Linked image" width="280" height="160" decoding="async" style="cursor:pointer">
+            </a>
+            <p class="demo-text" style="text-align:center">Image wrapped in an <code>&lt;a&gt;</code> tag. Hover to see opacity transition.</p>
+        </div>
+    </div>
+
+    <!-- Popup/Zoom image -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--template">template</span>
+            Popup.html &mdash; Image with click-to-enlarge (zoom)
+        </div>
+        <div class="example-render">
+            <a href="#zoom-demo" class="popup-link" data-popup="true" rel="lightbox-group-rte">
+                <img class="image-center ph-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='160'%3E%3Cdefs%3E%3ClinearGradient id='g2' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%237c3aed'/%3E%3Cstop offset='100%25' stop-color='%235b21b6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='280' height='160' fill='url(%23g2)'/%3E%3Ctext x='140' y='75' text-anchor='middle' fill='white' font-family='sans-serif' font-size='12' font-weight='600'%3EClick to enlarge%3C/text%3E%3Ctext x='140' y='100' text-anchor='middle' fill='rgba(255,255,255,.6)' font-family='sans-serif' font-size='11'%3Edata-popup=%22true%22%3C/text%3E%3C/svg%3E" alt="Zoomable image" width="280" height="160" decoding="async">
+            </a>
+            <p class="demo-text" style="text-align:center">
+                Zoom badge appears at top-right. Adds <code>data-popup="true"</code>
+                and <code>rel="lightbox-group-rte"</code> for lightbox integration.
+            </p>
+        </div>
+    </div>
+
+    <!-- Linked image with caption -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--template">template</span>
+            LinkWithCaption.html &mdash; Linked image inside figure with caption
+        </div>
+        <div class="example-render">
+            <figure class="image-center" style="max-width: 260px">
+                <a href="#link-caption-demo">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='170'%3E%3Crect width='260' height='170' fill='%230d9488'/%3E%3Ctext x='130' y='89' text-anchor='middle' fill='white' font-family='sans-serif' font-size='12' font-weight='600'%3ELinked %2B Caption%3C/text%3E%3C/svg%3E" alt="Linked with caption" width="260" height="170" decoding="async">
+                </a>
+                <figcaption>A linked image with a descriptive caption below</figcaption>
+            </figure>
+        </div>
+    </div>
+
+    <!-- Popup with caption -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--template">template</span>
+            PopupWithCaption.html &mdash; Zoom image with caption
+        </div>
+        <div class="example-render">
+            <figure class="image-center" style="max-width: 260px">
+                <a href="#popup-caption-demo" class="popup-link" data-popup="true" rel="lightbox-group-rte">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='170'%3E%3Cdefs%3E%3ClinearGradient id='g3' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23FF4D00'/%3E%3Cstop offset='100%25' stop-color='%23dc2626'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='260' height='170' fill='url(%23g3)'/%3E%3Ctext x='130' y='89' text-anchor='middle' fill='white' font-family='sans-serif' font-size='12' font-weight='600'%3EZoom %2B Caption%3C/text%3E%3C/svg%3E" alt="Zoomable with caption" width="260" height="170" decoding="async">
+                </a>
+                <figcaption>Click to enlarge this image in a lightbox overlay</figcaption>
+            </figure>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     5. All 6 Template Combinations
+     ============================================================ -->
+<section class="section" id="templates">
+    <div class="section-header">
+        <h2>Template Combinations</h2>
+        <p>The extension selects one of six Fluid templates based on the image configuration.
+           Priority: Popup &gt; Link &gt; Caption &gt; Standalone.</p>
+    </div>
+
+    <div class="template-grid">
+        <!-- 1. Standalone -->
+        <div class="example">
+            <div class="example-label">
+                <span class="tag tag--template">1</span>
+                Standalone.html
+            </div>
+            <div class="example-render">
+                <img class="image-center ph-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120'%3E%3Crect width='200' height='120' fill='%232F99A4'/%3E%3Ctext x='100' y='64' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11' font-weight='600'%3EStandalone%3C/text%3E%3C/svg%3E" alt="Standalone" width="200" height="120" decoding="async">
+                <p class="demo-text-sm" style="text-align:center">Plain <code>&lt;img&gt;</code> tag only</p>
+            </div>
+        </div>
+
+        <!-- 2. WithCaption -->
+        <div class="example">
+            <div class="example-label">
+                <span class="tag tag--template">2</span>
+                WithCaption.html
+            </div>
+            <div class="example-render">
+                <figure class="image-center" style="max-width: 200px">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120'%3E%3Crect width='200' height='120' fill='%23FF4D00'/%3E%3Ctext x='100' y='64' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11' font-weight='600'%3EWith Caption%3C/text%3E%3C/svg%3E" alt="WithCaption" width="200" height="120" decoding="async">
+                    <figcaption>Image with caption</figcaption>
+                </figure>
+                <p class="demo-text-sm" style="text-align:center"><code>&lt;figure&gt;&lt;img&gt;&lt;figcaption&gt;</code></p>
+            </div>
+        </div>
+
+        <!-- 3. Link -->
+        <div class="example">
+            <div class="example-label">
+                <span class="tag tag--template">3</span>
+                Link.html
+            </div>
+            <div class="example-render">
+                <a href="#demo-link">
+                    <img class="image-center ph-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120'%3E%3Crect width='200' height='120' fill='%23585961'/%3E%3Ctext x='100' y='64' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11' font-weight='600'%3ELinked%3C/text%3E%3C/svg%3E" alt="Link" width="200" height="120" decoding="async">
+                </a>
+                <p class="demo-text-sm" style="text-align:center"><code>&lt;a&gt;&lt;img&gt;&lt;/a&gt;</code></p>
+            </div>
+        </div>
+
+        <!-- 4. LinkWithCaption -->
+        <div class="example">
+            <div class="example-label">
+                <span class="tag tag--template">4</span>
+                LinkWithCaption.html
+            </div>
+            <div class="example-render">
+                <figure class="image-center" style="max-width: 200px">
+                    <a href="#demo-link-cap">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120'%3E%3Crect width='200' height='120' fill='%232563eb'/%3E%3Ctext x='100' y='64' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11' font-weight='600'%3ELink %2B Caption%3C/text%3E%3C/svg%3E" alt="LinkWithCaption" width="200" height="120" decoding="async">
+                    </a>
+                    <figcaption>Linked + captioned</figcaption>
+                </figure>
+                <p class="demo-text-sm" style="text-align:center"><code>&lt;figure&gt;&lt;a&gt;&lt;img&gt;&lt;/a&gt;&lt;figcaption&gt;</code></p>
+            </div>
+        </div>
+
+        <!-- 5. Popup -->
+        <div class="example">
+            <div class="example-label">
+                <span class="tag tag--template">5</span>
+                Popup.html
+            </div>
+            <div class="example-render">
+                <a href="#demo-popup" class="popup-link" data-popup="true" rel="lightbox-group-rte">
+                    <img class="image-center ph-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120'%3E%3Crect width='200' height='120' fill='%237c3aed'/%3E%3Ctext x='100' y='64' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11' font-weight='600'%3EPopup / Zoom%3C/text%3E%3C/svg%3E" alt="Popup" width="200" height="120" decoding="async">
+                </a>
+                <p class="demo-text-sm" style="text-align:center"><code>&lt;a data-popup&gt;&lt;img&gt;&lt;/a&gt;</code></p>
+            </div>
+        </div>
+
+        <!-- 6. PopupWithCaption -->
+        <div class="example">
+            <div class="example-label">
+                <span class="tag tag--template">6</span>
+                PopupWithCaption.html
+            </div>
+            <div class="example-render">
+                <figure class="image-center" style="max-width: 200px">
+                    <a href="#demo-popup-cap" class="popup-link" data-popup="true" rel="lightbox-group-rte">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120'%3E%3Crect width='200' height='120' fill='%230d9488'/%3E%3Ctext x='100' y='64' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11' font-weight='600'%3EPopup %2B Caption%3C/text%3E%3C/svg%3E" alt="PopupWithCaption" width="200" height="120" decoding="async">
+                    </a>
+                    <figcaption>Zoom + captioned</figcaption>
+                </figure>
+                <p class="demo-text-sm" style="text-align:center"><code>&lt;figure&gt;&lt;a data-popup&gt;&lt;img&gt;&lt;/a&gt;&lt;figcaption&gt;</code></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     6. Responsive Behavior
+     ============================================================ -->
+<section class="section" id="responsive">
+    <div class="section-header">
+        <h2>Responsive Behavior</h2>
+        <p>On screens narrower than 768px, floated images become centered blocks.
+           The <code>max-width</code> constraint ensures figures never exceed their image width
+           while allowing them to shrink on small screens.</p>
+    </div>
+
+    <div class="example">
+        <div class="example-label">
+            <span class="tag tag--css">css</span>
+            @media (max-width: 768px) &mdash; Resize your browser to see the effect
+        </div>
+        <div class="example-render">
+            <figure class="image-left" style="max-width: 220px">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='150'%3E%3Crect width='220' height='150' fill='%232F99A4'/%3E%3Ctext x='110' y='70' text-anchor='middle' fill='white' font-family='sans-serif' font-size='11' font-weight='600'%3EResize browser%3C/text%3E%3Ctext x='110' y='90' text-anchor='middle' fill='rgba(255,255,255,.6)' font-family='sans-serif' font-size='10'%3Efloat %E2%86%92 block @ 768px%3C/text%3E%3C/svg%3E" alt="Responsive demo" width="220" height="150" decoding="async">
+                <figcaption>This floated figure becomes centered on mobile</figcaption>
+            </figure>
+            <p class="demo-text">On wide screens, this image floats left with text wrapping around it. Resize your browser window below 768px to see it switch to a centered block layout. The <code>max-width</code> property is responsive by design &mdash; it allows the figure to shrink on narrow screens but never exceed the image width. This works with all alignment modes.</p>
+            <p class="demo-text" style="margin-top:1rem">The combination of <code>max-width</code> on the figure and the responsive media query means images and their captions always look correct regardless of viewport size.</p>
+        </div>
+    </div>
+
+    <!-- Lazy loading -->
+    <div class="example">
+        <div class="example-label">
+            <span class="tag">attr</span>
+            Lazy Loading &mdash; <code>loading="lazy"</code> attribute
+        </div>
+        <div class="example-render">
+            <img class="image-center ph-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='120'%3E%3Crect width='300' height='120' fill='%23267883'/%3E%3Ctext x='150' y='55' text-anchor='middle' fill='white' font-family='sans-serif' font-size='12' font-weight='600'%3Eloading=%22lazy%22%3C/text%3E%3Ctext x='150' y='78' text-anchor='middle' fill='rgba(255,255,255,.6)' font-family='sans-serif' font-size='10'%3Edecoding=%22async%22%3C/text%3E%3C/svg%3E" alt="Lazy loaded image" width="300" height="120" decoding="async" loading="lazy">
+            <p class="demo-text" style="text-align:center;margin-top:1rem">
+                Images support <code>loading="lazy|eager|auto"</code> for native browser lazy loading
+                and <code>decoding="async"</code> for non-blocking decode.
+            </p>
+        </div>
+    </div>
+</section>
+
+</main><!-- /.main -->
+
+<!-- ============================================================
+     Footer
+     ============================================================ -->
+<footer class="footer">
+    <p>
+        <strong>rte_ckeditor_image</strong> &mdash;
+        <a href="https://github.com/netresearch/t3x-rte_ckeditor_image">GitHub</a> &middot;
+        <a href="https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/">Documentation</a> &middot;
+        <a href="https://extensions.typo3.org/extension/rte_ckeditor_image">TER</a>
+    </p>
+    <p style="margin-top:8px;opacity:.7">Developed by <a href="https://www.netresearch.de/">Netresearch DTT GmbH</a></p>
+</footer>
+
+</body>
+</html>

@@ -139,6 +139,11 @@ $prUrl = $prNumber ? $githubUrl . '/pull/' . $prNumber : null;
             <h2>Resources</h2>
             <div class="grid">
                 <div class="card">
+                    <h3>🎨 Feature Showcase</h3>
+                    <p>Visual reference for all image rendering features</p>
+                    <a href="/typo3conf/ext/rte_ckeditor_image/Resources/Public/Demo/index.html" target="_blank">Open Showcase →</a>
+                </div>
+                <div class="card">
                     <h3>📖 Documentation</h3>
                     <p>Browse the complete extension documentation</p>
                     <a href="https://docs.rte-ckeditor-image.ddev.site/" target="_blank">View Documentation →</a>
