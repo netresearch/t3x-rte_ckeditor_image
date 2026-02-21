@@ -1,7 +1,7 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 <f:variable name="figureClasses" value="{f:if(condition: image.figureClass, then: image.figureClass, else: 'image')}" />
 <f:variable name="additionalClass" value="{f:if(condition: image.htmlAttributes.class, then: ' {image.htmlAttributes.class}')}" />
-<figure class="{figureClasses}{additionalClass}">
+<figure class="{figureClasses}{additionalClass}"{f:if(condition: image.width, then: ' style="max-width: {image.width}px"')}>
     {content -> f:format.raw()}
     <f:if condition="{image.caption}"><figcaption>{image.caption}</figcaption></f:if>
 </figure>
