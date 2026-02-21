@@ -37,8 +37,8 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
 - **Lazy Loading**: TYPO3 native browser lazyload support
 - **Event-Driven**: PSR-14 events for extensibility
 - **Security**: Protocol blocking, XSS prevention, file visibility validation
-- **Fluid Templates**: Customizable output via template overrides
-- **Image Validation**: CLI command and upgrade wizard to detect and fix broken image references
+- **Fluid Templates**: Customizable output via template overrides with automatic figcaption width constraint
+- **Image Validation**: CLI command and upgrade wizard to detect and fix broken image references and nested link wrappers
 - **Preview Renderer**: Images preserved in page module preview with broken reference warnings
 - **Automatic Softref**: RTE image references tracked automatically across all tables
 
