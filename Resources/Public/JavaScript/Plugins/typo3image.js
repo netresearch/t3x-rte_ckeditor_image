@@ -2420,7 +2420,9 @@ export default class Typo3Image extends Plugin {
                             // Link contains text content besides the image
                             hasOtherContent = true;
                         } else if (child.is('element')) {
-                            // Link contains other elements
+                            // Link contains other elements (including nested <a> from #667).
+                            // Double-wrapped <a><a><img></a></a> is handled by a dedicated
+                            // upcast converter registered earlier in this file.
                             hasOtherContent = true;
                         }
                     }

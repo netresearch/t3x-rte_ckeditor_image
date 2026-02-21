@@ -185,6 +185,18 @@ export function createStandaloneImageView(imgAttrs) {
 }
 
 /**
+ * Helper to create a double-wrapped linked image: <a outer><a inner><img/></a></a>
+ * This simulates historical data where DB has nested <a> tags wrapping an image.
+ * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+ */
+export function createDoubleWrappedLinkedImageView(outerLinkAttrs, innerLinkAttrs, imgAttrs) {
+  const img = new MockViewElement('img', imgAttrs);
+  const innerAnchor = new MockViewElement('a', innerLinkAttrs, [img]);
+  const outerAnchor = new MockViewElement('a', outerLinkAttrs, [innerAnchor]);
+  return { outerAnchor, innerAnchor, img };
+}
+
+/**
  * Helper to create a figure with linked image
  */
 export function createFigureWithLinkedImage(figureAttrs, linkAttrs, imgAttrs, captionText) {

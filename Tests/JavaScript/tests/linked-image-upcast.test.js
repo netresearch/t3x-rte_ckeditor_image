@@ -13,8 +13,77 @@ import {
   MockViewElement,
   MockConversionApi,
   createLinkedImageView,
+  createDoubleWrappedLinkedImageView,
   createStandaloneImageView,
 } from '../mocks/ckeditor-mocks.js';
+
+/**
+ * Dedicated upcast converter for corrupted double-link structure: <a><a><img></a></a>
+ * Mirrors the production converter at typo3image.js lines ~2028-2116.
+ *
+ * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+ */
+function doubleLinkedImageUpcastConverter(viewOuterLink, conversionApi) {
+  const { writer, consumable } = conversionApi;
+
+  let innerLink = null;
+  let imgElement = null;
+
+  for (const child of viewOuterLink.getChildren()) {
+    if (child.is('element', 'a')) {
+      innerLink = child;
+      for (const innerChild of child.getChildren()) {
+        if (innerChild.is('element', 'img') && innerChild.getAttribute('data-htmlarea-file-uid')) {
+          imgElement = innerChild;
+          break;
+        }
+      }
+    }
+  }
+
+  if (!innerLink || !imgElement) {
+    return null;
+  }
+
+  if (!consumable.test(viewOuterLink, { name: true }) ||
+      !consumable.test(innerLink, { name: true }) ||
+      !consumable.test(imgElement, { name: true })) {
+    return null;
+  }
+
+  consumable.consume(viewOuterLink, { name: true });
+  consumable.consume(innerLink, { name: true });
+  consumable.consume(imgElement, { name: true });
+
+  // Use inner link attributes (they have more complete info like data-link-params)
+  const linkHref = innerLink.getAttribute('href') || viewOuterLink.getAttribute('href') || '';
+  const linkTarget = innerLink.getAttribute('target') || viewOuterLink.getAttribute('target') || '';
+  const linkTitle = innerLink.getAttribute('title') || viewOuterLink.getAttribute('title') || '';
+
+  const imageAttributes = {
+    fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
+    fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
+    src: imgElement.getAttribute('src'),
+    width: imgElement.getAttribute('width') || '',
+    height: imgElement.getAttribute('height') || '',
+    class: imgElement.getAttribute('class') || '',
+    alt: imgElement.getAttribute('alt') || ''
+  };
+
+  if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+    imageAttributes.imageLinkHref = linkHref;
+    if (linkTarget && linkTarget.trim() !== '') {
+      imageAttributes.imageLinkTarget = linkTarget;
+    }
+    if (linkTitle && linkTitle.trim() !== '') {
+      imageAttributes.imageLinkTitle = linkTitle;
+    }
+  }
+
+  const imgClass = (imageAttributes.class || '').toString();
+  const isInline = imgClass.split(/\s+/).includes('image-inline');
+  return writer.createElement(isInline ? 'typo3imageInline' : 'typo3image', imageAttributes);
+}
 
 /**
  * Extract the converter logic from typo3image.js for testing.
@@ -385,6 +454,122 @@ describe('Linked Image Upcast Converter (#565)', () => {
 
       // The model element should have link attributes (not duplicated)
       expect(linkResult.getAttribute('imageLinkHref')).toBe('https://example.com');
+    });
+  });
+
+  describe('Double-wrapped links — dedicated converter (#667)', () => {
+    it('should convert <a><a><img data-htmlarea-file-uid="..."/></a></a> to model element', () => {
+      const { outerAnchor } = createDoubleWrappedLinkedImageView(
+        { href: 't3://page?uid=1#1', target: '_blank', class: 'image image-inline' },
+        { href: 't3://page?uid=1#1', target: '_blank', class: 'image image-inline' },
+        {
+          'data-htmlarea-file-uid': '2',
+          'src': '/fileadmin/test.jpg',
+          'class': 'image-inline',
+          'width': '300',
+          'height': '200',
+          'alt': 'Test'
+        }
+      );
+
+      const result = doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
+
+      expect(result).not.toBeNull();
+      expect(result.name).toBe('typo3imageInline');
+      expect(result.getAttribute('fileUid')).toBe('2');
+      expect(result.getAttribute('imageLinkHref')).toBe('t3://page?uid=1#1');
+      expect(result.getAttribute('imageLinkTarget')).toBe('_blank');
+    });
+
+    it('should consume all three elements: outer <a>, inner <a>, and <img>', () => {
+      const { outerAnchor, innerAnchor, img } = createDoubleWrappedLinkedImageView(
+        { href: 'https://example.com' },
+        { href: 'https://example.com' },
+        { 'data-htmlarea-file-uid': '123', 'src': '/test.jpg' }
+      );
+
+      doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
+
+      // All three elements must be consumed to prevent GHS from re-processing
+      expect(conversionApi.consumable.isConsumed(outerAnchor)).toBe(true);
+      expect(conversionApi.consumable.isConsumed(innerAnchor)).toBe(true);
+      expect(conversionApi.consumable.isConsumed(img)).toBe(true);
+    });
+
+    it('should prefer inner <a> link attributes (more complete info)', () => {
+      const { outerAnchor } = createDoubleWrappedLinkedImageView(
+        { href: 'https://outer.com', target: '_blank', title: 'Outer Title' },
+        { href: 'https://inner.com', target: '_self', title: 'Inner Title' },
+        { 'data-htmlarea-file-uid': '456', 'src': '/test.jpg' }
+      );
+
+      const result = doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
+
+      // Inner link attributes take precedence (they have more complete info)
+      expect(result.getAttribute('imageLinkHref')).toBe('https://inner.com');
+      expect(result.getAttribute('imageLinkTarget')).toBe('_self');
+      expect(result.getAttribute('imageLinkTitle')).toBe('Inner Title');
+    });
+
+    it('should fall back to outer <a> attributes when inner has none', () => {
+      const { outerAnchor } = createDoubleWrappedLinkedImageView(
+        { href: 'https://outer.com', target: '_blank' },
+        {},
+        { 'data-htmlarea-file-uid': '789', 'src': '/test.jpg' }
+      );
+
+      const result = doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
+
+      expect(result.getAttribute('imageLinkHref')).toBe('https://outer.com');
+      expect(result.getAttribute('imageLinkTarget')).toBe('_blank');
+    });
+
+    it('should return null for nested <a> without TYPO3 image', () => {
+      const innerImg = new MockViewElement('img', { src: '/external.jpg' }); // No file-uid
+      const innerAnchor = new MockViewElement('a', { href: '/page' }, [innerImg]);
+      const outerAnchor = new MockViewElement('a', { href: '/page' }, [innerAnchor]);
+
+      const result = doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
+
+      expect(result).toBeNull();
+      expect(conversionApi.consumable.isConsumed(outerAnchor)).toBe(false);
+    });
+
+    it('should return null when outer <a> is already consumed', () => {
+      const { outerAnchor } = createDoubleWrappedLinkedImageView(
+        { href: 'https://example.com' },
+        { href: 'https://example.com' },
+        { 'data-htmlarea-file-uid': '123', 'src': '/test.jpg' }
+      );
+
+      // Pre-consume outer to simulate another converter
+      conversionApi.consumable.consume(outerAnchor, { name: true });
+
+      const result = doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
+
+      expect(result).toBeNull();
+    });
+
+    it('should delegate double-wrapped links from generic converter to dedicated one', () => {
+      const { outerAnchor, innerAnchor, img } = createDoubleWrappedLinkedImageView(
+        { href: 'https://example.com' },
+        { href: 'https://example.com' },
+        { 'data-htmlarea-file-uid': '123', 'src': '/test.jpg' }
+      );
+
+      // Generic converter should return null (nested <a> is "other content")
+      const genericResult = linkedImageUpcastConverter(outerAnchor, conversionApi);
+      expect(genericResult).toBeNull();
+
+      // Dedicated converter handles it
+      const dedicatedResult = doubleLinkedImageUpcastConverter(outerAnchor, conversionApi);
+      expect(dedicatedResult).not.toBeNull();
+      expect(dedicatedResult.getAttribute('fileUid')).toBe('123');
+
+      // All elements consumed
+      expect(conversionApi.consumable.isConsumed(outerAnchor)).toBe(true);
+      expect(conversionApi.consumable.isConsumed(innerAnchor)).toBe(true);
+      expect(conversionApi.consumable.isConsumed(img)).toBe(true);
     });
   });
 });

@@ -174,6 +174,12 @@ class ImageRenderingAdapter
             return '';
         }
 
+        // Clean up double-wrapped links: if content starts with <a>, strip the inner <a> wrapper.
+        // This occurs when DB has historical <a><a><img></a></a> data — parseFunc's tags.a
+        // passes the content between outer <a> and first </a> as currentVal, which includes
+        // the inner <a> opening tag. See #667.
+        $currentVal = $this->stripNestedLinkWrapper($currentVal);
+
         // Get link attributes from tag parameters (populated by parseFunc for tags.a)
         $linkAttributes = $this->extractLinkAttributes();
 
@@ -359,6 +365,34 @@ class ImageRenderingAdapter
         }
 
         return $linkAttributes;
+    }
+
+    /**
+     * Strip nested <a> wrapper from content when it exclusively wraps an <img> tag.
+     *
+     * Handles historical double-wrapped data: <a outer><a inner><img></a></a>
+     * parseFunc's tags.a collects content up to the first </a>, so currentVal
+     * may be: <a class="..." href="..."><img ...> (with or without closing </a>).
+     * This method strips the inner <a> wrapper, leaving only the <img>.
+     *
+     * Conservative: only strips when the entire content is <a ...><img ...></a>
+     * — does not affect text links or mixed content.
+     *
+     * @param string $html Inner content that may contain a nested <a> wrapper
+     *
+     * @return string Content with nested <a> wrapper stripped, or original if no match
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+     */
+    private function stripNestedLinkWrapper(string $html): string
+    {
+        $stripped = preg_replace(
+            '/^\s*<a\b[^>]*>\s*(<img\b[^>]*(?:\s*\/)?>)\s*(?:<\/a>)?\s*$/i',
+            '$1',
+            $html,
+        );
+
+        return is_string($stripped) ? $stripped : $html;
     }
 
     /**
