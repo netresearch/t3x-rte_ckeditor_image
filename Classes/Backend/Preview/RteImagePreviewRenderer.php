@@ -151,6 +151,7 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
                 ValidationIssueType::ProcessedImageSrc => 'processed image URL(s)',
                 ValidationIssueType::MissingFileUid    => 'missing file UID(s)',
                 ValidationIssueType::BrokenSrc         => 'broken src attribute(s)',
+                ValidationIssueType::NestedLinkWrapper => 'nested link wrapper(s)',
             };
 
             $counts[$label] = ($counts[$label] ?? 0) + 1;

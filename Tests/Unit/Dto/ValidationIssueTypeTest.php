@@ -18,9 +18,9 @@ use PHPUnit\Framework\TestCase;
 class ValidationIssueTypeTest extends TestCase
 {
     #[Test]
-    public function enumHasFiveCases(): void
+    public function enumHasSixCases(): void
     {
-        self::assertCount(5, ValidationIssueType::cases());
+        self::assertCount(6, ValidationIssueType::cases());
     }
 
     #[Test]

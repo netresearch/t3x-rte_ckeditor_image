@@ -215,7 +215,10 @@ class RteImageReferenceValidator
             ++$imgIndex;
         }
 
-        return $issues;
+        // Detect nested link wrappers: <a><a><img data-htmlarea-file-uid="..."></a></a> (#667)
+        $nestedLinkIssues = $this->detectNestedLinkWrappers($html, $table, $uid, $field);
+
+        return [...$issues, ...$nestedLinkIssues];
     }
 
     /**
@@ -319,6 +322,9 @@ class RteImageReferenceValidator
      */
     private function applyFixes(string $html, array $issues): string
     {
+        // Collapse nested link wrappers first (structural fix) — #667
+        $html = $this->collapseNestedLinks($html, $issues);
+
         // Build a map of fileUid => expectedSrc for quick lookup
         $fixMap = [];
 
@@ -449,6 +455,78 @@ class RteImageReferenceValidator
         }
 
         return $grouped;
+    }
+
+    /**
+     * Detect nested <a><a><img data-htmlarea-file-uid></a></a> patterns (#667).
+     *
+     * @return list<ValidationIssue>
+     */
+    private function detectNestedLinkWrappers(string $html, string $table, int $uid, string $field): array
+    {
+        $issues = [];
+
+        $matched = preg_match_all(
+            '/<a\b[^>]*>\s*<a\b[^>]*>\s*<img\b[^>]*\bdata-htmlarea-file-uid\s*=\s*"(\d+)"[^>]*>\s*<\/a>\s*<\/a>/i',
+            $html,
+            $matches,
+            PREG_SET_ORDER,
+        );
+
+        if ($matched === false || $matched === 0) {
+            return [];
+        }
+
+        foreach ($matches as $index => $match) {
+            // imgIndex here is the Nth nested-link match, not the image position in the document.
+            // This is sufficient because collapseNestedLinks() operates on the full HTML, not by index.
+            $issues[] = new ValidationIssue(
+                type: ValidationIssueType::NestedLinkWrapper,
+                table: $table,
+                uid: $uid,
+                field: $field,
+                fileUid: (int) $match[1],
+                currentSrc: null,
+                expectedSrc: null,
+                imgIndex: $index,
+            );
+        }
+
+        return $issues;
+    }
+
+    /**
+     * Collapse nested <a><a><img></a></a> into <a><img></a>, keeping the outer <a>'s attributes.
+     *
+     * @param list<ValidationIssue> $issues
+     */
+    private function collapseNestedLinks(string $html, array $issues): string
+    {
+        $hasNestedLinkIssues = false;
+
+        foreach ($issues as $issue) {
+            if ($issue->type === ValidationIssueType::NestedLinkWrapper) {
+                $hasNestedLinkIssues = true;
+
+                break;
+            }
+        }
+
+        if (!$hasNestedLinkIssues) {
+            return $html;
+        }
+
+        $pattern = '/(<a\b[^>]*>)\s*<a\b[^>]*>\s*(<img\b[^>]*\bdata-htmlarea-file-uid\b[^>]*>)\s*<\/a>\s*(<\/a>)/i';
+
+        // Loop to handle triple+ nesting: each pass removes one layer
+        $count = 0;
+
+        do {
+            $collapsed = preg_replace($pattern, '$1$2$3', $html, -1, $count);
+            $html      = is_string($collapsed) ? $collapsed : $html;
+        } while ($count > 0);
+
+        return $html;
     }
 
     /**

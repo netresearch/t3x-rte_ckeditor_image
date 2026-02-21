@@ -562,4 +562,375 @@ class RteImageReferenceValidatorTest extends TestCase
         // The img tag's file UID (99) is not in the fixMap, so no fix applied
         self::assertSame($html, $this->invokeApplyFixes($html, $issues));
     }
+
+    // -------------------------------------------------------------------------
+    // Nested link wrapper detection and fixing (#667)
+    // -------------------------------------------------------------------------
+
+    #[Test]
+    public function detectsNestedLinkWrapper(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('/fileadmin/test.jpg');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(2)
+            ->willReturn($file);
+
+        $html = '<p><a href="https://example.com"><a href="https://example.com">'
+            . '<img class="image-inline" src="/fileadmin/test.jpg" data-htmlarea-file-uid="2" />'
+            . '</a></a></p>';
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 1, 'bodytext');
+
+        self::assertCount(1, $issues);
+        self::assertSame(ValidationIssueType::NestedLinkWrapper, $issues[0]->type);
+        self::assertSame(2, $issues[0]->fileUid);
+        self::assertTrue($issues[0]->isFixable());
+    }
+
+    #[Test]
+    public function detectsNestedLinkWrapperWithRealWorldAttributes(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('/fileadmin/user_upload/photo.jpg');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(5)
+            ->willReturn($file);
+
+        $html = '<p><a class="image image-inline" href="t3://page?uid=1#1" target="_blank">'
+            . '<a class="image image-inline" href="t3://page?uid=1#1" target="_blank">'
+            . '<img class="image-inline" src="/fileadmin/user_upload/photo.jpg" '
+            . 'data-htmlarea-file-uid="5" width="300" height="200" />'
+            . '</a></a></p>';
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 42, 'bodytext');
+
+        self::assertCount(1, $issues);
+        self::assertSame(ValidationIssueType::NestedLinkWrapper, $issues[0]->type);
+        self::assertSame(5, $issues[0]->fileUid);
+    }
+
+    #[Test]
+    public function detectsNestedLinkWrapperWithWhitespace(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('/fileadmin/test.jpg');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(2)
+            ->willReturn($file);
+
+        $html = "<p>\n<a href=\"https://example.com\">\n  <a href=\"https://example.com\">\n    "
+            . "<img src=\"/fileadmin/test.jpg\" data-htmlarea-file-uid=\"2\" />\n  </a>\n</a>\n</p>";
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 1, 'bodytext');
+
+        $nestedIssues = array_filter(
+            $issues,
+            static fn (ValidationIssue $i): bool => $i->type === ValidationIssueType::NestedLinkWrapper,
+        );
+
+        self::assertCount(1, $nestedIssues);
+    }
+
+    #[Test]
+    public function noNestedLinkIssueForSingleLinkWrappedImage(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('/fileadmin/test.jpg');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(1)
+            ->willReturn($file);
+
+        $html = '<p><a href="https://example.com">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" />'
+            . '</a></p>';
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 1, 'bodytext');
+
+        self::assertSame([], $issues);
+    }
+
+    #[Test]
+    public function detectsNestedLinkWrapperAmongNormalContent(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('/fileadmin/img.jpg');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->willReturn($file);
+
+        $html = '<p><img src="/fileadmin/img.jpg" data-htmlarea-file-uid="1" /></p>'
+            . '<p><a href="https://example.com"><a href="https://example.com">'
+            . '<img src="/fileadmin/img.jpg" data-htmlarea-file-uid="3" />'
+            . '</a></a></p>';
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 1, 'bodytext');
+
+        self::assertCount(1, $issues);
+        self::assertSame(ValidationIssueType::NestedLinkWrapper, $issues[0]->type);
+        self::assertSame(3, $issues[0]->fileUid);
+    }
+
+    #[Test]
+    public function applyFixesCollapsesNestedLinkWrapper(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::NestedLinkWrapper,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 2,
+                currentSrc: null,
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+        ];
+
+        $html = '<p><a href="https://example.com" target="_blank">'
+            . '<a href="https://example.com" target="_blank">'
+            . '<img class="image-inline" src="/fileadmin/test.jpg" data-htmlarea-file-uid="2" />'
+            . '</a></a></p>';
+
+        $expected = '<p><a href="https://example.com" target="_blank">'
+            . '<img class="image-inline" src="/fileadmin/test.jpg" data-htmlarea-file-uid="2" />'
+            . '</a></p>';
+
+        self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesCollapsesNestedLinkPreservingOuterAttributes(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::NestedLinkWrapper,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 7,
+                currentSrc: null,
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+        ];
+
+        // Outer and inner <a> have DIFFERENT attributes — outer should be kept
+        $html = '<p><a class="image image-inline" href="t3://page?uid=1" target="_blank">'
+            . '<a class="other-class" href="t3://page?uid=99" target="_self">'
+            . '<img src="/fileadmin/photo.jpg" data-htmlarea-file-uid="7" />'
+            . '</a></a></p>';
+
+        $expected = '<p><a class="image image-inline" href="t3://page?uid=1" target="_blank">'
+            . '<img src="/fileadmin/photo.jpg" data-htmlarea-file-uid="7" />'
+            . '</a></p>';
+
+        self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesCollapsesNestedLinkWithWhitespace(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::NestedLinkWrapper,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 2,
+                currentSrc: null,
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+        ];
+
+        $html = "<p><a href=\"https://example.com\">\n  <a href=\"https://example.com\">\n    "
+            . "<img src=\"/fileadmin/test.jpg\" data-htmlarea-file-uid=\"2\" />\n  </a>\n</a></p>";
+
+        $expected = '<p><a href="https://example.com">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="2" />'
+            . '</a></p>';
+
+        self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesCollapsesMultipleNestedLinks(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::NestedLinkWrapper,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 2,
+                currentSrc: null,
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+            new ValidationIssue(
+                type: ValidationIssueType::NestedLinkWrapper,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 4,
+                currentSrc: null,
+                expectedSrc: null,
+                imgIndex: 1,
+            ),
+        ];
+
+        $html = '<p><a href="https://one.com"><a href="https://one.com">'
+            . '<img src="/fileadmin/one.jpg" data-htmlarea-file-uid="2" />'
+            . '</a></a></p>'
+            . '<p><a href="https://two.com"><a href="https://two.com">'
+            . '<img src="/fileadmin/two.jpg" data-htmlarea-file-uid="4" />'
+            . '</a></a></p>';
+
+        $expected = '<p><a href="https://one.com">'
+            . '<img src="/fileadmin/one.jpg" data-htmlarea-file-uid="2" />'
+            . '</a></p>'
+            . '<p><a href="https://two.com">'
+            . '<img src="/fileadmin/two.jpg" data-htmlarea-file-uid="4" />'
+            . '</a></p>';
+
+        self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesLeavesNonNestedLinksUntouched(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::SrcMismatch,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 1,
+                currentSrc: '/fileadmin/old.jpg',
+                expectedSrc: '/fileadmin/new.jpg',
+                imgIndex: 0,
+            ),
+        ];
+
+        // Normal <a><img></a> structure — should NOT be collapsed, only src fixed
+        $html = '<p><a href="https://example.com">'
+            . '<img src="/fileadmin/old.jpg" data-htmlarea-file-uid="1" />'
+            . '</a></p>';
+
+        $expected = '<p><a href="https://example.com">'
+            . '<img src="/fileadmin/new.jpg" data-htmlarea-file-uid="1" />'
+            . '</a></p>';
+
+        self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesHandlesMixedNestedLinkAndSrcMismatch(): void
+    {
+        // Both structural (nested link) and attribute (src mismatch) fixes on same content
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::NestedLinkWrapper,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 2,
+                currentSrc: null,
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+            new ValidationIssue(
+                type: ValidationIssueType::SrcMismatch,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 2,
+                currentSrc: '/fileadmin/old.jpg',
+                expectedSrc: '/fileadmin/new.jpg',
+                imgIndex: 0,
+            ),
+        ];
+
+        $html = '<p><a href="https://example.com"><a href="https://example.com">'
+            . '<img src="/fileadmin/old.jpg" data-htmlarea-file-uid="2" />'
+            . '</a></a></p>';
+
+        // Both fixes should apply: collapse nested link AND fix src
+        $expected = '<p><a href="https://example.com">'
+            . '<img src="/fileadmin/new.jpg" data-htmlarea-file-uid="2" />'
+            . '</a></p>';
+
+        self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function nestedLinkWrapperIsIncludedInFixableIssues(): void
+    {
+        $result = new ValidationResult();
+
+        $result->addIssue(new ValidationIssue(
+            type: ValidationIssueType::NestedLinkWrapper,
+            table: 'tt_content',
+            uid: 1,
+            field: 'bodytext',
+            fileUid: 2,
+            currentSrc: null,
+            expectedSrc: null,
+            imgIndex: 0,
+        ));
+
+        $result->addIssue(new ValidationIssue(
+            type: ValidationIssueType::MissingFileUid,
+            table: 'tt_content',
+            uid: 2,
+            field: 'bodytext',
+            fileUid: null,
+            currentSrc: '/img.jpg',
+            expectedSrc: null,
+            imgIndex: 0,
+        ));
+
+        self::assertCount(2, $result->getIssues());
+        self::assertCount(1, $result->getFixableIssues());
+        self::assertSame(ValidationIssueType::NestedLinkWrapper, $result->getFixableIssues()[0]->type);
+    }
+
+    #[Test]
+    public function applyFixesCollapsesTripleNestedLinks(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::NestedLinkWrapper,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 2,
+                currentSrc: null,
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+        ];
+
+        // Triple nesting: <a><a><a><img></a></a></a>
+        $html = '<p><a href="https://example.com"><a href="https://example.com">'
+            . '<a href="https://example.com">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="2" />'
+            . '</a></a></a></p>';
+
+        $expected = '<p><a href="https://example.com">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="2" />'
+            . '</a></p>';
+
+        self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
+    }
 }
