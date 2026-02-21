@@ -498,6 +498,12 @@ class RteImageReferenceValidator
     /**
      * Collapse nested <a><a><img></a></a> into <a><img></a>, keeping the outer <a>'s attributes.
      *
+     * Outer-wins is intentional: in issue #667, renderInlineLink() adds the outer <a> with
+     * resolved attributes (t3:// → real URL), while the inner <a> retains unresolved attributes.
+     * In practice, both <a> tags have identical attributes since the bug duplicates them.
+     * DOMDocument cannot be used here because it normalizes invalid nested <a> tags,
+     * making the nesting undetectable via DOM traversal.
+     *
      * @param list<ValidationIssue> $issues
      */
     private function collapseNestedLinks(string $html, array $issues): string
@@ -518,13 +524,16 @@ class RteImageReferenceValidator
 
         $pattern = '/(<a\b[^>]*>)\s*<a\b[^>]*>\s*(<img\b[^>]*\bdata-htmlarea-file-uid\b[^>]*>)\s*<\/a>\s*(<\/a>)/i';
 
-        // Loop to handle triple+ nesting: each pass removes one layer
-        $count = 0;
+        // Loop to handle triple+ nesting: each pass removes one layer.
+        // Iteration limit prevents theoretical unbounded execution on pathological input.
+        $count          = 0;
+        $iterationLimit = 10;
 
         do {
             $collapsed = preg_replace($pattern, '$1$2$3', $html, -1, $count);
             $html      = is_string($collapsed) ? $collapsed : $html;
-        } while ($count > 0);
+            --$iterationLimit;
+        } while ($count > 0 && $iterationLimit > 0);
 
         return $html;
     }

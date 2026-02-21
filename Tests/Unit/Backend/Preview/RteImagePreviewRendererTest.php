@@ -758,6 +758,35 @@ class RteImagePreviewRendererTest extends TestCase
     }
 
     #[Test]
+    public function warningRenderedForNestedLinkWrapper(): void
+    {
+        $validator = $this->createMock(RteImageReferenceValidator::class);
+        $validator
+            ->method('validateHtml')
+            ->willReturn([
+                new ValidationIssue(
+                    type: ValidationIssueType::NestedLinkWrapper,
+                    table: 'tt_content',
+                    uid: 42,
+                    field: 'bodytext',
+                    fileUid: 2,
+                    currentSrc: null,
+                    expectedSrc: null,
+                    imgIndex: 0,
+                ),
+            ]);
+
+        $renderer = new RteImagePreviewRenderer($validator);
+        $result   = $this->callMethod($renderer, 'detectIssuesAndRenderWarning', [
+            '<p><a href="#"><a href="#"><img data-htmlarea-file-uid="2" /></a></a></p>',
+            ['uid' => 42],
+        ]);
+
+        self::assertStringContainsString('callout-warning', $result);
+        self::assertStringContainsString('nested link wrapper', $result);
+    }
+
+    #[Test]
     public function truncateResetsStateBetweenConsecutiveCalls(): void
     {
         $renderer  = new RteImagePreviewRenderer();

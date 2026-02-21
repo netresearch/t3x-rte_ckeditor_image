@@ -724,7 +724,10 @@ class RteImageReferenceValidatorTest extends TestCase
             ),
         ];
 
-        // Outer and inner <a> have DIFFERENT attributes — outer should be kept
+        // Outer and inner <a> have DIFFERENT attributes — outer should be kept.
+        // In #667, renderInlineLink() adds the outer <a> with resolved attributes,
+        // so outer-wins is the correct behavior for DB content. In practice, both
+        // <a> tags have identical attributes since the bug duplicates them.
         $html = '<p><a class="image image-inline" href="t3://page?uid=1" target="_blank">'
             . '<a class="other-class" href="t3://page?uid=99" target="_self">'
             . '<img src="/fileadmin/photo.jpg" data-htmlarea-file-uid="7" />'
