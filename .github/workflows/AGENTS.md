@@ -1,4 +1,4 @@
-<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-02-13 -->
+<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-02-22 -->
 
 # AGENTS.md -- .github/workflows
 
@@ -17,7 +17,7 @@ GitHub Actions CI/CD workflows for testing, releasing, and supply chain security
 | `slsa-provenance.yml` | SLSA Level 3 supply chain provenance | after release workflow |
 | `scorecard.yml` | OpenSSF Scorecard security assessment | weekly schedule |
 | `auto-merge-deps.yml` | Auto-merge Dependabot/Renovate PRs | pull_request (dependency bots) |
-| `release-labeler.yml` | Label PRs with release version info | push to main |
+| `release-labeler.yml` | Label PRs with release version + create announcement discussion | release published |
 | `add-to-project.yml` | Add issues to Netresearch TYPO3 project board | issues opened |
 
 ## CI Pipeline (ci.yml)
@@ -53,7 +53,7 @@ GitHub Actions CI/CD workflows for testing, releasing, and supply chain security
 - Depends on build job completion
 - Docker-based via `Build/Scripts/runTests.sh`
 - TYPO3 v13: blocking (must pass)
-- TYPO3 v14: `continue-on-error: true` (informational while stabilizing)
+- TYPO3 v14: blocking (must pass, `continue-on-error` removed in #627)
 - Artifacts: test results uploaded for 7 days
 
 ## Branch Protection
@@ -85,6 +85,16 @@ GitHub Actions CI/CD workflows for testing, releasing, and supply chain security
 - Format: `sha256sum` raw output, base64-encoded (NOT JSON array)
 - Uses `compile-generator: true` to build from source (avoids binary fetch issues)
 
+## Release Announcements
+
+The `release-labeler.yml` workflow includes an `announce-release` job that:
+1. Resolves the "Announcements" discussion category ID dynamically by name
+2. Checks first 100 discussions for duplicates (by exact title match)
+3. Creates a discussion with the release notes, linked back to the GitHub release
+4. Uses `-F body=@file` to safely pass release body content (avoids shell expansion)
+
+**Permissions required**: `discussions: write` (in addition to existing `issues: write`, `pull-requests: write`)
+
 ## PR/Commit Checklist
 
 - [ ] Actions pinned to full SHA with version comment
@@ -92,4 +102,4 @@ GitHub Actions CI/CD workflows for testing, releasing, and supply chain security
 - [ ] Secrets are not exposed in logs
 - [ ] Matrix strategy covers all required PHP/TYPO3 combinations
 - [ ] Caching configured for all dependencies
-- [ ] `continue-on-error` used only where appropriate (v14 E2E)
+- [ ] `continue-on-error` used only where appropriate
