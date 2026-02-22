@@ -105,7 +105,7 @@ composer ci:test:php:rector     # Rector dry-run check
 **E2E tests (Docker-based):**
 ```bash
 Build/Scripts/runTests.sh -s e2e -t 13 -p 8.5   # TYPO3 v13 E2E
-Build/Scripts/runTests.sh -s e2e -t 14 -p 8.5   # TYPO3 v14 E2E (non-blocking)
+Build/Scripts/runTests.sh -s e2e -t 14 -p 8.5   # TYPO3 v14 E2E (blocking)
 ```
 
 **Make targets (convenience):**
