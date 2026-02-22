@@ -1,6 +1,6 @@
 <!-- FOR AI AGENTS - Human readability is a side effect, not a goal -->
 <!-- Managed by agent: keep sections and order; edit content, not structure -->
-<!-- Last updated: 2026-02-13 | Last verified: 2026-02-13 -->
+<!-- Last updated: 2026-02-22 | Last verified: 2026-02-22 -->
 
 # AGENTS.md
 
@@ -16,7 +16,7 @@ Handles image insertion, processing, rendering with captions, links, popups, qua
 - **Repository**: [github.com/netresearch/t3x-rte_ckeditor_image](https://github.com/netresearch/t3x-rte_ckeditor_image)
 - **Tech Stack**: PHP ^8.2, TYPO3 ^13.4.21 || ^14.0, CKEditor 5
 - **License**: AGPL-3.0-or-later
-- **Current Version**: 13.5.0
+- **Current Version**: 13.6.0
 
 ## Architecture Overview
 
@@ -80,7 +80,7 @@ CKEditor 5 plugin: `Resources/Public/JavaScript/Plugins/typo3image.js`
 3. Pre-commit hooks run automatically: phplint -> php-cs-fixer -> phpstan
 4. Commit with conventional format (commitlint validates)
 5. Push and create PR
-6. CI runs: lint, phpstan, rector, unit tests, functional tests, E2E (v13 blocking, v14 informational)
+6. CI runs: lint, phpstan, rector, unit tests, functional tests, E2E (v13 + v14 blocking)
 7. Address review feedback (Copilot + Gemini Code Assist auto-review)
 8. Merge via merge queue with `gh pr merge --merge --auto`
 
@@ -105,7 +105,7 @@ composer ci:test:php:rector     # Rector dry-run check
 **E2E tests (Docker-based):**
 ```bash
 Build/Scripts/runTests.sh -s e2e -t 13 -p 8.5   # TYPO3 v13 E2E
-Build/Scripts/runTests.sh -s e2e -t 14 -p 8.5   # TYPO3 v14 E2E (non-blocking)
+Build/Scripts/runTests.sh -s e2e -t 14 -p 8.5   # TYPO3 v14 E2E (blocking)
 ```
 
 **Make targets (convenience):**
