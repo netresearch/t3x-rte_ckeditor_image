@@ -1,4 +1,4 @@
-<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-02-13 -->
+<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-02-22 -->
 
 # AGENTS.md -- Documentation
 
@@ -48,6 +48,12 @@ Documentation/
     Security-Validation-Checklist.md  Security review checklist
     RFC-Fluid-Templates-Refactoring.md  Template refactoring proposal
   Troubleshooting/               -- Common issues and solutions
+    Index.rst                      Troubleshooting overview
+    Editor-Issues.rst              CKEditor editing issues and resolved fixes
+    Frontend-Issues.rst            Frontend rendering problems
+    Installation-Issues.rst        Installation and setup issues
+    Performance-Issues.rst         Performance optimization
+    Image-Reference-Validation.rst CLI validator and upgrade wizard (6 issue types)
   Contributing/Index.rst         -- Contribution guidelines
   Images/                        -- Screenshots and diagrams
 ```
@@ -77,6 +83,7 @@ Documentation/
 
 - `.. confval::` for configuration values
 - `.. versionadded::` for new features
+- `.. versionchanged::` for changed behavior in a version
 - `.. deprecated::` for deprecation notices
 - `.. t3-field-list-table::` for TYPO3-style tables
 - `.. figure::` with `:alt:` and `:zoom: lightbox` for screenshots
