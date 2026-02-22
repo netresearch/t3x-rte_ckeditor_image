@@ -36,16 +36,42 @@ jobs:
         with:
           egress-policy: audit
 
+      - name: Resolve announcements category ID
+        id: category
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          CATEGORY_ID=$(gh api graphql -f query='
+            query($owner: String!, $name: String!) {
+              repository(owner: $owner, name: $name) {
+                discussionCategories(first: 20) {
+                  nodes { id name }
+                }
+              }
+            }' -f owner="$REPO_OWNER" -f name="$REPO_NAME" \
+            --jq '.data.repository.discussionCategories.nodes[] | select(.name == "Announcements") | .id')
+
+          if [[ -z "$CATEGORY_ID" ]]; then
+            echo "::warning::No 'Announcements' discussion category found, skipping"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "id=$CATEGORY_ID" >> "$GITHUB_OUTPUT"
+          echo "found=true" >> "$GITHUB_OUTPUT"
+
       - name: Create announcement discussion
+        if: steps.category.outputs.found == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           RELEASE_URL: ${{ github.event.release.html_url }}
           RELEASE_BODY: ${{ github.event.release.body }}
           REPO_ID: ${{ github.event.repository.node_id }}
+          CATEGORY_ID: ${{ steps.category.outputs.id }}
         run: |
-          CATEGORY_ID="DIC_kwDOBW39ds4CAe-5"  # Announcements
-
           # Build discussion body safely (no shell expansion of release body)
           {
             printf '## [%s](%s)\n\n' "$RELEASE_TAG" "$RELEASE_URL"
@@ -53,21 +79,25 @@ jobs:
             printf '---\n*Automatically created from [GitHub Release](%s).*\n' "$RELEASE_URL"
           } > /tmp/discussion-body.md
 
-          # Check if discussion already exists
-          EXISTING=$(gh api graphql -f query="
-            { repository(owner: \"${{ github.repository_owner }}\", name: \"${{ github.event.repository.name }}\") {
-              discussions(first: 5, categoryId: \"${CATEGORY_ID}\", orderBy: {field: CREATED_AT, direction: DESC}) {
-                nodes { title }
+          # Check if discussion already exists (search all announcements by title)
+          EXISTING=$(gh api graphql -f query='
+            query($owner: String!, $name: String!, $categoryId: ID!) {
+              repository(owner: $owner, name: $name) {
+                discussions(first: 100, categoryId: $categoryId, orderBy: {field: CREATED_AT, direction: DESC}) {
+                  nodes { title }
+                }
               }
-            }
-          }" --jq ".data.repository.discussions.nodes[].title" | grep -Fx "$RELEASE_TAG" || true)
+            }' \
+            -f owner="${{ github.repository_owner }}" \
+            -f name="${{ github.event.repository.name }}" \
+            -f categoryId="$CATEGORY_ID" \
+            --jq '.data.repository.discussions.nodes[].title' | grep -Fx "$RELEASE_TAG" || true)
 
           if [[ -n "$EXISTING" ]]; then
             echo "Discussion for $RELEASE_TAG already exists, skipping"
             exit 0
           fi
 
-          BODY=$(cat /tmp/discussion-body.md)
           gh api graphql \
             -f query='mutation($repoId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
               createDiscussion(input: {repositoryId: $repoId, categoryId: $categoryId, title: $title, body: $body}) {
@@ -77,7 +107,7 @@ jobs:
             -f repoId="$REPO_ID" \
             -f categoryId="$CATEGORY_ID" \
             -f title="$RELEASE_TAG" \
-            -f body="$BODY"
+            -F body=@/tmp/discussion-body.md
 
           echo "## Announcement Created" >> $GITHUB_STEP_SUMMARY
           echo "Discussion created for $RELEASE_TAG" >> $GITHUB_STEP_SUMMARY
