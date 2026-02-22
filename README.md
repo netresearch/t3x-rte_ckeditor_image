@@ -1,4 +1,4 @@
-[![Latest version](https://img.shields.io/github/v/release/netresearch/t3x-rte_ckeditor_image?sort=semver&logo=github)](https://github.com/netresearch/t3x-rte_ckeditor_image/releases/latest)
+[![Latest GitHub release](https://img.shields.io/github/v/release/netresearch/t3x-rte_ckeditor_image?sort=semver&logo=github)](https://github.com/netresearch/t3x-rte_ckeditor_image/releases/latest)
 [![License](https://img.shields.io/github/license/netresearch/t3x-rte_ckeditor_image)](https://github.com/netresearch/t3x-rte_ckeditor_image/blob/main/LICENSE)
 [![CI](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/ci.yml/badge.svg)](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/codeql-analysis.yml)
@@ -16,7 +16,7 @@
 [![TYPO3 extension](https://typo3-badges.dev/badge/rte_ckeditor_image/extension/shields.svg)](https://extensions.typo3.org/extension/rte_ckeditor_image)
 [![Stability](https://typo3-badges.dev/badge/rte_ckeditor_image/stability/shields.svg)](https://extensions.typo3.org/extension/rte_ckeditor_image)
 [![TYPO3 versions](https://img.shields.io/badge/TYPO3-13%20%7C%2014-orange.svg?logo=typo3)](https://extensions.typo3.org/extension/rte_ckeditor_image)
-[![Latest version](https://typo3-badges.dev/badge/rte_ckeditor_image/version/shields.svg)](https://extensions.typo3.org/extension/rte_ckeditor_image)
+[![Latest TER version](https://typo3-badges.dev/badge/rte_ckeditor_image/version/shields.svg)](https://extensions.typo3.org/extension/rte_ckeditor_image)
 <!-- Generated with 🧡 at typo3-badges.dev -->
 
 # Image support for CKEditor for TYPO3
