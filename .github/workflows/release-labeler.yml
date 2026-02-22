@@ -2,6 +2,7 @@
 # Automatically labels PRs and issues with the release version they shipped in
 #
 # Features:
+# - Creates announcement discussion in Discussions > Announcements
 # - Creates `released:vX.Y.Z` label on release publish
 # - Labels all PRs merged between previous and current release
 # - Labels issues that were closed by those PRs
@@ -9,7 +10,7 @@
 #
 # Usage:
 # 1. Copy to .github/workflows/release-labeler.yml
-# 2. Ensure GITHUB_TOKEN has issues:write and pull-requests:write permissions
+# 2. Ensure GITHUB_TOKEN has issues:write, pull-requests:write, and discussions:write permissions
 
 name: Release Labeler
 
@@ -21,6 +22,66 @@ permissions:
   contents: read
 
 jobs:
+  announce-release:
+    name: Create Discussion Announcement
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      discussions: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        with:
+          egress-policy: audit
+
+      - name: Create announcement discussion
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+          REPO_ID: ${{ github.event.repository.node_id }}
+        run: |
+          CATEGORY_ID="DIC_kwDOBW39ds4CAe-5"  # Announcements
+
+          # Build discussion body safely (no shell expansion of release body)
+          {
+            printf '## [%s](%s)\n\n' "$RELEASE_TAG" "$RELEASE_URL"
+            printf '%s\n\n' "$RELEASE_BODY"
+            printf '---\n*Automatically created from [GitHub Release](%s).*\n' "$RELEASE_URL"
+          } > /tmp/discussion-body.md
+
+          # Check if discussion already exists
+          EXISTING=$(gh api graphql -f query="
+            { repository(owner: \"${{ github.repository_owner }}\", name: \"${{ github.event.repository.name }}\") {
+              discussions(first: 5, categoryId: \"${CATEGORY_ID}\", orderBy: {field: CREATED_AT, direction: DESC}) {
+                nodes { title }
+              }
+            }
+          }" --jq ".data.repository.discussions.nodes[].title" | grep -Fx "$RELEASE_TAG" || true)
+
+          if [[ -n "$EXISTING" ]]; then
+            echo "Discussion for $RELEASE_TAG already exists, skipping"
+            exit 0
+          fi
+
+          BODY=$(cat /tmp/discussion-body.md)
+          gh api graphql \
+            -f query='mutation($repoId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
+              createDiscussion(input: {repositoryId: $repoId, categoryId: $categoryId, title: $title, body: $body}) {
+                discussion { url }
+              }
+            }' \
+            -f repoId="$REPO_ID" \
+            -f categoryId="$CATEGORY_ID" \
+            -f title="$RELEASE_TAG" \
+            -f body="$BODY"
+
+          echo "## Announcement Created" >> $GITHUB_STEP_SUMMARY
+          echo "Discussion created for $RELEASE_TAG" >> $GITHUB_STEP_SUMMARY
+
   label-release:
     name: Label PRs and Issues
     runs-on: ubuntu-latest
