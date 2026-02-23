@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, waitForCKEditor, openImageEditDialog, confirmImageDialog, getEditorHtml, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, waitForCKEditor, openImageEditDialog, confirmImageDialog, getEditorHtml, getCKEditorData, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
 
 /**
  * E2E tests for the click behavior radio buttons in the CKEditor image dialog.
@@ -155,10 +155,10 @@ test.describe('Image Dialog - Click Behavior', () => {
     await confirmImageDialog(page);
     await page.waitForTimeout(1000);
 
-    // Verify the editor HTML now contains an anchor with the URL
-    const editorHtml = await getEditorHtml(page);
-    expect(editorHtml).toContain('<a ');
-    expect(editorHtml).toContain('example.com/click-behavior-test');
+    // Use data output since editing view has no <a> wrapper (#687)
+    const editorData = await getCKEditorData(page);
+    expect(editorData).toContain('<a ');
+    expect(editorData).toContain('example.com/click-behavior-test');
 
     console.log('Link URL was applied to editor HTML');
   });

@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, cancelImageDialog, getEditorHtml, saveContentElement, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, cancelImageDialog, getEditorHtml, getCKEditorData, saveContentElement, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
 
 /** Dedicated CE for this spec to prevent cross-file pollution (parallel execution) */
 const CE_ID = 31;
@@ -15,7 +15,11 @@ const CE_ID = 31;
  */
 
 /**
- * Get image attributes from CKEditor
+ * Get image attributes from CKEditor.
+ *
+ * Link detection uses the indicator badge (.ck-image-indicator--link) since
+ * the editing view no longer wraps images in <a> elements (#687).
+ * The link href is extracted from the indicator's title attribute.
  */
 async function getImageAttributes(page: Page): Promise<{
   src: string;
@@ -33,7 +37,10 @@ async function getImageAttributes(page: Page): Promise<{
   return await frame.locator('.ck-editor__editable').evaluate(() => {
     const img = document.querySelector('.ck-editor__editable img') as HTMLImageElement;
     const figure = img?.closest('figure');
-    const link = img?.closest('a') || figure?.querySelector('a');
+
+    // Link detection: editing view uses indicator badges instead of <a> wrappers (#687)
+    const linkIndicator = figure?.querySelector('.ck-image-indicator--link')
+      || img?.parentElement?.querySelector('.ck-image-indicator--link');
 
     return {
       src: img?.src || '',
@@ -42,8 +49,8 @@ async function getImageAttributes(page: Page): Promise<{
       width: img?.getAttribute('width') || img?.style.width || '',
       height: img?.getAttribute('height') || img?.style.height || '',
       classes: [...(figure?.classList || img?.classList || [])],
-      isLinked: !!link,
-      linkHref: link?.href || '',
+      isLinked: !!linkIndicator,
+      linkHref: linkIndicator?.getAttribute('title') || '',
       hasZoom: img?.hasAttribute('data-htmlarea-zoom') || figure?.hasAttribute('data-htmlarea-zoom') || false,
     };
   });
@@ -179,16 +186,18 @@ test.describe('Image Dialog - Apply Changes', () => {
       await confirmImageDialog(page);
       await page.waitForTimeout(1000);
 
-      // Check if image is now wrapped in a link
-      const editorHtml = await getEditorHtml(page);
-      console.log('Editor HTML contains link:', editorHtml.includes('<a '));
-
+      // Check if image has link indicator in editing view
       const newAttrs = await getImageAttributes(page);
       console.log(`Is linked: ${newAttrs.isLinked}, href: "${newAttrs.linkHref}"`);
 
       expect(newAttrs.isLinked).toBe(true);
       expect(newAttrs.linkHref).toContain('example.com');
-      console.log('SUCCESS: Image is wrapped in link');
+
+      // Verify data output contains <a> wrapper (data downcast preserves links)
+      const editorData = await getCKEditorData(page);
+      console.log('Editor data contains link:', editorData.includes('<a '));
+      expect(editorData).toContain('<a ');
+      console.log('SUCCESS: Image has link indicator and data contains <a>');
     } else {
       await page.screenshot({ path: 'test-results/dialog-no-link-input.png' });
       requireCondition(false, 'Link input not found in dialog');
@@ -317,8 +326,9 @@ test.describe('Image Dialog - Apply Changes', () => {
       await confirmImageDialog(page);
       await page.waitForTimeout(1000);
 
-      const editorHtml = await getEditorHtml(page);
-      const hasTarget = editorHtml.includes('target="_blank"');
+      // Use data output since editing view has no <a> wrapper (#687)
+      const editorData = await getCKEditorData(page);
+      const hasTarget = editorData.includes('target="_blank"');
       console.log(`Has target="_blank": ${hasTarget}`);
 
       expect(hasTarget).toBe(true);
@@ -360,8 +370,9 @@ test.describe('Image Dialog - Apply Changes', () => {
       await confirmImageDialog(page);
       await page.waitForTimeout(1000);
 
-      const editorHtml = await getEditorHtml(page);
-      const hasLinkTitle = editorHtml.includes(`title="${testLinkTitle}"`);
+      // Use data output since editing view has no <a> wrapper (#687)
+      const editorData = await getCKEditorData(page);
+      const hasLinkTitle = editorData.includes(`title="${testLinkTitle}"`);
       console.log(`Has link title: ${hasLinkTitle}`);
 
       expect(hasLinkTitle).toBe(true);
