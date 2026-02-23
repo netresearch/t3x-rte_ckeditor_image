@@ -1,3 +1,9 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:comment>
+    This template renders standalone images without any wrapper.
+    Also used for inline linked images where the <a> wrapper is handled
+    by renderInlineLink() (tags.a handler), not by the image template.
+    For block linked images, see Link.html / LinkWithCaption.html.
+</f:comment>
 <f:render partial="Image/Tag" arguments="{image: image}" />
 </html>

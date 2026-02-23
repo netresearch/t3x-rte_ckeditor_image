@@ -2650,8 +2650,12 @@ export default class Typo3Image extends Plugin {
                 converterPriority: 'high'
             });
 
+        // Check if a link href value represents a valid link.
+        // Empty strings and "/" (TYPO3 link browser default/placeholder) are not valid.
+        const isValidLink = (href) => href && href.trim() !== '' && href.trim() !== '/';
+
         // Helper function to create view element for typo3image
-        const createImageViewElement = (modelElement, writer) => {
+        const createImageViewElement = (modelElement, writer, { wrapInLink = true } = {}) => {
             const attributes= {
                 'src': modelElement.getAttribute('src'),
                 'data-htmlarea-file-uid': modelElement.getAttribute('fileUid'),
@@ -2704,9 +2708,10 @@ export default class Typo3Image extends Plugin {
             const imgElement = writer.createEmptyElement('img', attributes);
 
             // Check if model has link attributes and wrap in <a> if present
-            // Treat "/" as "no link" since it's TYPO3 link browser default/placeholder value
+            // wrapInLink=false is used by editing downcast to prevent CKEditor's native
+            // link indicator from duplicating our custom indicator badges (#687)
             const linkHref = modelElement.getAttribute('imageLinkHref');
-            if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+            if (wrapInLink && isValidLink(linkHref)) {
                 const linkAttributes = {
                     href: linkHref
                 };
@@ -2752,6 +2757,8 @@ export default class Typo3Image extends Plugin {
                         'fileUid',
                         'fileTable',
                         'src',
+                        'width',
+                        'height',
                         'enableZoom',
                         'imageLinkHref',
                         'imageLinkTarget',
@@ -2761,7 +2768,9 @@ export default class Typo3Image extends Plugin {
                     ]
                 },
                 view: (modelElement, { writer }) => {
-                    const imageElement = createImageViewElement(modelElement, writer);
+                    // wrapInLink=false: editing view uses indicator badges instead of <a>
+                    // to prevent CKEditor's native link ::after icon from duplicating (#687)
+                    const imageElement = createImageViewElement(modelElement, writer, { wrapInLink: false });
 
                     // Always use figure wrapper for consistency
                     const figure = writer.createContainerElement('figure', {
@@ -2771,9 +2780,16 @@ export default class Typo3Image extends Plugin {
                     // Insert image into figure
                     writer.insert(writer.createPositionAt(figure, 0), imageElement);
 
+                    // Constrain figure width to image width so figcaption
+                    // doesn't overflow the image boundary (#686)
+                    const width = modelElement.getAttribute('width');
+                    if (width) {
+                        writer.setStyle('max-width', `${width}px`, figure);
+                    }
+
                     // Add visual indicators for link and zoom
                     const linkHref = modelElement.getAttribute('imageLinkHref');
-                    const hasLink = linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/';
+                    const hasLink = isValidLink(linkHref);
                     const hasZoom = modelElement.getAttribute('enableZoom');
 
                     if (hasLink || hasZoom) {
@@ -2896,7 +2912,7 @@ export default class Typo3Image extends Plugin {
 
         // Helper function to create view element for typo3imageInline
         // Similar to createImageViewElement but with class on img and no caption support
-        const createInlineImageViewElement = (modelElement, writer) => {
+        const createInlineImageViewElement = (modelElement, writer, { wrapInLink = true } = {}) => {
             const attributes = {
                 'src': modelElement.getAttribute('src'),
                 'data-htmlarea-file-uid': modelElement.getAttribute('fileUid'),
@@ -2941,8 +2957,9 @@ export default class Typo3Image extends Plugin {
             const imgElement = writer.createEmptyElement('img', attributes);
 
             // Check if model has link attributes and wrap in <a> if present
+            // wrapInLink=false is used by editing downcast to prevent double link icon (#687)
             const linkHref = modelElement.getAttribute('imageLinkHref');
-            if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+            if (wrapInLink && isValidLink(linkHref)) {
                 const linkAttributes = {
                     href: linkHref
                 };
@@ -2983,6 +3000,8 @@ export default class Typo3Image extends Plugin {
                         'fileUid',
                         'fileTable',
                         'src',
+                        'width',
+                        'height',
                         'enableZoom',
                         'imageLinkHref',
                         'imageLinkTarget',
@@ -2992,7 +3011,9 @@ export default class Typo3Image extends Plugin {
                     ]
                 },
                 view: (modelElement, { writer }) => {
-                    const imageElement = createInlineImageViewElement(modelElement, writer);
+                    // wrapInLink=false: editing view uses indicator badges instead of <a>
+                    // to prevent CKEditor's native link ::after icon from duplicating (#687)
+                    const imageElement = createInlineImageViewElement(modelElement, writer, { wrapInLink: false });
 
                     // Wrap in span for inline widget (not figure)
                     const wrapper = writer.createContainerElement('span', {
@@ -3003,7 +3024,7 @@ export default class Typo3Image extends Plugin {
 
                     // Add visual indicators for link and zoom (same as block images)
                     const linkHref = modelElement.getAttribute('imageLinkHref');
-                    const hasLink = linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/';
+                    const hasLink = isValidLink(linkHref);
                     const hasZoom = modelElement.getAttribute('enableZoom');
 
                     if (hasLink || hasZoom) {

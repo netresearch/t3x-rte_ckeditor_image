@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, BASE_URL, navigateToContentEdit, getModuleFrame, waitForCKEditor, requireCondition, BACKEND_PASSWORD, openImageEditDialog, confirmImageDialog, getEditorHtml, saveContentElement, selectImageInEditor, gotoFrontendPage } from './helpers/typo3-backend';
+import { loginToBackend, BASE_URL, navigateToContentEdit, getModuleFrame, waitForCKEditor, requireCondition, BACKEND_PASSWORD, openImageEditDialog, confirmImageDialog, getEditorHtml, getCKEditorData, saveContentElement, selectImageInEditor, gotoFrontendPage } from './helpers/typo3-backend';
 
 /**
  * E2E tests for the actual CKEditor workflow where issue #565 manifests.
@@ -150,9 +150,17 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
 
     const moduleFrame = getModuleFrame(page);
 
-    // Check if there's a linked image in the editor
-    const linkedImage = moduleFrame.locator('.ck-editor__editable a img, .ck-editor__editable figure a img');
-    const hasLinkedImage = await linkedImage.count() > 0;
+    // Check if there's a linked image in the editor.
+    // Editing view no longer wraps images in <a> (#687), so detect via
+    // link indicator badge or CKEditor data output.
+    const linkedImage = moduleFrame.locator('.ck-editor__editable figure:has(.ck-image-indicator--link) img');
+    let hasLinkedImage = await linkedImage.count() > 0;
+
+    if (!hasLinkedImage) {
+      // Fallback: check data output for <a> wrapping <img>
+      const editorData = await getCKEditorData(page);
+      hasLinkedImage = /<a[^>]*>[\s\S]*?<img[^>]*>[\s\S]*?<\/a>/i.test(editorData);
+    }
 
     if (!hasLinkedImage) {
       // Try to find any image to add a link to for testing
@@ -163,8 +171,11 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
       requireCondition(false, 'No linked image found in content - add test content with linked image');
     }
 
-    // Click on the linked image to select it
-    await linkedImage.first().click();
+    // Click on the linked image to select it (use figure with indicator, fallback to any figure with img)
+    const clickTarget = (await linkedImage.count() > 0)
+      ? linkedImage.first()
+      : moduleFrame.locator('.ck-editor__editable figure img').first();
+    await clickTarget.click();
     await page.waitForTimeout(500);
 
     // The image toolbar should be visible (it appears for typo3image widgets)
@@ -267,8 +278,9 @@ test.describe('Linked Image Workflow (#565)', () => {
 
     await confirmImageDialog(page);
 
-    // Get the editor HTML and verify the link was applied
-    const html = await getEditorHtml(page);
+    // Get the data output and verify the link was applied
+    // Use getCKEditorData() since editing view has no <a> wrapper (#687)
+    const html = await getCKEditorData(page);
     const { total, nested } = countLinkWrappersAroundImages(html);
     expect(total, 'Image should be wrapped in a link after adding URL').toBeGreaterThan(0);
     expect(nested, 'Expected no nested <a> tags around images').toBe(0);
@@ -282,8 +294,9 @@ test.describe('Linked Image Workflow (#565)', () => {
     await waitForCKEditor(page);
 
     // Verify the test content has linked images
-    const initialHtml = await getEditorHtml(page);
-    const initialCounts = countLinkWrappersAroundImages(initialHtml);
+    // Use getCKEditorData() since editing view has no <a> wrapper (#687)
+    const initialData = await getCKEditorData(page);
+    const initialCounts = countLinkWrappersAroundImages(initialData);
     requireCondition(initialCounts.total > 0, 'No linked images found in test content');
 
     // Open the image edit dialog and confirm without changes (the #565 trigger)
@@ -298,8 +311,8 @@ test.describe('Linked Image Workflow (#565)', () => {
     await waitForCKEditor(page);
 
     // Verify no nested <a><a> patterns appeared after the round-trip
-    const savedHtml = await getEditorHtml(page);
-    const savedCounts = countLinkWrappersAroundImages(savedHtml);
+    const savedData = await getCKEditorData(page);
+    const savedCounts = countLinkWrappersAroundImages(savedData);
     expect(savedCounts.nested, 'Nested <a><a> pattern detected after save — #565 regression').toBe(0);
     expect(savedCounts.total, 'Linked images should be preserved after save').toBeGreaterThanOrEqual(initialCounts.total);
   });
@@ -310,8 +323,9 @@ test.describe('Linked Image Workflow (#565)', () => {
     await waitForCKEditor(page);
 
     // Capture the initial link structure
-    const initialHtml = await getEditorHtml(page);
-    const initialCounts = countLinkWrappersAroundImages(initialHtml);
+    // Use getCKEditorData() since editing view has no <a> wrapper (#687)
+    const initialData = await getCKEditorData(page);
+    const initialCounts = countLinkWrappersAroundImages(initialData);
     requireCondition(initialCounts.total > 0, 'No linked images found in test content');
 
     // Save the content element
@@ -322,8 +336,8 @@ test.describe('Linked Image Workflow (#565)', () => {
     await waitForCKEditor(page);
 
     // Verify link structure is preserved after the round-trip
-    const reloadedHtml = await getEditorHtml(page);
-    const reloadedCounts = countLinkWrappersAroundImages(reloadedHtml);
+    const reloadedData = await getCKEditorData(page);
+    const reloadedCounts = countLinkWrappersAroundImages(reloadedData);
     expect(reloadedCounts.total, 'Number of linked images changed after save/reload').toBe(initialCounts.total);
     expect(reloadedCounts.nested, 'Nested <a> tags appeared after save/reload — #565 regression').toBe(0);
   });

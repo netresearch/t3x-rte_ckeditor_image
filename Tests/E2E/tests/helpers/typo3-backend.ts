@@ -187,11 +187,38 @@ export async function cancelImageDialog(page: Page): Promise<void> {
 }
 
 /**
- * Get the HTML content of the CKEditor.
+ * Get the HTML content of the CKEditor editing view DOM.
+ *
+ * NOTE: The editing view DOM may differ from CKEditor's data output.
+ * For example, linked images have no <a> wrapper in the editing view
+ * (they use indicator badges instead) but do have <a> in the data output.
+ * Use getCKEditorData() when you need the data-layer HTML (e.g., for
+ * verifying link structures).
  */
 export async function getEditorHtml(page: Page): Promise<string> {
     const frame = getModuleFrame(page);
     return await frame.locator('.ck-editor__editable').innerHTML();
+}
+
+/**
+ * Get the CKEditor data output (editor.getData()).
+ *
+ * Unlike getEditorHtml() which returns the editing view DOM, this returns
+ * the serialized data output — the HTML that will be saved to the database.
+ * This includes <a> wrappers around linked images, proper figcaption
+ * structure, and other data-layer differences from the editing view.
+ */
+export async function getCKEditorData(page: Page): Promise<string> {
+    const frame = getModuleFrame(page);
+    return await frame.locator('.ck-editor__editable').evaluate((el) => {
+        // CKEditor 5 stores the editor instance on the editable element
+        const editor = (el as any).ckeditorInstance;
+        if (editor && typeof editor.getData === 'function') {
+            return editor.getData();
+        }
+        // Fallback: return DOM innerHTML if no CKEditor instance found
+        return el.innerHTML;
+    });
 }
 
 /**
