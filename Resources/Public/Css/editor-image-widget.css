@@ -39,8 +39,11 @@ figure.ck-widget.image .ck-image-indicators {
    since we provide our own .ck-image-indicator--link badges.
    See: CKEditor linkimage.css adds ::after to figure.image > a
    and a span.image-inline — without this override, both indicators show.
-   Scoped to .ck-widget selectors to avoid affecting non-editor content. */
+   Scoped to .ck-widget selectors to avoid affecting non-editor content.
+   Broadened selectors to match CKEditor's native patterns (#687). */
+figure.image > a::after,
 figure.ck-widget.image > a::after,
+span.image-inline > a::after,
 span.ck-widget.ck-widget_inline-image > a::after {
     display: none !important;
 }

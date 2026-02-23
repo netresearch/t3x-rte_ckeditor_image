@@ -14,6 +14,7 @@ export class MockViewElement {
     this._attributes = new Map(Object.entries(attributes));
     this._children = children;
     this._parent = null;
+    this._styles = new Map();
 
     // Set parent references for children
     children.forEach(child => {
@@ -56,6 +57,14 @@ export class MockViewElement {
 
   childCount() {
     return this._children.length;
+  }
+
+  getStyle(property) {
+    return this._styles.get(property);
+  }
+
+  hasStyle(property) {
+    return this._styles.has(property);
   }
 }
 
@@ -104,6 +113,36 @@ export class MockWriter {
 
   createEmptyElement(name, attributes = {}) {
     return new MockViewElement(name, attributes, []);
+  }
+
+  createPositionAt(element, offset) {
+    return { element, offset };
+  }
+
+  createSlot() {
+    return new MockViewElement('slot', {}, []);
+  }
+
+  insert(position, element) {
+    if (position && position.element && position.element._children) {
+      if (position.offset === 'end') {
+        position.element._children.push(element);
+      } else if (typeof position.offset === 'number') {
+        position.element._children.splice(position.offset, 0, element);
+      } else {
+        position.element._children.push(element);
+      }
+      if (element instanceof MockViewElement) {
+        element._parent = position.element;
+      }
+    }
+  }
+
+  setStyle(property, value, element) {
+    if (!element._styles) {
+      element._styles = new Map();
+    }
+    element._styles.set(property, value);
   }
 }
 

@@ -77,6 +77,93 @@ The :php:`ImageRenderingService` automatically selects the appropriate template:
     *   - Has popup, has caption
         - :file:`PopupWithCaption.html`
 
+Inline vs block rendering
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Images are rendered differently depending on whether they appear as **block**
+elements (``<figure>``) or **inline** elements (``<img>`` within text flow).
+Understanding this distinction is important when overriding templates:
+
+**Block images** (``<figure>``):
+   Processed by ``renderFigure()``. The template handles everything including
+   the link wrapper. Uses :file:`Link.html`, :file:`LinkWithCaption.html`,
+   :file:`Popup.html`, or :file:`PopupWithCaption.html`.
+
+**Inline images** (``<img>`` in text flow):
+   Processed by ``renderImageAttributes()`` for the ``<img>`` element and
+   ``renderInlineLink()`` for the ``<a>`` wrapper. The template only renders
+   the ``<img>`` tag — always :file:`Standalone.html`. The link wrapper is
+   handled separately by the ``tags.a`` handler in ``parseFunc_RTE``.
+
+**Popup images**:
+   Both inline and block use :file:`Popup.html` or :file:`PopupWithCaption.html`
+   because popup attributes (lightbox data, click handler) require special
+   template handling.
+
+..  list-table:: Handler and template by context
+    :header-rows: 1
+    :widths: 20 20 20 20 20
+
+    *   - Context
+        - Link
+        - Caption
+        - Handler
+        - Template
+
+    *   - Block
+        - No
+        - No
+        - ``renderFigure()``
+        - :file:`Standalone.html`
+
+    *   - Block
+        - No
+        - Yes
+        - ``renderFigure()``
+        - :file:`WithCaption.html`
+
+    *   - Block
+        - Yes
+        - No
+        - ``renderFigure()``
+        - :file:`Link.html`
+
+    *   - Block
+        - Yes
+        - Yes
+        - ``renderFigure()``
+        - :file:`LinkWithCaption.html`
+
+    *   - Block
+        - Popup
+        - No
+        - ``renderFigure()``
+        - :file:`Popup.html`
+
+    *   - Block
+        - Popup
+        - Yes
+        - ``renderFigure()``
+        - :file:`PopupWithCaption.html`
+
+    *   - Inline
+        - No
+        - —
+        - ``renderImageAttributes()``
+        - :file:`Standalone.html`
+
+    *   - Inline
+        - Yes
+        - —
+        - ``renderImageAttributes()`` + ``renderInlineLink()``
+        - :file:`Standalone.html`
+
+    *   - Inline
+        - Popup
+        - —
+        - ``renderImageAttributes()``
+        - :file:`Popup.html`
+
 Setting up overrides
 ====================
 
