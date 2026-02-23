@@ -9,7 +9,7 @@
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/687
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   MockViewElement,
   MockModelElement,
@@ -210,19 +210,13 @@ describe('wrapInLink option (#687)', () => {
     it('should contain <a> element (existing behavior preserved)', () => {
       // Data downcast uses default wrapInLink=true
       const imageElement = createImageViewElement(linkedModel, writer);
-      // In data downcast, if there's a caption, it wraps in figure
-      // Without caption, it returns the element directly
-      const links = findElementsByName(imageElement, 'a');
 
-      // imageElement IS the <a> wrapping <img>
-      if (imageElement.name === 'a') {
-        expect(imageElement.getAttribute('href')).toBe('https://example.com');
-        const images = findElementsByName(imageElement, 'img');
-        expect(images).toHaveLength(1);
-      } else {
-        // This branch shouldn't happen for linked images
-        expect(links).toHaveLength(1);
-      }
+      // For a linked model, the result should be an <a> element wrapping <img>
+      expect(imageElement.name).toBe('a');
+      expect(imageElement.getAttribute('href')).toBe('https://example.com');
+
+      const images = findElementsByName(imageElement, 'img');
+      expect(images).toHaveLength(1);
     });
   });
 });
