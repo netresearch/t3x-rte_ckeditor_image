@@ -26,7 +26,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  * Tests the actual TypoScript preUserFunc path to ensure the adapter
  * is callable via TypoScript (requires #[AsAllowedCallable] in TYPO3 v14+).
  *
- * @author  Netresearch DTT GmbH <info@netresearch.de>
+ * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  *
  * @see https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/14.0/Breaking-108054-EnforceExplicitOpt-inForTypoScriptTSconfigCallables.html

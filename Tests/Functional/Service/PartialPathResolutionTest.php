@@ -29,7 +29,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/547
  *
- * @author  Netresearch DTT GmbH <info@netresearch.de>
+ * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
 final class PartialPathResolutionTest extends FunctionalTestCase

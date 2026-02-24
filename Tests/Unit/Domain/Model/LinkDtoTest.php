@@ -18,7 +18,7 @@ use ReflectionClass;
 /**
  * Test case for LinkDto.
  *
- * @author  Netresearch DTT GmbH <info@netresearch.de>
+ * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
 class LinkDtoTest extends TestCase
