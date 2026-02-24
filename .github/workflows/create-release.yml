@@ -71,18 +71,44 @@ jobs:
                       git push origin main
                   fi
 
+            - name: Build verification footer
+              run: |
+                  cat > /tmp/verification-footer.md <<'EOF'
+
+                  ---
+
+                  ### Verifying this release
+
+                  ```bash
+                  # Verify the GPG signature on the release tag
+                  git tag -v vVERSION_PLACEHOLDER
+
+                  # Verify SLSA provenance (when assets are attached)
+                  gh attestation verify <downloaded-file> \
+                    --repo netresearch/t3x-rte_ckeditor_image
+                  ```
+                  EOF
+                  sed -i "s/VERSION_PLACEHOLDER/${VERSION}/" /tmp/verification-footer.md
+
             - name: Create release
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   if [[ -n "${INPUT_RELEASE_NOTES}" ]]; then
+                      printf '%s' "${INPUT_RELEASE_NOTES}" > /tmp/release-notes.md
+                      cat /tmp/verification-footer.md >> /tmp/release-notes.md
                       gh release create "v${VERSION}" \
                           --title "v${VERSION}" \
-                          --notes "${INPUT_RELEASE_NOTES}"
+                          --notes-file /tmp/release-notes.md
                   else
                       gh release create "v${VERSION}" \
                           --title "v${VERSION}" \
                           --generate-notes
+                      # Append verification footer to auto-generated notes
+                      gh release view "v${VERSION}" --json body --jq '.body // ""' > /tmp/release-notes.md
+                      cat /tmp/verification-footer.md >> /tmp/release-notes.md
+                      gh release edit "v${VERSION}" \
+                          --notes-file /tmp/release-notes.md
                   fi
 
             - name: Output release URL
