@@ -444,6 +444,47 @@ class ImageAttributeParserTest extends TestCase
         self::assertFalse($this->parser->hasFigureWrapper(''));
     }
 
+    /**
+     * Test that table figures with deeply nested images are NOT detected as image figures.
+     *
+     * CKEditor 5 wraps tables in <figure class="table">. When a table cell contains
+     * an image figure, the outer table figure must NOT match as an image figure.
+     * At the same time, the nested image figure must still be detectable
+     * when evaluated on its own HTML.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/692
+     */
+    #[Test]
+    public function hasFigureWrapperReturnsFalseForTableFigureWithNestedImage(): void
+    {
+        $innerFigureHtml = '<figure class="image image-block"><img data-htmlarea-file-uid="2" src="test.jpg" /></figure>';
+        $html            = '<figure class="table"><table><tbody><tr><td>'
+            . $innerFigureHtml
+            . '</td></tr></tbody></table></figure>';
+
+        // The outer <figure class="table"> must NOT match — img is deeply nested
+        self::assertFalse($this->parser->hasFigureWrapper($html));
+
+        // The nested image figure must still be detected when evaluated alone
+        self::assertTrue($this->parser->hasFigureWrapper($innerFigureHtml));
+    }
+
+    #[Test]
+    public function hasFigureWrapperReturnsTrueForLinkedImageInFigure(): void
+    {
+        $html = '<figure class="image"><a href="/page"><img src="test.jpg" /></a></figure>';
+
+        self::assertTrue($this->parser->hasFigureWrapper($html));
+    }
+
+    #[Test]
+    public function hasFigureWrapperReturnsTrueForLinkedImageWithCaptionInFigure(): void
+    {
+        $html = '<figure class="image"><a href="/page"><img src="test.jpg" /></a><figcaption>Caption</figcaption></figure>';
+
+        self::assertTrue($this->parser->hasFigureWrapper($html));
+    }
+
     #[Test]
     public function hasFigureWrapperReturnsFalseForUnrelatedFigureAndImage(): void
     {

@@ -264,8 +264,12 @@ class ImageAttributeParser
 
         $xpath = new DOMXPath($dom);
 
-        // Check for any <figure> that contains an <img> descendant
-        $figuresWithImages = $xpath->query('//figure[.//img]');
+        // Check for top-level <figure> with direct-child <img> (or <a>/<img> for linked images).
+        // "not(ancestor::figure)" ensures we only check root-level figures, not nested ones.
+        // This prevents table figures (<figure class="table"><table>...<figure class="image"><img>...)
+        // from matching via their deeply nested image figures.
+        // @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/692
+        $figuresWithImages = $xpath->query('//figure[not(ancestor::figure)][./img or ./a/img]');
 
         return $figuresWithImages !== false && $figuresWithImages->length > 0;
     }
