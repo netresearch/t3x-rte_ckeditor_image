@@ -321,7 +321,7 @@ Release tags are GPG-signed and include [SLSA Level 3](https://slsa.dev) provena
 
 ```bash
 # Verify the GPG signature on a release tag
-git tag -v v13.5.0
+git tag -v <release-tag>
 ```
 
 ### Verify SLSA provenance
