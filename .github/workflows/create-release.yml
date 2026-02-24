@@ -105,7 +105,7 @@ jobs:
                           --title "v${VERSION}" \
                           --generate-notes
                       # Append verification footer to auto-generated notes
-                      gh release view "v${VERSION}" --json body --jq '.body' > /tmp/release-notes.md
+                      gh release view "v${VERSION}" --json body --jq '.body // ""' > /tmp/release-notes.md
                       cat /tmp/verification-footer.md >> /tmp/release-notes.md
                       gh release edit "v${VERSION}" \
                           --notes-file /tmp/release-notes.md
