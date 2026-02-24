@@ -31,7 +31,7 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
 /**
  * Test case for ImageFileResolver.
  *
- * @author  Netresearch DTT GmbH <info@netresearch.de>
+ * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
 #[AllowMockObjectsWithoutExpectations]

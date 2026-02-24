@@ -39,7 +39,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  * - Figures WITHOUT caption → output as just <img> (Standalone template)
  * - This is semantically correct: <figure> should only be used with <figcaption>
  *
- * @author  Netresearch DTT GmbH <info@netresearch.de>
+ * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/580

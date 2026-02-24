@@ -25,7 +25,7 @@ use TYPO3\CMS\Core\View\ViewInterface;
 /**
  * Test case for ImageRenderingService.
  *
- * @author  Netresearch DTT GmbH <info@netresearch.de>
+ * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  */
 #[AllowMockObjectsWithoutExpectations]

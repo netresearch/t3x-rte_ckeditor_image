@@ -21,7 +21,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
  * These tests validate critical JavaScript configurations by parsing
  * the source files. This ensures important fixes aren't accidentally reverted.
  *
- * @author  Netresearch DTT GmbH <info@netresearch.de>
+ * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/546

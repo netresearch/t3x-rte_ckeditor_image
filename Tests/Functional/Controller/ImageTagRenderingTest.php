@@ -26,7 +26,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  * processing for captioned images to preserve data-htmlarea-file-uid for
  * the subsequent tags.figure handler (renderFigure).
  *
- * @author  Netresearch DTT GmbH <info@netresearch.de>
+ * @author  Netresearch DTT GmbH
  * @license https://www.gnu.org/licenses/agpl-3.0.de.html
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/546
