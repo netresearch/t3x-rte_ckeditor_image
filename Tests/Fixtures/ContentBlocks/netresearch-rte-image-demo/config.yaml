@@ -6,3 +6,4 @@ group: common
 fields:
   - identifier: bodytext
     useExistingField: true
+    enableRichtext: true

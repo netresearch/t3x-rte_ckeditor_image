@@ -74,14 +74,14 @@ Usage with Content Blocks
 
 Content Blocks is the official TYPO3-endorsed successor to Mask/DCE/Flux for
 creating custom content element types. Content Blocks registers its own backend
-preview templates (``backend-preview.fluid.html``), which do not use the
+preview templates (``backend-preview.html``), which do not use the
 built-in :php:`RteImagePreviewRenderer`.
 
 To render RTE image previews in a Content Block, use this ViewHelper in the
 block's backend preview template:
 
 .. code-block:: html
-   :caption: ContentBlocks/ContentElements/my-block/Templates/backend-preview.fluid.html
+   :caption: ContentBlocks/ContentElements/my-block/templates/backend-preview.html
 
    <html xmlns:nr="http://typo3.org/ns/Netresearch/RteCKEditorImage/ViewHelpers"
          data-namespace-typo3-fluid="true">
