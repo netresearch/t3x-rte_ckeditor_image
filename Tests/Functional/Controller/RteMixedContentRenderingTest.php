@@ -92,6 +92,10 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
         $this->request = (new ServerRequest())
             ->withAttribute('site', $site)
             ->withAttribute('language', $site->getDefaultLanguage());
+
+        // Set global request so that ContentObjectRenderer::parseFunc() and its
+        // internally created child cObj instances can access it (#698 tests).
+        $GLOBALS['TYPO3_REQUEST'] = $this->request;
     }
 
     /**
@@ -1799,10 +1803,10 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
     }
 
     /**
-     * Test: Table figure without nested images returns unchanged.
+     * Test: Table figure without nested images preserves table structure.
      *
-     * A table figure that contains only text cells should pass through
-     * without modification (no image processing needed).
+     * A table figure that contains only text cells should keep its table
+     * content intact, without any additional image-related processing.
      */
     #[Test]
     public function tableFigureWithoutImagesReturnsProcessedContent(): void
