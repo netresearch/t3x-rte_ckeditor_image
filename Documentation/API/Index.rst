@@ -63,6 +63,13 @@ API Components
         ..  card-footer:: :ref:`Read more <api-eventlisteners>`
             :button-style: btn btn-primary stretched-link
 
+    ..  card:: 🖼️ ViewHelpers
+
+        Fluid ViewHelpers for Content Blocks backend previews.
+
+        ..  card-footer:: :ref:`Read more <api-viewhelpers>`
+            :button-style: btn btn-primary stretched-link
+
 Usage Examples
 ==============
 
@@ -84,3 +91,4 @@ Related Documentation
    DTOs
    DataHandling
    EventListeners
+   ViewHelpers

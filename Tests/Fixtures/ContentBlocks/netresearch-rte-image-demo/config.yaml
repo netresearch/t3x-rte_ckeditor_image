@@ -1,0 +1,9 @@
+name: netresearch/rte-image-demo
+typeName: netresearch_rteimagedemo
+title: 'RTE Image Demo (Content Block)'
+description: 'Demonstrates the RteImagePreview ViewHelper for Content Blocks backend preview'
+group: common
+fields:
+  - identifier: bodytext
+    useExistingField: true
+    enableRichtext: true
