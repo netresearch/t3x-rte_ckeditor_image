@@ -192,6 +192,11 @@ Options:
             - docker (default)
             - podman
 
+    -c <packages>
+        Only with -s e2e
+        Extra Composer packages to install in the E2E TYPO3 instance.
+        Example: -c "friendsoftypo3/content-blocks"
+
     -d <sqlite|mariadb|mysql|postgres>
         Only with -s functional|functionalDeprecated
         Specifies on which DBMS tests are performed
@@ -304,6 +309,9 @@ Examples:
 
     # Run specific E2E test file
     ./Build/Scripts/runTests.sh -s e2e -- tests/click-to-enlarge.spec.ts
+
+    # Run E2E tests with Content Blocks installed
+    ./Build/Scripts/runTests.sh -s e2e -t 13 -c "friendsoftypo3/content-blocks"
 EOF
 }
 
@@ -343,6 +351,7 @@ NETWORK="friendsoftypo3-tea-${SUFFIX}"
 CI_PARAMS="${CI_PARAMS:-}"
 CONTAINER_HOST="host.docker.internal"
 PHPSTAN_CONFIG_FILE="phpstan.neon"
+E2E_EXTRA_PACKAGES=""
 IS_CI=0
 
 # Option parsing updates above default vars
@@ -351,7 +360,7 @@ OPTIND=1
 # Array for invalid options
 INVALID_OPTIONS=()
 # Simple option parsing based on getopts (! not getopt)
-while getopts "a:b:s:d:i:p:e:t:xy:nhu" OPT; do
+while getopts "a:b:c:s:d:i:p:e:t:xy:nhu" OPT; do
     case ${OPT} in
         s)
             TEST_SUITE=${OPTARG}
@@ -364,6 +373,12 @@ while getopts "a:b:s:d:i:p:e:t:xy:nhu" OPT; do
                 INVALID_OPTIONS+=("-b ${OPTARG}")
             fi
             CONTAINER_BIN=${OPTARG}
+            ;;
+        c)
+            if ! [[ "${OPTARG}" =~ ^[a-zA-Z0-9/_.:^\*\ -]+$ ]]; then
+                INVALID_OPTIONS+=("-c ${OPTARG}")
+            fi
+            E2E_EXTRA_PACKAGES=${OPTARG}
             ;;
         d)
             DBMS=${OPTARG}
@@ -1061,6 +1076,35 @@ $bodytextInlineLink = '<p>Inline link indicator test:</p>'
 $stmt->execute([1, 'text', 'Inline Link (#639)', $bodytextInlineLink, 0, 0, $now, $now, 0, 10496]);
 
 echo "Inline image issue CEs (UIDs 39-41) created for #636/#637/#638/#639\n";
+
+// Content Blocks demo page and CEs (only when Content Blocks is installed)
+// The package registers CTypes from ContentBlocks/ definitions; we create
+// a demo page and CEs so the E2E content-blocks-preview spec has data.
+if (is_dir('/var/www/html/ContentBlocks/ContentElements/netresearch-rte-image-demo')) {
+    echo "Content Blocks detected — creating demo page and content elements...\n";
+
+    // Page uid=3: Content Blocks Demo (child of root page)
+    $pdo->exec("INSERT IGNORE INTO pages (uid, pid, title, slug, doktype, is_siteroot, hidden, deleted, tstamp, crdate, sorting) VALUES (3, 1, 'Content Blocks Demo', '/content-blocks-demo', 1, 0, 0, 0, $now, $now, 768)");
+    echo "Content Blocks demo page (uid=3) inserted\n";
+
+    // UID 42: Content Block with block image and caption
+    $bodytextCB1 = '<p>This content uses a Content Block type with our ViewHelper for backend preview.</p>'
+        . '<p><img src="fileadmin/user_upload/example.jpg" alt="Content Block Demo" width="400" height="300" data-htmlarea-file-uid="1" /></p>'
+        . '<p>Image rendered via Content Block with RteImagePreview ViewHelper.</p>';
+    $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        ->execute([3, 'netresearch_rteimagedemo', 'Content Block: Block Image', $bodytextCB1, 0, 0, $now, $now, 0, 256]);
+
+    // UID 43: Content Block with inline images
+    $bodytextCB2 = '<p>Inline images work in Content Blocks too: here is one '
+        . '<img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="inline demo" width="50" height="38" data-htmlarea-file-uid="1" /> embedded in text.</p>'
+        . '<p>And a second paragraph with another inline <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="second inline" width="50" height="38" data-htmlarea-file-uid="1" /> for good measure.</p>';
+    $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        ->execute([3, 'netresearch_rteimagedemo', 'Content Block: Inline Images', $bodytextCB2, 0, 0, $now, $now, 0, 512]);
+
+    echo "Content Block CEs (UIDs 42-43) created on page 3\n";
+} else {
+    echo "Content Blocks not installed — skipping demo page/CEs\n";
+}
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
@@ -1123,6 +1167,12 @@ CONTENT_EOF
                 composer require netresearch/rte-ckeditor-image:@dev --no-interaction --no-progress --no-scripts
                 composer require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
 
+                # Install extra Composer packages if specified via -c flag
+                if [ -n \"${E2E_EXTRA_PACKAGES}\" ]; then
+                    echo \"Installing extra packages: ${E2E_EXTRA_PACKAGES}\"
+                    composer require ${E2E_EXTRA_PACKAGES} --no-interaction --no-progress --no-scripts
+                fi
+
                 # Install typo3-console for database:updateschema command (not in TYPO3 Core)
                 composer require helhum/typo3-console --no-interaction --no-progress --no-scripts
 
@@ -1161,6 +1211,14 @@ CONTENT_EOF
 
                 # Verify the change was applied
                 grep -q \"trustedHostsPattern\" config/system/settings.php && echo \"trustedHostsPattern injected successfully\" || echo \"WARNING: trustedHostsPattern injection failed\"
+
+                # Copy Content Block fixtures if Content Blocks is installed
+                if composer show friendsoftypo3/content-blocks >/dev/null 2>&1; then
+                    echo 'Content Blocks detected — copying test Content Block definitions...'
+                    mkdir -p ContentBlocks/ContentElements/
+                    cp -r /extension/Tests/Fixtures/ContentBlocks/netresearch-rte-image-demo \
+                          ContentBlocks/ContentElements/netresearch-rte-image-demo
+                fi
 
                 # Setup extensions (configures extensions, doesn't create tables)
                 vendor/bin/typo3 extension:setup || exit 1

@@ -22,6 +22,7 @@ composer config --no-plugins allow-plugins.typo3/class-alias-loader true -d /var
 composer req $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
 composer req typo3/cms-extensionmanager typo3/cms-dashboard typo3/cms-reports --no-progress -n -d /var/www/html/$VERSION
 composer req --dev typo3/cms-styleguide bk2k/bootstrap-package:'^16.0' --no-progress -n -d /var/www/html/$VERSION
+composer req friendsoftypo3/content-blocks --no-progress -n -d /var/www/html/$VERSION
 
 cd /var/www/html/$VERSION
 
@@ -77,6 +78,15 @@ $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['demo_with_images'] = 'config/rte/
 ADDPHP
 
 vendor/bin/typo3 extension:setup
+
+# Copy demo Content Block definition for RteImagePreview ViewHelper demo
+mkdir -p /var/www/html/$VERSION/ContentBlocks/ContentElements/
+cp -r /var/www/$EXTENSION_KEY/Tests/Fixtures/ContentBlocks/netresearch-rte-image-demo \
+      /var/www/html/$VERSION/ContentBlocks/ContentElements/netresearch-rte-image-demo
+
+# Re-run extension:setup and flush caches to register the Content Block
+vendor/bin/typo3 extension:setup
+vendor/bin/typo3 cache:flush
 
 # TYPO3 v14 setup creates a setup.typoscript with minimal PAGE definition.
 # Remove it - site sets handle TypoScript loading automatically via config.yaml dependencies.
@@ -1118,6 +1128,37 @@ VALUES (1, 'text', '',
 </div>
 </div>',
 0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 900);
+
+-- =============================================================================
+-- Content Blocks Demo Subpage
+-- =============================================================================
+INSERT INTO pages (pid, title, slug, doktype, hidden, deleted, tstamp, crdate, sorting)
+VALUES (1, 'Content Blocks Demo', '/content-blocks-demo', 1, 0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 200);
+SET @cb_page_uid = LAST_INSERT_ID();
+
+-- Content Block CE: Block images with caption
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (@cb_page_uid, 'netresearch_rteimagedemo', 'Content Block: Block Image with Caption',
+CONCAT(
+'<p>This content uses a Content Block type with our ViewHelper for backend preview.</p>
+<figure class="image image-center">
+<img src="fileadmin/user_upload/example.jpg" alt="Content Block demo" width="400" height="300"
+ data-htmlarea-file-uid="', @file1_uid, '" data-htmlarea-file-table="sys_file" data-htmlarea-zoom="true">
+<figcaption>Image rendered via Content Block with RteImagePreview ViewHelper</figcaption>
+</figure>'),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 100);
+
+-- Content Block CE: Inline images
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (@cb_page_uid, 'netresearch_rteimagedemo', 'Content Block: Inline Images',
+CONCAT(
+'<p>Inline images work in Content Blocks too: here is one <img class="image image-inline"
+ src="fileadmin/user_upload/inline-small.jpg" alt="inline demo" width="50" height="38"
+ data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file"> embedded in text.</p>
+<p>And a second paragraph with an icon <img class="image image-inline"
+ src="fileadmin/user_upload/icon.jpg" alt="icon" width="20" height="20"
+ data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file"> for good measure.</p>'),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 200);
 
 EOSQL
 
