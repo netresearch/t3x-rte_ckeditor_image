@@ -656,7 +656,23 @@ class ImageRenderingAdapter
 
         // Check if this is actually a figure with an image
         if (!$this->attributeParser->hasFigureWrapper($figureHtml)) {
-            // Not a figure-wrapped image, return original content
+            // Not a figure-wrapped image (e.g. table figure, media figure).
+            // Re-process the INNER content through parseFunc_RTE so that nested
+            // image figures, standalone images, and t3:// links get handled.
+            // We must strip the outer <figure> tags first — otherwise parseFunc_RTE's
+            // externalBlocks.figure would re-capture the same outer figure and call
+            // renderFigure() again, causing infinite recursion.
+            // @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/698
+            if (
+                $this->cObj instanceof ContentObjectRenderer
+                && preg_match('/^(<figure\b[^>]*>)([\s\S]*)(<\/figure>\s*)$/i', trim($figureHtml), $matches) === 1
+            ) {
+                $this->cObj->setRequest($request);
+                $processedInner = $this->cObj->parseFunc($matches[2], null, '< lib.parseFunc_RTE');
+
+                return $matches[1] . $processedInner . $matches[3];
+            }
+
             return $figureHtml;
         }
 

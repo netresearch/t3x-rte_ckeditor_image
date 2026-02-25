@@ -1729,4 +1729,11 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
         self::assertStringContainsString('<img', $result);
         self::assertStringNotContainsString('<figure', $result, 'Inline image in heading should not have figure wrapper');
     }
+
+    // NOTE: Table figure functional tests (#698) were intentionally omitted.
+    // Testing the parseFunc_RTE re-processing path requires full TYPO3 frontend
+    // bootstrap (TypoScript, TSFE, applicationType) which the functional test
+    // framework doesn't provide. Coverage is ensured by:
+    // - Unit tests: verify parseFunc called with correct inner HTML args
+    // - E2E tests: verify actual frontend rendering of table images
 }

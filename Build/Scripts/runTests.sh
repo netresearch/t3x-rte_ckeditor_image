@@ -1105,6 +1105,25 @@ if (is_dir('/var/www/html/vendor/friendsoftypo3/content-blocks')) {
 } else {
     echo "Content Blocks not installed — skipping demo page/CEs\n";
 }
+
+// Table with nested image figures (#698 regression from #692)
+// CKEditor 5 wraps tables in <figure class="table">, which our externalBlocks.figure captures.
+// The inner <figure class="image"> must be re-processed through parseFunc_RTE.
+// Tests: max-width on figure, zoom popup link, linked image, and image src resolution.
+$bodytextTableImage = '<figure class="table"><table><tbody>'
+    . '<tr><td>'
+    . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Table Image Zoom" width="400" height="300" data-htmlarea-file-uid="1" data-htmlarea-zoom="true" /><figcaption>Zoomable image in table</figcaption></figure>'
+    . '</td><td>This cell has a zoomable image with caption</td></tr>'
+    . '<tr><td>'
+    . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Table Image Plain" width="300" height="225" data-htmlarea-file-uid="1" /></figure>'
+    . '</td><td>This cell has a plain image without caption</td></tr>'
+    . '<tr><td>'
+    . '<figure class="image"><a href="https://typo3.org" target="_blank"><img src="fileadmin/user_upload/example.jpg" alt="Table Image Linked" width="300" height="225" data-htmlarea-file-uid="1" /></a><figcaption>Linked image in table</figcaption></figure>'
+    . '</td><td>This cell has a linked image with caption</td></tr>'
+    . '</tbody></table></figure>';
+$stmt->execute([1, 'text', 'Table Image (#698)', $bodytextTableImage, 0, 0, $now, $now, 0, 10752]);
+echo "Table image CE created for #698\n";
+
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
