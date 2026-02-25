@@ -667,6 +667,7 @@ class ImageRenderingAdapter
                 $this->cObj instanceof ContentObjectRenderer
                 && preg_match('/^(<figure\b[^>]*>)([\s\S]*)(<\/figure>\s*)$/i', trim($figureHtml), $matches) === 1
             ) {
+                $this->cObj->setRequest($request);
                 $processedInner = $this->cObj->parseFunc($matches[2], null, '< lib.parseFunc_RTE');
 
                 return $matches[1] . $processedInner . $matches[3];
