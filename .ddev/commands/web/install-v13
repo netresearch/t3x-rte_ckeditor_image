@@ -72,10 +72,12 @@ vendor/bin/typo3 configuration:set 'GFX/processor_path' '/usr/bin/'
 
 vendor/bin/typo3 extension:setup
 
-# Copy demo Content Block definition for RteImagePreview ViewHelper demo
-mkdir -p /var/www/html/$VERSION/ContentBlocks/ContentElements/
+# Copy demo Content Block definition into the content-blocks extension
+# Content Blocks v1.3 only discovers definitions inside loaded extensions
+CB_EXT_PATH=$(composer show friendsoftypo3/content-blocks --path 2>/dev/null | awk '{print $NF}')
+mkdir -p "$CB_EXT_PATH/ContentBlocks/ContentElements/"
 cp -r /var/www/$EXTENSION_KEY/Tests/Fixtures/ContentBlocks/netresearch-rte-image-demo \
-      /var/www/html/$VERSION/ContentBlocks/ContentElements/netresearch-rte-image-demo
+      "$CB_EXT_PATH/ContentBlocks/ContentElements/netresearch-rte-image-demo"
 
 # Re-run extension:setup and flush caches to register the Content Block
 vendor/bin/typo3 extension:setup

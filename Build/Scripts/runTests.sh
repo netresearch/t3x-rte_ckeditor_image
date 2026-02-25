@@ -1080,7 +1080,7 @@ echo "Inline image issue CEs (UIDs 39-41) created for #636/#637/#638/#639\n";
 // Content Blocks demo page and CEs (only when Content Blocks is installed)
 // The package registers CTypes from ContentBlocks/ definitions; we create
 // a demo page and CEs so the E2E content-blocks-preview spec has data.
-if (is_dir('/var/www/html/ContentBlocks/ContentElements/netresearch-rte-image-demo')) {
+if (is_dir('/var/www/html/vendor/friendsoftypo3/content-blocks')) {
     echo "Content Blocks detected — creating demo page and content elements...\n";
 
     // Page uid=3: Content Blocks Demo (child of root page)
@@ -1212,12 +1212,17 @@ CONTENT_EOF
                 # Verify the change was applied
                 grep -q \"trustedHostsPattern\" config/system/settings.php && echo \"trustedHostsPattern injected successfully\" || echo \"WARNING: trustedHostsPattern injection failed\"
 
-                # Copy Content Block fixtures if Content Blocks is installed
+                # Copy Content Block fixtures into the content-blocks extension
+                # Content Blocks v1.3 only discovers definitions inside loaded
+                # extensions, so we place them in the content-blocks package dir.
                 if composer show friendsoftypo3/content-blocks >/dev/null 2>&1; then
-                    echo 'Content Blocks detected — copying test Content Block definitions...'
-                    mkdir -p ContentBlocks/ContentElements/
-                    cp -r /extension/Tests/Fixtures/ContentBlocks/netresearch-rte-image-demo \
-                          ContentBlocks/ContentElements/netresearch-rte-image-demo
+                    CB_EXT_PATH=\$(composer show friendsoftypo3/content-blocks --path 2>/dev/null | awk '{print \$NF}')
+                    if [ -n \"\${CB_EXT_PATH}\" ] && [ -d \"\${CB_EXT_PATH}\" ]; then
+                        echo \"Content Blocks detected at \${CB_EXT_PATH} — copying test Content Block definitions...\"
+                        mkdir -p \"\${CB_EXT_PATH}/ContentBlocks/ContentElements/\"
+                        cp -r /extension/Tests/Fixtures/ContentBlocks/netresearch-rte-image-demo \
+                              \"\${CB_EXT_PATH}/ContentBlocks/ContentElements/netresearch-rte-image-demo\"
+                    fi
                 fi
 
                 # Setup extensions (configures extensions, doesn't create tables)
