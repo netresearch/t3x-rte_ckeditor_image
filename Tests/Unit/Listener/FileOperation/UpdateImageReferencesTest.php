@@ -13,6 +13,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Listener\FileOperation;
 
 use Doctrine\DBAL\Result;
 use Netresearch\RteCKEditorImage\Listener\FileOperation\UpdateImageReferences;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -34,6 +35,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 /**
  * Unit tests for UpdateImageReferences event listener.
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(UpdateImageReferences::class)]
 final class UpdateImageReferencesTest extends UnitTestCase
 {

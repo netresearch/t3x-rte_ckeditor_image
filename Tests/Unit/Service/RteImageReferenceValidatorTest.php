@@ -15,6 +15,7 @@ use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssueType;
 use Netresearch\RteCKEditorImage\Dto\ValidationResult;
 use Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -31,6 +32,7 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
  * Tests the HTML parsing and issue detection logic in isolation.
  * Database-dependent tests are in the functional test suite.
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(RteImageReferenceValidator::class)]
 class RteImageReferenceValidatorTest extends TestCase
 {
