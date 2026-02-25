@@ -16,6 +16,7 @@ use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssueType;
 use Netresearch\RteCKEditorImage\Dto\ValidationResult;
 use Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -28,6 +29,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  *
  * Tests the command output and exit codes with a mocked validator.
  */
+#[AllowMockObjectsWithoutExpectations]
 #[CoversClass(ValidateImageReferencesCommand::class)]
 final class ValidateImageReferencesCommandTest extends TestCase
 {
