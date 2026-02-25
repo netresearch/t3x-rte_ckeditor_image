@@ -605,9 +605,11 @@ final class ImageRenderingAdapterTest extends TestCase
     }
 
     #[Test]
-    public function renderFigureReturnsOriginalWhenNoFigureWrapper(): void
+    public function renderFigureReprocessesNonImageFigureInnerContentThroughParseFunc(): void
     {
-        $html = '<img src="test.jpg" />';
+        $innerHtml      = '<table><tr><td><figure class="image"><img src="test.jpg" data-htmlarea-file-uid="1" /></figure></td></tr></table>';
+        $html           = '<figure class="table">' . $innerHtml . '</figure>';
+        $processedInner = '<table><tr><td><img src="/processed.jpg" /></td></tr></table>';
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
@@ -618,7 +620,63 @@ final class ImageRenderingAdapterTest extends TestCase
             ->with($html)
             ->willReturn(false);
 
+        // parseFunc must receive only the INNER content (without outer <figure> tags)
+        // to avoid infinite recursion via externalBlocks.figure re-capturing the outer figure
+        $this->contentObjectRenderer
+            ->expects(self::once())
+            ->method('parseFunc')
+            ->with($innerHtml, null, '< lib.parseFunc_RTE')
+            ->willReturn($processedInner);
+
         $result = $this->adapter->renderFigure(null, [], $this->request);
+
+        // Result must re-wrap processed inner content in the original outer figure tags
+        self::assertSame('<figure class="table">' . $processedInner . '</figure>', $result);
+    }
+
+    #[Test]
+    public function renderFigurePreservesOuterFigureAttributesWhenReprocessing(): void
+    {
+        $innerHtml      = '<table><tr><td>content</td></tr></table>';
+        $html           = '<figure class="table ck-widget" data-custom="foo">' . $innerHtml . '</figure>';
+        $processedInner = '<table><tr><td>processed content</td></tr></table>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+
+        $this->attributeParser
+            ->expects(self::once())
+            ->method('hasFigureWrapper')
+            ->with($html)
+            ->willReturn(false);
+
+        $this->contentObjectRenderer
+            ->expects(self::once())
+            ->method('parseFunc')
+            ->with($innerHtml, null, '< lib.parseFunc_RTE')
+            ->willReturn($processedInner);
+
+        $result = $this->adapter->renderFigure($html, [], $this->request);
+
+        // Outer figure tag with all attributes must be preserved
+        self::assertStringStartsWith('<figure class="table ck-widget" data-custom="foo">', $result);
+        self::assertStringEndsWith('</figure>', $result);
+        self::assertStringContainsString($processedInner, $result);
+    }
+
+    #[Test]
+    public function renderFigureReturnsOriginalWhenNoFigureWrapperAndNoCObj(): void
+    {
+        $html = '<figure class="table"><table><tr><td>content</td></tr></table></figure>';
+
+        // Do NOT call setContentObjectRenderer — cObj stays null
+
+        $this->attributeParser
+            ->expects(self::once())
+            ->method('hasFigureWrapper')
+            ->with($html)
+            ->willReturn(false);
+
+        $result = $this->adapter->renderFigure($html, [], $this->request);
 
         self::assertSame($html, $result);
     }

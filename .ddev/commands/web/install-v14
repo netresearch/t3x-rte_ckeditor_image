@@ -1091,7 +1091,78 @@ CONCAT(
 0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 850);
 
 -- =============================================================================
--- CONTENT ELEMENT 13: Testing Instructions Card
+-- CONTENT ELEMENT 13: Images in Tables (#698)
+-- =============================================================================
+-- CKEditor 5 wraps tables in <figure class="table">. Our extension must
+-- re-process inner content so nested image figures render correctly.
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: #FF4D00; color: white;">
+<h3 class="mb-0">Images in Tables</h3>
+<small class="opacity-75">Issue #698: Nested image figures inside CKEditor 5 table figures</small>
+</div>
+<div class="card-body">
+
+<h5 class="border-bottom pb-2 mb-3">Block Images in Table Cells</h5>
+<p>CKEditor 5 wraps tables in <code>&lt;figure class="table"&gt;</code>. The extension must re-process inner content through <code>parseFunc_RTE</code> so that nested <code>&lt;figure class="image"&gt;</code> elements get proper frontend rendering (max-width, zoom, link resolution).</p>
+
+<figure class="table">
+<table class="table table-bordered">
+<tbody>
+<tr>
+<td>
+<figure class="image">
+<img src="fileadmin/user_upload/example.jpg" alt="Table zoom image" width="400" height="300" data-htmlarea-file-uid="', @file1_uid, '" data-htmlarea-file-table="sys_file" data-htmlarea-zoom="true">
+<figcaption>Click-to-enlarge image in table cell</figcaption>
+</figure>
+</td>
+<td class="align-middle">
+<p><strong>Zoomable image with caption</strong></p>
+<p class="text-muted small mb-0">Should have: max-width on figure, popup link wrapper, figcaption preserved</p>
+</td>
+</tr>
+<tr>
+<td>
+<figure class="image">
+<img src="fileadmin/user_upload/medium.jpg" alt="Table plain image" width="200" height="150" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file">
+</figure>
+</td>
+<td class="align-middle">
+<p><strong>Plain image without caption</strong></p>
+<p class="text-muted small mb-0">Should have: max-width on figure, processed src</p>
+</td>
+</tr>
+<tr>
+<td>
+<figure class="image">
+<a href="https://typo3.org" target="_blank">
+<img src="fileadmin/user_upload/medium.jpg" alt="Table linked image" width="200" height="150" data-htmlarea-file-uid="', @file3_uid, '" data-htmlarea-file-table="sys_file">
+</a>
+<figcaption>Linked image in table cell</figcaption>
+</figure>
+</td>
+<td class="align-middle">
+<p><strong>Linked image with caption</strong></p>
+<p class="text-muted small mb-0">Should have: link preserved, figcaption, max-width on figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<div class="alert alert-info small mt-3">
+<strong>Expected:</strong> All three images above should be properly rendered with processed dimensions, figure constraints, and interactive features (zoom/links). Before the #698 fix, these images would appear unstyled with raw attributes.
+</div>
+
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 860);
+
+-- =============================================================================
+-- CONTENT ELEMENT 14: Testing Instructions Card
 -- =============================================================================
 INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
 VALUES (1, 'text', '',

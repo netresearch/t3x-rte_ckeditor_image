@@ -1729,4 +1729,127 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
         self::assertStringContainsString('<img', $result);
         self::assertStringNotContainsString('<figure', $result, 'Inline image in heading should not have figure wrapper');
     }
+
+    // ========================================================================
+    // Table figures with nested image figures (#698)
+    // ========================================================================
+
+    /**
+     * Test: Non-image figure (table) with nested image figure gets processed.
+     *
+     * CKEditor 5 wraps tables in <figure class="table">. When externalBlocks.figure
+     * captures this, hasFigureWrapper() correctly returns false (no direct-child img).
+     * The fix re-processes the inner content through parseFunc_RTE so nested
+     * <figure class="image"> elements get proper rendering.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/698
+     */
+    #[Test]
+    public function tableFigureWithNestedImageFigureGetsProcessed(): void
+    {
+        ['adapter' => $adapter] = $this->getAdapterWithCObj();
+
+        $inputHtml = '<figure class="table"><table><tbody>'
+            . '<tr><td>'
+            . '<figure class="image">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="250" height="250" alt="Table Image">'
+            . '<figcaption>Caption in table</figcaption>'
+            . '</figure>'
+            . '</td><td>Text cell</td></tr>'
+            . '</tbody></table></figure>';
+
+        /** @var string $result */
+        $result = $adapter->renderFigure($inputHtml, [], $this->request);
+
+        // The inner image figure must be processed (not left as raw HTML)
+        self::assertStringContainsString('<img', $result, 'Result should contain processed img element');
+        self::assertStringContainsString('Caption in table', $result, 'Caption should be preserved');
+        // Outer table structure must be preserved
+        self::assertStringContainsString('<table>', $result, 'Table element should be preserved');
+        self::assertStringContainsString('<figure class="table">', $result, 'Outer table figure should be preserved');
+        // Inner image figure should be processed (should have decoding attribute from image pipeline)
+        self::assertStringContainsString('decoding="async"', $result, 'Inner image should be processed through image pipeline');
+    }
+
+    /**
+     * Test: Table figure with zoomable image gets popup link.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/698
+     */
+    #[Test]
+    public function tableFigureWithZoomableImageGetsPopupLink(): void
+    {
+        ['adapter' => $adapter] = $this->getAdapterWithCObj();
+
+        $inputHtml = '<figure class="table"><table><tbody>'
+            . '<tr><td>'
+            . '<figure class="image">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="250" height="250" alt="Zoom Table" data-htmlarea-zoom="true">'
+            . '<figcaption>Zoomable in table</figcaption>'
+            . '</figure>'
+            . '</td></tr>'
+            . '</tbody></table></figure>';
+
+        /** @var string $result */
+        $result = $adapter->renderFigure($inputHtml, [], $this->request);
+
+        // Zoom image should be wrapped in a link (popup template)
+        self::assertStringContainsString('<a ', $result, 'Zoomable image should have link wrapper');
+        self::assertStringContainsString('Zoomable in table', $result, 'Caption should be preserved');
+    }
+
+    /**
+     * Test: Table figure without nested images returns unchanged.
+     *
+     * A table figure that contains only text cells should pass through
+     * without modification (no image processing needed).
+     */
+    #[Test]
+    public function tableFigureWithoutImagesReturnsProcessedContent(): void
+    {
+        ['adapter' => $adapter] = $this->getAdapterWithCObj();
+
+        $inputHtml = '<figure class="table"><table><tbody>'
+            . '<tr><td>Cell A</td><td>Cell B</td></tr>'
+            . '</tbody></table></figure>';
+
+        /** @var string $result */
+        $result = $adapter->renderFigure($inputHtml, [], $this->request);
+
+        // Table content should be preserved
+        self::assertStringContainsString('Cell A', $result);
+        self::assertStringContainsString('Cell B', $result);
+        self::assertStringContainsString('<table>', $result);
+        // No infinite recursion — method should return without stack overflow
+    }
+
+    /**
+     * Test: Verifies no infinite recursion occurs.
+     *
+     * The critical safety test: if renderFigure() passed the full figure HTML
+     * back to parseFunc_RTE, externalBlocks.figure would re-capture the outer
+     * <figure class="table"> and call renderFigure() again indefinitely.
+     * This test verifies the fix (inner-content extraction) prevents this.
+     */
+    #[Test]
+    public function tableFigureDoesNotCauseInfiniteRecursion(): void
+    {
+        ['adapter' => $adapter] = $this->getAdapterWithCObj();
+
+        // This HTML would cause infinite recursion if the full figure HTML
+        // were passed back to parseFunc_RTE instead of just the inner content
+        $inputHtml = '<figure class="table"><table><tbody>'
+            . '<tr><td><figure class="image">'
+            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="100" height="100" alt="Recursion Test">'
+            . '</figure></td></tr>'
+            . '</tbody></table></figure>';
+
+        // If this causes infinite recursion, PHP will throw a stack overflow error.
+        // The test passing means no infinite recursion occurred.
+        /** @var string $result */
+        $result = $adapter->renderFigure($inputHtml, [], $this->request);
+
+        self::assertNotEmpty($result, 'renderFigure should return non-empty result');
+        self::assertStringContainsString('<table>', $result, 'Table structure should be preserved');
+    }
 }
