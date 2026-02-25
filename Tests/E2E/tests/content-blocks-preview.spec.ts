@@ -17,6 +17,8 @@ import { loginToBackend, BASE_URL } from './helpers/typo3-backend';
  */
 
 test.describe('Content Blocks Backend Preview', () => {
+  test.skip(!process.env.CONTENT_BLOCKS_ENABLED, 'Requires Content Blocks (use -c "friendsoftypo3/content-blocks")');
+
   test.beforeEach(async ({ page }) => {
     await loginToBackend(page);
   });

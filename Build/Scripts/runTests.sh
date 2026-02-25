@@ -1329,6 +1329,12 @@ HTACCESS
 
         echo "Running Playwright E2E tests..."
 
+        # Build extra env vars for Playwright based on installed packages
+        PLAYWRIGHT_EXTRA_ENV=""
+        if [[ "${E2E_EXTRA_PACKAGES}" == *"content-blocks"* ]]; then
+            PLAYWRIGHT_EXTRA_ENV="-e CONTENT_BLOCKS_ENABLED=1"
+        fi
+
         # Run Playwright tests
         ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name playwright-e2e-${SUFFIX} \
             -v ${ROOT_DIR}/Tests/E2E:/app \
@@ -1338,6 +1344,7 @@ HTACCESS
             -e TYPO3_BACKEND_PASSWORD="${E2E_ADMIN_PASSWORD}" \
             -e TYPO3_VERSION="${E2E_TYPO3_VERSION}" \
             -e CI=true \
+            ${PLAYWRIGHT_EXTRA_ENV} \
             ${IMAGE_PLAYWRIGHT} /bin/bash -c "
                 # Skip npm install if node_modules exists (pre-cached in CI)
                 if [ ! -d node_modules ] || [ ! -f node_modules/.package-lock.json ]; then
