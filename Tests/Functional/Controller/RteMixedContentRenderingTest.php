@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -92,10 +93,6 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
         $this->request = (new ServerRequest())
             ->withAttribute('site', $site)
             ->withAttribute('language', $site->getDefaultLanguage());
-
-        // Set global request so that ContentObjectRenderer::parseFunc() and its
-        // internally created child cObj instances can access it (#698 tests).
-        $GLOBALS['TYPO3_REQUEST'] = $this->request;
     }
 
     /**
@@ -1751,28 +1748,35 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
     #[Test]
     public function tableFigureWithNestedImageFigureGetsProcessed(): void
     {
-        ['adapter' => $adapter] = $this->getAdapterWithCObj();
+        // parseFunc() creates child cObj instances that need the request via global
+        $GLOBALS['TYPO3_REQUEST'] = $this->request->withAttribute('applicationType', ApplicationType::FRONTEND);
 
-        $inputHtml = '<figure class="table"><table><tbody>'
-            . '<tr><td>'
-            . '<figure class="image">'
-            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="250" height="250" alt="Table Image">'
-            . '<figcaption>Caption in table</figcaption>'
-            . '</figure>'
-            . '</td><td>Text cell</td></tr>'
-            . '</tbody></table></figure>';
+        try {
+            ['adapter' => $adapter] = $this->getAdapterWithCObj();
 
-        /** @var string $result */
-        $result = $adapter->renderFigure($inputHtml, [], $this->request);
+            $inputHtml = '<figure class="table"><table><tbody>'
+                . '<tr><td>'
+                . '<figure class="image">'
+                . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="250" height="250" alt="Table Image">'
+                . '<figcaption>Caption in table</figcaption>'
+                . '</figure>'
+                . '</td><td>Text cell</td></tr>'
+                . '</tbody></table></figure>';
 
-        // The inner image figure must be processed (not left as raw HTML)
-        self::assertStringContainsString('<img', $result, 'Result should contain processed img element');
-        self::assertStringContainsString('Caption in table', $result, 'Caption should be preserved');
-        // Outer table structure must be preserved
-        self::assertStringContainsString('<table>', $result, 'Table element should be preserved');
-        self::assertStringContainsString('<figure class="table">', $result, 'Outer table figure should be preserved');
-        // Inner image figure should be processed (should have decoding attribute from image pipeline)
-        self::assertStringContainsString('decoding="async"', $result, 'Inner image should be processed through image pipeline');
+            /** @var string $result */
+            $result = $adapter->renderFigure($inputHtml, [], $this->request);
+
+            // The inner image figure must be processed (not left as raw HTML)
+            self::assertStringContainsString('<img', $result, 'Result should contain processed img element');
+            self::assertStringContainsString('Caption in table', $result, 'Caption should be preserved');
+            // Outer table structure must be preserved
+            self::assertStringContainsString('<table>', $result, 'Table element should be preserved');
+            self::assertStringContainsString('<figure class="table">', $result, 'Outer table figure should be preserved');
+            // Inner image figure should be processed (should have decoding attribute from image pipeline)
+            self::assertStringContainsString('decoding="async"', $result, 'Inner image should be processed through image pipeline');
+        } finally {
+            unset($GLOBALS['TYPO3_REQUEST']);
+        }
     }
 
     /**
@@ -1783,23 +1787,29 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
     #[Test]
     public function tableFigureWithZoomableImageGetsPopupLink(): void
     {
-        ['adapter' => $adapter] = $this->getAdapterWithCObj();
+        $GLOBALS['TYPO3_REQUEST'] = $this->request->withAttribute('applicationType', ApplicationType::FRONTEND);
 
-        $inputHtml = '<figure class="table"><table><tbody>'
-            . '<tr><td>'
-            . '<figure class="image">'
-            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="250" height="250" alt="Zoom Table" data-htmlarea-zoom="true">'
-            . '<figcaption>Zoomable in table</figcaption>'
-            . '</figure>'
-            . '</td></tr>'
-            . '</tbody></table></figure>';
+        try {
+            ['adapter' => $adapter] = $this->getAdapterWithCObj();
 
-        /** @var string $result */
-        $result = $adapter->renderFigure($inputHtml, [], $this->request);
+            $inputHtml = '<figure class="table"><table><tbody>'
+                . '<tr><td>'
+                . '<figure class="image">'
+                . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="250" height="250" alt="Zoom Table" data-htmlarea-zoom="true">'
+                . '<figcaption>Zoomable in table</figcaption>'
+                . '</figure>'
+                . '</td></tr>'
+                . '</tbody></table></figure>';
 
-        // Zoom image should be wrapped in a link (popup template)
-        self::assertStringContainsString('<a ', $result, 'Zoomable image should have link wrapper');
-        self::assertStringContainsString('Zoomable in table', $result, 'Caption should be preserved');
+            /** @var string $result */
+            $result = $adapter->renderFigure($inputHtml, [], $this->request);
+
+            // Zoom image should be wrapped in a link (popup template)
+            self::assertStringContainsString('<a ', $result, 'Zoomable image should have link wrapper');
+            self::assertStringContainsString('Zoomable in table', $result, 'Caption should be preserved');
+        } finally {
+            unset($GLOBALS['TYPO3_REQUEST']);
+        }
     }
 
     /**
@@ -1811,20 +1821,26 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
     #[Test]
     public function tableFigureWithoutImagesReturnsProcessedContent(): void
     {
-        ['adapter' => $adapter] = $this->getAdapterWithCObj();
+        $GLOBALS['TYPO3_REQUEST'] = $this->request->withAttribute('applicationType', ApplicationType::FRONTEND);
 
-        $inputHtml = '<figure class="table"><table><tbody>'
-            . '<tr><td>Cell A</td><td>Cell B</td></tr>'
-            . '</tbody></table></figure>';
+        try {
+            ['adapter' => $adapter] = $this->getAdapterWithCObj();
 
-        /** @var string $result */
-        $result = $adapter->renderFigure($inputHtml, [], $this->request);
+            $inputHtml = '<figure class="table"><table><tbody>'
+                . '<tr><td>Cell A</td><td>Cell B</td></tr>'
+                . '</tbody></table></figure>';
 
-        // Table content should be preserved
-        self::assertStringContainsString('Cell A', $result);
-        self::assertStringContainsString('Cell B', $result);
-        self::assertStringContainsString('<table>', $result);
-        // No infinite recursion — method should return without stack overflow
+            /** @var string $result */
+            $result = $adapter->renderFigure($inputHtml, [], $this->request);
+
+            // Table content should be preserved
+            self::assertStringContainsString('Cell A', $result);
+            self::assertStringContainsString('Cell B', $result);
+            self::assertStringContainsString('<table>', $result);
+            // No infinite recursion — method should return without stack overflow
+        } finally {
+            unset($GLOBALS['TYPO3_REQUEST']);
+        }
     }
 
     /**
@@ -1838,22 +1854,28 @@ final class RteMixedContentRenderingTest extends FunctionalTestCase
     #[Test]
     public function tableFigureDoesNotCauseInfiniteRecursion(): void
     {
-        ['adapter' => $adapter] = $this->getAdapterWithCObj();
+        $GLOBALS['TYPO3_REQUEST'] = $this->request->withAttribute('applicationType', ApplicationType::FRONTEND);
 
-        // This HTML would cause infinite recursion if the full figure HTML
-        // were passed back to parseFunc_RTE instead of just the inner content
-        $inputHtml = '<figure class="table"><table><tbody>'
-            . '<tr><td><figure class="image">'
-            . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="100" height="100" alt="Recursion Test">'
-            . '</figure></td></tr>'
-            . '</tbody></table></figure>';
+        try {
+            ['adapter' => $adapter] = $this->getAdapterWithCObj();
 
-        // If this causes infinite recursion, PHP will throw a stack overflow error.
-        // The test passing means no infinite recursion occurred.
-        /** @var string $result */
-        $result = $adapter->renderFigure($inputHtml, [], $this->request);
+            // This HTML would cause infinite recursion if the full figure HTML
+            // were passed back to parseFunc_RTE instead of just the inner content
+            $inputHtml = '<figure class="table"><table><tbody>'
+                . '<tr><td><figure class="image">'
+                . '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" width="100" height="100" alt="Recursion Test">'
+                . '</figure></td></tr>'
+                . '</tbody></table></figure>';
 
-        self::assertNotEmpty($result, 'renderFigure should return non-empty result');
-        self::assertStringContainsString('<table>', $result, 'Table structure should be preserved');
+            // If this causes infinite recursion, PHP will throw a stack overflow error.
+            // The test passing means no infinite recursion occurred.
+            /** @var string $result */
+            $result = $adapter->renderFigure($inputHtml, [], $this->request);
+
+            self::assertNotEmpty($result, 'renderFigure should return non-empty result');
+            self::assertStringContainsString('<table>', $result, 'Table structure should be preserved');
+        } finally {
+            unset($GLOBALS['TYPO3_REQUEST']);
+        }
     }
 }
