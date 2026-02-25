@@ -22,7 +22,7 @@ composer config --no-plugins allow-plugins.typo3/class-alias-loader true -d /var
 composer req $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
 composer req typo3/cms-extensionmanager typo3/cms-dashboard typo3/cms-reports --no-progress -n -d /var/www/html/$VERSION
 composer req --dev typo3/cms-styleguide bk2k/bootstrap-package:'^16.0' --no-progress -n -d /var/www/html/$VERSION
-composer req friendsoftypo3/content-blocks --no-progress -n -d /var/www/html/$VERSION
+composer req friendsoftypo3/content-blocks:'^2.0' --no-progress -n -W -d /var/www/html/$VERSION
 
 cd /var/www/html/$VERSION
 
