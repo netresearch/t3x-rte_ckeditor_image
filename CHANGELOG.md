@@ -1,3 +1,39 @@
+# 12.0.6
+
+## BUGFIX
+
+- [BUGFIX] Fix Image Browser 503 error (#703): Pass ElementBrowserRegistry to parent constructor via dependency injection
+
+## MISC
+
+- [TASK] Add DDEV setup for TYPO3 v12 local development
+- [TASK] Bump version to 12.0.6
+
+# 12.0.5
+
+## BUGFIX
+
+- [BUGFIX] Fix image regeneration (#277): Restore getProcessedFile() in RteImagesDbHook to regenerate processed images when the source file is missing
+- [BUGFIX] Fix image processing without fluid_styled_content (#287, #291): Add lib.parseFunc fallback in TypoScript for installations that don't use fluid_styled_content
+
+## MISC
+
+- [TASK] Add Build summary job for branch protection compatibility
+- [TASK] Add auto-approve workflow for solo maintainer PR merging
+- [TASK] Apply Rector rule: str_starts_with() instead of strpos()
+
+# 12.0.4
+
+## BUGFIX
+
+- [BUGFIX] Fix creation of processed files for frontend pages (#285)
+- [BUGFIX] Revert the change "fix package name for cms_rte_ckeditor in ext_emconf.php" (#280)
+
+## MISC
+
+- [TASK] Update README.md for v12 (#289)
+- [TASK] Upgrade/fix test suite (#294)
+
 # 12.0.2
 
 ## TASK
