@@ -290,7 +290,7 @@ jobs:
 
             -   name: Upload E2E Test Results
                 if: always()
-                uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+                uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
                 with:
                     name: e2e-test-results-v${{ matrix.typo3 }}-shard${{ matrix.shard }}
                     path: Build/test-results/
@@ -372,7 +372,7 @@ jobs:
 
             -   name: Upload E2E Content Blocks Test Results
                 if: always()
-                uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+                uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
                 with:
                     name: e2e-content-blocks-results-v${{ matrix.typo3 }}
                     path: Build/test-results/
