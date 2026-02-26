@@ -1,3 +1,9 @@
+# 12.0.8
+
+## MISC
+
+- [TASK] Sync TER publish workflow from main branch (fixes TER publishing)
+
 # 12.0.7
 
 ## MISC
