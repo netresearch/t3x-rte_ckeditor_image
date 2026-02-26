@@ -1,41 +1,15 @@
 name: OpenSSF Scorecard
-
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   schedule:
     - cron: '25 6 * * 1'
-
 permissions: {}
-
 jobs:
-  analysis:
-    name: Scorecard analysis
-    runs-on: ubuntu-latest
+  scorecard:
+    uses: netresearch/typo3-ci-workflows/.github/workflows/scorecard.yml@main
     permissions:
       contents: read
       security-events: write
       id-token: write
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
-        with:
-          egress-policy: audit
-
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Run Scorecard
-        uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
-        with:
-          results_file: results.sarif
-          results_format: sarif
-          publish_results: true
-
-      - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e # v4.32.4
-        with:
-          sarif_file: results.sarif
+      actions: read
