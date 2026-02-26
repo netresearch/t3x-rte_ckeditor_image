@@ -16,13 +16,13 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use TYPO3\CMS\Backend\Controller\ElementBrowserController;
+use TYPO3\CMS\Backend\ElementBrowser\ElementBrowserRegistry;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -58,17 +58,14 @@ class SelectImageController extends ElementBrowserController
      */
     private const IMAGE_DEFAULT_MAX_HEIGHT = 9999;
 
-    /**
-     * @var ResourceFactory
-     */
     private readonly ResourceFactory $resourceFactory;
 
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this->resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+    public function __construct(
+        ElementBrowserRegistry $elementBrowserRegistry,
+        ResourceFactory $resourceFactory
+    ) {
+        parent::__construct($elementBrowserRegistry);
+        $this->resourceFactory = $resourceFactory;
     }
 
     /**

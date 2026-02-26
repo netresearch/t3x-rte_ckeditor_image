@@ -109,11 +109,6 @@ parameters:
 			path: ../Classes/Controller/SelectImageController.php
 
 		-
-			message: "#^Netresearch\\\\RteCKEditorImage\\\\Controller\\\\SelectImageController\\:\\:__construct\\(\\) does not call parent constructor from TYPO3\\\\CMS\\\\Backend\\\\Controller\\\\ElementBrowserController\\.$#"
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
 			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\DataHandling\\\\SoftReference\\\\RteImageSoftReferenceParser\\:\\:findImageTags\\(\\) should return array\\<string, array\\<array\\<string, mixed\\>\\>\\|string\\> but returns array\\<array\\<string, mixed\\>\\>\\.$#"
 			count: 1
 			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
