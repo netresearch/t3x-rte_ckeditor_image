@@ -1,0 +1,38 @@
+services:
+    web:
+        environment:
+            - EXTENSION_KEY=rte_ckeditor_image
+            - PACKAGE_NAME=netresearch/rte-ckeditor-image
+
+            # TYPO3 v12 config (install:setup style)
+            - TYPO3_INSTALL_DB_DRIVER=mysqli
+            - TYPO3_INSTALL_DB_USER=root
+            - TYPO3_INSTALL_DB_PASSWORD=root
+            - TYPO3_INSTALL_DB_HOST=db
+            - TYPO3_INSTALL_DB_UNIX_SOCKET=
+            - TYPO3_INSTALL_DB_USE_EXISTING=0
+            - TYPO3_INSTALL_ADMIN_USER=admin
+            - TYPO3_INSTALL_ADMIN_PASSWORD=Joh316!!
+            - TYPO3_INSTALL_SITE_NAME=EXT:rte_ckeditor_image Dev Environment
+            - TYPO3_INSTALL_SITE_SETUP_TYPE=site
+            - TYPO3_INSTALL_WEB_SERVER_CONFIG=apache
+
+            # TYPO3 v12 setup command style
+            - TYPO3_DB_DRIVER=mysqli
+            - TYPO3_DB_USERNAME=root
+            - TYPO3_DB_PASSWORD=root
+            - TYPO3_DB_HOST=db
+            - TYPO3_SETUP_ADMIN_EMAIL=admin@example.com
+            - TYPO3_SETUP_ADMIN_USERNAME=admin
+            - TYPO3_SETUP_ADMIN_PASSWORD=Joh316!!
+            - TYPO3_PROJECT_NAME=EXT:rte_ckeditor_image Dev Environment
+            - TYPO3_SERVER_TYPE=apache
+        volumes:
+            - type: bind
+              source: ../
+              target: /var/www/rte_ckeditor_image
+              consistency: cached
+            - v12-data:/var/www/html/v12
+volumes:
+    v12-data:
+        name: "${DDEV_SITENAME}-v12-data"

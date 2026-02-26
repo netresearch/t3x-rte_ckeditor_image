@@ -1,0 +1,23 @@
+name: t12-rte-ckeditor-image
+type: php
+docroot: ""
+no_project_mount: true
+php_version: "8.3"
+
+# Security: Don't expose internal service ports to host
+host_db_port: ""
+host_mailpit_port: ""
+composer_version: "2"
+webserver_type: apache-fpm
+router_http_port: "80"
+router_https_port: "443"
+xdebug_enabled: false
+additional_hostnames:
+    - docs.t12-rte-ckeditor-image
+    - v12.t12-rte-ckeditor-image
+additional_fqdns: []
+use_dns_when_possible: true
+hooks:
+    post-start:
+        # Inject custom Traefik config for Mailpit subdomain routing
+        - exec-host: docker cp ${DDEV_APPROOT}/.ddev/traefik/config/t12-rte-ckeditor-image-mailpit.yaml ddev-${DDEV_SITENAME}-web:/mnt/ddev-global-cache/traefik/config/t12-rte-ckeditor-image-mailpit.yaml
