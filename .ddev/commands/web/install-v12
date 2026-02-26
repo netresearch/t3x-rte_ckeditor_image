@@ -31,7 +31,7 @@ mysql -h "$DB_HOST" -u "$DB_USER" -e "DROP DATABASE IF EXISTS ${VERSION};"
 mysql -h "$DB_HOST" -u "$DB_USER" -e "CREATE DATABASE ${VERSION};"
 
 # TYPO3 12.4 uses the 'setup' command with --admin-user-password (not --admin-password)
-vendor/bin/typo3 setup -n --dbname=$VERSION --password=$TYPO3_DB_PASSWORD --create-site="https://${VERSION}.t12-rte-ckeditor-image.ddev.site" --admin-user-password=$TYPO3_SETUP_ADMIN_PASSWORD
+vendor/bin/typo3 setup -n --dbname=$VERSION --password=$TYPO3_DB_PASSWORD --create-site="https://${VERSION}.${DDEV_SITENAME}.ddev.site" --admin-user-password=$TYPO3_SETUP_ADMIN_PASSWORD
 
 vendor/bin/typo3 configuration:set 'BE/debug' 1
 vendor/bin/typo3 configuration:set 'FE/debug' 1
@@ -318,4 +318,4 @@ echo "- Backend RTE: auto-configured (insertimage button available)"
 echo "- Frontend TypoScript: included via sys_template static includes"
 echo "- Test content with images added to homepage"
 echo ""
-echo "Test click-to-enlarge: https://${VERSION}.t12-rte-ckeditor-image.ddev.site/"
+echo "Test click-to-enlarge: https://${VERSION}.${DDEV_SITENAME}.ddev.site/"

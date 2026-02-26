@@ -1,6 +1,7 @@
 <?php
 // Extension is mounted at /var/www/rte_ckeditor_image
 $extDir = '/var/www/rte_ckeditor_image';
+$siteName = getenv('DDEV_SITENAME') ?: 't12-rte-ckeditor-image';
 
 // Get git info dynamically from extension directory
 $gitBranch = trim(shell_exec("cd $extDir && git rev-parse --abbrev-ref HEAD 2>/dev/null") ?: 'TYPO3_12');
@@ -107,12 +108,12 @@ $prUrl = $prNumber ? $githubUrl . '/pull/' . $prNumber : null;
                 <div class="card">
                     <h3>🌐 v12 Frontend</h3>
                     <p>View the TYPO3 12.4 LTS demo site with example content</p>
-                    <a href="https://v12.t12-rte-ckeditor-image.ddev.site/" target="_blank">Open v12 Frontend →</a>
+                    <a href="https://v12.<?= htmlspecialchars($siteName) ?>.ddev.site/" target="_blank">Open v12 Frontend →</a>
                 </div>
                 <div class="card">
                     <h3>⚙️ v12 Backend</h3>
                     <p>Access the TYPO3 12.4 LTS backend administration</p>
-                    <a href="https://v12.t12-rte-ckeditor-image.ddev.site/typo3/" target="_blank">Open v12 Backend →</a>
+                    <a href="https://v12.<?= htmlspecialchars($siteName) ?>.ddev.site/typo3/" target="_blank">Open v12 Backend →</a>
                 </div>
             </div>
         </div>
@@ -123,7 +124,7 @@ $prUrl = $prNumber ? $githubUrl . '/pull/' . $prNumber : null;
                 <div class="card">
                     <h3>📖 Documentation</h3>
                     <p>Browse the complete extension documentation</p>
-                    <a href="https://docs.t12-rte-ckeditor-image.ddev.site/" target="_blank">View Documentation →</a>
+                    <a href="https://docs.<?= htmlspecialchars($siteName) ?>.ddev.site/" target="_blank">View Documentation →</a>
                 </div>
                 <div class="card">
                     <h3>💻 GitHub</h3>
