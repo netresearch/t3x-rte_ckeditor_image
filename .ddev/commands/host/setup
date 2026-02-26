@@ -1,0 +1,45 @@
+#!/bin/bash
+
+## Description: Complete setup - docs, install TYPO3, configure extension
+## Usage: setup
+## Example: "ddev setup"
+
+set -e
+
+PROJECT_DIR="$(pwd)"
+EXTENSION_KEY="rte_ckeditor_image"
+DDEV_SITENAME="t12-rte-ckeditor-image"
+
+echo "🚀 Complete DDEV Environment Setup"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+# Step 1: Render documentation
+echo "📚 Step 1/2: Rendering documentation..."
+if [ -d "${PROJECT_DIR}/Documentation" ]; then
+    ddev docs
+else
+    echo "⚠️  No Documentation/ directory found, skipping docs rendering"
+fi
+echo ""
+
+# Step 2: Install TYPO3 v12
+echo "🌐 Step 2/2: Installing TYPO3 v12..."
+ddev exec /mnt/ddev_config/commands/web/install-v12
+echo ""
+
+# Done
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ Setup Complete!"
+echo ""
+echo "🌐 Access Your Environment:"
+echo "   Overview:       https://${DDEV_SITENAME}.ddev.site/"
+echo "   Documentation:  https://docs.${DDEV_SITENAME}.ddev.site/"
+echo ""
+echo "   TYPO3 v12:      https://v12.${DDEV_SITENAME}.ddev.site/"
+echo "   TYPO3 v12 BE:   https://v12.${DDEV_SITENAME}.ddev.site/typo3/"
+echo ""
+echo "🔑 Backend Login:"
+echo "   Username: admin"
+echo "   Password: Joh316!!"
+echo ""

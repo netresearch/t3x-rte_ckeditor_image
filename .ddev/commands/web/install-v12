@@ -1,0 +1,321 @@
+#!/bin/bash
+
+## Description: Install TYPO3 12.4 LTS with your extension
+## Usage: install-v12
+## Example: ddev install-v12
+
+VERSION=v12
+
+# Test image dimensions for E2E tests
+TEST_IMAGE_WIDTH=800
+TEST_IMAGE_HEIGHT=600
+
+rm -rf /var/www/html/$VERSION/*
+mkdir -p /var/www/html/$VERSION/
+echo "{}" > /var/www/html/$VERSION/composer.json
+composer config extra.typo3/cms.web-dir public -d /var/www/html/$VERSION
+composer config repositories.$EXTENSION_KEY path ../../$EXTENSION_KEY -d /var/www/html/$VERSION
+composer config --no-plugins allow-plugins.typo3/cms-composer-installers true -d /var/www/html/$VERSION
+composer config --no-plugins allow-plugins.typo3/class-alias-loader true -d /var/www/html/$VERSION
+composer req t3/cms:'^12.4' $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
+composer req typo3/cms-extensionmanager --no-progress -n -d /var/www/html/$VERSION
+composer req --dev typo3/cms-styleguide bk2k/bootstrap-package:'^14.0' --no-progress -n -d /var/www/html/$VERSION
+
+cd /var/www/html/$VERSION
+
+# MySQL credentials use environment variables with DDEV defaults
+DB_HOST="${MYSQL_HOST:-db}"
+DB_USER="${MYSQL_USER:-root}"
+export MYSQL_PWD="${MYSQL_PASSWORD:-root}"
+mysql -h "$DB_HOST" -u "$DB_USER" -e "DROP DATABASE IF EXISTS ${VERSION};"
+mysql -h "$DB_HOST" -u "$DB_USER" -e "CREATE DATABASE ${VERSION};"
+
+# TYPO3 12.4 uses the 'setup' command with --admin-user-password (not --admin-password)
+vendor/bin/typo3 setup -n --dbname=$VERSION --password=$TYPO3_DB_PASSWORD --create-site="https://${VERSION}.${DDEV_SITENAME}.ddev.site" --admin-user-password=$TYPO3_SETUP_ADMIN_PASSWORD
+
+vendor/bin/typo3 configuration:set 'BE/debug' 1
+vendor/bin/typo3 configuration:set 'FE/debug' 1
+vendor/bin/typo3 configuration:set 'SYS/devIPmask' '*'
+vendor/bin/typo3 configuration:set 'SYS/displayErrors' 1
+# Create additional.php for trustedHostsPattern and demo RTE preset
+mkdir -p /var/www/html/$VERSION/config/system
+cat > /var/www/html/$VERSION/config/system/additional.php << 'ADDPHP'
+<?php
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['trustedHostsPattern'] = '.*';
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['features']['security.backend.enforceReferrer'] = false;
+
+// Logging: Enable deprecation, error, and warning logging
+$GLOBALS['TYPO3_CONF_VARS']['LOG']['TYPO3']['CMS']['deprecations']['writerConfiguration'] = [
+    \TYPO3\CMS\Core\Log\LogLevel::NOTICE => [
+        \TYPO3\CMS\Core\Log\Writer\FileWriter::class => [
+            'logFileInfix' => 'deprecations',
+            'disabled' => false,
+        ],
+    ],
+];
+$GLOBALS['TYPO3_CONF_VARS']['LOG']['writerConfiguration'] = [
+    \TYPO3\CMS\Core\Log\LogLevel::WARNING => [
+        \TYPO3\CMS\Core\Log\Writer\FileWriter::class => [
+            'logFileInfix' => 'error',
+        ],
+    ],
+];
+
+// Register demo RTE preset with GHS (General HTML Support) for Bootstrap HTML preservation
+$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['demo_with_images'] = 'config/rte/demoWithImages.yaml';
+ADDPHP
+vendor/bin/typo3 configuration:set 'MAIL/transport' 'smtp'
+vendor/bin/typo3 configuration:set 'MAIL/transport_smtp_server' 'localhost:1025'
+vendor/bin/typo3 configuration:set 'MAIL/defaultMailFromAddress' 'admin@example.com'
+vendor/bin/typo3 configuration:set 'GFX/processor' 'ImageMagick'
+vendor/bin/typo3 configuration:set 'GFX/processor_path' '/usr/bin/'
+
+# Enable deprecation logging via settings.php
+sed -i "/'deprecations'/,/^[[:space:]]*'disabled' => true,/s/'disabled' => true,/'disabled' => false,/" /var/www/html/$VERSION/config/system/settings.php
+
+vendor/bin/typo3 extension:setup
+
+# Generate styleguide demo content for UI pattern reference
+vendor/bin/typo3 styleguide:generate
+
+# Create test images (needed before FAL registration)
+mkdir -p public/fileadmin/user_upload
+
+# Create Netresearch logo SVG
+cat > public/fileadmin/user_upload/netresearch-logo.svg << 'LOGOEOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 380 50" xmlns="http://www.w3.org/2000/svg">
+  <title>RTE CKEditor Image Demo</title>
+  <g transform="scale(0.167) translate(0, 0)">
+    <path fill="#2999a4" d="M209.6,0V31.62h32.77a26.38,26.38,0,0,1,26.44,26.43V242a26.38,26.38,0,0,1-26.44,26.44H209.6V300h47.93a42.77,42.77,0,0,0,42.86-42.86V42.89A42.76,42.76,0,0,0,257.53,0ZM43.25,0A42.76,42.76,0,0,0,.39,42.89V257.18A42.76,42.76,0,0,0,43.25,300H91.18V268.46H58.4A26.38,26.38,0,0,1,32,242v-184A26.37,26.37,0,0,1,58.4,31.62H91.18V0Z" transform="translate(-0.39 -0.04)"/>
+    <path fill="#595a62" d="M221.44,120.41c0-34.48-13.94-57.82-48.93-57.82-26.62,0-48.54,7.74-64.17,26.56l-.7-22.06-28.31.06V232.94h31.59V124.69c7.14-18.38,32.14-34.8,53-34.5,27.38.4,25.2,26.24,26,45.81v96.94h31.58" transform="translate(-0.39 -0.04)"/>
+  </g>
+  <text x="60" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#2F99A4">RTE CKEditor Image Demo</text>
+</svg>
+LOGOEOF
+
+# Create branded demo images
+if command -v convert &> /dev/null; then
+    convert -size ${TEST_IMAGE_WIDTH}x${TEST_IMAGE_HEIGHT} \
+        -define gradient:angle=135 \
+        gradient:'#FF8700'-'#FF4D00' \
+        -pointsize 72 \
+        -fill white -gravity center \
+        -annotate +0-50 'TYPO3' \
+        -pointsize 24 \
+        -annotate +0+50 'Click to Enlarge Demo' \
+        public/fileadmin/user_upload/example.jpg
+
+    convert -size 100x75 \
+        xc:'#2F99A4' \
+        -pointsize 28 \
+        -fill white -gravity center \
+        -annotate +0+0 '[n]' \
+        public/fileadmin/user_upload/inline-small.jpg
+
+    convert -size 400x300 \
+        -define gradient:angle=45 \
+        gradient:'#2F99A4'-'#1a5a5f' \
+        -pointsize 36 \
+        -fill white -gravity center \
+        -annotate +0-30 'Netresearch' \
+        -pointsize 18 \
+        -annotate +0+30 'Image Demo' \
+        public/fileadmin/user_upload/medium.jpg
+
+    convert -size 32x32 \
+        xc:'#FF4D00' \
+        -pointsize 16 \
+        -fill white -gravity center \
+        -annotate +0+0 '[n]' \
+        public/fileadmin/user_upload/icon.jpg
+
+    convert -size 300x200 \
+        xc:'#2F99A4' \
+        -pointsize 24 \
+        -fill white -gravity center \
+        -annotate +0+0 'External Image' \
+        public/fileadmin/user_upload/external-placeholder.jpg
+
+    convert -size 250x150 \
+        xc:'#FF4D00' \
+        -pointsize 20 \
+        -fill white -gravity center \
+        -annotate +0+0 'No Caption' \
+        public/fileadmin/user_upload/no-caption.jpg
+
+    convert -size 40x40 \
+        xc:'#FF8700' \
+        -pointsize 18 \
+        -fill white -gravity center \
+        -annotate +0+0 'M' \
+        public/fileadmin/user_upload/multi-class.jpg
+else
+    echo "Warning: ImageMagick not found, creating minimal placeholder images"
+    echo '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9/KKKKAP/2Q==' | base64 -d > public/fileadmin/user_upload/example.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/inline-small.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/medium.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/icon.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/external-placeholder.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/no-caption.jpg
+    cp public/fileadmin/user_upload/example.jpg public/fileadmin/user_upload/multi-class.jpg
+fi
+
+# Get actual file info for FAL entries
+get_file_info() {
+    local file=$1
+    local size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file")
+    local sha1=$(sha1sum "$file" 2>/dev/null | cut -d' ' -f1 || shasum "$file" | cut -d' ' -f1)
+    echo "$size $sha1"
+}
+
+FILE1_INFO=($(get_file_info "public/fileadmin/user_upload/example.jpg"))
+FILE2_INFO=($(get_file_info "public/fileadmin/user_upload/inline-small.jpg"))
+FILE3_INFO=($(get_file_info "public/fileadmin/user_upload/medium.jpg"))
+FILE4_INFO=($(get_file_info "public/fileadmin/user_upload/icon.jpg"))
+
+# Copy demo-specific RTE preset with GHS (General HTML Support)
+mkdir -p /var/www/html/$VERSION/public/config/rte
+cp /var/www/$EXTENSION_KEY/.ddev/assets/demoWithImages.yaml /var/www/html/$VERSION/public/config/rte/demoWithImages.yaml
+
+# Create FAL entries and demo content
+mysql -h "$DB_HOST" -u "$DB_USER" "$VERSION" << EOSQL
+-- Remove default "Welcome to your default website" content element
+DELETE FROM tt_content WHERE header LIKE '%Welcome to your%' OR bodytext LIKE '%Welcome to your%';
+
+-- FILE 1: example.jpg (800x600, main block image)
+INSERT INTO sys_file (pid, storage, type, identifier, identifier_hash, folder_hash, extension, mime_type, name, sha1, size, creation_date, modification_date, tstamp, last_indexed)
+VALUES (0, 1, 2, '/user_upload/example.jpg', SHA1('/user_upload/example.jpg'), SHA1('/user_upload'), 'jpg', 'image/jpeg', 'example.jpg', '${FILE1_INFO[1]}', ${FILE1_INFO[0]}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+SET @file1_uid = LAST_INSERT_ID();
+INSERT INTO sys_file_metadata (pid, tstamp, crdate, file, width, height) VALUES (0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), @file1_uid, 800, 600);
+
+-- FILE 2: inline-small.jpg (100x75, for inline demos)
+INSERT INTO sys_file (pid, storage, type, identifier, identifier_hash, folder_hash, extension, mime_type, name, sha1, size, creation_date, modification_date, tstamp, last_indexed)
+VALUES (0, 1, 2, '/user_upload/inline-small.jpg', SHA1('/user_upload/inline-small.jpg'), SHA1('/user_upload'), 'jpg', 'image/jpeg', 'inline-small.jpg', '${FILE2_INFO[1]}', ${FILE2_INFO[0]}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+SET @file2_uid = LAST_INSERT_ID();
+INSERT INTO sys_file_metadata (pid, tstamp, crdate, file, width, height) VALUES (0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), @file2_uid, 100, 75);
+
+-- FILE 3: medium.jpg (400x300, for various demos)
+INSERT INTO sys_file (pid, storage, type, identifier, identifier_hash, folder_hash, extension, mime_type, name, sha1, size, creation_date, modification_date, tstamp, last_indexed)
+VALUES (0, 1, 2, '/user_upload/medium.jpg', SHA1('/user_upload/medium.jpg'), SHA1('/user_upload'), 'jpg', 'image/jpeg', 'medium.jpg', '${FILE3_INFO[1]}', ${FILE3_INFO[0]}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+SET @file3_uid = LAST_INSERT_ID();
+INSERT INTO sys_file_metadata (pid, tstamp, crdate, file, width, height) VALUES (0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), @file3_uid, 400, 300);
+
+-- FILE 4: icon.jpg (32x32, for icon-sized inline demos)
+INSERT INTO sys_file (pid, storage, type, identifier, identifier_hash, folder_hash, extension, mime_type, name, sha1, size, creation_date, modification_date, tstamp, last_indexed)
+VALUES (0, 1, 2, '/user_upload/icon.jpg', SHA1('/user_upload/icon.jpg'), SHA1('/user_upload'), 'jpg', 'image/jpeg', 'icon.jpg', '${FILE4_INFO[1]}', ${FILE4_INFO[0]}, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+SET @file4_uid = LAST_INSERT_ID();
+INSERT INTO sys_file_metadata (pid, tstamp, crdate, file, width, height) VALUES (0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), @file4_uid, 32, 32);
+
+-- Update sys_template to use Bootstrap Package layout + rte_ckeditor_image
+-- TYPO3 v12 uses include_static_file for TypoScript (no site sets)
+UPDATE sys_template SET
+    constants = 'page.logo.file =
+page.logo.fileInverted =
+page.logo.header = Netresearch
+page.logo.subheader = RTE CKEditor Image Demo',
+    include_static_file = 'EXT:bootstrap_package/Configuration/TypoScript/,EXT:bootstrap_package/Configuration/TypoScript/ContentElement/,EXT:fluid_styled_content/Configuration/TypoScript/,EXT:rte_ckeditor_image/Configuration/TypoScript/',
+    config = 'lib.contentElement.settings.media.popup.linkClass = lightbox
+lib.contentElement.settings.media.popup.directImageLink = 1
+lib.contentElement.settings.media.popup.linkParams.ATagParams = rel="lightbox-group-rte"
+page.cssInline.999 = TEXT
+page.cssInline.999.value (
+  .main-section { max-width: 1400px; margin: 0 auto; padding: 0 15px; }
+)'
+WHERE uid = 1;
+
+-- Update page title and assign demo RTE preset via PageTSconfig
+UPDATE pages SET
+    title = 'RTE CKEditor Image Demo',
+    TSconfig = 'RTE.default.preset = demo_with_images'
+WHERE uid = 1;
+
+-- CONTENT ELEMENT 1: Hero Introduction
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+'<div class="container py-4">
+<div class="text-center mb-5">
+<h1 class="display-5 fw-bold" style="color: #2F99A4;">RTE CKEditor Image</h1>
+<p class="lead text-muted">Advanced image handling for CKEditor 5 in TYPO3 v12</p>
+</div>
+</div>',
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 100);
+
+-- CONTENT ELEMENT 2: Block Images Demo
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(135deg, #FF8700, #FF4D00); color: white;">
+<h3 class="mb-0">Block Images with Click-to-Enlarge</h3>
+</div>
+<div class="card-body">
+<figure class="image text-center">
+<img src="fileadmin/user_upload/example.jpg" alt="Block image example" width="400" height="300" data-htmlarea-file-uid="', @file1_uid, '" data-htmlarea-file-table="sys_file" data-htmlarea-zoom="true" data-title-override="true" data-alt-override="true" class="img-fluid rounded shadow-sm">
+<figcaption class="mt-2 text-muted small">Click the image to test the lightbox</figcaption>
+</figure>
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 200);
+
+-- CONTENT ELEMENT 3: Inline Images Demo
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+CONCAT(
+'<div class="card mb-4 mx-3 border-0 shadow">
+<div class="card-header py-3" style="background: linear-gradient(135deg, #2F99A4, #1a5a5f); color: white;">
+<h3 class="mb-0">Inline Images</h3>
+</div>
+<div class="card-body">
+<p class="lead">Inline images flow naturally with your text content:</p>
+<div class="bg-light p-3 rounded mb-3">
+<p class="mb-2">This text has an <img class="image image-inline" src="fileadmin/user_upload/inline-small.jpg" alt="inline example" width="50" height="38" data-htmlarea-file-uid="', @file2_uid, '" data-htmlarea-file-table="sys_file" data-title-override="true" data-alt-override="true"> inline image embedded in the middle of the sentence.</p>
+<p class="mb-0">You can also use icon-sized images <img class="image image-inline" src="fileadmin/user_upload/icon.jpg" alt="icon" width="20" height="20" data-htmlarea-file-uid="', @file4_uid, '" data-htmlarea-file-table="sys_file" data-title-override="true" data-alt-override="true"> like this one as visual markers.</p>
+</div>
+</div>
+</div>'
+),
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 300);
+
+-- CONTENT ELEMENT 4: Testing Instructions
+INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting)
+VALUES (1, 'text', '',
+'<div class="card border-0 shadow mx-3" style="border-left: 4px solid #2F99A4 !important;">
+<div class="card-body">
+<h3 class="card-title" style="color: #2F99A4;">Test the Extension</h3>
+<ol class="mb-0">
+<li>Log in to the <a href="/typo3/" class="fw-bold">TYPO3 Backend</a></li>
+<li>Go to <strong>Page → Edit content</strong></li>
+<li>Click any content element to edit</li>
+<li>In the RTE, try inserting images via toolbar button</li>
+<li>Save and check frontend rendering</li>
+</ol>
+<div class="bg-light rounded p-3 mt-3">
+<h6 class="text-muted">Backend Credentials</h6>
+<p class="mb-1"><strong>User:</strong> <code>admin</code></p>
+<p class="mb-0"><strong>Password:</strong> <code>Joh316!!</code></p>
+</div>
+</div>
+</div>',
+0, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 0, 900);
+
+EOSQL
+
+# TYPO3 v12 uses sys_template static includes, not site sets
+# Update site configuration base URL for portability
+if [ -f config/sites/main/config.yaml ]; then
+    sed -i "s|^base:.*|base: '/'|" config/sites/main/config.yaml
+fi
+
+vendor/bin/typo3 cache:flush
+
+echo ""
+echo "TYPO3 $VERSION installation complete!"
+echo ""
+echo "rte_ckeditor_image configuration:"
+echo "- Backend RTE: auto-configured (insertimage button available)"
+echo "- Frontend TypoScript: included via sys_template static includes"
+echo "- Test content with images added to homepage"
+echo ""
+echo "Test click-to-enlarge: https://${VERSION}.${DDEV_SITENAME}.ddev.site/"

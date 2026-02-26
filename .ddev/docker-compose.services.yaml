@@ -1,0 +1,52 @@
+services:
+  # Valkey for TYPO3 caching (open source, wire-compatible with Redis)
+  valkey:
+    container_name: ddev-${DDEV_SITENAME}-valkey
+    image: valkey/valkey:9-alpine
+    restart: unless-stopped
+    expose:
+      - "6379"
+    volumes:
+      - valkey-data:/data
+    labels:
+      com.ddev.site-name: ${DDEV_SITENAME}
+      com.ddev.approot: $DDEV_APPROOT
+    environment:
+      - VALKEY_MAXMEMORY=256mb
+      - VALKEY_MAXMEMORY_POLICY=allkeys-lru
+    command: valkey-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+  # MailPit for email testing
+  mailpit:
+    container_name: ddev-${DDEV_SITENAME}-mailpit
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    expose:
+      - "1025"
+      - "8025"
+    labels:
+      com.ddev.site-name: ${DDEV_SITENAME}
+      com.ddev.approot: $DDEV_APPROOT
+    environment:
+      MP_SMTP_BIND_ADDR: 0.0.0.0:1025
+      MP_UI_BIND_ADDR: 0.0.0.0:8025
+
+  # Ofelia for cron jobs (TYPO3 scheduler)
+  ofelia:
+    container_name: ddev-${DDEV_SITENAME}-ofelia
+    image: ghcr.io/netresearch/ofelia:latest
+    restart: unless-stopped
+    depends_on:
+      - web
+    labels:
+      com.ddev.site-name: ${DDEV_SITENAME}
+      com.ddev.approot: $DDEV_APPROOT
+      ofelia.enabled: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - .:/src
+    command: daemon --docker-events
+
+volumes:
+  valkey-data:
+    name: "${DDEV_SITENAME}-valkey-data"

@@ -1,0 +1,11 @@
+# Expose Mailpit UI via Traefik router on subdomain
+# Access at: https://mail.t12-rte-ckeditor-image.ddev.site
+services:
+    mailpit:
+        networks:
+            - default
+            - ddev_default
+networks:
+    ddev_default:
+        name: ddev_default
+        external: true
