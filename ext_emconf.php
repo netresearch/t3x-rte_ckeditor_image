@@ -1,13 +1,11 @@
 <?php
 
-/*
- * This file is part of the package netresearch/rte-ckeditor-image.
+/**
+ * Extension Manager configuration for rte_ckeditor_image.
  *
- * For the full copyright and license information, please read the
- * LICENSE file that was distributed with this source code.
+ * Do NOT add declare(strict_types=1) here.
+ * TER cannot parse ext_emconf.php with strict_types.
  */
-
-declare(strict_types=1);
 
 $EM_CONF[$_EXTKEY] = [
     'title'            => 'CKEditor Rich Text Editor Image Support',
@@ -17,7 +15,7 @@ $EM_CONF[$_EXTKEY] = [
     'clearCacheOnLoad' => 0,
     'author'           => 'Sebastian Koschel',
     'author_email'     => 'sebastian.koschel@netresearch.de',
-    'version'          => '12.0.8',
+    'version'          => '12.0.9',
     'constraints'      => [
         'depends' => [
             'php'          => '8.1.0-8.9.99',

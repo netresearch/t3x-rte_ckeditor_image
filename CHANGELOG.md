@@ -1,3 +1,13 @@
+# 12.0.9
+
+## BUGFIX
+
+- [BUGFIX] Remove declare(strict_types=1) from ext_emconf.php (TER cannot parse it)
+
+## MISC
+
+- [TASK] Sync TER publish workflow from main branch (fixes TER publishing)
+
 # 12.0.8
 
 ## MISC
