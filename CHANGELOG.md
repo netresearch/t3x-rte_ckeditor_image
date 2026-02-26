@@ -1,3 +1,9 @@
+# 12.0.7
+
+## MISC
+
+- [TASK] Fix TER publish workflow: update runner from ubuntu-20.04 to ubuntu-latest
+
 # 12.0.6
 
 ## BUGFIX
@@ -7,7 +13,6 @@
 ## MISC
 
 - [TASK] Add DDEV setup for TYPO3 v12 local development
-- [TASK] Bump version to 12.0.6
 
 # 12.0.5
 
