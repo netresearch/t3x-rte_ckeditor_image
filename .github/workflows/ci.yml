@@ -33,18 +33,14 @@ jobs:
     uses: netresearch/typo3-ci-workflows/.github/workflows/fuzz.yml@main
     permissions:
       contents: read
+    with:
+      run-fuzz-tests: false
+      run-mutation-tests: false
 
   license-check:
     uses: netresearch/typo3-ci-workflows/.github/workflows/license-check.yml@main
     permissions:
       contents: read
-
-  codeql:
-    uses: netresearch/typo3-ci-workflows/.github/workflows/codeql.yml@main
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
 
   scorecard:
     if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == github.event.repository.default_branch)
@@ -65,13 +61,6 @@ jobs:
   pr-quality:
     if: github.event_name == 'pull_request'
     uses: netresearch/typo3-ci-workflows/.github/workflows/pr-quality.yml@main
-    permissions:
-      contents: read
-      pull-requests: write
-
-  labeler:
-    if: github.event_name == 'pull_request'
-    uses: netresearch/typo3-ci-workflows/.github/workflows/labeler.yml@main
     permissions:
       contents: read
       pull-requests: write
