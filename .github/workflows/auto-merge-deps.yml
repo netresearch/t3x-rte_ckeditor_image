@@ -1,8 +1,10 @@
 name: Auto-merge dependency PRs
+
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
+  pull_request:
+
 permissions: {}
+
 jobs:
   auto-merge:
     uses: netresearch/typo3-ci-workflows/.github/workflows/auto-merge-deps.yml@main

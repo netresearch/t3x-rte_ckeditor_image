@@ -1,0 +1,34 @@
+name: Community
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  stale:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    uses: netresearch/typo3-ci-workflows/.github/workflows/stale.yml@main
+    permissions:
+      issues: write
+      pull-requests: write
+
+  lock:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    uses: netresearch/typo3-ci-workflows/.github/workflows/lock.yml@main
+    permissions:
+      issues: write
+      pull-requests: write
+
+  greetings:
+    if: github.event_name == 'issues' || github.event_name == 'pull_request_target'
+    uses: netresearch/typo3-ci-workflows/.github/workflows/greetings.yml@main
+    permissions:
+      issues: write
+      pull-requests: write
