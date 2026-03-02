@@ -34,15 +34,9 @@
         "typo3/cms-extbase": "^13.4.21 || ^14.0",
         "typo3/cms-rte-ckeditor": "^13.4.21 || ^14.0"
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "/home/cybot/projects/typo3-ci-workflows/feat/dev-deps-package"
-        }
-    ],
     "require-dev": {
         "bk2k/bootstrap-package": "^15.0 || ^16.0",
-        "netresearch/typo3-ci-workflows": "@dev"
+        "netresearch/typo3-ci-workflows": "^1.0"
     },
     "autoload": {
         "psr-4": {
