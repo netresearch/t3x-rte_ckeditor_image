@@ -4,7 +4,8 @@ includes:
     # are auto-registered by phpstan/extension-installer — no manual includes needed
     - %currentWorkingDirectory%/.Build/vendor/netresearch/typo3-ci-workflows/config/phpstan/phpstan.neon
     - %currentWorkingDirectory%/Build/phpstan-baseline.neon
-    # phpat/phpat extension.neon is auto-registered by phpstan/extension-installer
+    # phpat/phpat extension.neon is auto-registered by phpstan/extension-installer.
+    # This include registers project-specific architecture test rules:
     - %currentWorkingDirectory%/Build/phpat.neon
 
 parameters:

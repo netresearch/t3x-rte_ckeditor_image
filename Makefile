@@ -64,5 +64,3 @@ docs-lint: ## Lint documentation (TYPO3 guidelines compliance)
 .PHONY: docs-fix
 docs-fix: ## Fix auto-fixable documentation issues
 	./Build/Scripts/validate-docs.sh --fix
-
-.DEFAULT_GOAL := help
