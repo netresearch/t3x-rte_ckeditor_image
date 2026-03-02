@@ -1,6 +1,6 @@
 includes:
     # Shared parameters from centralized package (level 10, strict settings,
-    # standard paths/excludes, test-infrastructure + upgrade-wizard ignoreErrors)
+    # excludePaths, stubs, test-infrastructure + upgrade-wizard ignoreErrors)
     - %currentWorkingDirectory%/.Build/vendor/netresearch/typo3-ci-workflows/config/phpstan/phpstan.neon
     - %currentWorkingDirectory%/Build/phpstan-baseline.neon
     # phpat/phpat extension.neon is auto-registered by phpstan/extension-installer.
@@ -8,7 +8,7 @@ includes:
     - %currentWorkingDirectory%/Build/phpat.neon
 
 parameters:
-    # Override shared paths: this extension also analyzes Resources/ and ext_localconf.php
+    # Extension paths (each extension defines its own — shared config provides none)
     paths:
         - %currentWorkingDirectory%/Classes/
         - %currentWorkingDirectory%/Configuration/
