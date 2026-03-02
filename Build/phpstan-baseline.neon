@@ -385,22 +385,82 @@ parameters:
 			path: ../Tests/Functional/Controller/SelectImageControllerTest.php
 
 		-
-			message: '#^Method Netresearch\\RteCKEditorImage\\Tests\\Functional\\Database\\RteImagesDbHookTest\:\:createSubject\(\) should return Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook but returns mixed\.$#'
-			identifier: return.type
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Netresearch\\\\RteCKEditorImage\\\\Database\\\\RteImagesDbHook'' and Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
 			count: 1
 			path: ../Tests/Functional/Database/RteImagesDbHookTest.php
 
 		-
-			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Netresearch\\\\RteCKEditorImage\\\\Service\\\\ImageAttributeParser'' and Netresearch\\RteCKEditorImage\\Service\\ImageAttributeParser will always evaluate to true\.$#'
 			identifier: staticMethod.alreadyNarrowedType
 			count: 1
-			path: ../Tests/Unit/Listener/TCA/RteSoftrefEnforcerTest.php
+			path: ../Tests/Functional/Service/ImageRenderingIntegrationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Netresearch\\\\RteCKEditorImage\\\\Service\\\\ImageRenderingService'' and Netresearch\\RteCKEditorImage\\Service\\ImageRenderingService will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Tests/Functional/Service/ImageRenderingIntegrationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Netresearch\\\\RteCKEditorImage\\\\Service\\\\ImageResolverService'' and Netresearch\\RteCKEditorImage\\Service\\ImageResolverService will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Tests/Functional/Service/ImageRenderingIntegrationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Netresearch\\\\RteCKEditorImage\\\\Database\\\\RteImagesDbHook'' and Netresearch\\RteCKEditorImage\\Database\\RteImagesDbHook will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Tests/Unit/Database/RteImagesDbHookTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''test\-class'' and ''test\-class'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Tests/Unit/Domain/Model/ImageRenderingDtoTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with 123 and 123 will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Tests/Unit/Domain/Model/ImageRenderingDtoTest.php
+
+		-
+			message: '#^You should use assertTrue\(\) instead of assertSame\(\) when expecting "true"$#'
+			identifier: phpunit.assertTrue
+			count: 1
+			path: ../Tests/Unit/Domain/Model/ImageRenderingDtoTest.php
 
 		-
 			message: '#^Method Netresearch\\RteCKEditorImage\\Tests\\Unit\\Listener\\TCA\\RteSoftrefEnforcerTest\:\:invokeListenerAndGetTca\(\) should return array\<string, mixed\> but returns array\.$#'
 			identifier: return.type
 			count: 1
 			path: ../Tests/Unit/Listener/TCA/RteSoftrefEnforcerTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Netresearch\\\\RteCKEditorImage\\\\Service\\\\Processor\\\\RteImageProcessorInterface'' and Netresearch\\RteCKEditorImage\\Service\\Processor\\RteImageProcessorInterface will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Tests/Unit/Service/Processor/RteImageProcessorFactoryTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with bool and bool will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Tests/Unit/Service/Processor/RteImageProcessorTest.php
+
+		-
+			message: '#^You should use assertCount\(\$expectedCount, \$variable\) instead of assertSame\(\$expectedCount, count\(\$variable\)\)\.$#'
+			identifier: phpunit.assertCount
+			count: 1
+			path: ../Tests/Unit/Service/RteImageReferenceValidatorTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''TYPO3\\\\CMS\\\\Core\\\\Resource\\\\ProcessedFile'' and TYPO3\\CMS\\Core\\Resource\\ProcessedFile will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 2
+			path: ../Tests/Unit/Utils/ProcessedFilesHandlerTest.php
 
 		-
 			message: '#^Cannot access an offset on mixed\.$#'

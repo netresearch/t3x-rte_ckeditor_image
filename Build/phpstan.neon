@@ -1,20 +1,14 @@
 includes:
-    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-strict-rules/rules.neon
-    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-deprecation-rules/rules.neon
-#    - %currentWorkingDirectory%/.Build/vendor/phpstan/phpstan-phpunit/rules.neon
+    # Shared parameters from centralized package (level 10, strict settings,
+    # excludePaths, bootstrapFiles, test-infrastructure + upgrade-wizard ignoreErrors)
+    - %currentWorkingDirectory%/.Build/vendor/netresearch/typo3-ci-workflows/config/phpstan/phpstan.neon
     - %currentWorkingDirectory%/Build/phpstan-baseline.neon
-    - %currentWorkingDirectory%/.Build/vendor/phpat/phpat/extension.neon
+    # phpat/phpat extension.neon is auto-registered by phpstan/extension-installer.
+    # This include registers project-specific architecture test rules:
     - %currentWorkingDirectory%/Build/phpat.neon
 
 parameters:
-    # Level 10 is the strictest level - maximum type safety and code quality checks
-    level: 10
-
-    # Stubs for classes that may not exist in all PHP/PHPUnit versions
-    # Note: stubFiles don't work reliably in CI, so we use bootstrapFiles instead
-    bootstrapFiles:
-        - %currentWorkingDirectory%/Build/phpstan-stubs/phpunit-attributes.php
-
+    # Extension paths (each extension defines its own — shared config provides none)
     paths:
         - %currentWorkingDirectory%/Classes/
         - %currentWorkingDirectory%/Configuration/
@@ -22,31 +16,9 @@ parameters:
         - %currentWorkingDirectory%/Tests/
         - %currentWorkingDirectory%/ext_localconf.php
 
-    excludePaths:
-        - %currentWorkingDirectory%/.Build/*
-        - %currentWorkingDirectory%/ext_emconf.php
-
-    # Strict configuration options for maximum code quality
-    treatPhpDocTypesAsCertain: false
-    reportUnmatchedIgnoredErrors: true
-
-    # Advanced type inference and checking
-    inferPrivatePropertyTypeFromConstructor: true
-    checkMissingCallableSignature: true
-    checkUninitializedProperties: true
-
-    # Ignore uninitialized property errors in test files (properties initialized in setUp())
+    # Extension-specific error ignores
     ignoreErrors:
-        - identifier: property.uninitialized
-          path: %currentWorkingDirectory%/Tests/Unit/*
-        # Ignore offset access errors in test files (test assertions on array results)
-        - identifier: offsetAccess.nonOffsetAccessible
-          path: %currentWorkingDirectory%/Tests/Unit/*
-        - identifier: argument.type
-          path: %currentWorkingDirectory%/Tests/Unit/*
-          message: '#Parameter \#2 \$array of static method PHPUnit\\Framework\\Assert::#'
         # TYPO3 v13/v14 compatibility: getRow() exists in v14+ but not in v13
-        # PHPStan sees it differently depending on which TYPO3 version is installed
         - identifier: function.alreadyNarrowedType
           path: %currentWorkingDirectory%/Classes/Backend/Preview/RteImagePreviewRenderer.php
           message: '#method_exists.*getRow#'
@@ -55,7 +27,6 @@ parameters:
           path: %currentWorkingDirectory%/Classes/Backend/Preview/RteImagePreviewRenderer.php
           message: '#getRow#'
           reportUnmatched: false
-        # Same compatibility pattern in unit tests (getRow exists in v14+, not in v13)
         - identifier: function.alreadyNarrowedType
           path: %currentWorkingDirectory%/Tests/Unit/Database/RteImagesDbHookTest.php
           message: '#method_exists.*getRow#'
@@ -64,44 +35,14 @@ parameters:
           path: %currentWorkingDirectory%/Tests/Unit/Backend/Preview/RteImagePreviewRendererTest.php
           message: '#method_exists.*getRow#'
           reportUnmatched: false
-        # Ignore cast.int errors in functional tests (mixed from invokeMethod reflection calls)
-        - identifier: cast.int
-          path: %currentWorkingDirectory%/Tests/Functional/*
+        - identifier: phpunit.mockMethod
+          path: %currentWorkingDirectory%/Tests/Unit/Backend/Preview/RteImagePreviewRendererTest.php
+          message: '#getRow#'
           reportUnmatched: false
-        # Ignore GeneralUtility::makeInstance() return type issues in functional tests
-        # PHPStan sees makeInstance() returning mixed (without phpstan-typo3 extension)
-        # This causes "mixed given" and "does not accept mixed" errors for typed properties/params
-        - identifier: argument.type
-          path: %currentWorkingDirectory%/Tests/Functional/*
-          message: '#mixed#'
-          reportUnmatched: false
-        - identifier: assign.propertyType
-          path: %currentWorkingDirectory%/Tests/Functional/*
-          message: '#mixed#'
-          reportUnmatched: false
-        - identifier: method.nonObject
-          path: %currentWorkingDirectory%/Tests/Functional/*
-          message: '#mixed#'
-          reportUnmatched: false
-        # TYPO3 v13/v14 compatibility: instanceof checks may be redundant on one version
-        # but necessary on the other due to different return type annotations
+        # TYPO3 v13/v14 compatibility: instanceof checks
         - identifier: instanceof.alwaysTrue
           path: %currentWorkingDirectory%/Classes/Service/Resolver/ImageFileResolver.php
           reportUnmatched: false
         - identifier: instanceof.alwaysTrue
           path: %currentWorkingDirectory%/Classes/Service/Processor/RteImageProcessor.php
-          reportUnmatched: false
-        # TYPO3 v13/v14 compatibility: upgrade wizard uses Install\Updates namespace (v13)
-        # which is deprecated in v14 (Deprecation-106947). Migrate to Core\Upgrades when dropping v13.
-        - identifier: attribute.deprecated
-          path: %currentWorkingDirectory%/Classes/Updates/*
-          reportUnmatched: false
-        - identifier: class.implementsDeprecatedInterface
-          path: %currentWorkingDirectory%/Classes/Updates/*
-          reportUnmatched: false
-        - identifier: classConstant.deprecatedClass
-          path: %currentWorkingDirectory%/Classes/Updates/*
-          reportUnmatched: false
-        - identifier: classConstant.deprecatedClass
-          path: %currentWorkingDirectory%/Tests/Unit/Updates/*
           reportUnmatched: false

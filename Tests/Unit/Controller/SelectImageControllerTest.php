@@ -1271,7 +1271,7 @@ final class TestableExpandFolderController
     public ?array $capturedQueryParams = null;
 
     public function __construct(
-        private readonly DefaultUploadFolderResolver $uploadFolderResolver
+        private readonly DefaultUploadFolderResolver $uploadFolderResolver,
     ) {}
 
     public function mainAction(ServerRequestInterface $request): ResponseInterface
