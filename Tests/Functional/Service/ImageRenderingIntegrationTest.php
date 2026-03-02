@@ -35,16 +35,12 @@ final class ImageRenderingIntegrationTest extends FunctionalTestCase
         'typo3/cms-rte-ckeditor',
     ];
 
-    /** @phpstan-ignore property.uninitialized (initialized in setUp) */
     private ImageAttributeParser $parser;
 
-    /** @phpstan-ignore property.uninitialized (initialized in setUp) */
     private ImageResolverService $resolver;
 
-    /** @phpstan-ignore property.uninitialized (initialized in setUp) */
     private ImageRenderingService $renderer;
 
-    /** @phpstan-ignore property.uninitialized (initialized in setUp) */
     private ServerRequestInterface $request;
 
     protected function setUp(): void

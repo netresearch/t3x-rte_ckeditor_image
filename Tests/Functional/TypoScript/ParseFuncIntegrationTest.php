@@ -43,10 +43,8 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
         'typo3/cms-frontend',
     ];
 
-    /** @phpstan-ignore property.uninitialized (initialized in setUp) */
     private Site $site;
 
-    /** @phpstan-ignore property.uninitialized (initialized in setUp) */
     private ServerRequest $request;
 
     protected function setUp(): void

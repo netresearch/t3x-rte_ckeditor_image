@@ -137,7 +137,6 @@ final class RteImagesDbHookTest extends FunctionalTestCase
         // Verify hook is properly registered in TYPO3_CONF_VARS
         // @phpstan-ignore-next-line argument.type
         self::assertArrayHasKey('SC_OPTIONS', $GLOBALS['TYPO3_CONF_VARS']);
-        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
         self::assertIsArray($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']);
         self::assertArrayHasKey(
             't3lib/class.t3lib_tcemain.php',

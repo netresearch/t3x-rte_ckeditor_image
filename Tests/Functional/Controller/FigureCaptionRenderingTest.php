@@ -38,7 +38,6 @@ final class FigureCaptionRenderingTest extends FunctionalTestCase
         'typo3/cms-rte-ckeditor',
     ];
 
-    /** @phpstan-ignore property.uninitialized (initialized in setUp) */
     private ServerRequestInterface $request;
 
     protected function setUp(): void
