@@ -429,22 +429,22 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
         // - our extension adds tags.a.preUserFunc
         $parseFuncConfig = [
             'allowTags' => 'a,img,figure,figcaption',
-            'tags.' => [
+            'tags.'     => [
                 // fluid_styled_content's default tags.a config
-                'a' => 'TEXT',
+                'a'  => 'TEXT',
                 'a.' => [
                     'current' => '1',
                     // Our extension adds this preUserFunc
                     'preUserFunc' => ImageRenderingAdapter::class . '->prepareInlineLinkContent',
-                    'typolink.' => [
-                        'parameter.' => ['data' => 'parameters:href'],
-                        'title.' => ['data' => 'parameters:title'],
+                    'typolink.'   => [
+                        'parameter.'  => ['data' => 'parameters:href'],
+                        'title.'      => ['data' => 'parameters:title'],
                         'ATagParams.' => ['data' => 'parameters:allParams'],
-                        'target.' => [
+                        'target.'     => [
                             'ifEmpty.' => ['data' => 'parameters:target'],
                         ],
                         'extTarget.' => [
-                            'ifEmpty' => '_blank',
+                            'ifEmpty'   => '_blank',
                             'override.' => ['data' => 'parameters:target'],
                         ],
                     ],
@@ -455,7 +455,7 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
 
         // External link — typolink should add target="_blank" (from extTarget)
         // and rel="noreferrer" (automatic for target="_blank")
-        $html = '<a href="https://github.com/netresearch">Visit GitHub</a>';
+        $html   = '<a href="https://github.com/netresearch">Visit GitHub</a>';
         $result = $cObj->parseFunc($html, $parseFuncConfig);
 
         self::assertStringContainsString(
@@ -502,20 +502,20 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
 
         $parseFuncConfig = [
             'allowTags' => 'a,img,figure,figcaption',
-            'tags.' => [
-                'a' => 'TEXT',
+            'tags.'     => [
+                'a'  => 'TEXT',
                 'a.' => [
-                    'current' => '1',
+                    'current'     => '1',
                     'preUserFunc' => ImageRenderingAdapter::class . '->prepareInlineLinkContent',
-                    'typolink.' => [
-                        'parameter.' => ['data' => 'parameters:href'],
-                        'title.' => ['data' => 'parameters:title'],
+                    'typolink.'   => [
+                        'parameter.'  => ['data' => 'parameters:href'],
+                        'title.'      => ['data' => 'parameters:title'],
                         'ATagParams.' => ['data' => 'parameters:allParams'],
-                        'target.' => [
+                        'target.'     => [
                             'ifEmpty.' => ['data' => 'parameters:target'],
                         ],
                         'extTarget.' => [
-                            'ifEmpty' => '_blank',
+                            'ifEmpty'   => '_blank',
                             'override.' => ['data' => 'parameters:target'],
                         ],
                     ],

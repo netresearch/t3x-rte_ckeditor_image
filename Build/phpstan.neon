@@ -46,3 +46,8 @@ parameters:
         - identifier: instanceof.alwaysTrue
           path: %currentWorkingDirectory%/Classes/Service/Processor/RteImageProcessor.php
           reportUnmatched: false
+        # Tests intentionally call deprecated renderInlineLink() for backward-compatibility coverage
+        - identifier: method.deprecated
+          path: %currentWorkingDirectory%/Tests/Unit/Controller/ImageRenderingAdapterTest.php
+          message: '#renderInlineLink#'
+          reportUnmatched: false
