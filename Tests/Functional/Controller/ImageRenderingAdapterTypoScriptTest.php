@@ -125,99 +125,33 @@ final class ImageRenderingAdapterTypoScriptTest extends FunctionalTestCase
     {
         $reflection = new ReflectionClass(ImageRenderingAdapter::class);
 
-        // Check renderImageAttributes method
-        $renderImageAttributesMethod = $reflection->getMethod('renderImageAttributes');
-        $attributes                  = $renderImageAttributesMethod->getAttributes();
+        // All TypoScript-callable methods must have #[AsAllowedCallable] for TYPO3 v14+
+        $methodsToCheck = [
+            'renderImageAttributes',
+            'renderImages',
+            'renderInlineLink',
+            'prepareInlineLinkContent',
+            'renderFigure',
+        ];
 
-        $hasAsAllowedCallable = false;
+        foreach ($methodsToCheck as $methodName) {
+            $method     = $reflection->getMethod($methodName);
+            $attributes = $method->getAttributes();
 
-        foreach ($attributes as $attribute) {
-            if (str_contains($attribute->getName(), 'AsAllowedCallable')) {
-                $hasAsAllowedCallable = true;
+            $hasAsAllowedCallable = false;
 
-                break;
+            foreach ($attributes as $attribute) {
+                if (str_contains($attribute->getName(), 'AsAllowedCallable')) {
+                    $hasAsAllowedCallable = true;
+
+                    break;
+                }
             }
+
+            self::assertTrue(
+                $hasAsAllowedCallable,
+                "Method {$methodName} must have #[AsAllowedCallable] attribute for TYPO3 v14+ compatibility",
+            );
         }
-
-        self::assertTrue(
-            $hasAsAllowedCallable,
-            'Method renderImageAttributes must have #[AsAllowedCallable] attribute for TYPO3 v14+ compatibility',
-        );
-
-        // Check renderImages method
-        $renderImagesMethod = $reflection->getMethod('renderImages');
-        $attributes         = $renderImagesMethod->getAttributes();
-
-        $hasAsAllowedCallable = false;
-
-        foreach ($attributes as $attribute) {
-            if (str_contains($attribute->getName(), 'AsAllowedCallable')) {
-                $hasAsAllowedCallable = true;
-
-                break;
-            }
-        }
-
-        self::assertTrue(
-            $hasAsAllowedCallable,
-            'Method renderImages must have #[AsAllowedCallable] attribute for TYPO3 v14+ compatibility',
-        );
-
-        // Check renderInlineLink method (deprecated tags.a handler)
-        $renderInlineLinkMethod = $reflection->getMethod('renderInlineLink');
-        $attributes             = $renderInlineLinkMethod->getAttributes();
-
-        $hasAsAllowedCallable = false;
-
-        foreach ($attributes as $attribute) {
-            if (str_contains($attribute->getName(), 'AsAllowedCallable')) {
-                $hasAsAllowedCallable = true;
-
-                break;
-            }
-        }
-
-        self::assertTrue(
-            $hasAsAllowedCallable,
-            'Method renderInlineLink must have #[AsAllowedCallable] attribute for TYPO3 v14+ compatibility',
-        );
-
-        // Check prepareInlineLinkContent method (primary tags.a preUserFunc handler)
-        $prepareMethod = $reflection->getMethod('prepareInlineLinkContent');
-        $attributes    = $prepareMethod->getAttributes();
-
-        $hasAsAllowedCallable = false;
-
-        foreach ($attributes as $attribute) {
-            if (str_contains($attribute->getName(), 'AsAllowedCallable')) {
-                $hasAsAllowedCallable = true;
-
-                break;
-            }
-        }
-
-        self::assertTrue(
-            $hasAsAllowedCallable,
-            'Method prepareInlineLinkContent must have #[AsAllowedCallable] attribute for TYPO3 v14+ compatibility',
-        );
-
-        // Check renderFigure method (externalBlocks.figure handler)
-        $renderFigureMethod = $reflection->getMethod('renderFigure');
-        $attributes         = $renderFigureMethod->getAttributes();
-
-        $hasAsAllowedCallable = false;
-
-        foreach ($attributes as $attribute) {
-            if (str_contains($attribute->getName(), 'AsAllowedCallable')) {
-                $hasAsAllowedCallable = true;
-
-                break;
-            }
-        }
-
-        self::assertTrue(
-            $hasAsAllowedCallable,
-            'Method renderFigure must have #[AsAllowedCallable] attribute for TYPO3 v14+ compatibility',
-        );
     }
 }
