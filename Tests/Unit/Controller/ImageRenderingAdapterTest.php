@@ -1980,7 +1980,110 @@ final class ImageRenderingAdapterTest extends TestCase
     }
 
     // ========================================================================
-    // renderInlineLink() Tests - tags.a handler for t3:// resolution
+    // prepareInlineLinkContent() Tests - preUserFunc for nested link stripping
+    // ========================================================================
+
+    /**
+     * Test that prepareInlineLinkContent returns empty string when no content.
+     */
+    #[Test]
+    public function prepareInlineLinkContentReturnsEmptyStringWhenNoContent(): void
+    {
+        $result = $this->adapter->prepareInlineLinkContent(null, [], $this->request);
+
+        self::assertSame('', $result);
+    }
+
+    /**
+     * Test that prepareInlineLinkContent returns empty string for empty content.
+     */
+    #[Test]
+    public function prepareInlineLinkContentReturnsEmptyStringForEmptyContent(): void
+    {
+        $result = $this->adapter->prepareInlineLinkContent('', [], $this->request);
+
+        self::assertSame('', $result);
+    }
+
+    /**
+     * Test that prepareInlineLinkContent passes through regular text content.
+     */
+    #[Test]
+    public function prepareInlineLinkContentPassesThroughRegularContent(): void
+    {
+        $result = $this->adapter->prepareInlineLinkContent('Just some text', [], $this->request);
+
+        self::assertSame('Just some text', $result);
+    }
+
+    /**
+     * Test that prepareInlineLinkContent passes through already-processed image content.
+     */
+    #[Test]
+    public function prepareInlineLinkContentPassesThroughImageContent(): void
+    {
+        $img = '<img src="/fileadmin/_processed_/test.jpg" class="image image-inline" />';
+
+        $result = $this->adapter->prepareInlineLinkContent($img, [], $this->request);
+
+        self::assertSame($img, $result);
+    }
+
+    /**
+     * Test that prepareInlineLinkContent strips nested <a> wrapper from double-wrapped content.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+     */
+    #[Test]
+    public function prepareInlineLinkContentStripsNestedLinkWrapper(): void
+    {
+        $innerContent = '<a class="image image-inline" href="t3://page?uid=1" target="_blank">'
+            . '<img class="image-inline" src="/fileadmin/test.jpg" data-htmlarea-file-uid="2">';
+
+        $result = $this->adapter->prepareInlineLinkContent($innerContent, [], $this->request);
+
+        // Nested <a> should be stripped, only <img> remains
+        self::assertStringContainsString('<img class="image-inline"', $result);
+        self::assertStringNotContainsString('<a ', $result);
+    }
+
+    /**
+     * Test that prepareInlineLinkContent strips nested <a> with closing tag.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+     */
+    #[Test]
+    public function prepareInlineLinkContentStripsNestedLinkWrapperWithClosingTag(): void
+    {
+        $innerContent = '<a class="image image-inline" href="t3://page?uid=1">'
+            . '<img class="image-inline" src="/fileadmin/test.jpg" />'
+            . '</a>';
+
+        $result = $this->adapter->prepareInlineLinkContent($innerContent, [], $this->request);
+
+        self::assertStringContainsString('<img class="image-inline"', $result);
+        self::assertStringNotContainsString('<a ', $result);
+    }
+
+    /**
+     * Test that prepareInlineLinkContent does NOT strip text links.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+     */
+    #[Test]
+    public function prepareInlineLinkContentDoesNotStripTextLinks(): void
+    {
+        $innerContent = '<a href="https://other.com">Click here</a>';
+
+        $result = $this->adapter->prepareInlineLinkContent($innerContent, [], $this->request);
+
+        // Text links should NOT be stripped — only img-only nested wrappers
+        self::assertStringContainsString('Click here', $result);
+        self::assertStringContainsString('<a href', $result);
+    }
+
+    // ========================================================================
+    // renderInlineLink() Tests - deprecated tags.a handler
     // ========================================================================
 
     /**

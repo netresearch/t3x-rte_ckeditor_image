@@ -163,7 +163,7 @@ final class ImageRenderingAdapterTypoScriptTest extends FunctionalTestCase
             'Method renderImages must have #[AsAllowedCallable] attribute for TYPO3 v14+ compatibility',
         );
 
-        // Check renderInlineLink method (primary tags.a handler)
+        // Check renderInlineLink method (deprecated tags.a handler)
         $renderInlineLinkMethod = $reflection->getMethod('renderInlineLink');
         $attributes             = $renderInlineLinkMethod->getAttributes();
 
@@ -180,6 +180,44 @@ final class ImageRenderingAdapterTypoScriptTest extends FunctionalTestCase
         self::assertTrue(
             $hasAsAllowedCallable,
             'Method renderInlineLink must have #[AsAllowedCallable] attribute for TYPO3 v14+ compatibility',
+        );
+
+        // Check prepareInlineLinkContent method (primary tags.a preUserFunc handler)
+        $prepareMethod = $reflection->getMethod('prepareInlineLinkContent');
+        $attributes    = $prepareMethod->getAttributes();
+
+        $hasAsAllowedCallable = false;
+
+        foreach ($attributes as $attribute) {
+            if (str_contains($attribute->getName(), 'AsAllowedCallable')) {
+                $hasAsAllowedCallable = true;
+
+                break;
+            }
+        }
+
+        self::assertTrue(
+            $hasAsAllowedCallable,
+            'Method prepareInlineLinkContent must have #[AsAllowedCallable] attribute for TYPO3 v14+ compatibility',
+        );
+
+        // Check renderFigure method (externalBlocks.figure handler)
+        $renderFigureMethod = $reflection->getMethod('renderFigure');
+        $attributes         = $renderFigureMethod->getAttributes();
+
+        $hasAsAllowedCallable = false;
+
+        foreach ($attributes as $attribute) {
+            if (str_contains($attribute->getName(), 'AsAllowedCallable')) {
+                $hasAsAllowedCallable = true;
+
+                break;
+            }
+        }
+
+        self::assertTrue(
+            $hasAsAllowedCallable,
+            'Method renderFigure must have #[AsAllowedCallable] attribute for TYPO3 v14+ compatibility',
         );
     }
 }

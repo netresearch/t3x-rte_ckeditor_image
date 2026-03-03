@@ -139,18 +139,48 @@ class ImageRenderingAdapter
     }
 
     /**
-     * Render inline links: resolve t3:// URLs and validate protocols.
+     * Pre-process inline link content before default typolink handling.
      *
      * TypoScript: lib.parseFunc_RTE.tags.a.preUserFunc
      *
-     * parseFunc's tags.X processing is depth-first (inner tags first), so by
-     * the time tags.a fires, tags.img has already processed any <img> inside
-     * via renderImageAttributes(). This handler only needs to:
-     * 1. Get the already-processed inner content (getCurrentVal())
-     * 2. Extract link attributes from cObj->parameters
-     * 3. Validate link protocol (security)
-     * 4. Resolve t3:// URLs to actual URLs
-     * 5. Wrap content in <a> tag
+     * This lightweight handler runs as preUserFunc BEFORE the default typolink
+     * configuration from fluid_styled_content processes the link. It only strips
+     * nested link wrappers from historical double-wrapped data (#667).
+     *
+     * The default typolink handler (from fluid_styled_content) handles:
+     * - t3:// URL resolution
+     * - target attribute processing (extTarget for external links)
+     * - rel="noreferrer" for target="_blank" links
+     * - ATagParams passthrough for all original attributes
+     *
+     * @param string|null            $content Inner content of the <a> tag (from stdWrap current=1)
+     * @param array<string, mixed>   $conf    TypoScript configuration
+     * @param ServerRequestInterface $request Current request
+     *
+     * @return string Pre-processed content for typolink to wrap
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/718
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+     */
+    #[AsAllowedCallable]
+    public function prepareInlineLinkContent(?string $content, array $conf, ServerRequestInterface $request): string
+    {
+        if (!is_string($content) || $content === '') {
+            return '';
+        }
+
+        // Strip nested link wrappers from historical double-wrapped data.
+        // When DB has <a><a><img></a></a>, parseFunc's tags.a passes the
+        // content between outer <a> and first </a> as currentVal, which
+        // includes the inner <a> opening tag.
+        return $this->stripNestedLinkWrapper($content);
+    }
+
+    /**
+     * Render inline links: resolve t3:// URLs and validate protocols.
+     *
+     * @deprecated since v13.7.0, use prepareInlineLinkContent() as preUserFunc
+     *             with the default typolink configuration from fluid_styled_content.
      *
      * @param string|null            $content Content input (not used)
      * @param array<string, mixed>   $conf    TypoScript configuration
@@ -201,9 +231,9 @@ class ImageRenderingAdapter
     /**
      * Render images inside <a> tags (tags.a handler with image parsing).
      *
-     * Note: The default TypoScript now uses renderInlineLink() instead, which is
-     * simpler since tags.img processes images first (depth-first). This method
-     * is kept for backward compatibility with custom TypoScript configurations.
+     * Note: The default TypoScript uses prepareInlineLinkContent() as tags.a.preUserFunc,
+     * which lets the default typolink handler from fluid_styled_content process links.
+     * This method is kept for backward compatibility with custom TypoScript configurations.
      *
      * IMPORTANT: When tags.a is configured as TEXT with current=1, parseFunc only
      * passes the inner content of the <a> tag, not the wrapper. We must reconstruct
@@ -396,8 +426,8 @@ class ImageRenderingAdapter
     /**
      * Render link elements containing images (externalBlocks handler).
      *
-     * Note: The default TypoScript now uses renderInlineLink() via tags.a instead.
-     * The externalBlocks.a approach required adding 'a' to the externalBlocks list.
+     * Note: The default TypoScript uses prepareInlineLinkContent() as tags.a.preUserFunc,
+     * which lets the default typolink handler from fluid_styled_content process links.
      * This method is kept for backward compatibility with custom TypoScript configurations.
      *
      * This handler receives the COMPLETE <a>...</a> HTML including all inner content.
@@ -438,13 +468,13 @@ class ImageRenderingAdapter
         $images         = $parsed['images'];
 
         // If no images found, still resolve t3:// links and validate protocols before returning.
-        // Since externalBlocks.a bypasses TYPO3's normal link resolution (tags.a is cleared),
-        // we must resolve t3:// links explicitly and validate protocols even for text-only links.
+        // When used via externalBlocks.a (custom TypoScript), this handler must resolve
+        // t3:// links explicitly and validate protocols for text-only links.
         // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/606
         if ($images === []) {
             if (isset($linkAttributes['href'])) {
                 // SECURITY: Validate protocol for text-only links (defense-in-depth).
-                // Since tags.a is cleared, externalBlocks.a is the sole handler for all <a> tags,
+                // When used via externalBlocks.a, this is the sole handler for <a> tags,
                 // so we must validate protocols ourselves to block javascript:/data: etc.
                 if (!$this->isAllowedLinkProtocol($linkAttributes['href'])) {
                     return $this->extractLinkInnerContent($linkHtml);
@@ -520,7 +550,7 @@ class ImageRenderingAdapter
             ? strtr($innerContent, $replacements)
             : $innerContent;
 
-        // Resolve t3:// links (not resolved by normal parseFunc since we use externalBlocks.a)
+        // Resolve t3:// links (needed when used via externalBlocks.a custom TypoScript)
         if (isset($linkAttributes['href'])) {
             $linkAttributes['href'] = $this->resolveTypo3LinkUrl($linkAttributes['href'], $request);
         }
