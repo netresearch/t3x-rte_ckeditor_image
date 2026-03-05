@@ -82,6 +82,23 @@ lib.parseFunc_RTE {
     # Our preUserFunc only strips nested link wrappers from historical
     # double-wrapped data (<a><a><img></a></a>) before the default typolink
     # handler processes the link. See: #667
+    # Minimal typolink configuration for inline link processing.
+    # In TYPO3 v13 with fluid_styled_content, a more complete tags.a config
+    # is inherited from lib.parseFunc (including extTarget, ATagParams, etc.).
+    # In TYPO3 v14, fluid_styled_content no longer provides parseFunc config
+    # (Breaking-107438), so this fallback ensures links still get resolved.
+    # This does NOT use the clear operator, so it safely merges with any
+    # existing tags.a configuration from fluid_styled_content or sitepackages.
+    tags.a = TEXT
+    tags.a {
+        current = 1
+        typolink {
+            parameter.data = parameters:href
+            title.data = parameters:title
+            ATagParams.data = parameters:allParams
+            target.ifEmpty.data = parameters:target
+        }
+    }
     tags.a.preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->prepareInlineLinkContent
 
     # CRITICAL: Figure elements are processed as externalBlocks, NOT tags.
