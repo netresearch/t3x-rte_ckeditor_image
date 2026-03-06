@@ -338,4 +338,246 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
             'Result should contain img tag. Result: ' . $result,
         );
     }
+
+    // ========================================================================
+    // Issue #718 Tests - tags.a must not clear default parseFunc config
+    // ========================================================================
+
+    /**
+     * Test that prepareInlineLinkContent strips nested <a> wrappers in integration context.
+     *
+     * Verifies the preUserFunc handler works correctly with a real ContentObjectRenderer,
+     * stripping nested link wrappers from historical double-wrapped data.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/718
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+     */
+    #[Test]
+    public function prepareInlineLinkContentStripsNestedLinksInIntegrationContext(): void
+    {
+        $adapter = $this->get(ImageRenderingAdapter::class);
+
+        /** @var ContentObjectRenderer $cObj */
+        $cObj = $this->get(ContentObjectRenderer::class);
+        $cObj->setRequest($this->request);
+        $adapter->setContentObjectRenderer($cObj);
+
+        // Simulate historical double-wrapped data: parseFunc passes inner <a><img>
+        $nestedContent = '<a class="image image-inline" href="t3://page?uid=1" target="_blank">'
+            . '<img class="image-inline" src="/fileadmin/test.jpg" data-htmlarea-file-uid="1">';
+
+        /** @var string $result */
+        $result = $adapter->prepareInlineLinkContent($nestedContent, [], $this->request);
+
+        // Nested <a> should be stripped, only <img> remains
+        self::assertStringContainsString('<img', $result, 'Image tag should be preserved');
+        self::assertStringNotContainsString('<a ', $result, 'Nested <a> wrapper should be stripped');
+    }
+
+    /**
+     * Test that prepareInlineLinkContent passes through regular content unchanged.
+     *
+     * When content does not contain a nested <a><img></a> pattern, it should
+     * pass through unmodified for the default typolink handler to process.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/718
+     */
+    #[Test]
+    public function prepareInlineLinkContentPreservesRegularLinkContent(): void
+    {
+        $adapter = $this->get(ImageRenderingAdapter::class);
+
+        /** @var ContentObjectRenderer $cObj */
+        $cObj = $this->get(ContentObjectRenderer::class);
+        $cObj->setRequest($this->request);
+        $adapter->setContentObjectRenderer($cObj);
+
+        // Regular link content (text, processed image) — should pass through unchanged
+        $regularContent = 'Click here to visit our '
+            . '<img src="/fileadmin/_processed_/test.jpg" class="image image-inline" width="24" height="24" alt="icon">'
+            . ' page';
+
+        /** @var string $result */
+        $result = $adapter->prepareInlineLinkContent($regularContent, [], $this->request);
+
+        self::assertSame($regularContent, $result, 'Regular content should pass through unchanged');
+    }
+
+    /**
+     * Test full parseFunc pipeline with merged tags.a config.
+     *
+     * Simulates the TypoScript configuration that results from loading both
+     * fluid_styled_content (provides tags.a = TEXT with typolink) and our
+     * extension (adds tags.a.preUserFunc). Tests that the combined config
+     * produces correct output: links with target, rel="noreferrer", etc.
+     *
+     * This test exists because the E2E tests (which cover this in a real TYPO3
+     * instance with DDEV) do not run in CI.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/718
+     */
+    #[Test]
+    public function parseFuncPipelinePreservesLinkAttributesWithMergedConfig(): void
+    {
+        /** @var ContentObjectRenderer $cObj */
+        $cObj = $this->get(ContentObjectRenderer::class);
+        $cObj->setRequest($this->request);
+
+        // Build the merged parseFunc config as it would exist when both
+        // fluid_styled_content and our extension are loaded:
+        // - fluid_styled_content sets tags.a = TEXT with typolink config
+        // - our extension adds tags.a.preUserFunc
+        $parseFuncConfig = [
+            'allowTags' => 'a,img,figure,figcaption',
+            'tags.'     => [
+                // fluid_styled_content's default tags.a config
+                'a'  => 'TEXT',
+                'a.' => [
+                    'current' => '1',
+                    // Our extension adds this preUserFunc
+                    'preUserFunc' => ImageRenderingAdapter::class . '->prepareInlineLinkContent',
+                    'typolink.'   => [
+                        'parameter.'  => ['data' => 'parameters:href'],
+                        'title.'      => ['data' => 'parameters:title'],
+                        'ATagParams.' => ['data' => 'parameters:allParams'],
+                        'target.'     => [
+                            'ifEmpty.' => ['data' => 'parameters:target'],
+                        ],
+                        'extTarget.' => [
+                            'ifEmpty'   => '_blank',
+                            'override.' => ['data' => 'parameters:target'],
+                        ],
+                    ],
+                ],
+            ],
+            'htmlSanitize' => '0',
+        ];
+
+        // External link — typolink should add target="_blank" (from extTarget)
+        // and rel="noreferrer" (automatic for target="_blank")
+        $html   = '<a href="https://github.com/netresearch">Visit GitHub</a>';
+        $result = $cObj->parseFunc($html, $parseFuncConfig);
+
+        self::assertStringContainsString(
+            'href="https://github.com/netresearch"',
+            $result,
+            'External link href should be preserved. Result: ' . $result,
+        );
+
+        self::assertStringContainsString(
+            'target="_blank"',
+            $result,
+            'External link should have target="_blank" from extTarget config. Result: ' . $result,
+        );
+
+        self::assertStringContainsString(
+            'noreferrer',
+            $result,
+            'External link with target="_blank" should have rel containing "noreferrer". Result: ' . $result,
+        );
+
+        self::assertStringContainsString(
+            'Visit GitHub',
+            $result,
+            'Link text should be preserved. Result: ' . $result,
+        );
+    }
+
+    /**
+     * Test parseFunc pipeline strips nested links while preserving typolink output.
+     *
+     * Verifies that our preUserFunc (prepareInlineLinkContent) correctly strips
+     * nested link wrappers from historical double-wrapped data, while the default
+     * typolink handler still produces correct link output.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/718
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/667
+     */
+    #[Test]
+    public function parseFuncPipelineStripsNestedLinksWithMergedConfig(): void
+    {
+        /** @var ContentObjectRenderer $cObj */
+        $cObj = $this->get(ContentObjectRenderer::class);
+        $cObj->setRequest($this->request);
+
+        $parseFuncConfig = [
+            'allowTags' => 'a,img,figure,figcaption',
+            'tags.'     => [
+                'a'  => 'TEXT',
+                'a.' => [
+                    'current'     => '1',
+                    'preUserFunc' => ImageRenderingAdapter::class . '->prepareInlineLinkContent',
+                    'typolink.'   => [
+                        'parameter.'  => ['data' => 'parameters:href'],
+                        'title.'      => ['data' => 'parameters:title'],
+                        'ATagParams.' => ['data' => 'parameters:allParams'],
+                        'target.'     => [
+                            'ifEmpty.' => ['data' => 'parameters:target'],
+                        ],
+                        'extTarget.' => [
+                            'ifEmpty'   => '_blank',
+                            'override.' => ['data' => 'parameters:target'],
+                        ],
+                    ],
+                ],
+            ],
+            'htmlSanitize' => '0',
+        ];
+
+        // Historical double-wrapped data: <a><a><img></a></a>
+        // Our preUserFunc should strip the inner <a>, typolink wraps the result
+        $html = '<a href="https://github.com/netresearch">'
+            . '<a class="image" href="https://github.com/netresearch">'
+            . '<img src="/fileadmin/test.jpg" class="image-inline" width="100" height="100">'
+            . '</a></a>';
+
+        $result = $cObj->parseFunc($html, $parseFuncConfig);
+
+        // Should NOT contain nested <a> tags — our preUserFunc strips them
+        $anchorCount = substr_count(strtolower($result), '<a ');
+        self::assertSame(
+            1,
+            $anchorCount,
+            'Should have exactly 1 <a> tag (no nesting). Got ' . $anchorCount . '. Result: ' . $result,
+        );
+
+        // Image should be preserved
+        self::assertStringContainsString(
+            '<img',
+            $result,
+            'Image tag should be preserved. Result: ' . $result,
+        );
+    }
+
+    /**
+     * Test that the TypoScript setup only adds preUserFunc without clearing tags.a.
+     *
+     * Regression test: verifies our TypoScript does NOT contain 'tags.a >'
+     * which would clear the default configuration from fluid_styled_content.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/718
+     */
+    #[Test]
+    public function typoscriptDoesNotClearDefaultTagsAConfig(): void
+    {
+        $setupTyposcript = file_get_contents(
+            __DIR__ . '/../../../Configuration/TypoScript/ImageRendering/setup.typoscript',
+        );
+
+        self::assertIsString($setupTyposcript, 'setup.typoscript should be readable');
+
+        // Must NOT contain 'tags.a >' which clears the default config
+        self::assertStringNotContainsString(
+            'tags.a >',
+            $setupTyposcript,
+            'TypoScript must NOT clear tags.a — this removes default link processing from fluid_styled_content (#718)',
+        );
+
+        // Must contain prepareInlineLinkContent as the preUserFunc
+        self::assertStringContainsString(
+            'prepareInlineLinkContent',
+            $setupTyposcript,
+            'TypoScript should reference prepareInlineLinkContent as tags.a.preUserFunc',
+        );
+    }
 }

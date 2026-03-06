@@ -70,19 +70,36 @@ lib.parseFunc_RTE {
         #     maxFileSizeForAuto = 2000000
         # }
     }
-    # Link processing: Resolve t3:// URLs and validate link protocols.
-    # parseFunc's tags.X processing is depth-first (inner tags first), so by
-    # the time tags.a fires, tags.img has already processed any <img> inside
-    # via renderImageAttributes(). This handler only needs to:
-    # 1. Reconstruct the <a> wrapper with resolved href
-    # 2. Validate link protocol (security)
-    # 3. Resolve t3:// URLs to actual URLs
-    tags.a >
+    # Link processing: Pre-process inline link content for nested link cleanup.
+    # IMPORTANT: Do NOT use the clear operator on tags.a — the default config
+    # from fluid_styled_content provides proper typolink handling including:
+    # - t3:// URL resolution
+    # - target attribute processing (extTarget for external links)
+    # - rel="noreferrer" for target="_blank" links
+    # - ATagParams passthrough for all original attributes
+    # See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/718
+    #
+    # Our preUserFunc only strips nested link wrappers from historical
+    # double-wrapped data (<a><a><img></a></a>) before the default typolink
+    # handler processes the link. See: #667
+    # Minimal typolink configuration for inline link processing.
+    # In TYPO3 v13 with fluid_styled_content, a more complete tags.a config
+    # is inherited from lib.parseFunc (including extTarget, ATagParams, etc.).
+    # In TYPO3 v14, fluid_styled_content no longer provides parseFunc config
+    # (Breaking-107438), so this fallback ensures links still get resolved.
+    # This does NOT use the clear operator, so it safely merges with any
+    # existing tags.a configuration from fluid_styled_content or sitepackages.
     tags.a = TEXT
     tags.a {
         current = 1
-        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderInlineLink
+        typolink {
+            parameter.data = parameters:href
+            title.data = parameters:title
+            ATagParams.data = parameters:allParams
+            target.ifEmpty.data = parameters:target
+        }
     }
+    tags.a.preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->prepareInlineLinkContent
 
     # CRITICAL: Figure elements are processed as externalBlocks, NOT tags.
     # The externalBlocks path in parseFunc handles block-level elements like figure.
