@@ -217,38 +217,98 @@ final readonly class RtePreviewRendererRegistrar
             return false;
         }
 
-        // Collect FILE-type column names
-        $fileColumns = [];
+        // Collect effective field names from showitem, resolving palette references
+        $fieldNames = $this->extractFieldNames($showitem, $tableConfig);
 
-        foreach ($columns as $columnName => $columnConfig) {
-            if (!is_string($columnName) || !is_array($columnConfig)) {
+        // Check each field against its column config (single-pass over showitem fields)
+        foreach ($fieldNames as $fieldName) {
+            $columnConfig = $columns[$fieldName] ?? null;
+
+            if (!is_array($columnConfig)) {
                 continue;
             }
 
             $config = $columnConfig['config'] ?? null;
 
             if (is_array($config) && ($config['type'] ?? null) === 'file') {
-                $fileColumns[] = $columnName;
-            }
-        }
-
-        if ($fileColumns === []) {
-            return false;
-        }
-
-        // Parse showitem field names (format: "field;label;palette, --div--;Tab, ...")
-        foreach (explode(',', $showitem) as $part) {
-            $fieldName = trim(explode(';', trim($part))[0]);
-
-            if ($fieldName === '' || str_starts_with($fieldName, '--')) {
-                continue;
-            }
-
-            if (in_array($fieldName, $fileColumns, true)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Extract field names from a showitem string, resolving palette references.
+     *
+     * Showitem format: "field1;label, --div--;Tab, --palette--;Label;palette_name"
+     * Palette showitem: "field2, field3" (no tabs or nested palettes)
+     *
+     * @param array<mixed> $tableConfig
+     *
+     * @return string[]
+     */
+    private function extractFieldNames(string $showitem, array $tableConfig): array
+    {
+        $fieldNames = [];
+
+        foreach (explode(',', $showitem) as $part) {
+            $segments  = explode(';', trim($part));
+            $firstPart = trim($segments[0]);
+
+            if ($firstPart === '') {
+                continue;
+            }
+
+            // Palette reference: --palette--;Label;palette_name
+            if ($firstPart === '--palette--') {
+                $paletteName = trim($segments[2] ?? '');
+
+                if ($paletteName === '') {
+                    continue;
+                }
+
+                $palettes = $tableConfig['palettes'] ?? null;
+
+                if (!is_array($palettes)) {
+                    continue;
+                }
+
+                $palette = $palettes[$paletteName] ?? null;
+
+                if (!is_array($palette)) {
+                    continue;
+                }
+
+                $paletteShowitem = $palette['showitem'] ?? null;
+                if (!is_string($paletteShowitem)) {
+                    continue;
+                }
+
+                if ($paletteShowitem === '') {
+                    continue;
+                }
+
+                // Palette showitem is flat (no nested palettes or tabs)
+                foreach (explode(',', $paletteShowitem) as $palettePart) {
+                    $paletteField = trim(explode(';', trim($palettePart))[0]);
+
+                    if ($paletteField !== '') {
+                        $fieldNames[] = $paletteField;
+                    }
+                }
+
+                continue;
+            }
+
+            // Skip tab dividers and other markers
+            if (str_starts_with($firstPart, '--')) {
+                continue;
+            }
+
+            $fieldNames[] = $firstPart;
+        }
+
+        return $fieldNames;
     }
 }
