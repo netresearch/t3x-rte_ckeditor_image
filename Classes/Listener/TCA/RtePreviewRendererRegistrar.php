@@ -101,6 +101,14 @@ final readonly class RtePreviewRendererRegistrar
                     continue;
                 }
 
+                // Skip types that have FILE-type columns in their showitem.
+                // StandardContentPreviewRenderer renders file field thumbnails
+                // (e.g. textpic's image, textmedia's assets) that our renderer
+                // does not handle. Overriding would lose those thumbnails (#720).
+                if ($this->hasFileFieldsInShowitem($typeConfig, $tableConfig)) {
+                    continue;
+                }
+
                 // Only register if no custom preview renderer is already set
                 if (isset($typeConfig['previewRenderer']) && $typeConfig['previewRenderer'] !== '') {
                     continue;
@@ -183,5 +191,124 @@ final readonly class RtePreviewRendererRegistrar
         }
 
         return (bool) ($config['enableRichtext'] ?? false);
+    }
+
+    /**
+     * Check if a type's showitem references any columns with TCA type "file".
+     *
+     * Types with file fields (e.g. textpic with "image", textmedia with "assets")
+     * need StandardContentPreviewRenderer to render file thumbnails. Our renderer
+     * only handles bodytext and would lose those thumbnails.
+     *
+     * @param array<mixed> $typeConfig
+     * @param array<mixed> $tableConfig
+     */
+    private function hasFileFieldsInShowitem(array $typeConfig, array $tableConfig): bool
+    {
+        $showitem = $typeConfig['showitem'] ?? '';
+
+        if (!is_string($showitem) || $showitem === '') {
+            return false;
+        }
+
+        $columns = $tableConfig['columns'] ?? null;
+
+        if (!is_array($columns)) {
+            return false;
+        }
+
+        // Collect effective field names from showitem, resolving palette references
+        $fieldNames = $this->extractFieldNames($showitem, $tableConfig);
+
+        // Check each field against its column config (single-pass over showitem fields)
+        foreach ($fieldNames as $fieldName) {
+            $columnConfig = $columns[$fieldName] ?? null;
+
+            if (!is_array($columnConfig)) {
+                continue;
+            }
+
+            $config = $columnConfig['config'] ?? null;
+
+            if (is_array($config) && ($config['type'] ?? null) === 'file') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Extract field names from a showitem string, resolving palette references.
+     *
+     * Showitem format: "field1;label, --div--;Tab, --palette--;Label;palette_name"
+     * Palette showitem: "field2, field3" (no tabs or nested palettes)
+     *
+     * @param array<mixed> $tableConfig
+     *
+     * @return string[]
+     */
+    private function extractFieldNames(string $showitem, array $tableConfig): array
+    {
+        $fieldNames = [];
+
+        foreach (explode(',', $showitem) as $part) {
+            $segments  = explode(';', trim($part));
+            $firstPart = trim($segments[0]);
+
+            if ($firstPart === '') {
+                continue;
+            }
+
+            // Palette reference: --palette--;Label;palette_name
+            if ($firstPart === '--palette--') {
+                $paletteName = trim($segments[2] ?? '');
+
+                if ($paletteName === '') {
+                    continue;
+                }
+
+                $palettes = $tableConfig['palettes'] ?? null;
+
+                if (!is_array($palettes)) {
+                    continue;
+                }
+
+                $palette = $palettes[$paletteName] ?? null;
+
+                if (!is_array($palette)) {
+                    continue;
+                }
+
+                $paletteShowitem = $palette['showitem'] ?? null;
+                if (!is_string($paletteShowitem)) {
+                    continue;
+                }
+
+                if ($paletteShowitem === '') {
+                    continue;
+                }
+
+                // Palette showitem is flat (no nested palettes or tabs)
+                foreach (explode(',', $paletteShowitem) as $palettePart) {
+                    $paletteField = trim(explode(';', trim($palettePart))[0]);
+
+                    if ($paletteField !== '') {
+                        $fieldNames[] = $paletteField;
+                    }
+                }
+
+                continue;
+            }
+
+            // Skip tab dividers and other markers
+            if (str_starts_with($firstPart, '--')) {
+                continue;
+            }
+
+            $fieldNames[] = $firstPart;
+        }
+
+        return $fieldNames;
     }
 }
