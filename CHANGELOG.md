@@ -7,10 +7,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.7.1] - 2026-03-07
+
 ### Added
 
-- **True inline images** - New `typo3imageInline` model element for images that flow with text. Cursor can be positioned before/after inline images on the same line. Toggle between block and inline via toolbar button or `toggleImageType` command. ([#580](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/580), [#583](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/583))
-- Comprehensive functional tests for RTE image renderer covering mixed inline and block content
+- **Content Blocks support** — new `RteImagePreview` ViewHelper for rendering RTE images in Content Block backend previews ([#648](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/648), [#696](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/696))
+
+### Fixed
+
+- **Page module preview for textpic/textmedia** — automatic preview renderer registration now skips CTypes with FILE-type columns (e.g. `image`, `assets`), preserving `StandardContentPreviewRenderer`'s file field thumbnails. Detection resolves palette references. ([#720](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/720), [#721](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/721))
+- **TYPO3 v14 link handling** — added fallback `tags.a` typolink configuration for setups without `fluid_styled_content`. In TYPO3 v14, `fluid_styled_content` no longer provides parseFunc config ([Breaking-107438](https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/14.0/Breaking-107438-RemovedParseFunc_RTESetup.html)). Default `tags.a` config from `fluid_styled_content` is preserved via safe merging. ([#718](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/718), [#719](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/719))
+- **Images in CKEditor tables** — images placed inside CKEditor 5 tables now get proper processing: max-width constraints, zoom/lightbox support, and `t3://` URL resolution ([#698](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/698), [#699](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/699))
+- Correct broken README badge URLs (CodeQL workflow renamed, OpenSSF Scorecard redirect) ([#722](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/722))
+- Pin Content Blocks version constraints in DDEV install scripts ([#697](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/697))
+
+### Changed
+
+- Migrate to centralized dev-dependencies package ([#717](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/717))
+- Migrate CI to centralized `typo3-ci-workflows` ([#701](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/701), [#716](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/716))
+- Add SPDX copyright and license headers to all PHP files ([#700](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/700))
+
+## [13.6.1] - 2026-02-25
+
+### Fixed
+
+- **Figure wrapper XPath** — `hasFigureWrapper()` now checks only direct-child images, preventing false positives with nested images in table cells ([#692](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/692), [#693](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/693))
+- **Double link icon in CKEditor** — linked images no longer show duplicate link indicators in the editing view ([#688](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/688))
+- **Figcaption width in CKEditor** — figcaption styling constrained to image width inside the editor, matching frontend rendering ([#688](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/688))
+
+### Changed
+
+- Auto-create announcement discussion in GitHub Discussions on each release ([#682](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/682))
+- Release workflow verifies GPG tag signatures ([#691](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/691))
+- README badge links and icons improved for accuracy ([#674](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/674))
+
+## [13.6.0] - 2026-02-22
+
+### Added
+
+- **True inline images** — new `typo3imageInline` model element for images that flow with text. Cursor can be positioned before/after inline images. Toggle between block and inline via toolbar button. ([#580](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/580), [#583](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/583))
+- **Linked images** — TYPO3 link browser integration with target options, URL parameters, and duplicate link prevention ([#575](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/575))
+- **Image reference validation** — CLI command (`bin/typo3 rte_ckeditor_image:validate`) and upgrade wizard to detect and fix broken image references and nested link wrappers ([#635](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/635), [#670](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/670))
+- **Dynamic preview renderer** with broken image warnings in page module ([#647](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/647), [#636](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/636))
+- **Link browser restrictions** read from RTE preset configuration ([#603](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/603))
+- Internationalization — click behavior strings for 31 languages ([#591](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/591)), link dialog translations ([#575](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/575))
+
+### Fixed
+
+- **Figcaption width constraint** — `<figure>` constrained to image width via `max-width`, preventing caption overflow ([#671](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/671))
+- **Double `<a>` tags** in inline linked images — fix nested link wrappers from `tags.a` + `externalBlocks.a` overlap ([#669](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/669))
+- **UTF-8 characters** in figcaptions — fix `DOMDocument::loadHTML()` ISO-8859-1 default corrupting umlauts ([#664](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/664))
+- **Inline linked images** with unresolved `t3://` URLs — `externalBlocks.a` was dead code, replaced with `tags.a` handler ([#661](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/661))
+- **Alignment class** without caption no longer triggers unnecessary figure wrapper ([#599](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/599))
+- **t3:// link resolution** in linked images ([#598](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/598))
+- **Image src update** when FAL files are moved or renamed ([#630](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/630))
+
+### Changed
+
+- **jQuery removal** — complete removal of jQuery dependency, modernized to native DOM, fetch(), Promise, template literals ([#641](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/641))
+- **OpenSSF Scorecard** improved from 6.8 to ~9.0 ([#628](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/628))
+- E2E test suite with priority 1 coverage for all critical user paths, sharded across 11 parallel CI runners ([#621](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/621))
+- TYPO3 v14 E2E testing support, now blocking ([#611](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/611), [#626](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/626))
 
 ## [13.5.0] - 2026-01-29
 
@@ -407,7 +464,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update image reference index ([#45](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/45), [#62](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/62))
 - Compatibility with TYPO3 CMS 9.x
 
-[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.5...HEAD
+[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.7.1...HEAD
+[13.7.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.6.1...v13.7.1
+[13.6.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.6.0...v13.6.1
+[13.6.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.5.0...v13.6.0
+[13.5.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.4.2...v13.5.0
+[13.4.2]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.4.1...v13.4.2
+[13.4.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.4.0...v13.4.1
+[13.4.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.3.2...v13.4.0
+[13.3.2]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.2.0...v13.3.2
+[13.2.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.1.5...v13.2.0
 [13.1.5]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.1...v13.1.5
 [13.0.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.0.0...v13.0.1
 [13.0.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v12.0.4...v13.0.0
