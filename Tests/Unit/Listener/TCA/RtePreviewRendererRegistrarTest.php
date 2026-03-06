@@ -341,9 +341,20 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
                             'type' => 'text',
                         ],
                     ],
+                    'image' => [
+                        'config' => [
+                            'type' => 'file',
+                        ],
+                    ],
+                    'assets' => [
+                        'config' => [
+                            'type' => 'file',
+                        ],
+                    ],
                 ],
                 'types' => [
                     'text' => [
+                        'showitem'         => 'bodytext',
                         'columnsOverrides' => [
                             'bodytext' => [
                                 'config' => [
@@ -353,6 +364,7 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
                         ],
                     ],
                     'textmedia' => [
+                        'showitem'         => 'bodytext,assets',
                         'columnsOverrides' => [
                             'bodytext' => [
                                 'config' => [
@@ -362,6 +374,7 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
                         ],
                     ],
                     'textpic' => [
+                        'showitem'         => 'bodytext,image',
                         'columnsOverrides' => [
                             'bodytext' => [
                                 'config' => [
@@ -395,25 +408,71 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
 
         $modifiedTca = $this->invokeListenerAndGetTca($tca);
 
+        // text CType: has RTE bodytext, no file fields → gets our renderer
         self::assertSame(
             RteImagePreviewRenderer::class,
             $modifiedTca['tt_content']['types']['text']['previewRenderer'],
         );
-        self::assertSame(
-            RteImagePreviewRenderer::class,
-            $modifiedTca['tt_content']['types']['textmedia']['previewRenderer'],
+        // textmedia CType: has RTE bodytext + assets file field → skipped (#720)
+        self::assertArrayNotHasKey(
+            'previewRenderer',
+            $modifiedTca['tt_content']['types']['textmedia'],
         );
-        self::assertSame(
-            RteImagePreviewRenderer::class,
-            $modifiedTca['tt_content']['types']['textpic']['previewRenderer'],
+        // textpic CType: has RTE bodytext + image file field → skipped (#720)
+        self::assertArrayNotHasKey(
+            'previewRenderer',
+            $modifiedTca['tt_content']['types']['textpic'],
         );
+        // image CType: no RTE bodytext → skipped
         self::assertArrayNotHasKey(
             'previewRenderer',
             $modifiedTca['tt_content']['types']['image'],
         );
+        // tx_news: has RTE bodytext, no file fields → gets our renderer
         self::assertSame(
             RteImagePreviewRenderer::class,
             $modifiedTca['tx_news_domain_model_news']['types']['0']['previewRenderer'],
+        );
+    }
+
+    #[Test]
+    public function skipsTypesWithFileFieldsInShowitem(): void
+    {
+        $tca = [
+            'tt_content' => [
+                'columns' => [
+                    'bodytext' => [
+                        'config' => [
+                            'type' => 'text',
+                        ],
+                    ],
+                    'image' => [
+                        'config' => [
+                            'type' => 'file',
+                        ],
+                    ],
+                ],
+                'types' => [
+                    'textpic' => [
+                        'showitem'         => '--div--;General,bodytext,--div--;Images,image',
+                        'columnsOverrides' => [
+                            'bodytext' => [
+                                'config' => [
+                                    'enableRichtext' => true,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $modifiedTca = $this->invokeListenerAndGetTca($tca);
+
+        self::assertArrayNotHasKey(
+            'previewRenderer',
+            $modifiedTca['tt_content']['types']['textpic'],
+            'Types with file fields should not get RteImagePreviewRenderer (#720)',
         );
     }
 

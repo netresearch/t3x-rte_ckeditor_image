@@ -101,6 +101,14 @@ final readonly class RtePreviewRendererRegistrar
                     continue;
                 }
 
+                // Skip types that have FILE-type columns in their showitem.
+                // StandardContentPreviewRenderer renders file field thumbnails
+                // (e.g. textpic's image, textmedia's assets) that our renderer
+                // does not handle. Overriding would lose those thumbnails (#720).
+                if ($this->hasFileFieldsInShowitem($typeConfig, $tableConfig)) {
+                    continue;
+                }
+
                 // Only register if no custom preview renderer is already set
                 if (isset($typeConfig['previewRenderer']) && $typeConfig['previewRenderer'] !== '') {
                     continue;
@@ -183,5 +191,64 @@ final readonly class RtePreviewRendererRegistrar
         }
 
         return (bool) ($config['enableRichtext'] ?? false);
+    }
+
+    /**
+     * Check if a type's showitem references any columns with TCA type "file".
+     *
+     * Types with file fields (e.g. textpic with "image", textmedia with "assets")
+     * need StandardContentPreviewRenderer to render file thumbnails. Our renderer
+     * only handles bodytext and would lose those thumbnails.
+     *
+     * @param array<mixed> $typeConfig
+     * @param array<mixed> $tableConfig
+     */
+    private function hasFileFieldsInShowitem(array $typeConfig, array $tableConfig): bool
+    {
+        $showitem = $typeConfig['showitem'] ?? '';
+
+        if (!is_string($showitem) || $showitem === '') {
+            return false;
+        }
+
+        $columns = $tableConfig['columns'] ?? null;
+
+        if (!is_array($columns)) {
+            return false;
+        }
+
+        // Collect FILE-type column names
+        $fileColumns = [];
+
+        foreach ($columns as $columnName => $columnConfig) {
+            if (!is_string($columnName) || !is_array($columnConfig)) {
+                continue;
+            }
+
+            $config = $columnConfig['config'] ?? null;
+
+            if (is_array($config) && ($config['type'] ?? null) === 'file') {
+                $fileColumns[] = $columnName;
+            }
+        }
+
+        if ($fileColumns === []) {
+            return false;
+        }
+
+        // Parse showitem field names (format: "field;label;palette, --div--;Tab, ...")
+        foreach (explode(',', $showitem) as $part) {
+            $fieldName = trim(explode(';', trim($part))[0]);
+
+            if ($fieldName === '' || str_starts_with($fieldName, '--')) {
+                continue;
+            }
+
+            if (in_array($fieldName, $fileColumns, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
