@@ -92,8 +92,8 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
      */
     protected function renderTextWithHtml(string $input): string
     {
-        // Allow only <img> and <p>-tags in preview, to prevent possible HTML mismatch
-        $input = strip_tags($input, '<img><p>');
+        // Allow only safe tags in preview, to prevent possible HTML mismatch
+        $input = strip_tags($input, '<img><p><figure><figcaption>');
 
         return $this->truncate($input, 1500);
     }
