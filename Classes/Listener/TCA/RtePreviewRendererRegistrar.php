@@ -222,7 +222,9 @@ final readonly class RtePreviewRendererRegistrar
             return false;
         }
 
-        // Only check direct field references (skip palettes, tabs, and markers)
+        // Only check direct field references — palette contents are intentionally
+        // ignored so that shared decorative fields (e.g. background_image in the
+        // "frames" palette) do not prevent registration.
         foreach (explode(',', $showitem) as $part) {
             $fieldName = trim(explode(';', trim($part))[0]);
 

@@ -477,7 +477,7 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
     }
 
     #[Test]
-    public function registersRendererWhenFileFieldsOnlyInNonFirstTab(): void
+    public function registersRendererWhenFileFieldsOnlyInPalettes(): void
     {
         $tca = [
             'tt_content' => [
@@ -500,7 +500,7 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
                 ],
                 'types' => [
                     'text' => [
-                        'showitem'         => 'bodytext,--div--;Appearance,--palette--;;frames',
+                        'showitem'         => 'bodytext,--palette--;;frames',
                         'columnsOverrides' => [
                             'bodytext' => [
                                 'config' => [
@@ -518,12 +518,12 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
         self::assertSame(
             RteImagePreviewRenderer::class,
             $modifiedTca['tt_content']['types']['text']['previewRenderer'],
-            'File fields in non-first tabs (e.g. Appearance) should not prevent registration (#727)',
+            'File fields only reachable through palettes should not prevent registration (#727)',
         );
     }
 
     #[Test]
-    public function registersRendererWhenFileFieldsOnlyInPalettes(): void
+    public function registersRendererWhenFileFieldIsInContentPaletteOnly(): void
     {
         $tca = [
             'tt_content' => [
@@ -564,7 +564,7 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
         self::assertSame(
             RteImagePreviewRenderer::class,
             $modifiedTca['tt_content']['types']['textpic']['previewRenderer'],
-            'File fields only in palettes should not prevent registration (#727)',
+            'File fields only reachable through content palettes should not prevent registration (#727)',
         );
     }
 
