@@ -187,6 +187,19 @@ class RteImagePreviewRendererTest extends TestCase
     }
 
     #[Test]
+    public function renderTextWithHtmlPreservesFigureAndFigcaption(): void
+    {
+        $input = '<figure class="image"><img src="test.jpg" /><figcaption>Caption text</figcaption></figure>';
+
+        $result = $this->callMethod($this->renderer, 'renderTextWithHtml', [$input]);
+
+        self::assertStringContainsString('<figure', $result);
+        self::assertStringContainsString('<figcaption>', $result);
+        self::assertStringContainsString('Caption text', $result);
+        self::assertStringContainsString('<img', $result);
+    }
+
+    #[Test]
     public function renderTextWithHtmlStripsAnchorTags(): void
     {
         $input = '<p><a href="http://example.com">Link</a></p>';
@@ -387,11 +400,13 @@ class RteImagePreviewRendererTest extends TestCase
     public static function allowedTagsTestDataProvider(): array
     {
         return [
-            'simple img'          => ['<img src="test.jpg" />'],
-            'img with attributes' => ['<img src="test.jpg" alt="Test" width="800" height="600" />'],
-            'simple p'            => ['<p>Text</p>'],
-            'p with class'        => ['<p class="test">Text</p>'],
-            'img and p combined'  => ['<p>Text <img src="test.jpg" /> more text</p>'],
+            'simple img'             => ['<img src="test.jpg" />'],
+            'img with attributes'    => ['<img src="test.jpg" alt="Test" width="800" height="600" />'],
+            'simple p'               => ['<p>Text</p>'],
+            'p with class'           => ['<p class="test">Text</p>'],
+            'img and p combined'     => ['<p>Text <img src="test.jpg" /> more text</p>'],
+            'figure with figcaption' => ['<figure class="image"><img src="test.jpg" /><figcaption>Caption</figcaption></figure>'],
+            'figure without caption' => ['<figure><img src="test.jpg" /></figure>'],
         ];
     }
 
@@ -401,11 +416,13 @@ class RteImagePreviewRendererTest extends TestCase
     {
         $result = $this->callMethod($this->renderer, 'renderTextWithHtml', [$input]);
 
-        // Should preserve either <img> or <p> tags
+        // Should preserve allowed tags (<img>, <p>, <figure>, <figcaption>)
         // Note: DOMDocument may strip attributes from tags like <p class="test">
         // but it should preserve the tags themselves
         self::assertTrue(
-            str_contains($result, '<img') || str_contains($result, '<p>') || str_contains($result, '<p '),
+            str_contains($result, '<img')
+            || str_contains($result, '<p>') || str_contains($result, '<p ')
+            || str_contains($result, '<figure') || str_contains($result, '<figcaption'),
             'Result should preserve allowed tags',
         );
     }

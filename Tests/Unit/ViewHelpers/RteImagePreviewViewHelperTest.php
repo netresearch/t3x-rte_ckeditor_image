@@ -29,14 +29,18 @@ class RteImagePreviewViewHelperTest extends TestCase
     // ========================================================================
 
     #[Test]
-    public function stripsHtmlToImgAndPTagsByDefault(): void
+    public function stripsHtmlToAllowedTagsByDefault(): void
     {
         $result = RteImagePreviewViewHelper::processHtml(
-            '<div><p>Text</p><span>Span</span><script>alert("xss")</script><img src="test.jpg" /></div>',
+            '<div><p>Text</p><span>Span</span><script>alert("xss")</script><img src="test.jpg" />'
+            . '<figure class="image"><img src="fig.jpg" /><figcaption>Caption</figcaption></figure></div>',
         );
 
         self::assertStringContainsString('<p>Text</p>', $result);
         self::assertStringContainsString('<img', $result);
+        self::assertStringContainsString('<figure', $result);
+        self::assertStringContainsString('<figcaption>', $result);
+        self::assertStringContainsString('Caption', $result);
         self::assertStringNotContainsString('<div>', $result);
         self::assertStringNotContainsString('<span>', $result);
         self::assertStringNotContainsString('<script>', $result);
@@ -220,17 +224,31 @@ class RteImagePreviewViewHelperTest extends TestCase
     // ========================================================================
 
     #[Test]
-    public function customAllowedTagsPreservesFigure(): void
+    public function defaultAllowedTagsPreservesFigure(): void
     {
         $result = RteImagePreviewViewHelper::processHtml(
             '<figure class="image"><img src="test.jpg" /><figcaption>Caption</figcaption></figure><p>Text</p>',
-            1500,
-            '<img><p><figure><figcaption>',
         );
 
         self::assertStringContainsString('<figure', $result);
         self::assertStringContainsString('<figcaption>', $result);
         self::assertStringContainsString('Caption', $result);
+        self::assertStringContainsString('<p>Text</p>', $result);
+    }
+
+    #[Test]
+    public function customAllowedTagsCanRestrictToImgAndP(): void
+    {
+        $result = RteImagePreviewViewHelper::processHtml(
+            '<figure class="image"><img src="test.jpg" /><figcaption>Caption</figcaption></figure><p>Text</p>',
+            1500,
+            '<img><p>',
+        );
+
+        self::assertStringNotContainsString('<figure', $result);
+        self::assertStringNotContainsString('<figcaption>', $result);
+        self::assertStringContainsString('Caption', $result);
+        self::assertStringContainsString('<img', $result);
     }
 
     // ========================================================================
@@ -401,16 +419,19 @@ class RteImagePreviewViewHelperTest extends TestCase
     }
 
     #[Test]
-    public function nonStringAllowedTagsDefaultsToImgAndP(): void
+    public function nonStringAllowedTagsFallsBackToDefault(): void
     {
         $result = RteImagePreviewViewHelper::processHtml(
-            '<div><p>Text</p><img src="test.jpg" /></div>',
+            '<div><p>Text</p><img src="test.jpg" />'
+            . '<figure><figcaption>Cap</figcaption></figure></div>',
             1500,
             null,
         );
 
         self::assertStringContainsString('<p>Text</p>', $result);
         self::assertStringContainsString('<img', $result);
+        self::assertStringContainsString('<figure', $result);
+        self::assertStringContainsString('<figcaption>', $result);
         self::assertStringNotContainsString('<div>', $result);
     }
 }

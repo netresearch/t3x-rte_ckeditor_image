@@ -17,7 +17,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 /**
  * ViewHelper for rendering RTE image previews in backend templates.
  *
- * Strips HTML to allowed tags (default: <img> + <p>) and truncates with
+ * Strips HTML to allowed tags (default: <img>, <p>, <figure>, <figcaption>) and truncates with
  * a DOM-aware algorithm that preserves HTML structure. Replicates the
  * preview logic from RteImagePreviewRenderer for use in Content Blocks
  * and other custom backend preview templates.
@@ -43,7 +43,7 @@ final class RteImagePreviewViewHelper extends AbstractViewHelper
     {
         $this->registerArgument('html', 'string', 'RTE HTML content to preview', true);
         $this->registerArgument('maxLength', 'int', 'Max characters before truncation', false, 1500);
-        $this->registerArgument('allowedTags', 'string', 'HTML tags to keep', false, '<img><p>');
+        $this->registerArgument('allowedTags', 'string', 'HTML tags to keep', false, '<img><p><figure><figcaption>');
     }
 
     public function render(): string
@@ -62,14 +62,14 @@ final class RteImagePreviewViewHelper extends AbstractViewHelper
      * @param mixed $maxLength   Maximum text length before truncation
      * @param mixed $allowedTags HTML tags to preserve (strip_tags format)
      */
-    public static function processHtml(mixed $html, mixed $maxLength = 1500, mixed $allowedTags = '<img><p>'): string
+    public static function processHtml(mixed $html, mixed $maxLength = 1500, mixed $allowedTags = '<img><p><figure><figcaption>'): string
     {
         if (!is_string($html) || $html === '') {
             return '';
         }
 
         $maxLength   = is_int($maxLength) || is_numeric($maxLength) ? max(0, (int) $maxLength) : 1500;
-        $allowedTags = is_string($allowedTags) ? $allowedTags : '<img><p>';
+        $allowedTags = is_string($allowedTags) ? $allowedTags : '<img><p><figure><figcaption>';
 
         // Sanitize control characters (replaces invalid chars with U+FFFD)
         // - Invalid control chars: [\x00-\x08\x0B\x0C\x0E-\x1F]
