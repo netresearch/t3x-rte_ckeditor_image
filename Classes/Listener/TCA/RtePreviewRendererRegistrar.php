@@ -230,6 +230,7 @@ final readonly class RtePreviewRendererRegistrar
             if ($fieldName === '') {
                 continue;
             }
+
             if (str_starts_with($fieldName, '--')) {
                 continue;
             }
