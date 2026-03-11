@@ -227,8 +227,10 @@ final readonly class RtePreviewRendererRegistrar
         // "frames" palette) do not prevent registration.
         foreach (explode(',', $showitem) as $part) {
             $fieldName = trim(explode(';', trim($part))[0]);
-
-            if ($fieldName === '' || str_starts_with($fieldName, '--')) {
+            if ($fieldName === '') {
+                continue;
+            }
+            if (str_starts_with($fieldName, '--')) {
                 continue;
             }
 
