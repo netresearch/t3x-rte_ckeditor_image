@@ -194,11 +194,16 @@ final readonly class RtePreviewRendererRegistrar
     }
 
     /**
-     * Check if a type's showitem references any columns with TCA type "file".
+     * Check if a type's showitem directly references any columns with TCA type "file".
      *
      * Types with file fields (e.g. textpic with "image", textmedia with "assets")
      * need StandardContentPreviewRenderer to render file thumbnails. Our renderer
      * only handles bodytext and would lose those thumbnails.
+     *
+     * Only checks direct (top-level) field references in showitem, not fields
+     * inherited through palette references. Primary content file fields (image,
+     * assets) are always direct fields, while decorative file fields (e.g.
+     * bootstrap_package's background_image) are in shared palettes like "frames".
      *
      * @param array<mixed> $typeConfig
      * @param array<mixed> $tableConfig
@@ -217,11 +222,18 @@ final readonly class RtePreviewRendererRegistrar
             return false;
         }
 
-        // Collect effective field names from showitem, resolving palette references
-        $fieldNames = $this->extractFieldNames($showitem, $tableConfig);
+        // Only check direct field references — palette contents are intentionally
+        // ignored so that shared decorative fields (e.g. background_image in the
+        // "frames" palette) do not prevent registration.
+        foreach (explode(',', $showitem) as $part) {
+            $fieldName = trim(explode(';', trim($part))[0]);
+            if ($fieldName === '') {
+                continue;
+            }
+            if (str_starts_with($fieldName, '--')) {
+                continue;
+            }
 
-        // Check each field against its column config (single-pass over showitem fields)
-        foreach ($fieldNames as $fieldName) {
             $columnConfig = $columns[$fieldName] ?? null;
 
             if (!is_array($columnConfig)) {
@@ -236,79 +248,5 @@ final readonly class RtePreviewRendererRegistrar
         }
 
         return false;
-    }
-
-    /**
-     * Extract field names from a showitem string, resolving palette references.
-     *
-     * Showitem format: "field1;label, --div--;Tab, --palette--;Label;palette_name"
-     * Palette showitem: "field2, field3" (no tabs or nested palettes)
-     *
-     * @param array<mixed> $tableConfig
-     *
-     * @return string[]
-     */
-    private function extractFieldNames(string $showitem, array $tableConfig): array
-    {
-        $fieldNames = [];
-
-        foreach (explode(',', $showitem) as $part) {
-            $segments  = explode(';', trim($part));
-            $firstPart = trim($segments[0]);
-
-            if ($firstPart === '') {
-                continue;
-            }
-
-            // Palette reference: --palette--;Label;palette_name
-            if ($firstPart === '--palette--') {
-                $paletteName = trim($segments[2] ?? '');
-
-                if ($paletteName === '') {
-                    continue;
-                }
-
-                $palettes = $tableConfig['palettes'] ?? null;
-
-                if (!is_array($palettes)) {
-                    continue;
-                }
-
-                $palette = $palettes[$paletteName] ?? null;
-
-                if (!is_array($palette)) {
-                    continue;
-                }
-
-                $paletteShowitem = $palette['showitem'] ?? null;
-                if (!is_string($paletteShowitem)) {
-                    continue;
-                }
-
-                if ($paletteShowitem === '') {
-                    continue;
-                }
-
-                // Palette showitem is flat (no nested palettes or tabs)
-                foreach (explode(',', $paletteShowitem) as $palettePart) {
-                    $paletteField = trim(explode(';', trim($palettePart))[0]);
-
-                    if ($paletteField !== '') {
-                        $fieldNames[] = $paletteField;
-                    }
-                }
-
-                continue;
-            }
-
-            // Skip tab dividers and other markers
-            if (str_starts_with($firstPart, '--')) {
-                continue;
-            }
-
-            $fieldNames[] = $firstPart;
-        }
-
-        return $fieldNames;
     }
 }

@@ -436,7 +436,7 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
     }
 
     #[Test]
-    public function skipsTypesWithFileFieldsInShowitem(): void
+    public function skipsTypesWithFileFieldsInFirstTab(): void
     {
         $tca = [
             'tt_content' => [
@@ -454,7 +454,7 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
                 ],
                 'types' => [
                     'textpic' => [
-                        'showitem'         => '--div--;General,bodytext,--div--;Images,image',
+                        'showitem'         => 'bodytext,image,--div--;Appearance,layout',
                         'columnsOverrides' => [
                             'bodytext' => [
                                 'config' => [
@@ -472,12 +472,58 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
         self::assertArrayNotHasKey(
             'previewRenderer',
             $modifiedTca['tt_content']['types']['textpic'],
-            'Types with file fields should not get RteImagePreviewRenderer (#720)',
+            'Types with file fields in first tab should not get RteImagePreviewRenderer (#720)',
         );
     }
 
     #[Test]
-    public function skipsTypesWithFileFieldsInPalette(): void
+    public function registersRendererWhenFileFieldsOnlyInPalettes(): void
+    {
+        $tca = [
+            'tt_content' => [
+                'columns' => [
+                    'bodytext' => [
+                        'config' => [
+                            'type' => 'text',
+                        ],
+                    ],
+                    'background_image' => [
+                        'config' => [
+                            'type' => 'file',
+                        ],
+                    ],
+                ],
+                'palettes' => [
+                    'frames' => [
+                        'showitem' => 'layout,background_image',
+                    ],
+                ],
+                'types' => [
+                    'text' => [
+                        'showitem'         => 'bodytext,--palette--;;frames',
+                        'columnsOverrides' => [
+                            'bodytext' => [
+                                'config' => [
+                                    'enableRichtext' => true,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $modifiedTca = $this->invokeListenerAndGetTca($tca);
+
+        self::assertSame(
+            RteImagePreviewRenderer::class,
+            $modifiedTca['tt_content']['types']['text']['previewRenderer'],
+            'File fields only reachable through palettes should not prevent registration (#727)',
+        );
+    }
+
+    #[Test]
+    public function registersRendererWhenFileFieldIsInContentPaletteOnly(): void
     {
         $tca = [
             'tt_content' => [
@@ -515,10 +561,10 @@ final class RtePreviewRendererRegistrarTest extends UnitTestCase
 
         $modifiedTca = $this->invokeListenerAndGetTca($tca);
 
-        self::assertArrayNotHasKey(
-            'previewRenderer',
-            $modifiedTca['tt_content']['types']['textpic'],
-            'Types with file fields in palettes should not get RteImagePreviewRenderer (#720)',
+        self::assertSame(
+            RteImagePreviewRenderer::class,
+            $modifiedTca['tt_content']['types']['textpic']['previewRenderer'],
+            'File fields only reachable through content palettes should not prevent registration (#727)',
         );
     }
 

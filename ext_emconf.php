@@ -8,9 +8,8 @@
 /**
  * Extension Manager configuration for rte_ckeditor_image.
  *
- * IMPORTANT: Do NOT add declare(strict_types=1) here!
- * TER (TYPO3 Extension Repository) cannot parse ext_emconf.php with strict_types.
- * See: https://github.com/TYPO3/tailor/issues/...
+ * IMPORTANT: Do NOT add a strict-types declaration here!
+ * TER (TYPO3 Extension Repository) cannot parse ext_emconf.php with it enabled.
  */
 
 $EM_CONF[$_EXTKEY] = [
