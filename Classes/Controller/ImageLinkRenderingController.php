@@ -313,7 +313,16 @@ class ImageLinkRenderingController extends AbstractPlugin
      */
     protected function revertPCRELimits(): void
     {
-        ini_set('pcre.backtrack_limit', $this->originalBacktrackLimit);
-        ini_set('pcre.recursion_limit', $this->originalRecursionLimit);
+        if ($this->originalBacktrackLimit !== false) {
+            ini_set('pcre.backtrack_limit', $this->originalBacktrackLimit);
+        } else {
+            ini_restore('pcre.backtrack_limit');
+        }
+
+        if ($this->originalRecursionLimit !== false) {
+            ini_set('pcre.recursion_limit', $this->originalRecursionLimit);
+        } else {
+            ini_restore('pcre.recursion_limit');
+        }
     }
 }
