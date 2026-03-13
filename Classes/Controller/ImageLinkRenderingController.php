@@ -136,8 +136,6 @@ class ImageLinkRenderingController extends AbstractPlugin
                                 ],
                             );
 
-                            $this->revertPCRELimits();
-
                             // Skip processing and continue with next image
                             throw new FileDoesNotExistException();
                         }
