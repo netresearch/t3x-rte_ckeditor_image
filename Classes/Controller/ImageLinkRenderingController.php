@@ -56,6 +56,16 @@ class ImageLinkRenderingController extends AbstractPlugin
     public $extKey = 'rte_ckeditor_image';
 
     /**
+     * @var string|false
+     */
+    protected $originalBacktrackLimit = false;
+
+    /**
+     * @var string|false
+     */
+    protected $originalRecursionLimit = false;
+
+    /**
      * Returns a processed image to be displayed on the Frontend.
      *
      * @param string|null $content Content input (not used)
@@ -74,6 +84,10 @@ class ImageLinkRenderingController extends AbstractPlugin
         $passedImages     = [];
         $parsedImages     = [];
 
+        // Store original PCRE limits
+        $this->originalBacktrackLimit = ini_get('pcre.backtrack_limit');
+        $this->originalRecursionLimit = ini_get('pcre.recursion_limit');
+
         // SECURITY: Set PCRE limits to prevent ReDoS
         ini_set('pcre.backtrack_limit', '100000');
         ini_set('pcre.recursion_limit', '100000');
@@ -84,6 +98,9 @@ class ImageLinkRenderingController extends AbstractPlugin
         $passedImages = $passedImages[0];
 
         if ($passedImages === []) {
+
+            $this->revertPCRELimits();
+
             return $linkContent;
         }
 
@@ -185,6 +202,8 @@ class ImageLinkRenderingController extends AbstractPlugin
             }
         }
 
+        $this->revertPCRELimits();
+
         // Replace original images with parsed
         $result = str_replace($passedImages, $parsedImages, $linkContent);
 
@@ -283,5 +302,25 @@ class ImageLinkRenderingController extends AbstractPlugin
     protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
         return (string) ($attributes[$attributeName] ?? $image->getProperty($attributeName));
+    }
+
+    /**
+     * SECURITY: Revert PCRE limits to original values.
+     *
+     * @return void
+     */
+    protected function revertPCRELimits(): void
+    {
+        if ($this->originalBacktrackLimit !== false) {
+            ini_set('pcre.backtrack_limit', $this->originalBacktrackLimit);
+        } else {
+            ini_restore('pcre.backtrack_limit');
+        }
+
+        if ($this->originalRecursionLimit !== false) {
+            ini_set('pcre.recursion_limit', $this->originalRecursionLimit);
+        } else {
+            ini_restore('pcre.recursion_limit');
+        }
     }
 }
