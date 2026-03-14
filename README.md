@@ -24,7 +24,7 @@
 This extension adds comprehensive image handling capabilities to CKEditor for TYPO3.\
 Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image).
 
-<kbd>![](Resources/Public/Images/demo.gif?raw=true)</kbd>
+<kbd>![](Documentation/Images/backend-image-properties-dialog.png?raw=true)</kbd>
 
 ## Features
 
@@ -41,6 +41,8 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
 - **Fluid Templates**: Customizable output via template overrides with automatic figcaption width constraint
 - **Image Validation**: CLI command and upgrade wizard to detect and fix broken image references and nested link wrappers
 - **Preview Renderer**: Images preserved in page module preview with broken reference warnings
+- **Content Blocks Support**: ViewHelper for rendering RTE image previews in Content Blocks backend templates
+- **Table Images**: Images in CKEditor 5 tables get full processing (max-width, zoom, t3:// resolution)
 - **Automatic Softref**: RTE image references tracked automatically across all tables
 
 ## Requirements
@@ -61,25 +63,27 @@ Install the extension via composer:
 composer req netresearch/rte-ckeditor-image
 ```
 
-The backend RTE works immediately. For frontend rendering, include the TypoScript:
+Enable the Site Set to activate both the backend RTE preset and frontend rendering:
 
-> **Important (v13.4.0+):** TypoScript is no longer auto-injected. You must include it manually using one of the options below.
+Add the extension to your site dependencies:
 
-**Option 1: Static Template (Recommended)**
+```yaml
+# config/sites/<site>/config.yaml
+dependencies:
+  - netresearch/rte-ckeditor-image
+```
 
-1. Go to **WEB > Template** module
-2. Select your root page, edit the template
-3. In **Includes** tab, add: **CKEditor Image Support (rte_ckeditor_image)**
+This enables the RTE preset with the `insertimage` button and includes the frontend TypoScript for image processing.
 
-**Option 2: Direct Import**
+> **Using Bootstrap Package or another theme extension?** List this extension **after** them in your dependencies to override their RTE preset.
 
-Add to your site package TypoScript:
+**Alternative: Direct TypoScript Import**
+
+If you prefer manual control over TypoScript load order:
 
 ```typoscript
 @import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
 ```
-
-This gives you full control over TypoScript load order, allowing you to override settings (like lightbox configuration) after the import.
 
 ### Custom Configuration (Optional)
 

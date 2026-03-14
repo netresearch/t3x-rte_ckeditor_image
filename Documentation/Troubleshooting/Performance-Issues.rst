@@ -151,7 +151,7 @@ Issue: Slow Page Load Due to Images
 
    lib.parseFunc_RTE.tags.img {
        current = 1
-       preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+       preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
        stdWrap.replacement {
            10 {
                search = <img

@@ -134,11 +134,6 @@ Key Differences
 Usage Example
 ^^^^^^^^^^^^^
 
-Text can flow around inline images: |inline-example|
-
-.. |inline-example| image:: /Images/inline-image-example.png
-   :height: 20px
-
 In the editor, users can type text before and after inline images on the same line,
 just like typing around any other inline element (bold text, links, etc.).
 

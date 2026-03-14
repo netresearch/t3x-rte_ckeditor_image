@@ -209,7 +209,7 @@ Frontend Rendering Flow
     start
     :RTE content loaded from database;
     :lib.parseFunc_RTE processes content;
-    :ImageRenderingController hook invoked;
+    :ImageRenderingAdapter hook invoked;
     :FAL file loaded from UID;
     :Magic image processing applied;
     :Processed image URL generated;

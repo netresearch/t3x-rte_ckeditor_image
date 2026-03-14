@@ -233,14 +233,14 @@ Native Plugin Model
    lib.parseFunc_RTE {
        tags.img = TEXT
        tags.img {
-           preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+           preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
        }
    }
 
 **Why Native Plugins Can't Support This**:
 
 - Native plugins use direct ``src`` URLs, not FAL UIDs
-- ``ImageRenderingController->renderImageAttributes()`` expects FAL data attributes
+- ``ImageRenderingAdapter->renderImageAttributes()`` expects FAL data attributes
 - No way to look up file in FAL without UID
 - Cannot apply magic image processing without FAL context
 
@@ -377,9 +377,9 @@ Frontend Rendering
 ------------------
 
 .. code-block:: php
-   :caption: ImageRenderingController.php (conceptual)
+   :caption: ImageRenderingAdapter.php (conceptual)
 
-   public function renderImageAttributes(string $content, array $conf): string
+   public function renderImageAttributes(?string $content, array $conf, ServerRequestInterface $request): string
    {
        // Extract data-htmlarea-file-uid from HTML
        $fileUid = $this->extractFileUid($content);

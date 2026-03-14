@@ -26,7 +26,7 @@ RteImagePreviewViewHelper
     :php:`RteImagePreviewRenderer` for use in Content Blocks and other custom
     backend preview templates where the built-in renderer is not available.
 
-    .. versionadded:: 13.6.0
+    .. versionadded:: 13.7.0
 
 Arguments
 ---------
