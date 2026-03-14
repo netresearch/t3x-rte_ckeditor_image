@@ -225,7 +225,7 @@ Issue: Images Display at Wrong Size
 
    lib.parseFunc_RTE.tags.img {
        current = 1
-       preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+       preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
    }
 
 ----
@@ -248,7 +248,7 @@ Ensure both width and height are rendered:
 
    lib.parseFunc_RTE.tags.img {
        current = 1
-       preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+       preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
        stdWrap {
            wrap = <div class="rte-image">|</div>
        }
@@ -362,7 +362,7 @@ Issue: Lightbox/Zoom Not Working
 
    lib.parseFunc_RTE.tags.img {
        current = 1
-       preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+       preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
    }
 
 2. **Include Lightbox Library:**
@@ -415,7 +415,7 @@ For advanced responsive images with srcset, configure image processing:
 
    lib.parseFunc_RTE.tags.img {
        current = 1
-       preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+       preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
    }
 
 ----

@@ -227,7 +227,7 @@ Issue: Static Template Not Included
        tags.img = TEXT
        tags.img {
            current = 1
-           preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingController->renderImageAttributes
+           preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
        }
    }
 

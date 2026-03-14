@@ -397,7 +397,7 @@ Rule 4: File Size Threshold (Force Processing)
    Processing:     YES - exceeds size threshold
    Result:         Processed JPEG at 1920×1080 px (~500 KB)
 
-Frontend Rendering (ImageRenderingController)
+Frontend Rendering (ImageRenderingAdapter)
 ==============================================
 
 Processing Decision Logic
@@ -543,7 +543,7 @@ Backend (SelectImageController)
 - **Security**: Verify file access permissions (IDOR protection)
 - **Performance**: Use efficient file property access
 
-Frontend (ImageRenderingController)
+Frontend (ImageRenderingAdapter)
 ------------------------------------
 
 - **Caching**: Processed images cached in ``typo3temp/assets/``
