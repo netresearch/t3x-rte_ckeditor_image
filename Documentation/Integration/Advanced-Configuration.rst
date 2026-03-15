@@ -75,6 +75,66 @@ Organize styles in groups:
             - name: 'Image Size'
               styles: ['Full Width', 'Half Width']
 
+.. _integration-configuration-dialog-fields:
+
+Image Dialog Fields
+====================
+
+The image properties dialog provides the following fields when an editor double-clicks
+an image or inserts a new one:
+
+.. list-table:: Image dialog fields
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Field
+     - Description
+
+   * - **Width / Height**
+     - Display dimensions in pixels. Aspect ratio is locked automatically.
+
+   * - **Quality (Scaling)**
+     - Dropdown: No Scaling, Standard (1.0x), Retina (2.0x), Ultra (3.0x), Print (6.0x).
+
+   * - **Title**
+     - Advisory title attribute. Checkbox toggles override of FAL metadata default.
+
+   * - **Alt Text**
+     - Alternative text attribute. Checkbox toggles override of FAL metadata default.
+
+   * - **Caption**
+     - Figcaption text. When set, the image is wrapped in a ``<figure>``/``<figcaption>`` element.
+
+   * - **Click Behavior**
+     - Radio buttons: *None*, *Enlarge* (zoom/lightbox), or *Link* (custom URL via link browser).
+       Sub-fields for CSS class, link URL, target, and title appear based on selection.
+
+.. note::
+   **Field visibility is not configurable via TSConfig.**
+
+   Unlike some TYPO3 RTE features, there is currently no TSConfig option
+   (such as ``RTE.default.buttons.image.properties.removeItems``) to hide individual
+   fields from the image dialog. All fields listed above are always shown.
+
+   If you need to hide specific fields, you can use custom CSS in a backend stylesheet
+   to visually hide them:
+
+   .. code-block:: css
+      :caption: EXT:my_sitepackage/Resources/Public/Css/backend.css
+
+      /* Example: hide the quality selector */
+      .rteckeditorimage #rteckeditorimage-quality {
+          display: none;
+      }
+
+   Register the stylesheet in your site package:
+
+   .. code-block:: php
+      :caption: EXT:my_sitepackage/ext_localconf.php
+
+      $GLOBALS['TYPO3_CONF_VARS']['BE']['stylesheets']['my_sitepackage']
+          = 'EXT:my_sitepackage/Resources/Public/Css/backend.css';
+
 Extension Configuration
 =======================
 

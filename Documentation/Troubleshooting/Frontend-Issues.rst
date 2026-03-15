@@ -347,40 +347,63 @@ Issue: Image Links Not Working
 Issue: Lightbox/Zoom Not Working
 ---------------------------------
 
+.. important::
+   **This extension provides zoom markup only, not JavaScript.**
+
+   When an editor selects "Enlarge" in the image dialog, the extension outputs an
+   ``<a>`` link wrapping the ``<img>`` that points to the full-size image. It does
+   **not** include any JavaScript lightbox library. You must provide one yourself
+   or enable the built-in TYPO3 popup.
+
 **Symptoms:**
 
-* data-htmlarea-zoom attribute present but zoom doesn't work
-* Lightbox not triggering
+* Clicking an image with zoom enabled does nothing or navigates away
+* ``data-htmlarea-zoom`` attribute present in HTML but no lightbox appears
+* Image opens in a new browser window instead of a lightbox overlay
 
-**Cause:** Missing JavaScript or CSS for lightbox
+**Solution for fluid_styled_content users:**
 
-**Solution:**
-
-1. **Ensure Zoom Attribute Rendered:**
+If you use ``fluid_styled_content``, enable the built-in lightbox via TypoScript constants:
 
 .. code-block:: typoscript
 
-   lib.parseFunc_RTE.tags.img {
-       current = 1
-       preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
-   }
+   styles.content.textmedia.linkWrap.lightboxEnabled = 1
 
-2. **Include Lightbox Library:**
+This activates TYPO3's built-in popup window for enlarged images.
 
-Add your preferred lightbox library (e.g., Fancybox, Lightbox2, PhotoSwipe)
+**Solution for custom setups (minimal lightbox):**
 
-3. **Initialize Lightbox:**
+If you do not use ``fluid_styled_content`` or want a modern lightbox overlay,
+include a lightweight JavaScript snippet in your site package:
 
 .. code-block:: javascript
+   :caption: Minimal lightbox initialization
 
-   // Example with Fancybox
-   document.querySelectorAll('img[data-htmlarea-zoom]').forEach(img => {
-       const link = document.createElement('a');
-       link.href = img.src.replace(/\/_processed_\/.*/, '/' + img.dataset.htmlareaZoom);
-       link.setAttribute('data-fancybox', 'gallery');
-       img.parentNode.insertBefore(link, img);
-       link.appendChild(img);
+   document.addEventListener('DOMContentLoaded', function () {
+       document.querySelectorAll('a[data-popup="true"]').forEach(function (link) {
+           link.addEventListener('click', function (e) {
+               e.preventDefault();
+               var overlay = document.createElement('div');
+               overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);'
+                   + 'display:flex;align-items:center;justify-content:center;z-index:9999;cursor:pointer;';
+               var img = document.createElement('img');
+               img.src = link.href;
+               img.style.cssText = 'max-width:90vw;max-height:90vh;';
+               overlay.appendChild(img);
+               overlay.addEventListener('click', function () { overlay.remove(); });
+               document.body.appendChild(overlay);
+           });
+       });
    });
+
+For production use, consider a proper lightbox library such as
+`GLightbox <https://github.com/biati-digital/glightbox>`__,
+`PhotoSwipe <https://photoswipe.com/>`__, or
+`Fancybox <https://fancyapps.com/fancybox/>`__.
+
+.. seealso::
+   :ref:`integration-configuration-frontend-rendering` for the full lightbox/popup
+   TypoScript configuration reference.
 
 ----
 
