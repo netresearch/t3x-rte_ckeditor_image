@@ -121,6 +121,14 @@ Key Features
       .. card-footer:: :ref:`Linked Images <examples-linked-images>`
          :button-style: btn btn-secondary stretched-link
 
+   .. card:: Figure & Caption Support
+
+      Native ``<figure>``/``<figcaption>`` output. Add captions directly in the image dialog
+      -- no custom content elements needed.
+
+      .. card-footer:: :ref:`Advanced Features <examples-advanced-features>`
+         :button-style: btn btn-secondary stretched-link
+
    .. card:: Caption Width Constraint
 
       .. versionadded:: 13.6.0
@@ -147,6 +155,15 @@ Key Features
 
       .. card-footer:: :ref:`Requirements <requirements>`
          :button-style: btn btn-secondary stretched-link
+
+.. admonition:: Why does this extension exist?
+
+   TYPO3 **intentionally removed** RTE image handling in v10.0, recommending structured
+   content (FAL relations) instead. This extension provides inline image support for
+   projects that need it -- legacy migrations, editorial workflows, or content tightly
+   coupled to surrounding text.
+
+   :ref:`Read the full background and decision guide <core-removal>`
 
 Visual Preview
 ==============
@@ -238,6 +255,24 @@ This enables:
 .. code-block:: bash
 
    vendor/bin/typo3 cache:flush
+
+.. tip::
+   **Default image maxWidth**
+
+   The extension's Site Set configures ``maxWidth = 1920`` for magic images. If you
+   have **not** enabled the Site Set (e.g., when using sys_template records), TYPO3's
+   built-in default of **300px** applies, which causes images to appear unexpectedly small.
+
+   In that case, add this to your Page TSConfig:
+
+   .. code-block:: typoscript
+
+      RTE.default.buttons.image.options.magic {
+          maxWidth = 1920
+          maxHeight = 9999
+      }
+
+   See :ref:`integration-configuration-tsconfig` for full details.
 
 .. note::
    **Using Bootstrap Package or other theme extensions?**

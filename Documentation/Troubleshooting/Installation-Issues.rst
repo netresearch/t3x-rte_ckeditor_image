@@ -12,6 +12,107 @@ Solutions for problems encountered during extension installation, configuration,
    :local:
    :depth: 2
 
+.. _troubleshooting-image-button-missing:
+
+Image Insert Button Not Appearing
+==================================
+
+.. important::
+   This is the **most common issue** after installation. The insert image button is missing
+   from the CKEditor toolbar. Follow these checks in order.
+
+Cause 1: Site Set Dependency Not Added
+---------------------------------------
+
+The extension requires a **Site Set dependency** in your site configuration.
+Without it, the RTE preset is not loaded and the button will not appear.
+
+**Solution:** Add the dependency to your site configuration:
+
+.. code-block:: yaml
+   :caption: config/sites/<your-site>/config.yaml
+
+   base: 'https://example.com/'
+   rootPageId: 1
+   dependencies:
+     - netresearch/rte-ckeditor-image
+
+Cause 2: Bootstrap Package or Theme Extension Overriding the Preset
+--------------------------------------------------------------------
+
+Extensions like ``bootstrap_package`` set their own ``RTE.default.preset`` via Site Sets.
+If their preset loads **after** ours, it overrides the ``rteWithImages`` preset.
+
+**Solution:** List ``netresearch/rte-ckeditor-image`` **after** the theme package
+in your site dependencies:
+
+.. code-block:: yaml
+   :caption: config/sites/<your-site>/config.yaml
+
+   dependencies:
+     - bootstrap-package/full
+     - netresearch/rte-ckeditor-image  # Must come AFTER theme packages
+
+This ensures our preset loads last and overrides the theme's RTE preset.
+
+.. seealso::
+   :ref:`troubleshooting-bootstrap-package-override` for a detailed explanation
+   of Site Set loading order.
+
+Cause 3: Custom YAML Preset Missing ``insertimage``
+-----------------------------------------------------
+
+If you use a custom RTE preset YAML file, the ``insertimage`` toolbar item must be
+listed explicitly.
+
+**Solution:** Ensure your custom preset includes the plugin import and toolbar item:
+
+.. code-block:: yaml
+   :caption: EXT:my_sitepackage/Configuration/RTE/Custom.yaml
+
+   imports:
+     - { resource: "EXT:rte_ckeditor/Configuration/RTE/Default.yaml" }
+     - { resource: "EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml" }
+
+   editor:
+     config:
+       toolbar:
+         items:
+           - heading
+           - '|'
+           - bold
+           - italic
+           - '|'
+           - insertimage  # Required for the image button
+           - link
+
+Cause 4: Cache Not Cleared After Installation
+-----------------------------------------------
+
+TYPO3 caches RTE configuration aggressively. After installing the extension or
+changing site configuration, caches must be flushed.
+
+**Solution:**
+
+.. code-block:: bash
+
+   vendor/bin/typo3 cache:flush
+
+Also clear your browser cache and do a hard reload (Ctrl+Shift+R).
+
+**Verification:**
+
+After applying the fix, check that the RTE preset is active:
+
+1. Go to :guilabel:`Site Management > Page TSconfig`
+2. Search for ``RTE.default.preset``
+3. It should show ``rteWithImages``
+
+If it shows a different preset (e.g., ``bootstrap``, ``default``), the Site Set dependency
+is not loaded or is being overridden.
+
+----
+
 Extension Installation Problems
 ================================
 
@@ -343,6 +444,8 @@ After applying fix, check frontend HTML:
    is recommended for long-term maintainability.
 
 ----
+
+.. _troubleshooting-bootstrap-package-override:
 
 Issue: Insert Image Button Missing with Bootstrap Package or Other Site Sets
 -----------------------------------------------------------------------------

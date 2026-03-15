@@ -50,6 +50,12 @@ Configure maximum image dimensions for automatic image processing:
 
    Images larger than this value will be automatically resized during processing.
 
+   .. warning::
+      The TYPO3 core default of **300px** is very low and causes images to appear
+      unexpectedly small. The extension's Site Set overrides this to **1920px**.
+      If you use sys_template records instead of Site Sets, you must set this
+      value manually.
+
 .. confval:: RTE.default.buttons.image.options.magic.maxHeight
 
    :type: integer
