@@ -6,6 +6,10 @@
     "license": "AGPL-3.0-or-later",
     "authors": [
         {
+            "name": "Netresearch DTT GmbH",
+            "homepage": "https://www.netresearch.de/"
+        },
+        {
             "name": "Sebastian Koschel",
             "email": "sebastian.koschel@netresearch.de",
             "role": "Developer",

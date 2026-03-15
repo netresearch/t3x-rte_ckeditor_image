@@ -64,3 +64,5 @@ Tests/JavaScript/coverage/
 config/
 .beads/
 .worktrees/
+.env
+.env.*

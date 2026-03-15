@@ -73,6 +73,17 @@ CKEditor 5 plugin: `Resources/Public/JavaScript/Plugins/typo3image.js`
 - Add `declare(strict_types=1)` to `ext_emconf.php` (breaks TER publishing)
 - Hardcode environment-specific values
 
+## Getting Started
+
+```bash
+composer install          # Install dependencies
+make help                 # Show all available targets
+make lint                 # Run all linters
+make test                 # Run tests
+```
+
+For a full local environment with TYPO3 backend, see `.ddev/AGENTS.md`.
+
 ## Development Workflow
 
 1. Create feature branch from `main`
@@ -84,7 +95,7 @@ CKEditor 5 plugin: `Resources/Public/JavaScript/Plugins/typo3image.js`
 7. Address review feedback (Copilot + Gemini Code Assist auto-review)
 8. Merge via merge queue with `gh pr merge --merge --auto`
 
-## Pre-commit Checks
+## Commands
 
 **Automatic (husky pre-commit hook):**
 ```bash
