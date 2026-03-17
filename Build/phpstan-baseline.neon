@@ -25,6 +25,18 @@ parameters:
 			path: ../Classes/Controller/ImageRenderingAdapter.php
 
 		-
+			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, list\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: ../Classes/Controller/SelectImageController.php
+
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array given\.$#'
+			identifier: argument.type
+			count: 2
+			path: ../Classes/Controller/SelectImageController.php
+
+		-
 			message: '#^Cannot access offset ''GFX'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
