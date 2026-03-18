@@ -505,33 +505,40 @@ parameters:
 			path: ../ext_localconf.php
 
 		# Pre-existing: implode() receives mixed arrays from TSconfig parsing
+		# Only triggers on TYPO3 v13 (v14 has stricter return types)
 		-
 			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, list\<mixed\> given\.$#'
 			identifier: argument.type
 			count: 1
 			path: ../Classes/Controller/SelectImageController.php
+			reportUnmatched: false
 
 		-
 			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array given\.$#'
 			identifier: argument.type
 			count: 2
 			path: ../Classes/Controller/SelectImageController.php
+			reportUnmatched: false
 
 		# Pre-existing: PHPat deprecated API (current version only has these methods)
+		# Only triggers when PHPat extension is loaded (version-dependent)
 		-
 			message: '#^Call to deprecated method shouldBeReadonly\(\) of class PHPat\\Test\\Builder\\AssertionStep\.$#'
 			identifier: method.deprecated
 			count: 1
 			path: ../Tests/Architecture/ArchitectureTest.php
+			reportUnmatched: false
 
 		-
 			message: '#^Call to deprecated method shouldBeFinal\(\) of class PHPat\\Test\\Builder\\AssertionStep\.$#'
 			identifier: method.deprecated
 			count: 1
 			path: ../Tests/Architecture/ArchitectureTest.php
+			reportUnmatched: false
 
 		-
 			message: '#^Call to deprecated method shouldNotDependOn\(\) of class PHPat\\Test\\Builder\\AssertionStep\.$#'
 			identifier: method.deprecated
 			count: 7
 			path: ../Tests/Architecture/ArchitectureTest.php
+			reportUnmatched: false
