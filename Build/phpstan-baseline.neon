@@ -514,6 +514,3 @@ parameters:
 			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array given\.$#'
 			identifier: argument.type
 
-		# Pre-existing: PHPat deprecated API (no non-deprecated alternative in 0.12.x)
-		-
-			message: '#^Call to deprecated method should(BeReadonly|BeFinal|NotDependOn)\(\) of class PHPat\\Test\\Builder\\AssertionStep#'

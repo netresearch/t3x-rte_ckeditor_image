@@ -43,7 +43,7 @@ final class ArchitectureTest
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Domain\Model'))
-            ->shouldBeReadonly()
+            ->should()->beReadonly()
             ->because('DTOs must be immutable value objects');
     }
 
@@ -60,7 +60,7 @@ final class ArchitectureTest
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Domain\Model'))
-            ->shouldBeFinal()
+            ->should()->beFinal()
             ->because('DTOs should not be extended');
     }
 
@@ -77,7 +77,7 @@ final class ArchitectureTest
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Service'))
-            ->shouldNotDependOn()
+            ->shouldNot()->dependOn()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Controller'))
             ->because('services should be independent of the presentation layer');
     }
@@ -91,7 +91,7 @@ final class ArchitectureTest
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Service'))
-            ->shouldNotDependOn()
+            ->shouldNot()->dependOn()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Backend'))
             ->because('services should be independent of backend presentation layer');
     }
@@ -105,7 +105,7 @@ final class ArchitectureTest
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Domain'))
-            ->shouldNotDependOn()
+            ->shouldNot()->dependOn()
             ->classes(
                 Selector::inNamespace('Netresearch\RteCKEditorImage\Controller'),
                 Selector::inNamespace('Netresearch\RteCKEditorImage\Backend'),
@@ -125,7 +125,7 @@ final class ArchitectureTest
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Database'))
-            ->shouldNotDependOn()
+            ->shouldNot()->dependOn()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Controller'))
             ->because('database hooks should use services, not controllers');
     }
@@ -139,7 +139,7 @@ final class ArchitectureTest
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\DataHandling'))
-            ->shouldNotDependOn()
+            ->shouldNot()->dependOn()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Controller'))
             ->because('data handling hooks should use services, not controllers');
     }
@@ -153,7 +153,7 @@ final class ArchitectureTest
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Listener'))
-            ->shouldNotDependOn()
+            ->shouldNot()->dependOn()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Controller'))
             ->because('TCA listeners should use services, not controllers');
     }
@@ -168,7 +168,7 @@ final class ArchitectureTest
     {
         return PHPat::rule()
             ->classes(Selector::inNamespace('Netresearch\RteCKEditorImage\Utils'))
-            ->shouldNotDependOn()
+            ->shouldNot()->dependOn()
             ->classes(
                 Selector::inNamespace('Netresearch\RteCKEditorImage\Controller'),
                 Selector::inNamespace('Netresearch\RteCKEditorImage\Backend'),
