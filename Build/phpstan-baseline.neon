@@ -504,27 +504,16 @@ parameters:
 			count: 1
 			path: ../ext_localconf.php
 
-		# Pre-existing: implode() receives mixed arrays
+		# Pre-existing: implode() receives mixed arrays from TSconfig parsing
 		-
 			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, list\<mixed\> given\.$#'
 			identifier: argument.type
-			count: 1
 			reportUnmatched: false
 
 		-
 			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array given\.$#'
 			identifier: argument.type
-			count: 2
 
-		# Pre-existing: PHPat deprecated API
+		# Pre-existing: PHPat deprecated API (no non-deprecated alternative in 0.12.x)
 		-
-			message: '#^Call to deprecated method shouldBeReadonly\(\) of class PHPat\\Test\\Builder\\AssertionStep#'
-			count: 1
-
-		-
-			message: '#^Call to deprecated method shouldBeFinal\(\) of class PHPat\\Test\\Builder\\AssertionStep#'
-			count: 1
-
-		-
-			message: '#^Call to deprecated method shouldNotDependOn\(\) of class PHPat\\Test\\Builder\\AssertionStep#'
-			count: 9
+			message: '#^Call to deprecated method should(BeReadonly|BeFinal|NotDependOn)\(\) of class PHPat\\Test\\Builder\\AssertionStep#'
