@@ -25,18 +25,6 @@ parameters:
 			path: ../Classes/Controller/ImageRenderingAdapter.php
 
 		-
-			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, list\<mixed\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
-			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array given\.$#'
-			identifier: argument.type
-			count: 2
-			path: ../Classes/Controller/SelectImageController.php
-
-		-
 			message: '#^Cannot access offset ''GFX'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -515,3 +503,35 @@ parameters:
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: ../ext_localconf.php
+
+		# Pre-existing: implode() receives mixed arrays from TSconfig parsing
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, list\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: ../Classes/Controller/SelectImageController.php
+
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array given\.$#'
+			identifier: argument.type
+			count: 2
+			path: ../Classes/Controller/SelectImageController.php
+
+		# Pre-existing: PHPat deprecated API (current version only has these methods)
+		-
+			message: '#^Call to deprecated method shouldBeReadonly\(\) of class PHPat\\Test\\Builder\\AssertionStep\.$#'
+			identifier: method.deprecated
+			count: 1
+			path: ../Tests/Architecture/ArchitectureTest.php
+
+		-
+			message: '#^Call to deprecated method shouldBeFinal\(\) of class PHPat\\Test\\Builder\\AssertionStep\.$#'
+			identifier: method.deprecated
+			count: 1
+			path: ../Tests/Architecture/ArchitectureTest.php
+
+		-
+			message: '#^Call to deprecated method shouldNotDependOn\(\) of class PHPat\\Test\\Builder\\AssertionStep\.$#'
+			identifier: method.deprecated
+			count: 7
+			path: ../Tests/Architecture/ArchitectureTest.php
