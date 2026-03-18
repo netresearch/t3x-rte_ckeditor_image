@@ -32,22 +32,16 @@ class ImageRenderingAdapter
 {
     /**
      * Same as class name.
-     *
-     * @var string
      */
     public string $prefixId = 'ImageRenderingAdapter';
 
     /**
      * Path to this script relative to the extension dir.
-     *
-     * @var string
      */
     public string $scriptRelPath = 'Classes/Controller/ImageRenderingAdapter.php';
 
     /**
      * The extension key.
-     *
-     * @var string
      */
     public string $extKey = 'rte_ckeditor_image';
 
@@ -111,6 +105,24 @@ class ImageRenderingAdapter
             return $this->cObj instanceof ContentObjectRenderer
                 ? ($this->cObj->getCurrentVal() ?? '')
                 : '';
+        }
+
+        // Skip images without data-htmlarea-file-uid — these are plain <img> tags
+        // not inserted via the CKEditor image plugin (e.g., manually authored HTML,
+        // screenshots, or external images). Processing them would set 0x0 dimensions
+        // because the file resolver can't find a sys_file record.
+        // Note: we return the current value as-is. The HTMLparser's
+        // nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib configuration still runs
+        // after this preUserFunc. Its allparams.unset=1 strips all attributes not
+        // explicitly configured (removing style, class, and any non-standard attrs),
+        // while fixAttrib entries explicitly unset data-htmlarea-file-uid,
+        // data-htmlarea-file-table, data-title-override, and data-alt-override.
+        $rawFileUid = $attributes['data-htmlarea-file-uid'] ?? '';
+        $fileUid    = is_numeric($rawFileUid) ? (int) $rawFileUid : 0;
+        if ($fileUid <= 0) {
+            $currentVal = $this->cObj->getCurrentVal();
+
+            return is_string($currentVal) ? $currentVal : '';
         }
 
         // CRITICAL FIX for #546 and #566: Skip processing for images with caption.

@@ -93,6 +93,105 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertSame('original', $result);
     }
 
+    /**
+     * Test that renderImageAttributes passes through images without data-htmlarea-file-uid.
+     *
+     * Plain <img> tags not inserted via the CKEditor image plugin (e.g., manually
+     * authored HTML, screenshots) should be returned unmodified. Processing them
+     * would set 0x0 dimensions because the file resolver can't find a sys_file record.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/pull/746
+     */
+    #[Test]
+    public function renderImageAttributesPassesThroughImagesWithoutFileUid(): void
+    {
+        $originalImg = '<img src="/fileadmin/screenshots/example.png" alt="Screenshot" />';
+
+        $attributes = [
+            'src' => '/fileadmin/screenshots/example.png',
+            'alt' => 'Screenshot',
+            // No data-htmlarea-file-uid
+        ];
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = $attributes;
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($originalImg);
+
+        // Resolver should NOT be called - processing should be skipped entirely
+        $this->resolverService
+            ->expects(self::never())
+            ->method('resolve');
+
+        // Rendering service should NOT be called
+        $this->renderingService
+            ->expects(self::never())
+            ->method('render');
+
+        $result = $this->adapter->renderImageAttributes(null, [], $this->request);
+
+        // Should return original content unchanged
+        self::assertSame($originalImg, $result);
+    }
+
+    /**
+     * Test that renderImageAttributes passes through images with empty data-htmlarea-file-uid.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/pull/746
+     */
+    #[Test]
+    public function renderImageAttributesPassesThroughImagesWithEmptyFileUid(): void
+    {
+        $originalImg = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="" />';
+
+        $attributes = [
+            'src'                    => '/fileadmin/test.jpg',
+            'data-htmlarea-file-uid' => '',
+        ];
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = $attributes;
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($originalImg);
+
+        $this->resolverService
+            ->expects(self::never())
+            ->method('resolve');
+
+        $result = $this->adapter->renderImageAttributes(null, [], $this->request);
+
+        self::assertSame($originalImg, $result);
+    }
+
+    /**
+     * Test that renderImageAttributes passes through images with non-numeric file-uid.
+     *
+     * Handles edge case where attribute contains whitespace or non-numeric value.
+     * (int) cast converts these to 0, which triggers the skip path.
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/pull/746
+     */
+    #[Test]
+    public function renderImageAttributesPassesThroughImagesWithNonNumericFileUid(): void
+    {
+        $originalImg = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid=" " />';
+
+        $attributes = [
+            'src'                    => '/fileadmin/test.jpg',
+            'data-htmlarea-file-uid' => ' ',
+        ];
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = $attributes;
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($originalImg);
+
+        $this->resolverService
+            ->expects(self::never())
+            ->method('resolve');
+
+        $result = $this->adapter->renderImageAttributes(null, [], $this->request);
+
+        self::assertSame($originalImg, $result);
+    }
+
     #[Test]
     public function renderImageAttributesReturnsOriginalWhenResolutionFails(): void
     {
