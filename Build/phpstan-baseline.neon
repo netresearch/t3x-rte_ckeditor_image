@@ -504,25 +504,27 @@ parameters:
 			count: 1
 			path: ../ext_localconf.php
 
-		# Pre-existing: implode() receives mixed arrays from TSconfig parsing
+		# Pre-existing: implode() receives mixed arrays
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, list\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			reportUnmatched: false
+
 		-
 			message: '#^Parameter \#2 \$array of function implode expects array\<string\>, array given\.$#'
 			identifier: argument.type
 			count: 2
-			path: ../Classes/Controller/SelectImageController.php
 
-		# Pre-existing: PHPat deprecated API (current version only has these methods)
+		# Pre-existing: PHPat deprecated API
 		-
-			message: '#^Call to deprecated method shouldBeReadonly\(\) of class PHPat\\Test\\Builder\\AssertionStep\:?$#'
+			message: '#^Call to deprecated method shouldBeReadonly\(\) of class PHPat\\Test\\Builder\\AssertionStep#'
 			count: 1
-			path: ../Tests/Architecture/ArchitectureTest.php
 
 		-
-			message: '#^Call to deprecated method shouldBeFinal\(\) of class PHPat\\Test\\Builder\\AssertionStep\:?$#'
+			message: '#^Call to deprecated method shouldBeFinal\(\) of class PHPat\\Test\\Builder\\AssertionStep#'
 			count: 1
-			path: ../Tests/Architecture/ArchitectureTest.php
 
 		-
-			message: '#^Call to deprecated method shouldNotDependOn\(\) of class PHPat\\Test\\Builder\\AssertionStep\:?$#'
+			message: '#^Call to deprecated method shouldNotDependOn\(\) of class PHPat\\Test\\Builder\\AssertionStep#'
 			count: 9
-			path: ../Tests/Architecture/ArchitectureTest.php
