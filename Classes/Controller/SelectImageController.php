@@ -211,26 +211,11 @@ class SelectImageController extends ElementBrowserController
             return false;
         }
 
-        // Admin users have access to all files
-        if ($backendUser->isAdmin()) {
-            return true;
-        }
-
-        // Check if file storage is within user's file mounts
-        $storage       = $file->getStorage();
-        $storageRecord = $storage->getStorageRecord();
-
-        // Get user's file mounts
-        $fileMounts = $backendUser->getFileStorageRecords();
-
-        // Check if storage is in user's accessible storages
-        foreach ($fileMounts as $fileMount) {
-            if ((int) $fileMount['uid'] === (int) $storageRecord['uid']) {
-                return true;
-            }
-        }
-
-        return false;
+        // Use TYPO3's built-in permission check which handles:
+        // - Admin users (automatic full access)
+        // - File mount boundaries
+        // - User group permissions
+        return $file->checkActionPermission('read');
     }
 
     /**
