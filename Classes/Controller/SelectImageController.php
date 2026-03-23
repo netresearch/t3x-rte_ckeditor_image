@@ -190,17 +190,16 @@ class SelectImageController extends ElementBrowserController
     }
 
     /**
-     * Verifies if the current backend user can access the given file.
-     * Implements IDOR protection by checking file mount permissions.
+     * Verifies if the current backend user can read the given file.
+     * Implements IDOR protection by delegating to TYPO3's FAL permission checks.
      *
-     * Uses TYPO3's built-in permission system which correctly checks:
-     * - User action permissions (readFile)
-     * - File extension restrictions
-     * - File mount boundaries (isWithinFileMountBoundaries)
+     * This method uses {@see File::checkActionPermission()} with the 'read'
+     * action, which evaluates the current backend user's file permissions together
+     * with storage configuration (including file mounts and related restrictions).
      *
      * @param File $file The file to check access for
      *
-     * @return bool True if user can access the file
+     * @return bool True if the current backend user is allowed to read the file
      */
     protected function isFileAccessibleByUser(File $file): bool
     {
@@ -216,11 +215,6 @@ class SelectImageController extends ElementBrowserController
             return false;
         }
 
-        // Use TYPO3's built-in permission check which handles:
-        // - Admin users (automatic full access)
-        // - File mount boundaries
-        // - User group permissions
-        // This replaces the broken getFileStorageRecords() approach
         return $file->checkActionPermission('read');
     }
 
