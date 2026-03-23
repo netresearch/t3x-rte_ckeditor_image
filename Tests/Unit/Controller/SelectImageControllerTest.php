@@ -37,6 +37,8 @@ class SelectImageControllerTest extends UnitTestCase
 
     /**
      * Call protected method using reflection.
+     *
+     * @param array<int, mixed> $parameters
      */
     private function invokeMethod(object $object, string $methodName, array $parameters = []): mixed
     {
