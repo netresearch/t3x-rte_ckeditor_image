@@ -301,7 +301,7 @@ class RteImageReferenceValidatorTest extends TestCase
             imgIndex: 0,
         ));
 
-        self::assertSame(3, count($result->getIssues()));
+        self::assertCount(3, $result->getIssues());
         self::assertSame(2, $result->getAffectedRecords());
     }
 

@@ -58,16 +58,26 @@ final readonly class RteSoftrefEnforcer
         $tca = $event->getTca();
 
         // Parse configuration
+        $rawIncluded        = $this->extensionConfiguration['includedTablesOnly'] ?? '';
         $includedTablesOnly = $this->parseTableList(
-            $this->extensionConfiguration['includedTablesOnly'] ?? '',
+            is_string($rawIncluded) ? $rawIncluded : '',
         );
+        $rawExcluded    = $this->extensionConfiguration['excludedTables'] ?? '';
         $excludedTables = $this->parseTableList(
-            $this->extensionConfiguration['excludedTables'] ?? '',
+            is_string($rawExcluded) ? $rawExcluded : '',
         );
 
         // Process each table
         foreach ($tca as $tableName => &$tableConfig) {
+            if (!is_array($tableConfig)) {
+                continue;
+            }
+
             // Apply inclusion list filter (if configured)
+            if (!is_string($tableName)) {
+                continue;
+            }
+
             if ($includedTablesOnly !== [] && !in_array($tableName, $includedTablesOnly, true)) {
                 continue;
             }
@@ -86,13 +96,28 @@ final readonly class RteSoftrefEnforcer
                 continue;
             }
 
-            foreach ($tableConfig['columns'] as &$columnConfig) {
-                if ($this->isRteEnabledTextField($columnConfig)) {
-                    $this->addRteSoftref($columnConfig);
+            /** @var array<string, mixed> $columns */
+            $columns = $tableConfig['columns'];
+
+            foreach ($columns as &$columnConfig) {
+                if (!is_array($columnConfig)) {
+                    continue;
+                }
+
+                /** @var array<string, mixed> $typedColumnConfig */
+                $typedColumnConfig = $columnConfig;
+
+                if ($this->isRteEnabledTextField($typedColumnConfig)) {
+                    $this->addRteSoftref($typedColumnConfig);
+                    $columnConfig = $typedColumnConfig;
                 }
             }
+
+            unset($columnConfig);
+            $tableConfig['columns'] = $columns;
         }
 
+        unset($tableConfig);
         $event->setTca($tca);
     }
 
@@ -128,7 +153,7 @@ final readonly class RteSoftrefEnforcer
      */
     private function isRteEnabledTextField(array $columnConfig): bool
     {
-        $config = $columnConfig['config'] ?? [];
+        $config = is_array($columnConfig['config'] ?? null) ? $columnConfig['config'] : [];
 
         // Must be a text field
         if (($config['type'] ?? '') !== 'text') {
@@ -136,7 +161,7 @@ final readonly class RteSoftrefEnforcer
         }
 
         // Must have RTE enabled
-        return !empty($config['enableRichtext']);
+        return (bool) ($config['enableRichtext'] ?? false);
     }
 
     /**
@@ -146,10 +171,15 @@ final readonly class RteSoftrefEnforcer
      */
     private function addRteSoftref(array &$columnConfig): void
     {
+        if (!is_array($columnConfig['config'] ?? null)) {
+            return;
+        }
+
         $config = &$columnConfig['config'];
 
         // Get existing softref configuration
-        $softrefString = (string) ($config['softref'] ?? '');
+        $rawSoftref    = $config['softref'] ?? '';
+        $softrefString = is_string($rawSoftref) ? $rawSoftref : '';
 
         // Parse into array
         $softrefs = array_filter(

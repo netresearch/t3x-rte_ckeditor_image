@@ -41,7 +41,8 @@ final class ImageTagBuilder implements ImageTagBuilderInterface
 
         // Remove width and height from style attribute (use explicit attributes)
         if (isset($attributes['style'])) {
-            $attributes['style'] = $this->cleanStyleAttribute((string) $attributes['style']);
+            $rawStyle            = $attributes['style'];
+            $attributes['style'] = $this->cleanStyleAttribute(is_string($rawStyle) ? $rawStyle : '');
 
             // Remove empty style attribute
             if (trim($attributes['style']) === '') {
@@ -49,7 +50,23 @@ final class ImageTagBuilder implements ImageTagBuilderInterface
             }
         }
 
-        return '<img ' . GeneralUtility::implodeAttributes($attributes, true, true) . ' />';
+        // Ensure all attribute values are int or string for GeneralUtility::implodeAttributes
+        /** @var array<string, int|string> $stringAttributes */
+        $stringAttributes = [];
+
+        foreach ($attributes as $key => $value) {
+            if (is_int($value)) {
+                $stringAttributes[$key] = $value;
+            } elseif (is_string($value)) {
+                $stringAttributes[$key] = $value;
+            } elseif (is_scalar($value)) {
+                $stringAttributes[$key] = (string) $value;
+            } else {
+                $stringAttributes[$key] = '';
+            }
+        }
+
+        return '<img ' . GeneralUtility::implodeAttributes($stringAttributes, true, true) . ' />';
     }
 
     /**

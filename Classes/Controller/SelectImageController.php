@@ -108,10 +108,19 @@ class SelectImageController extends ElementBrowserController
         }
 
         // Default: show file browser
-        $bparams = explode('|', (string) $queryParams['bparams']);
+        $rawBparams = $queryParams['bparams'] ?? '';
+        $bparams    = explode('|', is_string($rawBparams) ? $rawBparams : '');
 
         if (isset($bparams[3]) && ($bparams[3] === '')) {
-            $bparams[3]             = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
+            /** @var array<string, mixed> $typo3ConfVars */
+            $typo3ConfVars = $GLOBALS['TYPO3_CONF_VARS'];
+            /** @var array<string, mixed> $gfxConf */
+            $gfxConf    = is_array($typo3ConfVars['GFX'] ?? null) ? $typo3ConfVars['GFX'] : [];
+            $bparams[3] = is_string($gfxConf['imagefile_ext'] ?? null)
+                ? $gfxConf['imagefile_ext']
+                : '';
+
+            /** @var list<string> $bparams */
             $queryParams['bparams'] = implode('|', $bparams);
         }
 
@@ -168,7 +177,7 @@ class SelectImageController extends ElementBrowserController
 
             // Validate and sanitize pid - must be a non-negative integer
             $pidParam = $p['pid'] ?? $queryParams['pid'] ?? 0;
-            $pid      = max(0, (int) (is_numeric($pidParam) ? $pidParam : 0));
+            $pid      = max(0, $this->toInt($pidParam));
 
             // Sanitize currentValue - ensure it's a string
             $currentValue = is_string($queryParams['currentValue'] ?? '') ? ($queryParams['currentValue'] ?? '') : '';
@@ -322,10 +331,12 @@ class SelectImageController extends ElementBrowserController
      */
     public function infoAction(ServerRequestInterface $request): ResponseInterface
     {
-        $id              = $request->getQueryParams()['fileId'] ?? null;
-        $table           = $request->getQueryParams()['table'] ?? null;
-        $params          = $request->getQueryParams()['P'] ?? [];
-        $params['table'] = $table;
+        $id    = $request->getQueryParams()['fileId'] ?? null;
+        $table = $request->getQueryParams()['table'] ?? null;
+
+        /** @var array<string, mixed> $params */
+        $params          = is_array($request->getQueryParams()['P'] ?? null) ? $request->getQueryParams()['P'] : [];
+        $params['table'] = is_string($table) ? $table : '';
 
         // Special case: translations-only request (no file ID required)
         // This allows fetching translations for button labels during plugin initialization
@@ -354,8 +365,10 @@ class SelectImageController extends ElementBrowserController
         $processedFile = $this->processImage($file, $params, $maxDimensions);
 
         // Get original dimensions (uncapped) - allows SVGs and small images to scale up
-        $originalWidth  = (int) $file->getProperty('width');
-        $originalHeight = (int) $file->getProperty('height');
+        $rawOriginalWidth  = $file->getProperty('width');
+        $rawOriginalHeight = $file->getProperty('height');
+        $originalWidth     = $this->toInt($rawOriginalWidth);
+        $originalHeight    = $this->toInt($rawOriginalHeight);
 
         // Calculate suggested display dimensions that respect aspect ratio
         $displayDimensions = $this->calculateDisplayDimensions(
@@ -647,7 +660,7 @@ class SelectImageController extends ElementBrowserController
         $backendUser = $GLOBALS['BE_USER'] ?? null;
 
         // No backend user context - deny access
-        if ($backendUser === null) {
+        if (!$backendUser instanceof BackendUserAuthentication) {
             return false;
         }
 
@@ -667,16 +680,18 @@ class SelectImageController extends ElementBrowserController
     /**
      * Get the processed image.
      *
-     * @param File               $file          The original image file
-     * @param string[]           $params        The parameters used to process the image
-     * @param array<string, int> $maxDimensions The maximum width and height
+     * @param File                 $file          The original image file
+     * @param array<string, mixed> $params        The parameters used to process the image
+     * @param array<string, int>   $maxDimensions The maximum width and height
      *
      * @return ProcessedFile
      */
     protected function processImage(File $file, array $params, array $maxDimensions): ProcessedFile
     {
-        $width  = min($maxDimensions['width'], (int) ($params['width'] ?? $file->getProperty('width')));
-        $height = min($maxDimensions['height'], (int) ($params['height'] ?? $file->getProperty('height')));
+        $rawWidth  = $params['width'] ?? $file->getProperty('width');
+        $rawHeight = $params['height'] ?? $file->getProperty('height');
+        $width     = min($maxDimensions['width'], $this->toInt($rawWidth));
+        $height    = min($maxDimensions['height'], $this->toInt($rawHeight));
 
         return $file->process(
             ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
@@ -731,25 +746,37 @@ class SelectImageController extends ElementBrowserController
      * Reads dimension limits from TSConfig and enforces reasonable bounds
      * to prevent resource exhaustion attacks.
      *
-     * @param string[] $params Request parameters including optional 'pid' and 'richtextConfigurationName'
+     * @param array<string, mixed> $params Request parameters including optional 'pid' and 'richtextConfigurationName'
      *
      * @return array<string, int> Array with 'width' and 'height' keys containing validated dimension limits
      */
     protected function getMaxDimensions(array $params): array
     {
-        $tsConfig                  = BackendUtility::getPagesTSconfig((int) ($params['pid'] ?? 0));
-        $richtextConfigurationName = $params['richtextConfigurationName'] ?? 'default';
+        $rawPid                    = $params['pid'] ?? 0;
+        $tsConfig                  = BackendUtility::getPagesTSconfig($this->toInt($rawPid));
+        $richtextConfigurationName = is_string($params['richtextConfigurationName'] ?? null)
+            ? $params['richtextConfigurationName']
+            : 'default';
         if ($richtextConfigurationName === '') {
             $richtextConfigurationName = 'default';
         }
 
         // Safe array access: fallback to empty array if TSConfig structure doesn't exist
-        $rteConfig    = $tsConfig['RTE.'][$richtextConfigurationName . '.'] ?? [];
-        $imageOptions = $rteConfig['buttons.']['image.']['options.']['magic.'] ?? [];
+        $imageOptions = $this->getNestedArray(
+            $tsConfig,
+            'RTE.',
+            $richtextConfigurationName . '.',
+            'buttons.',
+            'image.',
+            'options.',
+            'magic.',
+        );
 
         // Type cast to ensure integers (handles string values from TSConfig)
-        $maxHeight = (int) ($imageOptions['maxHeight'] ?? self::IMAGE_DEFAULT_MAX_HEIGHT);
-        $maxWidth  = (int) ($imageOptions['maxWidth'] ?? self::IMAGE_DEFAULT_MAX_WIDTH);
+        $rawMaxHeight = $imageOptions['maxHeight'] ?? self::IMAGE_DEFAULT_MAX_HEIGHT;
+        $rawMaxWidth  = $imageOptions['maxWidth'] ?? self::IMAGE_DEFAULT_MAX_WIDTH;
+        $maxHeight    = $this->toInt($rawMaxHeight, self::IMAGE_DEFAULT_MAX_HEIGHT);
+        $maxWidth     = $this->toInt($rawMaxWidth, self::IMAGE_DEFAULT_MAX_WIDTH);
 
         // Enforce reasonable bounds: 1px minimum, 10000px maximum
         // This prevents resource exhaustion (10000x10000 ≈ 400MB vs 50000x50000 ≈ 10GB)
@@ -757,5 +784,38 @@ class SelectImageController extends ElementBrowserController
         $maxWidth  = max(self::IMAGE_MIN_DIMENSION, min(self::IMAGE_MAX_DIMENSION, $maxWidth));
 
         return ['width' => $maxWidth, 'height' => $maxHeight];
+    }
+
+    /**
+     * Cast a mixed value to int, returning a default when the value is not numeric.
+     */
+    private function toInt(mixed $value, int $default = 0): int
+    {
+        return is_numeric($value) ? (int) $value : $default;
+    }
+
+    /**
+     * Safely navigate a nested array structure, returning an empty array if any key is missing.
+     *
+     * @return array<string, mixed>
+     */
+    private function getNestedArray(mixed $root, string ...$keys): array
+    {
+        $current = $root;
+
+        foreach ($keys as $key) {
+            if (!is_array($current)) {
+                return [];
+            }
+
+            $current = $current[$key] ?? null;
+        }
+
+        if (!is_array($current)) {
+            return [];
+        }
+
+        /** @var array<string, mixed> $current TCA and TSConfig always use string keys */
+        return $current;
     }
 }

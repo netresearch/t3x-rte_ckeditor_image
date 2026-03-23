@@ -51,9 +51,11 @@ class RteImagesDbHook
         array &$fieldArray,
         DataHandler &$dataHandler,
     ): void {
+        $tcaColumns = $this->getNestedArray($GLOBALS['TCA'] ?? null, $table, 'columns');
+
         foreach ($fieldArray as $field => $fieldValue) {
             // Skip fields not defined in TCA
-            if (!isset($GLOBALS['TCA'][$table]['columns'][$field])) {
+            if (!isset($tcaColumns[$field])) {
                 continue;
             }
 
@@ -70,8 +72,13 @@ class RteImagesDbHook
                 continue;
             }
 
+            // Only process string values
+            if (!is_string($fieldValue)) {
+                continue;
+            }
+
             // Process the RTE field content
-            $fieldArray[$field] = $this->imageProcessor->process((string) $fieldValue);
+            $fieldArray[$field] = $this->imageProcessor->process($fieldValue);
         }
     }
 
@@ -113,20 +120,55 @@ class RteImagesDbHook
         string $table,
         string $field,
     ): array {
-        $tcaFieldConf = $GLOBALS['TCA'][$table]['columns'][$field]['config'] ?? [];
+        /** @var array<string, mixed> $tcaFieldConf */
+        $tcaFieldConf = $this->getNestedArray($GLOBALS['TCA'] ?? null, $table, 'columns', $field, 'config');
 
-        if (!is_array($tcaFieldConf)) {
+        if ($tcaFieldConf === []) {
             return [];
         }
 
         $recordType = BackendUtility::getTCAtypeValue($table, $dataHandler->checkValue_currentRecord);
 
-        $columnsOverrides = $GLOBALS['TCA'][$table]['types'][$recordType]['columnsOverrides'][$field]['config'] ?? null;
+        $columnsOverrides = $this->getNestedArray(
+            $GLOBALS['TCA'] ?? null,
+            $table,
+            'types',
+            $recordType,
+            'columnsOverrides',
+            $field,
+            'config',
+        );
 
-        if (is_array($columnsOverrides)) {
+        if ($columnsOverrides !== []) {
             ArrayUtility::mergeRecursiveWithOverrule($tcaFieldConf, $columnsOverrides);
         }
 
+        /** @var array<string, mixed> $tcaFieldConf TCA always uses string keys */
         return $tcaFieldConf;
+    }
+
+    /**
+     * Safely navigate a nested array structure, returning an empty array if any key is missing.
+     *
+     * @return array<string, mixed>
+     */
+    private function getNestedArray(mixed $root, string ...$keys): array
+    {
+        $current = $root;
+
+        foreach ($keys as $key) {
+            if (!is_array($current)) {
+                return [];
+            }
+
+            $current = $current[$key] ?? null;
+        }
+
+        if (!is_array($current)) {
+            return [];
+        }
+
+        /** @var array<string, mixed> $current TCA and TSConfig always use string keys */
+        return $current;
     }
 }

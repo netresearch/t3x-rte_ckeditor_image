@@ -36,7 +36,7 @@ CKEditor 5 plugin: `Resources/Public/JavaScript/Plugins/typo3image.js`
 - Pre-commit hooks (husky): phplint, php-cs-fixer, phpstan
 - Commit-msg hook: commitlint validates conventional commit format
 - Keep PRs small (~300 net LOC)
-- PHPStan level 10 with strict-rules and deprecation-rules -- zero errors required
+- PHPStan level 10 with strict-rules and deprecation-rules -- zero baseline errors required (baseline must be empty)
 - `declare(strict_types=1)` in all PHP files (except `ext_emconf.php` -- TER cannot parse it)
 - TYPO3 extensions MUST NOT commit `composer.lock`
 
@@ -50,7 +50,9 @@ CKEditor 5 plugin: `Resources/Public/JavaScript/Plugins/typo3image.js`
 - Validate all user inputs -- especially HTML attributes from RTE content
 - Show test output as evidence before claiming work is complete
 - Use dependency injection via `Configuration/Services.yaml`, not `GeneralUtility::makeInstance()`
-- Use `is_string()` / `is_array()` type narrowing instead of `(string)` cast on `mixed` values (PHPStan level 10)
+- Use `is_string()` / `is_array()` / `is_numeric()` type narrowing instead of direct casts on `mixed` values (PHPStan level 10)
+- Never use `@phpstan-ignore` annotations -- fix the actual type issue instead
+- Never use `empty()` -- use strict comparison (`=== true`, `!== ''`, `!== []`)
 
 ### Ask First
 
@@ -70,6 +72,7 @@ CKEditor 5 plugin: `Resources/Public/JavaScript/Plugins/typo3image.js`
 - Disable security features (URL protocol allowlist, file visibility validation, caption XSS sanitization)
 - Add `style` attribute handling to HTML output (CSS injection prevention)
 - Use `$GLOBALS['TYPO3_DB']` (deprecated since TYPO3 v8)
+- Wipe `$GLOBALS['TCA']` with a new or empty array -- modifying a local copy and writing it back is fine, but never discard existing entries
 - Add `declare(strict_types=1)` to `ext_emconf.php` (breaks TER publishing)
 - Hardcode environment-specific values
 
@@ -158,7 +161,7 @@ See [ADR-003: Security Responsibility Boundaries](Documentation/Architecture/ADR
 | Type | Command | Environment |
 |------|---------|-------------|
 | Unit | `composer ci:test:php:unit` | Local or CI |
-| Functional | `composer ci:test:php:functional` | CI (needs `typo3DatabaseDriver=pdo_sqlite`) |
+| Functional | `composer ci:test:php:functional` | Local or CI (SQLite configured in FunctionalTests.xml) |
 | JavaScript | `composer ci:test:js:unit` | Local or CI |
 | E2E | `Build/Scripts/runTests.sh -s e2e -t 13 -p 8.5` | CI (Docker) |
 | Fuzz | `composer ci:fuzz` | Local or CI |

@@ -105,7 +105,8 @@ final class ProcessedFilesHandlerTest extends UnitTestCase
 
         $result = $this->subject->createProcessedFile($fileMock, $expectedConfig);
 
-        self::assertInstanceOf(ProcessedFile::class, $result);
+        // Verify the processed file mock was returned
+        self::assertSame($processedFileMock, $result);
     }
 
     #[Test]
@@ -149,6 +150,7 @@ final class ProcessedFilesHandlerTest extends UnitTestCase
 
         $result = $this->subject->createProcessedFile($fileMock, $complexConfig);
 
-        self::assertInstanceOf(ProcessedFile::class, $result);
+        // Verify the processed file mock was returned
+        self::assertSame($processedFileMock, $result);
     }
 }

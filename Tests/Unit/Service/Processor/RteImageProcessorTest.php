@@ -824,7 +824,7 @@ class RteImageProcessorTest extends TestCase
 
         // We can't directly test generateExternalFilename since it's private,
         // but we verify through the security validator being called with the extension
-        self::assertSame($isAllowed, $isAllowed);
+        self::assertIsBool($isAllowed);
     }
 
     // ========================================================================

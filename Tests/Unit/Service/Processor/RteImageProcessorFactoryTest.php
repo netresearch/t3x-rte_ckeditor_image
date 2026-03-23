@@ -15,7 +15,6 @@ use Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcherInterface;
 use Netresearch\RteCKEditorImage\Service\Parser\ImageTagParserInterface;
 use Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessor;
 use Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorFactory;
-use Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorInterface;
 use Netresearch\RteCKEditorImage\Service\Resolver\ImageFileResolverInterface;
 use Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
@@ -87,20 +86,6 @@ class RteImageProcessorFactoryTest extends TestCase
     // ========================================================================
 
     #[Test]
-    public function createReturnsRteImageProcessorInterface(): void
-    {
-        $this->extensionConfiguration
-            ->method('get')
-            ->with('rte_ckeditor_image', 'fetchExternalImages')
-            ->willReturn(false);
-
-        $factory = $this->createFactory();
-        $result  = $factory->create();
-
-        self::assertInstanceOf(RteImageProcessorInterface::class, $result);
-    }
-
-    #[Test]
     public function createReturnsRteImageProcessorInstance(): void
     {
         $this->extensionConfiguration
@@ -111,7 +96,7 @@ class RteImageProcessorFactoryTest extends TestCase
         $factory = $this->createFactory();
         $result  = $factory->create();
 
-        self::assertInstanceOf(RteImageProcessor::class, $result);
+        self::assertSame(RteImageProcessor::class, $result::class);
     }
 
     // ========================================================================
@@ -131,7 +116,7 @@ class RteImageProcessorFactoryTest extends TestCase
         $result  = $factory->create();
 
         // Configuration was read and processor was created
-        self::assertInstanceOf(RteImageProcessor::class, $result);
+        self::assertSame(RteImageProcessor::class, $result::class);
     }
 
     #[Test]
@@ -144,7 +129,7 @@ class RteImageProcessorFactoryTest extends TestCase
         $factory = $this->createFactory();
         $result  = $factory->create();
 
-        self::assertInstanceOf(RteImageProcessor::class, $result);
+        self::assertSame(RteImageProcessor::class, $result::class);
     }
 
     #[Test]
@@ -157,7 +142,7 @@ class RteImageProcessorFactoryTest extends TestCase
         $factory = $this->createFactory();
         $result  = $factory->create();
 
-        self::assertInstanceOf(RteImageProcessor::class, $result);
+        self::assertSame(RteImageProcessor::class, $result::class);
     }
 
     #[Test]
@@ -170,7 +155,7 @@ class RteImageProcessorFactoryTest extends TestCase
         $factory = $this->createFactory();
         $result  = $factory->create();
 
-        self::assertInstanceOf(RteImageProcessor::class, $result);
+        self::assertSame(RteImageProcessor::class, $result::class);
     }
 
     #[Test]
@@ -183,7 +168,7 @@ class RteImageProcessorFactoryTest extends TestCase
         $factory = $this->createFactory();
         $result  = $factory->create();
 
-        self::assertInstanceOf(RteImageProcessor::class, $result);
+        self::assertSame(RteImageProcessor::class, $result::class);
     }
 
     #[Test]
@@ -196,7 +181,7 @@ class RteImageProcessorFactoryTest extends TestCase
         $factory = $this->createFactory();
         $result  = $factory->create();
 
-        self::assertInstanceOf(RteImageProcessor::class, $result);
+        self::assertSame(RteImageProcessor::class, $result::class);
     }
 
     // ========================================================================
@@ -227,7 +212,7 @@ class RteImageProcessorFactoryTest extends TestCase
         $result  = $factory->create();
 
         // Should still return a processor with default value (false)
-        self::assertInstanceOf(RteImageProcessor::class, $result);
+        self::assertSame(RteImageProcessor::class, $result::class);
     }
 
     #[Test]
@@ -241,7 +226,7 @@ class RteImageProcessorFactoryTest extends TestCase
         $result  = $factory->create();
 
         // null should be cast to false (bool)
-        self::assertInstanceOf(RteImageProcessor::class, $result);
+        self::assertSame(RteImageProcessor::class, $result::class);
     }
 
     #[Test]
@@ -256,7 +241,7 @@ class RteImageProcessorFactoryTest extends TestCase
         $result  = $factory->create();
 
         // Array should be cast to true (non-empty array = truthy)
-        self::assertInstanceOf(RteImageProcessor::class, $result);
+        self::assertSame(RteImageProcessor::class, $result::class);
     }
 
     // ========================================================================

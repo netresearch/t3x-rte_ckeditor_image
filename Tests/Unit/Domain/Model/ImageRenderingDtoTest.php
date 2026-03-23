@@ -196,9 +196,5 @@ class ImageRenderingDtoTest extends TestCase
         );
 
         self::assertSame($htmlAttributes, $dto->htmlAttributes);
-        self::assertSame('test-class', $dto->htmlAttributes['class']);
-        self::assertSame(123, $dto->htmlAttributes['data-id']);
-        // @phpstan-ignore staticMethod.alreadyNarrowedType (testing DTO correctly stores mixed-type attributes)
-        self::assertSame(true, $dto->htmlAttributes['data-enabled']);
     }
 }

@@ -222,6 +222,7 @@ class UpdateImageReferences
      */
     private function updateImageSrcInHtml(string $html, int $fileUid, string $newSrc): string
     {
+        /** @var string[] $splitContent */
         $splitContent = $this->htmlParser->splitTags('img', $html);
         $changed      = false;
 

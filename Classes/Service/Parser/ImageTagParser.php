@@ -38,7 +38,10 @@ final readonly class ImageTagParser implements ImageTagParserInterface
      */
     public function splitByImageTags(string $html): array
     {
-        return $this->htmlParser->splitTags('img', $html);
+        /** @var string[] $result */
+        $result = $this->htmlParser->splitTags('img', $html);
+
+        return $result;
     }
 
     /**
@@ -50,9 +53,19 @@ final readonly class ImageTagParser implements ImageTagParserInterface
      */
     public function extractAttributes(string $imgTag): array
     {
-        [$attributes] = $this->htmlParser->get_tag_attributes($imgTag, true);
+        $result     = $this->htmlParser->get_tag_attributes($imgTag, true);
+        $attributes = is_array($result[0] ?? null) ? $result[0] : [];
 
-        return is_array($attributes) ? $attributes : [];
+        /** @var array<string, string> $stringAttributes */
+        $stringAttributes = [];
+
+        foreach ($attributes as $key => $value) {
+            if (is_string($key) && is_string($value)) {
+                $stringAttributes[$key] = $value;
+            }
+        }
+
+        return $stringAttributes;
     }
 
     /**
