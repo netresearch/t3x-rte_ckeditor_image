@@ -37,7 +37,9 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
         if ($versionInformation->getMajorVersion() < 13) {
             GeneralUtility::makeInstance(ReferenceIndex::class)->updateIndex(false);
         } else {
-            $this->get(ReferenceIndex::class)->updateIndex(false);
+            $referenceIndex = $this->get(ReferenceIndex::class);
+            self::assertInstanceOf(ReferenceIndex::class, $referenceIndex);
+            $referenceIndex->updateIndex(false);
         }
 
         $this->assertCSVDataSet(__DIR__ . '/Fixtures/ReferenceIndex/UpdateReferenceIndexResult.csv');

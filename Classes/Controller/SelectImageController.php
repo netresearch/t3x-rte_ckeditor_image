@@ -229,8 +229,10 @@ class SelectImageController extends ElementBrowserController
      */
     protected function processImage(File $file, array $params, array $maxDimensions): ProcessedFile
     {
-        $width  = min($maxDimensions['width'], (int) ($params['width'] ?? $file->getProperty('width')));
-        $height = min($maxDimensions['height'], (int) ($params['height'] ?? $file->getProperty('height')));
+        $rawWidth  = $params['width'] ?? $file->getProperty('width');
+        $rawHeight = $params['height'] ?? $file->getProperty('height');
+        $width     = min($maxDimensions['width'], is_numeric($rawWidth) ? (int) $rawWidth : 0);
+        $height    = min($maxDimensions['height'], is_numeric($rawHeight) ? (int) $rawHeight : 0);
 
         return $file->process(
             ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,

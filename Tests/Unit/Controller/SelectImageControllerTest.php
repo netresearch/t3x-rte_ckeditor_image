@@ -35,6 +35,13 @@ class SelectImageControllerTest extends UnitTestCase
             ->getMock();
     }
 
+    private function getSubject(): SelectImageController
+    {
+        self::assertNotNull($this->subject);
+
+        return $this->subject;
+    }
+
     /**
      * Call protected method using reflection.
      *
@@ -58,7 +65,7 @@ class SelectImageControllerTest extends UnitTestCase
 
         $file = $this->createMock(File::class);
 
-        $result = $this->invokeMethod($this->subject, 'isFileAccessibleByUser', [$file]);
+        $result = $this->invokeMethod($this->getSubject(), 'isFileAccessibleByUser', [$file]);
 
         self::assertFalse($result);
     }
@@ -77,7 +84,7 @@ class SelectImageControllerTest extends UnitTestCase
 
         $file = $this->createMock(File::class);
 
-        $result = $this->invokeMethod($this->subject, 'isFileAccessibleByUser', [$file]);
+        $result = $this->invokeMethod($this->getSubject(), 'isFileAccessibleByUser', [$file]);
 
         self::assertFalse($result);
     }
@@ -101,7 +108,7 @@ class SelectImageControllerTest extends UnitTestCase
             ->with('read')
             ->willReturn(true);
 
-        $result = $this->invokeMethod($this->subject, 'isFileAccessibleByUser', [$file]);
+        $result = $this->invokeMethod($this->getSubject(), 'isFileAccessibleByUser', [$file]);
 
         self::assertTrue($result, 'Non-admin user with read permission should have access');
     }
@@ -125,7 +132,7 @@ class SelectImageControllerTest extends UnitTestCase
             ->with('read')
             ->willReturn(false);
 
-        $result = $this->invokeMethod($this->subject, 'isFileAccessibleByUser', [$file]);
+        $result = $this->invokeMethod($this->getSubject(), 'isFileAccessibleByUser', [$file]);
 
         self::assertFalse($result, 'Non-admin user without read permission should be denied');
     }
@@ -149,7 +156,7 @@ class SelectImageControllerTest extends UnitTestCase
             ->with('read')
             ->willReturn(true);
 
-        $result = $this->invokeMethod($this->subject, 'isFileAccessibleByUser', [$file]);
+        $result = $this->invokeMethod($this->getSubject(), 'isFileAccessibleByUser', [$file]);
 
         self::assertTrue($result, 'Admin user should always have access');
     }

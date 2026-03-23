@@ -58,7 +58,7 @@ class RteImagePreviewRenderer extends TextPreviewRenderer
             '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF].|\xEF\xBF[\xBE\xBF]/',
             "\xEF\xBF\xBD",
             (string) $html,
-        );
+        ) ?? '';
 
         return $this
             ->linkEditContent(

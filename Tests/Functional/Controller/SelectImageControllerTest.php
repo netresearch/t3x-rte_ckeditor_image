@@ -46,6 +46,16 @@ class SelectImageControllerTest extends FunctionalTestCase
     }
 
     /**
+     * Returns the test subject, asserting it is initialized.
+     */
+    private function getSubject(): SelectImageController
+    {
+        self::assertNotNull($this->subject, 'Test subject not initialized');
+
+        return $this->subject;
+    }
+
+    /**
      * Call protected/private method of a class.
      *
      * @param object            $object     Instantiated object that we will run method on
@@ -58,11 +68,29 @@ class SelectImageControllerTest extends FunctionalTestCase
      */
     private function invokeMethod(object $object, string $methodName, array $parameters = []): mixed
     {
-        $reflection = new ReflectionClass(get_class($object));
+        $reflection = new ReflectionClass($object::class);
         $method     = $reflection->getMethod($methodName);
         $method->setAccessible(true);
 
         return $method->invokeArgs($object, $parameters);
+    }
+
+    /**
+     * Helper to invoke getMaxDimensions and return a typed result.
+     *
+     * @param array<int, mixed> $parameters
+     *
+     * @return array<string, int>
+     *
+     * @throws ReflectionException
+     */
+    private function invokeGetMaxDimensions(array $parameters): array
+    {
+        $result = $this->invokeMethod($this->getSubject(), 'getMaxDimensions', $parameters);
+        self::assertIsArray($result);
+
+        /** @var array<string, int> $result */
+        return $result;
     }
 
     /**
@@ -87,15 +115,14 @@ class SelectImageControllerTest extends FunctionalTestCase
     public function getMaxDimensionsReturnsDefaultsWhenTSConfigMissing(): void
     {
         // Call with PID 0 (root page) which should use defaults if no TSConfig is set
-        $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
+        $result = $this->invokeGetMaxDimensions([
             ['pid' => 0],
         ]);
 
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('width', $result);
-        $this->assertArrayHasKey('height', $result);
-        $this->assertEquals(1920, $result['width'], 'Default width should be 1920');
-        $this->assertEquals(9999, $result['height'], 'Default height should be 9999');
+        self::assertArrayHasKey('width', $result);
+        self::assertArrayHasKey('height', $result);
+        self::assertEquals(1920, $result['width'], 'Default width should be 1920');
+        self::assertEquals(9999, $result['height'], 'Default height should be 9999');
     }
 
     /**
@@ -104,13 +131,12 @@ class SelectImageControllerTest extends FunctionalTestCase
     public function getMaxDimensionsHandlesEmptyConfigurationName(): void
     {
         // Empty configuration name should fallback to 'default'
-        $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
+        $result = $this->invokeGetMaxDimensions([
             ['pid' => 0, 'richtextConfigurationName' => ''],
         ]);
 
-        $this->assertIsArray($result);
-        $this->assertEquals(1920, $result['width']);
-        $this->assertEquals(9999, $result['height']);
+        self::assertEquals(1920, $result['width']);
+        self::assertEquals(9999, $result['height']);
     }
 
     /**
@@ -119,13 +145,12 @@ class SelectImageControllerTest extends FunctionalTestCase
     public function getMaxDimensionsHandlesMissingPid(): void
     {
         // Missing PID should default to 0
-        $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
+        $result = $this->invokeGetMaxDimensions([
             [],
         ]);
 
-        $this->assertIsArray($result);
-        $this->assertEquals(1920, $result['width']);
-        $this->assertEquals(9999, $result['height']);
+        self::assertEquals(1920, $result['width']);
+        self::assertEquals(9999, $result['height']);
     }
 
     /**
@@ -133,12 +158,12 @@ class SelectImageControllerTest extends FunctionalTestCase
      */
     public function getMaxDimensionsEnforcesMinimumBounds(): void
     {
-        $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
+        $result = $this->invokeGetMaxDimensions([
             ['pid' => 0],
         ]);
 
-        $this->assertGreaterThanOrEqual(1, $result['width'], 'Width should be at least 1');
-        $this->assertGreaterThanOrEqual(1, $result['height'], 'Height should be at least 1');
+        self::assertGreaterThanOrEqual(1, $result['width'], 'Width should be at least 1');
+        self::assertGreaterThanOrEqual(1, $result['height'], 'Height should be at least 1');
     }
 
     /**
@@ -147,12 +172,12 @@ class SelectImageControllerTest extends FunctionalTestCase
     public function getMaxDimensionsEnforcesMaximumBounds(): void
     {
         // The method should clamp values to 10000 maximum to prevent resource exhaustion
-        $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
+        $result = $this->invokeGetMaxDimensions([
             ['pid' => 0],
         ]);
 
-        $this->assertLessThanOrEqual(10000, $result['width'], 'Width should not exceed 10000');
-        $this->assertLessThanOrEqual(10000, $result['height'], 'Height should not exceed 10000');
+        self::assertLessThanOrEqual(10000, $result['width'], 'Width should not exceed 10000');
+        self::assertLessThanOrEqual(10000, $result['height'], 'Height should not exceed 10000');
     }
 
     /**
@@ -160,12 +185,12 @@ class SelectImageControllerTest extends FunctionalTestCase
      */
     public function getMaxDimensionsReturnsIntegerValues(): void
     {
-        $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
+        $result = $this->invokeGetMaxDimensions([
             ['pid' => 0],
         ]);
 
-        $this->assertIsInt($result['width'], 'Width should be an integer');
-        $this->assertIsInt($result['height'], 'Height should be an integer');
+        self::assertIsInt($result['width'], 'Width should be an integer');
+        self::assertIsInt($result['height'], 'Height should be an integer');
     }
 
     /**
@@ -173,14 +198,13 @@ class SelectImageControllerTest extends FunctionalTestCase
      */
     public function getMaxDimensionsReturnsArrayWithCorrectKeys(): void
     {
-        $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
+        $result = $this->invokeGetMaxDimensions([
             ['pid' => 0],
         ]);
 
-        $this->assertIsArray($result);
-        $this->assertCount(2, $result);
-        $this->assertArrayHasKey('width', $result);
-        $this->assertArrayHasKey('height', $result);
+        self::assertCount(2, $result);
+        self::assertArrayHasKey('width', $result);
+        self::assertArrayHasKey('height', $result);
     }
 
     /**
@@ -190,10 +214,10 @@ class SelectImageControllerTest extends FunctionalTestCase
      */
     public function classConstantsHaveExpectedValues(): void
     {
-        $this->assertEquals(1, $this->getConstant('IMAGE_MIN_DIMENSION'));
-        $this->assertEquals(10000, $this->getConstant('IMAGE_MAX_DIMENSION'));
-        $this->assertEquals(1920, $this->getConstant('IMAGE_DEFAULT_MAX_WIDTH'));
-        $this->assertEquals(9999, $this->getConstant('IMAGE_DEFAULT_MAX_HEIGHT'));
+        self::assertEquals(1, $this->getConstant('IMAGE_MIN_DIMENSION'));
+        self::assertEquals(10000, $this->getConstant('IMAGE_MAX_DIMENSION'));
+        self::assertEquals(1920, $this->getConstant('IMAGE_DEFAULT_MAX_WIDTH'));
+        self::assertEquals(9999, $this->getConstant('IMAGE_DEFAULT_MAX_HEIGHT'));
     }
 
     /**
@@ -202,13 +226,12 @@ class SelectImageControllerTest extends FunctionalTestCase
     public function getMaxDimensionsHandlesNullRichtextConfigurationName(): void
     {
         // Null configuration name should fallback to 'default'
-        $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
+        $result = $this->invokeGetMaxDimensions([
             ['pid' => 0, 'richtextConfigurationName' => null],
         ]);
 
-        $this->assertIsArray($result);
-        $this->assertEquals(1920, $result['width']);
-        $this->assertEquals(9999, $result['height']);
+        self::assertEquals(1920, $result['width']);
+        self::assertEquals(9999, $result['height']);
     }
 
     /**
@@ -218,12 +241,12 @@ class SelectImageControllerTest extends FunctionalTestCase
     {
         // Verify that returned dimensions won't cause memory exhaustion
         // 10000x10000 ≈ 400MB is the documented safe maximum
-        $result = $this->invokeMethod($this->subject, 'getMaxDimensions', [
+        $result = $this->invokeGetMaxDimensions([
             ['pid' => 0],
         ]);
 
         $maxArea = $result['width'] * $result['height'];
-        $this->assertLessThanOrEqual(
+        self::assertLessThanOrEqual(
             100000000, // 10000 * 10000
             $maxArea,
             'Dimensions should not allow memory exhaustion (max 10000x10000)',
