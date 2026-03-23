@@ -53,6 +53,9 @@
         "ci:security": [
             "composer audit"
         ],
+        "ci:test:php:unit": [
+            "phpunit -c Build/phpunit/UnitTests.xml"
+        ],
         "ci:test:php:functional": [
             "phpunit -c Build/phpunit/FunctionalTests.xml"
         ],
@@ -75,6 +78,7 @@
             "@ci:test:php:lint",
             "@ci:test:php:phpstan",
             "@ci:test:php:rector",
+            "@ci:test:php:unit",
             "@ci:test:php:functional"
         ]
     }
