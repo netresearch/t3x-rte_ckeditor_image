@@ -104,6 +104,11 @@ parameters:
 			path: ../Classes/Controller/ImageRenderingController.php
 
 		-
+			message: "#^Cannot cast mixed to int\\.$#"
+			count: 2
+			path: ../Classes/Controller/SelectImageController.php
+
+		-
 			message: "#^Method Netresearch\\\\RteCKEditorImage\\\\DataHandling\\\\SoftReference\\\\RteImageSoftReferenceParser\\:\\:findImageTags\\(\\) should return array\\<string, array\\<array\\<string, mixed\\>\\>\\|string\\> but returns array\\<array\\<string, mixed\\>\\>\\.$#"
 			count: 1
 			path: ../Classes/DataHandling/SoftReference/RteImageSoftReferenceParser.php
