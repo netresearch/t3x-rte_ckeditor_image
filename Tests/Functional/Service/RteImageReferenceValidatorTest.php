@@ -42,7 +42,7 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
     private function getSubject(): RteImageReferenceValidator
     {
         $subject = $this->get(RteImageReferenceValidator::class);
-        self::assertInstanceOf(RteImageReferenceValidator::class, $subject);
+        self::assertSame(RteImageReferenceValidator::class, $subject::class);
 
         return $subject;
     }
@@ -61,7 +61,7 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
         self::assertNotEmpty($filtered, 'Expected at least one issue of type ' . $type->value);
 
         $first = reset($filtered);
-        self::assertInstanceOf(ValidationIssue::class, $first);
+        self::assertSame(ValidationIssue::class, $first::class);
 
         return $first;
     }
@@ -219,7 +219,7 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         // Delete record uid=1 (processed src) from tt_content between validate and fix
         $connectionPool = $this->get(ConnectionPool::class);
-        self::assertInstanceOf(ConnectionPool::class, $connectionPool);
+        self::assertSame(ConnectionPool::class, $connectionPool::class);
 
         $connection = $connectionPool->getConnectionForTable('tt_content');
         $connection->delete('tt_content', ['uid' => 1]);
@@ -252,7 +252,7 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         // Verify record 4's bodytext is unchanged
         $connectionPool = $this->get(ConnectionPool::class);
-        self::assertInstanceOf(ConnectionPool::class, $connectionPool);
+        self::assertSame(ConnectionPool::class, $connectionPool::class);
 
         $queryBuilder = $connectionPool->getQueryBuilderForTable('tt_content');
         $queryBuilder->getRestrictions()->removeAll();

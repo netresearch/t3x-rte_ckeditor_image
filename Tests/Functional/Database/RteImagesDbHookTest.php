@@ -48,14 +48,15 @@ final class RteImagesDbHookTest extends FunctionalTestCase
     public function hookCanBeCreatedFromContainer(): void
     {
         $subject = $this->createSubject();
-        self::assertInstanceOf(RteImagesDbHook::class, $subject);
+        // Verify the hook can be created and is the correct type
+        self::assertSame(RteImagesDbHook::class, $subject::class);
     }
 
     #[Test]
     public function imageProcessorCanBeCreatedFromContainer(): void
     {
         $processor = $this->get(RteImageProcessor::class);
-        self::assertInstanceOf(RteImageProcessor::class, $processor);
+        self::assertSame(RteImageProcessor::class, $processor::class);
     }
 
     #[Test]

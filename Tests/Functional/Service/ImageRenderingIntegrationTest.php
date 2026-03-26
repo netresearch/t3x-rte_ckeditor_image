@@ -63,9 +63,10 @@ final class ImageRenderingIntegrationTest extends FunctionalTestCase
     #[Test]
     public function servicesAreProperlyInjected(): void
     {
-        self::assertInstanceOf(ImageAttributeParser::class, $this->parser);
-        self::assertInstanceOf(ImageResolverService::class, $this->resolver);
-        self::assertInstanceOf(ImageRenderingService::class, $this->renderer);
+        // Verify services are the expected types from the DI container
+        self::assertSame(ImageAttributeParser::class, $this->parser::class);
+        self::assertSame(ImageResolverService::class, $this->resolver::class);
+        self::assertSame(ImageRenderingService::class, $this->renderer::class);
     }
 
     #[Test]

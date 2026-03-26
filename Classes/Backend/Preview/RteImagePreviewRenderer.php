@@ -66,11 +66,13 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
         // - Invalid control chars: [\x00-\x08\x0B\x0C\x0E-\x1F]
         // - UTF-16 surrogates (UTF-8 encoded): \xED[\xA0-\xBF][\x80-\xBF]
         // - Non-characters U+FFFE and U+FFFF: \xEF\xBF[\xBE\xBF]
-        $html = preg_replace(
-            '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF][\x80-\xBF]|\xEF\xBF[\xBE\xBF]/',
-            "\xEF\xBF\xBD",
-            $html,
-        ) ?? '';
+        $html = is_string($html)
+            ? (preg_replace(
+                '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF][\x80-\xBF]|\xEF\xBF[\xBE\xBF]/',
+                "\xEF\xBF\xBD",
+                $html,
+            ) ?? '')
+            : '';
 
         $warning = $this->detectIssuesAndRenderWarning($html, $row);
 

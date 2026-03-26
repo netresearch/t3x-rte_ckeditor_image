@@ -31,7 +31,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
     private readonly HtmlParser $htmlParser;
 
     /**
-     * @var array<int, string>
+     * @var string[]
      */
     private array $splitContentTags = [];
 
@@ -76,15 +76,14 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
      *
      * @param string $content The input content to analyse
      *
-     * @return array<string, array<array<string, mixed>>|string>
+     * @return array<int|string, array<string, mixed>>
      */
     private function findImageTags(string $content): array
     {
         // Content split into images and other elements
-        $this->splitContentTags = $this->htmlParser->splitTags(
-            'img',
-            $content,
-        );
+        /** @var string[] $splitResult */
+        $splitResult            = $this->htmlParser->splitTags('img', $content);
+        $this->splitContentTags = $splitResult;
 
         return $this->findImagesWithDataUid();
     }
@@ -118,11 +117,15 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
             }
 
             // Get FAL uid reference
-            $attribs = $this->htmlParser->get_tag_attributes($htmlTag);
-            $fileUid = $attribs[0]['data-htmlarea-file-uid'] ?? false;
-
+            $attribs       = $this->htmlParser->get_tag_attributes($htmlTag);
+            $tagAttributes = is_array($attribs[0] ?? null) ? $attribs[0] : [];
+            $fileUid       = $tagAttributes['data-htmlarea-file-uid'] ?? false;
             // If there is a file uid, continue. Otherwise, ignore this img tag.
             if ($fileUid === false) {
+                continue;
+            }
+
+            if (!is_string($fileUid)) {
                 continue;
             }
 

@@ -45,7 +45,10 @@ final class RteSoftrefEnforcerTest extends UnitTestCase
 
         $listener($event);
 
-        return $event->getTca();
+        /** @var array<string, mixed> $result */
+        $result = $event->getTca();
+
+        return $result;
     }
 
     #[Test]

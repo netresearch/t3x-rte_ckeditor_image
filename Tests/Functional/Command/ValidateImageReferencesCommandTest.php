@@ -37,7 +37,7 @@ class ValidateImageReferencesCommandTest extends FunctionalTestCase
     private function createCommandTester(): CommandTester
     {
         $command = $this->get(ValidateImageReferencesCommand::class);
-        self::assertInstanceOf(ValidateImageReferencesCommand::class, $command);
+        self::assertSame(ValidateImageReferencesCommand::class, $command::class);
 
         return new CommandTester($command);
     }

@@ -336,6 +336,7 @@ class RteImageReferenceValidator
             return $html;
         }
 
+        /** @var string[] $splitContent */
         $splitContent = $this->htmlParser->splitTags('img', $html);
         $changed      = false;
 

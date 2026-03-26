@@ -97,14 +97,12 @@ class ImageRenderingAdapter
     {
         // Get attributes from ContentObjectRenderer (populated by TypoScript tags.img parser)
         $attributes = $this->cObj instanceof ContentObjectRenderer
-            ? ($this->cObj->parameters ?? [])
+            ? $this->cObj->parameters
             : [];
 
         if ($attributes === []) {
             // No attributes - return original content
-            return $this->cObj instanceof ContentObjectRenderer
-                ? ($this->cObj->getCurrentVal() ?? '')
-                : '';
+            return $this->getCurrentValue();
         }
 
         // Skip images without data-htmlarea-file-uid — these are plain <img> tags
@@ -120,9 +118,7 @@ class ImageRenderingAdapter
         $rawFileUid = $attributes['data-htmlarea-file-uid'] ?? '';
         $fileUid    = is_numeric($rawFileUid) ? (int) $rawFileUid : 0;
         if ($fileUid <= 0) {
-            $currentVal = $this->cObj->getCurrentVal();
-
-            return is_string($currentVal) ? $currentVal : '';
+            return $this->getCurrentValue();
         }
 
         // CRITICAL FIX for #546 and #566: Skip processing for images with caption.
@@ -131,19 +127,23 @@ class ImageRenderingAdapter
         // data-htmlarea-file-uid attribute, preventing renderFigure() from resolving
         // the file later.
         if (isset($attributes['data-caption']) && $attributes['data-caption'] !== '') {
-            return $this->cObj instanceof ContentObjectRenderer
-                ? ($this->cObj->getCurrentVal() ?? '')
-                : '';
+            return $this->getCurrentValue();
         }
 
+        // Filter attributes to string values for the resolver
+        /** @var array<string, string> $stringAttributes */
+        $stringAttributes = array_filter(
+            $attributes,
+            static fn ($value, $key): bool => is_string($key) && is_string($value),
+            ARRAY_FILTER_USE_BOTH,
+        );
+
         // Resolve image to validated DTO
-        $dto = $this->resolverService->resolve($attributes, $conf, $request);
+        $dto = $this->resolverService->resolve($stringAttributes, $conf, $request);
 
         if (!$dto instanceof ImageRenderingDto) {
             // Resolution failed - return original content
-            return $this->cObj instanceof ContentObjectRenderer
-                ? ($this->cObj->getCurrentVal() ?? '')
-                : '';
+            return $this->getCurrentValue();
         }
 
         // Render via Fluid templates (passing TypoScript config for template paths)
@@ -343,6 +343,20 @@ class ImageRenderingAdapter
 
         // Reconstruct the <a> wrapper with processed content
         return $this->wrapInLink($processedContent, $linkAttributes);
+    }
+
+    /**
+     * Get the current value from the ContentObjectRenderer as a string.
+     *
+     * @return string The current value, or empty string if unavailable
+     */
+    private function getCurrentValue(): string
+    {
+        $currentVal = $this->cObj instanceof ContentObjectRenderer
+            ? $this->cObj->getCurrentVal()
+            : null;
+
+        return is_string($currentVal) ? $currentVal : '';
     }
 
     /**

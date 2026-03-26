@@ -49,7 +49,8 @@ final class RteImagesDbHookTest extends UnitTestCase
     #[Test]
     public function constructorInitializesWithDependencyInjection(): void
     {
-        self::assertInstanceOf(RteImagesDbHook::class, $this->subject);
+        // Verify the hook was created with the correct type
+        self::assertSame(RteImagesDbHook::class, $this->subject::class);
     }
 
     #[Test]

@@ -12,10 +12,13 @@ use Netresearch\RteCKEditorImage\Database\RteImagesDbHook;
 defined('TYPO3') || exit;
 
 call_user_func(static function (): void {
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][]
-        = RteImagesDbHook::class;
+    // Register DataHandler hook for RTE image processing.
+    // TYPO3 bootstrap guarantees the TYPO3_CONF_VARS structure exists;
+    // @phpstan-var annotations satisfy PHPStan level 10 without runtime guards.
 
-    // Register default RTE preset with image support
-    $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['rteWithImages']
-        = 'EXT:rte_ckeditor_image/Configuration/RTE/rteWithImages.yaml';
+    /** @phpstan-var array{SC_OPTIONS: array<string, array<string, list<class-string>>>, RTE: array{Presets: array<string, string>}} $conf */
+    $conf = &$GLOBALS['TYPO3_CONF_VARS'];
+
+    $conf['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = RteImagesDbHook::class;
+    $conf['RTE']['Presets']['rteWithImages']                                      = 'EXT:rte_ckeditor_image/Configuration/RTE/rteWithImages.yaml';
 });

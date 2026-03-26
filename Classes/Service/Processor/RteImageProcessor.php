@@ -22,6 +22,7 @@ use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\FileProcessingAspect;
 use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
 use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 
 /**
@@ -50,6 +51,14 @@ final readonly class RteImageProcessor implements RteImageProcessorInterface
         private LoggerInterface $logger,
         private bool $fetchExternalImages = false,
     ) {}
+
+    /**
+     * Safely cast a mixed value to int, returning 0 for non-numeric values.
+     */
+    private function toInt(mixed $value): int
+    {
+        return is_numeric($value) ? (int) $value : 0;
+    }
 
     /**
      * Process all img tags in HTML content.
@@ -124,11 +133,11 @@ final readonly class RteImageProcessor implements RteImageProcessorInterface
         $height = $this->parser->getDimension($attributes, 'height');
 
         if ($width === 0 && $originalFile instanceof File) {
-            $width = (int) $originalFile->getProperty('width');
+            $width = $this->toInt($originalFile->getProperty('width'));
         }
 
         if ($height === 0 && $originalFile instanceof File) {
-            $height = (int) $originalFile->getProperty('height');
+            $height = $this->toInt($originalFile->getProperty('height'));
         }
 
         $attributes['width']  = $width;
@@ -148,7 +157,8 @@ final readonly class RteImageProcessor implements RteImageProcessorInterface
         }
 
         // Convert absolute URL to relative
-        $attributes['src'] = $this->builder->makeRelativeSrc((string) $attributes['src'], $siteUrl);
+        $rawSrc            = $attributes['src'] ?? '';
+        $attributes['src'] = $this->builder->makeRelativeSrc(is_string($rawSrc) ? $rawSrc : '', $siteUrl);
 
         return $this->builder->build($attributes);
     }
@@ -162,11 +172,13 @@ final readonly class RteImageProcessor implements RteImageProcessorInterface
      */
     private function resolveOriginalFile(array $attributes): ?File
     {
-        if (!isset($attributes['data-htmlarea-file-uid'])) {
+        $rawUid = $attributes['data-htmlarea-file-uid'] ?? null;
+
+        if ($rawUid === null || !is_numeric($rawUid)) {
             return null;
         }
 
-        $fileUid = (int) $attributes['data-htmlarea-file-uid'];
+        $fileUid = (int) $rawUid;
 
         return $this->fileResolver->resolveByUid($fileUid);
     }
@@ -191,8 +203,8 @@ final readonly class RteImageProcessor implements RteImageProcessorInterface
 
         // Check if image needs processing (dimensions changed)
         if ($absoluteUrl !== $imageFileUrl && $absoluteUrl !== $file->getPublicUrl()) {
-            $width  = (int) $attributes['width'];
-            $height = (int) $attributes['height'];
+            $width  = $this->toInt($attributes['width']);
+            $height = $this->toInt($attributes['height']);
 
             if ($width > 0 && $height > 0) {
                 // Ensure we get a processed file
@@ -205,8 +217,8 @@ final readonly class RteImageProcessor implements RteImageProcessorInterface
 
                     return $this->builder->withProcessedImage(
                         $attributes,
-                        (int) $processedFile->getProperty('width'),
-                        (int) $processedFile->getProperty('height'),
+                        $this->toInt($processedFile->getProperty('width')),
+                        $this->toInt($processedFile->getProperty('height')),
                         $imgSrc ?? '',
                     );
                 }
@@ -293,6 +305,10 @@ final readonly class RteImageProcessor implements RteImageProcessorInterface
 
             $folder = $this->uploadFolderResolver->resolve($backendUser);
 
+            if (!$folder instanceof Folder) {
+                return $attributes;
+            }
+
             $content = $this->externalFetcher->fetch($url);
             if ($content === null) {
                 return [];
@@ -305,8 +321,8 @@ final readonly class RteImageProcessor implements RteImageProcessorInterface
             $createdFile = $folder->createFile($filename);
             $fileObject  = $createdFile->setContents($content);
 
-            $width  = (int) $attributes['width'];
-            $height = (int) $attributes['height'];
+            $width  = $this->toInt($attributes['width']);
+            $height = $this->toInt($attributes['height']);
 
             if ($width > 0 && $height > 0) {
                 $processedFile = $this->fileResolver->processImage($fileObject, $width, $height);
@@ -314,8 +330,8 @@ final readonly class RteImageProcessor implements RteImageProcessorInterface
                 if ($processedFile instanceof ProcessedFile) {
                     return $this->builder->withProcessedImage(
                         $attributes,
-                        (int) $processedFile->getProperty('width'),
-                        (int) $processedFile->getProperty('height'),
+                        $this->toInt($processedFile->getProperty('width')),
+                        $this->toInt($processedFile->getProperty('height')),
                         $processedFile->getPublicUrl() ?? '',
                         $fileObject->getUid(),
                     );
@@ -359,7 +375,7 @@ final readonly class RteImageProcessor implements RteImageProcessorInterface
             // Check for processed file - get original UID
             if ($file->hasProperty('original')) {
                 $originalUid = $file->getProperty('original');
-                if ($originalUid !== null) {
+                if (is_numeric($originalUid)) {
                     $fileUid = (int) $originalUid;
                 }
             }
