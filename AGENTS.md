@@ -4,79 +4,116 @@
 
 # AGENTS.md — TYPO3_12 Branch
 
-**Precedence:** The **closest AGENTS.md** to changed files wins. Root holds global defaults only.
+**Precedence:** the **closest `AGENTS.md`** to the files you're changing wins. Root holds global defaults only.
 
-## Project Overview
+## Commands (verified)
+> Source: composer.json
 
-TYPO3 CKEditor 5 extension that adds FAL (File Abstraction Layer) image support to the rich text editor.
-This is the **maintenance branch** for TYPO3 v12 LTS. Only bug fixes and security patches — no new features.
+| Task | Command | ~Time |
+|------|---------|-------|
+| Typecheck | `composer ci:test:php:phpstan` | ~10s |
+| Lint | `composer ci:test:php:lint` | ~5s |
+| Format | `.Build/bin/php-cs-fixer fix` | ~5s |
+| Rector | `composer ci:test:php:rector` | ~5s |
+| Test (unit) | `composer ci:test:php:unit` | ~5s |
+| Test (functional) | `composer ci:test:php:functional` | ~30s |
+| Test (all) | `composer ci:test` | ~60s |
 
-- **Branch**: `TYPO3_12` (maintenance only)
-- **Package**: `netresearch/rte-ckeditor-image` (Composer) / `rte_ckeditor_image` (TER)
-- **Namespace**: `Netresearch\RteCKEditorImage\`
-- **Repository**: [github.com/netresearch/t3x-rte_ckeditor_image](https://github.com/netresearch/t3x-rte_ckeditor_image)
-- **Tech Stack**: PHP 8.1–8.4, TYPO3 ^12.4, CKEditor 5
-- **License**: AGPL-3.0-or-later
+> If commands fail, verify against `composer.json` scripts section.
 
-## Branch Rules
+## Workflow
+1. **Before coding**: Read nearest `AGENTS.md` + check Golden Samples
+2. **After each change**: Run smallest relevant check (lint → phpstan → single test)
+3. **Before committing**: Run `composer ci:test` if changes affect >2 files
+4. **Before claiming done**: Show test output as evidence
 
-- **Maintenance only**: Bug fixes, security patches, dependency updates. No new features.
-- **Do not backport** architectural changes from `main` (v13+). The v12 branch uses the legacy controller/hook architecture, not the service-based architecture on main.
-- **PHPStan baseline** contains deprecated-class entries that are resolved in v13 but cannot be fixed in v12 (e.g. `AbstractPlugin`, `MagicImageService`, `getPagesTSconfig()`).
+## File Map
+```
+Classes/          -> PHP source (controllers, hooks, utils)
+Configuration/    -> TYPO3 config (Services.yaml, TCA, RTE presets, TypoScript)
+Resources/        -> Fluid templates, XLIFF translations, JS plugin, icons
+Tests/            -> Unit + functional tests
+Build/            -> PHPStan, PHPUnit configs, CI tooling
+.github/workflows -> CI/CD pipelines
+.ddev/            -> Local development environment
+```
 
-## Release Process
+## Golden Samples (follow these patterns)
 
-See [RELEASE.md](RELEASE.md) for the full release workflow including version bumping, PR creation, GitHub release, and distribution verification (Packagist + TER).
+| For | Reference | Key patterns |
+|-----|-----------|--------------|
+| Controller | `Classes/Controller/SelectImageController.php` | PSR-7, FAL access, permission checks |
+| DB Hook | `Classes/Database/RteImagesDbHook.php` | Image processing, soft references |
+| Unit test | `Tests/Unit/Controller/SelectImageControllerTest.php` | Mocking FAL, permission scenarios |
+| Functional test | `Tests/Functional/Controller/SelectImageControllerTest.php` | TYPO3 testing framework |
+| RTE preset | `Configuration/RTE/Default.yaml` | CKEditor 5 YAML config |
 
-**Quick reference:**
-1. Bump version in `ext_emconf.php` via PR to `TYPO3_12`
-2. Wait for CI, merge PR
-3. Create GitHub release: `gh release create vX.Y.Z --target TYPO3_12 --title "vX.Y.Z"`
-4. Credit bug reporters and contributors in release notes
-5. Verify Packagist and TER picked up the release
+## Heuristics (quick decisions)
 
-## Global Rules
+| When | Do |
+|------|-----|
+| Adding PHP class | PSR-4 in `Classes/`, `declare(strict_types=1)`, `final class` |
+| Committing | Conventional Commits: `type(scope): subject` |
+| Merging PRs | Merge commit (squash disabled), delete branch after |
+| Adding dependency | Ask first — must support PHP 8.1+ |
+| Fixing a bug | Backport-safe only — no v13 patterns (no DI, no service architecture) |
+| PHPStan error on deprecated API | Add to baseline if it's a v12-only deprecation, fix if possible |
+| Unsure about pattern | Check Golden Samples above |
 
-- Conventional Commits: `type(scope): subject`
-- Keep PRs small
-- PHPStan with baseline — no new errors allowed
-- `declare(strict_types=1)` in all PHP files except `ext_emconf.php`
-- TYPO3 extensions MUST NOT commit `composer.lock`
+## Repository Settings
+- **Branch**: `TYPO3_12` (maintenance only — bug fixes, security, dependency updates)
+- **Branch protection**: PR + CI required, no direct push
+- **CI matrix**: PHP 8.1 / 8.2 / 8.3 / 8.4 × TYPO3 ^12.4
+- **Merge strategy**: merge commit (squash not allowed)
 
 ## Boundaries
 
 ### Always Do
-
-- Run CI checks before merging: lint, phpstan, rector, unit, functional
+- Run `composer ci:test` before merging
 - Add tests for new code paths
-- Use conventional commit format
+- Use conventional commit format: `type(scope): subject`
 - Validate all user inputs — especially HTML attributes from RTE content
+- Follow PSR-12 + TYPO3 CGL coding standards
+
+### Ask First
+- Adding new Composer dependencies
+- Modifying CI/CD workflows (`.github/workflows/`)
+- Changing public API signatures on controllers or hooks
+- Backporting changes from `main` branch
 
 ### Never Do
+- Push directly to `TYPO3_12` (branch protection)
+- Add new features (maintenance branch only)
+- Introduce dependencies requiring PHP >8.4
+- Add `declare(strict_types=1)` to `ext_emconf.php` (breaks TER)
+- Commit `.Build/vendor/`, `node_modules/`, or `composer.lock`
+- Backport service-based architecture from `main` (v13+)
 
-- Push directly to `TYPO3_12` (branch protection requires PR + CI)
-- Add new features (maintenance branch)
-- Introduce dependencies not available for PHP 8.1
-- Add `declare(strict_types=1)` to `ext_emconf.php`
-- Commit `.Build/vendor/`, `node_modules/`, or generated files
+## Codebase State
+- **PHPStan baseline**: 9 deprecated-class entries (resolved in v13, unfixable in v12): `AbstractPlugin`, `MagicImageService`, `getPagesTSconfig()`
+- **Architecture**: Legacy controller/hook pattern (v13+ uses service-based architecture — do not backport)
+- **No EventListener**: v12 branch uses `ext_localconf.php` hooks, not PSR-14 events for rendering
 
-## Commands
+## Terminology
 
-```bash
-composer ci:test                # All checks: lint, phpstan, rector, unit, functional
-composer ci:test:php:lint       # PHP syntax check
-composer ci:test:php:phpstan    # PHPStan analysis
-composer ci:test:php:rector     # Rector dry-run
-composer ci:test:php:unit       # Unit tests
-composer ci:test:php:functional # Functional tests (needs typo3DatabaseDriver=pdo_sqlite)
-```
+| Term | Means |
+|------|-------|
+| FAL | File Abstraction Layer — TYPO3's file management API |
+| TER | TYPO3 Extension Repository — public extension registry |
+| RTE | Rich Text Editor (CKEditor 5 in TYPO3 v12+) |
+| parseFunc_RTE | TypoScript function that processes RTE HTML output for frontend |
+| Magic Image | Legacy TYPO3 concept for auto-processed images in RTE |
 
-## CI Matrix
+## Release Process
 
-PHP 8.1 / 8.2 / 8.3 / 8.4 on TYPO3 ^12.4 (4 combinations).
+See [RELEASE.md](RELEASE.md): bump `ext_emconf.php` via PR → merge → `gh release create` → verify Packagist + TER.
 
-## When Instructions Conflict
+## Index of scoped AGENTS.md
 
-Nearest AGENTS.md wins. User prompts override files.
+- `./Classes/AGENTS.md` — PHP source: controllers, hooks, utilities, coding patterns
+- `./Tests/AGENTS.md` — Testing: unit, functional, PHPStan, test conventions
+
+## When instructions conflict
+The nearest `AGENTS.md` wins. Explicit user prompts override files.
 - For PHP patterns, follow PSR-12 + TYPO3 CGL
 - This branch follows TYPO3 v12 conventions, not v13+
