@@ -63,7 +63,7 @@ Build/            -> PHPStan, PHPUnit configs, CI tooling
 ## Repository Settings
 - **Branch**: `TYPO3_12` (maintenance only — bug fixes, security, dependency updates)
 - **Branch protection**: PR + CI required, no direct push
-- **CI matrix**: PHP 8.1 / 8.2 / 8.3 / 8.4 × TYPO3 ^12.4
+- **CI matrix**: PHP 8.1 / 8.2 / 8.3 / 8.4 × TYPO3 ^12.4 (ext_emconf.php declares 8.1.0–8.9.99 for forward compat, CI tests 8.1–8.4)
 - **Merge strategy**: merge commit (squash not allowed)
 
 ## Boundaries
@@ -106,7 +106,7 @@ Build/            -> PHPStan, PHPUnit configs, CI tooling
 
 ## Release Process
 
-See [RELEASE.md](RELEASE.md): bump `ext_emconf.php` via PR → merge → `gh release create` → verify Packagist + TER.
+See [RELEASE.md](RELEASE.md): bump `ext_emconf.php` via PR → merge → `gh release create vX.Y.Z --target TYPO3_12 --title "vX.Y.Z" --notes "..."` → verify Packagist + TER.
 
 ## Index of scoped AGENTS.md
 

@@ -15,10 +15,10 @@ Check unreleased commits since the last tag:
 
 ```bash
 # For TYPO3_12 branch:
-git log v12.0.X..origin/TYPO3_12 --oneline
+git log $(git tag --list 'v12.0.*' --sort=-v:refname | head -n 1)..origin/TYPO3_12 --oneline
 
 # For main branch:
-git log v13.X.X..origin/main --oneline
+git log $(git tag --list 'v13.*' --sort=-v:refname | head -n 1)..origin/main --oneline
 ```
 
 ### 2. Bump Version
@@ -26,7 +26,7 @@ git log v13.X.X..origin/main --oneline
 Update `ext_emconf.php` with the new version number:
 
 ```php
-'version' => '12.0.11',  // or 13.x.x for main
+'version' => '12.0.X',  // or 13.X.Y for main
 ```
 
 This is the **only** file that needs a version bump. Composer resolves version from the git tag.
@@ -41,7 +41,7 @@ git checkout -b chore/bump-version-X.Y.Z
 git add ext_emconf.php
 git commit -m "chore: bump version to X.Y.Z"
 git push -u origin chore/bump-version-X.Y.Z
-gh pr create --base TYPO3_12 --title "chore: bump version to X.Y.Z" --body "Bump version for release"
+gh pr create --base <branch> --title "chore: bump version to X.Y.Z" --body "Bump version for release"
 ```
 
 Wait for CI to pass (build matrix: PHP 8.1/8.2/8.3/8.4 on TYPO3_12, PHP 8.2–8.5 on main), then merge:
@@ -53,8 +53,10 @@ gh pr merge <number> --merge --delete-branch
 ### 4. Create GitHub Release
 
 ```bash
-gh release create vX.Y.Z --target <branch> --title "vX.Y.Z" --notes "release notes"
+gh release create vX.Y.Z --target <branch> --title "vX.Y.Z" --notes-file release-notes.md
 ```
+
+Write release notes to a temporary file using the template below, then pass it with `--notes-file`. Alternatively, omit `--notes-file` to open an editor interactively.
 
 #### Release Notes Template
 
