@@ -104,10 +104,13 @@ class ImageRenderingController extends AbstractPlugin
 
                     // check if there is a processed variant, if not, create one
                     /** @var ProcessedFilesHandler $processedHandler */
-                    $processedHandler   = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
+                    $processedHandler = GeneralUtility::makeInstance(ProcessedFilesHandler::class);
+                    $widthValue       = $imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0;
+                    $heightValue      = $imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0;
+
                     $imageConfiguration = [
-                        'width'  => (int) ($imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0),
-                        'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
+                        'width'  => is_numeric($widthValue) ? (int) $widthValue : 0,
+                        'height' => is_numeric($heightValue) ? (int) $heightValue : 0,
                     ];
                     $processedFile = $processedHandler->createProcessedFile($systemImage, $imageConfiguration);
 
@@ -177,7 +180,7 @@ class ImageRenderingController extends AbstractPlugin
         }
 
         // Ensure all attributes are strings for implodeAttributes
-        $stringAttributes = array_map(fn ($value): string => (string) $value, $imageAttributes);
+        $stringAttributes = array_map(static fn (mixed $value): string => is_scalar($value) ? (string) $value : '', $imageAttributes);
 
         // Image template; empty attributes are removed by 3rd param 'false'
         $img = '<img ' . GeneralUtility::implodeAttributes($stringAttributes, true) . ' />';
@@ -251,10 +254,9 @@ class ImageRenderingController extends AbstractPlugin
 
             // Get RTE configuration
 
-            /** @var array<string, mixed[]> $pageTSConfig */
             $pageTSConfig = $this->frontendController->getPagesTSconfig();
 
-            if (is_array($pageTSConfig['RTE.']['default.'])) {
+            if (is_array($pageTSConfig['RTE.']['default.'] ?? null)) {
                 $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
             }
         }
@@ -302,6 +304,8 @@ class ImageRenderingController extends AbstractPlugin
      */
     protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
-        return (string) ($attributes[$attributeName] ?? $image->getProperty($attributeName));
+        $value = $attributes[$attributeName] ?? $image->getProperty($attributeName);
+
+        return is_scalar($value) ? (string) $value : '';
     }
 }

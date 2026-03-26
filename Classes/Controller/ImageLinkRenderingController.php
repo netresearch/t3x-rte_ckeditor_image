@@ -76,7 +76,8 @@ class ImageLinkRenderingController extends AbstractPlugin
     public function renderImages(?string $content, array $conf = []): string
     {
         // Get link inner HTML
-        $linkContent = $this->cObj instanceof ContentObjectRenderer ? $this->cObj->getCurrentVal() : null;
+        $linkContentRaw = $this->cObj instanceof ContentObjectRenderer ? $this->cObj->getCurrentVal() : null;
+        $linkContent    = is_string($linkContentRaw) ? $linkContentRaw : '';
 
         // Find all images with file-uid attribute
         // SECURITY: Use atomic groups to prevent ReDoS attacks via catastrophic backtracking
@@ -93,7 +94,7 @@ class ImageLinkRenderingController extends AbstractPlugin
         ini_set('pcre.recursion_limit', '100000');
 
         // Extract all TYPO3 images from link content
-        preg_match_all($imgSearchPattern, (string) $linkContent, $passedImages);
+        preg_match_all($imgSearchPattern, $linkContent, $passedImages);
 
         $passedImages = $passedImages[0];
 
@@ -140,9 +141,12 @@ class ImageLinkRenderingController extends AbstractPlugin
                             throw new FileDoesNotExistException();
                         }
 
+                        $widthValue  = $imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0;
+                        $heightValue = $imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0;
+
                         $imageConfiguration = [
-                            'width'  => (int) ($imageAttributes['width'] ?? $systemImage->getProperty('width') ?? 0),
-                            'height' => (int) ($imageAttributes['height'] ?? $systemImage->getProperty('height') ?? 0),
+                            'width'  => is_numeric($widthValue) ? (int) $widthValue : 0,
+                            'height' => is_numeric($heightValue) ? (int) $heightValue : 0,
                         ];
 
                         $processedFile = $this->getMagicImageService()
@@ -181,7 +185,7 @@ class ImageLinkRenderingController extends AbstractPlugin
                         $imageAttributes = array_diff_key($imageAttributes, array_flip($unsetParams));
 
                         // Ensure all attributes are strings for implodeAttributes
-                        $stringAttributes = array_map(fn ($value): string => (string) $value, $imageAttributes);
+                        $stringAttributes = array_map(static fn (mixed $value): string => is_scalar($value) ? (string) $value : '', $imageAttributes);
 
                         // Image template; empty attributes are removed by 3rd param 'false'
                         $parsedImages[] = '<img ' . GeneralUtility::implodeAttributes($stringAttributes, true) . ' />';
@@ -207,7 +211,7 @@ class ImageLinkRenderingController extends AbstractPlugin
         // Replace original images with parsed
         $result = str_replace($passedImages, $parsedImages, $linkContent);
 
-        return is_string($result) ? $result : (string) $linkContent;
+        return is_string($result) ? $result : $linkContent;
     }
 
     /**
@@ -270,10 +274,9 @@ class ImageLinkRenderingController extends AbstractPlugin
 
             // Get RTE configuration
 
-            /** @var array<string, mixed[]> $pageTSConfig */
             $pageTSConfig = $this->frontendController->getPagesTSconfig();
 
-            if (is_array($pageTSConfig['RTE.']['default.'])) {
+            if (is_array($pageTSConfig['RTE.']['default.'] ?? null)) {
                 $magicImageService->setMagicImageMaximumDimensions($pageTSConfig['RTE.']['default.']);
             }
         }
@@ -301,7 +304,9 @@ class ImageLinkRenderingController extends AbstractPlugin
      */
     protected function getAttributeValue(string $attributeName, array $attributes, File $image): string
     {
-        return (string) ($attributes[$attributeName] ?? $image->getProperty($attributeName));
+        $value = $attributes[$attributeName] ?? $image->getProperty($attributeName);
+
+        return is_scalar($value) ? (string) $value : '';
     }
 
     /**

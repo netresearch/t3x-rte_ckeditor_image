@@ -45,6 +45,7 @@ use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\Exception\ResourceDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Service\MagicImageService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -286,9 +287,11 @@ class RteImagesDbHook
         $resourceFactory   = GeneralUtility::makeInstance(ResourceFactory::class);
         $magicImageService = GeneralUtility::makeInstance(MagicImageService::class);
 
+        $fileUid = $attribArray['data-htmlarea-file-uid'];
+
         try {
             $originalImageFile = $resourceFactory
-                ->getFileObject((int) $attribArray['data-htmlarea-file-uid']);
+                ->getFileObject(is_numeric($fileUid) ? (int) $fileUid : 0);
         } catch (FileDoesNotExistException $exception) {
             if ($this->logger instanceof LoggerInterface) {
                 $this->logger->error(
@@ -338,7 +341,7 @@ class RteImagesDbHook
      * @param string $styleAttribute The image style attribute
      * @param string $imageAttribute The image attribute to match in the style attribute (e.g. width, height)
      *
-     * @return mixed|null
+     * @return string|null
      */
     private function matchStyleAttribute(string $styleAttribute, string $imageAttribute): ?string
     {
@@ -356,14 +359,15 @@ class RteImagesDbHook
      * Extracts the given image attribute value from the image tag attributes. If a style attribute
      * exists the information is extracted from this one.
      *
-     * @param string[] $attributes     The attributes of the image tag
-     * @param string   $imageAttribute The image attribute to extract (e.g. width, height)
+     * @param array<string, mixed> $attributes     The attributes of the image tag
+     * @param string               $imageAttribute The image attribute to extract (e.g. width, height)
      *
-     * @return mixed|null
+     * @return string|int|null
      */
-    private function extractFromAttributeValueOrStyle(array $attributes, string $imageAttribute)
+    private function extractFromAttributeValueOrStyle(array $attributes, string $imageAttribute): string|int|null
     {
-        $style = trim($attributes['style'] ?? '');
+        $styleRaw = $attributes['style'] ?? '';
+        $style    = is_string($styleRaw) ? trim($styleRaw) : '';
 
         if ($style !== '') {
             $value = $this->matchStyleAttribute($style, $imageAttribute);
@@ -375,33 +379,43 @@ class RteImagesDbHook
         }
 
         // Returns value from tag attributes
-        return $attributes[$imageAttribute] ?? null;
+        $attrValue = $attributes[$imageAttribute] ?? null;
+
+        if (is_int($attrValue) || is_string($attrValue)) {
+            return $attrValue;
+        }
+
+        return null;
     }
 
     /**
      * Returns the width of the image from the image tag attributes. If a style attribute exists
      * the information is extracted from this one.
      *
-     * @param string[] $attributes The attributes of the image tag
+     * @param array<string, mixed> $attributes The attributes of the image tag
      *
      * @return int
      */
     private function getImageWidthFromAttributes(array $attributes): int
     {
-        return (int) $this->extractFromAttributeValueOrStyle($attributes, 'width');
+        $value = $this->extractFromAttributeValueOrStyle($attributes, 'width');
+
+        return is_numeric($value) ? (int) $value : 0;
     }
 
     /**
      * Returns the height of the image from the image tag attributes. If a style attribute exists
      * the information is extracted from this one.
      *
-     * @param string[] $attributes The attributes of the image tag
+     * @param array<string, mixed> $attributes The attributes of the image tag
      *
      * @return int
      */
     private function getImageHeightFromAttributes(array $attributes): int
     {
-        return (int) $this->extractFromAttributeValueOrStyle($attributes, 'height');
+        $value = $this->extractFromAttributeValueOrStyle($attributes, 'height');
+
+        return is_numeric($value) ? (int) $value : 0;
     }
 
     /**
@@ -443,7 +457,7 @@ class RteImagesDbHook
                 continue;
             }
 
-            if ($fieldValue === null) {
+            if (!is_string($fieldValue)) {
                 continue;
             }
 
@@ -524,11 +538,13 @@ class RteImagesDbHook
                 // If empty image dimensions but file exists, take file dimensions
                 if ($originalImageFile instanceof File) {
                     if ($imageWidth === 0) {
-                        $imageWidth = $originalImageFile->getProperty('width');
+                        $rawWidth   = $originalImageFile->getProperty('width');
+                        $imageWidth = is_numeric($rawWidth) ? (int) $rawWidth : 0;
                     }
 
                     if ($imageHeight === 0) {
-                        $imageHeight = $originalImageFile->getProperty('height');
+                        $rawHeight   = $originalImageFile->getProperty('height');
+                        $imageHeight = is_numeric($rawHeight) ? (int) $rawHeight : 0;
                     }
                 }
 
@@ -611,8 +627,16 @@ class RteImagesDbHook
                         $requestFactory = GeneralUtility::makeInstance(RequestFactory::class);
 
                         $parsedUrl = parse_url($absoluteUrl);
-                        $host      = $parsedUrl['host'];
-                        $port      = $parsedUrl['port'] ?? (($parsedUrl['scheme'] ?? 'http') === 'https' ? 443 : 80);
+                        if (!is_array($parsedUrl)) {
+                            continue;
+                        }
+
+                        if (!isset($parsedUrl['host'])) {
+                            continue;
+                        }
+
+                        $host = $parsedUrl['host'];
+                        $port = $parsedUrl['port'] ?? (($parsedUrl['scheme'] ?? 'http') === 'https' ? 443 : 80);
 
                         $response = $requestFactory->request($absoluteUrl, 'GET', [
                             'timeout'         => 5,
@@ -667,8 +691,13 @@ class RteImagesDbHook
                             // We insert this image into the user default upload folder
                             $uploadFolderResolver = GeneralUtility::makeInstance(DefaultUploadFolderResolver::class);
                             $folder               = $uploadFolderResolver->resolve($GLOBALS['BE_USER']);
-                            $fileObject           = $folder->createFile($fileName)->setContents($externalFile);
-                            $imageConfiguration   = [
+
+                            if (!$folder instanceof Folder) {
+                                continue;
+                            }
+
+                            $fileObject         = $folder->createFile($fileName)->setContents($externalFile);
+                            $imageConfiguration = [
                                 'width'  => $attribArray['width'],
                                 'height' => $attribArray['height'],
                             ];

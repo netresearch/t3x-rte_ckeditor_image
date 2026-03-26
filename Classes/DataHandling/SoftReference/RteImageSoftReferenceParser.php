@@ -78,7 +78,7 @@ class RteImageSoftReferenceParser extends AbstractSoftReferenceParser
      *
      * @param string $content The input content to analyse
      *
-     * @return array<string, array<array<string, mixed>>|string>
+     * @return array<array<string, mixed>>
      */
     private function findImageTags(string $content): array
     {
