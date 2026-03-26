@@ -90,6 +90,18 @@ After creating the GitHub release, verify availability:
 
 Both should pick up the new version within minutes.
 
+## CI/CD Workflows
+
+| Workflow | File | Triggers | Purpose |
+|----------|------|----------|---------|
+| **CI** | `.github/workflows/ci.yml` | Push + PR to `TYPO3_12` | Build matrix: lint, CGL, PHPStan, Rector, unit tests, functional tests, coverage |
+| **PR Quality Gates** | `.github/workflows/pr-quality.yml` | PR to `TYPO3_12` | Auto-approve for solo maintainer |
+| **Publish to TER** | `.github/workflows/publish-to-ter.yml` | GitHub release published | Uploads extension to TER via API |
+| **CodeQL** | `.github/workflows/codeql-analysis.yml` | Push + PR + weekly schedule | Security analysis |
+| **Add to Project** | `.github/workflows/add-to-project.yml` | Issue opened | Adds issues to project board |
+
+The required status check for branch protection is **"Build ✓"** (the `build-summary` job in `ci.yml`).
+
 ## Versioning Scheme
 
 - **TYPO3_12 branch**: `12.0.X` (patch only, maintenance releases)
