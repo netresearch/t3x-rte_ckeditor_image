@@ -137,7 +137,7 @@ parameters:
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
-			message: "#^Parameter \\#1 \\$attributes of method Netresearch\\\\RteCKEditorImage\\\\Database\\\\RteImagesDbHook\\:\\:getImageWidthFromAttributes\\(\\) expects array\\<string\\>, array\\<string, mixed\\> given\\.$#"
+			message: "#^PHPDoc tag @return with type mixed is not subtype of native type string\\|null\\.$#"
 			count: 1
 			path: ../Classes/Database/RteImagesDbHook.php
 
@@ -147,7 +147,7 @@ parameters:
 			path: ../Classes/Database/RteImagesDbHook.php
 
 		-
-			message: "#^PHPDoc tag @return with type mixed is not subtype of native type string\\|null\\.$#"
+			message: "#^Parameter \\#1 \\$attributes of method Netresearch\\\\RteCKEditorImage\\\\Database\\\\RteImagesDbHook\\:\\:getImageWidthFromAttributes\\(\\) expects array\\<string\\>, array\\<string, mixed\\> given\\.$#"
 			count: 1
 			path: ../Classes/Database/RteImagesDbHook.php
 
@@ -210,3 +210,8 @@ parameters:
 			message: "#^Cannot call method updateIndex\\(\\) on mixed\\.$#"
 			count: 1
 			path: ../Tests/Functional/DataHandling/RteImageSoftReferenceParserTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Netresearch\\\\RteCKEditorImage\\\\Tests\\\\Unit\\\\Controller\\\\SelectImageControllerTest\\:\\:invokeMethod\\(\\) expects object, Netresearch\\\\RteCKEditorImage\\\\Controller\\\\SelectImageController\\|null given\\.$#"
+			count: 5
+			path: ../Tests/Unit/Controller/SelectImageControllerTest.php
