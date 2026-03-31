@@ -14,21 +14,21 @@ permissions: {}
 jobs:
   stale:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    uses: netresearch/typo3-ci-workflows/.github/workflows/stale.yml@main
+    uses: netresearch/.github/.github/workflows/stale.yml@f87ee244a6e0d78c24e0bd58794563ab8d916943 # main
     permissions:
       issues: write
       pull-requests: write
 
   lock:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    uses: netresearch/typo3-ci-workflows/.github/workflows/lock.yml@main
+    uses: netresearch/.github/.github/workflows/lock.yml@f87ee244a6e0d78c24e0bd58794563ab8d916943 # main
     permissions:
       issues: write
       pull-requests: write
 
   greetings:
     if: github.event_name == 'issues' || github.event_name == 'pull_request_target'
-    uses: netresearch/typo3-ci-workflows/.github/workflows/greetings.yml@main
+    uses: netresearch/.github/.github/workflows/greetings.yml@f87ee244a6e0d78c24e0bd58794563ab8d916943 # main
     permissions:
       issues: write
       pull-requests: write

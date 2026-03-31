@@ -46,7 +46,7 @@ jobs:
 
   scorecard:
     if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == github.event.repository.default_branch)
-    uses: netresearch/typo3-ci-workflows/.github/workflows/scorecard.yml@main
+    uses: netresearch/.github/.github/workflows/scorecard.yml@f87ee244a6e0d78c24e0bd58794563ab8d916943 # main
     permissions:
       contents: read
       security-events: write
@@ -55,14 +55,14 @@ jobs:
 
   dependency-review:
     if: github.event_name == 'pull_request'
-    uses: netresearch/typo3-ci-workflows/.github/workflows/dependency-review.yml@main
+    uses: netresearch/.github/.github/workflows/dependency-review.yml@f87ee244a6e0d78c24e0bd58794563ab8d916943 # main
     permissions:
       contents: read
       pull-requests: write
 
   pr-quality:
     if: github.event_name == 'pull_request'
-    uses: netresearch/typo3-ci-workflows/.github/workflows/pr-quality.yml@main
+    uses: netresearch/.github/.github/workflows/pr-quality.yml@f87ee244a6e0d78c24e0bd58794563ab8d916943 # main
     permissions:
       contents: read
       pull-requests: write
