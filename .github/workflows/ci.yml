@@ -10,6 +10,7 @@ on:
 
 permissions: {}
 
+# Verify TYPO3 v14.2 compatibility
 jobs:
   ci:
     uses: netresearch/typo3-ci-workflows/.github/workflows/ci.yml@main
