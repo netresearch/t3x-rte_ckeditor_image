@@ -30,6 +30,7 @@
 /CONTRIBUTING.md    export-ignore
 /Contributors.md    export-ignore
 /SECURITY.md        export-ignore
+/captainhook.json   export-ignore
 /codecov.yml        export-ignore
 /commitlint.config.js export-ignore
 /composer.json.testing export-ignore
@@ -37,6 +38,7 @@
 /crowdin.yml        export-ignore
 /infection.json5    export-ignore
 /package.json       export-ignore
+/package-lock.json  export-ignore
 /phpunit.xml        export-ignore
 /renovate.json      export-ignore
 /vex.json           export-ignore
