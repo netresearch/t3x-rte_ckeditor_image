@@ -42,12 +42,7 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
 
     public function __construct(
         private readonly ?RteImageReferenceValidator $validator = null,
-    ) {
-        // TYPO3 v14+ added a constructor to StandardContentPreviewRenderer
-        if (method_exists(parent::class, '__construct')) {
-            parent::__construct();
-        }
-    }
+    ) {}
 
     /**
      * Dedicated method for rendering preview body HTML for the page module only.
