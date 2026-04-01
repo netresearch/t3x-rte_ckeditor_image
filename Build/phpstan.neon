@@ -46,6 +46,13 @@ parameters:
         - identifier: instanceof.alwaysTrue
           path: %currentWorkingDirectory%/Classes/Service/Processor/RteImageProcessor.php
           reportUnmatched: false
+        # TYPO3 v14 added a constructor to StandardContentPreviewRenderer that uses
+        # GeneralUtility::makeInstance() internally — calling it breaks unit tests.
+        # The parent class calls initialize() as fallback in each method.
+        -
+          message: '#does not call parent constructor from TYPO3\\\\CMS\\\\Backend\\\\Preview\\\\StandardContentPreviewRenderer#'
+          path: %currentWorkingDirectory%/Classes/Backend/Preview/RteImagePreviewRenderer.php
+          reportUnmatched: false
         # Tests intentionally call deprecated renderInlineLink() for backward-compatibility coverage
         - identifier: method.deprecated
           path: %currentWorkingDirectory%/Tests/Unit/Controller/ImageRenderingAdapterTest.php
