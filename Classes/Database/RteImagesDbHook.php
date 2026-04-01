@@ -129,7 +129,7 @@ class RteImagesDbHook
 
         $recordType = BackendUtility::getTCAtypeValue($table, $dataHandler->checkValue_currentRecord);
 
-        $columnsOverrides = $this->getNestedArray(
+        $columnsOverrides = $recordType !== null ? $this->getNestedArray(
             $GLOBALS['TCA'] ?? null,
             $table,
             'types',
@@ -137,7 +137,7 @@ class RteImagesDbHook
             'columnsOverrides',
             $field,
             'config',
-        );
+        ) : [];
 
         if ($columnsOverrides !== []) {
             ArrayUtility::mergeRecursiveWithOverrule($tcaFieldConf, $columnsOverrides);
