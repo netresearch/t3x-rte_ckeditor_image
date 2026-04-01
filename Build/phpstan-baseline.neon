@@ -1,2 +1,10 @@
 parameters:
-	ignoreErrors: []
+	ignoreErrors:
+		# TYPO3 v14 added a constructor to StandardContentPreviewRenderer that uses
+		# GeneralUtility::makeInstance() internally. Calling it breaks unit tests
+		# (no DI container). The parent class calls initialize() as a fallback in
+		# each public method, so not calling the parent constructor is safe.
+		-
+			message: '#does not call parent constructor from TYPO3\\\\CMS\\\\Backend\\\\Preview\\\\StandardContentPreviewRenderer#'
+			path: ../Classes/Backend/Preview/RteImagePreviewRenderer.php
+			reportUnmatched: false
