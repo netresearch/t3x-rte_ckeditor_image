@@ -936,4 +936,146 @@ class RteImageReferenceValidatorTest extends TestCase
 
         self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
     }
+
+    // -------------------------------------------------------------------------
+    // Leading-slash normalization (#778)
+    //
+    // TYPO3's File::getPublicUrl() returns a site-root-relative path WITHOUT a
+    // leading slash (e.g. "fileadmin/image.jpg") for the Local driver. The RTE
+    // stores the src with a leading slash (e.g. "/fileadmin/image.jpg"). Both
+    // forms refer to the same resource and must be treated as equivalent. Fixes
+    // must always write the leading-slash form so rendering does not break.
+    // -------------------------------------------------------------------------
+
+    #[Test]
+    public function leadingSlashSrcMatchesSlashlessPublicUrl(): void
+    {
+        // Real TYPO3 v13 behavior: getPublicUrl() returns path WITHOUT leading slash
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('fileadmin/image.jpg');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(1)
+            ->willReturn($file);
+
+        // Stored src has leading slash — must be considered equivalent
+        $html = '<p><img data-htmlarea-file-uid="1" src="/fileadmin/image.jpg" alt="test" /></p>';
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 1, 'bodytext');
+
+        self::assertSame([], $issues, 'Leading-slash src must match slashless publicUrl');
+    }
+
+    #[Test]
+    public function slashlessSrcStillMatchesSlashlessPublicUrl(): void
+    {
+        // Ensure backwards compatibility: slashless form must also still match
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('fileadmin/image.jpg');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(1)
+            ->willReturn($file);
+
+        $html = '<p><img data-htmlarea-file-uid="1" src="fileadmin/image.jpg" /></p>';
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 1, 'bodytext');
+
+        self::assertSame([], $issues, 'Slashless src must still match slashless publicUrl');
+    }
+
+    #[Test]
+    public function processedImageExpectedSrcAlwaysHasLeadingSlash(): void
+    {
+        // getPublicUrl() returns slashless form; expectedSrc must be normalized
+        // to leading-slash form so the fix does not break rendering.
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('fileadmin/images/dummy.jpg');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(9)
+            ->willReturn($file);
+
+        $html = '<p><img data-htmlarea-file-uid="9" '
+            . 'src="/fileadmin/_processed_/3/4/csm_dummy_abc123.jpg" /></p>';
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 1, 'bodytext');
+
+        self::assertCount(1, $issues);
+        self::assertSame(ValidationIssueType::ProcessedImageSrc, $issues[0]->type);
+        self::assertSame(
+            '/fileadmin/images/dummy.jpg',
+            $issues[0]->expectedSrc,
+            'expectedSrc must carry leading slash even when publicUrl lacks one',
+        );
+    }
+
+    #[Test]
+    public function brokenSrcExpectedSrcAlwaysHasLeadingSlash(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('fileadmin/banner.png');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(2)
+            ->willReturn($file);
+
+        $html = '<p><img data-htmlarea-file-uid="2" src="" alt="broken" /></p>';
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 5, 'bodytext');
+
+        self::assertCount(1, $issues);
+        self::assertSame(ValidationIssueType::BrokenSrc, $issues[0]->type);
+        self::assertSame('/fileadmin/banner.png', $issues[0]->expectedSrc);
+    }
+
+    #[Test]
+    public function srcMismatchExpectedSrcAlwaysHasLeadingSlash(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('fileadmin/new-location/photo.jpg');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(5)
+            ->willReturn($file);
+
+        $html = '<p><img data-htmlarea-file-uid="5" '
+            . 'src="/fileadmin/old-location/photo.jpg" /></p>';
+
+        $issues = $this->subject->validateHtml($html, 'tt_content', 10, 'bodytext');
+
+        self::assertCount(1, $issues);
+        self::assertSame(ValidationIssueType::SrcMismatch, $issues[0]->type);
+        self::assertSame('/fileadmin/new-location/photo.jpg', $issues[0]->expectedSrc);
+    }
+
+    #[Test]
+    public function applyFixesPreservesLeadingSlashWhenReplacingProcessedSrc(): void
+    {
+        // Regression #778: the fix path must write a leading-slash form
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::ProcessedImageSrc,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 9,
+                currentSrc: '/fileadmin/_processed_/3/4/csm_dummy_abc123.jpg',
+                expectedSrc: '/fileadmin/images/dummy.jpg',
+                imgIndex: 0,
+            ),
+        ];
+
+        $html = '<p><img data-htmlarea-file-uid="9" '
+            . 'src="/fileadmin/_processed_/3/4/csm_dummy_abc123.jpg" /></p>';
+        $expected = '<p><img data-htmlarea-file-uid="9" '
+            . 'src="/fileadmin/images/dummy.jpg" /></p>';
+
+        self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
+    }
 }
