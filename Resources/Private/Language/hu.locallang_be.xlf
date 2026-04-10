@@ -14,7 +14,8 @@
 			<target state="final">Magasság</target></trans-unit>
       <trans-unit id="labels.ckeditor.title" xml:space="preserve" approved="yes">
 				<source>Advisory Title</source>
-			<target state="final">Tanácsadó cím</target></trans-unit>
+				
+			<target state="final">Tanácsadó cím</target><note>Refers to the HTML title attribute (tooltip on hover). Standard CKEditor/web terminology.</note></trans-unit>
       <trans-unit id="labels.ckeditor.alt" xml:space="preserve" approved="yes">
 				<source>Alternative Text</source>
 			<target state="final">Alternatív szöveg</target></trans-unit>
@@ -23,7 +24,8 @@
 			<target state="final">Kattintson a nagyításhoz</target></trans-unit>
       <trans-unit id="labels.ckeditor.enabled" xml:space="preserve" approved="yes">
 				<source>Enabled</source>
-			<target state="final">Engedélyezve</target></trans-unit>
+				
+			<target state="final">Engedélyezve</target><note>State label for a toggle checkbox enabling click-to-enlarge. Use adjective (enabled/activated), not verb.</note></trans-unit>
       <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve" approved="yes">
 				<source>Skip Image Processing</source>
 			<target state="final">Képfeldolgozás kihagyása</target></trans-unit>
@@ -32,16 +34,23 @@
 			<target state="final">Kép tulajdonságai</target></trans-unit>
       <trans-unit id="labels.ckeditor.cancel" xml:space="preserve" approved="yes">
 				<source>Cancel</source>
-			<target state="final">Mégsem</target></trans-unit>
+				
+			<target state="final">Mégsem</target><note>Button label to close the image properties dialog without saving.</note></trans-unit>
       <trans-unit id="labels.ckeditor.save" xml:space="preserve" approved="yes">
 				<source>Save</source>
-			<target state="final">Mentés</target></trans-unit>
+				
+			<target state="final">Mentés</target><note>Button label to apply changes in the image properties dialog.</note></trans-unit>
       <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve" approved="yes">
 				<source>Insert image</source>
 			<target state="final">Kép beszúrása</target></trans-unit>
+      <trans-unit id="labels.ckeditor.editimage" xml:space="preserve">
+				<source>Edit image</source>
+				
+			<target state="translated">Kép szerkesztése</target><note>Toolbar button label shown when an existing image is selected for editing.</note></trans-unit>
       <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve" approved="yes">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-			<target state="final">Nincs elérhető alapértelmezett %s a fájl metaadataiban. Nem lehet felülírni az üres értéket.</target></trans-unit>
+				
+			<target state="final">Nincs elérhető alapértelmezett %s a fájl metaadataiban. Nem lehet felülírni az üres értéket.</target><note>Warning when file metadata is empty. %s is replaced with the field name (e.g. "title", "alt text"). Preserve the %s placeholder.</note></trans-unit>
       <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve" approved="yes">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
 			<target state="final">Engedélyezi a kattintással nagyítás/lightbox funkciót. Az alapértelmezett felugró ablak konfigurációja automatikusan biztosított. Lásd a dokumentációt az egyéni lightbox könyvtár integrációjához.</target></trans-unit>
@@ -53,7 +62,8 @@
 			<target state="final">Kép minősége</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve" approved="yes">
 				<source>No Scaling</source>
-			<target state="final">Nincs méretezés</target></trans-unit>
+				
+			<target state="final">Nincs méretezés</target><note>Dropdown option: image will not be resized, uses original dimensions.</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve" approved="yes">
 				<source>Standard (1.0x)</source>
 				
@@ -68,10 +78,12 @@
 			<target state="final">Ultra (3.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve" approved="yes">
 				<source>Print (6.0x)</source>
-			<target state="final">Nyomtatás (6.0x)</target></trans-unit>
+				
+			<target state="final">Nyomtatás (6.0x)</target><note>Dropdown option for print-quality scaling (noun, not the verb "to print"). Preserve the multiplier in parentheses.</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve" approved="yes">
 				<source>Low</source>
-			<target state="final">Alacsony</target></trans-unit>
+				
+			<target state="final">Alacsony</target><note>Quality indicator label for below-standard but not poor resolution. Conveys below-average quality.</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve" approved="yes">
 				<source>Low quality (%sx) - Image may appear blurry</source>
 			<target state="final">Alacsony minőség (%sx) - A kép elmosódott lehet</target></trans-unit>
@@ -98,19 +110,53 @@
 			<target state="final">Ultra minőség (%sx) - Ultra nagy DPI-hez vagy kis nyomtatáshoz</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve" approved="yes">
 				<source>Print</source>
-			<target state="final">Nyomtatás</target></trans-unit>
+				
+			<target state="final">Nyomtatás</target><note>Short label for print-quality tier. Noun (print quality), not verb (print command).</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve" approved="yes">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
 			<target state="final">Nyomtatási minőség (%sx) - Alkalmas magas minőségű nyomtatáshoz (300 DPI)</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve" approved="yes">
 				<source>Excessive</source>
-			<target state="final">Túlzott</target></trans-unit>
+				
+			<target state="final">Túlzott</target><note>Warning label for unnecessarily high image resolution. Conveys "too much".</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve" approved="yes">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
 			<target state="final">Túlzott felbontás (%sx) - Szükségtelenül magas</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.poor.label" xml:space="preserve">
+				<source>Poor</source>
+				
+			<target state="translated">Gyenge</target><note>Quality indicator label when image resolution is below standard (ratio less than 1.0x). Conveys insufficient quality.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.poor.tooltip" xml:space="preserve">
+				<source>Poor quality (%sx) - Image will appear blurry</source>
+			<target state="translated">Gyenge minőség (%sx) - A kép elmosódottan jelenik meg</target></trans-unit>
+      <trans-unit id="labels.ckeditor.qualityerror.zerodimensions" xml:space="preserve">
+				<source>Display dimensions cannot be zero.</source>
+				
+			<target state="translated">A megjelenítési méretek nem lehetnek nullák.</target><note>Error message in quality indicator when width or height is set to zero.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.qualityinfo.svg" xml:space="preserve">
+				<source>Vector image will not be processed (scales perfectly at any resolution).</source>
+				
+			<target state="translated">A vektorkép nem lesz feldolgozva (bármilyen felbontáson tökéletesen skálázódik).</target><note>Info message shown for SVG files in the quality indicator.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.scaling" xml:space="preserve">
+				<source>Scaling</source>
+				
+			<target state="translated">Méretezés</target><note>Label for the quality/scaling dropdown in the image properties dialog.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.caption" xml:space="preserve">
+				<source>Caption</source>
+				
+			<target state="translated">Képaláírás</target><note>Label for the image caption textarea field.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.displaywidth" xml:space="preserve">
+				<source>Display width in px</source>
+				
+			<target state="translated">Megjelenítési szélesség px</target><note>Label for the display width input field. "px" = pixels.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.displayheight" xml:space="preserve">
+				<source>Display height in px</source>
+				
+			<target state="translated">Megjelenítési magasság px</target><note>Label for the display height input field. "px" = pixels.</note></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehavior" xml:space="preserve">
 				<source>Click Behavior</source>
-			<target state="translated">Kattintási viselkedés</target></trans-unit>
+				
+			<target state="translated">Kattintási viselkedés</target><note>Section heading: what happens when a frontend user clicks the image.</note></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorNone" xml:space="preserve">
 				<source>None - image is not clickable</source>
 			<target state="translated">Nincs - a kép nem kattintható</target></trans-unit>
@@ -125,7 +171,8 @@
 			<target state="translated">Hivatkozás URL</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTarget" xml:space="preserve">
 				<source>Link Target</source>
-			<target state="translated">Hivatkozás célja</target></trans-unit>
+				
+			<target state="translated">Hivatkozás célja</target><note>HTML target attribute for links (_blank, _self, etc.).</note></trans-unit>
       <trans-unit id="labels.ckeditor.linkTitle" xml:space="preserve">
 				<source>Link Title</source>
 			<target state="translated">Hivatkozás címe</target></trans-unit>
@@ -134,7 +181,8 @@
 			<target state="translated">Hivatkozás CSS osztály</target></trans-unit>
       <trans-unit id="labels.ckeditor.browse" xml:space="preserve">
 				<source>Browse...</source>
-			<target state="translated">Tallózás...</target></trans-unit>
+				
+			<target state="translated">Tallózás...</target><note>Button to open the file browser for selecting an image or link target. Keep the trailing ellipsis.</note></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetDefault" xml:space="preserve">
 				<source>(default)</source>
 			<target state="translated">(alapértelmezett)</target></trans-unit>
@@ -156,78 +204,66 @@
       <trans-unit id="labels.ckeditor.linkParamsPlaceholder" xml:space="preserve">
 				<source>e.g., &amp;L=1&amp;type=123</source>
 			<target state="translated">pl. &amp;L=1&amp;type=123</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.poor.label" xml:space="preserve">
-				<source>Poor</source>
-			<target state="translated">Gyenge</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.poor.tooltip" xml:space="preserve">
-				<source>Poor quality (%sx) - Image will appear blurry</source>
-			<target state="translated">Gyenge minőség (%sx) - A kép elmosódottan jelenik meg</target></trans-unit>
-      <trans-unit id="labels.ckeditor.qualityerror.zerodimensions" xml:space="preserve">
-				<source>Display dimensions cannot be zero.</source>
-			<target state="translated">A megjelenítési méretek nem lehetnek nullák.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.qualityinfo.svg" xml:space="preserve">
-				<source>Vector image will not be processed (scales perfectly at any resolution).</source>
-			<target state="translated">A vektorkép nem lesz feldolgozva (bármilyen felbontáson tökéletesen skálázódik).</target></trans-unit>
-      <trans-unit id="labels.ckeditor.scaling" xml:space="preserve">
-				<source>Scaling</source>
-			<target state="translated">Méretezés</target></trans-unit>
-      <trans-unit id="labels.ckeditor.caption" xml:space="preserve">
-				<source>Caption</source>
-			<target state="translated">Képaláírás</target></trans-unit>
-      <trans-unit id="labels.ckeditor.displaywidth" xml:space="preserve">
-				<source>Display width in px</source>
-			<target state="translated">Megjelenítési szélesség px</target></trans-unit>
-      <trans-unit id="labels.ckeditor.displayheight" xml:space="preserve">
-				<source>Display height in px</source>
-			<target state="translated">Megjelenítési magasság px</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetPlaceholder" xml:space="preserve">
 				<source>e.g. _blank, _top, nav_frame</source>
-			<target state="translated">pl. _blank, _top, nav_frame</target></trans-unit>
+				
+			<target state="translated">pl. _blank, _top, nav_frame</target><note>Placeholder text in the link target input field showing example values.</note></trans-unit>
       <trans-unit id="labels.ckeditor.imageinsidelinktitle" xml:space="preserve">
 				<source>Image is inside a link</source>
-			<target state="translated">A kép egy hivatkozáson belül van</target></trans-unit>
+				
+			<target state="translated">A kép egy hivatkozáson belül van</target><note>Info box title shown when the image is wrapped in a link element in the editor.</note></trans-unit>
       <trans-unit id="labels.ckeditor.imageinsidelinkmessage" xml:space="preserve">
 				<source>Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.</source>
-			<target state="translated">A kattintási viselkedés beállításai le vannak tiltva, mert ez a kép egy szöveg köré létrehozott hivatkozáson belül van. A hivatkozás beállításainak módosításához szerkessze a hivatkozást közvetlenül a szerkesztőben.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.editimage" xml:space="preserve">
-				<source>Edit image</source>
-			<target state="translated">Kép szerkesztése</target></trans-unit>
+				
+			<target state="translated">A kattintási viselkedés beállításai le vannak tiltva, mert ez a kép egy szöveg köré létrehozott hivatkozáson belül van. A hivatkozás beállításainak módosításához szerkessze a hivatkozást közvetlenül a szerkesztőben.</target><note>Info box message explaining why click behavior options are disabled for linked images.</note></trans-unit>
       <trans-unit id="labels.ckeditor.togglecaption" xml:space="preserve">
 				<source>Toggle caption</source>
-			<target state="translated">Képaláírás ki/be</target></trans-unit>
+				
+			<target state="translated">Képaláírás ki/be</target><note>Toolbar button label to show/hide the image caption.</note></trans-unit>
       <trans-unit id="labels.ckeditor.toggleinlineblock" xml:space="preserve">
 				<source>Toggle inline/block</source>
-			<target state="translated">Inline/blokk váltása</target></trans-unit>
+				
+			<target state="translated">Inline/blokk váltása</target><note>Toolbar button label to switch between inline and block image display.</note></trans-unit>
       <trans-unit id="labels.ckeditor.alignleft" xml:space="preserve">
 				<source>Align left</source>
-			<target state="translated">Balra igazítás</target></trans-unit>
+				
+			<target state="translated">Balra igazítás</target><note>Toolbar button to align the image to the left.</note></trans-unit>
       <trans-unit id="labels.ckeditor.aligncenter" xml:space="preserve">
 				<source>Align center</source>
-			<target state="translated">Középre igazítás</target></trans-unit>
+				
+			<target state="translated">Középre igazítás</target><note>Toolbar button to center-align the image.</note></trans-unit>
       <trans-unit id="labels.ckeditor.alignright" xml:space="preserve">
 				<source>Align right</source>
-			<target state="translated">Jobbra igazítás</target></trans-unit>
+				
+			<target state="translated">Jobbra igazítás</target><note>Toolbar button to align the image to the right.</note></trans-unit>
       <trans-unit id="labels.ckeditor.inline" xml:space="preserve">
 				<source>Inline</source>
-			<target state="translated">Inline</target></trans-unit>
+				
+			<target state="needs-translation">Inline</target><note>Toolbar button label for inline image display mode (flows with text).</note></trans-unit>
       <trans-unit id="labels.ckeditor.block" xml:space="preserve">
 				<source>Block</source>
-			<target state="translated">Blokk</target></trans-unit>
+				
+			<target state="translated">Blokk</target><note>Toolbar button label for block image display mode (own paragraph).</note></trans-unit>
       <trans-unit id="labels.ckeditor.selectimage" xml:space="preserve">
 				<source>Select image</source>
-			<target state="translated">Kép kiválasztása</target></trans-unit>
+				
+			<target state="translated">Kép kiválasztása</target><note>Title of the modal dialog for browsing and selecting an image file.</note></trans-unit>
       <trans-unit id="labels.ckeditor.imagewidget" xml:space="preserve">
 				<source>image widget</source>
-			<target state="translated">képmodul</target></trans-unit>
+				
+			<target state="translated">képmodul</target><note>Accessibility (ARIA) label for the block image widget. Used by screen readers.</note></trans-unit>
       <trans-unit id="labels.ckeditor.inlineimagewidget" xml:space="preserve">
 				<source>inline image widget</source>
-			<target state="translated">soron belüli képmodul</target></trans-unit>
+				
+			<target state="translated">soron belüli képmodul</target><note>Accessibility (ARIA) label for the inline image widget. Used by screen readers.</note></trans-unit>
       <trans-unit id="labels.ckeditor.imagetoolbar" xml:space="preserve">
 				<source>Image toolbar</source>
-			<target state="translated">Kép eszköztár</target></trans-unit>
+				
+			<target state="translated">Kép eszköztár</target><note>Accessibility (ARIA) label for the image editing toolbar balloon.</note></trans-unit>
       <trans-unit id="labels.ckeditor.enterimagecaption" xml:space="preserve">
 				<source>Enter image caption</source>
-			<target state="translated">Képaláírás megadása</target></trans-unit>
+				
+			<target state="translated">Képaláírás megadása</target><note>Placeholder text shown inside an empty image caption field.</note></trans-unit>
     </body>
   </file>
 </xliff>
