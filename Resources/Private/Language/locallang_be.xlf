@@ -14,6 +14,7 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.title" xml:space="preserve">
 				<source>Advisory Title</source>
+				<note>Refers to the HTML title attribute (tooltip on hover). Standard CKEditor/web terminology.</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
 				<source>Alternative Text</source>
@@ -23,6 +24,7 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
 				<source>Enabled</source>
+				<note>State label for a toggle checkbox enabling click-to-enlarge. Use adjective (enabled/activated), not verb.</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
 				<source>Skip Image Processing</source>
@@ -32,15 +34,22 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
 				<source>Cancel</source>
+				<note>Button label to close the image properties dialog without saving.</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.save" xml:space="preserve">
 				<source>Save</source>
+				<note>Button label to apply changes in the image properties dialog.</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
 				<source>Insert image</source>
 			</trans-unit>
+            <trans-unit id="labels.ckeditor.editimage" xml:space="preserve">
+				<source>Edit image</source>
+				<note>Toolbar button label shown when an existing image is selected for editing.</note>
+			</trans-unit>
             <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
+				<note>Warning when file metadata is empty. %s is replaced with the field name (e.g. "title", "alt text"). Preserve the %s placeholder.</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
@@ -53,6 +62,7 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
 				<source>No Scaling</source>
+				<note>Dropdown option: image will not be resized, uses original dimensions.</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
 				<source>Standard (1.0x)</source>
@@ -68,9 +78,11 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
 				<source>Print (6.0x)</source>
+				<note>Dropdown option for print-quality scaling (noun, not the verb "to print"). Preserve the multiplier in parentheses.</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
 				<source>Low</source>
+				<note>Quality indicator label for below-standard but not poor resolution. Conveys below-average quality.</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
 				<source>Low quality (%sx) - Image may appear blurry</source>
@@ -98,18 +110,52 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
 				<source>Print</source>
+				<note>Short label for print-quality tier. Noun (print quality), not verb (print command).</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
 				<source>Excessive</source>
+				<note>Warning label for unnecessarily high image resolution. Conveys "too much".</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
 			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.poor.label" xml:space="preserve">
+				<source>Poor</source>
+				<note>Quality indicator label when image resolution is below standard (ratio less than 1.0x). Conveys insufficient quality.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.quality.poor.tooltip" xml:space="preserve">
+				<source>Poor quality (%sx) - Image will appear blurry</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.qualityerror.zerodimensions" xml:space="preserve">
+				<source>Display dimensions cannot be zero.</source>
+				<note>Error message in quality indicator when width or height is set to zero.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.qualityinfo.svg" xml:space="preserve">
+				<source>Vector image will not be processed (scales perfectly at any resolution).</source>
+				<note>Info message shown for SVG files in the quality indicator.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.scaling" xml:space="preserve">
+				<source>Scaling</source>
+				<note>Label for the quality/scaling dropdown in the image properties dialog.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.caption" xml:space="preserve">
+				<source>Caption</source>
+				<note>Label for the image caption textarea field.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.displaywidth" xml:space="preserve">
+				<source>Display width in px</source>
+				<note>Label for the display width input field. "px" = pixels.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.displayheight" xml:space="preserve">
+				<source>Display height in px</source>
+				<note>Label for the display height input field. "px" = pixels.</note>
+			</trans-unit>
             <trans-unit id="labels.ckeditor.clickBehavior" xml:space="preserve">
 				<source>Click Behavior</source>
+				<note>Section heading: what happens when a frontend user clicks the image.</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.clickBehaviorNone" xml:space="preserve">
 				<source>None - image is not clickable</source>
@@ -125,6 +171,7 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.linkTarget" xml:space="preserve">
 				<source>Link Target</source>
+				<note>HTML target attribute for links (_blank, _self, etc.).</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.linkTitle" xml:space="preserve">
 				<source>Link Title</source>
@@ -134,6 +181,7 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.browse" xml:space="preserve">
 				<source>Browse...</source>
+				<note>Button to open the file browser for selecting an image or link target. Keep the trailing ellipsis.</note>
 			</trans-unit>
             <trans-unit id="labels.ckeditor.linkTargetDefault" xml:space="preserve">
 				<source>(default)</source>
@@ -155,6 +203,66 @@
 			</trans-unit>
             <trans-unit id="labels.ckeditor.linkParamsPlaceholder" xml:space="preserve">
 				<source>e.g., &amp;L=1&amp;type=123</source>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.linkTargetPlaceholder" xml:space="preserve">
+				<source>e.g. _blank, _top, nav_frame</source>
+				<note>Placeholder text in the link target input field showing example values.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.imageinsidelinktitle" xml:space="preserve">
+				<source>Image is inside a link</source>
+				<note>Info box title shown when the image is wrapped in a link element in the editor.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.imageinsidelinkmessage" xml:space="preserve">
+				<source>Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.</source>
+				<note>Info box message explaining why click behavior options are disabled for linked images.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.togglecaption" xml:space="preserve">
+				<source>Toggle caption</source>
+				<note>Toolbar button label to show/hide the image caption.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.toggleinlineblock" xml:space="preserve">
+				<source>Toggle inline/block</source>
+				<note>Toolbar button label to switch between inline and block image display.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.alignleft" xml:space="preserve">
+				<source>Align left</source>
+				<note>Toolbar button to align the image to the left.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.aligncenter" xml:space="preserve">
+				<source>Align center</source>
+				<note>Toolbar button to center-align the image.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.alignright" xml:space="preserve">
+				<source>Align right</source>
+				<note>Toolbar button to align the image to the right.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.inline" xml:space="preserve">
+				<source>Inline</source>
+				<note>Toolbar button label for inline image display mode (flows with text).</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.block" xml:space="preserve">
+				<source>Block</source>
+				<note>Toolbar button label for block image display mode (own paragraph).</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.selectimage" xml:space="preserve">
+				<source>Select image</source>
+				<note>Title of the modal dialog for browsing and selecting an image file.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.imagewidget" xml:space="preserve">
+				<source>image widget</source>
+				<note>Accessibility (ARIA) label for the block image widget. Used by screen readers.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.inlineimagewidget" xml:space="preserve">
+				<source>inline image widget</source>
+				<note>Accessibility (ARIA) label for the inline image widget. Used by screen readers.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.imagetoolbar" xml:space="preserve">
+				<source>Image toolbar</source>
+				<note>Accessibility (ARIA) label for the image editing toolbar balloon.</note>
+			</trans-unit>
+            <trans-unit id="labels.ckeditor.enterimagecaption" xml:space="preserve">
+				<source>Enter image caption</source>
+				<note>Placeholder text shown inside an empty image caption field.</note>
 			</trans-unit>
         </body>
     </file>

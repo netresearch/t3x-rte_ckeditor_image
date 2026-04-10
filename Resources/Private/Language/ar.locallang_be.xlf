@@ -156,6 +156,78 @@
       <trans-unit id="labels.ckeditor.linkParamsPlaceholder" xml:space="preserve">
 				<source>e.g., &amp;L=1&amp;type=123</source>
 			<target state="translated">مثال: &amp;L=1&amp;type=123</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.poor.label" xml:space="preserve">
+				<source>Poor</source>
+			<target state="translated">ضعيف</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.poor.tooltip" xml:space="preserve">
+				<source>Poor quality (%sx) - Image will appear blurry</source>
+			<target state="translated">جودة ضعيفة (%sx) - ستظهر الصورة غير واضحة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.qualityerror.zerodimensions" xml:space="preserve">
+				<source>Display dimensions cannot be zero.</source>
+			<target state="translated">لا يمكن أن تكون أبعاد العرض صفرًا.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.qualityinfo.svg" xml:space="preserve">
+				<source>Vector image will not be processed (scales perfectly at any resolution).</source>
+			<target state="translated">لن تتم معالجة الصورة المتجهة (تتدرج بشكل مثالي في أي دقة).</target></trans-unit>
+      <trans-unit id="labels.ckeditor.scaling" xml:space="preserve">
+				<source>Scaling</source>
+			<target state="translated">التحجيم</target></trans-unit>
+      <trans-unit id="labels.ckeditor.caption" xml:space="preserve">
+				<source>Caption</source>
+			<target state="translated">تعليق</target></trans-unit>
+      <trans-unit id="labels.ckeditor.displaywidth" xml:space="preserve">
+				<source>Display width in px</source>
+			<target state="translated">عرض العرض بالـ px</target></trans-unit>
+      <trans-unit id="labels.ckeditor.displayheight" xml:space="preserve">
+				<source>Display height in px</source>
+			<target state="translated">ارتفاع العرض بالـ px</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetPlaceholder" xml:space="preserve">
+				<source>e.g. _blank, _top, nav_frame</source>
+			<target state="translated">مثال: _blank, _top, nav_frame</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageinsidelinktitle" xml:space="preserve">
+				<source>Image is inside a link</source>
+			<target state="translated">الصورة داخل رابط</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageinsidelinkmessage" xml:space="preserve">
+				<source>Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.</source>
+			<target state="translated">خيارات سلوك النقر معطلة لأن هذه الصورة داخل رابط تم إنشاؤه حول النص. لتغيير إعدادات الرابط، قم بتحرير الرابط مباشرة في المحرر.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.editimage" xml:space="preserve">
+				<source>Edit image</source>
+			<target state="translated">تحرير الصورة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.togglecaption" xml:space="preserve">
+				<source>Toggle caption</source>
+			<target state="translated">تبديل التعليق</target></trans-unit>
+      <trans-unit id="labels.ckeditor.toggleinlineblock" xml:space="preserve">
+				<source>Toggle inline/block</source>
+			<target state="translated">تبديل سطري/كتلة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alignleft" xml:space="preserve">
+				<source>Align left</source>
+			<target state="translated">محاذاة لليسار</target></trans-unit>
+      <trans-unit id="labels.ckeditor.aligncenter" xml:space="preserve">
+				<source>Align center</source>
+			<target state="translated">محاذاة للوسط</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alignright" xml:space="preserve">
+				<source>Align right</source>
+			<target state="translated">محاذاة لليمين</target></trans-unit>
+      <trans-unit id="labels.ckeditor.inline" xml:space="preserve">
+				<source>Inline</source>
+			<target state="translated">سطري</target></trans-unit>
+      <trans-unit id="labels.ckeditor.block" xml:space="preserve">
+				<source>Block</source>
+			<target state="translated">كتلة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.selectimage" xml:space="preserve">
+				<source>Select image</source>
+			<target state="translated">اختر صورة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imagewidget" xml:space="preserve">
+				<source>image widget</source>
+			<target state="translated">أداة الصورة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.inlineimagewidget" xml:space="preserve">
+				<source>inline image widget</source>
+			<target state="translated">أداة الصورة المضمنة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imagetoolbar" xml:space="preserve">
+				<source>Image toolbar</source>
+			<target state="translated">شريط أدوات الصورة</target></trans-unit>
+      <trans-unit id="labels.ckeditor.enterimagecaption" xml:space="preserve">
+				<source>Enter image caption</source>
+			<target state="translated">أدخل تعليق الصورة</target></trans-unit>
     </body>
   </file>
 </xliff>

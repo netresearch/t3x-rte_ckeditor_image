@@ -57,7 +57,7 @@
       <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve" approved="yes">
 				<source>Standard (1.0x)</source>
 				
-			<target state="final">Standard (1.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+			<target state="final">Standart (1.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve" approved="yes">
 				<source>Retina (2.0x)</source>
 				
@@ -98,7 +98,7 @@
 			<target state="final">Ultra kalite (%sx) - Ultra yüksek DPI veya küçük baskı için</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve" approved="yes">
 				<source>Print</source>
-			<target state="final">Yazdır</target></trans-unit>
+			<target state="final">Baskı</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve" approved="yes">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
 			<target state="final">Baskı kalitesi (%sx) - Yüksek kaliteli baskı için uygundur (300 DPI)</target></trans-unit>
@@ -156,6 +156,78 @@
       <trans-unit id="labels.ckeditor.linkParamsPlaceholder" xml:space="preserve">
 				<source>e.g., &amp;L=1&amp;type=123</source>
 			<target state="translated">ör. &amp;L=1&amp;type=123</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.poor.label" xml:space="preserve">
+				<source>Poor</source>
+			<target state="translated">Çok düşük</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.poor.tooltip" xml:space="preserve">
+				<source>Poor quality (%sx) - Image will appear blurry</source>
+			<target state="translated">Çok düşük kalite (%sx) - Görüntü bulanık görünecek</target></trans-unit>
+      <trans-unit id="labels.ckeditor.qualityerror.zerodimensions" xml:space="preserve">
+				<source>Display dimensions cannot be zero.</source>
+			<target state="translated">Görüntü boyutları sıfır olamaz.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.qualityinfo.svg" xml:space="preserve">
+				<source>Vector image will not be processed (scales perfectly at any resolution).</source>
+			<target state="translated">Vektör görüntü işlenmeyecek (her çözünürlükte mükemmel ölçeklenir).</target></trans-unit>
+      <trans-unit id="labels.ckeditor.scaling" xml:space="preserve">
+				<source>Scaling</source>
+			<target state="translated">Ölçeklendirme</target></trans-unit>
+      <trans-unit id="labels.ckeditor.caption" xml:space="preserve">
+				<source>Caption</source>
+			<target state="translated">Başlık</target></trans-unit>
+      <trans-unit id="labels.ckeditor.displaywidth" xml:space="preserve">
+				<source>Display width in px</source>
+			<target state="translated">Görüntü genişliği px cinsinden</target></trans-unit>
+      <trans-unit id="labels.ckeditor.displayheight" xml:space="preserve">
+				<source>Display height in px</source>
+			<target state="translated">Görüntü yüksekliği px cinsinden</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetPlaceholder" xml:space="preserve">
+				<source>e.g. _blank, _top, nav_frame</source>
+			<target state="translated">ör. _blank, _top, nav_frame</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageinsidelinktitle" xml:space="preserve">
+				<source>Image is inside a link</source>
+			<target state="translated">Görsel bir bağlantının içinde</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageinsidelinkmessage" xml:space="preserve">
+				<source>Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.</source>
+			<target state="translated">Tıklama davranışı seçenekleri devre dışıdır çünkü bu görsel metnin etrafında oluşturulmuş bir bağlantının içindedir. Bağlantı ayarlarını değiştirmek için bağlantıyı doğrudan editörde düzenleyin.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.editimage" xml:space="preserve">
+				<source>Edit image</source>
+			<target state="translated">Görseli düzenle</target></trans-unit>
+      <trans-unit id="labels.ckeditor.togglecaption" xml:space="preserve">
+				<source>Toggle caption</source>
+			<target state="translated">Başlığı aç/kapat</target></trans-unit>
+      <trans-unit id="labels.ckeditor.toggleinlineblock" xml:space="preserve">
+				<source>Toggle inline/block</source>
+			<target state="translated">Satır içi/blok değiştir</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alignleft" xml:space="preserve">
+				<source>Align left</source>
+			<target state="translated">Sola hizala</target></trans-unit>
+      <trans-unit id="labels.ckeditor.aligncenter" xml:space="preserve">
+				<source>Align center</source>
+			<target state="translated">Ortala</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alignright" xml:space="preserve">
+				<source>Align right</source>
+			<target state="translated">Sağa hizala</target></trans-unit>
+      <trans-unit id="labels.ckeditor.inline" xml:space="preserve">
+				<source>Inline</source>
+			<target state="translated">Satır içi</target></trans-unit>
+      <trans-unit id="labels.ckeditor.block" xml:space="preserve">
+				<source>Block</source>
+			<target state="translated">Blok</target></trans-unit>
+      <trans-unit id="labels.ckeditor.selectimage" xml:space="preserve">
+				<source>Select image</source>
+			<target state="translated">Resim seç</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imagewidget" xml:space="preserve">
+				<source>image widget</source>
+			<target state="translated">resim aracı</target></trans-unit>
+      <trans-unit id="labels.ckeditor.inlineimagewidget" xml:space="preserve">
+				<source>inline image widget</source>
+			<target state="translated">satır içi resim aracı</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imagetoolbar" xml:space="preserve">
+				<source>Image toolbar</source>
+			<target state="translated">Resim araç çubuğu</target></trans-unit>
+      <trans-unit id="labels.ckeditor.enterimagecaption" xml:space="preserve">
+				<source>Enter image caption</source>
+			<target state="translated">Resim açıklaması girin</target></trans-unit>
     </body>
   </file>
 </xliff>

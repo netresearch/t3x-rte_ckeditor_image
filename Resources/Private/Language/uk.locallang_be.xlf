@@ -156,6 +156,78 @@
       <trans-unit id="labels.ckeditor.linkParamsPlaceholder" xml:space="preserve">
 				<source>e.g., &amp;L=1&amp;type=123</source>
 			<target state="translated">напр. &amp;L=1&amp;type=123</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.poor.label" xml:space="preserve">
+				<source>Poor</source>
+			<target state="translated">Погана</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.poor.tooltip" xml:space="preserve">
+				<source>Poor quality (%sx) - Image will appear blurry</source>
+			<target state="translated">Погана якість (%sx) - Зображення буде виглядати розмитим</target></trans-unit>
+      <trans-unit id="labels.ckeditor.qualityerror.zerodimensions" xml:space="preserve">
+				<source>Display dimensions cannot be zero.</source>
+			<target state="translated">Розміри відображення не можуть бути нульовими.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.qualityinfo.svg" xml:space="preserve">
+				<source>Vector image will not be processed (scales perfectly at any resolution).</source>
+			<target state="translated">Векторне зображення не буде оброблене (масштабується ідеально при будь-якій роздільності).</target></trans-unit>
+      <trans-unit id="labels.ckeditor.scaling" xml:space="preserve">
+				<source>Scaling</source>
+			<target state="translated">Масштабування</target></trans-unit>
+      <trans-unit id="labels.ckeditor.caption" xml:space="preserve">
+				<source>Caption</source>
+			<target state="translated">Підпис</target></trans-unit>
+      <trans-unit id="labels.ckeditor.displaywidth" xml:space="preserve">
+				<source>Display width in px</source>
+			<target state="translated">Ширина відображення в px</target></trans-unit>
+      <trans-unit id="labels.ckeditor.displayheight" xml:space="preserve">
+				<source>Display height in px</source>
+			<target state="translated">Висота відображення в px</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetPlaceholder" xml:space="preserve">
+				<source>e.g. _blank, _top, nav_frame</source>
+			<target state="translated">напр. _blank, _top, nav_frame</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageinsidelinktitle" xml:space="preserve">
+				<source>Image is inside a link</source>
+			<target state="translated">Зображення знаходиться всередині посилання</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageinsidelinkmessage" xml:space="preserve">
+				<source>Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.</source>
+			<target state="translated">Параметри поведінки при кліку вимкнені, оскільки це зображення знаходиться всередині посилання, створеного навколо тексту. Щоб змінити налаштування посилання, відредагуйте посилання безпосередньо в редакторі.</target></trans-unit>
+      <trans-unit id="labels.ckeditor.editimage" xml:space="preserve">
+				<source>Edit image</source>
+			<target state="translated">Редагувати зображення</target></trans-unit>
+      <trans-unit id="labels.ckeditor.togglecaption" xml:space="preserve">
+				<source>Toggle caption</source>
+			<target state="translated">Перемкнути підпис</target></trans-unit>
+      <trans-unit id="labels.ckeditor.toggleinlineblock" xml:space="preserve">
+				<source>Toggle inline/block</source>
+			<target state="translated">Перемкнути рядковий/блоковий</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alignleft" xml:space="preserve">
+				<source>Align left</source>
+			<target state="translated">Вирівняти ліворуч</target></trans-unit>
+      <trans-unit id="labels.ckeditor.aligncenter" xml:space="preserve">
+				<source>Align center</source>
+			<target state="translated">Вирівняти по центру</target></trans-unit>
+      <trans-unit id="labels.ckeditor.alignright" xml:space="preserve">
+				<source>Align right</source>
+			<target state="translated">Вирівняти праворуч</target></trans-unit>
+      <trans-unit id="labels.ckeditor.inline" xml:space="preserve">
+				<source>Inline</source>
+			<target state="translated">Рядковий</target></trans-unit>
+      <trans-unit id="labels.ckeditor.block" xml:space="preserve">
+				<source>Block</source>
+			<target state="translated">Блоковий</target></trans-unit>
+      <trans-unit id="labels.ckeditor.selectimage" xml:space="preserve">
+				<source>Select image</source>
+			<target state="translated">Вибрати зображення</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imagewidget" xml:space="preserve">
+				<source>image widget</source>
+			<target state="translated">віджет зображення</target></trans-unit>
+      <trans-unit id="labels.ckeditor.inlineimagewidget" xml:space="preserve">
+				<source>inline image widget</source>
+			<target state="translated">вбудований віджет зображення</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imagetoolbar" xml:space="preserve">
+				<source>Image toolbar</source>
+			<target state="translated">Панель інструментів зображення</target></trans-unit>
+      <trans-unit id="labels.ckeditor.enterimagecaption" xml:space="preserve">
+				<source>Enter image caption</source>
+			<target state="translated">Введіть підпис зображення</target></trans-unit>
     </body>
   </file>
 </xliff>

@@ -20,6 +20,9 @@ import { toWidget, toWidgetEditable, WidgetToolbarRepository } from '@ckeditor/c
 import { default as Modal } from '@typo3/backend/modal.js';
 
 
+// Module-level translations cache for functions outside the plugin class scope
+let moduleTranslationsCache = null;
+
 class Typo3ImageDoubleClickObserver extends DomEventObserver {
     constructor(view) {
         super(view);
@@ -90,18 +93,18 @@ function getImageDialog(editor, img, attributes) {
 
     const fields = [
         {
-            width: { label: 'Display width in px', type: 'number' },
-            height: { label: 'Display height in px', type: 'number' },
-            quality: { label: 'Scaling', type: 'select' }
+            width: { label: img.lang.displayWidth || 'Display width in px', type: 'number' },
+            height: { label: img.lang.displayHeight || 'Display height in px', type: 'number' },
+            quality: { label: img.lang.scaling || 'Scaling', type: 'select' }
         },
         {
-            title: { label: 'Advisory Title', type: 'text' }
+            title: { label: img.lang.title || 'Advisory Title', type: 'text' }
         },
         {
-            alt: { label: 'Alternative Text', type: 'text' }
+            alt: { label: img.lang.alt || 'Alternative Text', type: 'text' }
         },
         {
-            caption: { label: 'Caption', type: 'textarea', rows: 2 }
+            caption: { label: img.lang.caption || 'Caption', type: 'textarea', rows: 2 }
         }
     ];
 
@@ -653,13 +656,13 @@ function getImageDialog(editor, img, attributes) {
 
         // Guard against zero dimensions to prevent division by zero
         if (displayWidth === 0 || displayHeight === 0) {
-            setQualityIndicator(buildQualityDiv('#dc3545', 'Error:', ' Display dimensions cannot be zero.'));
+            setQualityIndicator(buildQualityDiv('#dc3545', 'Error:', ' ' + (img.lang.qualityErrorZeroDimensions || 'Display dimensions cannot be zero.')));
             return;
         }
 
         // Handle SVG files
         if (img.extension === 'svg') {
-            setQualityIndicator(buildQualityDiv('#666', 'Processing Info:', ' Vector image will not be processed (scales perfectly at any resolution).'));
+            setQualityIndicator(buildQualityDiv('#666', 'Processing Info:', ' ' + (img.lang.qualityInfoSvg || 'Vector image will not be processed (scales perfectly at any resolution).')));
             return;
         }
 
@@ -692,19 +695,19 @@ function getImageDialog(editor, img, attributes) {
 
         // Determine quality level based on ratio
         if (qualityRatio >= 6.0) {
-            expectedQualityName = 'Print';
+            expectedQualityName = img.lang.qualityPrintLabel || 'Print';
             expectedQualityColor = '#007bff';
         } else if (qualityRatio >= 3.0) {
-            expectedQualityName = 'Ultra';
+            expectedQualityName = img.lang.qualityUltraLabel || 'Ultra';
             expectedQualityColor = '#17a2b8';
         } else if (qualityRatio >= 2.0) {
-            expectedQualityName = 'Retina';
+            expectedQualityName = img.lang.qualityRetinaLabel || 'Retina';
             expectedQualityColor = '#28a745';
         } else if (qualityRatio >= 0.95) {
-            expectedQualityName = 'Standard';
+            expectedQualityName = img.lang.qualityStandardLabel || 'Standard';
             expectedQualityColor = '#ffc107';
         } else {
-            expectedQualityName = 'Poor';
+            expectedQualityName = img.lang.qualityPoorLabel || 'Poor';
             expectedQualityColor = '#dc3545';
         }
 
@@ -1028,7 +1031,7 @@ function selectImage(editor) {
 
     const modal = Modal.advanced({
         type: Modal.types.iframe,
-        title: 'test',
+        title: moduleTranslationsCache?.selectImage || 'Select image',
         content: contentUrl,
         size: Modal.sizes.large,
         callback: function (currentModal) {
@@ -1764,12 +1767,17 @@ export default class Typo3Image extends Plugin {
                 }
                 const response = await fetchResponse.json();
                 translationsCache = response.lang;
+                moduleTranslationsCache = translationsCache;
                 return translationsCache;
             } catch (error) {
                 // Fallback to English if translation fetch fails
                 console.error('Failed to fetch translations:', error);
                 return {
-                    insertImage: 'Insert image'
+                    insertImage: 'Insert image',
+                    editImage: 'Edit image',
+                    selectImage: 'Select image',
+                    imageToolbar: 'Image toolbar',
+                    clickToEnlarge: 'Click to enlarge'
                 };
             }
         };
@@ -1780,7 +1788,7 @@ export default class Typo3Image extends Plugin {
         // for inline images based on their isEnabled state.
         const widgetToolbarRepository = editor.plugins.get('WidgetToolbarRepository');
         widgetToolbarRepository.register('typo3image', {
-            ariaLabel: 'Image toolbar',
+            ariaLabel: translationsCache?.imageToolbar || 'Image toolbar',
             items: [
                 'editTypo3Image',
                 '|',
@@ -2801,7 +2809,7 @@ export default class Typo3Image extends Plugin {
                             // Zoom/enlarge indicator (magnifying glass icon)
                             const zoomIndicator = writer.createContainerElement('span', {
                                 class: 'ck-image-indicator ck-image-indicator--zoom',
-                                title: 'Click to enlarge'
+                                title: translationsCache?.clickToEnlarge || 'Click to enlarge'
                             });
                             writer.insert(writer.createPositionAt(indicatorContainer, 'end'), zoomIndicator);
                         }
@@ -3040,7 +3048,7 @@ export default class Typo3Image extends Plugin {
                         if (hasZoom) {
                             const zoomIndicator = writer.createContainerElement('span', {
                                 class: 'ck-image-indicator ck-image-indicator--zoom',
-                                title: 'Click to enlarge'
+                                title: translationsCache?.clickToEnlarge || 'Click to enlarge'
                             });
                             writer.insert(writer.createPositionAt(indicatorContainer, 'end'), zoomIndicator);
                         }
@@ -3270,6 +3278,12 @@ export default class Typo3Image extends Plugin {
                 isToggleable: true
             });
 
+            getTranslations().then(translations => {
+                if (translations.toggleCaption) {
+                    button.set({ label: translations.toggleCaption });
+                }
+            });
+
             // Bind button state to command
             button.bind('isOn').to(command, 'value');
             button.bind('isEnabled').to(command, 'isEnabled');
@@ -3293,6 +3307,12 @@ export default class Typo3Image extends Plugin {
                 icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 3h16v2H2zm0 4h4v4H2zm6 0h10v2H8zm0 4h10v2H8zm-6 4h16v2H2z"/></svg>',
                 tooltip: true,
                 isToggleable: true
+            });
+
+            getTranslations().then(translations => {
+                if (translations.toggleInlineBlock) {
+                    button.set({ label: translations.toggleInlineBlock });
+                }
             });
 
             // Bind button state to command
@@ -3343,6 +3363,7 @@ export default class Typo3Image extends Plugin {
         }, { priority: 'highest' })
 
         // Define image style options with SVG icons
+        // Titles are set with English defaults, then updated asynchronously with translations
         const styleDefinitions = {
             'image-left': {
                 title: 'Align left',
@@ -3370,6 +3391,20 @@ export default class Typo3Image extends Plugin {
                 className: 'image-block'
             }
         };
+
+        // Apply translated titles to style definitions
+        getTranslations().then(translations => {
+            const titleMap = {
+                'image-left': translations.alignLeft,
+                'image-center': translations.alignCenter,
+                'image-right': translations.alignRight,
+                'image-inline': translations.inline,
+                'image-block': translations.block
+            };
+            for (const [key, title] of Object.entries(titleMap)) {
+                if (title) styleDefinitions[key].title = title;
+            }
+        });
 
         // Register SetImageStyleCommand
         editor.commands.add('setImageStyle', new SetImageStyleCommand(editor, styleDefinitions));
