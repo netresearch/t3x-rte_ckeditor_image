@@ -287,8 +287,12 @@ class UpdateImageReferences
                 continue;
             }
 
+            if ($currentSrc === $newSrc) {
+                continue;
+            }
+
             // Treat "/fileadmin/x" and "fileadmin/x" as equivalent (#778)
-            if ($currentSrc === $newSrc || '/' . ltrim($currentSrc, '/') === $newSrc) {
+            if ('/' . ltrim($currentSrc, '/') === $newSrc) {
                 continue;
             }
 
