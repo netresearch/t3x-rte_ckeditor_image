@@ -87,9 +87,9 @@ final class Typo3ImagePluginTest extends UnitTestCase
     #[Test]
     public function typo3imageJsContainsCaptionFieldDefinition(): void
     {
-        // Verify the caption field is defined in the dialog fields
+        // Verify the caption field is defined in the dialog fields (uses translated label with fallback)
         self::assertStringContainsString(
-            "caption: { label: 'Caption'",
+            "caption: { label: img.lang.caption || 'Caption'",
             $this->getJsContent(),
             'Caption field must be defined in the image dialog',
         );

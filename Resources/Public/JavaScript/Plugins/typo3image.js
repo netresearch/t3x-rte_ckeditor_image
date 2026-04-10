@@ -20,6 +20,9 @@ import { toWidget, toWidgetEditable, WidgetToolbarRepository } from '@ckeditor/c
 import { default as Modal } from '@typo3/backend/modal.js';
 
 
+// Module-level translations cache for functions outside the plugin class scope
+let moduleTranslationsCache = null;
+
 class Typo3ImageDoubleClickObserver extends DomEventObserver {
     constructor(view) {
         super(view);
@@ -1028,7 +1031,7 @@ function selectImage(editor) {
 
     const modal = Modal.advanced({
         type: Modal.types.iframe,
-        title: img.lang.selectImage || 'Select image',
+        title: moduleTranslationsCache?.selectImage || 'Select image',
         content: contentUrl,
         size: Modal.sizes.large,
         callback: function (currentModal) {
@@ -1764,6 +1767,7 @@ export default class Typo3Image extends Plugin {
                 }
                 const response = await fetchResponse.json();
                 translationsCache = response.lang;
+                moduleTranslationsCache = translationsCache;
                 return translationsCache;
             } catch (error) {
                 // Fallback to English if translation fetch fails
