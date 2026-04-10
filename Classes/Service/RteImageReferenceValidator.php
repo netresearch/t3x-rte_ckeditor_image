@@ -262,11 +262,17 @@ class RteImageReferenceValidator
             );
         }
 
-        $publicUrl = $file->getPublicUrl();
+        $rawPublicUrl = $file->getPublicUrl();
 
-        if ($publicUrl === null || $publicUrl === '') {
+        if ($rawPublicUrl === null || $rawPublicUrl === '') {
             return null;
         }
+
+        // Normalize publicUrl to site-root-absolute form with leading slash.
+        // TYPO3's Local driver returns "fileadmin/..." (no leading slash) while
+        // the RTE stores "/fileadmin/..." — both refer to the same resource.
+        // See issue #778.
+        $publicUrl = $this->normalizePublicUrl($rawPublicUrl);
 
         // Check for processed image URL
         if ($src !== null && str_contains($src, '/_processed_/')) {
@@ -282,8 +288,10 @@ class RteImageReferenceValidator
             );
         }
 
-        // Check for src mismatch
-        if (!in_array($src, [null, '', $publicUrl], true)) {
+        // Check for src mismatch. Accept both slash and slashless variants as
+        // equivalent: a stored "/fileadmin/x" and a publicUrl "fileadmin/x"
+        // must not be reported as a mismatch (#778).
+        if ($src !== null && $src !== '' && !$this->srcMatchesPublicUrl($src, $publicUrl)) {
             return new ValidationIssue(
                 type: ValidationIssueType::SrcMismatch,
                 table: $table,
@@ -311,6 +319,44 @@ class RteImageReferenceValidator
         }
 
         return null;
+    }
+
+    /**
+     * Normalize a FAL public URL to a site-root-absolute form with leading slash.
+     *
+     * The Local driver returns paths like "fileadmin/image.jpg" (no leading
+     * slash), while the RTE stores "/fileadmin/image.jpg". Both refer to the
+     * same resource; using the slashless form as a replacement breaks frontend
+     * and backend image rendering (#778).
+     *
+     * Absolute URLs (http://, https://, //example.com) are returned unchanged.
+     */
+    private function normalizePublicUrl(string $publicUrl): string
+    {
+        if (
+            str_starts_with($publicUrl, 'http://')
+            || str_starts_with($publicUrl, 'https://')
+            || str_starts_with($publicUrl, '//')
+        ) {
+            return $publicUrl;
+        }
+
+        return '/' . ltrim($publicUrl, '/');
+    }
+
+    /**
+     * Check whether a stored src is equivalent to a normalized publicUrl.
+     *
+     * Treats "/fileadmin/x" and "fileadmin/x" as equivalent so that validation
+     * does not flag correctly-stored leading-slash paths as mismatches (#778).
+     */
+    private function srcMatchesPublicUrl(string $src, string $publicUrl): bool
+    {
+        if ($src === $publicUrl) {
+            return true;
+        }
+
+        return '/' . ltrim($src, '/') === $publicUrl;
     }
 
     /**

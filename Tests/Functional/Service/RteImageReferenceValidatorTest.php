@@ -126,9 +126,28 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
     {
         $result = $this->getSubject()->validate();
 
-        self::assertSame(5, $result->getScannedRecords());
-        self::assertSame(5, $result->getScannedImages());
+        self::assertSame(6, $result->getScannedRecords());
+        self::assertSame(6, $result->getScannedImages());
         self::assertGreaterThanOrEqual(4, count($result->getIssues()));
+    }
+
+    #[Test]
+    public function validateTreatsLeadingSlashSrcAsCleanForIssue778(): void
+    {
+        // Record 7 has src="/fileadmin/photo.jpg" pointing to file uid=1.
+        // TYPO3's Local driver returns "fileadmin/photo.jpg" (no leading slash)
+        // for getPublicUrl(). Before #778 was fixed, the validator flagged this
+        // as SrcMismatch and "fixed" it by dropping the leading slash, breaking
+        // frontend and backend rendering. The leading-slash form must be
+        // treated as equivalent to the slashless publicUrl.
+        $result = $this->getSubject()->validate();
+
+        $record7Issues = array_filter(
+            $result->getIssues(),
+            static fn (ValidationIssue $issue): bool => $issue->uid === 7,
+        );
+
+        self::assertCount(0, $record7Issues, 'Leading-slash src must be treated as clean (#778)');
     }
 
     #[Test]
@@ -191,7 +210,7 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         self::assertCount(0, $record999Issues);
         // uid=999 must not be counted as a scanned record
-        self::assertSame(5, $result->getScannedRecords());
+        self::assertSame(6, $result->getScannedRecords());
     }
 
     #[Test]
@@ -207,7 +226,7 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         self::assertCount(0, $record6Issues);
         // uid=6 must not be counted as a scanned record
-        self::assertSame(5, $result->getScannedRecords());
+        self::assertSame(6, $result->getScannedRecords());
     }
 
     #[Test]
