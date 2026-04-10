@@ -614,6 +614,102 @@ class SelectImageController extends ElementBrowserController
                 'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
                 . 'locallang_be.xlf:labels.ckeditor.linkParamsPlaceholder',
             ),
+            'linkTargetPlaceholder' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.linkTargetPlaceholder',
+            ),
+            'imageInsideLinkTitle' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.imageinsidelinktitle',
+            ),
+            'imageInsideLinkMessage' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.imageinsidelinkmessage',
+            ),
+            'editImage' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.editimage',
+            ),
+            'scaling' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.scaling',
+            ),
+            'caption' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.caption',
+            ),
+            'displayWidth' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.displaywidth',
+            ),
+            'displayHeight' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.displayheight',
+            ),
+            'qualityPoorLabel' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.poor.label',
+            ),
+            'qualityPoorTooltip' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.quality.poor.tooltip',
+            ),
+            'qualityErrorZeroDimensions' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.qualityerror.zerodimensions',
+            ),
+            'qualityInfoSvg' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.qualityinfo.svg',
+            ),
+            'toggleCaption' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.togglecaption',
+            ),
+            'toggleInlineBlock' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.toggleinlineblock',
+            ),
+            'alignLeft' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.alignleft',
+            ),
+            'alignCenter' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.aligncenter',
+            ),
+            'alignRight' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.alignright',
+            ),
+            'inline' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.inline',
+            ),
+            'block' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.block',
+            ),
+            'selectImage' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.selectimage',
+            ),
+            'imageWidget' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.imagewidget',
+            ),
+            'inlineImageWidget' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.inlineimagewidget',
+            ),
+            'imageToolbar' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.imagetoolbar',
+            ),
+            'enterImageCaption' => LocalizationUtility::translate(
+                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
+                . 'locallang_be.xlf:labels.ckeditor.enterimagecaption',
+            ),
         ];
     }
 
