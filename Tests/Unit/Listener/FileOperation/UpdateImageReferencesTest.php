@@ -257,6 +257,55 @@ final class UpdateImageReferencesTest extends UnitTestCase
         $this->subject->handleFileRenamed($event);
     }
 
+    // -------------------------------------------------------------------------
+    // Leading-slash normalization (#778)
+    // -------------------------------------------------------------------------
+
+    #[Test]
+    public function handleFileRenamedNormalizesSlashlessPublicUrl(): void
+    {
+        // Real TYPO3 v13 behavior: getPublicUrl() returns path WITHOUT leading slash
+        $file = $this->createMock(File::class);
+        $file->method('getUid')->willReturn(1);
+        $file->method('getPublicUrl')->willReturn('fileadmin/renamed.jpg');
+
+        $oldHtml = '<p><img data-htmlarea-file-uid="1" src="/fileadmin/old.jpg" /></p>';
+        $newHtml = '<p><img data-htmlarea-file-uid="1" src="/fileadmin/renamed.jpg" /></p>';
+
+        $this->setupMocks(
+            [['tablename' => 'tt_content', 'recuid' => 1, 'field' => 'bodytext']],
+            ['tt_content' => [1 => ['bodytext' => $oldHtml]]],
+        );
+
+        $this->connection->expects(self::once())->method('update')
+            ->with('tt_content', ['bodytext' => $newHtml], ['uid' => 1]);
+
+        $event = new AfterFileRenamedEvent($file, 'old.jpg');
+        $this->subject->handleFileRenamed($event);
+    }
+
+    #[Test]
+    public function handleFileRenamedNoOpWhenSrcMatchesNormalizedSlashlessPublicUrl(): void
+    {
+        // getPublicUrl returns "fileadmin/current.jpg", stored src is "/fileadmin/current.jpg"
+        // Both refer to the same resource — must be treated as already correct.
+        $file = $this->createMock(File::class);
+        $file->method('getUid')->willReturn(1);
+        $file->method('getPublicUrl')->willReturn('fileadmin/current.jpg');
+
+        $html = '<img data-htmlarea-file-uid="1" src="/fileadmin/current.jpg" />';
+
+        $this->setupMocks(
+            [['tablename' => 'tt_content', 'recuid' => 1, 'field' => 'bodytext']],
+            ['tt_content' => [1 => ['bodytext' => $html]]],
+        );
+
+        $this->connection->expects(self::never())->method('update');
+
+        $event = new AfterFileRenamedEvent($file, 'old.jpg');
+        $this->subject->handleFileRenamed($event);
+    }
+
     /**
      * Set up ConnectionPool mocks for refindex query and field value fetching.
      *

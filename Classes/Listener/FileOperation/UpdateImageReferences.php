@@ -79,13 +79,19 @@ class UpdateImageReferences
             return;
         }
 
-        $publicUrl = $file->getPublicUrl();
+        $rawPublicUrl = $file->getPublicUrl();
 
-        if ($publicUrl === null || $publicUrl === '') {
+        if ($rawPublicUrl === null || $rawPublicUrl === '') {
             $this->logger->debug('Skipping file without public URL', ['fileUid' => $fileUid]);
 
             return;
         }
+
+        // Normalize publicUrl to site-root-absolute form with leading slash.
+        // TYPO3's Local driver returns "fileadmin/..." (no leading slash) while
+        // the RTE stores "/fileadmin/..." — both refer to the same resource.
+        // See issue #778.
+        $publicUrl = $this->normalizePublicUrl($rawPublicUrl);
 
         // Query sys_refindex for records referencing this file via rtehtmlarea_images
         $affectedRecords = $this->findAffectedRecords($fileUid);
@@ -215,6 +221,29 @@ class UpdateImageReferences
     }
 
     /**
+     * Normalize a FAL public URL to a site-root-absolute form with leading slash.
+     *
+     * The Local driver returns paths like "fileadmin/image.jpg" (no leading
+     * slash), while the RTE stores "/fileadmin/image.jpg". Both refer to the
+     * same resource; using the slashless form as a replacement breaks frontend
+     * and backend image rendering (#778).
+     *
+     * Absolute URLs (http://, https://, //example.com) are returned unchanged.
+     */
+    private function normalizePublicUrl(string $publicUrl): string
+    {
+        if (
+            str_starts_with($publicUrl, 'http://')
+            || str_starts_with($publicUrl, 'https://')
+            || str_starts_with($publicUrl, '//')
+        ) {
+            return $publicUrl;
+        }
+
+        return '/' . ltrim($publicUrl, '/');
+    }
+
+    /**
      * Update src attributes in HTML for img tags matching the given file UID.
      *
      * Uses the same HtmlParser::splitTags() + get_tag_attributes() pattern
@@ -258,7 +287,8 @@ class UpdateImageReferences
                 continue;
             }
 
-            if ($currentSrc === $newSrc) {
+            // Treat "/fileadmin/x" and "fileadmin/x" as equivalent (#778)
+            if ($currentSrc === $newSrc || '/' . ltrim($currentSrc, '/') === $newSrc) {
                 continue;
             }
 
