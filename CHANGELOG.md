@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.8.3] - 2026-04-10
+
+### Fixed
+
+- **Comprehensive localization review** — fix 5 corrupted translations (Hindi cancel had MFA deactivation text, Swahili ultra was "Number One"), fix 4 inconsistent translations (Russian/Turkish/Polish quality labels), fix Chinese caption and quality indicator translations ([#782](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/782))
+- **24 new translation keys** — add translations for previously hardcoded JS strings (form labels, toolbar buttons, quality indicators, accessibility labels) across all 31 languages
+- **17 translator context notes** — add XLIFF notes to ambiguous keys to prevent future translation errors
+- **Debug leftover** — replace modal title `'test'` with translated "Select image"
+
+## [13.8.1] - 2026-04-10
+
+### Fixed
+
+- **Image reference validation strips leading slash** ([#778](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/778)) — the validator and file rename/move listener now preserve the leading slash in image `src` attributes
+- **Images without file-uid get width=0 height=0** ([#746](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/746)) — plain `<img>` tags without `data-htmlarea-file-uid` now pass through unmodified
+- **TYPO3 v14.2 compatibility** — call parent constructor in `RteImagePreviewRenderer`
+
+### Added
+
+- Danish backend localization
+
+## [13.8.0] - 2026-03-14
+
+### Added
+
+- **Figure/figcaption in backend preview** ([#726](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/726))
+- Improved documentation based on community feedback
+
+### Fixed
+
+- Only check direct fields for file type in preview registrar ([#727](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/727))
+- Remove redundant SLSA provenance job from release workflow
+
+### Changed
+
+- Migrate CI to centralized `typo3-ci-workflows`
+
 ## [13.7.1] - 2026-03-07
 
 ### Added
