@@ -14,7 +14,8 @@
 			<target state="final">Высота</target></trans-unit>
       <trans-unit id="labels.ckeditor.title" xml:space="preserve" approved="yes">
 				<source>Advisory Title</source>
-			<target state="final">Консультативный заголовок</target></trans-unit>
+				
+			<target state="final">Консультативный заголовок</target><note>Refers to the HTML title attribute (tooltip on hover). Standard CKEditor/web terminology.</note></trans-unit>
       <trans-unit id="labels.ckeditor.alt" xml:space="preserve" approved="yes">
 				<source>Alternative Text</source>
 			<target state="final">Альтернативный текст</target></trans-unit>
@@ -23,7 +24,8 @@
 			<target state="final">Нажмите, чтобы увеличить</target></trans-unit>
       <trans-unit id="labels.ckeditor.enabled" xml:space="preserve" approved="yes">
 				<source>Enabled</source>
-			<target state="final">Включено</target></trans-unit>
+				
+			<target state="final">Включено</target><note>State label for a toggle checkbox enabling click-to-enlarge. Use adjective (enabled/activated), not verb.</note></trans-unit>
       <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve" approved="yes">
 				<source>Skip Image Processing</source>
 			<target state="final">Пропустить обработку изображения</target></trans-unit>
@@ -32,16 +34,23 @@
 			<target state="final">Свойства изображения</target></trans-unit>
       <trans-unit id="labels.ckeditor.cancel" xml:space="preserve" approved="yes">
 				<source>Cancel</source>
-			<target state="final">Отмена</target></trans-unit>
+				
+			<target state="final">Отмена</target><note>Button label to close the image properties dialog without saving.</note></trans-unit>
       <trans-unit id="labels.ckeditor.save" xml:space="preserve" approved="yes">
 				<source>Save</source>
-			<target state="final">Сохранить</target></trans-unit>
+				
+			<target state="final">Сохранить</target><note>Button label to apply changes in the image properties dialog.</note></trans-unit>
       <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve" approved="yes">
 				<source>Insert image</source>
 			<target state="final">Вставить изображение</target></trans-unit>
+      <trans-unit id="labels.ckeditor.editimage" xml:space="preserve">
+				<source>Edit image</source>
+				
+			<target state="translated">Редактировать изображение</target><note>Toolbar button label shown when an existing image is selected for editing.</note></trans-unit>
       <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve" approved="yes">
 				<source>No default %s available in file metadata. Cannot override empty value.</source>
-			<target state="final">Нет значения по умолчанию %s в метаданных файла. Невозможно переопределить пустое значение.</target></trans-unit>
+				
+			<target state="final">Нет значения по умолчанию %s в метаданных файла. Невозможно переопределить пустое значение.</target><note>Warning when file metadata is empty. %s is replaced with the field name (e.g. "title", "alt text"). Preserve the %s placeholder.</note></trans-unit>
       <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve" approved="yes">
 				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
 			<target state="final">Включает функцию увеличения по клику/lightbox. Конфигурация всплывающего окна по умолчанию предоставляется автоматически. См. документацию для интеграции пользовательской библиотеки lightbox.</target></trans-unit>
@@ -53,7 +62,8 @@
 			<target state="final">Качество изображения</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve" approved="yes">
 				<source>No Scaling</source>
-			<target state="final">Без масштабирования</target></trans-unit>
+				
+			<target state="final">Без масштабирования</target><note>Dropdown option: image will not be resized, uses original dimensions.</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve" approved="yes">
 				<source>Standard (1.0x)</source>
 				
@@ -68,17 +78,19 @@
 			<target state="final">Ультра (3.0x)</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve" approved="yes">
 				<source>Print (6.0x)</source>
-			<target state="final">Печать (6.0x)</target></trans-unit>
+				
+			<target state="final">Печать (6.0x)</target><note>Dropdown option for print-quality scaling (noun, not the verb "to print"). Preserve the multiplier in parentheses.</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve" approved="yes">
 				<source>Low</source>
-			<target state="final">Низкое</target></trans-unit>
+				
+			<target state="final">Низкое</target><note>Quality indicator label for below-standard but not poor resolution. Conveys below-average quality.</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve" approved="yes">
 				<source>Low quality (%sx) - Image may appear blurry</source>
 			<target state="final">Низкое качество (%sx) - Изображение может быть размытым</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve" approved="yes">
 				<source>Standard</source>
 				
-			<target state="final">Стандартное</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+			<target state="final">Обычный</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve" approved="yes">
 				<source>Standard quality (%sx) - Sharp on basic displays</source>
 			<target state="final">Стандартное качество (%sx) - Четкое на базовых дисплеях</target></trans-unit>
@@ -98,19 +110,53 @@
 			<target state="final">Ультра качество (%sx) - Для сверхвысокого DPI или мелкой печати</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve" approved="yes">
 				<source>Print</source>
-			<target state="final">Печать</target></trans-unit>
+				
+			<target state="final">Печать</target><note>Short label for print-quality tier. Noun (print quality), not verb (print command).</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve" approved="yes">
 				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
 			<target state="final">Качество печати (%sx) - Подходит для высококачественной печати (300 DPI)</target></trans-unit>
       <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve" approved="yes">
 				<source>Excessive</source>
-			<target state="final">Избыточное</target></trans-unit>
+				
+			<target state="final">Избыточное</target><note>Warning label for unnecessarily high image resolution. Conveys "too much".</note></trans-unit>
       <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve" approved="yes">
 				<source>Excessive resolution (%sx) - Unnecessarily high</source>
 			<target state="final">Избыточное разрешение (%sx) - Излишне высокое</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.poor.label" xml:space="preserve">
+				<source>Poor</source>
+				
+			<target state="translated">Очень низкое</target><note>Quality indicator label when image resolution is below standard (ratio less than 1.0x). Conveys insufficient quality.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.poor.tooltip" xml:space="preserve">
+				<source>Poor quality (%sx) - Image will appear blurry</source>
+			<target state="translated">Очень низкое качество (%sx) - Изображение будет размытым</target></trans-unit>
+      <trans-unit id="labels.ckeditor.qualityerror.zerodimensions" xml:space="preserve">
+				<source>Display dimensions cannot be zero.</source>
+				
+			<target state="translated">Размеры отображения не могут быть нулевыми.</target><note>Error message in quality indicator when width or height is set to zero.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.qualityinfo.svg" xml:space="preserve">
+				<source>Vector image will not be processed (scales perfectly at any resolution).</source>
+				
+			<target state="translated">Векторное изображение не будет обработано (идеально масштабируется при любом разрешении).</target><note>Info message shown for SVG files in the quality indicator.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.scaling" xml:space="preserve">
+				<source>Scaling</source>
+				
+			<target state="translated">Масштабирование</target><note>Label for the quality/scaling dropdown in the image properties dialog.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.caption" xml:space="preserve">
+				<source>Caption</source>
+				
+			<target state="translated">Подпись</target><note>Label for the image caption textarea field.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.displaywidth" xml:space="preserve">
+				<source>Display width in px</source>
+				
+			<target state="translated">Ширина отображения в px</target><note>Label for the display width input field. "px" = pixels.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.displayheight" xml:space="preserve">
+				<source>Display height in px</source>
+				
+			<target state="translated">Высота отображения в px</target><note>Label for the display height input field. "px" = pixels.</note></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehavior" xml:space="preserve">
 				<source>Click Behavior</source>
-			<target state="translated">Поведение при клике</target></trans-unit>
+				
+			<target state="translated">Поведение при клике</target><note>Section heading: what happens when a frontend user clicks the image.</note></trans-unit>
       <trans-unit id="labels.ckeditor.clickBehaviorNone" xml:space="preserve">
 				<source>None - image is not clickable</source>
 			<target state="translated">Нет - изображение не кликабельно</target></trans-unit>
@@ -125,7 +171,8 @@
 			<target state="translated">URL ссылки</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTarget" xml:space="preserve">
 				<source>Link Target</source>
-			<target state="translated">Цель ссылки</target></trans-unit>
+				
+			<target state="translated">Цель ссылки</target><note>HTML target attribute for links (_blank, _self, etc.).</note></trans-unit>
       <trans-unit id="labels.ckeditor.linkTitle" xml:space="preserve">
 				<source>Link Title</source>
 			<target state="translated">Заголовок ссылки</target></trans-unit>
@@ -134,7 +181,8 @@
 			<target state="translated">CSS-класс ссылки</target></trans-unit>
       <trans-unit id="labels.ckeditor.browse" xml:space="preserve">
 				<source>Browse...</source>
-			<target state="translated">Обзор...</target></trans-unit>
+				
+			<target state="translated">Обзор...</target><note>Button to open the file browser for selecting an image or link target. Keep the trailing ellipsis.</note></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetDefault" xml:space="preserve">
 				<source>(default)</source>
 			<target state="translated">(по умолчанию)</target></trans-unit>
@@ -156,78 +204,66 @@
       <trans-unit id="labels.ckeditor.linkParamsPlaceholder" xml:space="preserve">
 				<source>e.g., &amp;L=1&amp;type=123</source>
 			<target state="translated">напр. &amp;L=1&amp;type=123</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.poor.label" xml:space="preserve">
-				<source>Poor</source>
-			<target state="translated">Очень низкое</target></trans-unit>
-      <trans-unit id="labels.ckeditor.quality.poor.tooltip" xml:space="preserve">
-				<source>Poor quality (%sx) - Image will appear blurry</source>
-			<target state="translated">Очень низкое качество (%sx) - Изображение будет размытым</target></trans-unit>
-      <trans-unit id="labels.ckeditor.qualityerror.zerodimensions" xml:space="preserve">
-				<source>Display dimensions cannot be zero.</source>
-			<target state="translated">Размеры отображения не могут быть нулевыми.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.qualityinfo.svg" xml:space="preserve">
-				<source>Vector image will not be processed (scales perfectly at any resolution).</source>
-			<target state="translated">Векторное изображение не будет обработано (идеально масштабируется при любом разрешении).</target></trans-unit>
-      <trans-unit id="labels.ckeditor.scaling" xml:space="preserve">
-				<source>Scaling</source>
-			<target state="translated">Масштабирование</target></trans-unit>
-      <trans-unit id="labels.ckeditor.caption" xml:space="preserve">
-				<source>Caption</source>
-			<target state="translated">Подпись</target></trans-unit>
-      <trans-unit id="labels.ckeditor.displaywidth" xml:space="preserve">
-				<source>Display width in px</source>
-			<target state="translated">Ширина отображения в px</target></trans-unit>
-      <trans-unit id="labels.ckeditor.displayheight" xml:space="preserve">
-				<source>Display height in px</source>
-			<target state="translated">Высота отображения в px</target></trans-unit>
       <trans-unit id="labels.ckeditor.linkTargetPlaceholder" xml:space="preserve">
 				<source>e.g. _blank, _top, nav_frame</source>
-			<target state="translated">напр. _blank, _top, nav_frame</target></trans-unit>
+				
+			<target state="translated">напр. _blank, _top, nav_frame</target><note>Placeholder text in the link target input field showing example values.</note></trans-unit>
       <trans-unit id="labels.ckeditor.imageinsidelinktitle" xml:space="preserve">
 				<source>Image is inside a link</source>
-			<target state="translated">Изображение находится внутри ссылки</target></trans-unit>
+				
+			<target state="translated">Изображение находится внутри ссылки</target><note>Info box title shown when the image is wrapped in a link element in the editor.</note></trans-unit>
       <trans-unit id="labels.ckeditor.imageinsidelinkmessage" xml:space="preserve">
 				<source>Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.</source>
-			<target state="translated">Параметры поведения при клике отключены, так как это изображение находится внутри ссылки, созданной вокруг текста. Чтобы изменить настройки ссылки, отредактируйте ссылку непосредственно в редакторе.</target></trans-unit>
-      <trans-unit id="labels.ckeditor.editimage" xml:space="preserve">
-				<source>Edit image</source>
-			<target state="translated">Редактировать изображение</target></trans-unit>
+				
+			<target state="translated">Параметры поведения при клике отключены, так как это изображение находится внутри ссылки, созданной вокруг текста. Чтобы изменить настройки ссылки, отредактируйте ссылку непосредственно в редакторе.</target><note>Info box message explaining why click behavior options are disabled for linked images.</note></trans-unit>
       <trans-unit id="labels.ckeditor.togglecaption" xml:space="preserve">
 				<source>Toggle caption</source>
-			<target state="translated">Переключить подпись</target></trans-unit>
+				
+			<target state="translated">Переключить подпись</target><note>Toolbar button label to show/hide the image caption.</note></trans-unit>
       <trans-unit id="labels.ckeditor.toggleinlineblock" xml:space="preserve">
 				<source>Toggle inline/block</source>
-			<target state="translated">Переключить встроенный/блочный</target></trans-unit>
+				
+			<target state="translated">Переключить встроенный/блочный</target><note>Toolbar button label to switch between inline and block image display.</note></trans-unit>
       <trans-unit id="labels.ckeditor.alignleft" xml:space="preserve">
 				<source>Align left</source>
-			<target state="translated">Выровнять по левому краю</target></trans-unit>
+				
+			<target state="translated">Выровнять по левому краю</target><note>Toolbar button to align the image to the left.</note></trans-unit>
       <trans-unit id="labels.ckeditor.aligncenter" xml:space="preserve">
 				<source>Align center</source>
-			<target state="translated">Выровнять по центру</target></trans-unit>
+				
+			<target state="translated">Выровнять по центру</target><note>Toolbar button to center-align the image.</note></trans-unit>
       <trans-unit id="labels.ckeditor.alignright" xml:space="preserve">
 				<source>Align right</source>
-			<target state="translated">Выровнять по правому краю</target></trans-unit>
+				
+			<target state="translated">Выровнять по правому краю</target><note>Toolbar button to align the image to the right.</note></trans-unit>
       <trans-unit id="labels.ckeditor.inline" xml:space="preserve">
 				<source>Inline</source>
-			<target state="translated">Встроенный</target></trans-unit>
+				
+			<target state="translated">Встроенный</target><note>Toolbar button label for inline image display mode (flows with text).</note></trans-unit>
       <trans-unit id="labels.ckeditor.block" xml:space="preserve">
 				<source>Block</source>
-			<target state="translated">Блочный</target></trans-unit>
+				
+			<target state="translated">Блочный</target><note>Toolbar button label for block image display mode (own paragraph).</note></trans-unit>
       <trans-unit id="labels.ckeditor.selectimage" xml:space="preserve">
 				<source>Select image</source>
-			<target state="translated">Выбрать изображение</target></trans-unit>
+				
+			<target state="translated">Выбрать изображение</target><note>Title of the modal dialog for browsing and selecting an image file.</note></trans-unit>
       <trans-unit id="labels.ckeditor.imagewidget" xml:space="preserve">
 				<source>image widget</source>
-			<target state="translated">виджет изображения</target></trans-unit>
+				
+			<target state="translated">виджет изображения</target><note>Accessibility (ARIA) label for the block image widget. Used by screen readers.</note></trans-unit>
       <trans-unit id="labels.ckeditor.inlineimagewidget" xml:space="preserve">
 				<source>inline image widget</source>
-			<target state="translated">встроенный виджет изображения</target></trans-unit>
+				
+			<target state="translated">встроенный виджет изображения</target><note>Accessibility (ARIA) label for the inline image widget. Used by screen readers.</note></trans-unit>
       <trans-unit id="labels.ckeditor.imagetoolbar" xml:space="preserve">
 				<source>Image toolbar</source>
-			<target state="translated">Панель инструментов изображения</target></trans-unit>
+				
+			<target state="translated">Панель инструментов изображения</target><note>Accessibility (ARIA) label for the image editing toolbar balloon.</note></trans-unit>
       <trans-unit id="labels.ckeditor.enterimagecaption" xml:space="preserve">
 				<source>Enter image caption</source>
-			<target state="translated">Введите подпись к изображению</target></trans-unit>
+				
+			<target state="translated">Введите подпись к изображению</target><note>Placeholder text shown inside an empty image caption field.</note></trans-unit>
     </body>
   </file>
 </xliff>
