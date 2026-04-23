@@ -18,6 +18,7 @@ import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
 import { toWidget, toWidgetEditable, WidgetToolbarRepository } from '@ckeditor/ckeditor5-widget';
 import { default as Modal } from '@typo3/backend/modal.js';
+import { sanitizeSrc } from './sanitize-src.js';
 
 
 // Module-level translations cache for functions outside the plugin class scope
@@ -67,31 +68,6 @@ function urlToRelative(url, storageDriver) {
     }
 
     return url;
-}
-
-
-/**
- * Normalise an image src attribute value.
- *
- * Rejects the stringified corruption forms "undefined" and "null" which can
- * round-trip through model/view conversion when an upstream path loses the
- * value. Returning null lets callers omit the attribute so the frontend can
- * reconstruct it from data-htmlarea-file-uid instead of persisting garbage.
- *
- * @param value Raw attribute value from view or model.
- * @return Trimmed string, or null if the value is missing/corrupted.
- */
-function sanitizeSrc(value) {
-    if (value === null || value === undefined) {
-        return null;
-    }
-
-    const trimmed = String(value).trim();
-    if (trimmed === '' || trimmed === 'undefined' || trimmed === 'null') {
-        return null;
-    }
-
-    return trimmed;
 }
 
 
@@ -2555,6 +2531,10 @@ export default class Typo3Image extends Plugin {
         // Upcast converter for inline images (highest priority)
         // Handles: <img class="image-inline" data-htmlarea-file-uid="..." src="...">
         // These become typo3imageInline model elements for true inline behavior
+        // NOTE: 'src' is intentionally not a required matcher attribute —
+        // sanitizeSrc() may strip corrupted values on downcast, and the FE
+        // renderer rebuilds src from data-htmlarea-file-uid. We still read
+        // and sanitise src when present.
         editor.conversion
             .for('upcast')
             .elementToElement({
@@ -2562,7 +2542,6 @@ export default class Typo3Image extends Plugin {
                     name: 'img',
                     attributes: [
                         'data-htmlarea-file-uid',
-                        'src',
                     ]
                 },
                 model: (viewElement, { writer, consumable }) => {
@@ -2659,7 +2638,11 @@ export default class Typo3Image extends Plugin {
 
         // Upcast converter for standalone img (backward compatibility)
         // Handles: <img data-htmlarea-file-uid="..." src="...">
-        // NOTE: Linked images are now handled by the converter above
+        // NOTE: Linked images are now handled by the converter above.
+        // NOTE: 'src' is intentionally not a required matcher attribute —
+        // sanitizeSrc() may strip corrupted values on downcast, and the FE
+        // renderer rebuilds src from data-htmlarea-file-uid. We still read
+        // and sanitise src when present.
         editor.conversion
             .for('upcast')
             .elementToElement({
@@ -2667,7 +2650,6 @@ export default class Typo3Image extends Plugin {
                     name: 'img',
                     attributes: [
                         'data-htmlarea-file-uid',
-                        'src',
                     ]
                 },
                 model: (viewElement, { writer }) => {
@@ -2707,7 +2689,7 @@ export default class Typo3Image extends Plugin {
 
         // Helper function to create view element for typo3image
         const createImageViewElement = (modelElement, writer, { wrapInLink = true } = {}) => {
-            const attributes= {
+            const attributes = {
                 'data-htmlarea-file-uid': modelElement.getAttribute('fileUid'),
                 'data-htmlarea-file-table': modelElement.getAttribute('fileTable'),
                 'width': modelElement.getAttribute('width'),

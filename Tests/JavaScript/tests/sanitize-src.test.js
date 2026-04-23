@@ -12,23 +12,7 @@ import {
   MockModelElement,
   MockWriter,
 } from '../mocks/ckeditor-mocks.js';
-
-/**
- * Mirror of sanitizeSrc from Resources/Public/JavaScript/Plugins/typo3image.js.
- * Keep in sync with the production helper.
- */
-function sanitizeSrc(value) {
-  if (value === null || value === undefined) {
-    return null;
-  }
-
-  const trimmed = String(value).trim();
-  if (trimmed === '' || trimmed === 'undefined' || trimmed === 'null') {
-    return null;
-  }
-
-  return trimmed;
-}
+import { sanitizeSrc } from '../../../Resources/Public/JavaScript/Plugins/sanitize-src.js';
 
 /**
  * Mirror of the downcast helper in typo3image.js: rebuilds the <img> view
