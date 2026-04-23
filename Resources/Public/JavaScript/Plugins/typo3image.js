@@ -71,6 +71,31 @@ function urlToRelative(url, storageDriver) {
 
 
 /**
+ * Normalise an image src attribute value.
+ *
+ * Rejects the stringified corruption forms "undefined" and "null" which can
+ * round-trip through model/view conversion when an upstream path loses the
+ * value. Returning null lets callers omit the attribute so the frontend can
+ * reconstruct it from data-htmlarea-file-uid instead of persisting garbage.
+ *
+ * @param value Raw attribute value from view or model.
+ * @return Trimmed string, or null if the value is missing/corrupted.
+ */
+function sanitizeSrc(value) {
+    if (value === null || value === undefined) {
+        return null;
+    }
+
+    const trimmed = String(value).trim();
+    if (trimmed === '' || trimmed === 'undefined' || trimmed === 'null') {
+        return null;
+    }
+
+    return trimmed;
+}
+
+
+/**
  * Get the image attributes dialog
  *
  * @param {Object} editor
@@ -2085,7 +2110,6 @@ export default class Typo3Image extends Plugin {
                     const imageAttributes = {
                         fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
                         fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        src: imgElement.getAttribute('src'),
                         width: imgElement.getAttribute('width') || '',
                         height: imgElement.getAttribute('height') || '',
                         class: imgElement.getAttribute('class') || '',
@@ -2097,6 +2121,10 @@ export default class Typo3Image extends Plugin {
                         noScale: imgElement.getAttribute('data-noscale') || false,
                         quality: imgElement.getAttribute('data-quality') || ''
                     };
+                    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
+                    if (cleanSrc !== null) {
+                        imageAttributes.src = cleanSrc;
+                    }
 
                     if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
                         imageAttributes.imageLinkHref = linkHref;
@@ -2203,7 +2231,6 @@ export default class Typo3Image extends Plugin {
                     const imageAttributes = {
                         fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
                         fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        src: imgElement.getAttribute('src'),
                         width: imgElement.getAttribute('width') || '',
                         height: imgElement.getAttribute('height') || '',
                         class: figureElement.getAttribute('class') || '',
@@ -2215,6 +2242,10 @@ export default class Typo3Image extends Plugin {
                         noScale: imgElement.getAttribute('data-noscale') || false,
                         quality: imgElement.getAttribute('data-quality') || ''
                     };
+                    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
+                    if (cleanSrc !== null) {
+                        imageAttributes.src = cleanSrc;
+                    }
 
                     // Add link attributes if valid
                     if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
@@ -2331,7 +2362,6 @@ export default class Typo3Image extends Plugin {
                     const imageAttributes = {
                         fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
                         fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        src: imgElement.getAttribute('src'),
                         width: imgElement.getAttribute('width') || '',
                         height: imgElement.getAttribute('height') || '',
                         class: viewFigure.getAttribute('class') || '',
@@ -2343,6 +2373,10 @@ export default class Typo3Image extends Plugin {
                         noScale: imgElement.getAttribute('data-noscale') || false,
                         quality: imgElement.getAttribute('data-quality') || ''
                     };
+                    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
+                    if (cleanSrc !== null) {
+                        imageAttributes.src = cleanSrc;
+                    }
 
                     // Only set link attributes if they have non-empty values
                     if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
@@ -2475,7 +2509,6 @@ export default class Typo3Image extends Plugin {
                     const imageAttributes = {
                         fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
                         fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        src: imgElement.getAttribute('src'),
                         width: imgElement.getAttribute('width') || '',
                         height: imgElement.getAttribute('height') || '',
                         class: imgElement.getAttribute('class') || '',
@@ -2487,6 +2520,10 @@ export default class Typo3Image extends Plugin {
                         noScale: imgElement.getAttribute('data-noscale') || false,
                         quality: imgElement.getAttribute('data-quality') || ''
                     };
+                    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
+                    if (cleanSrc !== null) {
+                        imageAttributes.src = cleanSrc;
+                    }
 
                     // Only add link attributes if href is valid (not empty/placeholder)
                     if (hasValidLink) {
@@ -2577,7 +2614,6 @@ export default class Typo3Image extends Plugin {
                     const imageAttributes = {
                         fileUid: viewElement.getAttribute('data-htmlarea-file-uid'),
                         fileTable: viewElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        src: viewElement.getAttribute('src'),
                         width: viewElement.getAttribute('width') || '',
                         height: viewElement.getAttribute('height') || '',
                         class: className,
@@ -2589,6 +2625,10 @@ export default class Typo3Image extends Plugin {
                         noScale: viewElement.getAttribute('data-noscale') || false,
                         quality: viewElement.getAttribute('data-quality') || ''
                     };
+                    const cleanSrc = sanitizeSrc(viewElement.getAttribute('src'));
+                    if (cleanSrc !== null) {
+                        imageAttributes.src = cleanSrc;
+                    }
 
                     // Only set link attributes if they have non-empty values
                     if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
@@ -2640,7 +2680,6 @@ export default class Typo3Image extends Plugin {
                     const imageAttributes = {
                         fileUid: viewElement.getAttribute('data-htmlarea-file-uid'),
                         fileTable: viewElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        src: viewElement.getAttribute('src'),
                         width: viewElement.getAttribute('width') || '',
                         height: viewElement.getAttribute('height') || '',
                         class: viewElement.getAttribute('class') || '',
@@ -2652,6 +2691,10 @@ export default class Typo3Image extends Plugin {
                         noScale: viewElement.getAttribute('data-noscale') || false,
                         quality: viewElement.getAttribute('data-quality') || ''
                     };
+                    const cleanSrc = sanitizeSrc(viewElement.getAttribute('src'));
+                    if (cleanSrc !== null) {
+                        imageAttributes.src = cleanSrc;
+                    }
 
                     return writer.createElement('typo3image', imageAttributes);
                 },
@@ -2665,7 +2708,6 @@ export default class Typo3Image extends Plugin {
         // Helper function to create view element for typo3image
         const createImageViewElement = (modelElement, writer, { wrapInLink = true } = {}) => {
             const attributes= {
-                'src': modelElement.getAttribute('src'),
                 'data-htmlarea-file-uid': modelElement.getAttribute('fileUid'),
                 'data-htmlarea-file-table': modelElement.getAttribute('fileTable'),
                 'width': modelElement.getAttribute('width'),
@@ -2674,6 +2716,13 @@ export default class Typo3Image extends Plugin {
                 // not to img element to avoid double margin application
                 'title': modelElement.getAttribute('title') || '',
                 'alt': modelElement.getAttribute('alt') || '',
+            }
+            // Guard: never emit src="undefined"/"null" — if the model lost the
+            // value, drop the attribute so ImageRenderingController can rebuild
+            // it from data-htmlarea-file-uid on frontend render.
+            const cleanSrc = sanitizeSrc(modelElement.getAttribute('src'));
+            if (cleanSrc !== null) {
+                attributes['src'] = cleanSrc;
             }
 
             if (modelElement.getAttribute('titleOverride') || false) {
@@ -2922,7 +2971,6 @@ export default class Typo3Image extends Plugin {
         // Similar to createImageViewElement but with class on img and no caption support
         const createInlineImageViewElement = (modelElement, writer, { wrapInLink = true } = {}) => {
             const attributes = {
-                'src': modelElement.getAttribute('src'),
                 'data-htmlarea-file-uid': modelElement.getAttribute('fileUid'),
                 'data-htmlarea-file-table': modelElement.getAttribute('fileTable'),
                 'width': modelElement.getAttribute('width'),
@@ -2932,6 +2980,10 @@ export default class Typo3Image extends Plugin {
                 'title': modelElement.getAttribute('title') || '',
                 'alt': modelElement.getAttribute('alt') || '',
             };
+            const cleanSrc = sanitizeSrc(modelElement.getAttribute('src'));
+            if (cleanSrc !== null) {
+                attributes['src'] = cleanSrc;
+            }
 
             if (modelElement.getAttribute('titleOverride') || false) {
                 attributes['data-title-override'] = true;
