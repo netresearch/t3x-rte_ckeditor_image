@@ -193,6 +193,7 @@ final readonly class ImageFileResolver implements ImageFileResolverInterface
             } finally {
                 // Clean up temp file
                 if (file_exists($tempFile)) {
+                    // nosemgrep: php.lang.security.unlink-use.unlink-use -- controlled temp file from tempnam()
                     unlink($tempFile);
                 }
             }

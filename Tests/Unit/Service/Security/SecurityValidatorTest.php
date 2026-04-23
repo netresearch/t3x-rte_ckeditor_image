@@ -153,6 +153,7 @@ final class SecurityValidatorTest extends UnitTestCase
             self::assertSame($testFile, $result);
         } finally {
             // Cleanup
+            // nosemgrep: php.lang.security.unlink-use.unlink-use -- test fixture cleanup in sys_get_temp_dir()
             unlink($testFile);
             rmdir(dirname($testFile));
             rmdir($tempDir);
@@ -391,6 +392,7 @@ final class SecurityValidatorTest extends UnitTestCase
             $result = $this->subject->validateLocalPath($privateFile, $publicDir);
             self::assertNull($result, 'File outside public path should return null');
         } finally {
+            // nosemgrep: php.lang.security.unlink-use.unlink-use -- test fixture cleanup in sys_get_temp_dir()
             unlink($privateFile);
             rmdir($privateDir);
             rmdir($publicDir);
