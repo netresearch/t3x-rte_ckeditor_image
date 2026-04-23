@@ -62,7 +62,8 @@ parameters:
         # NormalizedParams from the PSR-7 request. The wrapper still compiles
         # against v13 LTS where the alternative API surface differs, so the
         # migration is deferred to a dedicated PR.
-        - identifier: method.deprecated
+        # Identifier is `staticMethod.deprecated` — getIndpEnv() is static.
+        - identifier: staticMethod.deprecated
           path: %currentWorkingDirectory%/Classes/Service/Environment/Typo3EnvironmentInfo.php
           message: '#getIndpEnv#'
           reportUnmatched: false
