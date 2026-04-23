@@ -130,6 +130,65 @@ class RteImageReferenceValidatorTest extends TestCase
     }
 
     #[Test]
+    public function skipsExternalDataLegacyAndSecuredlByDefault(): void
+    {
+        $html = '<p>'
+            . '<img src="https://typo3.github.io/TYPO3.Icons/images/actions-add.svg" />'
+            . '<img src="data:image/jpeg;base64,/9j/4AAQ" />'
+            . '<img src="/typo3conf/ext/foo/bar.png" />'
+            . '<img src="/securedl/sdl-eyJ0eXAi" />'
+            . '</p>';
+
+        $result = new ValidationResult();
+        $issues = $this->subject->validateHtml($html, 'tt_content', 1, 'bodytext', $result);
+
+        self::assertSame([], $issues);
+        self::assertSame(
+            [
+                'external' => 1,
+                'data'     => 1,
+                'legacy'   => 1,
+                'securedl' => 1,
+            ],
+            $result->getSkippedByOrigin(),
+        );
+        self::assertSame(4, $result->getSkippedTotal());
+    }
+
+    #[Test]
+    public function localFalMissingFileUidIsStillReported(): void
+    {
+        $html = '<p><img src="/fileadmin/processed_copy_paste.jpg" /></p>';
+
+        $result = new ValidationResult();
+        $issues = $this->subject->validateHtml($html, 'tt_content', 7, 'bodytext', $result);
+
+        self::assertCount(1, $issues);
+        self::assertSame(ValidationIssueType::MissingFileUid, $issues[0]->type);
+        self::assertSame([], $result->getSkippedByOrigin());
+    }
+
+    #[Test]
+    public function includeOriginOverridesDefaultSkip(): void
+    {
+        $html = '<p><img src="https://external.example.com/foo.jpg" /></p>';
+
+        $result = new ValidationResult();
+        $issues = $this->subject->validateHtml(
+            $html,
+            'tt_content',
+            1,
+            'bodytext',
+            $result,
+            [\Netresearch\RteCKEditorImage\Dto\SrcOrigin::ExternalUrl],
+        );
+
+        self::assertCount(1, $issues);
+        self::assertSame(ValidationIssueType::MissingFileUid, $issues[0]->type);
+        self::assertSame([], $result->getSkippedByOrigin());
+    }
+
+    #[Test]
     public function detectsOrphanedFileUid(): void
     {
         $this->resourceFactory

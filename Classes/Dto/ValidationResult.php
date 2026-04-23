@@ -24,10 +24,19 @@ final class ValidationResult
     /** @var array<string, true> table:uid keys of affected records */
     private array $affectedRecordKeys = [];
 
+    /** @var array<string, int> origin value => skipped count */
+    private array $skippedByOrigin = [];
+
     public function addIssue(ValidationIssue $issue): void
     {
         $this->issues[]                                              = $issue;
         $this->affectedRecordKeys[$issue->table . ':' . $issue->uid] = true;
+    }
+
+    public function recordSkipped(SrcOrigin $origin): void
+    {
+        $key                         = $origin->value;
+        $this->skippedByOrigin[$key] = ($this->skippedByOrigin[$key] ?? 0) + 1;
     }
 
     public function incrementScannedRecords(): void
@@ -38,6 +47,19 @@ final class ValidationResult
     public function incrementScannedImages(): void
     {
         ++$this->scannedImages;
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public function getSkippedByOrigin(): array
+    {
+        return $this->skippedByOrigin;
+    }
+
+    public function getSkippedTotal(): int
+    {
+        return array_sum($this->skippedByOrigin);
     }
 
     public function hasIssues(): bool

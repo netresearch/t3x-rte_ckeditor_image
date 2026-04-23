@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Command;
 
+use Netresearch\RteCKEditorImage\Dto\SrcOrigin;
 use Netresearch\RteCKEditorImage\Dto\ValidationResult;
 use Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -59,6 +60,16 @@ class ValidateImageReferencesCommand extends Command
             InputOption::VALUE_NONE,
             'Explicitly request dry-run mode (default behavior)',
         );
+        $this->addOption(
+            'include',
+            null,
+            InputOption::VALUE_REQUIRED,
+            sprintf(
+                'Comma-separated origins that are skipped by default but should be reported: %s. '
+                . 'Use "all" to disable all skipping.',
+                implode(', ', array_map(static fn (SrcOrigin $o): string => $o->value, SrcOrigin::defaultSkipSet())),
+            ),
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -78,7 +89,9 @@ class ValidateImageReferencesCommand extends Command
             $io->note('Limiting scan to table: ' . $limitToTable);
         }
 
-        $result = $this->validator->validate($limitToTable);
+        $includeOrigins = $this->parseIncludeOption($input->getOption('include'), $io);
+
+        $result = $this->validator->validate($limitToTable, $includeOrigins);
 
         $this->renderSummary($io, $result);
 
@@ -105,12 +118,65 @@ class ValidateImageReferencesCommand extends Command
 
     private function renderSummary(SymfonyStyle $io, ValidationResult $result): void
     {
-        $io->definitionList(
+        $definitions = [
             ['Scanned records' => (string) $result->getScannedRecords()],
             ['Scanned images'   => (string) $result->getScannedImages()],
             ['Issues found'     => (string) count($result->getIssues())],
             ['Affected records' => (string) $result->getAffectedRecords()],
-        );
+        ];
+
+        $skipped = $result->getSkippedByOrigin();
+        if ($skipped !== []) {
+            $parts = [];
+            foreach ($skipped as $origin => $count) {
+                $parts[] = sprintf('%d %s', $count, $origin);
+            }
+            $definitions[] = [
+                'Skipped (out of scope)' => sprintf('%d total (%s)', $result->getSkippedTotal(), implode(', ', $parts)),
+            ];
+        }
+
+        $io->definitionList(...$definitions);
+    }
+
+    /**
+     * @param mixed $rawInclude
+     *
+     * @return list<SrcOrigin>
+     */
+    private function parseIncludeOption(mixed $rawInclude, SymfonyStyle $io): array
+    {
+        if (!is_string($rawInclude) || trim($rawInclude) === '') {
+            return [];
+        }
+
+        $tokens = array_filter(array_map('trim', explode(',', $rawInclude)), static fn (string $t): bool => $t !== '');
+
+        if (in_array('all', $tokens, true)) {
+            return SrcOrigin::defaultSkipSet();
+        }
+
+        $origins  = [];
+        $skipSet  = SrcOrigin::defaultSkipSet();
+        $knownMap = [];
+        foreach ($skipSet as $origin) {
+            $knownMap[$origin->value] = $origin;
+        }
+
+        foreach ($tokens as $token) {
+            if (isset($knownMap[$token])) {
+                $origins[] = $knownMap[$token];
+                continue;
+            }
+
+            $io->warning(sprintf(
+                'Unknown --include value "%s". Allowed: %s, all.',
+                $token,
+                implode(', ', array_keys($knownMap)),
+            ));
+        }
+
+        return array_values(array_unique($origins, SORT_REGULAR));
     }
 
     private function renderIssueTable(SymfonyStyle $io, OutputInterface $output, ValidationResult $result): void
