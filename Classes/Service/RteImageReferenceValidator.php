@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Service;
 
+use Netresearch\RteCKEditorImage\Dto\SrcOrigin;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssueType;
 use Netresearch\RteCKEditorImage\Dto\ValidationResult;
@@ -33,14 +34,18 @@ class RteImageReferenceValidator
         private readonly ConnectionPool $connectionPool,
         private readonly ResourceFactory $resourceFactory,
         private readonly HtmlParser $htmlParser,
+        private readonly SrcOriginClassifier $srcOriginClassifier = new SrcOriginClassifier(),
     ) {}
 
     /**
      * Scan all RTE fields and return validation issues.
      *
-     * @param string|null $limitToTable Restrict scan to a specific table (e.g. 'tt_content')
+     * @param string|null     $limitToTable   Restrict scan to a specific table (e.g. 'tt_content')
+     * @param list<SrcOrigin> $includeOrigins origins that would otherwise be
+     *                                        skipped ({@see SrcOrigin::defaultSkipSet()}) but
+     *                                        should still produce MissingFileUid issues
      */
-    public function validate(?string $limitToTable = null): ValidationResult
+    public function validate(?string $limitToTable = null, array $includeOrigins = []): ValidationResult
     {
         $result  = new ValidationResult();
         $records = $this->findAffectedRecords($limitToTable);
@@ -75,7 +80,7 @@ class RteImageReferenceValidator
             }
 
             $result->incrementScannedRecords();
-            $issues = $this->validateHtml($currentValue, $tableName, $recuid, $field, $result);
+            $issues = $this->validateHtml($currentValue, $tableName, $recuid, $field, $result, $includeOrigins);
 
             foreach ($issues as $issue) {
                 $result->addIssue($issue);
@@ -168,6 +173,9 @@ class RteImageReferenceValidator
     /**
      * Validate HTML content and return issues found.
      *
+     * @param list<SrcOrigin> $includeOrigins origins that would otherwise be
+     *                                        skipped but should still be reported
+     *
      * @return list<ValidationIssue>
      */
     public function validateHtml(
@@ -176,6 +184,7 @@ class RteImageReferenceValidator
         int $uid,
         string $field,
         ?ValidationResult $result = null,
+        array $includeOrigins = [],
     ): array {
         $splitContent = $this->htmlParser->splitTags('img', $html);
         $issues       = [];
@@ -204,7 +213,7 @@ class RteImageReferenceValidator
             $src     = $this->getStringAttribute($tagAttributes, 'src');
             $fileUid = $this->getStringAttribute($tagAttributes, 'data-htmlarea-file-uid');
 
-            $issue = $this->detectIssue($src, $fileUid, $table, $uid, $field, $imgIndex);
+            $issue = $this->detectIssue($src, $fileUid, $table, $uid, $field, $imgIndex, $result, $includeOrigins);
 
             if ($issue instanceof ValidationIssue) {
                 $issues[] = $issue;
@@ -221,6 +230,9 @@ class RteImageReferenceValidator
 
     /**
      * Detect what kind of issue (if any) exists for a single img tag.
+     *
+     * @param list<SrcOrigin> $includeOrigins origins reported even if in the
+     *                                        default skip set
      */
     private function detectIssue(
         ?string $src,
@@ -229,9 +241,19 @@ class RteImageReferenceValidator
         int $uid,
         string $field,
         int $imgIndex,
+        ?ValidationResult $result = null,
+        array $includeOrigins = [],
     ): ?ValidationIssue {
         // Missing file-uid attribute
         if ($fileUidStr === null || $fileUidStr === '') {
+            $origin = $this->srcOriginClassifier->classify($src);
+
+            if ($this->shouldSkipOrigin($origin, $includeOrigins)) {
+                $result?->recordSkipped($origin);
+
+                return null;
+            }
+
             return new ValidationIssue(
                 type: ValidationIssueType::MissingFileUid,
                 table: $table,
@@ -319,6 +341,23 @@ class RteImageReferenceValidator
         }
 
         return null;
+    }
+
+    /**
+     * Decide whether a src origin should be suppressed from reporting.
+     *
+     * Default-skipped origins ({@see SrcOrigin::defaultSkipSet()}) can be
+     * re-enabled by listing them in $includeOrigins.
+     *
+     * @param list<SrcOrigin> $includeOrigins
+     */
+    private function shouldSkipOrigin(SrcOrigin $origin, array $includeOrigins): bool
+    {
+        if (!in_array($origin, SrcOrigin::defaultSkipSet(), true)) {
+            return false;
+        }
+
+        return !in_array($origin, $includeOrigins, true);
     }
 
     /**
