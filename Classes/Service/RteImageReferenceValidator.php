@@ -40,10 +40,10 @@ class RteImageReferenceValidator
     /**
      * Scan all RTE fields and return validation issues.
      *
-     * @param string|null  $limitToTable   Restrict scan to a specific table (e.g. 'tt_content')
-     * @param list<SrcOrigin> $includeOrigins Origins that would otherwise be
-     *                                       skipped ({@see SrcOrigin::defaultSkipSet()}) but
-     *                                       should still produce MissingFileUid issues.
+     * @param string|null     $limitToTable   Restrict scan to a specific table (e.g. 'tt_content')
+     * @param list<SrcOrigin> $includeOrigins origins that would otherwise be
+     *                                        skipped ({@see SrcOrigin::defaultSkipSet()}) but
+     *                                        should still produce MissingFileUid issues
      */
     public function validate(?string $limitToTable = null, array $includeOrigins = []): ValidationResult
     {
@@ -173,8 +173,8 @@ class RteImageReferenceValidator
     /**
      * Validate HTML content and return issues found.
      *
-     * @param list<SrcOrigin> $includeOrigins Origins that would otherwise be
-     *                                        skipped but should still be reported.
+     * @param list<SrcOrigin> $includeOrigins origins that would otherwise be
+     *                                        skipped but should still be reported
      *
      * @return list<ValidationIssue>
      */
@@ -231,8 +231,8 @@ class RteImageReferenceValidator
     /**
      * Detect what kind of issue (if any) exists for a single img tag.
      *
-     * @param list<SrcOrigin> $includeOrigins Origins reported even if in the
-     *                                        default skip set.
+     * @param list<SrcOrigin> $includeOrigins origins reported even if in the
+     *                                        default skip set
      */
     private function detectIssue(
         ?string $src,

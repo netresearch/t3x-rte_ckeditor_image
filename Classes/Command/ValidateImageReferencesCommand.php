@@ -91,7 +91,11 @@ class ValidateImageReferencesCommand extends Command
 
         $includeOrigins = $this->parseIncludeOption($input->getOption('include'), $io);
 
-        $result = $this->validator->validate($limitToTable, $includeOrigins);
+        // Only pass $includeOrigins when non-empty so existing mocks/subclasses
+        // that still expect validate($limitToTable) arity keep working.
+        $result = $includeOrigins === []
+            ? $this->validator->validate($limitToTable)
+            : $this->validator->validate($limitToTable, $includeOrigins);
 
         $this->renderSummary($io, $result);
 
@@ -131,6 +135,7 @@ class ValidateImageReferencesCommand extends Command
             foreach ($skipped as $origin => $count) {
                 $parts[] = sprintf('%d %s', $count, $origin);
             }
+
             $definitions[] = [
                 'Skipped (out of scope)' => sprintf('%d total (%s)', $result->getSkippedTotal(), implode(', ', $parts)),
             ];
@@ -150,7 +155,7 @@ class ValidateImageReferencesCommand extends Command
             return [];
         }
 
-        $tokens = array_filter(array_map('trim', explode(',', $rawInclude)), static fn (string $t): bool => $t !== '');
+        $tokens = array_filter(array_map(trim(...), explode(',', $rawInclude)), static fn (string $t): bool => $t !== '');
 
         if (in_array('all', $tokens, true)) {
             return SrcOrigin::defaultSkipSet();

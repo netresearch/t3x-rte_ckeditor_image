@@ -32,7 +32,13 @@ final class SrcOriginClassifier
             return SrcOrigin::DataUri;
         }
 
-        if (str_starts_with($trimmed, 'http://') || str_starts_with($trimmed, 'https://')) {
+        // Absolute http(s) URLs and protocol-relative URLs (//cdn.example.com/…)
+        // are all external references — no FAL mapping regardless of host.
+        if (
+            str_starts_with($trimmed, 'http://')
+            || str_starts_with($trimmed, 'https://')
+            || str_starts_with($trimmed, '//')
+        ) {
             return SrcOrigin::ExternalUrl;
         }
 
