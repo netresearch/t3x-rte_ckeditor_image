@@ -262,6 +262,25 @@ Options:
         use
             Build/Scripts/runTests.sh -s unit -- --filter classCanBeRegistered
 
+    -X <bootstrap|core-only|fsc>
+        Only with -s e2e
+        Selects the "extension neighborhood" the E2E TYPO3 instance is set up with.
+        Different variants exercise the extension under different sitepackage / FSC /
+        Bootstrap-Package combinations to surface regressions that only manifest in
+        specific configurations (e.g. issue #790: vanilla install with no FSC site set
+        and no Bootstrap behaves differently than one with Bootstrap, where the bug
+        is masked by Bootstrap's own parseFunc_RTE config).
+
+            - core-only: minimal install — TYPO3 core only, no fluid_styled_content,
+              no Bootstrap Package. Models the fresh-install evaluator scenario.
+            - fsc      : (default) FSC site set enabled, no Bootstrap. Current
+              long-standing E2E baseline.
+            - bootstrap: FSC + Bootstrap Package. Common real-world setup.
+
+        Also reads the E2E_VARIANT env var as a fallback when -X is omitted (used
+        by ci-e2e.sh wrapper so the reusable e2e.yml workflow can pass the variant
+        through without re-translating flags).
+
     -x
         Only with -s functional|functionalDeprecated|unit|unitDeprecated|unitRandom
         Send information to host instance for test or system under test break points. This is especially
@@ -359,8 +378,18 @@ IS_CI=0
 OPTIND=1
 # Array for invalid options
 INVALID_OPTIONS=()
+# E2E setup variant — controls which sitepackage / FSC / Bootstrap-Package combo
+# the E2E TYPO3 instance is built with. Allow env override so CI can drive the
+# matrix without rewriting flags (the ci-e2e.sh wrapper sets E2E_VARIANT).
+# Both the env var path and the -X CLI flag path go through the same
+# validation regex so an invalid value never silently changes setup behavior.
+E2E_VARIANT="${E2E_VARIANT:-fsc}"
+if ! [[ ${E2E_VARIANT} =~ ^(bootstrap|core-only|fsc)$ ]]; then
+    INVALID_OPTIONS+=("E2E_VARIANT=${E2E_VARIANT} (must be bootstrap|core-only|fsc)")
+fi
+
 # Simple option parsing based on getopts (! not getopt)
-while getopts "a:b:c:s:d:i:p:e:t:xy:nhu" OPT; do
+while getopts "a:b:c:s:d:i:p:e:t:xy:nhuX:" OPT; do
     case ${OPT} in
         s)
             TEST_SUITE=${OPTARG}
@@ -403,6 +432,12 @@ while getopts "a:b:c:s:d:i:p:e:t:xy:nhu" OPT; do
             ;;
         x)
             PHP_XDEBUG_ON=1
+            ;;
+        X)
+            E2E_VARIANT=${OPTARG}
+            if ! [[ ${E2E_VARIANT} =~ ^(bootstrap|core-only|fsc)$ ]]; then
+                INVALID_OPTIONS+=("-X ${OPTARG}")
+            fi
             ;;
         y)
             PHP_XDEBUG_PORT=${OPTARG}
@@ -482,7 +517,7 @@ IMAGE_MYSQL="docker.io/mysql:${DBMS_VERSION}"
 IMAGE_POSTGRES="docker.io/postgres:${DBMS_VERSION}-alpine"
 # E2E testing images (TYPO3 Core pattern)
 IMAGE_APACHE="ghcr.io/typo3/core-testing-apache24:1.7"
-IMAGE_PLAYWRIGHT="mcr.microsoft.com/playwright:v1.58.0-noble"
+IMAGE_PLAYWRIGHT="mcr.microsoft.com/playwright:v1.59.1-noble"
 
 # Set $1 to first mass argument, this is the optional test file or test directory to execute
 shift $((OPTIND - 1))
@@ -695,21 +730,55 @@ echo "Pages record inserted\n";
 $pdo->exec("INSERT IGNORE INTO pages (uid, pid, title, slug, doktype, is_siteroot, hidden, deleted, tstamp, crdate) VALUES (2, 1, 'Error Handling Tests', '/error-handling-tests', 1, 0, 0, 0, $now, $now)");
 echo "Error handling test page (uid=2) inserted\n";
 
-// TypoScript CONSTANTS - defines default values used by setup
-// fluid_styled_content needs these constants for proper operation
-$tsConstants = <<<'TYPOSCRIPT'
+// TypoScript constants and config are split into a variant-specific
+// header (the @imports / styles.content.get definition) and a shared
+// body (page = PAGE, popup config, allowTags additions). The core-only
+// variant skips fluid_styled_content composer-side, so importing
+// EXT:fluid_styled_content TS would fail at TS-parse time — its header
+// instead inlines a minimal styles.content.get definition that mirrors
+// what fluid_styled_content normally provides.
+$variant = getenv('E2E_VARIANT') ?: 'fsc';
+
+if ($variant === 'core-only') {
+    $tsConstants = <<<'TYPOSCRIPT'
+# core-only: no fluid_styled_content constants import (extension not installed).
+styles.content.image.lazyLoading = lazy
+TYPOSCRIPT;
+
+    // Inline styles.content.get because fluid_styled_content (the usual
+    // provider) isn't installed in this variant. Shape mirrors FSC.
+    $tsConfigHeader = <<<'TYPOSCRIPT'
+styles.content.get = CONTENT
+styles.content.get {
+    table = tt_content
+    select {
+        orderBy = sorting
+        where = {#colPos}=0
+    }
+}
+
+@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
+TYPOSCRIPT;
+} else {
+    // fsc and bootstrap: fluid_styled_content provides constants and the
+    // styles.content.get definition. Bootstrap layers Bootstrap Package
+    // on top via the site set; the sys_template TS is identical to fsc.
+    $tsConstants = <<<'TYPOSCRIPT'
 @import 'EXT:fluid_styled_content/Configuration/TypoScript/constants.typoscript'
 
 # Image lazy loading setting
 styles.content.image.lazyLoading = lazy
 TYPOSCRIPT;
 
-// TypoScript SETUP configuration for PAGE rendering
-// IMPORTANT: Load fluid_styled_content FIRST to define lib.parseFunc_RTE base
-// Then load our extension to add the tags.img.preUserFunc for click-to-enlarge
-$tsConfig = <<<'TYPOSCRIPT'
+    $tsConfigHeader = <<<'TYPOSCRIPT'
 @import 'EXT:fluid_styled_content/Configuration/TypoScript/setup.typoscript'
 @import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
+TYPOSCRIPT;
+}
+
+// Shared body across all variants — page rendering, popup, allowTags
+// additions for tags that aren't in the default whitelist.
+$tsConfigBody = <<<'TYPOSCRIPT'
 
 # Ensure lib.contentElement.settings.media.popup is set for click-to-enlarge
 # This path MUST exist for ImageRenderingController to find popup config
@@ -742,6 +811,8 @@ lib.parseFunc_RTE.allowTags := addToList(h1,h2,h3,h4,h5,h6)
 lib.parseFunc_RTE.allowTags := addToList(table,thead,tbody,tr,th,td,ul,ol,li)
 TYPOSCRIPT;
 
+$tsConfig = $tsConfigHeader . $tsConfigBody;
+
 // Insert or update sys_template with BOTH constants and config
 // Use ON DUPLICATE KEY UPDATE to ensure our TypoScript is applied even if TYPO3 setup pre-created it
 $stmt = $pdo->prepare("INSERT INTO sys_template (uid, pid, root, title, clear, constants, config, hidden, deleted, tstamp, crdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE constants = VALUES(constants), config = VALUES(config), root = 1, clear = 1");
@@ -750,7 +821,32 @@ echo "sys_template record ensured with constants and config\n";
 DBSETUP_EOF
 
         # site-config.yaml - Site configuration
-        cat > "${E2E_SCRIPTS}/site-config.yaml" << 'SITECONFIG_EOF'
+        # Site-set dependencies match the composer-required extensions selected
+        # by E2E_VARIANT (see -X flag docs and the composer require step below).
+        # core-only intentionally lists only our own set so the bug class in
+        # #790 (vanilla install with no FSC site set) is reproduced faithfully.
+        case "${E2E_VARIANT}" in
+            core-only)
+                E2E_SITE_DEPENDENCIES='  - netresearch/rte-ckeditor-image'
+                ;;
+            fsc)
+                E2E_SITE_DEPENDENCIES='  - typo3/fluid-styled-content
+  - netresearch/rte-ckeditor-image'
+                ;;
+            bootstrap)
+                # Bootstrap Package site set name differs by major: v15 → "bootstrap-package",
+                # v16 → still "bootstrap-package/full" plus the company set.
+                # Use the universal "full" set which exists in both ranges.
+                E2E_SITE_DEPENDENCIES='  - bootstrap-package/full
+  - typo3/fluid-styled-content
+  - netresearch/rte-ckeditor-image'
+                ;;
+            *)
+                echo "::error::Unknown E2E_VARIANT for site-config: ${E2E_VARIANT}" >&2
+                exit 1
+                ;;
+        esac
+        cat > "${E2E_SCRIPTS}/site-config.yaml" << SITECONFIG_EOF
 rootPageId: 1
 base: /
 languages:
@@ -762,8 +858,7 @@ languages:
     navigationTitle: English
     flag: us
 dependencies:
-  - typo3/fluid-styled-content
-  - netresearch/rte-ckeditor-image
+${E2E_SITE_DEPENDENCIES}
 SITECONFIG_EOF
 
         # create-test-content.php - Create test image and content records
@@ -1172,6 +1267,7 @@ CONTENT_EOF
             -v ${E2E_COMPOSER_CACHE}:/.cache/composer \
             -w /var/www/html \
             -e COMPOSER_CACHE_DIR=/.cache/composer \
+            -e E2E_VARIANT="${E2E_VARIANT}" \
             ${IMAGE_PHP} /bin/bash -c "
                 # Disable Composer's block-insecure feature for transient upstream advisories
                 # (e.g., CVE-2025-45769 in firebase/php-jwt <7.0, a TYPO3 Core dependency)
@@ -1184,7 +1280,36 @@ CONTENT_EOF
                 # Mount extension at /extension and use that path for composer
                 composer config repositories.local path /extension
                 composer require netresearch/rte-ckeditor-image:@dev --no-interaction --no-progress --no-scripts
-                composer require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
+
+                # Install variant-specific extension neighborhood. See -X flag
+                # docs in this script's header. cms-reports is included in all
+                # variants for the post-install healthcheck commands.
+                case \"${E2E_VARIANT}\" in
+                    core-only)
+                        echo \"E2E variant: core-only (no fluid_styled_content, no Bootstrap Package)\"
+                        composer require typo3/cms-reports --no-interaction --no-progress --no-scripts
+                        ;;
+                    fsc)
+                        echo \"E2E variant: fsc (fluid_styled_content site set, no Bootstrap Package)\"
+                        composer require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
+                        ;;
+                    bootstrap)
+                        echo \"E2E variant: bootstrap (FSC + Bootstrap Package)\"
+                        composer require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
+                        # Bootstrap Package versions track TYPO3 majors:
+                        # ^15.0 → TYPO3 v13, ^16.0 → TYPO3 v14
+                        # E2E_TYPO3_VERSION is expanded by the outer shell (no \\\$ escape).
+                        if [ \"${E2E_TYPO3_VERSION}\" = \"14\" ]; then
+                            composer require bk2k/bootstrap-package:'^16.0' --no-interaction --no-progress --no-scripts
+                        else
+                            composer require bk2k/bootstrap-package:'^15.0' --no-interaction --no-progress --no-scripts
+                        fi
+                        ;;
+                    *)
+                        echo \"::error::Unknown E2E_VARIANT: ${E2E_VARIANT}\" >&2
+                        exit 1
+                        ;;
+                esac
 
                 # Install extra Composer packages if specified via -c flag
                 if [ -n \"${E2E_EXTRA_PACKAGES}\" ]; then
@@ -1367,6 +1492,7 @@ HTACCESS
             -e BASE_URL=http://apache-e2e-${SUFFIX}:80 \
             -e TYPO3_BACKEND_PASSWORD="${E2E_ADMIN_PASSWORD}" \
             -e TYPO3_VERSION="${E2E_TYPO3_VERSION}" \
+            -e E2E_VARIANT="${E2E_VARIANT}" \
             -e CI=true \
             ${PLAYWRIGHT_EXTRA_ENV} \
             ${IMAGE_PLAYWRIGHT} /bin/bash -c "
