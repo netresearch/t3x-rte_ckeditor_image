@@ -944,7 +944,7 @@ class ImageResolverService
             // SECURITY: Validate URL to prevent JavaScript injection
             if ($this->validateLinkUrl($linkUrl)) {
                 $linkTarget = $linkAttributes['target'] ?? null;
-                $link = new LinkDto(
+                $link       = new LinkDto(
                     url: $linkUrl,
                     target: $linkTarget,
                     class: $linkAttributes['class'] ?? null,
