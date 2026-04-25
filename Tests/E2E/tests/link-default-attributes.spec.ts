@@ -19,11 +19,16 @@ test.describe('Link Default Attributes (#718)', () => {
   test('external links with target="_blank" have rel="noreferrer"', async ({ page }) => {
     await gotoFrontendPage(page);
 
-    // Demo content contains links with target="_blank" (e.g., GitHub, Packagist links)
-    const externalLinks = page.locator('a[target="_blank"]');
+    // Scope to **editorial external links** that go through `tags.a` parseFunc and
+    // typolink's `LinkFactory::addSecurityRelValues()`. Filter by `href^="http"` so
+    // we don't pick up our own popup/lightbox links — those carry `target="_blank"`
+    // too, but use internal `/fileadmin/...` URLs and intentionally set
+    // `rel="lightbox-group-rte"` from a code path that bypasses typolink (cf.
+    // ImageRenderingService template selection for the Popup/Zoom variants).
+    const externalLinks = page.locator('a[target="_blank"][href^="http"]');
     const count = await externalLinks.count();
 
-    expect(count, 'Expected links with target="_blank" in rendered content').toBeGreaterThan(0);
+    expect(count, 'Expected editorial external links with target="_blank" in rendered content').toBeGreaterThan(0);
 
     // CRITICAL: typolink adds rel="noreferrer" for target="_blank" links.
     // This was the primary regression in #718 — tags.a > removed typolink processing.
@@ -39,15 +44,16 @@ test.describe('Link Default Attributes (#718)', () => {
   test('linked inline images preserve target attribute', async ({ page }) => {
     await gotoFrontendPage(page);
 
-    // Demo content has inline images linked with target="_blank"
-    // e.g., <a href="https://github.com/netresearch" target="_blank"><img ...></a>
-    const linkedImages = page.locator('a[target="_blank"] img');
+    // Same scoping as above — popup/lightbox links wrap images too, but they
+    // legitimately don't carry `rel="noreferrer"` (their rel is "lightbox-group-rte"
+    // and they target internal file URLs). Restrict to editorial external links.
+    const linkedImages = page.locator('a[target="_blank"][href^="http"] img');
     const count = await linkedImages.count();
 
-    expect(count, 'Expected linked images with target="_blank" parent').toBeGreaterThan(0);
+    expect(count, 'Expected editorial linked images with target="_blank" parent').toBeGreaterThan(0);
 
     // Get the parent <a> and verify attributes
-    const parentLink = page.locator('a[target="_blank"]:has(img)').first();
+    const parentLink = page.locator('a[target="_blank"][href^="http"]:has(img)').first();
     const href = await parentLink.getAttribute('href');
     expect(href, 'Link href should be present').toBeTruthy();
 
