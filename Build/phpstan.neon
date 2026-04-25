@@ -67,3 +67,13 @@ parameters:
           path: %currentWorkingDirectory%/Classes/Service/Environment/Typo3EnvironmentInfo.php
           message: '#getIndpEnv#'
           reportUnmatched: false
+        # ergebnis.noErrorSuppression — the shared phpstan config (v1.3+)
+        # enables this rule. SecurityValidator::normalizeIpAddress() uses
+        # `@inet_pton($ip)` to suppress the PHP warning on malformed input;
+        # the result-is-false branch is already explicitly checked. Replacing
+        # `@` with set_error_handler/restore_error_handler around a single
+        # native call is more code without behaviour change. Path-scoped so a
+        # new `@` elsewhere still flags.
+        - identifier: ergebnis.noErrorSuppression
+          path: %currentWorkingDirectory%/Classes/Service/Security/SecurityValidator.php
+          reportUnmatched: false

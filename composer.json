@@ -40,7 +40,7 @@
     },
     "require-dev": {
         "bk2k/bootstrap-package": "^15.0 || ^16.0",
-        "netresearch/typo3-ci-workflows": "~1.2.0"
+        "netresearch/typo3-ci-workflows": "^1.0"
     },
     "autoload": {
         "psr-4": {
