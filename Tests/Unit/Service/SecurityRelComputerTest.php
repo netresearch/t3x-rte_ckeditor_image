@@ -115,6 +115,26 @@ final class SecurityRelComputerTest extends TestCase
         yield 'empty existing string → null' => [
             '_blank', '/internal', '', null,
         ];
+
+        // === Target normalization (case-insensitive + trim) ===
+        yield 'uppercase _SELF treated as same-context' => [
+            '_SELF', 'https://example.com', null, null,
+        ];
+        yield 'mixed-case _Parent treated as same-context' => [
+            '_Parent', 'https://example.com', null, null,
+        ];
+        yield 'mixed-case _Top treated as same-context' => [
+            '_Top', 'https://example.com', null, null,
+        ];
+        yield 'whitespace-padded _self treated as same-context' => [
+            '  _self  ', 'https://example.com', null, null,
+        ];
+        yield 'mixed-case _Blank still gets noreferrer for external' => [
+            '_Blank', 'https://example.com', null, 'noreferrer',
+        ];
+        yield 'uppercase _BLANK still gets noreferrer for external' => [
+            '_BLANK', 'https://example.com', null, 'noreferrer',
+        ];
     }
 
     #[Test]

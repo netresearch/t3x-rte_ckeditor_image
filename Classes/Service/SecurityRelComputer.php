@@ -41,39 +41,54 @@ final class SecurityRelComputer
      *     and `/` are matched in that order to disambiguate).
      *
      * Existing rel tokens from the source `<a>` (e.g. `nofollow`,
-     * `sponsored`, `noopener`) are preserved. If "noreferrer" is already
-     * present in the source rel, the source value is returned unchanged.
+     * `sponsored`, `noopener`) are preserved through `parseTokens()`,
+     * which lowercases, deduplicates, and collapses whitespace — so the
+     * returned string is normalized rather than verbatim from the source.
+     * "noreferrer" is added at most once; if the source already has it,
+     * no duplicate is appended.
      *
-     * Returns the source rel (if any) for relative paths, fragments,
+     * Returns the (normalized) source rel for relative paths, fragments,
      * mailto:/tel:/t3:, and non-browsing-context targets — i.e. cases
      * where typolink wouldn't add security rel either. (t3:// URLs are
      * already resolved to absolute paths before reaching this method.)
+     *
+     * The HTML browsing-context keywords (`_self`, `_blank`, `_parent`,
+     * `_top`) are matched case-insensitively per the HTML living standard
+     * and after trimming, so values like `_SELF` or `  _self  ` are
+     * correctly classified as same-context.
      *
      * @param string|null $target   Link target attribute
      * @param string      $url      Resolved link URL
      * @param string|null $existing Pre-existing rel value from the source `<a>` tag
      *
-     * @return string|null Merged rel value (or null when neither security
-     *                     rel applies nor a source rel was provided)
+     * @return string|null Normalized merged rel value (or null when
+     *                     neither security rel applies nor a source rel
+     *                     was provided)
      */
     public static function compute(?string $target, string $url, ?string $existing = null): ?string
     {
         $existingTokens = self::parseTokens($existing);
 
+        // Normalize target for the same-context comparison: HTML
+        // browsing-context keywords are case-insensitive. Trim and
+        // lowercase so values like `_SELF` or `  _Top  ` are still
+        // recognized and short-circuit the security rel addition.
+        $normalizedTarget = $target === null ? null : strtolower(trim($target));
+
         // Determine whether security rel should be added.
         $needsNoreferrer = false;
-        if ($target !== null && !in_array($target, ['', '_self', '_parent', '_top'], true)) {
+        if ($normalizedTarget !== null && !in_array($normalizedTarget, ['', '_self', '_parent', '_top'], true)) {
             // Trim and lowercase for stable scheme detection. Defensive even
             // if the URL has been validated upstream — we don't want surface
             // whitespace from RTE markup to silently change the predicate.
-            $normalized = strtolower(trim($url));
+            $normalizedUrl = strtolower(trim($url));
             $needsNoreferrer
-                = str_starts_with($normalized, 'http://')
-                || str_starts_with($normalized, 'https://')
+                = str_starts_with($normalizedUrl, 'http://')
+                || str_starts_with($normalizedUrl, 'https://')
                 // Protocol-relative URLs inherit the page's scheme and resolve
                 // to a different host. RFC 3986 §4.4.2 calls these
                 // "network-path references". `//foo` ⇒ external; `/foo` ⇒ internal.
-                || str_starts_with($normalized, '//');
+                || str_starts_with($normalizedUrl, '//');
         }
 
         if ($needsNoreferrer && !in_array('noreferrer', $existingTokens, true)) {
