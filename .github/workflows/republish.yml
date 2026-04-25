@@ -1,0 +1,34 @@
+name: Republish
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Git tag to republish (e.g. "v1.2.3")'
+        required: true
+        type: string
+      target:
+        description: 'Which publish target(s) to re-run'
+        required: true
+        type: choice
+        options:
+          - all
+          - ter
+          - docs
+          - packagist
+        default: all
+
+permissions: {}
+
+jobs:
+  republish:
+    uses: netresearch/typo3-ci-workflows/.github/workflows/republish.yml@main
+    permissions:
+      contents: read
+    with:
+      tag: ${{ inputs.tag }}
+      target: ${{ inputs.target }}
+      extension-key: rte_ckeditor_image
+      package-name: netresearch/rte-ckeditor-image
+    secrets:
+      TYPO3_TER_ACCESS_TOKEN: ${{ secrets.TYPO3_TER_ACCESS_TOKEN }}
