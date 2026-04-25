@@ -800,15 +800,24 @@ page.10 < styles.content.get
 # Include CSS for image alignment styles (image-left, image-center, image-right)
 page.includeCSS.rte_ckeditor_image_alignment = EXT:rte_ckeditor_image/Resources/Public/Css/image-alignment.css
 
-# E2E: Ensure heading tags are in allowTags for parseFunc_RTE.
-# fluid_styled_content may not include all heading tags in its allowTags
-# across TYPO3 versions. Our test data (CE 8) contains <h3> with inline
-# images, which would be HTML-escaped if h1-h6 are not allowed.
-lib.parseFunc_RTE.allowTags := addToList(h1,h2,h3,h4,h5,h6)
-
-# E2E: Ensure table/list tags are in allowTags for the same reason.
-# CE 8 test data contains <table>, <ul>, <li> elements.
-lib.parseFunc_RTE.allowTags := addToList(table,thead,tbody,tr,th,td,ul,ol,li)
+# Note (#790): earlier versions of this file had two
+# `lib.parseFunc_RTE.allowTags := addToList(...)` lines here — one for
+# heading tags (h1-h6), one for table/list tags. The justifying comment
+# claimed fluid_styled_content "may not include all heading tags in its
+# allowTags across TYPO3 versions". That justification was wrong:
+# neither v13.4 nor v14.3 fluid_styled_content sets `allowTags` on
+# `lib.parseFunc_RTE` at all. With `allowTags` undefined, the
+# "everything allowed" short-circuit in
+# ContentObjectRenderer::parseFuncInternal() applies and every tag
+# passes through unencoded — exactly the desired behavior.
+#
+# `addToList` on an *undefined* `allowTags` produced a *restrictive*
+# whitelist of just the listed tags, encoding every other tag (most
+# importantly <p>) — the same bug class that #790 reported in the
+# extension itself (setup.typoscript). The lines are removed here so
+# the test infrastructure stops reproducing the very bug it is supposed
+# to be testing the absence of. Test data with <h3> and <table>
+# elements renders correctly without needing whitelisting.
 TYPOSCRIPT;
 
 $tsConfig = $tsConfigHeader . $tsConfigBody;
