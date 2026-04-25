@@ -626,9 +626,13 @@ class ImageResolverService
      * the rest of TYPO3 applies automatically.
      *
      * Returns "noreferrer" when target opens a new browsing context AND the
-     * URL is external (absolute http(s) — t3:// is already resolved before
-     * reaching this point, and relative/fragment URLs are internal).
-     * Returns null otherwise.
+     * URL is external. "External" includes:
+     *   - absolute http(s) URLs (`http://...`, `https://...`)
+     *   - protocol-relative URLs (`//example.com/...`) — RFC 3986 §4.2,
+     *     these inherit the page's scheme and resolve to a different host
+     * Returns null for relative paths, fragments, mailto:/tel:/t3:, and
+     * non-browsing-context targets. (t3:// URLs are already resolved to
+     * absolute paths before reaching this method.)
      *
      * @param string|null $target Link target attribute
      * @param string      $url    Resolved link URL
@@ -644,15 +648,26 @@ class ImageResolverService
             return null;
         }
 
-        // Only absolute http(s) URLs are external for our purposes. Relative
-        // paths (/fileadmin/...), fragments (#...), and other schemes already
-        // share the same origin or use a non-browsing-context handler.
-        $lower = strtolower($url);
-        if (!str_starts_with($lower, 'http://') && !str_starts_with($lower, 'https://')) {
-            return null;
+        // Trim and lowercase for stable scheme detection. validateLinkUrl()
+        // upstream already trims, but be defensive — the URL traversed our
+        // attribute pipeline and may still have edge whitespace from the
+        // original RTE markup.
+        $normalized = strtolower(trim($url));
+
+        // Absolute http(s) URLs are external by definition.
+        if (str_starts_with($normalized, 'http://') || str_starts_with($normalized, 'https://')) {
+            return 'noreferrer';
         }
 
-        return 'noreferrer';
+        // Protocol-relative URLs (`//example.com/...`) inherit the page's
+        // scheme and resolve to whatever host follows the `//`. Treat as
+        // external. Note the second character must NOT be another `/` (a
+        // single-slash path like `/foo` is internal).
+        if (str_starts_with($normalized, '//')) {
+            return 'noreferrer';
+        }
+
+        return null;
     }
 
     /**
