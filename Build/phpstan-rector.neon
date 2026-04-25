@@ -1,0 +1,23 @@
+# Minimal phpstan config for Rector's type inference only.
+#
+# Why a separate file: Rector loads phpstan via its bundled phpstan.phar
+# rather than the project's vendored phpstan + extension-installer. That
+# means the ergebnis/phpstan-rules schema isn't registered and the
+# `parameters: ergebnis:` block in the main config (inherited from
+# typo3-ci-workflows v1.3+) trips a ValidationException.
+#
+# Rector only needs type inference here — the ergebnis style rules belong
+# to PHPStan-the-linter, not to Rector. So this config skips the shared
+# typo3-ci-workflows include entirely and provides just the bits Rector
+# wants: level, paths, treatPhpDocTypesAsCertain.
+parameters:
+    level: 10
+    treatPhpDocTypesAsCertain: false
+    paths:
+        - %currentWorkingDirectory%/Classes/
+        - %currentWorkingDirectory%/Configuration/
+        - %currentWorkingDirectory%/Resources/
+        - %currentWorkingDirectory%/Tests/
+    excludePaths:
+        - %currentWorkingDirectory%/.Build/*
+        - %currentWorkingDirectory%/ext_emconf.php
