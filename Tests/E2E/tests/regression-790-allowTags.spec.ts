@@ -33,11 +33,14 @@ import { gotoFrontendPage } from './helpers/typo3-backend';
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/790
  */
 test.describe('Regression: #790 plain RTE bodytext rendering', () => {
-  test.skip(
-    process.env.E2E_VARIANT !== 'core-only',
-    '#790 only manifests in vanilla install — fsc and bootstrap variants ' +
-      'load packages that configure lib.parseFunc_RTE themselves and mask the bug.',
-  );
+  // Run on every variant. The original bug was masked under fsc and
+  // bootstrap variants (which load packages that configure
+  // `lib.parseFunc_RTE` themselves), so a `test.skip` predicate was
+  // tempting — but the assertion ("rendered HTML preserves <p> structure
+  // and contains no `&lt;p&gt;` artifacts") is a true invariant of
+  // healthy RTE rendering across all variants. Running the spec
+  // everywhere catches future regressions that might re-introduce the
+  // encoding under setups other than core-only too.
 
   test('plain <p> bodytext renders without entity-encoded artifacts', async ({ page }) => {
     await gotoFrontendPage(page);

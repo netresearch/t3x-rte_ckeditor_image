@@ -166,7 +166,9 @@ lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(a,img
 # === [])` short-circuit in ContentObjectRenderer::parseFuncInternal()).
 # `addToList` on the empty default produced a *restrictive* whitelist of
 # only `a, figure, figcaption`, which made parseFunc htmlspecialchars-
-# encode every other tag (including `<p>`) — see #790. Removed in #796.
+# encode every other tag (including `<p>`). See #790 for the report
+# and the original symptom (visible literal `<p>` text in rendered
+# bodytext on vanilla installs).
 #
 # The original intent ("allow figure tags to pass through HTMLparser
 # without re-processing") is actually achieved by the earlier
