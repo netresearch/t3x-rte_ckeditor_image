@@ -97,9 +97,9 @@ Tests/
 
 ## CI Environment
 
-- CI matrix: PHP 8.2/8.3/8.4/8.5 x TYPO3 ^13.4/^14.0
+- CI matrix: PHP 8.2/8.3/8.4/8.5 x TYPO3 ^13.4/^14.3
 - CGL runs only on PHP 8.2 (code style is PHP version independent)
-- Coverage runs only on PHP 8.5 + TYPO3 ^14.0
+- Coverage runs only on PHP 8.5 + TYPO3 ^14.3
 - JavaScript tests run once (not PHP/TYPO3 version dependent)
 - E2E runs after build jobs pass, on v13 (blocking) and v14 (informational)
 

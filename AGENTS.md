@@ -14,7 +14,7 @@ Handles image insertion, processing, rendering with captions, links, popups, qua
 - **Package**: `netresearch/rte-ckeditor-image` (Composer) / `rte_ckeditor_image` (TER)
 - **Namespace**: `Netresearch\RteCKEditorImage\`
 - **Repository**: [github.com/netresearch/t3x-rte_ckeditor_image](https://github.com/netresearch/t3x-rte_ckeditor_image)
-- **Tech Stack**: PHP ^8.2, TYPO3 ^13.4.21 || ^14.0, CKEditor 5
+- **Tech Stack**: PHP ^8.2, TYPO3 ^13.4.21 || ^14.3, CKEditor 5
 - **License**: AGPL-3.0-or-later
 - **Current Version**: 13.8.0
 
@@ -168,7 +168,7 @@ See [ADR-003: Security Responsibility Boundaries](Documentation/Architecture/ADR
 | Mutation | `composer ci:mutation` | Local or CI |
 | Architecture | Part of unit suite via phpat | Local or CI |
 
-**CI matrix**: PHP 8.2/8.3/8.4/8.5 x TYPO3 ^13.4/^14.0 (8 combinations for build, E2E on v13+v14)
+**CI matrix**: PHP 8.2/8.3/8.4/8.5 x TYPO3 ^13.4/^14.3 (8 combinations for build, E2E on v13+v14)
 
 ## Index of Scoped AGENTS.md
 

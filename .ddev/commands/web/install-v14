@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## Description: Install TYPO3 14.0 with your extension
+## Description: Install TYPO3 14.3 LTS with your extension
 ## Usage: install-v14
 ## Example: ddev install-v14
 
@@ -17,9 +17,7 @@ composer config extra.typo3/cms.web-dir public -d /var/www/html/$VERSION
 composer config repositories.$EXTENSION_KEY path ../../$EXTENSION_KEY -d /var/www/html/$VERSION
 composer config --no-plugins allow-plugins.typo3/cms-composer-installers true -d /var/www/html/$VERSION
 composer config --no-plugins allow-plugins.typo3/class-alias-loader true -d /var/www/html/$VERSION
-# Note: t3/cms metapackage doesn't have v14 yet, so install components separately
-# First install the extension with TYPO3 core requirements
-composer req $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
+composer req t3/cms:'^14.3' $PACKAGE_NAME:'*@dev' --no-progress -n -d /var/www/html/$VERSION
 composer req typo3/cms-extensionmanager typo3/cms-dashboard typo3/cms-reports --no-progress -n -d /var/www/html/$VERSION
 composer req --dev typo3/cms-styleguide bk2k/bootstrap-package:'^16.0' --no-progress -n -d /var/www/html/$VERSION
 composer req friendsoftypo3/content-blocks:'^2.0' --no-progress -n -W -d /var/www/html/$VERSION

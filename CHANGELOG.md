@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Pin TYPO3 v14 requirement to v14.3 LTS** ([released 2026-04-21](https://typo3.org/article/typo3-v143-released)) — drop pre-LTS v14.0/v14.1/v14.2 from the supported range. Composer constraint now `^13.4.21 || ^14.3` (was `^13.4.21 || ^14.0`); `ext_emconf` constraint now `13.4.21-14.99.99` (was `13.4.0-14.4.99`). CI matrix and DDEV `install-v14` aligned accordingly. Installs still on v14.0-v14.2 should upgrade to v14.3 LTS.
+
 ## [13.8.3] - 2026-04-10
 
 ### Fixed
