@@ -1219,6 +1219,19 @@ $bodytextTableImage = '<figure class="table"><table><tbody>'
 $stmt->execute([1, 'text', 'Table Image (#698)', $bodytextTableImage, 0, 0, $now, $now, 0, 10752]);
 echo "Table image CE created for #698\n";
 
+// CE for #790 regression: plain RTE bodytext with NO images. Reporter
+// states the symptom occurs "regardless of whether I have an image in
+// the text" — so the test fixture must be image-free to faithfully
+// reproduce the bug class. The bug is parseFunc_RTE.allowTags being
+// set to a restrictive whitelist via addToList(...) when the default
+// (in TYPO3 v13.2+) is empty. With a whitelist of just "a,figure,
+// figcaption", the <p> tag isn't allowed → htmlspecialchars'd to
+// &lt;p&gt; → encapsLines wraps the encoded "text" in real <p>,
+// producing literal "<p>...</p>" text inside actual paragraphs.
+$bodytext790 = '<p>Lorem ipsum dolor sit amet.</p><p>Another paragraph here for the regression check.</p>';
+$stmt->execute([1, 'text', 'Plain RTE Bodytext (#790)', $bodytext790, 0, 0, $now, $now, 0, 11008]);
+echo "Plain bodytext CE created for #790\n";
+
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests
