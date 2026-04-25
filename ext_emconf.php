@@ -23,9 +23,15 @@ $EM_CONF[$_EXTKEY] = [
     'version'        => '13.8.3',
     'constraints'    => [
         'depends' => [
+            // ext_emconf does not support disjoint ranges. The supported
+            // configuration is v13.4 LTS (>=13.4.21) and v14.3 LTS;
+            // unmaintained pre-LTS v14.0/v14.1/v14.2 are technically
+            // accepted by this range but not officially supported. The
+            // composer.json constraint (^13.4.21 || ^14.3) is the
+            // authoritative source for supported versions.
             'php'          => '8.2.0-8.9.99',
-            'typo3'        => '13.4.0-14.4.99',
-            'rte_ckeditor' => '13.4.0-14.4.99',
+            'typo3'        => '13.4.21-14.99.99',
+            'rte_ckeditor' => '13.4.21-14.99.99',
         ],
         'conflicts' => [],
         'suggests'  => [

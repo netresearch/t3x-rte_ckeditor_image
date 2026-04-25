@@ -47,7 +47,7 @@ Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x
 
 ## Requirements
 
-- **TYPO3:** 13.4.21+ or 14.0+
+- **TYPO3:** 13.4.21+ (LTS) or 14.3+ (LTS)
 - **PHP:** 8.2 or later
 - **Extensions:** cms-rte-ckeditor (included in TYPO3 core)
 

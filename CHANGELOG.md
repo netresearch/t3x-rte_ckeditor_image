@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Pin TYPO3 v14 requirement to v14.3 LTS** ([released 2026-04-21](https://typo3.org/article/typo3-v143-released)) — Composer-based installs (the default and recommended path) are now pinned to `^13.4.21 || ^14.3` (was `^13.4.21 || ^14.0`). The `ext_emconf` constraint widens its lower bound to `13.4.21` and accepts `14.99.99` as upper (was `13.4.0-14.4.99`). Note that `ext_emconf` syntax does not support disjoint ranges, so TER/non-Composer installs on the unmaintained pre-LTS releases v14.0/v14.1/v14.2 are still technically permitted by `ext_emconf`; this is not a supported configuration and such installs should upgrade to v14.3 LTS. CI matrix and DDEV `install-v14` aligned to v14.3.
+
 ## [13.8.3] - 2026-04-10
 
 ### Fixed

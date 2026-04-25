@@ -30,7 +30,7 @@ DDEV local development environment for multi-version TYPO3 testing. Supports v13
 | Command | Purpose |
 |---------|---------|
 | `ddev install-v13` | Install TYPO3 v13.4 LTS instance |
-| `ddev install-v14` | Install TYPO3 v14.0 instance |
+| `ddev install-v14` | Install TYPO3 v14.3 LTS instance |
 | `ddev install-all` | Install both v13 and v14 |
 
 ## Quick Start
