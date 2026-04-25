@@ -616,7 +616,8 @@ class ImageResolverService
 
     /**
      * Compute the rel attribute for an editorial link, mirroring TYPO3's
-     * LinkFactory::addSecurityRelValues() semantics.
+     * LinkFactory::addSecurityRelValues() semantics, while preserving any
+     * rel tokens that came from the source `<a>` tag.
      *
      * The Fluid Link.html partial constructs <a> directly (it does not go
      * through typolink), so the security rel attribute that typolink would
@@ -625,49 +626,90 @@ class ImageResolverService
      * without rel="noreferrer" — a regression of the security default that
      * the rest of TYPO3 applies automatically.
      *
-     * Returns "noreferrer" when target opens a new browsing context AND the
-     * URL is external. "External" includes:
+     * Adds "noreferrer" to the rel set when target opens a new browsing
+     * context AND the URL is external. "External" includes:
      *   - absolute http(s) URLs (`http://...`, `https://...`)
-     *   - protocol-relative URLs (`//example.com/...`) — RFC 3986 §4.2,
+     *   - protocol-relative URLs (`//example.com/...`) — RFC 3986 §4.4.2,
      *     these inherit the page's scheme and resolve to a different host
-     * Returns null for relative paths, fragments, mailto:/tel:/t3:, and
-     * non-browsing-context targets. (t3:// URLs are already resolved to
-     * absolute paths before reaching this method.)
+     *     (single-slash paths like `/foo` are internal — startsWith `//`
+     *     and `/` are matched in that order to disambiguate).
      *
-     * @param string|null $target Link target attribute
-     * @param string      $url    Resolved link URL
+     * Existing rel tokens from the source `<a>` (e.g. `nofollow`,
+     * `sponsored`, `noopener`) are preserved. If "noreferrer" is already
+     * present in the source rel, the source value is returned unchanged.
      *
-     * @return string|null Security rel value or null
+     * Returns the source rel (if any) for relative paths, fragments,
+     * mailto:/tel:/t3:, and non-browsing-context targets — i.e. cases
+     * where typolink wouldn't add security rel either. (t3:// URLs are
+     * already resolved to absolute paths before reaching this method.)
+     *
+     * @param string|null $target   Link target attribute
+     * @param string      $url      Resolved link URL
+     * @param string|null $existing Pre-existing rel value from the source `<a>` tag
+     *
+     * @return string|null Merged rel value (or null when neither security
+     *                     rel applies nor a source rel was provided)
      *
      * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/799
      */
-    private function computeSecurityRel(?string $target, string $url): ?string
+    private function computeSecurityRel(?string $target, string $url, ?string $existing = null): ?string
     {
-        // No target or self/parent/top targets keep the same browsing context — no security risk.
-        if ($target === null || in_array($target, ['', '_self', '_parent', '_top'], true)) {
-            return null;
+        $existingTokens = $this->parseRelTokens($existing);
+
+        // Determine whether security rel should be added.
+        $needsNoreferrer = false;
+        if ($target !== null && !in_array($target, ['', '_self', '_parent', '_top'], true)) {
+            // Trim and lowercase for stable scheme detection. validateLinkUrl()
+            // upstream already trims, but be defensive — the URL traversed our
+            // attribute pipeline and may still have edge whitespace from the
+            // original RTE markup.
+            $normalized = strtolower(trim($url));
+            $needsNoreferrer
+                = str_starts_with($normalized, 'http://')
+                || str_starts_with($normalized, 'https://')
+                // Protocol-relative URLs inherit the page's scheme and resolve
+                // to a different host. RFC 3986 §4.4.2 calls these
+                // "network-path references". `//foo` ⇒ external; `/foo` ⇒ internal.
+                || str_starts_with($normalized, '//');
         }
 
-        // Trim and lowercase for stable scheme detection. validateLinkUrl()
-        // upstream already trims, but be defensive — the URL traversed our
-        // attribute pipeline and may still have edge whitespace from the
-        // original RTE markup.
-        $normalized = strtolower(trim($url));
-
-        // Absolute http(s) URLs are external by definition.
-        if (str_starts_with($normalized, 'http://') || str_starts_with($normalized, 'https://')) {
-            return 'noreferrer';
+        if ($needsNoreferrer && !in_array('noreferrer', $existingTokens, true)) {
+            $existingTokens[] = 'noreferrer';
         }
 
-        // Protocol-relative URLs (`//example.com/...`) inherit the page's
-        // scheme and resolve to whatever host follows the `//`. Treat as
-        // external. Note the second character must NOT be another `/` (a
-        // single-slash path like `/foo` is internal).
-        if (str_starts_with($normalized, '//')) {
-            return 'noreferrer';
+        return $existingTokens === [] ? null : implode(' ', $existingTokens);
+    }
+
+    /**
+     * Parse an HTML `rel` attribute value into a list of unique tokens.
+     *
+     * The rel attribute is space-separated per HTML living standard. Tokens
+     * are case-insensitive but conventionally lowercase; we lowercase for
+     * comparison stability and de-duplicate while preserving first-seen order.
+     *
+     * @param string|null $value Raw rel attribute value
+     *
+     * @return list<string> Unique lowercased tokens, empty when no value
+     */
+    private function parseRelTokens(?string $value): array
+    {
+        if ($value === null) {
+            return [];
         }
 
-        return null;
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            return [];
+        }
+
+        $tokens = [];
+        foreach (preg_split('/\s+/', strtolower($trimmed)) ?: [] as $token) {
+            if ($token !== '' && !in_array($token, $tokens, true)) {
+                $tokens[] = $token;
+            }
+        }
+
+        return $tokens;
     }
 
     /**
@@ -786,7 +828,7 @@ class ImageResolverService
             params: $linkAttributes['data-link-params'] ?? null,
             isPopup: $isPopup,
             jsConfig: $jsConfig,
-            rel: $this->computeSecurityRel($target, $url),
+            rel: $this->computeSecurityRel($target, $url, $linkAttributes['rel'] ?? null),
         );
     }
 
@@ -966,7 +1008,7 @@ class ImageResolverService
                     params: $linkAttributes['data-link-params'] ?? null,
                     isPopup: $isPopup,
                     jsConfig: null, // External images don't get popup config
-                    rel: $this->computeSecurityRel($linkTarget, $linkUrl),
+                    rel: $this->computeSecurityRel($linkTarget, $linkUrl, $linkAttributes['rel'] ?? null),
                 );
             }
         }

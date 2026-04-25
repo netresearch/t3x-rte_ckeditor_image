@@ -56,11 +56,20 @@ test.describe('Link Default Attributes (#718)', () => {
     // external `target="_blank"` links has to be set explicitly by our PHP layer.
     //
     // CE 10752 in `Build/Scripts/runTests.sh` seeds a table-figure with a
-    // linked image: `<figure class="image"><a href="https://typo3.org" target="_blank"><img></a><figcaption>…</figcaption></figure>`.
-    // The pre-#799 rendering produced `<a target="_blank">` without `rel`,
-    // which would fail this assertion.
-    const figureLink = page.locator('a[href="https://typo3.org"][target="_blank"]:has(img)').first();
-    await expect(figureLink, 'Table-figure linked image should be present (CE 10752)').toBeVisible();
+    // linked image:
+    //   <figure class="image">
+    //     <a href="https://typo3.org" target="_blank"><img></a>
+    //     <figcaption>Linked image in table</figcaption>
+    //   </figure>
+    // wrapped inside a content-element <table>. We scope to
+    // `table figure.image > a[href="https://typo3.org"]` so we only match
+    // this specific seed and not the other test-simple-link CE which also
+    // points to https://typo3.org but is rendered outside any table.
+    // The pre-#799 rendering produced `<a target="_blank">` without `rel`.
+    const figureLink = page
+      .locator('table figure.image > a[href="https://typo3.org"][target="_blank"]:has(img)')
+      .first();
+    await expect(figureLink, 'CE 10752 table-figure linked image should be present').toBeVisible();
 
     const rel = await figureLink.getAttribute('rel');
     expect(
