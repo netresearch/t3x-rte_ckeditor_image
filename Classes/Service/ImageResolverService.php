@@ -702,8 +702,13 @@ class ImageResolverService
             return [];
         }
 
+        $rawTokens = preg_split('/\s+/', strtolower($trimmed));
+        if ($rawTokens === false) {
+            return [];
+        }
+
         $tokens = [];
-        foreach (preg_split('/\s+/', strtolower($trimmed)) ?: [] as $token) {
+        foreach ($rawTokens as $token) {
             if ($token !== '' && !in_array($token, $tokens, true)) {
                 $tokens[] = $token;
             }
