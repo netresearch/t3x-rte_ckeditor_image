@@ -1345,6 +1345,37 @@ function openLinkBrowser(editor, currentValue) {
             size: Modal.sizes.large
         });
 
+        // TYPO3 v14: form-engine-link-browser-adapter no longer writes to the
+        // hidden form input or dispatches a 'change' event (the v13 contract
+        // above). Instead it dispatches a `FormEngineLinkBrowserSetLinkEvent`
+        // (event name "typo3:form-engine:link-browser:set-link") on the iframe
+        // element with the typoLink string in `event.value`. The event has
+        // bubbles+composed, so it bubbles from the iframe up to the modal
+        // element. v14 also no longer auto-dismisses the modal, so we have to
+        // call Modal.dismiss() ourselves. Keep the v13 hidden-input listener
+        // for backwards compatibility.
+        //
+        // Treat any string value as a confirmed selection — including:
+        //   - the same value as currentValue (user reopened to confirm)
+        //   - an empty string (user invoked "remove link" in the browser)
+        // The user explicitly clicked something to fire this event; don't
+        // gate on equality with the prior value.
+        const v14LinkSetEventName = 'typo3:form-engine:link-browser:set-link';
+        const v14EventHandler = function(event) {
+            const linkValue = event.value;
+            if (typeof linkValue !== 'string') {
+                return;
+            }
+            modal.removeEventListener(v14LinkSetEventName, v14EventHandler);
+            hiddenInput.removeEventListener('change', changeHandler);
+            const linkData = parseTypoLink(linkValue);
+            // resolvePromise FIRST so settled=true before typo3-modal-hidden
+            // handler runs (otherwise it would call rejectPromise()).
+            resolvePromise(linkData);
+            Modal.dismiss();
+        };
+        modal.addEventListener(v14LinkSetEventName, v14EventHandler);
+
         // Handle modal close without selection
         modal.addEventListener('typo3-modal-hidden', function() {
             // Clean up hidden form from the target document
