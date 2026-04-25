@@ -380,8 +380,13 @@ OPTIND=1
 INVALID_OPTIONS=()
 # E2E setup variant — controls which sitepackage / FSC / Bootstrap-Package combo
 # the E2E TYPO3 instance is built with. Allow env override so CI can drive the
-# matrix without rewriting flags. See -X help text and ci-e2e.sh wrapper.
+# matrix without rewriting flags (the ci-e2e.sh wrapper sets E2E_VARIANT).
+# Both the env var path and the -X CLI flag path go through the same
+# validation regex so an invalid value never silently changes setup behavior.
 E2E_VARIANT="${E2E_VARIANT:-fsc}"
+if ! [[ ${E2E_VARIANT} =~ ^(bootstrap|core-only|fsc)$ ]]; then
+    INVALID_OPTIONS+=("E2E_VARIANT=${E2E_VARIANT} (must be bootstrap|core-only|fsc)")
+fi
 
 # Simple option parsing based on getopts (! not getopt)
 while getopts "a:b:c:s:d:i:p:e:t:xy:nhuX:" OPT; do
@@ -725,21 +730,55 @@ echo "Pages record inserted\n";
 $pdo->exec("INSERT IGNORE INTO pages (uid, pid, title, slug, doktype, is_siteroot, hidden, deleted, tstamp, crdate) VALUES (2, 1, 'Error Handling Tests', '/error-handling-tests', 1, 0, 0, 0, $now, $now)");
 echo "Error handling test page (uid=2) inserted\n";
 
-// TypoScript CONSTANTS - defines default values used by setup
-// fluid_styled_content needs these constants for proper operation
-$tsConstants = <<<'TYPOSCRIPT'
+// TypoScript constants and config are split into a variant-specific
+// header (the @imports / styles.content.get definition) and a shared
+// body (page = PAGE, popup config, allowTags additions). The core-only
+// variant skips fluid_styled_content composer-side, so importing
+// EXT:fluid_styled_content TS would fail at TS-parse time — its header
+// instead inlines a minimal styles.content.get definition that mirrors
+// what fluid_styled_content normally provides.
+$variant = getenv('E2E_VARIANT') ?: 'fsc';
+
+if ($variant === 'core-only') {
+    $tsConstants = <<<'TYPOSCRIPT'
+# core-only: no fluid_styled_content constants import (extension not installed).
+styles.content.image.lazyLoading = lazy
+TYPOSCRIPT;
+
+    // Inline styles.content.get because fluid_styled_content (the usual
+    // provider) isn't installed in this variant. Shape mirrors FSC.
+    $tsConfigHeader = <<<'TYPOSCRIPT'
+styles.content.get = CONTENT
+styles.content.get {
+    table = tt_content
+    select {
+        orderBy = sorting
+        where = {#colPos}=0
+    }
+}
+
+@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
+TYPOSCRIPT;
+} else {
+    // fsc and bootstrap: fluid_styled_content provides constants and the
+    // styles.content.get definition. Bootstrap layers Bootstrap Package
+    // on top via the site set; the sys_template TS is identical to fsc.
+    $tsConstants = <<<'TYPOSCRIPT'
 @import 'EXT:fluid_styled_content/Configuration/TypoScript/constants.typoscript'
 
 # Image lazy loading setting
 styles.content.image.lazyLoading = lazy
 TYPOSCRIPT;
 
-// TypoScript SETUP configuration for PAGE rendering
-// IMPORTANT: Load fluid_styled_content FIRST to define lib.parseFunc_RTE base
-// Then load our extension to add the tags.img.preUserFunc for click-to-enlarge
-$tsConfig = <<<'TYPOSCRIPT'
+    $tsConfigHeader = <<<'TYPOSCRIPT'
 @import 'EXT:fluid_styled_content/Configuration/TypoScript/setup.typoscript'
 @import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
+TYPOSCRIPT;
+}
+
+// Shared body across all variants — page rendering, popup, allowTags
+// additions for tags that aren't in the default whitelist.
+$tsConfigBody = <<<'TYPOSCRIPT'
 
 # Ensure lib.contentElement.settings.media.popup is set for click-to-enlarge
 # This path MUST exist for ImageRenderingController to find popup config
@@ -771,6 +810,8 @@ lib.parseFunc_RTE.allowTags := addToList(h1,h2,h3,h4,h5,h6)
 # CE 8 test data contains <table>, <ul>, <li> elements.
 lib.parseFunc_RTE.allowTags := addToList(table,thead,tbody,tr,th,td,ul,ol,li)
 TYPOSCRIPT;
+
+$tsConfig = $tsConfigHeader . $tsConfigBody;
 
 // Insert or update sys_template with BOTH constants and config
 // Use ON DUPLICATE KEY UPDATE to ensure our TypoScript is applied even if TYPO3 setup pre-created it
@@ -1226,6 +1267,7 @@ CONTENT_EOF
             -v ${E2E_COMPOSER_CACHE}:/.cache/composer \
             -w /var/www/html \
             -e COMPOSER_CACHE_DIR=/.cache/composer \
+            -e E2E_VARIANT="${E2E_VARIANT}" \
             ${IMAGE_PHP} /bin/bash -c "
                 # Disable Composer's block-insecure feature for transient upstream advisories
                 # (e.g., CVE-2025-45769 in firebase/php-jwt <7.0, a TYPO3 Core dependency)
@@ -1450,6 +1492,7 @@ HTACCESS
             -e BASE_URL=http://apache-e2e-${SUFFIX}:80 \
             -e TYPO3_BACKEND_PASSWORD="${E2E_ADMIN_PASSWORD}" \
             -e TYPO3_VERSION="${E2E_TYPO3_VERSION}" \
+            -e E2E_VARIANT="${E2E_VARIANT}" \
             -e CI=true \
             ${PLAYWRIGHT_EXTRA_ENV} \
             ${IMAGE_PLAYWRIGHT} /bin/bash -c "
