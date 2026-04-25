@@ -26,6 +26,9 @@ final readonly class LinkDto
      * @param string|null              $params   Additional URL parameters (e.g., "&L=1&type=123")
      * @param bool                     $isPopup  Whether this is a popup/lightbox link
      * @param array<string,mixed>|null $jsConfig JavaScript configuration for lightbox/popup
+     * @param string|null              $rel      Link rel attribute (e.g. "noreferrer" for external _blank).
+     *                                           Mirrors TYPO3 LinkFactory::addSecurityRelValues() for the
+     *                                           Fluid-rendered link path (which bypasses typolink).
      */
     public function __construct(
         public string $url,
@@ -34,6 +37,7 @@ final readonly class LinkDto
         public ?string $params,
         public bool $isPopup,
         public ?array $jsConfig,
+        public ?string $rel = null,
     ) {}
 
     /**

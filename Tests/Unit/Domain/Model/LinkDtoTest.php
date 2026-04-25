@@ -36,6 +36,7 @@ class LinkDtoTest extends TestCase
             params: '&L=1&type=123',
             isPopup: true,
             jsConfig: $jsConfig,
+            rel: 'noreferrer',
         );
 
         self::assertSame('https://example.com/image.jpg', $dto->url);
@@ -44,6 +45,21 @@ class LinkDtoTest extends TestCase
         self::assertSame('&L=1&type=123', $dto->params);
         self::assertTrue($dto->isPopup);
         self::assertSame($jsConfig, $dto->jsConfig);
+        self::assertSame('noreferrer', $dto->rel);
+    }
+
+    public function testConstructorRelDefaultsToNull(): void
+    {
+        $dto = new LinkDto(
+            url: 'https://example.com',
+            target: '_blank',
+            class: null,
+            params: null,
+            isPopup: false,
+            jsConfig: null,
+        );
+
+        self::assertNull($dto->rel);
     }
 
     public function testConstructorAcceptsNullValues(): void
@@ -78,7 +94,7 @@ class LinkDtoTest extends TestCase
 
         $reflection = new ReflectionClass($dto);
 
-        $properties = ['url', 'target', 'class', 'params', 'isPopup', 'jsConfig'];
+        $properties = ['url', 'target', 'class', 'params', 'isPopup', 'jsConfig', 'rel'];
 
         foreach ($properties as $propertyName) {
             $property = $reflection->getProperty($propertyName);

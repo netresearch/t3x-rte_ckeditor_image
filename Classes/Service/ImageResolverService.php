@@ -615,6 +615,47 @@ class ImageResolverService
     }
 
     /**
+     * Compute the rel attribute for an editorial link, mirroring TYPO3's
+     * LinkFactory::addSecurityRelValues() semantics.
+     *
+     * The Fluid Link.html partial constructs <a> directly (it does not go
+     * through typolink), so the security rel attribute that typolink would
+     * normally add for external target=_blank links has to be computed here.
+     * Without this, figure-wrapped linked images render <a target="_blank">
+     * without rel="noreferrer" — a regression of the security default that
+     * the rest of TYPO3 applies automatically.
+     *
+     * Returns "noreferrer" when target opens a new browsing context AND the
+     * URL is external (absolute http(s) — t3:// is already resolved before
+     * reaching this point, and relative/fragment URLs are internal).
+     * Returns null otherwise.
+     *
+     * @param string|null $target Link target attribute
+     * @param string      $url    Resolved link URL
+     *
+     * @return string|null Security rel value or null
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/799
+     */
+    private function computeSecurityRel(?string $target, string $url): ?string
+    {
+        // No target or self/parent/top targets keep the same browsing context — no security risk.
+        if ($target === null || in_array($target, ['', '_self', '_parent', '_top'], true)) {
+            return null;
+        }
+
+        // Only absolute http(s) URLs are external for our purposes. Relative
+        // paths (/fileadmin/...), fragments (#...), and other schemes already
+        // share the same origin or use a non-browsing-context handler.
+        $lower = strtolower($url);
+        if (!str_starts_with($lower, 'http://') && !str_starts_with($lower, 'https://')) {
+            return null;
+        }
+
+        return 'noreferrer';
+    }
+
+    /**
      * Get attribute value with fallback to file property.
      *
      * Handles the override mechanism where:
@@ -721,13 +762,16 @@ class ImageResolverService
             $jsConfig = $this->getPopupConfiguration($request);
         }
 
+        $target = $linkAttributes['target'] ?? null;
+
         return new LinkDto(
             url: $url,
-            target: $linkAttributes['target'] ?? null,
+            target: $target,
             class: $linkAttributes['class'] ?? null,
             params: $linkAttributes['data-link-params'] ?? null,
             isPopup: $isPopup,
             jsConfig: $jsConfig,
+            rel: $this->computeSecurityRel($target, $url),
         );
     }
 
@@ -899,13 +943,15 @@ class ImageResolverService
 
             // SECURITY: Validate URL to prevent JavaScript injection
             if ($this->validateLinkUrl($linkUrl)) {
+                $linkTarget = $linkAttributes['target'] ?? null;
                 $link = new LinkDto(
                     url: $linkUrl,
-                    target: $linkAttributes['target'] ?? null,
+                    target: $linkTarget,
                     class: $linkAttributes['class'] ?? null,
                     params: $linkAttributes['data-link-params'] ?? null,
                     isPopup: $isPopup,
                     jsConfig: null, // External images don't get popup config
+                    rel: $this->computeSecurityRel($linkTarget, $linkUrl),
                 );
             }
         }
