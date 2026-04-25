@@ -57,7 +57,7 @@ Tests/
 | Unit tests | `composer ci:test:php:unit` | Fast, no DB needed |
 | Functional tests | `composer ci:test:php:functional` | Needs `typo3DatabaseDriver=pdo_sqlite` env var |
 | JavaScript tests | `composer ci:test:js:unit` | Runs in Tests/JavaScript/ via Vitest |
-| E2E tests | `Build/Scripts/runTests.sh -s e2e -t 13 -p 8.5` | Docker-based, TYPO3 v13 or v14 |
+| E2E tests | `Build/Scripts/runTests.sh -s e2e -t 13 -p 8.5 -X fsc` | Docker-based, TYPO3 v13 or v14, variant via `-X` |
 | Fuzz tests | `composer ci:fuzz` | 10,000 runs per target |
 | Mutation tests | `composer ci:mutation` | Infection, runs unit tests first |
 | Unit coverage | `composer ci:coverage:unit` | Outputs to `.Build/coverage-unit/` |
@@ -94,6 +94,12 @@ Tests/
 - CKEditor: bare `<p><img></p>` renders as block widget (dblclick won't open dialog). Must include surrounding text
 - `clearCookies()` before frontend navigation after backend login (session interference)
 - v14 E2E runs with `continue-on-error` (non-blocking while stabilizing)
+- E2E setup variants via `-X` flag exercise the extension under different sitepackage / FSC / Bootstrap-Package combinations:
+  - `-X fsc` (default): fluid_styled_content site set, no Bootstrap. Long-standing baseline.
+  - `-X core-only`: minimal install, neither FSC nor Bootstrap. Models the fresh-install evaluator scenario; surfaces the bug class in [#790](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/790).
+  - `-X bootstrap`: FSC + Bootstrap Package (`^15.0` for v13, `^16.0` for v14). Common real-world setup.
+- CI invokes via `Build/Scripts/ci-e2e.sh` (wrapper that translates the workflow's `E2E_VARIANT`/`E2E_TYPO3_VERSION` env vars into runTests.sh CLI flags).
+- Specs that fundamentally require a specific variant (e.g. Bootstrap lightbox CSS) should `test.skip(process.env.E2E_VARIANT === 'core-only', '...')` to keep the matrix clean.
 
 ## CI Environment
 
@@ -101,7 +107,7 @@ Tests/
 - CGL runs only on PHP 8.2 (code style is PHP version independent)
 - Coverage runs only on PHP 8.5 + TYPO3 ^14.3
 - JavaScript tests run once (not PHP/TYPO3 version dependent)
-- E2E runs after build jobs pass, on v13 (blocking) and v14 (informational)
+- E2E matrix: TYPO3 ^13.4 + ^14.3 x setup-variants `[fsc, core-only, bootstrap]` = 6 jobs. Setup variants are advisory (not in required_status_checks ruleset) until each stabilizes.
 
 ## PR Checklist
 

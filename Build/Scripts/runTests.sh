@@ -262,6 +262,25 @@ Options:
         use
             Build/Scripts/runTests.sh -s unit -- --filter classCanBeRegistered
 
+    -X <bootstrap|core-only|fsc>
+        Only with -s e2e
+        Selects the "extension neighborhood" the E2E TYPO3 instance is set up with.
+        Different variants exercise the extension under different sitepackage / FSC /
+        Bootstrap-Package combinations to surface regressions that only manifest in
+        specific configurations (e.g. issue #790: vanilla install with no FSC site set
+        and no Bootstrap behaves differently than one with Bootstrap, where the bug
+        is masked by Bootstrap's own parseFunc_RTE config).
+
+            - core-only: minimal install — TYPO3 core only, no fluid_styled_content,
+              no Bootstrap Package. Models the fresh-install evaluator scenario.
+            - fsc      : (default) FSC site set enabled, no Bootstrap. Current
+              long-standing E2E baseline.
+            - bootstrap: FSC + Bootstrap Package. Common real-world setup.
+
+        Also reads the E2E_VARIANT env var as a fallback when -X is omitted (used
+        by ci-e2e.sh wrapper so the reusable e2e.yml workflow can pass the variant
+        through without re-translating flags).
+
     -x
         Only with -s functional|functionalDeprecated|unit|unitDeprecated|unitRandom
         Send information to host instance for test or system under test break points. This is especially
@@ -359,8 +378,13 @@ IS_CI=0
 OPTIND=1
 # Array for invalid options
 INVALID_OPTIONS=()
+# E2E setup variant — controls which sitepackage / FSC / Bootstrap-Package combo
+# the E2E TYPO3 instance is built with. Allow env override so CI can drive the
+# matrix without rewriting flags. See -X help text and ci-e2e.sh wrapper.
+E2E_VARIANT="${E2E_VARIANT:-fsc}"
+
 # Simple option parsing based on getopts (! not getopt)
-while getopts "a:b:c:s:d:i:p:e:t:xy:nhu" OPT; do
+while getopts "a:b:c:s:d:i:p:e:t:xy:nhuX:" OPT; do
     case ${OPT} in
         s)
             TEST_SUITE=${OPTARG}
@@ -403,6 +427,12 @@ while getopts "a:b:c:s:d:i:p:e:t:xy:nhu" OPT; do
             ;;
         x)
             PHP_XDEBUG_ON=1
+            ;;
+        X)
+            E2E_VARIANT=${OPTARG}
+            if ! [[ ${E2E_VARIANT} =~ ^(bootstrap|core-only|fsc)$ ]]; then
+                INVALID_OPTIONS+=("-X ${OPTARG}")
+            fi
             ;;
         y)
             PHP_XDEBUG_PORT=${OPTARG}
@@ -750,7 +780,32 @@ echo "sys_template record ensured with constants and config\n";
 DBSETUP_EOF
 
         # site-config.yaml - Site configuration
-        cat > "${E2E_SCRIPTS}/site-config.yaml" << 'SITECONFIG_EOF'
+        # Site-set dependencies match the composer-required extensions selected
+        # by E2E_VARIANT (see -X flag docs and the composer require step below).
+        # core-only intentionally lists only our own set so the bug class in
+        # #790 (vanilla install with no FSC site set) is reproduced faithfully.
+        case "${E2E_VARIANT}" in
+            core-only)
+                E2E_SITE_DEPENDENCIES='  - netresearch/rte-ckeditor-image'
+                ;;
+            fsc)
+                E2E_SITE_DEPENDENCIES='  - typo3/fluid-styled-content
+  - netresearch/rte-ckeditor-image'
+                ;;
+            bootstrap)
+                # Bootstrap Package site set name differs by major: v15 → "bootstrap-package",
+                # v16 → still "bootstrap-package/full" plus the company set.
+                # Use the universal "full" set which exists in both ranges.
+                E2E_SITE_DEPENDENCIES='  - bootstrap-package/full
+  - typo3/fluid-styled-content
+  - netresearch/rte-ckeditor-image'
+                ;;
+            *)
+                echo "::error::Unknown E2E_VARIANT for site-config: ${E2E_VARIANT}" >&2
+                exit 1
+                ;;
+        esac
+        cat > "${E2E_SCRIPTS}/site-config.yaml" << SITECONFIG_EOF
 rootPageId: 1
 base: /
 languages:
@@ -762,8 +817,7 @@ languages:
     navigationTitle: English
     flag: us
 dependencies:
-  - typo3/fluid-styled-content
-  - netresearch/rte-ckeditor-image
+${E2E_SITE_DEPENDENCIES}
 SITECONFIG_EOF
 
         # create-test-content.php - Create test image and content records
@@ -1184,7 +1238,36 @@ CONTENT_EOF
                 # Mount extension at /extension and use that path for composer
                 composer config repositories.local path /extension
                 composer require netresearch/rte-ckeditor-image:@dev --no-interaction --no-progress --no-scripts
-                composer require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
+
+                # Install variant-specific extension neighborhood. See -X flag
+                # docs in this script's header. cms-reports is included in all
+                # variants for the post-install healthcheck commands.
+                case \"${E2E_VARIANT}\" in
+                    core-only)
+                        echo \"E2E variant: core-only (no fluid_styled_content, no Bootstrap Package)\"
+                        composer require typo3/cms-reports --no-interaction --no-progress --no-scripts
+                        ;;
+                    fsc)
+                        echo \"E2E variant: fsc (fluid_styled_content site set, no Bootstrap Package)\"
+                        composer require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
+                        ;;
+                    bootstrap)
+                        echo \"E2E variant: bootstrap (FSC + Bootstrap Package)\"
+                        composer require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
+                        # Bootstrap Package versions track TYPO3 majors:
+                        # ^15.0 → TYPO3 v13, ^16.0 → TYPO3 v14
+                        # E2E_TYPO3_VERSION is expanded by the outer shell (no \\\$ escape).
+                        if [ \"${E2E_TYPO3_VERSION}\" = \"14\" ]; then
+                            composer require bk2k/bootstrap-package:'^16.0' --no-interaction --no-progress --no-scripts
+                        else
+                            composer require bk2k/bootstrap-package:'^15.0' --no-interaction --no-progress --no-scripts
+                        fi
+                        ;;
+                    *)
+                        echo \"::error::Unknown E2E_VARIANT: ${E2E_VARIANT}\" >&2
+                        exit 1
+                        ;;
+                esac
 
                 # Install extra Composer packages if specified via -c flag
                 if [ -n \"${E2E_EXTRA_PACKAGES}\" ]; then

@@ -23,6 +23,29 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  # E2E (Playwright) across TYPO3 versions x extension-setup variants.
+  # Variants exercise the extension under different sitepackage / FSC /
+  # Bootstrap-Package combinations to surface regressions that are only
+  # visible in specific configurations. See Build/Scripts/runTests.sh -X
+  # for variant definitions.
+  #
+  # Advisory mode: new variants are not yet listed in the repo's
+  # required_status_checks ruleset, so a failing variant won't block
+  # merge. Once each variant stabilizes (failures investigated/fixed),
+  # the corresponding context can be added to the ruleset to make it
+  # blocking.
+  e2e:
+    uses: netresearch/typo3-ci-workflows/.github/workflows/e2e.yml@main
+    permissions:
+      contents: read
+    with:
+      typo3-versions: '["^13.4.21","^14.3"]'
+      typo3-packages: '["typo3/cms-core","typo3/cms-rte-ckeditor"]'
+      setup-variants: '["fsc","core-only","bootstrap"]'
+      setup-script: 'Build/Scripts/ci-e2e.sh'
+      artifact-path: 'Build/test-results/'
+      timeout-minutes: 45
+
   security:
     uses: netresearch/typo3-ci-workflows/.github/workflows/security.yml@main
     permissions:
