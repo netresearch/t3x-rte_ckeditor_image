@@ -151,14 +151,28 @@ lib.parseFunc_RTE {
 # the text around the image into separate paragraphs)
 lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(a,img,figure,figcaption)
 
-#******************************************************
-# Figure element configuration
-# Allow figure tags to pass through HTMLparser without re-processing.
-# ImageRenderingService templates already output complete figure elements
-# with proper structure - re-processing would add unwanted <p> tags.
-#******************************************************
-lib.parseFunc_RTE.allowTags := addToList(a,figure,figcaption)
-lib.parseFunc_RTE.denyTags := removeFromList(figure,figcaption)
+# NOTE on parseFunc_RTE.allowTags / denyTags:
+# Earlier versions of this file added `lib.parseFunc_RTE.allowTags :=
+# addToList(a,figure,figcaption)` plus a matching denyTags removeFromList.
+# Those lines were copied from a pre-TYPO3-v13.2 world where
+# fluid_styled_content's Helper/ParseFunc.typoscript provided a default
+# `allowTags = {$styles.content.allowTags}` (a comprehensive list) and
+# `denyTags = *`. addToList(figure,figcaption) then just extended the
+# existing whitelist — harmless.
+#
+# Since v13.2 (Important-103485), lib.parseFunc_RTE moved into
+# ext:frontend/ext_localconf.php WITHOUT allowTags/denyTags. Default
+# behavior is now "everything allowed" (`($denyTags === [] && $allowTags
+# === [])` short-circuit in ContentObjectRenderer::parseFuncInternal()).
+# `addToList` on the empty default produced a *restrictive* whitelist of
+# only `a, figure, figcaption`, which made parseFunc htmlspecialchars-
+# encode every other tag (including `<p>`) — see #790. Removed in #796.
+#
+# The original intent ("allow figure tags to pass through HTMLparser
+# without re-processing") is actually achieved by the earlier
+# externalBlocks.figure config (callRecursive = 0, preUserFunc =
+# renderFigure) plus the encapsTagList addToList just above this note —
+# not by the parseFunc-level allowTags. Don't re-add the allowTags line.
 
 #******************************************************
 # Default popup/lightbox configuration for RTE images with zoom enabled

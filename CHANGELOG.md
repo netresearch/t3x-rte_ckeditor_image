@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`<p>` tags entity-encoded in plain RTE bodytext on vanilla installs** ([#790](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/790)) — removed `lib.parseFunc_RTE.allowTags := addToList(a,figure,figcaption)` and the matching `denyTags := removeFromList(figure,figcaption)` from `Configuration/TypoScript/ImageRendering/setup.typoscript`. Those lines were copy-paste artifacts from a pre-TYPO3-v13.2 world where `fluid_styled_content` provided default `allowTags`/`denyTags`; since [Important-103485](https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/13.2/Important-103485-ProvideLibparseFuncViaExtfrontend.html) those defaults are gone, and `addToList` on the empty default created a restrictive whitelist that made `parseFunc` `htmlspecialchars`-encode every tag not in the list — including `<p>`. Surface symptom (per reporter): every existing `<p>` in bodytext appeared wrapped inside another `<p>` in rendered output. Added an E2E regression spec running on the `core-only` variant. Thanks to [@timofo](https://github.com/timofo) for the precise diagnosis pinpointing the exact line.
+
 ### Changed
 
 - **Pin TYPO3 v14 requirement to v14.3 LTS** ([released 2026-04-21](https://typo3.org/article/typo3-v143-released)) — Composer-based installs (the default and recommended path) are now pinned to `^13.4.21 || ^14.3` (was `^13.4.21 || ^14.0`). The `ext_emconf` constraint widens its lower bound to `13.4.21` and accepts `14.99.99` as upper (was `13.4.0-14.4.99`). Note that `ext_emconf` syntax does not support disjoint ranges, so TER/non-Composer installs on the unmaintained pre-LTS releases v14.0/v14.1/v14.2 are still technically permitted by `ext_emconf`; this is not a supported configuration and such installs should upgrade to v14.3 LTS. CI matrix and DDEV `install-v14` aligned to v14.3.
