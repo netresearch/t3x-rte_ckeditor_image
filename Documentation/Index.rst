@@ -144,3 +144,16 @@ This extension is licensed under `AGPL-3.0-or-later <https://www.gnu.org/license
 
    API/Index
    CKEditor/Index
+   Developer/Index
+   Developer/Adr/Index
+
+.. Convention-named redirect stubs (Installation/Configuration/Usage)
+   point readers searching for the canonical TYPO3 docs section names
+   at the actual content under Integration/, Examples/, and Architecture/.
+
+.. toctree::
+   :hidden:
+
+   Installation/Index
+   Configuration/Index
+   Usage/Index

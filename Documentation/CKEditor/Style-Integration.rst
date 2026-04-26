@@ -515,7 +515,7 @@ Issue: Style Drop-down Disabled for Images
 **Solutions**:
 
 Verify Dependencies
-^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -524,7 +524,7 @@ Verify Dependencies
    }
 
 Verify Style Definitions
-^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: yaml
 
@@ -535,7 +535,7 @@ Verify Style Definitions
          classes: ['my-class']
 
 Check Event Listeners
-^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -562,7 +562,7 @@ Issue: Style Changes Not Applied
 **Solutions**:
 
 Verify GHS Listeners
-^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -571,7 +571,7 @@ Verify GHS Listeners
    // Should be > 0
 
 Check Class Attribute Conversion
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -581,7 +581,7 @@ Check Class Attribute Conversion
    });
 
 Verify CSS Loaded
-^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: css
 
@@ -603,7 +603,7 @@ Issue: Styles Not Shown as Active
 **Solution**:
 
 Debug Class Matching
-^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 

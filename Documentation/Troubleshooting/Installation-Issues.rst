@@ -450,7 +450,7 @@ After applying fix, check frontend HTML:
 Issue: Insert Image Button Missing with Bootstrap Package or Other Site Sets
 -----------------------------------------------------------------------------
 
-.. versionadded:: 13.1.0
+.. versionadded:: 13.1.5
    Site Set dependency ordering ensures proper override behavior.
 
 **Symptoms:**
