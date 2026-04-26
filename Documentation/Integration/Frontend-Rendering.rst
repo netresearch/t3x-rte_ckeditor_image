@@ -116,7 +116,7 @@ Enable native browser lazy loading:
 Lightbox/Popup Integration
 --------------------------
 
-.. versionadded:: 13.1.0
+.. versionadded:: 13.1.5
    Default popup configuration is now provided by the extension.
 
 .. note::

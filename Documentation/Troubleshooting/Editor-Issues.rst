@@ -217,7 +217,7 @@ Issue: JavaScript Console Errors
 * Editor doesn't load properly
 
 Common Errors
-^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 1. "GeneralHtmlSupport is not defined"
 """"""""""""""""""""""""""""""""""""""

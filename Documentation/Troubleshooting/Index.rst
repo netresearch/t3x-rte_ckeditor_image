@@ -19,7 +19,7 @@ Most Common Issues
 ------------------
 
 1. Style Dropdown Disabled (v13.0.0+)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -32,7 +32,7 @@ Most Common Issues
    :ref:`troubleshooting-style-dropdown`
 
 2. Images Not Appearing in Frontend
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Check TypoScript setup
 * Verify file permissions
@@ -42,7 +42,7 @@ Most Common Issues
    :ref:`troubleshooting-frontend-rendering`
 
 3. File Browser Not Opening
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Check backend user permissions
 * Verify TSConfig

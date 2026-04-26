@@ -15,7 +15,7 @@ Examples for implementing lightbox functionality and lazy loading for performanc
 Lightbox Integration
 ====================
 
-.. versionchanged:: 13.1.0
+.. versionchanged:: 13.1.5
    Default popup configuration is now provided automatically.
    The basic "Enlarge on Click" feature works out-of-the-box without additional setup.
    See :ref:`integration-configuration-frontend-rendering` for details.
@@ -23,7 +23,7 @@ Lightbox Integration
 Popup Link Configuration
 ------------------------
 
-.. versionadded:: 13.4.3
+.. versionadded:: 13.5.0
    The popup link CSS class is now configurable via TypoScript.
 
 By default, popup links use the CSS class ``popup-link``. You can customize this

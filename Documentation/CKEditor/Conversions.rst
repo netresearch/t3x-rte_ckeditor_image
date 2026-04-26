@@ -83,7 +83,7 @@ Configuration Breakdown
 -----------------------
 
 View Matcher
-^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -115,7 +115,7 @@ Not matched (regular img passthrough):
    <span data-htmlarea-file-uid="123"></span>  <!-- Wrong element -->
 
 Model Creator Function
-^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -133,7 +133,7 @@ Model Creator Function
 **Return**: New model element with extracted attributes
 
 Attribute Extraction
-^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -260,7 +260,7 @@ Configuration Breakdown
 -----------------------
 
 Model Matcher
-^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -277,7 +277,7 @@ Model Matcher
 - Has ``fileUid``, ``fileTable``, ``src`` attributes (required for meaningful output)
 
 View Creator Function
-^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -293,7 +293,7 @@ View Creator Function
 **Return**: New view element (``<img>``)
 
 Attribute Mapping
-^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -324,7 +324,7 @@ enableZoom           data-htmlarea-zoom           Only if true
 ===================  ===========================  ========================
 
 Conditional Attributes
-^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 

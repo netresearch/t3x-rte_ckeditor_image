@@ -7,9 +7,9 @@ Introduction
 ============
 
 The RTE CKEditor Image extension provides comprehensive image handling capabilities
-for TYPO3's CKEditor Rich Text Editor. This extension enables editors to insert,
+for |typo3|'s CKEditor Rich Text Editor. This extension enables editors to insert,
 configure, and style images directly within the CKEditor interface, with full
-integration into TYPO3's File Abstraction Layer (FAL).
+integration into |typo3|'s File Abstraction Layer (FAL).
 
 Key Features
 ============
@@ -231,7 +231,7 @@ Install via Composer:
 
    The extension appears in the TYPO3 Extension Manager after installation
 
-.. versionchanged:: 13.4.3
+.. versionchanged:: 13.5.0
    The RTE preset and frontend TypoScript are now provided via Site Set only.
    You must enable the Site Set in your site configuration.
 

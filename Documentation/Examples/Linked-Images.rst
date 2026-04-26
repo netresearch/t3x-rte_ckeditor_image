@@ -173,15 +173,32 @@ The :php:`LinkDto::getUrlWithParams()` method handles all edge cases:
 Frontend Rendering
 ==================
 
-Linked images are rendered with the configured attributes:
+Linked images are rendered with the configured attributes. Internal
+links retain their original `rel` (or none):
 
 .. code-block:: html
+   :caption: Internal link with target="_blank" (no rel injected)
 
-   <!-- Link click behavior with all attributes -->
    <a href="/page?L=1#section"
       target="_blank"
       title="Click to view details"
       class="image-link external">
+       <img src="/fileadmin/_processed_/image.jpg"
+            alt="Product image"
+            width="800"
+            height="600" />
+   </a>
+
+External links opening a new browsing context receive `rel="noreferrer"`
+automatically — mirroring TYPO3 typolink security semantics. See
+:ref:`integration-security-rel`.
+
+.. code-block:: html
+   :caption: External link with target="_blank" (rel="noreferrer" injected)
+
+   <a href="https://example.com"
+      target="_blank"
+      rel="noreferrer">
        <img src="/fileadmin/_processed_/image.jpg"
             alt="Product image"
             width="800"

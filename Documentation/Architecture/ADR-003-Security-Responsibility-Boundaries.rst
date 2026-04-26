@@ -1,5 +1,7 @@
 .. include:: /Includes.rst.txt
 
+.. _adr-003-security-responsibility-boundaries:
+
 ADR-003: Security Responsibility Boundaries
 ===========================================
 
@@ -89,6 +91,21 @@ In Scope (This Extension's Responsibility)
    - Uses TYPO3 Core's ``SvgSanitizer`` for consistency with FAL sanitization
    - Location: ``ImageResolverService::sanitizeSvgDataUri()``
    - Addresses: `#474 <https://github.com/netresearch/rte-ckeditor-image/issues/474>`_
+
+7. **External-link rel security (Fluid path)**
+
+   - Append ``rel="noreferrer"`` on ``target="_blank"`` external links
+     in the figure-wrapped Fluid render path, mirroring TYPO3's
+     ``LinkFactory::addSecurityRelValues()``
+   - In scope because the Fluid ``Link.html`` partial constructs ``<a>``
+     directly and does **not** go through ``LinkFactory``, so Core's
+     security helper never executes on this path
+   - Preserves any pre-existing ``rel`` tokens (``nofollow``,
+     ``sponsored``, ``noopener``); appends ``noreferrer`` at most once
+   - Location: ``Service\\SecurityRelComputer::compute()``,
+     wired in ``Service\\ImageResolverService::buildLinkDto()`` and
+     ``createDtoFromExternalImage()``
+   - Addresses: `#799 <https://github.com/netresearch/t3x-rte_ckeditor_image/issues/799>`_
 
 Known Boundaries & Limitations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

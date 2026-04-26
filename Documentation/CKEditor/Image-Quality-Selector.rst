@@ -6,7 +6,7 @@
 Image Quality Selector
 ======================
 
-.. versionadded:: 13.1.0
+.. versionadded:: 13.1.5
    The image quality selector with SVG dimension support and multiplier-based processing.
 
 The image dialog includes a quality selector dropdown that controls image processing

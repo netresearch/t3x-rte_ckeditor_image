@@ -126,6 +126,78 @@ This ensures:
 -  **Audit trail**: Security validation happens once, at creation.
 -  **Thread safety**: No race conditions on property access.
 
+.. _integration-security-rel:
+
+External link security (`rel="noreferrer"`)
+===========================================
+
+Automatic `rel="noreferrer"` on figure-wrapped linked images, mirroring
+TYPO3 typolink semantics. Closes
+`#799 <https://github.com/netresearch/t3x-rte_ckeditor_image/issues/799>`__
+(see `CHANGELOG.md <https://github.com/netresearch/t3x-rte_ckeditor_image/blob/main/CHANGELOG.md>`__
+for the version this shipped in).
+
+Linked images that are wrapped in `<figure>` (e.g. when a caption is set)
+are rendered through the Fluid `Link.html` partial, which constructs
+the `<a>` tag directly rather than going through TYPO3's `LinkFactory`.
+That means `LinkFactory::addSecurityRelValues()` — the core helper that
+appends `rel="noreferrer"` to external `target="_blank"` links to prevent
+referrer leakage — never ran on this code path. The extension now mirrors
+the typolink semantics in PHP via the :php:`SecurityRelComputer` service.
+
+When the rule fires
+-------------------
+
+`rel="noreferrer"` is appended automatically when **both** conditions hold:
+
+#. The link target opens a new browsing context — i.e. `target` is set
+   and not one of `_self`, `_parent`, `_top` (case-insensitive,
+   whitespace-tolerant per the HTML living standard).
+#. The URL is **external** — defined as either:
+
+   -  An absolute `http://` or `https://` URL.
+   -  A protocol-relative URL (e.g. `//example.com/image.jpg`,
+      RFC 3986 §4.2 network-path reference) that inherits the page
+      scheme but resolves to a different host.
+
+Relative paths (`/fileadmin/...`), fragment links (`#section`),
+`mailto:` / `tel:` schemes, and `t3://` URIs (already resolved before
+this point) are treated as internal and don't trigger the addition.
+
+Token preservation
+------------------
+
+Pre-existing rel tokens from the source `<a>` tag — `nofollow`,
+`sponsored`, `noopener`, custom values — are preserved through
+`SecurityRelComputer::parseTokens()`, which lowercases, deduplicates,
+and collapses whitespace. `noreferrer` is added at most once; if the
+source already declares it, no duplicate is appended.
+
+Example
+-------
+
+..  code-block:: html
+    :caption: Editor-set link with target="_blank" and an external URL
+
+    <a href="https://example.com" target="_blank">
+      <img src="/fileadmin/_processed_/image.jpg" alt="..." />
+    </a>
+
+After rendering through the figure-wrapped path:
+
+..  code-block:: html
+    :caption: Output — `rel="noreferrer"` injected automatically
+
+    <figure>
+      <a href="https://example.com" target="_blank" rel="noreferrer">
+        <img src="/fileadmin/_processed_/image.jpg" alt="..." />
+      </a>
+      <figcaption>...</figcaption>
+    </figure>
+
+Internal links (e.g. `/about` or `t3://page?uid=42`) and links without
+a `target` continue to render without `rel`, matching typolink behavior.
+
 SVG security
 ============
 

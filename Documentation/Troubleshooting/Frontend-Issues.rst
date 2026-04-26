@@ -407,6 +407,29 @@ For production use, consider a proper lightbox library such as
 
 ----
 
+Issue: Unexpected `rel="noreferrer"` on External Linked Images
+---------------------------------------------------------------
+
+**Symptoms:**
+
+* External linked images (e.g. `<a href="https://example.com" target="_blank">`)
+  render with `rel="noreferrer"` even though the editor did not set it
+* Internal links (`/page` or `t3://page?uid=42`) do **not** receive the
+  attribute
+
+**Cause:** This is intentional behaviour added in `#799 <https://github.com/netresearch/t3x-rte_ckeditor_image/issues/799>`__.
+The Fluid `Link.html` partial used for figure-wrapped linked images
+mirrors TYPO3 typolink security semantics — it appends `rel="noreferrer"`
+when the target opens a new browsing context **and** the URL is external
+(absolute `http(s)` or protocol-relative). Pre-existing rel tokens from
+the source `<a>` (such as `nofollow` or `noopener`) are preserved.
+
+**Solution:** No action required. To suppress the attribute (not
+recommended), remove `target="_blank"` from the link or use an internal
+URL. See :ref:`integration-security-rel` for the full rule and rationale.
+
+----
+
 Responsive Image Issues
 =======================
 

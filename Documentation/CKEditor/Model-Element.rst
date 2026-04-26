@@ -103,7 +103,7 @@ Inline Image Schema (typo3imageInline)
    });
 
 Key Differences
-^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. list-table::
    :header-rows: 1
@@ -132,13 +132,13 @@ Key Differences
      - ``image-inline``
 
 Usage Example
-^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In the editor, users can type text before and after inline images on the same line,
 just like typing around any other inline element (bold text, links, etc.).
 
 Toggle Command
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Users can convert between block and inline via the ``toggleImageType`` command:
 
@@ -166,7 +166,7 @@ Schema Properties Explained
 ----------------------------
 
 inheritAllFrom: '$blockObject'
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Inherits all properties from CKEditor's base ``$blockObject``:
 
@@ -176,7 +176,7 @@ Inherits all properties from CKEditor's base ``$blockObject``:
 - **Non-Breaking**: Cannot be split by Enter key
 
 allowIn: ['$text', '$block']
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Defines where ``typo3image`` can exist:
 
@@ -186,7 +186,7 @@ Defines where ``typo3image`` can exist:
 **Result**: Images can be placed in any text flow or block context.
 
 allowAttributes: [...]
-^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Lists all valid attributes for the model element. Attributes not listed are stripped.
 
@@ -197,7 +197,7 @@ Core Attributes
 ---------------
 
 src
-^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -222,7 +222,7 @@ src
    writer.setAttribute('src', '/new/path.jpg', modelElement);
 
 fileUid
-^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -257,7 +257,7 @@ fileUid
    ).then(r => r.json());
 
 fileTable
-^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -284,7 +284,7 @@ Metadata Attributes
 -------------------
 
 alt
-^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -312,7 +312,7 @@ alt
    writer.setAttribute('alt', 'New alt text', modelElement);
 
 altOverride
-^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -346,7 +346,7 @@ altOverride
    }
 
 title
-^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -374,7 +374,7 @@ title
    writer.setAttribute('title', 'Tooltip text', modelElement);
 
 titleOverride
-^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -398,7 +398,7 @@ Visual Attributes
 -----------------
 
 class
-^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -441,7 +441,7 @@ class
    class: 'float-left mr-3'
 
 width
-^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -480,7 +480,7 @@ width
    writer.setAttribute('height', String(newHeight), modelElement);
 
 height
-^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -505,7 +505,7 @@ height
    writer.setAttribute('height', '600', modelElement);
 
 enableZoom
-^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -544,7 +544,7 @@ Link Attributes
 ---------------
 
 htmlA
-^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -565,7 +565,7 @@ htmlA
    This is a legacy attribute. Modern approach uses separate link attributes.
 
 linkHref
-^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -589,7 +589,7 @@ linkHref
    writer.setAttribute('linkHref', '/page/123', modelElement);
 
 linkTarget
-^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -613,7 +613,7 @@ linkTarget
    writer.setAttribute('linkTarget', '_blank', modelElement);
 
 linkTitle
-^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -635,7 +635,7 @@ linkTitle
    writer.setAttribute('linkTitle', 'Link description', modelElement);
 
 linkClass
-^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. versionadded:: 13.5.0
 
@@ -659,7 +659,7 @@ linkClass
    writer.setAttribute('linkClass', 'my-link-class', modelElement);
 
 linkParams
-^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. versionadded:: 13.5.0
 
