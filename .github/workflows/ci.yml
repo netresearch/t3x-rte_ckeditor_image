@@ -75,7 +75,7 @@ jobs:
       actions: read
 
   dependency-review:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
     uses: netresearch/.github/.github/workflows/dependency-review.yml@main
     permissions:
       contents: read
