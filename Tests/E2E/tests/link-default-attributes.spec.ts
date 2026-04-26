@@ -21,19 +21,14 @@ test.describe('Link Default Attributes (#718)', () => {
 
     // Scope to **explicitly-seeded** test fixtures that carry `target="_blank"` in
     // their bodytext source (CE 768 ".test-linked-image" and CE 1024
-    // ".test-figure-linked" in `Build/Scripts/runTests.sh`). Two reasons:
+    // ".test-figure-linked" in `Build/Scripts/runTests.sh`). The fixtures go
+    // through the standard typolink path which calls
+    // `LinkFactory::addSecurityRelValues()` and adds `rel="noreferrer"` on
+    // both v13 and v14. This is the tight invariant of #718's original fix.
     //
-    //  1. Excludes our own popup/lightbox links, which legitimately carry
-    //     `target="_blank"` with `rel="lightbox-group-rte"` (a code path that
-    //     bypasses typolink — see `ImageRenderingService` Popup/Zoom templates).
-    //  2. Excludes inline-image links where our extension currently auto-adds
-    //     `target="_blank"` on TYPO3 v14 without going through typolink's
-    //     `addSecurityRelValues()` — this is a separate v14-specific bug
-    //     surfaced by the variant matrix from #794, tracked as a follow-up.
-    //
-    // The `.test-linked-image` and `.test-figure-linked` fixtures go through
-    // the standard typolink flow on both v13 and v14, so this assertion is the
-    // tight invariant of #718's original fix.
+    // Popup/lightbox links are excluded by the class scoping — they legitimately
+    // use `target="_blank"` with `rel="lightbox-group-rte"` from a code path
+    // that bypasses typolink (see `ImageRenderingService` Popup/Zoom templates).
     const externalLinks = page.locator(
       'a.test-linked-image[target="_blank"], a.test-figure-linked[target="_blank"]'
     );
@@ -50,6 +45,37 @@ test.describe('Link Default Attributes (#718)', () => {
         `Seeded external link ${i} with target="_blank" should have rel attribute containing "noreferrer"`,
       ).toContain('noreferrer');
     }
+  });
+
+  test('figure-wrapped linked images get rel="noreferrer" (#799)', async ({ page }) => {
+    await gotoFrontendPage(page);
+
+    // Regression for #799: figure-wrapped linked images go through our Fluid
+    // Link.html partial which constructs `<a>` directly rather than via typolink,
+    // so the security rel attribute that typolink would normally add for
+    // external `target="_blank"` links has to be set explicitly by our PHP layer.
+    //
+    // CE 10752 in `Build/Scripts/runTests.sh` seeds a table-figure with a
+    // linked image:
+    //   <figure class="image">
+    //     <a href="https://typo3.org" target="_blank"><img></a>
+    //     <figcaption>Linked image in table</figcaption>
+    //   </figure>
+    // wrapped inside a content-element <table>. We scope to
+    // `table figure.image > a[href="https://typo3.org"]` so we only match
+    // this specific seed and not the other test-simple-link CE which also
+    // points to https://typo3.org but is rendered outside any table.
+    // The pre-#799 rendering produced `<a target="_blank">` without `rel`.
+    const figureLink = page
+      .locator('table figure.image > a[href="https://typo3.org"][target="_blank"]:has(img)')
+      .first();
+    await expect(figureLink, 'CE 10752 table-figure linked image should be present').toBeVisible();
+
+    const rel = await figureLink.getAttribute('rel');
+    expect(
+      rel,
+      'Figure-wrapped linked image with target="_blank" should have rel containing "noreferrer" (regression for #799)',
+    ).toContain('noreferrer');
   });
 
   test('linked inline images preserve target attribute', async ({ page }) => {

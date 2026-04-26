@@ -705,7 +705,12 @@ class ImageResolverService
         array $conf,
         ServerRequestInterface $request,
     ): ?LinkDto {
-        $url = $linkAttributes['href'] ?? '';
+        // Trim once at the boundary so the validated URL and the URL emitted
+        // into the rendered <a href="..."> are byte-identical. validateLinkUrl
+        // trims internally for its own checks but the original was previously
+        // stored verbatim, opening a gap where a whitespace-padded href could
+        // pass validation while emitting a different string in the output.
+        $url = trim($linkAttributes['href'] ?? '');
 
         // SECURITY: Validate URL to prevent JavaScript injection
         if (!$this->validateLinkUrl($url)) {
@@ -721,13 +726,16 @@ class ImageResolverService
             $jsConfig = $this->getPopupConfiguration($request);
         }
 
+        $target = $linkAttributes['target'] ?? null;
+
         return new LinkDto(
             url: $url,
-            target: $linkAttributes['target'] ?? null,
+            target: $target,
             class: $linkAttributes['class'] ?? null,
             params: $linkAttributes['data-link-params'] ?? null,
             isPopup: $isPopup,
             jsConfig: $jsConfig,
+            rel: SecurityRelComputer::compute($target, $url, $linkAttributes['rel'] ?? null),
         );
     }
 
@@ -895,17 +903,20 @@ class ImageResolverService
         $link = null;
 
         if ($linkAttributes !== null && isset($linkAttributes['href'])) {
-            $linkUrl = $linkAttributes['href'];
+            // Trim at the boundary — see buildLinkDto() for rationale.
+            $linkUrl = trim($linkAttributes['href']);
 
             // SECURITY: Validate URL to prevent JavaScript injection
             if ($this->validateLinkUrl($linkUrl)) {
-                $link = new LinkDto(
+                $linkTarget = $linkAttributes['target'] ?? null;
+                $link       = new LinkDto(
                     url: $linkUrl,
-                    target: $linkAttributes['target'] ?? null,
+                    target: $linkTarget,
                     class: $linkAttributes['class'] ?? null,
                     params: $linkAttributes['data-link-params'] ?? null,
                     isPopup: $isPopup,
                     jsConfig: null, // External images don't get popup config
+                    rel: SecurityRelComputer::compute($linkTarget, $linkUrl, $linkAttributes['rel'] ?? null),
                 );
             }
         }
