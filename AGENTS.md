@@ -16,7 +16,7 @@ Handles image insertion, processing, rendering with captions, links, popups, qua
 - **Repository**: [github.com/netresearch/t3x-rte_ckeditor_image](https://github.com/netresearch/t3x-rte_ckeditor_image)
 - **Tech Stack**: PHP ^8.2, TYPO3 ^13.4.21 || ^14.3, CKEditor 5
 - **License**: AGPL-3.0-or-later
-- **Current Version**: 13.8.0
+- **Current Version**: 13.9.0
 
 ## Architecture Overview
 

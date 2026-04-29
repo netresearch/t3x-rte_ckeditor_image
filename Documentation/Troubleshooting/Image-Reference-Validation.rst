@@ -125,6 +125,59 @@ database:
    ``--fix`` modifies database records directly. Always run a dry-run scan
    first and create a database backup before applying fixes in production.
 
+Skipped origins
+---------------
+
+.. versionadded:: 13.9.0
+
+Not every ``<img src>`` value can be repaired by the validator. By default the
+command classifies each ``src`` and **skips four out-of-scope categories**:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 15 25 60
+
+   * - Category
+     - Example
+     - Why skipped
+   * - ``external``
+     - ``https://cdn.example.com/foo.jpg``
+     - Off-site URL — not part of this TYPO3's FAL.
+   * - ``data``
+     - ``data:image/png;base64,...``
+     - Inline-encoded image, no FAL reference exists.
+   * - ``legacy``
+     - ``typo3conf/ext/some_ext/Resources/...``
+     - Pre-FAL extension path, file lives outside FAL.
+   * - ``securedl``
+     - ``/securedl/sk=.../foo.jpg``
+     - URL signed by ``EXT:naw_securedl`` / similar — the
+       on-disk path differs from the signed URL.
+
+Skips are surfaced in the CLI summary as a per-origin breakdown so they
+stay visible (added to the existing "Scanned records / Scanned images /
+Issues found" definition list):
+
+.. code-block:: text
+
+    Skipped (out of scope)
+    16 total (12 external, 3 data, 1 legacy)
+
+Use ``--include`` to opt one or more categories back in if your environment
+needs them validated:
+
+.. code-block:: bash
+
+   # Re-include external URLs (the validator will then flag them as
+   # mismatches against FAL) — useful when migrating off a CDN.
+   bin/typo3 rte_ckeditor_image:validate --include=external
+
+   # Re-include multiple categories at once
+   bin/typo3 rte_ckeditor_image:validate --include=external,legacy
+
+   # Disable all skipping (validate every <img src> regardless of origin)
+   bin/typo3 rte_ckeditor_image:validate --include=all
+
 Limit to a specific table
 --------------------------
 
