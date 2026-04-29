@@ -7,10 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.9.0] - 2026-04-29
+
+### Added
+
+- **Validator skips out-of-scope `<img src>` origins by default** ([#788](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/788)) — `rte_ckeditor_image:validate` now classifies `<img src>` values via a new `SrcOriginClassifier` and skips four categories the validator cannot meaningfully repair: external URLs, inline `data:` URIs, legacy `typo3conf/ext/` paths, and `/securedl/` URLs. Per-origin skip counts are reported in the CLI summary so skipped references stay visible. New `--include=external,data,legacy,securedl` flag opts categories back in (`--include=all` disables all skipping).
+
 ### Fixed
 
 - **`rel="noreferrer"` missing on figure-wrapped linked images** ([#799](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/799), [#802](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/802)) — figure-wrapped linked images go through the Fluid `Link.html` partial, which builds the `<a>` tag directly rather than via TYPO3 typolink, so `LinkFactory::addSecurityRelValues()` never ran for them. External `target="_blank"` links lacked the `rel="noreferrer"` browser security policy expects. Mirrored the typolink semantics in a new `SecurityRelComputer` service: `noreferrer` is now appended whenever the target opens a new browsing context AND the URL is absolute `http(s)` or protocol-relative (`//example.com/...`). Existing `rel` tokens from the source `<a>` are preserved (lowercased, deduplicated, normalized). Bug existed on both v13 and v14; surfaced on v14 because v14 dropped the default `config.extTarget = _blank`. New unit + E2E coverage.
 - **`<p>` tags entity-encoded in plain RTE bodytext on vanilla installs** ([#790](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/790)) — removed restrictive `lib.parseFunc_RTE.allowTags`/`denyTags` modifications from `setup.typoscript`. They were artifacts from pre-TYPO3-v13.2 (when `fluid_styled_content` provided defaults that have since moved); on current installs they made `parseFunc` `htmlspecialchars`-encode every standard tag including `<p>`. Added an E2E regression spec. Thanks [@timofo](https://github.com/timofo) for pinpointing the exact line.
+- **TYPO3 v14 link browser integration broken** ([#798](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/798)) — TYPO3 v14 replaced the v13 hidden-input + `change`-event contract of `form-engine-link-browser-adapter.js` with a `FormEngineLinkBrowserSetLinkEvent`. The image dialog's link picker silently failed on v14 because it was still polling the input value. Now subscribes to the new event while remaining backward-compatible with the v13 contract.
+- **Corrupted `<img src>` no longer round-tripped through the RTE** ([#787](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/787)) — the editor plugin used to persist literal `"undefined"` / `"null"` strings (and empty values) into bodytext when an upcast or downcast couldn't resolve a real `src`. Added a `sanitizeSrc()` guard at all six upcast sites and both downcast helpers; corrupted values are now dropped instead of saved.
 
 ### Changed
 
