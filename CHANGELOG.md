@@ -1005,7 +1005,12 @@ _See [GitHub release](https://github.com/netresearch/t3x-rte_ckeditor_image/rele
 - Update image reference index ([#45](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/45), [#62](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/62))
 - Compatibility with TYPO3 CMS 9.x
 
-[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.7.1...HEAD
+[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.9.0...HEAD
+[13.9.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.3...v13.9.0
+[13.8.3]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.2...v13.8.3
+[13.8.2]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.1...v13.8.2
+[13.8.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.0...v13.8.1
+[13.8.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.7.1...v13.8.0
 [13.7.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.6.1...v13.7.1
 [13.6.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.6.0...v13.6.1
 [13.6.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.5.0...v13.6.0
