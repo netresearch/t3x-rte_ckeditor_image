@@ -12,6 +12,13 @@ permissions: {}
 
 jobs:
   ci:
+    # Skip on push to main: every queued merge runs full CI twice on the
+    # same SHA — first via merge_group (gates the queue), then again via
+    # push when the validated commit lands on main. The push run is pure
+    # waste — same SHA, same tree. Pull-request, merge_group and schedule
+    # runs are unaffected. Same rationale applies to e2e/security/fuzz/
+    # license-check below.
+    if: github.event_name != 'push'
     uses: netresearch/typo3-ci-workflows/.github/workflows/ci.yml@main
     permissions:
       contents: read
@@ -35,6 +42,7 @@ jobs:
   # the corresponding context can be added to the ruleset to make it
   # blocking.
   e2e:
+    if: github.event_name != 'push'
     uses: netresearch/typo3-ci-workflows/.github/workflows/e2e.yml@main
     permissions:
       contents: read
@@ -47,12 +55,14 @@ jobs:
       timeout-minutes: 45
 
   security:
+    if: github.event_name != 'push'
     uses: netresearch/typo3-ci-workflows/.github/workflows/security.yml@main
     permissions:
       contents: read
       security-events: write
 
   fuzz:
+    if: github.event_name != 'push'
     uses: netresearch/typo3-ci-workflows/.github/workflows/fuzz.yml@main
     permissions:
       contents: read
@@ -61,6 +71,7 @@ jobs:
       run-mutation-tests: false
 
   license-check:
+    if: github.event_name != 'push'
     uses: netresearch/typo3-ci-workflows/.github/workflows/license-check.yml@main
     permissions:
       contents: read
