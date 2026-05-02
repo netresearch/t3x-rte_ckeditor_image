@@ -89,9 +89,14 @@ jobs:
       pull-requests: write
 
   sonarqube:
-    # Sonar covers push to main + every PR. merge_group / schedule add no
-    # signal (same code already analyzed) and would burn analysis quota.
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    # Sonar covers push to main + same-repo PRs. Fork PRs do not receive
+    # repository secrets, so SONAR_TOKEN would be empty and the scan would
+    # fail; skip them. merge_group / schedule add no new signal (same code
+    # already analyzed) and would only burn analysis quota.
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
     uses: netresearch/.github/.github/workflows/sonarqube.yml@main
     permissions:
       contents: read
