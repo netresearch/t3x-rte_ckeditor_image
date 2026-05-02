@@ -87,3 +87,13 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+
+  sonarqube:
+    # Sonar covers push to main + every PR. merge_group / schedule add no
+    # signal (same code already analyzed) and would burn analysis quota.
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    uses: netresearch/.github/.github/workflows/sonarqube.yml@main
+    permissions:
+      contents: read
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
