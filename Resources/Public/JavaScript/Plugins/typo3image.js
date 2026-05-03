@@ -231,13 +231,13 @@ function getImageDialog(editor, img, attributes) {
                 el.min = min;
 
                 const constrainDimensions = function (currentMin, delta) {
-                    let value = parseInt(el.value.replace(/[^0-9]/g, '') || max);
+                    let value = Number.parseInt(el.value.replace(/[^0-9]/g, '') || max, 10);
                     if (delta) {
                         value += delta;
                     }
                     value = Math.max(currentMin, Math.min(value, max));
                     const oppositeEl = elements[key === 'width' ? 'height' : 'width'],
-                        oppositeMax = parseInt(oppositeEl.max),
+                        oppositeMax = Number.parseInt(oppositeEl.max, 10),
                         ratio = oppositeMax / max;
 
                     oppositeEl.value = value === max ? oppositeMax : Math.ceil(value * ratio);
@@ -670,7 +670,7 @@ function getImageDialog(editor, img, attributes) {
         // Get selected quality multiplier and color from dropdown
         const selectedQuality = qualityDropdown.value;
         const selectedOption = qualityDropdown.options[qualityDropdown.selectedIndex];
-        const selectedMultiplier = parseFloat(selectedOption.dataset.multiplier);
+        const selectedMultiplier = Number.parseFloat(selectedOption.dataset.multiplier);
         const selectedColor = selectedOption.dataset.color;
 
         // Calculate requested source dimensions for selected quality (BEFORE capping)
@@ -755,8 +755,8 @@ function getImageDialog(editor, img, attributes) {
     }
 
     function updateQualityIndicator() {
-        const displayWidth = parseInt(inputWidth.value, 10) || 0;
-        const displayHeight = parseInt(inputHeight.value, 10) || 0;
+        const displayWidth = Number.parseInt(inputWidth.value, 10) || 0;
+        const displayHeight = Number.parseInt(inputHeight.value, 10) || 0;
         renderQualityIndicator(displayWidth, displayHeight);
     }
 
