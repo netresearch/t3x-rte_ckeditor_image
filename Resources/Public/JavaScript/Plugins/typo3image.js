@@ -1205,7 +1205,7 @@ function encodeTypoLink(linkData) {
         // Quote if contains space, quote, or backslash
         if (value.indexOf(' ') !== -1 || value.indexOf('"') !== -1 || value.indexOf('\\') !== -1) {
             // Escape backslashes and quotes
-            const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+            const escaped = value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
             return `"${escaped}"`;
         }
         return value;
