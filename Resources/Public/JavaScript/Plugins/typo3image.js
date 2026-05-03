@@ -58,7 +58,7 @@ function urlToRelative(url, storageDriver) {
     }
 
     // Convert local storage URLs to relative for site portability
-    if (url.indexOf("http://") !== -1 || url.indexOf("https://") !== -1) {
+    if (url.includes("http://") || url.includes("https://")) {
         const u = new URL(url);
         return u.pathname + u.search;
     } else {
@@ -340,7 +340,7 @@ function getImageDialog(editor, img, attributes) {
     const alignmentClassList = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
     const allClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
     const nonAlignmentClasses = allClasses.filter(function(c) {
-        return alignmentClassList.indexOf(c) === -1;
+        return !alignmentClassList.includes(c);
     }).join(' ');
 
     // Determine initial selection based on existing attributes
@@ -774,7 +774,7 @@ function getImageDialog(editor, img, attributes) {
         const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
         const originalClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
         const preservedAlignmentClasses = originalClasses.filter(function(c) {
-            return alignmentClasses.indexOf(c) !== -1;
+            return alignmentClasses.includes(c);
         });
 
         // Handle Click Behavior radio button selection
@@ -1190,7 +1190,7 @@ function encodeTypoLink(linkData) {
             return '-';
         }
         // Quote if contains space, quote, or backslash
-        if (value.indexOf(' ') !== -1 || value.indexOf('"') !== -1 || value.indexOf('\\') !== -1) {
+        if (value.includes(' ') || value.includes('"') || value.includes('\\')) {
             // Escape backslashes and quotes
             const escaped = value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
             return `"${escaped}"`;
@@ -1253,7 +1253,7 @@ function openLinkBrowser(editor, currentValue) {
     }
 
     // Build URL for linkBrowser action
-    const separator = baseUrl.indexOf('?') === -1 ? '?' : '&';
+    const separator = baseUrl.includes('?') ? '&' : '?';
     const linkBrowserActionUrl = `${baseUrl}${separator}action=linkBrowser&currentValue=${encodeURIComponent(currentValue || '')}`;
 
     // Fetch the wizard_link URL from our backend
