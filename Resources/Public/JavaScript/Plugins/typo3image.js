@@ -19,6 +19,14 @@ import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
 import { toWidget, toWidgetEditable, WidgetToolbarRepository } from '@ckeditor/ckeditor5-widget';
 import { default as Modal } from '@typo3/backend/modal.js';
 import { sanitizeSrc } from './sanitize-src.js';
+// Internal callers reference parseTypoLink (l.1149, l.1189) and
+// encodeTypoLink (l.595); parseTypoLinkParts is only used by external
+// consumers via the re-export below (Sonar S1128 if imported here).
+import { parseTypoLink, encodeTypoLink } from './typolink-parser.js';
+
+// Re-export for backwards compatibility with existing importers/tests.
+// `export…from` (rather than re-binding the imports above) per Sonar S7763.
+export { parseTypoLink, parseTypoLinkParts, encodeTypoLink } from './typolink-parser.js';
 
 
 // Module-level translations cache for functions outside the plugin class scope
@@ -58,7 +66,7 @@ function urlToRelative(url, storageDriver) {
     }
 
     // Convert local storage URLs to relative for site portability
-    if (url.indexOf("http://") !== -1 || url.indexOf("https://") !== -1) {
+    if (url.includes("http://") || url.includes("https://")) {
         const u = new URL(url);
         return u.pathname + u.search;
     } else {
@@ -108,12 +116,6 @@ function getImageDialog(editor, img, attributes) {
             caption: { label: img.lang.caption || 'Caption', type: 'textarea', rows: 2 }
         }
     ];
-
-    // Get maxWidth and maxHeight from editor configuration (from TSConfig)
-    const styleConfig = editor.config.get('style') || {};
-    const typo3imageConfig = styleConfig.typo3image || {};
-    const maxConfigWidth = typo3imageConfig.maxWidth || 1920;
-    const maxConfigHeight = typo3imageConfig.maxHeight || 9999;
 
     // Check if the image is SVG
     const isSvg = img.url && (img.url.endsWith('.svg') || img.url.includes('.svg?')) || false;
@@ -231,13 +233,13 @@ function getImageDialog(editor, img, attributes) {
                 el.min = min;
 
                 const constrainDimensions = function (currentMin, delta) {
-                    let value = parseInt(el.value.replace(/[^0-9]/g, '') || max);
+                    let value = Number.parseInt(el.value.replace(/[^0-9]/g, '') || max, 10);
                     if (delta) {
                         value += delta;
                     }
                     value = Math.max(currentMin, Math.min(value, max));
                     const oppositeEl = elements[key === 'width' ? 'height' : 'width'],
-                        oppositeMax = parseInt(oppositeEl.max),
+                        oppositeMax = Number.parseInt(oppositeEl.max, 10),
                         ratio = oppositeMax / max;
 
                     oppositeEl.value = value === max ? oppositeMax : Math.ceil(value * ratio);
@@ -346,14 +348,14 @@ function getImageDialog(editor, img, attributes) {
     const alignmentClassList = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
     const allClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
     const nonAlignmentClasses = allClasses.filter(function(c) {
-        return alignmentClassList.indexOf(c) === -1;
+        return !alignmentClassList.includes(c);
     }).join(' ');
 
     // Determine initial selection based on existing attributes
     let initialBehavior = 'none';
     if (attributes['data-htmlarea-zoom'] || attributes['data-htmlarea-clickenlarge']) {
         initialBehavior = 'enlarge';
-    } else if (attributes.linkHref && attributes.linkHref.trim() !== '') {
+    } else if (attributes.linkHref?.trim()) {
         initialBehavior = 'link';
     }
 
@@ -595,7 +597,7 @@ function getImageDialog(editor, img, attributes) {
         };
         const currentLinkValue = encodeTypoLink(currentLinkData);
         openLinkBrowser(editor, currentLinkValue).then(function(linkData) {
-            if (linkData && linkData.href) {
+            if (linkData?.href) {
                 // Always update all fields to ensure stale values are cleared
                 // when the user selects a link without certain attributes
                 inputLinkHref.value = linkData.href;
@@ -670,7 +672,7 @@ function getImageDialog(editor, img, attributes) {
         // Get selected quality multiplier and color from dropdown
         const selectedQuality = qualityDropdown.value;
         const selectedOption = qualityDropdown.options[qualityDropdown.selectedIndex];
-        const selectedMultiplier = parseFloat(selectedOption.dataset.multiplier);
+        const selectedMultiplier = Number.parseFloat(selectedOption.dataset.multiplier);
         const selectedColor = selectedOption.dataset.color;
 
         // Calculate requested source dimensions for selected quality (BEFORE capping)
@@ -681,12 +683,6 @@ function getImageDialog(editor, img, attributes) {
         // IMPORTANT: Never upscale beyond original image dimensions
         const requiredWidth = Math.min(requestedWidth, intrinsicWidth);
         const requiredHeight = Math.min(requestedHeight, intrinsicHeight);
-
-        // Check if dimensions match exactly
-        const dimensionsMatch = (displayWidth === intrinsicWidth && displayHeight === intrinsicHeight);
-
-        // Check if display size exceeds image size
-        const displayExceedsImage = (displayWidth > intrinsicWidth || displayHeight > intrinsicHeight);
 
         // Calculate expected quality (ratio of image pixels to display pixels)
         // Quality = Image / Display (higher = better quality)
@@ -715,7 +711,6 @@ function getImageDialog(editor, img, attributes) {
         // Calculate actual achievable quality
         // If requested processing size exceeds original, we can only achieve what the original provides
         const actualQuality = Math.min(intrinsicWidth / displayWidth, intrinsicHeight / displayHeight);
-        const requestedQuality = selectedMultiplier;
         // Check UNCAPPED requested size against original (not the capped requiredWidth/Height)
         const canAchieveRequested = (requestedWidth <= intrinsicWidth && requestedHeight <= intrinsicHeight);
 
@@ -755,8 +750,8 @@ function getImageDialog(editor, img, attributes) {
     }
 
     function updateQualityIndicator() {
-        const displayWidth = parseInt(inputWidth.value, 10) || 0;
-        const displayHeight = parseInt(inputHeight.value, 10) || 0;
+        const displayWidth = Number.parseInt(inputWidth.value, 10) || 0;
+        const displayHeight = Number.parseInt(inputHeight.value, 10) || 0;
         renderQualityIndicator(displayWidth, displayHeight);
     }
 
@@ -787,7 +782,7 @@ function getImageDialog(editor, img, attributes) {
         const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
         const originalClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
         const preservedAlignmentClasses = originalClasses.filter(function(c) {
-            return alignmentClasses.indexOf(c) !== -1;
+            return alignmentClasses.includes(c);
         });
 
         // Handle Click Behavior radio button selection
@@ -891,7 +886,7 @@ function getImageDialog(editor, img, attributes) {
 
             // When saving, check title for override mode
             attributes[`data-${item}-override`] = curCheckbox ? curCheckbox.checked : false;
-            if (curCheckbox && curCheckbox.checked) {
+            if (curCheckbox?.checked) {
                 // Allow empty title/alt values
                 attributes[item] = attributes[item] || '';
             } else {
@@ -1030,7 +1025,7 @@ function selectImage(editor) {
 
     const contentUrl = `${editor.config.get('typo3image').routeUrl}&bparams=${bparams.join('|')}`;
 
-    const modal = Modal.advanced({
+    Modal.advanced({
         type: Modal.types.iframe,
         title: moduleTranslationsCache?.selectImage || 'Select image',
         content: contentUrl,
@@ -1064,180 +1059,6 @@ function selectImage(editor) {
 }
 
 /**
- * Parse a TYPO3 TypoLink string into its components.
- * TypoLink format (order is crucial!): url target class title additionalParams
- * - Empty values use "-" as placeholder
- * - Values with spaces are enclosed in double quotes
- * - Backslash is used as escape character
- *
- * Examples:
- *   - "t3://page?uid=1"
- *   - "t3://page?uid=1 _blank"
- *   - "t3://page?uid=1 _blank my-class"
- *   - "t3://page?uid=1 _blank my-class "Click here""
- *   - "t3://page?uid=1 - - "Click here""
- *   - "t3://page?uid=1 _blank my-class "Click here" &foo=bar"
- *
- * @param {string} typoLink - The TypoLink string to parse
- * @return {Object} Object with href, target, class, title, additionalParams properties
- */
-function parseTypoLink(typoLink) {
-    const result = {
-        href: '',
-        target: '',
-        class: '',
-        title: '',
-        additionalParams: ''
-    };
-
-    if (!typoLink || typeof typoLink !== 'string') {
-        return result;
-    }
-
-    typoLink = typoLink.trim();
-    if (typoLink === '') {
-        return result;
-    }
-
-    // Parse using CSV-like logic (space delimiter, quote enclosure, backslash escape)
-    // This mimics PHP's str_getcsv($typoLink, ' ', '"', '\\')
-    const parts = parseTypoLinkParts(typoLink);
-
-    // Order: url, target, class, title, additionalParams
-    if (parts.length > 0 && parts[0] !== '-') {
-        result.href = parts[0];
-    }
-    if (parts.length > 1 && parts[1] !== '-') {
-        result.target = parts[1];
-    }
-    if (parts.length > 2 && parts[2] !== '-') {
-        result.class = parts[2];
-    }
-    if (parts.length > 3 && parts[3] !== '-') {
-        result.title = parts[3];
-    }
-    if (parts.length > 4 && parts[4] !== '-') {
-        result.additionalParams = parts[4];
-    }
-
-    return result;
-}
-
-/**
- * Parse TypoLink string into parts using CSV-like logic.
- * Handles quoted strings with spaces and escaped characters.
- *
- * @param {string} str - The TypoLink string
- * @return {string[]} Array of parsed parts
- */
-function parseTypoLinkParts(str) {
-    const parts = [];
-    let current = '';
-    let inQuotes = false;
-    let i = 0;
-
-    while (i < str.length) {
-        const char = str[i];
-
-        if (char === '\\' && i + 1 < str.length) {
-            // Escape sequence - include next character literally
-            current += str[i + 1];
-            i += 2;
-            continue;
-        }
-
-        if (char === '"') {
-            inQuotes = !inQuotes;
-            i++;
-            continue;
-        }
-
-        if (char === ' ' && !inQuotes) {
-            // Delimiter - save current part and start new one
-            if (current !== '' || parts.length > 0) {
-                parts.push(current);
-                current = '';
-            }
-            i++;
-            continue;
-        }
-
-        current += char;
-        i++;
-    }
-
-    // Don't forget the last part
-    if (current !== '' || parts.length > 0) {
-        parts.push(current);
-    }
-
-    return parts;
-}
-
-/**
- * Encode link data into TypoLink format.
- * This is the reverse of parseTypoLink.
- *
- * Format: url target class title additionalParams
- * - Empty values use '-' placeholder
- * - Values with spaces are quoted
- *
- * @param {Object} linkData - Object with href, target, class, title, additionalParams
- * @return {string} TypoLink string
- */
-function encodeTypoLink(linkData) {
-    const url = linkData.href || '';
-    const target = linkData.target || '-';
-    const cssClass = linkData.class || '-';
-    const title = linkData.title || '-';
-    const additionalParams = linkData.additionalParams || '-';
-
-    // If URL is empty, return empty string
-    if (!url) {
-        return '';
-    }
-
-    // Quote values that contain spaces or special characters
-    const quoteIfNeeded = function(value) {
-        if (value === '-') {
-            return '-';
-        }
-        // Quote if contains space, quote, or backslash
-        if (value.indexOf(' ') !== -1 || value.indexOf('"') !== -1 || value.indexOf('\\') !== -1) {
-            // Escape backslashes and quotes
-            const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-            return `"${escaped}"`;
-        }
-        return value;
-    };
-
-    // Build TypoLink parts array
-    const parts = [url];
-
-    // Only include parts up to the last non-empty value
-    // This keeps the output minimal while still correct
-    const hasAdditionalParams = additionalParams !== '-';
-    const hasTitle = title !== '-' || hasAdditionalParams;
-    const hasClass = cssClass !== '-' || hasTitle;
-    const hasTarget = target !== '-' || hasClass;
-
-    if (hasTarget) {
-        parts.push(quoteIfNeeded(target));
-    }
-    if (hasClass) {
-        parts.push(quoteIfNeeded(cssClass));
-    }
-    if (hasTitle) {
-        parts.push(quoteIfNeeded(title));
-    }
-    if (hasAdditionalParams) {
-        parts.push(quoteIfNeeded(additionalParams));
-    }
-
-    return parts.join(' ');
-}
-
-/**
  * Open TYPO3's link browser to select a link target.
  * Used by the image dialog to allow linking images to pages, files, URLs, etc.
  *
@@ -1266,7 +1087,7 @@ function openLinkBrowser(editor, currentValue) {
     }
 
     // Build URL for linkBrowser action
-    const separator = baseUrl.indexOf('?') === -1 ? '?' : '&';
+    const separator = baseUrl.includes('?') ? '&' : '?';
     const linkBrowserActionUrl = `${baseUrl}${separator}action=linkBrowser&currentValue=${encodeURIComponent(currentValue || '')}`;
 
     // Fetch the wizard_link URL from our backend
@@ -1309,7 +1130,7 @@ function openLinkBrowser(editor, currentValue) {
         const hiddenInput = targetDoc.createElement('input');
         hiddenInput.type = 'hidden';
         hiddenInput.name = itemName;
-        hiddenInput.setAttribute('data-formengine-input-name', itemName);
+        hiddenInput.dataset.formengineInputName = itemName;
         hiddenInput.value = currentValue || '';
 
         hiddenForm.appendChild(hiddenInput);
@@ -1435,19 +1256,19 @@ function edit(selectedImage, editor, imageAttributes) {
 
                 // Only set link attributes if they have non-empty values
                 // IMPORTANT: Don't set empty strings to prevent unwanted link wrappers
-                if (attributes.linkHref && attributes.linkHref.trim() !== '') {
+                if (attributes.linkHref?.trim()) {
                     newImageAttributes.imageLinkHref = attributes.linkHref;
                 }
-                if (attributes.linkTarget && attributes.linkTarget.trim() !== '') {
+                if (attributes.linkTarget?.trim()) {
                     newImageAttributes.imageLinkTarget = attributes.linkTarget;
                 }
-                if (attributes.linkTitle && attributes.linkTitle.trim() !== '') {
+                if (attributes.linkTitle?.trim()) {
                     newImageAttributes.imageLinkTitle = attributes.linkTitle;
                 }
-                if (attributes.linkClass && attributes.linkClass.trim() !== '') {
+                if (attributes.linkClass?.trim()) {
                     newImageAttributes.imageLinkClass = attributes.linkClass;
                 }
-                if (attributes.linkParams && attributes.linkParams.trim() !== '') {
+                if (attributes.linkParams?.trim()) {
                     newImageAttributes.imageLinkParams = attributes.linkParams;
                 }
 
@@ -1502,7 +1323,7 @@ class ResizeImageCommand extends Command {
         const model = this.editor.model;
         const imageElement = model.document.selection.getSelectedElement();
 
-        this.isEnabled = !!(imageElement && imageElement.is('element', 'typo3image'));
+        this.isEnabled = !!imageElement?.is('element', 'typo3image');
     }
 }
 
@@ -1518,7 +1339,7 @@ class ToggleCaptionCommand extends Command {
         const selectedElement = selection.getSelectedElement();
 
         // Enable if typo3image is selected
-        this.isEnabled = selectedElement && selectedElement.name === 'typo3image';
+        this.isEnabled = selectedElement?.name === 'typo3image';
 
         if (this.isEnabled) {
             // Set value to true if caption exists
@@ -1597,7 +1418,7 @@ class SetImageStyleCommand extends Command {
         const model = this.editor.model;
         const imageElement = model.document.selection.getSelectedElement();
 
-        this.isEnabled = !!(imageElement && imageElement.is('element', 'typo3image'));
+        this.isEnabled = !!imageElement?.is('element', 'typo3image');
 
         if (this.isEnabled) {
             const currentClass = imageElement.getAttribute('class') || '';
@@ -1760,7 +1581,7 @@ function getCaptionFromImageModelElement(imageElement) {
  */
 function hasCaptionContent(imageElement) {
     const caption = getCaptionFromImageModelElement(imageElement);
-    return caption && caption.childCount > 0;
+    return caption?.childCount > 0;
 }
 
 export default class Typo3Image extends Plugin {
@@ -1880,11 +1701,11 @@ export default class Typo3Image extends Plugin {
                     // Try to hide the link balloon if it's visible
                     try {
                         const linkUI = editor.plugins.has('LinkUI') ? editor.plugins.get('LinkUI') : null;
-                        if (linkUI && linkUI.formView && contextualBalloon.hasView(linkUI.formView)) {
+                        if (linkUI?.formView && contextualBalloon.hasView(linkUI.formView)) {
                             contextualBalloon.remove(linkUI.formView);
                         }
                         // Also try to remove link actions view
-                        if (linkUI && linkUI.actionsView && contextualBalloon.hasView(linkUI.actionsView)) {
+                        if (linkUI?.actionsView && contextualBalloon.hasView(linkUI.actionsView)) {
                             contextualBalloon.remove(linkUI.actionsView);
                         }
                     } catch (e) {
@@ -1973,7 +1794,7 @@ export default class Typo3Image extends Plugin {
         ghs.decorate('addModelHtmlClass')
         // Add listener to update the `class` attribute of the `typo3image` element
         this.listenTo(ghs, 'addModelHtmlClass', (event, [viewElement, className, selectable]) => {
-            if (selectable && selectable.name === 'typo3image') {
+            if (selectable?.name === 'typo3image') {
                 editor.model.change(writer => {
                     writer.setAttribute('class', className.join(' '), selectable);
                 })
@@ -1984,7 +1805,7 @@ export default class Typo3Image extends Plugin {
         ghs.decorate('removeModelHtmlClass')
         // Add listener to remove the `class` attribute of the `typo3image` element
         this.listenTo(ghs, 'removeModelHtmlClass', (event, [viewElement, className, selectable]) => {
-            if (selectable && selectable.name === 'typo3image') {
+            if (selectable?.name === 'typo3image') {
                 editor.model.change(writer => {
                     writer.removeAttribute('class', selectable);
                 })
@@ -2133,12 +1954,12 @@ export default class Typo3Image extends Plugin {
                         imageAttributes.src = cleanSrc;
                     }
 
-                    if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+                    if (linkHref?.trim() && linkHref.trim() !== '/') {
                         imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget && linkTarget.trim() !== '') {
+                        if (linkTarget?.trim()) {
                             imageAttributes.imageLinkTarget = linkTarget;
                         }
-                        if (linkTitle && linkTitle.trim() !== '') {
+                        if (linkTitle?.trim()) {
                             imageAttributes.imageLinkTitle = linkTitle;
                         }
                         // Filter out alignment classes
@@ -2148,7 +1969,7 @@ export default class Typo3Image extends Plugin {
                         if (actualLinkClass) {
                             imageAttributes.imageLinkClass = actualLinkClass;
                         }
-                        if (linkParams && linkParams.trim() !== '') {
+                        if (linkParams?.trim()) {
                             imageAttributes.imageLinkParams = linkParams;
                         }
                     }
@@ -2255,12 +2076,12 @@ export default class Typo3Image extends Plugin {
                     }
 
                     // Add link attributes if valid
-                    if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+                    if (linkHref?.trim() && linkHref.trim() !== '/') {
                         imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget && linkTarget.trim() !== '') {
+                        if (linkTarget?.trim()) {
                             imageAttributes.imageLinkTarget = linkTarget;
                         }
-                        if (linkTitle && linkTitle.trim() !== '') {
+                        if (linkTitle?.trim()) {
                             imageAttributes.imageLinkTitle = linkTitle;
                         }
                         // Filter out alignment classes from linkClass
@@ -2278,7 +2099,7 @@ export default class Typo3Image extends Plugin {
                             const existingParts = existingClass.split(' ').filter(c => c.trim() !== '' && !alignmentClasses.includes(c));
                             imageAttributes.class = [...existingParts, alignmentFromLink].join(' ');
                         }
-                        if (linkParams && linkParams.trim() !== '') {
+                        if (linkParams?.trim()) {
                             imageAttributes.imageLinkParams = linkParams;
                         }
                     }
@@ -2314,7 +2135,7 @@ export default class Typo3Image extends Plugin {
                 model: (viewFigure, { writer, consumable }) => {
                     // Skip if parent is a link - handled by the linked figure upcast above
                     const parent = viewFigure.parent;
-                    if (parent && parent.is('element', 'a')) {
+                    if (parent?.is('element', 'a')) {
                         return null;
                     }
 
@@ -2386,18 +2207,18 @@ export default class Typo3Image extends Plugin {
                     }
 
                     // Only set link attributes if they have non-empty values
-                    if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+                    if (linkHref?.trim() && linkHref.trim() !== '/') {
                         imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget && linkTarget.trim() !== '') {
+                        if (linkTarget?.trim()) {
                             imageAttributes.imageLinkTarget = linkTarget;
                         }
-                        if (linkTitle && linkTitle.trim() !== '') {
+                        if (linkTitle?.trim()) {
                             imageAttributes.imageLinkTitle = linkTitle;
                         }
-                        if (linkClass && linkClass.trim() !== '') {
+                        if (linkClass?.trim()) {
                             imageAttributes.imageLinkClass = linkClass;
                         }
-                        if (linkParams && linkParams.trim() !== '') {
+                        if (linkParams?.trim()) {
                             imageAttributes.imageLinkParams = linkParams;
                         }
                     }
@@ -2496,7 +2317,7 @@ export default class Typo3Image extends Plugin {
                     const linkParams = viewElement.getAttribute('data-link-params') || '';
 
                     // Determine if this is a real link (non-empty, non-placeholder href)
-                    const hasValidLink = linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/';
+                    const hasValidLink = linkHref?.trim() && linkHref.trim() !== '/';
 
                     // Test if both elements can be consumed before committing to conversion
                     // Using test() first ensures we don't partially consume elements
@@ -2535,16 +2356,16 @@ export default class Typo3Image extends Plugin {
                     // Only add link attributes if href is valid (not empty/placeholder)
                     if (hasValidLink) {
                         imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget && linkTarget.trim() !== '') {
+                        if (linkTarget?.trim()) {
                             imageAttributes.imageLinkTarget = linkTarget;
                         }
-                        if (linkTitle && linkTitle.trim() !== '') {
+                        if (linkTitle?.trim()) {
                             imageAttributes.imageLinkTitle = linkTitle;
                         }
-                        if (linkClass && linkClass.trim() !== '') {
+                        if (linkClass?.trim()) {
                             imageAttributes.imageLinkClass = linkClass;
                         }
-                        if (linkParams && linkParams.trim() !== '') {
+                        if (linkParams?.trim()) {
                             imageAttributes.imageLinkParams = linkParams;
                         }
                     }
@@ -2641,12 +2462,12 @@ export default class Typo3Image extends Plugin {
                     }
 
                     // Only set link attributes if they have non-empty values
-                    if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+                    if (linkHref?.trim() && linkHref.trim() !== '/') {
                         imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget && linkTarget.trim() !== '') {
+                        if (linkTarget?.trim()) {
                             imageAttributes.imageLinkTarget = linkTarget;
                         }
-                        if (linkTitle && linkTitle.trim() !== '') {
+                        if (linkTitle?.trim()) {
                             imageAttributes.imageLinkTitle = linkTitle;
                         }
                         // Filter out alignment classes from link class
@@ -2657,7 +2478,7 @@ export default class Typo3Image extends Plugin {
                         if (actualLinkClass) {
                             imageAttributes.imageLinkClass = actualLinkClass;
                         }
-                        if (linkParams && linkParams.trim() !== '') {
+                        if (linkParams?.trim()) {
                             imageAttributes.imageLinkParams = linkParams;
                         }
                     }
@@ -2716,7 +2537,7 @@ export default class Typo3Image extends Plugin {
 
         // Check if a link href value represents a valid link.
         // Empty strings and "/" (TYPO3 link browser default/placeholder) are not valid.
-        const isValidLink = (href) => href && href.trim() !== '' && href.trim() !== '/';
+        const isValidLink = (href) => href?.trim() && href.trim() !== '/';
 
         // Helper function to create view element for typo3image
         const createImageViewElement = (modelElement, writer, { wrapInLink = true } = {}) => {
@@ -2763,7 +2584,7 @@ export default class Typo3Image extends Plugin {
             // The caption is stored in typo3imageCaption child element
             // This ensures PHP can access the caption even though it only sees <img> attributes
             const captionElement = getCaptionFromImageModelElement(modelElement);
-            if (captionElement && captionElement.childCount > 0) {
+            if (captionElement?.childCount > 0) {
                 let captionText = '';
                 for (const child of captionElement.getChildren()) {
                     if (child.is('$text')) {
@@ -2788,17 +2609,17 @@ export default class Typo3Image extends Plugin {
 
                 // Add optional link attributes only if they have values
                 const linkTarget = modelElement.getAttribute('imageLinkTarget');
-                if (linkTarget && linkTarget.trim() !== '') {
+                if (linkTarget?.trim()) {
                     linkAttributes.target = linkTarget;
                 }
 
                 const linkTitle = modelElement.getAttribute('imageLinkTitle');
-                if (linkTitle && linkTitle.trim() !== '') {
+                if (linkTitle?.trim()) {
                     linkAttributes.title = linkTitle;
                 }
 
                 const linkClass = modelElement.getAttribute('imageLinkClass');
-                if (linkClass && linkClass.trim() !== '') {
+                if (linkClass?.trim()) {
                     linkAttributes.class = linkClass;
                 }
 
@@ -2806,7 +2627,7 @@ export default class Typo3Image extends Plugin {
                 // TYPO3's frontend rendering will append these to the final URL
                 // We don't append to href here to avoid doubling on save/load cycles
                 const linkParams = modelElement.getAttribute('imageLinkParams');
-                if (linkParams && linkParams.trim() !== '') {
+                if (linkParams?.trim()) {
                     linkAttributes['data-link-params'] = linkParams;
                 }
 
@@ -3038,22 +2859,22 @@ export default class Typo3Image extends Plugin {
                 };
 
                 const linkTarget = modelElement.getAttribute('imageLinkTarget');
-                if (linkTarget && linkTarget.trim() !== '') {
+                if (linkTarget?.trim()) {
                     linkAttributes.target = linkTarget;
                 }
 
                 const linkTitle = modelElement.getAttribute('imageLinkTitle');
-                if (linkTitle && linkTitle.trim() !== '') {
+                if (linkTitle?.trim()) {
                     linkAttributes.title = linkTitle;
                 }
 
                 const linkClass = modelElement.getAttribute('imageLinkClass');
-                if (linkClass && linkClass.trim() !== '') {
+                if (linkClass?.trim()) {
                     linkAttributes.class = linkClass;
                 }
 
                 const linkParams = modelElement.getAttribute('imageLinkParams');
-                if (linkParams && linkParams.trim() !== '') {
+                if (linkParams?.trim()) {
                     linkAttributes['data-link-params'] = linkParams;
                 }
 
@@ -3201,7 +3022,7 @@ export default class Typo3Image extends Plugin {
             button.on('execute', () => {
                 const selectedElement = editor.model.document.selection.getSelectedElement();
 
-                if (selectedElement && selectedElement.name === 'typo3image') {
+                if (selectedElement?.name === 'typo3image') {
                     edit(
                         {
                             uid: selectedElement.getAttribute('fileUid'),
@@ -3288,7 +3109,7 @@ export default class Typo3Image extends Plugin {
                             if (viewElement) {
                                 // The viewElement is the widget span, check its parent for a link
                                 const parent = viewElement.parent;
-                                if (parent && parent.is('attributeElement') && parent.name === 'a') {
+                                if (parent?.is('attributeElement') && parent.name === 'a') {
                                     // Image is inside an external link in the view
                                     isInsideExternalLink = true;
                                 }
@@ -3405,7 +3226,7 @@ export default class Typo3Image extends Plugin {
                     targetElement = parent;
                 }
                 // Handle img inside link inside wrapper: img -> a -> span/figure
-                else if (targetElement.name === 'img' && parent && parent.name === 'a') {
+                else if (targetElement.name === 'img' && parent?.name === 'a') {
                     const grandparent = parent.parent;
                     if (grandparent && (grandparent.name === 'span' || grandparent.name === 'figure') && grandparent.hasClass('ck-widget')) {
                         targetElement = grandparent;
@@ -3521,10 +3342,10 @@ export default class Typo3Image extends Plugin {
                 checkElement = checkElement.parent;
             }
 
-            if (checkElement && checkElement.name === 'figcaption') {
+            if (checkElement?.name === 'figcaption') {
                 // We're inside figcaption, find the parent figure widget
                 const parent = checkElement.parent;
-                if (parent && parent.name === 'figure' && parent.hasClass('ck-widget')) {
+                if (parent?.name === 'figure' && parent.hasClass('ck-widget')) {
                     targetElement = parent;
                 }
             }
@@ -3535,7 +3356,7 @@ export default class Typo3Image extends Plugin {
                     targetElement = parent;
                 }
                 // Handle img inside link inside wrapper: img -> a -> span/figure
-                else if (targetElement.name === 'img' && parent && parent.name === 'a') {
+                else if (targetElement.name === 'img' && parent?.name === 'a') {
                     const grandparent = parent.parent;
                     if (grandparent && (grandparent.name === 'span' || grandparent.name === 'figure') && grandparent.hasClass('ck-widget')) {
                         targetElement = grandparent;
@@ -3545,10 +3366,10 @@ export default class Typo3Image extends Plugin {
 
             // If we still don't have a widget, traverse up from the original target
             // to find any ck-widget ancestor (handles img inside CKEditor link wrapper)
-            if (!targetElement.hasClass || !targetElement.hasClass('ck-widget')) {
+            if (!targetElement.hasClass?.('ck-widget')) {
                 let searchElement = data.target;
                 while (searchElement) {
-                    if (searchElement.hasClass && searchElement.hasClass('ck-widget') &&
+                    if (searchElement.hasClass?.('ck-widget') &&
                         (searchElement.name === 'span' || searchElement.name === 'figure')) {
                         targetElement = searchElement;
                         break;
@@ -3556,7 +3377,7 @@ export default class Typo3Image extends Plugin {
                     // Also check if we're on an img directly inside a widget span
                     if (searchElement.name === 'img') {
                         const widgetParent = searchElement.parent;
-                        if (widgetParent && widgetParent.hasClass && widgetParent.hasClass('ck-widget')) {
+                        if (widgetParent?.hasClass?.('ck-widget')) {
                             targetElement = widgetParent;
                             break;
                         }
@@ -3593,7 +3414,7 @@ export default class Typo3Image extends Plugin {
                     if (!imageLinkHref || imageLinkHref.trim() === '') {
                         // No link on the image - check if targetElement's parent is a link
                         const parent = targetElement.parent;
-                        if (parent && parent.is('attributeElement') && parent.name === 'a') {
+                        if (parent?.is('attributeElement') && parent.name === 'a') {
                             isInsideExternalLink = true;
                         }
                     }
@@ -3645,7 +3466,7 @@ export default class Typo3Image extends Plugin {
                 const selection = editor.model.document.selection;
                 const selectedElement = selection.getSelectedElement();
 
-                if (selectedElement && selectedElement.name === 'typo3image') {
+                if (selectedElement?.name === 'typo3image') {
                     this.isEnabled = false;
                 }
             };

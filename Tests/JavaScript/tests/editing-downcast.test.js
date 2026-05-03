@@ -36,16 +36,16 @@ function createImageViewElement(modelElement, writer, { wrapInLink = true } = {}
 
   if (wrapInLink) {
     const linkHref = modelElement.getAttribute('imageLinkHref');
-    if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+    if (linkHref?.trim() && linkHref.trim() !== '/') {
       const linkAttributes = { href: linkHref };
 
       const linkTarget = modelElement.getAttribute('imageLinkTarget');
-      if (linkTarget && linkTarget.trim() !== '') {
+      if (linkTarget?.trim()) {
         linkAttributes.target = linkTarget;
       }
 
       const linkTitle = modelElement.getAttribute('imageLinkTitle');
-      if (linkTitle && linkTitle.trim() !== '') {
+      if (linkTitle?.trim()) {
         linkAttributes.title = linkTitle;
       }
 
@@ -75,16 +75,16 @@ function createInlineImageViewElement(modelElement, writer, { wrapInLink = true 
 
   if (wrapInLink) {
     const linkHref = modelElement.getAttribute('imageLinkHref');
-    if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+    if (linkHref?.trim() && linkHref.trim() !== '/') {
       const linkAttributes = { href: linkHref };
 
       const linkTarget = modelElement.getAttribute('imageLinkTarget');
-      if (linkTarget && linkTarget.trim() !== '') {
+      if (linkTarget?.trim()) {
         linkAttributes.target = linkTarget;
       }
 
       const linkTitle = modelElement.getAttribute('imageLinkTitle');
-      if (linkTitle && linkTitle.trim() !== '') {
+      if (linkTitle?.trim()) {
         linkAttributes.title = linkTitle;
       }
 

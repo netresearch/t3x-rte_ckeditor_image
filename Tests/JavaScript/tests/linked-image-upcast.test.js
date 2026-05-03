@@ -70,12 +70,12 @@ function doubleLinkedImageUpcastConverter(viewOuterLink, conversionApi) {
     alt: imgElement.getAttribute('alt') || ''
   };
 
-  if (linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/') {
+  if (linkHref?.trim() && linkHref.trim() !== '/') {
     imageAttributes.imageLinkHref = linkHref;
-    if (linkTarget && linkTarget.trim() !== '') {
+    if (linkTarget?.trim()) {
       imageAttributes.imageLinkTarget = linkTarget;
     }
-    if (linkTitle && linkTitle.trim() !== '') {
+    if (linkTitle?.trim()) {
       imageAttributes.imageLinkTitle = linkTitle;
     }
   }
@@ -116,7 +116,7 @@ function linkedImageUpcastConverter(viewElement, conversionApi) {
   const linkTitle = viewElement.getAttribute('title') || '';
 
   // Determine if this is a real link (non-empty, non-placeholder href)
-  const hasValidLink = linkHref && linkHref.trim() !== '' && linkHref.trim() !== '/';
+  const hasValidLink = linkHref?.trim() && linkHref.trim() !== '/';
 
   // Test if both elements can be consumed before committing to conversion
   if (
@@ -144,10 +144,10 @@ function linkedImageUpcastConverter(viewElement, conversionApi) {
   // Only add link attributes if href is valid (not empty/placeholder)
   if (hasValidLink) {
     imageAttributes.imageLinkHref = linkHref;
-    if (linkTarget && linkTarget.trim() !== '') {
+    if (linkTarget?.trim()) {
       imageAttributes.imageLinkTarget = linkTarget;
     }
-    if (linkTitle && linkTitle.trim() !== '') {
+    if (linkTitle?.trim()) {
       imageAttributes.imageLinkTitle = linkTitle;
     }
   }
