@@ -109,12 +109,6 @@ function getImageDialog(editor, img, attributes) {
         }
     ];
 
-    // Get maxWidth and maxHeight from editor configuration (from TSConfig)
-    const styleConfig = editor.config.get('style') || {};
-    const typo3imageConfig = styleConfig.typo3image || {};
-    const maxConfigWidth = typo3imageConfig.maxWidth || 1920;
-    const maxConfigHeight = typo3imageConfig.maxHeight || 9999;
-
     // Check if the image is SVG
     const isSvg = img.url && (img.url.endsWith('.svg') || img.url.includes('.svg?')) || false;
 
@@ -682,12 +676,6 @@ function getImageDialog(editor, img, attributes) {
         const requiredWidth = Math.min(requestedWidth, intrinsicWidth);
         const requiredHeight = Math.min(requestedHeight, intrinsicHeight);
 
-        // Check if dimensions match exactly
-        const dimensionsMatch = (displayWidth === intrinsicWidth && displayHeight === intrinsicHeight);
-
-        // Check if display size exceeds image size
-        const displayExceedsImage = (displayWidth > intrinsicWidth || displayHeight > intrinsicHeight);
-
         // Calculate expected quality (ratio of image pixels to display pixels)
         // Quality = Image / Display (higher = better quality)
         const qualityRatio = Math.min(intrinsicWidth / displayWidth, intrinsicHeight / displayHeight);
@@ -715,7 +703,6 @@ function getImageDialog(editor, img, attributes) {
         // Calculate actual achievable quality
         // If requested processing size exceeds original, we can only achieve what the original provides
         const actualQuality = Math.min(intrinsicWidth / displayWidth, intrinsicHeight / displayHeight);
-        const requestedQuality = selectedMultiplier;
         // Check UNCAPPED requested size against original (not the capped requiredWidth/Height)
         const canAchieveRequested = (requestedWidth <= intrinsicWidth && requestedHeight <= intrinsicHeight);
 
@@ -1030,7 +1017,7 @@ function selectImage(editor) {
 
     const contentUrl = `${editor.config.get('typo3image').routeUrl}&bparams=${bparams.join('|')}`;
 
-    const modal = Modal.advanced({
+    Modal.advanced({
         type: Modal.types.iframe,
         title: moduleTranslationsCache?.selectImage || 'Select image',
         content: contentUrl,
