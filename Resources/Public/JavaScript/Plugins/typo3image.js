@@ -19,7 +19,10 @@ import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
 import { toWidget, toWidgetEditable, WidgetToolbarRepository } from '@ckeditor/ckeditor5-widget';
 import { default as Modal } from '@typo3/backend/modal.js';
 import { sanitizeSrc } from './sanitize-src.js';
-import { parseTypoLink, parseTypoLinkParts, encodeTypoLink } from './typolink-parser.js';
+// Internal callers reference parseTypoLink (l.1149, l.1189) and
+// encodeTypoLink (l.595); parseTypoLinkParts is only used by external
+// consumers via the re-export below (Sonar S1128 if imported here).
+import { parseTypoLink, encodeTypoLink } from './typolink-parser.js';
 
 // Re-export for backwards compatibility with existing importers/tests.
 // `export…from` (rather than re-binding the imports above) per Sonar S7763.
