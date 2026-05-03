@@ -1296,7 +1296,7 @@ function openLinkBrowser(editor, currentValue) {
         const hiddenInput = targetDoc.createElement('input');
         hiddenInput.type = 'hidden';
         hiddenInput.name = itemName;
-        hiddenInput.setAttribute('data-formengine-input-name', itemName);
+        hiddenInput.dataset.formengineInputName = itemName;
         hiddenInput.value = currentValue || '';
 
         hiddenForm.appendChild(hiddenInput);
