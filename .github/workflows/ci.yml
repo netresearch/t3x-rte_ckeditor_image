@@ -15,6 +15,11 @@ jobs:
     uses: netresearch/typo3-ci-workflows/.github/workflows/ci.yml@main
     permissions:
       contents: read
+      # `actions: read` lets the reusable workflow's preflight gate query
+      # actions/workflows/{file}/runs and skip the post-merge `push` run
+      # when a successful `merge_group` run for the same SHA exists. Same
+      # rationale for e2e/security/fuzz/license-check below.
+      actions: read
     with:
         php-versions: '["8.2","8.3","8.4","8.5"]'
         typo3-versions: '["^13.4.21","^14.3"]'
@@ -38,6 +43,7 @@ jobs:
     uses: netresearch/typo3-ci-workflows/.github/workflows/e2e.yml@main
     permissions:
       contents: read
+      actions: read
     with:
       typo3-versions: '["^13.4.21","^14.3"]'
       typo3-packages: '["typo3/cms-core","typo3/cms-rte-ckeditor"]'
@@ -51,11 +57,13 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      actions: read
 
   fuzz:
     uses: netresearch/typo3-ci-workflows/.github/workflows/fuzz.yml@main
     permissions:
       contents: read
+      actions: read
     with:
       run-fuzz-tests: false
       run-mutation-tests: false
@@ -64,6 +72,7 @@ jobs:
     uses: netresearch/typo3-ci-workflows/.github/workflows/license-check.yml@main
     permissions:
       contents: read
+      actions: read
 
   scorecard:
     if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == github.event.repository.default_branch)
