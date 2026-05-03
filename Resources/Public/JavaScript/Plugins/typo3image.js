@@ -21,8 +21,9 @@ import { default as Modal } from '@typo3/backend/modal.js';
 import { sanitizeSrc } from './sanitize-src.js';
 import { parseTypoLink, parseTypoLinkParts, encodeTypoLink } from './typolink-parser.js';
 
-// Re-export for backwards compatibility with existing importers/tests
-export { parseTypoLink, parseTypoLinkParts, encodeTypoLink };
+// Re-export for backwards compatibility with existing importers/tests.
+// `export…from` (rather than re-binding the imports above) per Sonar S7763.
+export { parseTypoLink, parseTypoLinkParts, encodeTypoLink } from './typolink-parser.js';
 
 
 // Module-level translations cache for functions outside the plugin class scope

@@ -121,6 +121,27 @@ export function parseTypoLinkParts(str) {
 }
 
 /**
+ * Quote a TypoLink value if it contains characters that need escaping.
+ * Hoisted to module scope (per Sonar S7721) so it isn't recreated on
+ * every call to encodeTypoLink and is independently testable if needed.
+ *
+ * @param {string} value - The raw value to quote
+ * @return {string} The (possibly quoted/escaped) value
+ */
+function quoteIfNeeded(value) {
+    if (value === '-') {
+        return '-';
+    }
+    // Quote if contains space, quote, or backslash
+    if (value.includes(' ') || value.includes('"') || value.includes('\\')) {
+        // Escape backslashes and quotes
+        const escaped = value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+        return `"${escaped}"`;
+    }
+    return value;
+}
+
+/**
  * Encode link data into TypoLink format.
  * This is the reverse of parseTypoLink.
  *
@@ -142,20 +163,6 @@ export function encodeTypoLink(linkData) {
     if (!url) {
         return '';
     }
-
-    // Quote values that contain spaces or special characters
-    const quoteIfNeeded = function(value) {
-        if (value === '-') {
-            return '-';
-        }
-        // Quote if contains space, quote, or backslash
-        if (value.includes(' ') || value.includes('"') || value.includes('\\')) {
-            // Escape backslashes and quotes
-            const escaped = value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
-            return `"${escaped}"`;
-        }
-        return value;
-    };
 
     // Build TypoLink parts array
     const parts = [url];
