@@ -470,6 +470,9 @@ class RteImagesDbHook
      *
      * Reads the `applicationType` request attribute (same source as ApplicationType::fromRequest())
      * without throwing when the attribute is missing or invalid.
+     *
+     * Resolution order matches TYPO3 core ApplicationType::fromRequest(): frontend flag wins when
+     * both REQUESTTYPE_FE and REQUESTTYPE_BE bits are set.
      */
     private function isBackendRteImageProcessingContext(): bool
     {
@@ -480,6 +483,12 @@ class RteImagesDbHook
 
         $applicationType = $request->getAttribute('applicationType');
         if (!is_int($applicationType)) {
+            return false;
+        }
+
+        if (($applicationType & SystemEnvironmentBuilder::REQUESTTYPE_FE)
+            === SystemEnvironmentBuilder::REQUESTTYPE_FE
+        ) {
             return false;
         }
 

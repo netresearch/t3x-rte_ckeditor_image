@@ -18,6 +18,7 @@ use ReflectionClass;
 use RuntimeException;
 use stdClass;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
@@ -118,6 +119,31 @@ final class RteImagesDbHookTest extends UnitTestCase
         $GLOBALS['TYPO3_REQUEST'] = $request;
 
         $html = '<img src="https://example.org/image.jpg" alt="" />';
+
+        $result = $this->invokeModifyRteField($html);
+
+        self::assertSame($html, $result);
+    }
+
+    /**
+     * Frontend wins over backend when both REQUESTTYPE_FE and REQUESTTYPE_BE bits are set
+     * (same order as ApplicationType::fromRequest()).
+     */
+    public function testModifyRteFieldLeavesHtmlUnchangedWhenFrontendBitPrecedesBackend(): void
+    {
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->method('getAttribute')
+            ->willReturnCallback(static function (string $name, mixed $default = null): mixed {
+                if ($name === 'applicationType') {
+                    return SystemEnvironmentBuilder::REQUESTTYPE_FE | SystemEnvironmentBuilder::REQUESTTYPE_BE;
+                }
+
+                return $default;
+            });
+
+        $GLOBALS['TYPO3_REQUEST'] = $request;
+
+        $html = '<img src="https://example.org/a.jpg" width="1" height="1" alt="" />';
 
         $result = $this->invokeModifyRteField($html);
 
