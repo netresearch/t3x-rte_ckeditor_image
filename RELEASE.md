@@ -101,10 +101,10 @@ Always credit both **bug reporters** (from linked issues) and **code contributor
 
 After the GitHub Release is **published**, verify availability:
 
-- **Packagist**: https://packagist.org/packages/netresearch/rte-ckeditor-image (auto-syncs via webhook)
-- **TER**: https://extensions.typo3.org/extension/rte_ckeditor_image/ (auto-syncs from GitHub tag)
+- **Packagist**: https://packagist.org/packages/netresearch/rte-ckeditor-image (syncs from new **tags** via webhook; allow a few minutes)
+- **TER**: https://extensions.typo3.org/extension/rte_ckeditor_image/ — the **Publish new extension version to TER** workflow uploads the version (runs on **`release: published`** for that tag, or via **`workflow_dispatch`**). It is not a separate “TER polls GitHub tags” integration.
 
-Both should pick up the new version within minutes.
+Allow a few minutes after the workflow succeeds before expecting the TER page to list the version.
 
 ## CI/CD Workflows
 
@@ -112,7 +112,7 @@ Both should pick up the new version within minutes.
 |----------|------|----------|---------|
 | **CI** | `.github/workflows/ci.yml` | Push + PR to `TYPO3_12` | Build matrix: lint, CGL, PHPStan, Rector, unit tests, functional tests, coverage |
 | **PR Quality Gates** | `.github/workflows/pr-quality.yml` | PR to `TYPO3_12` | Auto-approve for solo maintainer |
-| **Publish to TER** | `.github/workflows/publish-to-ter.yml` | GitHub release published | Uploads extension to TER via API |
+| **Publish to TER** | `.github/workflows/publish-to-ter.yml` | `release: published` (+ `workflow_dispatch`) | Uploads extension to TER via Tailor (`ter:publish`) |
 | **CodeQL** | `.github/workflows/codeql-analysis.yml` | Push + PR + weekly schedule | Security analysis |
 | **Add to Project** | `.github/workflows/add-to-project.yml` | Issue opened | Adds issues to project board |
 
