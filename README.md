@@ -148,4 +148,4 @@ editor:
 
 - developed on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image)
 - [composer repository](https://packagist.org/packages/netresearch/rte-ckeditor-image)
-- new version will automatically be uploaded to TER via Github Action when creating a new Github release
+- new version is uploaded to TER via GitHub Action when a **GitHub Release** is **published** for an existing version tag (see [RELEASE.md](RELEASE.md))

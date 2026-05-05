@@ -50,13 +50,29 @@ Wait for CI to pass (build matrix: PHP 8.1/8.2/8.3/8.4 on TYPO3_12, PHP 8.2–8.
 gh pr merge <number> --merge --delete-branch
 ```
 
-### 4. Create GitHub Release
+### 4. Tag, then publish the GitHub Release
+
+**Do not use `gh release create` from the CLI** to mint a new tag. GitHub immutable releases and tag handling make CLI `gh release create` error-prone; this repository uses a **tag-first** flow.
+
+1. **Update local `TYPO3_12` / `main`** to the merged bump commit (version in `ext_emconf.php` must match the tag).
+
+2. **Create a signed annotated tag** on that commit:
 
 ```bash
-gh release create vX.Y.Z --target <branch> --title "vX.Y.Z" --notes-file release-notes.md
+git checkout TYPO3_12   # or main
+git pull origin TYPO3_12
+git tag -s vX.Y.Z -m "vX.Y.Z"
+git push origin vX.Y.Z
 ```
 
-Write release notes to a temporary file using the template below, then pass it with `--notes-file`. Alternatively, omit `--notes-file` to open an editor interactively.
+3. **Publish the GitHub Release from the existing tag** (web UI): Repository → **Releases** → **Draft a new release** → choose tag **`vX.Y.Z`** → paste release notes → **Publish release**.  
+   This triggers `.github/workflows/publish-to-ter.yml` (`release: published`).
+
+4. **Optional — polish notes after publish:** editing description only is allowed, e.g.  
+   `gh release edit vX.Y.Z --notes-file release-notes.md`  
+   (Do **not** delete or recreate the tag or re-run a full `gh release create` for the same version.)
+
+5. **TER re-publish only if needed:** use **Actions** → *Publish new extension version to TER* → *workflow_dispatch* and the version string (see workflow inputs). Normal releases should not need this.
 
 #### Release Notes Template
 
@@ -83,7 +99,7 @@ Always credit both **bug reporters** (from linked issues) and **code contributor
 
 ### 5. Verify Distribution
 
-After creating the GitHub release, verify availability:
+After the GitHub Release is **published**, verify availability:
 
 - **Packagist**: https://packagist.org/packages/netresearch/rte-ckeditor-image (auto-syncs via webhook)
 - **TER**: https://extensions.typo3.org/extension/rte_ckeditor_image/ (auto-syncs from GitHub tag)
@@ -109,10 +125,11 @@ The required status check for branch protection is **"Build ✓"** (the `build-s
 
 ## Checklist
 
-- [ ] All CI checks pass on the branch
+- [ ] All CI checks pass on the version-bump PR
 - [ ] `ext_emconf.php` version bumped via PR
 - [ ] PR merged to target branch
-- [ ] GitHub release created with tag `vX.Y.Z` targeting correct branch
+- [ ] Signed tag `vX.Y.Z` pushed; tag matches `ext_emconf.php`
+- [ ] GitHub **Release** published for **existing** tag `vX.Y.Z` (not `gh release create` for a new tag)
 - [ ] Release notes include bug reporters and contributors
 - [ ] Packagist shows new version
 - [ ] TER shows new version
