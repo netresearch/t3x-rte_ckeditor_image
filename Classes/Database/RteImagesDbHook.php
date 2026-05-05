@@ -32,10 +32,10 @@ use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\FileProcessingAspect;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Html\HtmlParser;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
-use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\AbstractFile;
@@ -467,6 +467,9 @@ class RteImagesDbHook
     /**
      * RTE image enrichment (magic images, external fetch, etc.) requires a backend HTTP request.
      * Scheduler/CLI and other contexts without TYPO3_REQUEST must leave HTML unchanged (#815).
+     *
+     * Reads the `applicationType` request attribute (same source as ApplicationType::fromRequest())
+     * without throwing when the attribute is missing or invalid.
      */
     private function isBackendRteImageProcessingContext(): bool
     {
@@ -475,19 +478,25 @@ class RteImagesDbHook
             return false;
         }
 
-        return ApplicationType::fromRequest($request)->isBackend();
+        $applicationType = $request->getAttribute('applicationType');
+        if (!is_int($applicationType)) {
+            return false;
+        }
+
+        return ($applicationType & SystemEnvironmentBuilder::REQUESTTYPE_BE)
+            === SystemEnvironmentBuilder::REQUESTTYPE_BE;
     }
 
     private function modifyRteField(string $value): string
     {
+        if (!$this->isBackendRteImageProcessingContext()) {
+            return $value;
+        }
+
         $rteHtmlParser = new HtmlParser();
         $imgSplit      = $rteHtmlParser->splitTags('img', $value);
 
         if (count($imgSplit) === 0) {
-            return $value;
-        }
-
-        if (!$this->isBackendRteImageProcessingContext()) {
             return $value;
         }
 

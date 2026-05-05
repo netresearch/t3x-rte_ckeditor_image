@@ -13,6 +13,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Database;
 
 use Netresearch\RteCKEditorImage\Database\RteImagesDbHook;
 use PHPUnit\Framework\MockObject\MockObject;
+use Psr\Http\Message\ServerRequestInterface;
 use ReflectionClass;
 use RuntimeException;
 use stdClass;
@@ -96,6 +97,27 @@ final class RteImagesDbHookTest extends UnitTestCase
         $GLOBALS['TYPO3_REQUEST'] = new stdClass();
 
         $html = '<img src="https://example.org/image.jpg" data-htmlarea-file-uid="1" />';
+
+        $result = $this->invokeModifyRteField($html);
+
+        self::assertSame($html, $result);
+    }
+
+    public function testModifyRteFieldLeavesHtmlUnchangedWhenApplicationTypeAttributeIsMissing(): void
+    {
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->method('getAttribute')
+            ->willReturnCallback(static function (string $name, mixed $default = null): mixed {
+                if ($name === 'applicationType') {
+                    return null;
+                }
+
+                return $default;
+            });
+
+        $GLOBALS['TYPO3_REQUEST'] = $request;
+
+        $html = '<img src="https://example.org/image.jpg" alt="" />';
 
         $result = $this->invokeModifyRteField($html);
 
