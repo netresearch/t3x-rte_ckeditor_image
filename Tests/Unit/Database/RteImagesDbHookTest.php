@@ -16,8 +16,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
 use stdClass;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Log\Logger;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
