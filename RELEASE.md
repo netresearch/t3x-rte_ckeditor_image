@@ -52,15 +52,15 @@ gh pr merge <number> --merge --delete-branch
 
 ### 4. Tag, then publish the GitHub Release
 
-**Do not use `gh release create` from the CLI** to mint a new tag. GitHub immutable releases and tag handling make CLI `gh release create` error-prone; this repository uses a **tag-first** flow.
+**Do not use `gh release create` from the CLI** to mint a tag in one step with the release. That pattern is easy to get wrong (wrong target commit, duplicate tags, or conflicting release metadata). This repository uses a **tag-first** flow: tag the correct commit locally, push the tag, then attach the GitHub Release to that tag.
 
-1. **Update local `TYPO3_12` / `main`** to the merged bump commit (version in `ext_emconf.php` must match the tag).
+1. **Update local clone** to the merged bump commit on the **same branch you released from** (`TYPO3_12` or `main`; version in `ext_emconf.php` must match the tag).
 
 2. **Create a signed annotated tag** on that commit:
 
 ```bash
-git checkout TYPO3_12   # or main
-git pull origin TYPO3_12
+git checkout <branch>          # e.g. TYPO3_12 or main
+git pull origin <branch>
 git tag -s vX.Y.Z -m "vX.Y.Z"
 git push origin vX.Y.Z
 ```
@@ -72,7 +72,7 @@ git push origin vX.Y.Z
    `gh release edit vX.Y.Z --notes-file release-notes.md`  
    (Do **not** delete or recreate the tag or re-run a full `gh release create` for the same version.)
 
-5. **TER re-publish only if needed:** use **Actions** → *Publish new extension version to TER* → *workflow_dispatch* and the version string (see workflow inputs). Normal releases should not need this.
+5. **TER re-publish only if needed:** use **Actions** → *Publish new extension version to TER* → *workflow_dispatch* and the version string. The workflow accepts **`X.Y.Z`** or **`vX.Y.Z`**. Normal releases should not need this.
 
 #### Release Notes Template
 
