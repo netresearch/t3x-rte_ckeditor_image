@@ -21,8 +21,6 @@ use function is_string;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
-
 use function strlen;
 
 use Throwable;
@@ -465,12 +463,30 @@ class RteImagesDbHook
         }
     }
 
+    /**
+     * RTE image enrichment (magic images, external fetch, etc.) requires a backend HTTP request.
+     * Scheduler/CLI and other contexts without TYPO3_REQUEST must leave HTML unchanged (#815).
+     */
+    private function isBackendRteImageProcessingContext(): bool
+    {
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+        if (!$request instanceof ServerRequestInterface) {
+            return false;
+        }
+
+        return ApplicationType::fromRequest($request)->isBackend();
+    }
+
     private function modifyRteField(string $value): string
     {
         $rteHtmlParser = new HtmlParser();
         $imgSplit      = $rteHtmlParser->splitTags('img', $value);
 
         if (count($imgSplit) === 0) {
+            return $value;
+        }
+
+        if (!$this->isBackendRteImageProcessingContext()) {
             return $value;
         }
 
@@ -556,16 +572,6 @@ class RteImagesDbHook
                     $attribArray['height'] = $imageHeight;
                 }
 
-                // Determine application type - fail secure: require backend context
-                if (!($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface) {
-                    throw new RuntimeException('Invalid request context: ServerRequest required', 1734278400);
-                }
-
-                $applicationType = ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST']);
-                if (!$applicationType->isBackend()) {
-                    throw new RuntimeException('Backend context required for image processing', 1734278401);
-                }
-
                 if ($originalImageFile instanceof File) {
                     // Build public URL to image, remove trailing slash from site URL
                     $imageFileUrl = rtrim($siteUrl, '/') . $originalImageFile->getPublicUrl();
@@ -605,7 +611,7 @@ class RteImagesDbHook
                 ) {
                     // External image from another URL: in that case, fetch image, unless
                     // the feature is disabled.
-                    // Note: Backend context is already validated above (lines 441-444).
+                    // Note: Backend context is already validated in modifyRteField() entry.
                     //
                     // SECURITY: Validate URL and get safe IP to prevent DNS rebinding attacks
                     $safeIp = $this->getSafeIpForExternalFetch($absoluteUrl);
