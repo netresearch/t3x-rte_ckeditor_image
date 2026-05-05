@@ -14,6 +14,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Database;
 use Netresearch\RteCKEditorImage\Database\RteImagesDbHook;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
+use RuntimeException;
 use stdClass;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Log\Logger;
@@ -27,7 +28,7 @@ final class RteImagesDbHookTest extends UnitTestCase
 {
     protected bool $resetSingletonInstances = true;
 
-    private RteImagesDbHook $subject;
+    private ?RteImagesDbHook $subject = null;
 
     protected function setUp(): void
     {
@@ -49,22 +50,34 @@ final class RteImagesDbHookTest extends UnitTestCase
         $this->subject = new RteImagesDbHook($extensionConfiguration, $logManager);
     }
 
+    private function getSubject(): RteImagesDbHook
+    {
+        $subject = $this->subject;
+        if ($subject === null) {
+            self::fail('Test subject was not initialized in setUp()');
+        }
+
+        return $subject;
+    }
+
     protected function tearDown(): void
     {
         unset($GLOBALS['TYPO3_REQUEST']);
         parent::tearDown();
     }
 
-    /**
-     * @param array<int, mixed> $parameters
-     */
     private function invokeModifyRteField(string $html): string
     {
         $reflection = new ReflectionClass(RteImagesDbHook::class);
         $method     = $reflection->getMethod('modifyRteField');
         $method->setAccessible(true);
 
-        return $method->invoke($this->subject, $html);
+        $result = $method->invoke($this->getSubject(), $html);
+        if (!is_string($result)) {
+            throw new RuntimeException('modifyRteField must return string');
+        }
+
+        return $result;
     }
 
     public function testModifyRteFieldLeavesHtmlUnchangedWhenTypo3RequestIsUnset(): void
