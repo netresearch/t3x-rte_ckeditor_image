@@ -1,6 +1,6 @@
 <!-- FOR AI AGENTS - Human readability is a side effect, not a goal -->
 <!-- Managed by agent: keep sections and order; edit content, not structure -->
-<!-- Last updated: 2026-03-26 | Last verified: 2026-03-26 -->
+<!-- Last updated: 2026-05-05 | Last verified: 2026-05-05 -->
 
 # AGENTS.md — TYPO3_12 Branch
 
@@ -106,7 +106,7 @@ Build/            -> PHPStan, PHPUnit configs, CI tooling
 
 ## Release Process
 
-See [RELEASE.md](RELEASE.md): bump `ext_emconf.php` via PR → merge → `gh release create vX.Y.Z --target TYPO3_12 --title "vX.Y.Z" --notes "..."` → verify Packagist + TER.
+See [RELEASE.md](RELEASE.md): bump `ext_emconf.php` via PR → merge → **signed tag** `vX.Y.Z` + push → **GitHub Release** from that tag (web UI; do not use `gh release create` to create the tag) → optional `gh release edit --notes-file` → verify Packagist + TER.
 
 ## Index of scoped AGENTS.md
 
