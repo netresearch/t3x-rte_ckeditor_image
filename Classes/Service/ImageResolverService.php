@@ -197,10 +197,10 @@ class ImageResolverService
             $link = null;
 
             if ($linkAttributes !== null) {
-                $link = $this->buildLinkDto($linkAttributes, $attributes, $systemImage, $conf, $request);
+                $link = $this->buildLinkDto($linkAttributes, $attributes, $request);
             } elseif ($this->isPopupAttributeSet($attributes)) {
                 // Auto-generate popup link for standalone images with zoom attributes
-                $link = $this->buildPopupLinkDto($systemImage, $attributes, $conf, $request);
+                $link = $this->buildPopupLinkDto($systemImage, $request);
             }
 
             return new ImageRenderingDto(
@@ -692,8 +692,6 @@ class ImageResolverService
      *
      * @param array<string,string>   $linkAttributes  Link attributes
      * @param array<string,string>   $imageAttributes Image attributes
-     * @param File                   $systemImage     System image file
-     * @param array<string,mixed>    $conf            TypoScript configuration
      * @param ServerRequestInterface $request         Current request
      *
      * @return LinkDto|null Link DTO or null
@@ -701,8 +699,6 @@ class ImageResolverService
     private function buildLinkDto(
         array $linkAttributes,
         array $imageAttributes,
-        File $systemImage,
-        array $conf,
         ServerRequestInterface $request,
     ): ?LinkDto {
         // Trim once at the boundary so the validated URL and the URL emitted
@@ -746,16 +742,12 @@ class ImageResolverService
      * when zoom/clickenlarge attributes are present but no explicit link.
      *
      * @param File                   $systemImage System image file
-     * @param array<string,string>   $attributes  Image attributes
-     * @param array<string,mixed>    $conf        TypoScript configuration
      * @param ServerRequestInterface $request     Current request
      *
      * @return LinkDto|null Popup link DTO or null
      */
     private function buildPopupLinkDto(
         File $systemImage,
-        array $attributes,
-        array $conf,
         ServerRequestInterface $request,
     ): ?LinkDto {
         // Get the full-size original image URL for popup
