@@ -1,3 +1,14 @@
+# 12.0.12
+
+## BUGFIX
+
+- [BUGFIX] Tolerate RTE image DB hook without a backend HTTP request — avoids crashes in CLI and scheduler when `TYPO3_REQUEST` is missing or not a PSR-7 request (#815, #816)
+
+## MISC
+
+- [TASK] Align release documentation with tag-first flow, TER publish triggers, and maintenance notes (#817)
+- [TASK] Add TYPO3_12 maintenance onboarding (`AGENTS.md`, scoped agent rules)
+
 # 12.0.9
 
 ## BUGFIX
