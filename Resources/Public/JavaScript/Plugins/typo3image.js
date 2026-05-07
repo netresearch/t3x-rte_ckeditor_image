@@ -19,6 +19,7 @@ import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
 import { toWidget, toWidgetEditable, WidgetToolbarRepository } from '@ckeditor/ckeditor5-widget';
 import { default as Modal } from '@typo3/backend/modal.js';
 import { sanitizeSrc } from './sanitize-src.js';
+import { buildSelectImageBparams } from './select-image-bparams.js';
 // Internal callers reference parseTypoLink (l.1149, l.1189) and
 // encodeTypoLink (l.595); parseTypoLinkParts is only used by external
 // consumers via the re-export below (Sonar S1128 if imported here).
@@ -1016,14 +1017,10 @@ function selectImage(editor) {
     const promise = new Promise(function(resolve) {
         resolvePromise = resolve;
     });
-    const bparams = [
-        '',
-        '',
-        '',
-        '',
-    ];
+    const typo3imageConfig = editor.config.get('typo3image');
+    const bparams = buildSelectImageBparams(typo3imageConfig.allowedExtensions);
 
-    const contentUrl = `${editor.config.get('typo3image').routeUrl}&bparams=${bparams.join('|')}`;
+    const contentUrl = `${typo3imageConfig.routeUrl}&bparams=${bparams.join('|')}`;
 
     Modal.advanced({
         type: Modal.types.iframe,
