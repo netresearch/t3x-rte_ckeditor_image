@@ -350,11 +350,19 @@ function getImageInfo(editor, table, uid, params) {
 
 function selectImage(editor) {
     const deferred = $.Deferred();
+    // bparams[3] carries `allowedFileExtensions` for the FileBrowser; an
+    // empty value triggers the controller's fallback to
+    // $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']. Threading
+    // editor.config.get('typo3image').allowedExtensions through here
+    // restores the documented YAML option that the CKEditor 5 rewrite
+    // (1cfe7a7) had silently dropped.
+    // Backport of #822 to the TYPO3_12 maintenance branch.
+    // @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/821
     const bparams = [
         '',
         '',
         '',
-        '',
+        editor.config.get('typo3image').allowedExtensions || '',
     ];
 
     // TODO: Use ajaxUrl
