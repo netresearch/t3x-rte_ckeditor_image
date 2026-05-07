@@ -1,3 +1,9 @@
+# 12.0.13
+
+## BUGFIX
+
+- [BUGFIX] `allowedExtensions` YAML preset silently ignored ([#821](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/821)) — the CKEditor 5 rewrite ([`1cfe7a7`](https://github.com/netresearch/t3x-rte_ckeditor_image/commit/1cfe7a7)) hardcoded the FileBrowser's `bparams[3]` slot to an empty string, so the documented `editor.externalPlugins.typo3image.allowedExtensions` option was overridden by the controller's fallback to `$GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']`. JS now threads the configured value through. Backport of [#822](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/822) from `main`.
+
 # 12.0.12
 
 ## BUGFIX
