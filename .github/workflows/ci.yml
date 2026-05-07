@@ -172,12 +172,20 @@ jobs:
         # picked up via `sonar.javascript.lcov.reportPaths` in
         # sonar-project.properties. Coverage is bounded — only files
         # importable without the CKEditor module graph (typolink-parser,
-        # sanitize-src) get instrumented; typo3image.js itself can't be
-        # loaded by vitest.
+        # sanitize-src, select-image-bparams) get instrumented;
+        # typo3image.js itself can't be loaded by vitest.
+        #
+        # Vitest's v8 provider emits SF paths relative to the cwd
+        # (Tests/JavaScript), so they read as "../../Resources/...".
+        # SonarCloud's scanner anchors SF lines to the project root and
+        # otherwise warns "Could not resolve N file paths" → 0% coverage.
+        # Strip the "../../" prefix so SF reads "Resources/..." (project
+        # root-relative) and the scanner can match it to sonar.sources.
         run: |
           cd Tests/JavaScript
           npm ci --silent
           npm test -- --coverage
+          sed -i 's|^SF:\.\./\.\./|SF:|g' coverage/lcov.info
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@59db25f34e16620e48ab4bb9e4a5dce155cb5432 # v8.0.0

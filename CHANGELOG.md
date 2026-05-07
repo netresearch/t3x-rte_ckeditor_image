@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.9.1] - 2026-05-07
+
 ### Fixed
 
 - **`allowedExtensions` YAML preset silently ignored** ([#821](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/821), [#822](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/822)) — the documented `editor.externalPlugins.typo3image.allowedExtensions` YAML option was overridden by the controller's fallback to `$GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']`, a regression introduced by the CKEditor 5 rewrite ([`1cfe7a7`](https://github.com/netresearch/t3x-rte_ckeditor_image/commit/1cfe7a7)). The configured value is now threaded through; admin-misconfigured non-string values emit a `console.warn` instead of silently falling back. Thanks [@mmunz](https://github.com/mmunz) for the report and the precise root-cause analysis pointing at the regression.
@@ -1009,7 +1011,8 @@ _See [GitHub release](https://github.com/netresearch/t3x-rte_ckeditor_image/rele
 - Update image reference index ([#45](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/45), [#62](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/62))
 - Compatibility with TYPO3 CMS 9.x
 
-[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.9.0...HEAD
+[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.9.1...HEAD
+[13.9.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.9.0...v13.9.1
 [13.9.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.3...v13.9.0
 [13.8.3]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.2...v13.8.3
 [13.8.2]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.1...v13.8.2
