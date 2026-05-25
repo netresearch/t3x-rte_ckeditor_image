@@ -7,5 +7,32 @@
   ],
   "automerge": true,
   "automergeType": "pr",
-  "platformAutomerge": true
+  "platformAutomerge": true,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Keep the hardcoded mcr.microsoft.com/playwright image tag in sync with @playwright/test",
+      "managerFilePatterns": [
+        "/^Build/Scripts/runTests\\.sh$/",
+        "/^composer\\.json$/",
+        "/^composer\\.json\\.testing$/",
+        "/^\\.ddev/commands/host/test-e2e$/"
+      ],
+      "matchStrings": [
+        "mcr\\.microsoft\\.com/playwright:(?<currentValue>[^\\s\"'\\\\]+)"
+      ],
+      "depNameTemplate": "mcr.microsoft.com/playwright",
+      "datasourceTemplate": "docker"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Bump the Playwright npm package and the matching Playwright Docker image together so E2E browsers stay in sync",
+      "matchPackageNames": [
+        "@playwright/test",
+        "mcr.microsoft.com/playwright"
+      ],
+      "groupName": "playwright"
+    }
+  ]
 }
