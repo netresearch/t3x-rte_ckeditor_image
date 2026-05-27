@@ -19,8 +19,11 @@ lib.parseFunc_RTE {
         #
         # Default paths (automatically included at priority 0):
         # - Templates: EXT:rte_ckeditor_image/Resources/Private/Templates/
-        # - Partials:  EXT:rte_ckeditor_image/Resources/Private/Templates/Partials/
+        # - Partials:  EXT:rte_ckeditor_image/Resources/Private/Partials/
         # - Layouts:   EXT:rte_ckeditor_image/Resources/Private/Templates/Layouts/
+        #
+        # IMPORTANT: Use the extension key "rte_ckeditor_image" (underscores) in
+        # EXT: paths, NOT the Composer package name "rte-ckeditor-image" (hyphens).
         #
         # To override, add your paths with priority > 0:
         #
