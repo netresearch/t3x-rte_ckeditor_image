@@ -7,18 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
-
 ## [13.10.0] - 2026-05-28
 
 > **Note:** Version 13.9.1 was prepared in the CHANGELOG but never tagged or released. Its contents — the `allowedExtensions` YAML preset fix — are folded into this 13.10.0 release.
