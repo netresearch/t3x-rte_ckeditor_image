@@ -99,20 +99,63 @@ final class ImageTagBuilder implements ImageTagBuilderInterface
     }
 
     /**
-     * Convert absolute URL to relative URL.
+     * Normalize an image src to canonical site-root-relative form.
+     *
+     * For any local path, the result is leading-slash form ("/fileadmin/x"),
+     * never a slashless ("fileadmin/x") relative URL — the slashless form
+     * resolves against the current page path in the browser and is broken in
+     * rendered HTML (TYPO3 v12+ does not emit <base href>). Subpath installs
+     * (e.g. /~user/) keep the leading-slash form here and rely on
+     * config.absRefPrefix to prepend the subpath at render time, so storage
+     * stays canonical across root and subpath installs (#778, #837).
+     *
+     * External references — scheme URLs (http://, https://, data:, mailto:)
+     * and protocol-relative URLs (//cdn.example.com/x) — pass through
+     * unchanged. An empty $siteUrl is a safety valve: with no site context
+     * the src is returned unchanged so CLI / test paths cannot accidentally
+     * rewrite values.
+     *
+     * @security
+     *
+     * Returns raw text; callers MUST escape before HTML attribute insertion
+     * (Fluid's f:format.raw / `htmlspecialchars` ENT_QUOTES). Input ASCII
+     * whitespace is trimmed up-front so that " //evil.com/x" cannot bypass
+     * the protocol-relative guard — browsers strip the same whitespace per
+     * WHATWG URL and would otherwise resolve the trimmed form as a cross-
+     * origin reference. Path canonicalisation (../..) is deliberately NOT
+     * performed here; the FAL UID round-trip plus the validator's strict-
+     * equality check ({@see RteImageReferenceValidator::srcMatchesPublicUrl()})
+     * reject paths that do not match a real file's public URL.
      *
      * @param string $src     The source URL
-     * @param string $siteUrl The site URL to remove
+     * @param string $siteUrl The site URL to strip; empty disables stripping
+     *                        AND broader normalization
      *
-     * @return string The relative URL
+     * @return string Canonical leading-slash form for local paths; external
+     *                URLs and protocol-relative URLs unchanged
      */
     public function makeRelativeSrc(string $src, string $siteUrl): string
     {
-        if ($siteUrl !== '' && str_starts_with($src, $siteUrl)) {
-            return substr($src, strlen($siteUrl));
+        // Strip ASCII whitespace the browser would also strip (WHATWG URL).
+        // Without this, " //evil.com/x" bypasses the scheme guard below.
+        $src = trim($src);
+
+        if ($src === '' || $siteUrl === '') {
+            return $src;
         }
 
-        return $src;
+        if (str_starts_with($src, $siteUrl)) {
+            $src = substr($src, strlen($siteUrl));
+        }
+
+        // Scheme URLs (http://, https://, data:, mailto:, etc.) and
+        // protocol-relative URLs (//cdn.example.com/...) are external — leave
+        // them alone. Scheme grammar per RFC 3986: ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ).
+        if (preg_match('#^(?:[a-z][a-z0-9+.\-]*:|//)#i', $src) === 1) {
+            return $src;
+        }
+
+        return '/' . ltrim($src, '/');
     }
 
     /**

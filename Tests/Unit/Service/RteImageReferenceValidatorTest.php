@@ -1145,6 +1145,48 @@ class RteImageReferenceValidatorTest extends TestCase
     }
 
     #[Test]
+    public function absoluteUrlPublicUrlIsPreservedUnchanged(): void
+    {
+        // Locks in normalizePublicUrl()'s external-storage passthrough.
+        // FAL drivers other than Local (S3, Azure Blob, CDN, etc.) return a
+        // full absolute URL from getPublicUrl(). Those must NOT be coerced
+        // into a leading-slash site-root form — they reference resources off
+        // the site's origin and the rendered <img> must keep the absolute
+        // host. Strict equality against the stored src is then the right
+        // comparison: identical URL → clean; different URL → SrcMismatch.
+        $file = $this->createMock(File::class);
+        $file->method('getPublicUrl')->willReturn('https://cdn.example.com/bucket/photo.jpg');
+
+        $this->resourceFactory
+            ->method('getFileObject')
+            ->with(7)
+            ->willReturn($file);
+
+        // Clean case: stored src exactly matches the absolute public URL.
+        $cleanHtml = '<p><img data-htmlarea-file-uid="7" '
+            . 'src="https://cdn.example.com/bucket/photo.jpg" /></p>';
+
+        $cleanIssues = $this->subject->validateHtml($cleanHtml, 'tt_content', 1, 'bodytext');
+
+        self::assertSame([], $cleanIssues, 'Stored src matching absolute getPublicUrl() must be clean');
+
+        // Mismatch case: storage is the leading-slash local form but the file
+        // now lives on a CDN — flagged with the absolute URL as expectedSrc.
+        $staleHtml = '<p><img data-htmlarea-file-uid="7" '
+            . 'src="/fileadmin/old-local-copy.jpg" /></p>';
+
+        $staleIssues = $this->subject->validateHtml($staleHtml, 'tt_content', 2, 'bodytext');
+
+        self::assertCount(1, $staleIssues);
+        self::assertSame(ValidationIssueType::SrcMismatch, $staleIssues[0]->type);
+        self::assertSame(
+            'https://cdn.example.com/bucket/photo.jpg',
+            $staleIssues[0]->expectedSrc,
+            'expectedSrc for an external-storage file must keep its absolute URL form',
+        );
+    }
+
+    #[Test]
     public function applyFixesPreservesLeadingSlashWhenReplacingProcessedSrc(): void
     {
         // Regression #778: the fix path must write a leading-slash form

@@ -84,3 +84,4 @@ Related Documentation
    ADR-001-Image-Scaling
    ADR-002-CKEditor-Integration
    ADR-003-Security-Responsibility-Boundaries
+   ADR-004-Image-Src-Storage-Convention

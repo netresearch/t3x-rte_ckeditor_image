@@ -143,6 +143,12 @@ to the current BE users uploads folder. The default behaviour can be turned off 
 
 See the [full configuration reference](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/Integration/Advanced-Configuration.html) for details.
 
+### Image `src` storage convention
+
+RTE image `src` is persisted in **canonical site-root-relative form** (`/fileadmin/x.jpg`, leading slash). Slashless storage (`fileadmin/x.jpg`) is treated as a defect and repaired by the validator — modern TYPO3 does not emit `<base href>`, so a slashless `src` resolves against the current page URL in the browser and breaks on every non-root page. External references (`https://`, `data:`, `//cdn.example.com/...`) pass through unchanged.
+
+**Subpath installs** (TYPO3 served from `/~user/`, `/subsite/`, etc.) must set `config.absRefPrefix = /subsite/`. TYPO3's render chain prepends it to leading-slash paths at output time, so storage stays identical to a site-root install. See [ADR-004](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/Architecture/ADR-004-Image-Src-Storage-Convention.html) for the full rationale.
+
 ### Maximum width/height
 
 The maximum dimensions relate to the configuration for magic images which have to be set in Page TSConfig:

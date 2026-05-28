@@ -41,7 +41,10 @@ Six categories of issues are detected:
    * - ``src_mismatch``
      - ``src`` does not match the FAL file's current public URL. This happens
        when a file is moved or renamed in the Filelist module while existing
-       RTE content still references the old path.
+       RTE content still references the old path. Also covers slashless
+       ``src`` values (e.g. ``fileadmin/x.jpg`` without the leading slash) —
+       these are broken relative URLs in modern TYPO3 and are repaired to
+       the canonical leading-slash form.
      - Yes
    * - ``broken_src``
      - ``src`` is empty or missing, but a valid ``data-htmlarea-file-uid`` is
@@ -307,6 +310,24 @@ As a periodic maintenance check
 Run the dry-run scan periodically to detect drift before it causes
 broken images in the frontend. The scan is read-only and safe to run at
 any time.
+
+After upgrading on a subpath install
+-------------------------------------
+
+If TYPO3 is served from a subpath (e.g. ``https://example.com/~user/``,
+``https://example.com/subsite/``) and the install is on a version
+prior to the leading-slash storage convention, existing ``src`` values
+may have been stored without a leading slash. After upgrading, run::
+
+   ./vendor/bin/typo3 rte_ckeditor_image:validate --fix --table=tt_content
+
+to migrate them to the canonical ``/fileadmin/...`` form.
+``--table=tt_content`` restricts the scan to the standard content
+element table (the common case); omit the flag to scan every table
+that has an entry in ``sys_refindex`` with ``softref_key =
+rtehtmlarea_images``. Make sure ``config.absRefPrefix`` is set to the
+subpath (see :ref:`troubleshooting-frontend-issues`) so the rendered
+HTML prepends it correctly.
 
 ----
 

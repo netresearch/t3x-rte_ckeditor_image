@@ -159,12 +159,14 @@ final class ImageTagBuilderTest extends UnitTestCase
     #[Test]
     public function makeRelativeSrcRemovesSiteUrl(): void
     {
+        // Canonical storage form is leading-slash site-root-absolute (#778, #837).
+        // A slashless result would be a broken relative URL in rendered HTML.
         $src     = 'https://mysite.com/fileadmin/image.jpg';
         $siteUrl = 'https://mysite.com/';
 
         $result = $this->subject->makeRelativeSrc($src, $siteUrl);
 
-        self::assertSame('fileadmin/image.jpg', $result);
+        self::assertSame('/fileadmin/image.jpg', $result);
     }
 
     #[Test]
@@ -192,11 +194,99 @@ final class ImageTagBuilderTest extends UnitTestCase
     #[Test]
     public function makeRelativeSrcHandlesSubpaths(): void
     {
+        // Subpath installs (e.g. /~user/) store the site-root-relative form
+        // ("/fileadmin/...") and rely on config.absRefPrefix to prepend the
+        // subpath at render time. This keeps storage canonical across root
+        // and subpath installs and aligns with TYPO3 dropping <base href>.
         $src     = 'https://mysite.com/~user/fileadmin/image.jpg';
         $siteUrl = 'https://mysite.com/~user/';
 
         $result = $this->subject->makeRelativeSrc($src, $siteUrl);
 
-        self::assertSame('fileadmin/image.jpg', $result);
+        self::assertSame('/fileadmin/image.jpg', $result);
+    }
+
+    #[Test]
+    public function makeRelativeSrcNormalizesSlashlessLocalPath(): void
+    {
+        // A slashless src that never matched siteUrl is still a broken relative
+        // URL — defensive normalization at this boundary catches values that
+        // bypassed urlToRelative() in the editor JS or arrived via an import.
+        $src     = 'fileadmin/image.jpg';
+        $siteUrl = 'https://mysite.com/';
+
+        $result = $this->subject->makeRelativeSrc($src, $siteUrl);
+
+        self::assertSame('/fileadmin/image.jpg', $result);
+    }
+
+    #[Test]
+    public function makeRelativeSrcLeavesProtocolRelativeUrlUnchanged(): void
+    {
+        // Protocol-relative URLs (//cdn.example.com/...) are external references
+        // and must not be coerced to site-root-relative.
+        $src     = '//cdn.example.com/image.jpg';
+        $siteUrl = 'https://mysite.com/';
+
+        $result = $this->subject->makeRelativeSrc($src, $siteUrl);
+
+        self::assertSame('//cdn.example.com/image.jpg', $result);
+    }
+
+    #[Test]
+    public function makeRelativeSrcLeavesDataUriUnchanged(): void
+    {
+        // Inline data: URIs are external — leave the scheme intact.
+        $src     = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+        $siteUrl = 'https://mysite.com/';
+
+        $result = $this->subject->makeRelativeSrc($src, $siteUrl);
+
+        self::assertSame('data:image/gif;base64,R0lGODlhAQABAAAAACw=', $result);
+    }
+
+    #[Test]
+    public function makeRelativeSrcCollapsesDoubleSlashAfterStrip(): void
+    {
+        // Defensive: an accidental "//" in the absolute URL (e.g. siteUrl ends
+        // in "/" and the path also starts with "/") must not survive as a
+        // protocol-relative URL in the stored src — that would silently turn a
+        // same-site path into a cross-origin reference.
+        $src     = 'https://mysite.com//fileadmin/image.jpg';
+        $siteUrl = 'https://mysite.com/';
+
+        $result = $this->subject->makeRelativeSrc($src, $siteUrl);
+
+        self::assertSame('/fileadmin/image.jpg', $result);
+    }
+
+    #[Test]
+    public function makeRelativeSrcRejectsLeadingWhitespaceSmuggling(): void
+    {
+        // CWE-20/CWE-176 hardening: a leading-space + protocol-relative payload
+        // (" //evil.com/x") would bypass the scheme-grammar guard because
+        // "^//" cannot match past the space. Browsers strip ASCII whitespace
+        // from <img src=""> per WHATWG URL, so the rendered HTML would resolve
+        // "//evil.com/x" as a cross-origin reference. Trim defensively.
+        $src     = ' //evil.com/x.jpg';
+        $siteUrl = 'https://mysite.com/';
+
+        $result = $this->subject->makeRelativeSrc($src, $siteUrl);
+
+        self::assertSame('//evil.com/x.jpg', $result, 'Trimmed input must be classified as protocol-relative external');
+    }
+
+    #[Test]
+    public function makeRelativeSrcReturnsRootForExactSiteUrlMatch(): void
+    {
+        // Edge: when the src is exactly the siteUrl, the strip leaves an empty
+        // path. The canonical site-root reference is "/" — not the slashless
+        // empty string which would render broken.
+        $src     = 'https://mysite.com/';
+        $siteUrl = 'https://mysite.com/';
+
+        $result = $this->subject->makeRelativeSrc($src, $siteUrl);
+
+        self::assertSame('/', $result);
     }
 }
