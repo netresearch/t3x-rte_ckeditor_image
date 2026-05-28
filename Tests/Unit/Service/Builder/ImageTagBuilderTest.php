@@ -205,4 +205,72 @@ final class ImageTagBuilderTest extends UnitTestCase
 
         self::assertSame('/fileadmin/image.jpg', $result);
     }
+
+    #[Test]
+    public function makeRelativeSrcNormalizesSlashlessLocalPath(): void
+    {
+        // A slashless src that never matched siteUrl is still a broken relative
+        // URL — defensive normalization at this boundary catches values that
+        // bypassed urlToRelative() in the editor JS or arrived via an import.
+        $src     = 'fileadmin/image.jpg';
+        $siteUrl = 'https://mysite.com/';
+
+        $result = $this->subject->makeRelativeSrc($src, $siteUrl);
+
+        self::assertSame('/fileadmin/image.jpg', $result);
+    }
+
+    #[Test]
+    public function makeRelativeSrcLeavesProtocolRelativeUrlUnchanged(): void
+    {
+        // Protocol-relative URLs (//cdn.example.com/...) are external references
+        // and must not be coerced to site-root-relative.
+        $src     = '//cdn.example.com/image.jpg';
+        $siteUrl = 'https://mysite.com/';
+
+        $result = $this->subject->makeRelativeSrc($src, $siteUrl);
+
+        self::assertSame('//cdn.example.com/image.jpg', $result);
+    }
+
+    #[Test]
+    public function makeRelativeSrcLeavesDataUriUnchanged(): void
+    {
+        // Inline data: URIs are external — leave the scheme intact.
+        $src     = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+        $siteUrl = 'https://mysite.com/';
+
+        $result = $this->subject->makeRelativeSrc($src, $siteUrl);
+
+        self::assertSame('data:image/gif;base64,R0lGODlhAQABAAAAACw=', $result);
+    }
+
+    #[Test]
+    public function makeRelativeSrcCollapsesDoubleSlashAfterStrip(): void
+    {
+        // Defensive: an accidental "//" in the absolute URL (e.g. siteUrl ends
+        // in "/" and the path also starts with "/") must not survive as a
+        // protocol-relative URL in the stored src — that would silently turn a
+        // same-site path into a cross-origin reference.
+        $src     = 'https://mysite.com//fileadmin/image.jpg';
+        $siteUrl = 'https://mysite.com/';
+
+        $result = $this->subject->makeRelativeSrc($src, $siteUrl);
+
+        self::assertSame('/fileadmin/image.jpg', $result);
+    }
+
+    #[Test]
+    public function makeRelativeSrcReturnsRootForExactSiteUrlMatch(): void
+    {
+        // Edge: when the src is exactly the siteUrl, the strip leaves an empty
+        // path. The canonical site-root reference is "/" — not the slashless
+        // empty string which would render broken.
+        $src     = 'https://mysite.com/';
+        $siteUrl = 'https://mysite.com/';
+
+        $result = $this->subject->makeRelativeSrc($src, $siteUrl);
+
+        self::assertSame('/', $result);
+    }
 }

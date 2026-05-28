@@ -99,29 +99,47 @@ final class ImageTagBuilder implements ImageTagBuilderInterface
     }
 
     /**
-     * Convert an absolute site-internal URL to a site-root-relative one.
+     * Normalize an image src to canonical site-root-relative form.
      *
-     * The result is always leading-slash form ("/fileadmin/image.jpg"), never
-     * a slashless ("fileadmin/image.jpg") relative URL — the slashless form
+     * For any local path, the result is leading-slash form ("/fileadmin/x"),
+     * never a slashless ("fileadmin/x") relative URL — the slashless form
      * resolves against the current page path in the browser and is broken in
      * rendered HTML (TYPO3 v12+ does not emit <base href>). Subpath installs
      * (e.g. /~user/) keep the leading-slash form here and rely on
      * config.absRefPrefix to prepend the subpath at render time, so storage
      * stays canonical across root and subpath installs (#778, #837).
      *
-     * @param string $src     The source URL
-     * @param string $siteUrl The site URL to remove
+     * External references — scheme URLs (http://, https://, data:, mailto:)
+     * and protocol-relative URLs (//cdn.example.com/x) — pass through
+     * unchanged. An empty $siteUrl is a safety valve: with no site context
+     * the src is returned unchanged so CLI / test paths cannot accidentally
+     * rewrite values.
      *
-     * @return string The site-root-relative URL with leading slash, or the
-     *                original src when it is not a same-site absolute URL
+     * @param string $src     The source URL
+     * @param string $siteUrl The site URL to strip; empty disables stripping
+     *                        AND broader normalization
+     *
+     * @return string Canonical leading-slash form for local paths; external
+     *                URLs and protocol-relative URLs unchanged
      */
     public function makeRelativeSrc(string $src, string $siteUrl): string
     {
-        if ($siteUrl !== '' && str_starts_with($src, $siteUrl)) {
-            return '/' . ltrim(substr($src, strlen($siteUrl)), '/');
+        if ($src === '' || $siteUrl === '') {
+            return $src;
         }
 
-        return $src;
+        if (str_starts_with($src, $siteUrl)) {
+            $src = substr($src, strlen($siteUrl));
+        }
+
+        // Scheme URLs (http://, https://, data:, mailto:, etc.) and
+        // protocol-relative URLs (//cdn.example.com/...) are external — leave
+        // them alone. Scheme grammar per RFC 3986: ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ).
+        if (preg_match('#^(?:[a-z][a-z0-9+.\-]*:|//)#i', $src) === 1) {
+            return $src;
+        }
+
+        return '/' . ltrim($src, '/');
     }
 
     /**
