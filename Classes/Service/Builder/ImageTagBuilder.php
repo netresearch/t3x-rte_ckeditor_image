@@ -115,6 +115,18 @@ final class ImageTagBuilder implements ImageTagBuilderInterface
      * the src is returned unchanged so CLI / test paths cannot accidentally
      * rewrite values.
      *
+     * @security
+     *
+     * Returns raw text; callers MUST escape before HTML attribute insertion
+     * (Fluid's f:format.raw / `htmlspecialchars` ENT_QUOTES). Input ASCII
+     * whitespace is trimmed up-front so that " //evil.com/x" cannot bypass
+     * the protocol-relative guard — browsers strip the same whitespace per
+     * WHATWG URL and would otherwise resolve the trimmed form as a cross-
+     * origin reference. Path canonicalisation (../..) is deliberately NOT
+     * performed here; the FAL UID round-trip plus the validator's strict-
+     * equality check ({@see RteImageReferenceValidator::srcMatchesPublicUrl()})
+     * reject paths that do not match a real file's public URL.
+     *
      * @param string $src     The source URL
      * @param string $siteUrl The site URL to strip; empty disables stripping
      *                        AND broader normalization
@@ -124,6 +136,10 @@ final class ImageTagBuilder implements ImageTagBuilderInterface
      */
     public function makeRelativeSrc(string $src, string $siteUrl): string
     {
+        // Strip ASCII whitespace the browser would also strip (WHATWG URL).
+        // Without this, " //evil.com/x" bypasses the scheme guard below.
+        $src = trim($src);
+
         if ($src === '' || $siteUrl === '') {
             return $src;
         }

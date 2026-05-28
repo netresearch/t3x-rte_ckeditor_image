@@ -102,7 +102,8 @@ Decision
 
 2. **External references pass through unchanged.** Scheme URLs and
    protocol-relative URLs are detected via the RFC 3986 scheme grammar
-   regex ``^(?:[a-z][a-z0-9+.\-]*:|//)#i`` and returned as-is.
+   pattern ``^(?:[a-z][a-z0-9+.\-]*:|//)`` (PHP PCRE form: ``#…#i``)
+   and returned as-is.
 
 3. **Write paths agree.** Both ``ImageTagBuilder::makeRelativeSrc`` and
    the validator's repair path (``normalizePublicUrl`` ➜
@@ -119,11 +120,45 @@ Decision
    ``makeRelativeSrc`` returns the input unchanged. This prevents
    accidental rewrites in contexts where the site identity is unknown.
 
+Worked Example: Subpath Install
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Given a TYPO3 instance served at ``https://example.com/~user/`` with
+``config.absRefPrefix = /~user/`` configured:
+
+==================================================  ============================================
+Pipeline stage                                      Value
+==================================================  ============================================
+Editor JS ``urlToRelative()`` produces              ``/fileadmin/image.jpg``
+Editor save → ``makeRelativeSrc()`` stores          ``/fileadmin/image.jpg``
+Database column ``tt_content.bodytext`` holds       ``<img src="/fileadmin/image.jpg" …>``
+Rendered HTML (after ``absRefPrefix``)              ``<img src="/~user/fileadmin/image.jpg" …>``
+Validator ``normalizePublicUrl()`` expects          ``/fileadmin/image.jpg``
+``RteImageReferenceValidator::fix()`` no-op         (storage already matches)
+==================================================  ============================================
+
+The storage column is identical to a site-root install. The subpath
+only appears in the rendered HTML, applied by TYPO3 Core's render
+chain. The validator therefore stays site-agnostic — it does not
+need to know about the subpath at all.
+
+JavaScript / PHP normalisation parity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The CKEditor-side helper ``urlToRelative()``
+(``Resources/Public/JavaScript/Plugins/typo3image.js``) produces the
+same leading-slash form when inserting a new image, so the PHP
+``makeRelativeSrc()`` normalises a value that already arrives in the
+canonical shape on the editor save path. The PHP rewrite covers the
+defence-in-depth case: server-side imports, pastes from other editors,
+and any callers that bypass the JS helper still produce canonical
+storage.
+
 Out of Scope
 ------------
 
-- **Emitting ``<base href>``.** This was a TYPO3 Core concern; v9.5+
-  no longer emits it. The extension does not attempt to restore it.
+- **Emitting ``<base href>``.** Removed from TYPO3 Core in v9.5 and
+  never restored; the extension does not attempt to bring it back.
 
 - **Sub-path rendering at the HTML layer.** Delegated to
   ``config.absRefPrefix``, a standard TYPO3 mechanism. The extension
@@ -132,6 +167,20 @@ Out of Scope
 - **Per-site validation context.** The validator does not currently
   inject ``sitePath`` to compute per-site expected forms. The contract
   above makes this unnecessary: storage is uniform across sites.
+
+- **Path canonicalisation.** ``makeRelativeSrc`` does not collapse
+  ``..`` or ``.`` segments. The FAL UID round-trip plus the
+  validator's strict-equality check
+  (``RteImageReferenceValidator::srcMatchesPublicUrl``) reject any
+  ``src`` that does not match a real file's normalised public URL, so
+  a smuggled ``/../../etc/passwd`` cannot point at content that the
+  FAL would not have served anyway. Whitespace is trimmed up-front to
+  prevent WHATWG-URL bypass of the scheme-grammar guard.
+
+- **HTML output escaping.** ``makeRelativeSrc`` returns raw text;
+  the caller (``ImageTagBuilder::build()``, ultimately Fluid) is
+  responsible for HTML-attribute escaping. See the ``@security``
+  block on the method docblock.
 
 Consequences
 ------------
@@ -155,8 +204,8 @@ Negative
   :ref:`troubleshooting-image-reference-validation`.
 
 - Operators who run a subpath install **without** ``config.absRefPrefix``
-  configured will see broken images. This is the same broken state
-  pre-#840, just now made explicit by the convention.
+  configured will see broken images. This is the same broken state as
+  before #840; the convention now makes it explicit and diagnosable.
 
 - ``makeRelativeSrc`` is named for what it used to do (strip the site
   URL); it now also normalises. The name is retained for backwards

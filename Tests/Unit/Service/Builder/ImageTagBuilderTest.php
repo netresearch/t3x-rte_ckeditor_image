@@ -261,6 +261,22 @@ final class ImageTagBuilderTest extends UnitTestCase
     }
 
     #[Test]
+    public function makeRelativeSrcRejectsLeadingWhitespaceSmuggling(): void
+    {
+        // CWE-20/CWE-176 hardening: a leading-space + protocol-relative payload
+        // (" //evil.com/x") would bypass the scheme-grammar guard because
+        // "^//" cannot match past the space. Browsers strip ASCII whitespace
+        // from <img src=""> per WHATWG URL, so the rendered HTML would resolve
+        // "//evil.com/x" as a cross-origin reference. Trim defensively.
+        $src     = ' //evil.com/x.jpg';
+        $siteUrl = 'https://mysite.com/';
+
+        $result = $this->subject->makeRelativeSrc($src, $siteUrl);
+
+        self::assertSame('//evil.com/x.jpg', $result, 'Trimmed input must be classified as protocol-relative external');
+    }
+
+    #[Test]
     public function makeRelativeSrcReturnsRootForExactSiteUrlMatch(): void
     {
         // Edge: when the src is exactly the siteUrl, the strip leaves an empty

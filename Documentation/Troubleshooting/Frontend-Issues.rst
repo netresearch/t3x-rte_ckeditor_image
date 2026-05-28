@@ -178,18 +178,21 @@ non-root page. The validator (see
 :ref:`troubleshooting-image-reference-validation`) detects and repairs
 slashless ``src`` to the leading-slash form.
 
-**Solution for subpath installs** (TYPO3 served from ``/~user/``,
-``/sub/``, etc.):
+**Solution for subpath installs** (TYPO3 served from ``/subsite/``,
+``/~user/``, or any path other than ``/``):
 
 .. code-block:: typoscript
 
    # Prepend the subpath to every leading-slash path at render time.
    # This is what makes "/fileadmin/x.jpg" resolve as
-   # "/~user/fileadmin/x.jpg" in the rendered HTML.
-   config.absRefPrefix = /~user/
+   # "/subsite/fileadmin/x.jpg" in the rendered HTML.
+   config.absRefPrefix = /subsite/
 
-For site-root installs no TypoScript change is required —
-``config.absRefPrefix = /`` (the safe default) is enough.
+Use the actual subpath from your site configuration's ``base`` URL.
+``/~user/`` (Apache UserDir) and ``/subsite/`` (alias / docroot subdir)
+both work the same way. For site-root installs no TypoScript change
+is required — ``config.absRefPrefix = /`` (the safe default) is
+enough.
 
 .. note::
 

@@ -315,16 +315,19 @@ After upgrading on a subpath install
 -------------------------------------
 
 If TYPO3 is served from a subpath (e.g. ``https://example.com/~user/``,
-``https://example.com/sub/``) and the install is on a version prior to
-the leading-slash storage convention, existing ``src`` values may have
-been stored without a leading slash. After upgrading, run::
+``https://example.com/subsite/``) and the install is on a version
+prior to the leading-slash storage convention, existing ``src`` values
+may have been stored without a leading slash. After upgrading, run::
 
    ./vendor/bin/typo3 rte_ckeditor_image:validate --fix --table=tt_content
 
-to migrate them to the canonical ``/fileadmin/...`` form. Make sure
-``config.absRefPrefix`` is set to the subpath
-(see :ref:`troubleshooting-frontend-issues`) so the rendered HTML
-prepends it correctly.
+to migrate them to the canonical ``/fileadmin/...`` form.
+``--table=tt_content`` restricts the scan to the standard content
+element table (the common case); omit the flag to scan every table
+that has an entry in ``sys_refindex`` with ``softref_key =
+rtehtmlarea_images``. Make sure ``config.absRefPrefix`` is set to the
+subpath (see :ref:`troubleshooting-frontend-issues`) so the rendered
+HTML prepends it correctly.
 
 ----
 
