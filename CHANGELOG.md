@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`validate --fix` no longer repaired missing leading slashes in `src`** ([#837](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/837), [#839](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/839)) — the 13.9.x fix for [#778](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/778) over-corrected: `srcMatchesPublicUrl()` treated a slashless `fileadmin/x` as equivalent to the normalized `/fileadmin/x`, so `rte_ckeditor_image:validate --fix` and the `ValidateRteImageReferencesWizard` upgrade wizard silently skipped `src` attributes that older `upgrade:run` versions had broken by stripping the leading slash. Because the file's public URL is already normalized to leading-slash form, the comparison is now a strict equality — slashless paths are correctly flagged as `SrcMismatch` and repaired to `/fileadmin/x`. The same over-correction in the file move/rename listener (`UpdateImageReferences`) was removed, so file operations also normalize slashless references instead of leaving them broken. After upgrading, admins may see new "outdated src path(s)" callouts in the page module on content elements with slashless `src` attributes — this is the intended UX surfacing repair work that was previously silent; running `rte_ckeditor_image:validate --fix` (or the upgrade wizard) clears them. Thanks [@MacGyer](https://github.com/MacGyer) for the report and the precise root-cause analysis.
+
 ## [13.9.1] - 2026-05-07
 
 ### Fixed

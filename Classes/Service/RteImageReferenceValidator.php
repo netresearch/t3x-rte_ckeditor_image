@@ -310,9 +310,10 @@ class RteImageReferenceValidator
             );
         }
 
-        // Check for src mismatch. Accept both slash and slashless variants as
-        // equivalent: a stored "/fileadmin/x" and a publicUrl "fileadmin/x"
-        // must not be reported as a mismatch (#778).
+        // Check for src mismatch. The publicUrl is normalized to leading-slash
+        // form, so only a stored leading-slash src ("/fileadmin/x") is clean; a
+        // slashless src ("fileadmin/x") is a broken relative URL and must be
+        // reported as a mismatch and repaired (#778, #837).
         if ($src !== null && $src !== '' && !$this->srcMatchesPublicUrl($src, $publicUrl)) {
             return new ValidationIssue(
                 type: ValidationIssueType::SrcMismatch,
@@ -386,16 +387,15 @@ class RteImageReferenceValidator
     /**
      * Check whether a stored src is equivalent to a normalized publicUrl.
      *
-     * Treats "/fileadmin/x" and "fileadmin/x" as equivalent so that validation
-     * does not flag correctly-stored leading-slash paths as mismatches (#778).
+     * {@see normalizePublicUrl()} already guarantees that $publicUrl carries a
+     * leading slash, so a strict comparison is both sufficient and correct: a
+     * stored "/fileadmin/x" matches, while a slashless "fileadmin/x" — a broken
+     * relative URL produced by older upgrade wizards — is correctly reported as
+     * a mismatch and repaired to the leading-slash form (#778, #837).
      */
     private function srcMatchesPublicUrl(string $src, string $publicUrl): bool
     {
-        if ($src === $publicUrl) {
-            return true;
-        }
-
-        return '/' . ltrim($src, '/') === $publicUrl;
+        return $src === $publicUrl;
     }
 
     /**

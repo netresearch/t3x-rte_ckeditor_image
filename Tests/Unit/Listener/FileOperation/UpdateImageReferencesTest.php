@@ -287,8 +287,9 @@ final class UpdateImageReferencesTest extends UnitTestCase
     #[Test]
     public function handleFileRenamedNoOpWhenSrcMatchesNormalizedSlashlessPublicUrl(): void
     {
-        // getPublicUrl returns "fileadmin/current.jpg", stored src is "/fileadmin/current.jpg"
-        // Both refer to the same resource — must be treated as already correct.
+        // getPublicUrl returns "fileadmin/current.jpg", stored src already has the
+        // leading slash ("/fileadmin/current.jpg") — it matches the normalized
+        // publicUrl exactly and must be treated as already correct (no-op).
         $file = $this->createMock(File::class);
         $file->method('getUid')->willReturn(1);
         $file->method('getPublicUrl')->willReturn('fileadmin/current.jpg');
@@ -301,6 +302,32 @@ final class UpdateImageReferencesTest extends UnitTestCase
         );
 
         $this->connection->expects(self::never())->method('update');
+
+        $event = new AfterFileRenamedEvent($file, 'old.jpg');
+        $this->subject->handleFileRenamed($event);
+    }
+
+    #[Test]
+    public function handleFileRenamedRepairsSlashlessStoredSrc(): void
+    {
+        // Regression #837: a stored slashless src ("fileadmin/current.jpg") is a
+        // broken relative URL. When the listener processes the referencing record
+        // it must repair the src to the leading-slash form, not skip it as
+        // "equivalent" to the normalized publicUrl.
+        $file = $this->createMock(File::class);
+        $file->method('getUid')->willReturn(1);
+        $file->method('getPublicUrl')->willReturn('fileadmin/current.jpg');
+
+        $oldHtml = '<img data-htmlarea-file-uid="1" src="fileadmin/current.jpg" />';
+        $newHtml = '<img data-htmlarea-file-uid="1" src="/fileadmin/current.jpg" />';
+
+        $this->setupMocks(
+            [['tablename' => 'tt_content', 'recuid' => 1, 'field' => 'bodytext']],
+            ['tt_content' => [1 => ['bodytext' => $oldHtml]]],
+        );
+
+        $this->connection->expects(self::once())->method('update')
+            ->with('tt_content', ['bodytext' => $newHtml], ['uid' => 1]);
 
         $event = new AfterFileRenamedEvent($file, 'old.jpg');
         $this->subject->handleFileRenamed($event);

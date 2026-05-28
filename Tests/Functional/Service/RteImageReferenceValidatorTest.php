@@ -79,11 +79,17 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
     #[Test]
     public function validateFindsSrcMismatch(): void
     {
+        // Filter by uid so iteration order between record 2 (relocated file) and
+        // record 3 (slashless src, #837) doesn't matter — both yield SrcMismatch.
         $result = $this->getSubject()->validate();
-        $issue  = $this->findFirstIssueOfType($result->getIssues(), ValidationIssueType::SrcMismatch);
+        $issues = array_values(array_filter(
+            $result->getIssues(),
+            static fn (ValidationIssue $issue): bool => $issue->uid === 2 && $issue->type === ValidationIssueType::SrcMismatch,
+        ));
 
-        self::assertSame(2, $issue->uid);
-        self::assertSame('/fileadmin/old-location/photo.jpg', $issue->currentSrc);
+        self::assertCount(1, $issues);
+        self::assertSame('/fileadmin/old-location/photo.jpg', $issues[0]->currentSrc);
+        self::assertSame('/fileadmin/photo.jpg', $issues[0]->expectedSrc);
     }
 
     #[Test]
@@ -97,16 +103,24 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function validateReportsCleanRecordWithNoIssues(): void
+    public function validateFlagsSlashlessSrcAsMismatch(): void
     {
+        // Regression #837: record 3 stores a slashless src ("fileadmin/banner.png"),
+        // as produced by an older upgrade wizard that stripped the leading slash.
+        // This is a broken relative URL and must be reported as a SrcMismatch with
+        // the leading-slash form as the expected (repaired) value — not silently
+        // accepted as equivalent to the normalized publicUrl.
         $result = $this->getSubject()->validate();
 
-        $record3Issues = array_filter(
+        $record3Issues = array_values(array_filter(
             $result->getIssues(),
             static fn (ValidationIssue $issue): bool => $issue->uid === 3,
-        );
+        ));
 
-        self::assertCount(0, $record3Issues);
+        self::assertCount(1, $record3Issues);
+        self::assertSame(ValidationIssueType::SrcMismatch, $record3Issues[0]->type);
+        self::assertSame('fileadmin/banner.png', $record3Issues[0]->currentSrc);
+        self::assertSame('/fileadmin/banner.png', $record3Issues[0]->expectedSrc);
     }
 
     #[Test]
@@ -169,8 +183,9 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         $updatedCount = $validator->fix($result);
 
-        // Records 1 (processed src), 2 (src mismatch), and 5 (broken src) should be fixed
-        self::assertSame(3, $updatedCount);
+        // Records 1 (processed src), 2 (src mismatch), 3 (slashless src), and
+        // 5 (broken src) should be fixed
+        self::assertSame(4, $updatedCount);
 
         $this->assertCSVDataSet(__DIR__ . '/Fixtures/RteImageValidationFixResult.csv');
     }
@@ -245,8 +260,9 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         $updatedCount = $validator->fix($result);
 
-        // Only records 2 and 5 should be fixed; record 1 is gone (null), record 4 has no change
-        self::assertSame(2, $updatedCount);
+        // Records 2 (src mismatch), 3 (slashless src), and 5 (broken src) should be fixed;
+        // record 1 is gone (null), record 4 (orphaned) has no change
+        self::assertSame(3, $updatedCount);
     }
 
     #[Test]
@@ -266,8 +282,9 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         $updatedCount = $validator->fix($result);
 
-        // Records 1, 2, 5 get fixed; record 4 (orphaned) goes through fix() but produces no change
-        self::assertSame(3, $updatedCount);
+        // Records 1, 2, 3 (slashless src), 5 get fixed; record 4 (orphaned) goes through
+        // fix() but produces no change
+        self::assertSame(4, $updatedCount);
 
         // Verify record 4's bodytext is unchanged
         $connectionPool = $this->get(ConnectionPool::class);

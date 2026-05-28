@@ -291,10 +291,9 @@ class UpdateImageReferences
                 continue;
             }
 
-            // Treat "/fileadmin/x" and "fileadmin/x" as equivalent (#778)
-            if ('/' . ltrim($currentSrc, '/') === $newSrc) {
-                continue;
-            }
+            // A slashless src ("fileadmin/x") is a broken relative URL, not an
+            // equivalent of the normalized "/fileadmin/x" publicUrl: it must be
+            // repaired to the leading-slash form, not skipped here (#778, #837).
 
             // Replace src attribute value in the tag
             if ($currentSrc !== '') {
