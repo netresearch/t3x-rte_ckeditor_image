@@ -166,19 +166,36 @@ Issue: Wrong Image Path in Output
 
 **Symptoms:**
 
-* Image src points to wrong location
-* Absolute paths instead of relative
-* Missing domain in URLs
+* Image ``src`` points to the wrong location
+* Image renders correctly at the page root but breaks on sub-pages
+* Missing site path (``/~user/``, ``/sub/``) in rendered URLs
 
-**Cause:** Incorrect TypoScript configuration
+**Background:** The extension stores RTE image ``src`` in canonical
+site-root-relative form (``/fileadmin/...``, leading slash). TYPO3 v12+ does
+**not** emit ``<base href>``, so a slashless ``fileadmin/...`` value would
+resolve against the current page URL in the browser and break on every
+non-root page. The validator (see
+:ref:`troubleshooting-image-reference-validation`) detects and repairs
+slashless ``src`` to the leading-slash form.
 
-**Solution:**
+**Solution for subpath installs** (TYPO3 served from ``/~user/``,
+``/sub/``, etc.):
 
 .. code-block:: typoscript
 
-   # Ensure proper path generation
-   config.absRefPrefix = /
-   config.baseURL = https://your-domain.com/
+   # Prepend the subpath to every leading-slash path at render time.
+   # This is what makes "/fileadmin/x.jpg" resolve as
+   # "/~user/fileadmin/x.jpg" in the rendered HTML.
+   config.absRefPrefix = /~user/
+
+For site-root installs no TypoScript change is required —
+``config.absRefPrefix = /`` (the safe default) is enough.
+
+.. note::
+
+   ``config.baseURL`` was deprecated and removed. Modern TYPO3 uses the
+   :file:`config/sites/<identifier>/config.yaml` ``base`` key for the
+   canonical site URL; it does **not** emit a ``<base href>`` tag.
 
 ----
 
