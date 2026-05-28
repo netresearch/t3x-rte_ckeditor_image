@@ -159,12 +159,14 @@ final class ImageTagBuilderTest extends UnitTestCase
     #[Test]
     public function makeRelativeSrcRemovesSiteUrl(): void
     {
+        // Canonical storage form is leading-slash site-root-absolute (#778, #837).
+        // A slashless result would be a broken relative URL in rendered HTML.
         $src     = 'https://mysite.com/fileadmin/image.jpg';
         $siteUrl = 'https://mysite.com/';
 
         $result = $this->subject->makeRelativeSrc($src, $siteUrl);
 
-        self::assertSame('fileadmin/image.jpg', $result);
+        self::assertSame('/fileadmin/image.jpg', $result);
     }
 
     #[Test]
@@ -192,11 +194,15 @@ final class ImageTagBuilderTest extends UnitTestCase
     #[Test]
     public function makeRelativeSrcHandlesSubpaths(): void
     {
+        // Subpath installs (e.g. /~user/) store the site-root-relative form
+        // ("/fileadmin/...") and rely on config.absRefPrefix to prepend the
+        // subpath at render time. This keeps storage canonical across root
+        // and subpath installs and aligns with TYPO3 dropping <base href>.
         $src     = 'https://mysite.com/~user/fileadmin/image.jpg';
         $siteUrl = 'https://mysite.com/~user/';
 
         $result = $this->subject->makeRelativeSrc($src, $siteUrl);
 
-        self::assertSame('fileadmin/image.jpg', $result);
+        self::assertSame('/fileadmin/image.jpg', $result);
     }
 }

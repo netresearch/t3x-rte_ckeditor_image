@@ -176,10 +176,10 @@ class RteImageProcessorTest extends TestCase
 
         $this->builder
             ->method('makeRelativeSrc')
-            ->willReturn('fileadmin/image.jpg');
+            ->willReturn('/fileadmin/image.jpg');
         $this->builder
             ->method('build')
-            ->willReturn('<img src="fileadmin/image.jpg" data-htmlarea-file-uid="123" width="800" height="600" />');
+            ->willReturn('<img src="/fileadmin/image.jpg" data-htmlarea-file-uid="123" width="800" height="600" />');
 
         $processor = $this->createProcessor();
         $result    = $processor->process('<p><img src="fileadmin/image.jpg" data-htmlarea-file-uid="123" /></p>');
@@ -293,10 +293,10 @@ class RteImageProcessorTest extends TestCase
 
         $this->builder
             ->method('makeRelativeSrc')
-            ->willReturn('test.jpg');
+            ->willReturn('/test.jpg');
         $this->builder
             ->method('build')
-            ->willReturn('<img src="test.jpg" data-htmlarea-file-uid="999" width="0" height="0" />');
+            ->willReturn('<img src="/test.jpg" data-htmlarea-file-uid="999" width="0" height="0" />');
 
         $processor = $this->createProcessor();
         $result    = $processor->process('<p><img src="test.jpg" data-htmlarea-file-uid="999" /></p>');

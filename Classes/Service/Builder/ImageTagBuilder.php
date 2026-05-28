@@ -99,17 +99,26 @@ final class ImageTagBuilder implements ImageTagBuilderInterface
     }
 
     /**
-     * Convert absolute URL to relative URL.
+     * Convert an absolute site-internal URL to a site-root-relative one.
+     *
+     * The result is always leading-slash form ("/fileadmin/image.jpg"), never
+     * a slashless ("fileadmin/image.jpg") relative URL — the slashless form
+     * resolves against the current page path in the browser and is broken in
+     * rendered HTML (TYPO3 v12+ does not emit <base href>). Subpath installs
+     * (e.g. /~user/) keep the leading-slash form here and rely on
+     * config.absRefPrefix to prepend the subpath at render time, so storage
+     * stays canonical across root and subpath installs (#778, #837).
      *
      * @param string $src     The source URL
      * @param string $siteUrl The site URL to remove
      *
-     * @return string The relative URL
+     * @return string The site-root-relative URL with leading slash, or the
+     *                original src when it is not a same-site absolute URL
      */
     public function makeRelativeSrc(string $src, string $siteUrl): string
     {
         if ($siteUrl !== '' && str_starts_with($src, $siteUrl)) {
-            return substr($src, strlen($siteUrl));
+            return '/' . ltrim(substr($src, strlen($siteUrl)), '/');
         }
 
         return $src;
