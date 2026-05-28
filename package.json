@@ -1,6 +1,6 @@
 {
   "name": "rte-ckeditor-image",
-  "version": "13.0.0",
+  "version": "13.10.0",
   "description": "Image support in CKEditor for the TYPO3 ecosystem",
   "private": true,
   "scripts": {
