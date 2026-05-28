@@ -26,26 +26,35 @@ The extension provides six Fluid templates for different rendering contexts:
 ..  code-block:: text
     :caption: Template directory structure
 
-    Resources/Private/Templates/
-    ├── Image/
-    │   ├── Standalone.html      # Basic image without wrapper
-    │   ├── WithCaption.html     # Image with <figure>/<figcaption>
-    │   ├── Link.html            # Image wrapped in <a> tag
-    │   ├── LinkWithCaption.html # Linked image with caption
-    │   ├── Popup.html           # Image with lightbox/popup link
+    Resources/Private/
+    ├── Templates/Image/
+    │   ├── Standalone.html       # Basic image without wrapper
+    │   ├── WithCaption.html      # Image with <figure>/<figcaption>
+    │   ├── Link.html             # Image wrapped in <a> tag
+    │   ├── LinkWithCaption.html  # Linked image with caption
+    │   ├── Popup.html            # Image with lightbox/popup link
     │   └── PopupWithCaption.html # Popup image with caption
     └── Partials/Image/
-        ├── Tag.html             # <img> element partial
-        ├── TagInFigure.html     # <img> without class (for figures)
-        ├── Link.html            # <a> wrapper partial
-        └── Figure.html          # <figure> wrapper partial
+        ├── Tag.html              # <img> element partial
+        ├── TagInFigure.html      # <img> without class (for figures)
+        ├── Link.html             # <a> wrapper partial
+        └── Figure.html           # <figure> wrapper partial
 
 ..  note::
 
-    This extension stores partials in ``Templates/Partials/`` rather than the
-    standard TYPO3 location ``Partials/``. When overriding, you can use either
-    location by configuring your ``partialRootPaths`` accordingly. For standard
-    TYPO3 structure in your site package, use ``Resources/Private/Partials/``.
+    Partials ship in the standard TYPO3 location
+    ``Resources/Private/Partials/Image/`` (see
+    `#547 <https://github.com/netresearch/t3x-rte_ckeditor_image/issues/547>`__).
+    Templates live in ``Resources/Private/Templates/Image/`` and layouts in
+    ``Resources/Private/Templates/Layouts/``. When overriding, point your
+    ``partialRootPaths`` at your site package's ``Resources/Private/Partials/``.
+
+..  warning::
+
+    In ``EXT:`` paths, use the **extension key** ``rte_ckeditor_image``
+    (underscores) — *not* the Composer package name ``rte-ckeditor-image``
+    (hyphens). TYPO3 resolves ``EXT:`` references by extension key only, so a
+    hyphenated path silently resolves to nothing and the override is ignored.
 
 Template selection
 ------------------
@@ -90,10 +99,11 @@ Understanding this distinction is important when overriding templates:
    :file:`Popup.html`, or :file:`PopupWithCaption.html`.
 
 **Inline images** (``<img>`` in text flow):
-   Processed by ``renderImageAttributes()`` for the ``<img>`` element and
-   ``renderInlineLink()`` for the ``<a>`` wrapper. The template only renders
-   the ``<img>`` tag — always :file:`Standalone.html`. The link wrapper is
-   handled separately by the ``tags.a`` handler in ``parseFunc_RTE``.
+   Processed by ``renderImageAttributes()`` for the ``<img>`` element. The
+   template only renders the ``<img>`` tag — always :file:`Standalone.html`.
+   The surrounding ``<a>`` wrapper is rebuilt by the default ``tags.a``
+   typolink in ``parseFunc_RTE`` (resolves ``t3://`` URLs, applies
+   ``rel="noreferrer"``, etc.); it is not rendered through a Fluid template.
 
 **Popup images**:
    Both inline and block use :file:`Popup.html` or :file:`PopupWithCaption.html`
@@ -155,7 +165,7 @@ Understanding this distinction is important when overriding templates:
     *   - Inline
         - Yes
         - —
-        - ``renderImageAttributes()`` + ``renderInlineLink()``
+        - ``renderImageAttributes()`` (link rebuilt by default ``tags.a`` typolink)
         - :file:`Standalone.html`
 
     *   - Inline
@@ -202,8 +212,12 @@ Add the template path to your TypoScript setup:
 
     The configuration must be placed within ``lib.parseFunc_RTE.tags.img``
     (not directly in ``lib.parseFunc_RTE``). The same configuration can be
-    added to ``tags.a`` and ``tags.figure`` to control the templates used
-    for images that are already wrapped in ``<a>`` or ``<figure>`` elements.
+    added to ``externalBlocks.figure.stdWrap`` for images wrapped in
+    ``<figure>`` blocks (captioned images). Figures are processed via
+    ``externalBlocks``, not ``tags.figure`` — placing the configuration
+    under ``tags.figure`` has no effect. Inline images wrapped in ``<a>``
+    are rendered by ``tags.img`` (recursively, inside the link wrapper), so
+    they already pick up the configuration defined under ``tags.img``.
 
 Step 3: Create override templates
 ---------------------------------
