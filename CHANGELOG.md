@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [13.10.0] - 2026-05-28
+
+> **Note:** Version 13.9.1 was prepared in the CHANGELOG but never tagged or released. Its contents — the `allowedExtensions` YAML preset fix — are folded into this 13.10.0 release.
+
 ### Changed
 
 - **RTE image storage now always uses leading-slash form** (follow-up to [#837](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/837)) — `ImageTagBuilder::makeRelativeSrc()` previously stripped the full site URL prefix and returned a slashless path (`fileadmin/image.jpg`), which a browser resolves relative to the current page URL and is therefore broken in rendered HTML (modern TYPO3 does not emit `<base href>`). The method now prepends a leading slash for every local path — both the same-site-absolute strip path and any slashless input that bypassed the editor JS's `urlToRelative()` normalization (e.g. server-side import, paste from another editor). External references (scheme URLs like `http://`, `data:`, `mailto:`, and protocol-relative `//cdn.example.com/...`) pass through unchanged. Storage is therefore canonical site-root-relative (`/fileadmin/image.jpg`) for both site-root and subpath installs. Subpath installs (e.g. `/~user/`, `/subsite/`) should set `config.absRefPrefix = /subsite/` — the standard TYPO3 mechanism — so the rendered HTML becomes `/subsite/fileadmin/image.jpg`. Without this change, a freshly inserted RTE image in a subpath install would later be flagged as `SrcMismatch` by the validator and rewritten on save; with it, storage is uniform across install layouts and the validator's strict-equality rule (introduced in [#839](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/839)) holds for every layout. Also collapses an accidental `//` after the strip so a same-site path is never silently converted into a protocol-relative cross-origin reference.
@@ -18,12 +34,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **`validate --fix` no longer repaired missing leading slashes in `src`** ([#837](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/837), [#839](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/839)) — the 13.9.x fix for [#778](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/778) over-corrected: `srcMatchesPublicUrl()` treated a slashless `fileadmin/x` as equivalent to the normalized `/fileadmin/x`, so `rte_ckeditor_image:validate --fix` and the `ValidateRteImageReferencesWizard` upgrade wizard silently skipped `src` attributes that older `upgrade:run` versions had broken by stripping the leading slash. Because the file's public URL is already normalized to leading-slash form, the comparison is now a strict equality — slashless paths are correctly flagged as `SrcMismatch` and repaired to `/fileadmin/x`. The same over-correction in the file move/rename listener (`UpdateImageReferences`) was removed, so file operations also normalize slashless references instead of leaving them broken. After upgrading, admins may see new "outdated src path(s)" callouts in the page module on content elements with slashless `src` attributes — this is the intended UX surfacing repair work that was previously silent; running `rte_ckeditor_image:validate --fix` (or the upgrade wizard) clears them. Thanks [@MacGyer](https://github.com/MacGyer) for the report and the precise root-cause analysis.
-
-## [13.9.1] - 2026-05-07
-
-### Fixed
-
 - **`allowedExtensions` YAML preset silently ignored** ([#821](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/821), [#822](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/822)) — the documented `editor.externalPlugins.typo3image.allowedExtensions` YAML option was overridden by the controller's fallback to `$GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']`, a regression introduced by the CKEditor 5 rewrite ([`1cfe7a7`](https://github.com/netresearch/t3x-rte_ckeditor_image/commit/1cfe7a7)). The configured value is now threaded through; admin-misconfigured non-string values emit a `console.warn` instead of silently falling back. Thanks [@mmunz](https://github.com/mmunz) for the report and the precise root-cause analysis pointing at the regression.
+- **Template-override paths in docs corrected** ([#836](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/836), [#838](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/838)) — `Documentation/Examples/Template-Overrides.rst` referenced the wrong EXT key and template directory; corrected to the actual extension paths.
+
+### Documentation
+
+- **ADR-004: canonical RTE image `src` storage convention** — new Architecture Decision Record codifying the leading-slash storage form, the two write paths that must agree (editor save + validator repair), what is delegated to TYPO3 Core (`absRefPrefix`, no `<base href>` emission), and the positive/negative consequences (subpath operator migration step). Registered in `Documentation/Architecture/Index.rst` alongside ADR-001/002/003.
+- **Troubleshooting docs** — `Frontend-Issues.rst` rewrote the "Wrong Image Path in Output" section (dropped the stale `config.baseURL` advice; subpath `absRefPrefix` setup with both `/subsite/` and `/~user/` examples). `Image-Reference-Validation.rst` extended the `src_mismatch` row to mention slashless repair and added an "After upgrading on a subpath install" subsection with the one-time fix command.
+- **README** — new "Image `src` storage convention" subsection in Configuration, with a link to ADR-004.
+
+### Dependencies
+
+- Updated `@playwright/test` to v1.60.0 ([#829](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/829)) and bumped the matching Playwright Docker image to v1.60.0-noble; Renovate now keeps the npm package and Docker image in sync.
+- Updated `vitest` monorepo to v4.1.6 ([#828](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/828)) then v4.1.7 ([#834](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/834)).
+- Updated `commitlint` monorepo to v21 (major) ([#827](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/827)).
+- Updated `step-security/harden-runner` action through v2.19.2, v2.19.3, v2.19.4 ([#830](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/830), [#832](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/832), [#835](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/835)).
+- Updated `shivammathur/setup-php` action to v2.37.1 ([#831](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/831)).
+- Updated `sonarsource/sonarqube-scan-action` action to v8.1.0 ([#833](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/833)).
 
 ## [13.9.0] - 2026-04-29
 
