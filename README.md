@@ -17,143 +17,203 @@
 [![Stability](https://typo3-badges.dev/badge/rte_ckeditor_image/stability/shields.svg)](https://extensions.typo3.org/extension/rte_ckeditor_image)
 [![TYPO3 versions](https://img.shields.io/badge/TYPO3-13%20%7C%2014-orange.svg?logo=typo3)](https://extensions.typo3.org/extension/rte_ckeditor_image)
 [![Latest TER version](https://typo3-badges.dev/badge/rte_ckeditor_image/version/shields.svg)](https://extensions.typo3.org/extension/rte_ckeditor_image)
-<!-- Generated with 🧡 at typo3-badges.dev -->
+<!-- Generated with care at typo3-badges.dev -->
 
-# Image support for CKEditor for TYPO3
+# RTE CKEditor Image — Image Support for CKEditor 5 in TYPO3
 
-This extension adds comprehensive image handling capabilities to CKEditor for TYPO3.\
-Add issues or explore the project on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image).
+> A TYPO3 extension that restores and modernises rich-text image handling for **TYPO3 v13.4 LTS** and **v14.3 LTS**, built on **CKEditor 5** with full **File Abstraction Layer (FAL)** integration, image processing, accessibility metadata, and content security in mind.
 
-<kbd>![](Documentation/Images/backend-image-properties-dialog.png?raw=true)</kbd>
+<kbd>![Screenshot of the TYPO3 backend image properties dialog provided by the rte_ckeditor_image extension, showing FAL-backed image selection with width, height, alternative text, title, and quality controls](Documentation/Images/backend-image-properties-dialog.png?raw=true)</kbd>
 
-## Features
+---
 
-- **TYPO3 FAL Integration**: Native file browser with full File Abstraction Layer support
-- **Magic Images**: Same image processing as rtehtmlarea (cropping, scaling, TSConfig supported)
-- **Image Dialog**: Configure width, height, alt, and title (aspect ratio automatically maintained)
-- **Quality Selector**: Quality multipliers for optimal display (Standard 1.0x, Retina 2.0x, Ultra 3.0x, Print 6.0x)
-- **SVG Support**: Intelligent dimension extraction from viewBox and width/height attributes
-- **Custom Styles**: Configurable image styles with CKEditor 5 style system
-- **Inline Images**: True inline image support with cursor positioning before/after
-- **Lazy Loading**: TYPO3 native browser lazyload support
-- **Event-Driven**: PSR-14 events for extensibility
-- **Security**: Protocol blocking, XSS prevention, file visibility validation
-- **Fluid Templates**: Customizable output via template overrides with automatic figcaption width constraint
-- **Image Validation**: CLI command and upgrade wizard to detect and fix broken image references and nested link wrappers
-- **Preview Renderer**: Images preserved in page module preview with broken reference warnings
-- **Content Blocks Support**: ViewHelper for rendering RTE image previews in Content Blocks backend templates
-- **Table Images**: Images in CKEditor 5 tables get full processing (max-width, zoom, t3:// resolution)
-- **Automatic Softref**: RTE image references tracked automatically across all tables
+## Table of Contents
+
+- [Why this extension exists](#why-this-extension-exists)
+- [Features at a glance](#features-at-a-glance)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage recipes](#usage-recipes)
+- [Documentation](#documentation)
+- [Security](#security)
+- [Development](#development)
+- [Verifying releases](#verifying-releases)
+- [Contributing](#contributing)
+- [License & credits](#license--credits)
+
+---
+
+## Why this extension exists
+
+TYPO3 intentionally [removed rich-text image handling from the core in TYPO3 v10](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/Introduction/CoreRemoval.html). Editors lost the ability to insert FAL-backed images into bodytext via the rich-text editor — the recommended path became dedicated image content elements, which is not always what an editorial workflow needs.
+
+This extension fills that gap **without recreating the legacy `rtehtmlarea` behaviour wholesale**. Images inserted from the rich-text editor go through the same **Magic Images** processing pipeline integrators already know from TSConfig: cropping, scaling, quality multipliers, lazy-loading, captions, and inline links. The CKEditor 5 plugin handles upcast/downcast cleanly, the backend uses TYPO3's modern file browser, and the rendered frontend output passes through TYPO3's parseFunc / Fluid template chain so site themes (Bootstrap Package, custom sitepackages, Content Blocks) can override it.
+
+If your editorial workflow needs **inline images inside paragraphs** — with alt text, captions, links, popups, alignment, and high-DPI rendering — and you do not want to give up FAL or content security, this is the extension for you.
+
+---
+
+## Features at a glance
+
+### Editor experience
+
+- **TYPO3 FAL integration** — native file browser with full File Abstraction Layer support and the standard CKEditor 5 dialog.
+- **Image properties dialog** — width, height, alt, title, with automatic aspect-ratio locking.
+- **Quality selector** — choose **No Scaling**, **Standard (1.0x)**, **Retina (2.0x)**, **Ultra (3.0x)**, or **Print (6.0x)** per image; persisted as `data-quality` so behaviour is reproducible across re-edits.
+- **True inline images** — cursor positioning before/after the image, mid-paragraph insertion, and round-trip-safe save/load.
+- **SVG support** — intelligent dimension extraction from `viewBox` and width/height attributes; original vectors used as-is.
+
+### Frontend rendering
+
+- **Magic Images pipeline** — the same cropping, scaling, and processing as `rtehtmlarea`, configurable via Page TSConfig.
+- **Lazy loading** — honours TYPO3's native `loading="lazy"` / `eager` / `auto` configuration.
+- **Custom styles** — image styles integrated with the CKEditor 5 style system and `GeneralHtmlSupport`.
+- **Fluid template overrides** — every fragment (figure, link, popup, caption) is a Fluid partial that themes can override; `figcaption` width is constrained to the image automatically.
+- **Table images** — images inside CKEditor 5 tables get the full processing chain (max-width, zoom, `t3://` link resolution).
+
+### Integrity & maintenance
+
+- **Automatic softref tracking** — RTE image references are registered with the reference index across all RTE-enabled fields, so file moves, renames, and deletions stay consistent.
+- **Image validation CLI** — `rte_ckeditor_image:validate` detects broken references, nested link wrappers, and stale paths; `--fix` repairs them.
+- **Upgrade wizard** — runs the same validation as an Install Tool wizard for one-shot repair after major upgrades.
+- **Preview renderer** — images stay visible in the page module preview, with explicit warnings when a reference is broken.
+- **Content Blocks support** — a ViewHelper renders RTE image previews inside Content Blocks backend templates.
+
+### Quality & security
+
+- **PSR-14 events** for extensibility at every rendering decision point.
+- **Defense-in-depth security**: caption XSS sanitization, file-visibility validation, URL protocol allowlist (`http`, `https`, `mailto`, `tel`, `t3`), SVG sanitization, SSRF protection on external image fetch, and `style`-attribute exclusion.
+- **PHPStan level 10**, strict-rules, deprecation-rules, [phpat](https://github.com/carlosas/phpat) architecture rules — **zero baseline errors**.
+- **SLSA Level 3** provenance attestation, signed release tags, [OpenSSF Best Practices](https://www.bestpractices.dev/projects/11718) participation.
+
+---
 
 ## Requirements
 
-- **TYPO3:** 13.4.21+ (LTS) or 14.3+ (LTS)
-- **PHP:** 8.2 or later
-- **Extensions:** cms-rte-ckeditor (included in TYPO3 core)
+| Component | Supported versions |
+|-----------|--------------------|
+| TYPO3 | **13.4.21+ LTS** or **14.3+ LTS** |
+| PHP | **8.2**, 8.3, 8.4, 8.5 |
+| Required TYPO3 extensions | `typo3/cms-rte-ckeditor` (extension key `rte_ckeditor`, shipped with TYPO3 core) |
+| Required PHP extensions | `ext-dom`, `ext-libxml` |
 
-> **Note:** The plugin automatically integrates with CKEditor's `GeneralHtmlSupport` for style functionality. No additional configuration required.
+> The CKEditor 5 plugin auto-integrates with **`GeneralHtmlSupport`** for image styles — no extra config required.
+
+### Version compatibility
+
+The `main` branch targets the current TYPO3 LTS releases. Earlier TYPO3 versions are served by dedicated, version-pinned branches. Composer selects the right series automatically from your installed TYPO3 version, or you can pin it explicitly (e.g. `composer require netresearch/rte-ckeditor-image:^12.0`).
+
+| TYPO3 | Extension branch | Latest release | PHP | Status |
+|-------|------------------|----------------|-----|--------|
+| **13.4 LTS / 14.3 LTS** | [`main`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/main) | 13.10.0 | 8.2 – 8.5 | **Actively maintained** (CKEditor 5) |
+| **12.4 LTS** | [`TYPO3_12`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_12) | 12.0.12 | 8.1+ | Maintained (bugfixes) |
+| **11.5 LTS** | [`TYPO3_11`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_11) | 11.0.17 | 7.4+ | End of life — available, no further updates |
+| **10.4 LTS** | [`TYPO3_10`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_10) | 10.2.5 | — | End of life — available, no further updates |
+
+> The `TYPO3_12` and `main` branches use **CKEditor 5** (matching TYPO3 core's CKEditor 5 integration from v12 onward); the `TYPO3_11` and `TYPO3_10` branches use the legacy **CKEditor 4**. The features described below target `main` (TYPO3 v13/v14).
+
+---
 
 ## Installation
 
-### Quick Start
-
-Install the extension via composer:
+### 1. Install via Composer
 
 ```shell
-composer req netresearch/rte-ckeditor-image
+composer require netresearch/rte-ckeditor-image
 ```
 
-Enable the Site Set to activate both the backend RTE preset and frontend rendering:
+### 2. Enable the Site Set
 
-Add the extension to your site dependencies:
+Activating the shipped **Site Set** wires up both the backend RTE preset (with the `insertimage` button) and the frontend TypoScript for image processing in one step. Add the extension to your site's `config.yaml`:
 
 ```yaml
 # config/sites/<site>/config.yaml
 dependencies:
+  # This is the Site Set name (declared in the extension's
+  # Configuration/Sets/RteCKEditorImage/config.yaml), not the extension key.
   - netresearch/rte-ckeditor-image
 ```
 
-This enables the RTE preset with the `insertimage` button and includes the frontend TypoScript for image processing.
+> **Using Bootstrap Package or another theme extension?** List `netresearch/rte-ckeditor-image` **after** them in your dependencies, so the RTE preset wins the load order.
 
-> **Using Bootstrap Package or another theme extension?** List this extension **after** them in your dependencies to override their RTE preset.
+### 3. (Alternative) Manual TypoScript import
 
-**Alternative: Direct TypoScript Import**
-
-If you prefer manual control over TypoScript load order:
+If you prefer to manage TypoScript load order yourself rather than rely on Site Sets:
 
 ```typoscript
 @import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
 ```
 
-### Custom Configuration (Optional)
+### 4. (Optional) Custom RTE preset
 
-If you need to customize the RTE configuration or create your own preset:
+If you maintain your own RTE preset and want to inject the image plugin into it:
 
-1. Create a custom preset in your site extension:
+```php
+<?php
+// EXT:my_ext/ext_localconf.php
+$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['my_custom_preset']
+    = 'EXT:my_ext/Configuration/RTE/Default.yaml';
+```
 
-    ```php
-    <?php
-    // EXT:my_ext/ext_localconf.php
-    $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['my_custom_preset']
-        = 'EXT:my_ext/Configuration/RTE/Default.yaml';
-    ```
+```yaml
+# EXT:my_ext/Configuration/RTE/Default.yaml
+imports:
+  - { resource: "EXT:rte_ckeditor/Configuration/RTE/Default.yaml" }
+  - { resource: "EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml" }
 
-2. Import the image plugin configuration:
+editor:
+  config:
+    toolbar:
+      items:
+        - heading
+        - '|'
+        - insertimage
+        - link
+        - '|'
+        - bold
+        - italic
+```
 
-    ```yaml
-    # EXT:my_ext/Configuration/RTE/Default.yaml
-    imports:
-      - { resource: "EXT:rte_ckeditor/Configuration/RTE/Default.yaml" }
-      - { resource: "EXT:rte_ckeditor_image/Configuration/RTE/Plugin.yaml" }
+```typoscript
+# Page TSConfig
+RTE.default.preset = my_custom_preset
+```
 
-    editor:
-      config:
-        toolbar:
-          items:
-            - heading
-            - '|'
-            - insertimage
-            - link
-            - '|'
-            - bold
-            - italic
-    ```
-
-3. Enable your custom preset via Page TSConfig:
-
-    ```
-    # Page TSConfig
-    RTE.default.preset = my_custom_preset
-    ``` 
+---
 
 ## Configuration
 
-(optional) Configure the Extension Configuration for this extension:
+The extension ships with sensible defaults — most installations need zero configuration. The four most commonly tuned settings live in **Extension Configuration** (Admin Tools → Settings → Extension Configuration → `rte_ckeditor_image`):
 
-**fetchExternalImages**: By default, if an img source is an external URL, this image will be fetched and uploaded
-to the current BE users uploads folder. The default behaviour can be turned off with this option.
+| Setting | Default | Purpose |
+|---------|---------|---------|
+| `fetchExternalImages` | on | When set, pasted external image URLs are downloaded into the current BE user's upload folder rather than left as cross-origin `<img>` tags. |
+| `enableAutomaticRteSoftref` | on | Registers the `rtehtmlarea_images` soft reference on every RTE-enabled text field so images are tracked in the reference index automatically. |
+| `enableAutomaticPreviewRenderer` | on | Registers an image-aware preview renderer for all records with RTE bodytext; warns about broken references in the page module. |
+| `excludedTables` / `includedTablesOnly` | empty | Comma-separated table lists to scope the two automatic features above. `includedTablesOnly` is whitelist mode and overrides `excludedTables`. |
 
-**enableAutomaticRteSoftref**: Automatically adds `rtehtmlarea_images` soft reference to all RTE-enabled text fields. Ensures images are tracked in the reference index. Default: on.
-
-**enableAutomaticPreviewRenderer**: Registers an image-aware preview renderer for all record types with RTE bodytext. Shows images in page module preview and warns about broken references. Default: on.
-
-**excludedTables**: Comma-separated table names to exclude from automatic softref and preview renderer processing.
-
-**includedTablesOnly**: Whitelist mode — if set, only these tables are processed. Overrides excludedTables.
-
-See the [full configuration reference](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/Integration/Advanced-Configuration.html) for details.
+The full reference — every option, every edge case — lives in the manual: see [Advanced Configuration](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/Integration/Advanced-Configuration.html).
 
 ### Image `src` storage convention
 
-RTE image `src` is persisted in **canonical site-root-relative form** (`/fileadmin/x.jpg`, leading slash). Slashless storage (`fileadmin/x.jpg`) is treated as a defect and repaired by the validator — modern TYPO3 does not emit `<base href>`, so a slashless `src` resolves against the current page URL in the browser and breaks on every non-root page. External references (`https://`, `data:`, `//cdn.example.com/...`) pass through unchanged.
+RTE image `src` is persisted in **canonical site-root-relative form** (`/fileadmin/image.jpg`, with a leading slash). Slashless storage (`fileadmin/image.jpg`) is treated as a defect and repaired by the validator — modern TYPO3 does not emit `<base href>`, so a slashless `src` resolves against the current page URL in the browser and breaks on every non-root page. External references (`https://…`, `data:…`, `//cdn.example.com/…`) pass through unchanged.
 
-**Subpath installs** (TYPO3 served from `/~user/`, `/subsite/`, etc.) must set `config.absRefPrefix = /subsite/`. TYPO3's render chain prepends it to leading-slash paths at output time, so storage stays identical to a site-root install. See [ADR-004](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/Architecture/ADR-004-Image-Src-Storage-Convention.html) for the full rationale.
+**Subpath installs** (TYPO3 served from `/~user/`, `/subsite/`, etc.) must set `config.absRefPrefix = /subsite/`. TYPO3's render chain prepends it to leading-slash paths at output time, so storage stays identical to a site-root install.
 
-### Maximum width/height
+See [ADR-004: Image `src` Storage Convention](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/Architecture/ADR-004-Image-Src-Storage-Convention.html) for the full rationale.
 
-The maximum dimensions relate to the configuration for magic images which have to be set in Page TSConfig:
+---
 
-```
+## Usage recipes
+
+The snippets below cover the configuration questions that arrive most often. The [manual](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/) covers each topic in depth.
+
+### Set maximum width / height
+
+Magic Images obey the limits configured in Page TSConfig. Defaults are conservative — raise them for editorial sites with large hero images:
+
+```typoscript
 # Page TSConfig
 RTE.default.buttons.image.options.magic {
     # Default: 300
@@ -163,185 +223,220 @@ RTE.default.buttons.image.options.magic {
 }
 ```
 
-If TSConfig settings don't render correctly from custom template extensions, add the settings directly to root page configuration.
+> If TSConfig from a custom template extension does not take effect, place the settings directly on the root page record.
 
+### Lightbox via fluid_styled_content
 
-### Usage as lightbox with fluid_styled_content
-
-```
+```typoscript
 # Template Constants
 styles.content.textmedia.linkWrap.lightboxEnabled = 1
 ```
 
-### Configure a default css class for every image
+### Default CSS class for every RTE image
 
-```
-# TS Setup
-
+```typoscript
+# TypoScript Setup
 lib.parseFunc_RTE {
-    // default class for images in bodytext:
     nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib.class {
-      default = my-custom-class
+        default = my-custom-class
     }
 }
 ```
 
-### Image lazyload support
+### Native browser lazy loading
 
-The extension supports [TYPO3 lazyload handling](https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/10.3/Feature-90426-Browser-nativeLazyLoadingForImages.html) (fluid_styled_content) for native browser lazyload.
-
-```
-# Template Constants type=options[lazy,eager,auto]
+```typoscript
+# Template Constants — type=options[lazy,eager,auto]
 styles.content.image.lazyLoading = lazy
 ```
 
-### Image Quality Selector
+See [Feature 90426 (Native lazy loading)](https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/10.3/Feature-90426-Browser-nativeLazyLoadingForImages.html) for the underlying TYPO3 behaviour.
 
-The image dialog includes a quality selector dropdown for optimal image processing:
+### Image Quality selector
 
-**Quality Options:**
-- **No Scaling** (1.0x) - Original file, no processing (best for newsletters, PDFs, SVG files)
-- **Standard** (1.0x) - Match display dimensions exactly
-- **Retina** (2.0x) - High-DPI displays (default, recommended for modern devices)
-- **Ultra** (3.0x) - Very sharp images for hero images and key visuals
-- **Print** (6.0x) - Print-quality output and professional photography
+The image dialog includes a **Quality** dropdown that lets editors trade file size against pixel density per image:
 
-Quality selection persists via `data-quality` HTML attribute. The selector automatically handles SVG dimension extraction from viewBox or width/height attributes.
+| Option | Multiplier | Use case |
+|--------|------------|----------|
+| No Scaling | 1.0x (no processing) | Newsletters, PDFs, SVGs — keep original file |
+| Standard | 1.0x | Match display dimensions exactly |
+| Retina | 2.0x | High-DPI displays (default) |
+| Ultra | 3.0x | Hero images, key visuals |
+| Print | 6.0x | Print-quality output, professional photography |
 
-**See:** [Image Quality Selector Documentation](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/CKEditor/Image-Quality-Selector.html) for complete technical details, use cases, and migration guide.
+The choice is stored in the `data-quality` HTML attribute, so it survives re-edits and is reproducible across environments. See the [Image Quality Selector documentation](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/CKEditor/Image-Quality-Selector.html) for technical details, use cases, and the migration guide from legacy `noScale`.
 
-### Using original images without processing (noScale)
+### Skip processing globally (legacy `noScale`)
 
-Configure noScale globally via TypoScript to skip image processing:
+For all-original-images integrations (newsletter exports, PDF-bound content), keep originals globally:
 
 ```typoscript
-# TypoScript Setup - Enable globally for all RTE images
+# TypoScript Setup — enable globally for all RTE images
 lib.parseFunc_RTE.tags.img.noScale = 1
 
-# Optional: Set file size threshold for auto-optimization
+# Optional safety net: do not serve very large originals silently
 lib.parseFunc_RTE.tags.img.noScale {
-    maxFileSizeForAuto = 2000000  # 2MB - prevents serving very large originals
+    maxFileSizeForAuto = 2000000  # 2 MB
 }
 ```
 
-**Modern Approach:** Use the quality selector dropdown in the image dialog for per-image control. The `data-quality="none"` attribute provides the same functionality as `noScale = 1` with better user experience.
+The modern, per-image equivalent is the Quality selector set to **No Scaling** — better UX, same effect (`data-quality="none"`). Processing is skipped automatically when requested dimensions equal the original, when the file is an SVG, or when Quality is set to **No Scaling**.
 
-**Auto-Optimization:** The extension automatically skips processing when:
-- Requested dimensions match the original image dimensions
-- SVG files are detected (vector graphics always use original)
-- Quality selector is set to "No Scaling"
+### Restrict allowed file extensions
 
-### Allowed extensions
-
-By default, the extensions from `$TYPO3_CONF_VARS['GFX']['imagefile_ext']` are allowed. However, you can override this for CKEditor by adding the following to your YAML configuration:
+By default the extensions listed in `$GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']` are allowed. Override per RTE preset:
 
 ```yaml
 editor:
   externalPlugins:
-      typo3image:
-        allowedExtensions: "jpg,jpeg,png"
+    typo3image:
+      allowedExtensions: "jpg,jpeg,png"
 ```
+
+---
 
 ## Documentation
 
-This project maintains three documentation tiers:
+This project maintains a single source of truth — the manual published on docs.typo3.org — supplemented by AI-readable context inside the repository.
 
-### Official TYPO3 Documentation
+### Official manual — docs.typo3.org
 
-**Published Manual:** https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/
+The published manual is the canonical reference for integrators, administrators, and editors. It covers installation, configuration, integration, troubleshooting, the developer API, the CKEditor 5 plugin internals, and the architecture decision records.
 
-For integrators, administrators, and end users. Covers installation, configuration, troubleshooting, and usage.
+📘 **[docs.typo3.org/p/netresearch/rte-ckeditor-image](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/)**
 
-**Source:** [Documentation/](Documentation/) (RST format, automatically built and published)
+Source: [`Documentation/`](Documentation/) (reStructuredText, automatically built and published).
 
-### AI Development Context
+### In-repository guides
 
-**AI Agents & Developers:** `claudedocs/` directory (gitignored)
+- **[AGENTS.md](AGENTS.md)** — development guide, build commands, code standards, and PR checklist (audience: humans and AI agents).
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — contribution workflow, commit conventions, review process.
+- **[SECURITY.md](SECURITY.md)** — security policy and coordinated disclosure.
+- **[Documentation/AGENTS.md](Documentation/AGENTS.md)** — TYPO3 documentation system guide.
+- **`claudedocs/`** *(gitignored)* — AI development context generated per session.
 
-Technical knowledge base for AI-assisted development. Not tracked in git - generate per session if needed.
+---
 
-### Project Essentials
+## Security
 
-- **[AGENTS.md](AGENTS.md)** - AI development guide and build commands
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
-- **[SECURITY.md](SECURITY.md)** - Security policy
-- **[Documentation/AGENTS.md](Documentation/AGENTS.md)** - TYPO3 documentation system guide
+This extension implements defense-in-depth security at every boundary where untrusted RTE content reaches a renderer or a storage path:
+
+- **Caption XSS prevention** — all editor-supplied captions are sanitized via `ImageResolverService::sanitizeCaption()`.
+- **File visibility validation** — files in non-public storages are blocked at render time.
+- **URL protocol allowlist** — only `http:`, `https:`, `mailto:`, `tel:`, `t3:` pass; `javascript:`, `vbscript:`, `data:text/html` are rejected.
+- **SVG sanitization** — SVG data URIs are routed through TYPO3 Core's `SvgSanitizer`.
+- **SSRF protection** — the external image fetcher (when `fetchExternalImages` is on) refuses private IPs and DNS-rebinding payloads.
+- **Style attribute exclusion** — `style` is excluded from the allowed HTML attribute list to prevent CSS injection.
+- **Whitespace-smuggling hardening** — `<img src>` values are stripped of leading ASCII whitespace before protocol-relative checks, blocking `" //evil.com/x.jpg"`-style payloads (CWE-20 / CWE-176, defense-in-depth).
+
+Responsibilities delegated to TYPO3 Core (and **not** re-implemented here): SVG file upload sanitization, file extension and MIME validation, and image-processing security inside `GraphicalFunctions`. See [ADR-003: Security Responsibility Boundaries](https://docs.typo3.org/p/netresearch/rte-ckeditor-image/main/en-us/Architecture/ADR-003-Security-Responsibility-Boundaries.html) for the full division.
+
+To report a vulnerability, please follow [SECURITY.md](SECURITY.md). **Do not open public issues for security findings.**
+
+---
 
 ## Development
 
-### DDEV Environment (Complete Testing Setup)
+### DDEV environment (recommended for full backend testing)
+
+The repository ships a complete DDEV setup with TYPO3 v13 and v14 side-by-side, Bootstrap Package preinstalled, and rendered documentation served locally:
 
 ```bash
-# Quick start with DDEV (includes TYPO3 + Bootstrap Package)
 git clone https://github.com/netresearch/t3x-rte_ckeditor_image.git
 cd t3x-rte_ckeditor_image
-make up                      # Start DDEV + complete setup (ONE COMMAND!)
+make up                      # Start DDEV + complete setup (one command)
+```
 
-# Access your environment
-# - Overview:       https://rte-ckeditor-image.ddev.site/
-# - Documentation:  https://docs.rte-ckeditor-image.ddev.site/
-# - TYPO3 v13:      https://v13.rte-ckeditor-image.ddev.site/
-# - TYPO3 v14:      https://v14.rte-ckeditor-image.ddev.site/
-# - Backend:        [version].rte-ckeditor-image.ddev.site/typo3/
-# - Credentials:    admin / Joh316!!
+| URL | Purpose |
+|-----|---------|
+| `https://rte-ckeditor-image.ddev.site/` | Overview landing page |
+| `https://docs.rte-ckeditor-image.ddev.site/` | Rendered documentation |
+| `https://v13.rte-ckeditor-image.ddev.site/` | TYPO3 v13 instance |
+| `https://v14.rte-ckeditor-image.ddev.site/` | TYPO3 v14 instance |
+| `https://v13.rte-ckeditor-image.ddev.site/typo3/` | v13 backend (login `admin` / `Joh316!!`) |
+| `https://v14.rte-ckeditor-image.ddev.site/typo3/` | v14 backend (same credentials) |
 
-# Individual commands
+```bash
 make start                   # Start DDEV environment
 make setup                   # Complete setup (docs + install)
 make docs                    # Render extension documentation
 ```
 
-**Included Packages:**
-- **Bootstrap Package** (v15.0+) - Automatically installed to provide frontend rendering infrastructure
-- **TYPO3 Styleguide** - UI pattern reference for testing
-- All packages pre-configured for immediate testing of:
-  - Image insertion and editing in RTE
-  - Click-to-enlarge functionality on frontend
-  - Caption editing (WYSIWYG mode)
-  - Image alignment and styling
+The DDEV environment is preconfigured for testing image insertion in the RTE, click-to-enlarge behaviour, caption WYSIWYG editing, image alignment, and image-style application.
 
-### Local Development (No DDEV)
+### Local development (no DDEV)
 
 ```bash
-# Quick start
 composer install
-make help                    # See all available targets
+make help                    # Show all available targets
 
-# Development workflow
-make lint                    # Run all linters
-make format                  # Fix code style
+make lint                    # Run all linters (phplint + phpstan + rector + cgl + docs)
+make format                  # Auto-fix code style (php-cs-fixer)
 make test                    # Run tests
-make ci                      # Full CI check (pre-commit)
+make ci                      # Full CI pipeline (pre-commit equivalent)
 ```
 
-See [AGENTS.md](AGENTS.md) for complete development guide, code standards, and PR checklist.
+The full development guide — code standards, CI matrix, PR checklist, security boundaries — lives in [AGENTS.md](AGENTS.md).
 
-## Deployment
+### Quality gates
 
-- Developed on [GitHub](https://github.com/netresearch/t3x-rte_ckeditor_image)
-- [Composer repository](https://packagist.org/packages/netresearch/rte-ckeditor-image)
-- [TYPO3 Extension Repository](https://extensions.typo3.org/extension/rte_ckeditor_image)
-- New versions automatically uploaded to TER via GitHub Action when creating a release
+- **PHPStan level 10** with `phpstan-strict-rules`, `phpstan-deprecation-rules`, and `phpat` architecture rules — zero baseline errors.
+- **PHP-CS-Fixer** (`@Symfony` ruleset, risky rules enabled).
+- **Rector** for automated TYPO3 modernization (`ssch/typo3-rector`).
+- **PHPUnit** unit and functional suites with SQLite-backed functional tests.
+- **Playwright** E2E suite running against both v13 and v14 in CI.
+- **Infection** mutation testing.
+- **php-fuzzer** fuzz harnesses for `ImageAttributeParser` and `RteImageSoftReferenceParser`.
+- **CI matrix**: PHP 8.2 / 8.3 / 8.4 / 8.5 × TYPO3 ^13.4 / ^14.3 — 8 combinations for build, plus blocking E2E on v13 and v14.
 
-## Verifying Releases
+---
 
-Release tags are GPG-signed and include [SLSA Level 3](https://slsa.dev) provenance attestation for supply chain integrity.
+## Verifying releases
+
+Every release tag is **GPG-signed** and ships with **SLSA Level 3** provenance attestation for supply-chain integrity.
 
 ### Verify tag signature
 
 ```bash
-# Verify the GPG signature on a release tag
 git tag -v <release-tag>
 ```
 
 ### Verify SLSA provenance
 
 ```bash
-# Verify provenance of a release asset (when assets are attached)
 gh attestation verify <downloaded-file> \
   --repo netresearch/t3x-rte_ckeditor_image
 ```
 
-## About
+See [SLSA](https://slsa.dev) for the framework overview and [the attestations index](https://github.com/netresearch/t3x-rte_ckeditor_image/attestations) for this project's published provenance.
 
-Developed and maintained by [Netresearch DTT GmbH](https://www.netresearch.de/).
+### Distribution channels
+
+- **Composer** — [packagist.org/packages/netresearch/rte-ckeditor-image](https://packagist.org/packages/netresearch/rte-ckeditor-image) (recommended)
+- **TYPO3 Extension Repository (TER)** — [extensions.typo3.org/extension/rte_ckeditor_image](https://extensions.typo3.org/extension/rte_ckeditor_image) (auto-published via GitHub Actions on tag)
+- **GitHub Releases** — [releases](https://github.com/netresearch/t3x-rte_ckeditor_image/releases) (source archives + provenance attestations)
+
+---
+
+## Contributing
+
+Contributions of code, documentation, translations, and bug reports are welcome. The extension is currently translated into **31 languages** via [Crowdin](https://crowdin.com).
+
+Before opening a PR, please:
+
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow, branch model, and commit conventions ([Conventional Commits](https://www.conventionalcommits.org/), validated by commitlint).
+2. Run `make ci` locally to mirror the pre-commit and CI checks.
+3. Add tests for new code paths — unit, functional, or E2E as appropriate.
+4. Keep PRs focused (~300 net LOC is a good target).
+
+This project follows the [Contributor Covenant 3.0](CODE_OF_CONDUCT.md). For security findings, see [SECURITY.md](SECURITY.md).
+
+---
+
+## License & credits
+
+Licensed under the [**GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)**](LICENSE).
+
+Developed and maintained by [**Netresearch DTT GmbH**](https://www.netresearch.de/).
+
+Repository home: [github.com/netresearch/t3x-rte_ckeditor_image](https://github.com/netresearch/t3x-rte_ckeditor_image).
