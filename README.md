@@ -100,6 +100,19 @@ If your editorial workflow needs **inline images inside paragraphs** — with al
 
 > The CKEditor 5 plugin auto-integrates with **`GeneralHtmlSupport`** for image styles — no extra config required.
 
+### Version compatibility
+
+The `main` branch targets the current TYPO3 LTS releases. Earlier TYPO3 versions are served by dedicated, version-pinned branches. Composer selects the right series automatically from your installed TYPO3 version, or you can pin it explicitly (e.g. `composer require netresearch/rte-ckeditor-image:^12.0`).
+
+| TYPO3 | Extension branch | Latest release | PHP | Status |
+|-------|------------------|----------------|-----|--------|
+| **13.4 LTS / 14.3 LTS** | [`main`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/main) | 13.10.0 | 8.2 – 8.5 | **Actively maintained** (CKEditor 5) |
+| **12.4 LTS** | [`TYPO3_12`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_12) | 12.0.12 | 8.1+ | Maintained (bugfixes) |
+| **11.5 LTS** | [`TYPO3_11`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_11) | 11.0.17 | 7.4+ | End of life — available, no further updates |
+| **10.4 LTS** | [`TYPO3_10`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_10) | 10.2.5 | — | End of life — available, no further updates |
+
+> The `TYPO3_12` and `main` branches use **CKEditor 5** (matching TYPO3 core's CKEditor 5 integration from v12 onward); the `TYPO3_11` and `TYPO3_10` branches use the legacy **CKEditor 4**. The features described below target `main` (TYPO3 v13/v14).
+
 ---
 
 ## Installation
