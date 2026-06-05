@@ -25,17 +25,24 @@ lib.parseFunc_RTE {
         # IMPORTANT: Use the extension key "rte_ckeditor_image" (underscores) in
         # EXT: paths, NOT the Composer package name "rte-ckeditor-image" (hyphens).
         #
-        # To override, add your paths with priority > 0:
+        # To override, add your paths with priority > 0 INSIDE preUserFunc.* —
+        # TYPO3's stdWrap_preUserFunc only forwards $conf['preUserFunc.'] to the
+        # callable, so a settings.* block placed as a sibling of preUserFunc
+        # never reaches ImageRenderingService::buildTemplatePaths().
         #
-        # settings.templateRootPaths {
+        # preUserFunc.settings.templateRootPaths {
         #     10 = EXT:my_sitepackage/Resources/Private/Templates/
         # }
-        # settings.partialRootPaths {
+        # preUserFunc.settings.partialRootPaths {
         #     10 = EXT:my_sitepackage/Resources/Private/Partials/
         # }
-        # settings.layoutRootPaths {
+        # preUserFunc.settings.layoutRootPaths {
         #     10 = EXT:my_sitepackage/Resources/Private/Layouts/
         # }
+        #
+        # The same settings.* block must also be added under
+        # lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc for
+        # captioned (figure-wrapped) images.
         #
         # See Documentation/Examples/Template-Overrides.rst for details.
         #******************************************************

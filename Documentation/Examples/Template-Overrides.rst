@@ -190,13 +190,35 @@ In your site package, create the override directory:
 Step 2: Configure TypoScript
 ----------------------------
 
-Add the template path to your TypoScript setup:
+Add the template path to your TypoScript setup. The ``settings.*`` block
+must live **inside** ``preUserFunc.`` — that is the only sub-array TYPO3
+forwards to the rendering callable (see
+:php:`ContentObjectRenderer::stdWrap_preUserFunc()`, which passes only
+``$conf['preUserFunc.']`` to the user function). Placing
+``settings.templateRootPaths`` as a sibling of ``preUserFunc`` has no
+effect — the configuration never reaches
+:php:`ImageRenderingService::buildTemplatePaths()`.
 
 ..  code-block:: typoscript
     :caption: EXT:my_sitepackage/Configuration/TypoScript/setup.typoscript
 
-    lib.parseFunc_RTE.tags.img {
+    lib.parseFunc_RTE.tags.img.preUserFunc {
         # Add your templates with higher priority (higher number = higher priority)
+        settings.templateRootPaths {
+            10 = EXT:my_sitepackage/Resources/Private/Templates/
+        }
+        settings.partialRootPaths {
+            10 = EXT:my_sitepackage/Resources/Private/Partials/
+        }
+        settings.layoutRootPaths {
+            10 = EXT:my_sitepackage/Resources/Private/Layouts/
+        }
+    }
+
+    # Captioned images render as <figure> blocks and are processed via
+    # externalBlocks.figure.stdWrap.preUserFunc (renderFigure). The same
+    # settings.* block has to be duplicated here for figure rendering.
+    lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc {
         settings.templateRootPaths {
             10 = EXT:my_sitepackage/Resources/Private/Templates/
         }
@@ -210,14 +232,11 @@ Add the template path to your TypoScript setup:
 
 ..  note::
 
-    The configuration must be placed within ``lib.parseFunc_RTE.tags.img``
-    (not directly in ``lib.parseFunc_RTE``). The same configuration can be
-    added to ``externalBlocks.figure.stdWrap`` for images wrapped in
-    ``<figure>`` blocks (captioned images). Figures are processed via
-    ``externalBlocks``, not ``tags.figure`` — placing the configuration
-    under ``tags.figure`` has no effect. Inline images wrapped in ``<a>``
-    are rendered by ``tags.img`` (recursively, inside the link wrapper), so
-    they already pick up the configuration defined under ``tags.img``.
+    Figures are processed via ``externalBlocks``, not ``tags.figure`` —
+    placing the configuration under ``tags.figure`` has no effect. Inline
+    images wrapped in ``<a>`` are rendered by ``tags.img`` (recursively,
+    inside the link wrapper), so they already pick up the configuration
+    defined under ``tags.img.preUserFunc``.
 
 Step 3: Create override templates
 ---------------------------------

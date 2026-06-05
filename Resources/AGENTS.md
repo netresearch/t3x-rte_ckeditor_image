@@ -66,10 +66,24 @@ Figure wrappers are only created when there is a caption. Alignment classes with
 
 ## Template Override Mechanism
 
-Integrators can override templates via TypoScript:
+Integrators can override templates via TypoScript. The `settings.*` block
+must live inside `preUserFunc.` because TYPO3 only passes
+`$conf['preUserFunc.']` to the rendering callable (see
+`ContentObjectRenderer::stdWrap_preUserFunc()`):
 
 ```typoscript
-lib.parseFunc_RTE.tags.img {
+lib.parseFunc_RTE.tags.img.preUserFunc {
+    settings.templateRootPaths {
+        10 = EXT:my_sitepackage/Resources/Private/Templates/
+    }
+    settings.partialRootPaths {
+        10 = EXT:my_sitepackage/Resources/Private/Partials/
+    }
+}
+
+# Figures (captioned images) need the same block under the
+# externalBlocks.figure.stdWrap.preUserFunc that runs renderFigure().
+lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc {
     settings.templateRootPaths {
         10 = EXT:my_sitepackage/Resources/Private/Templates/
     }
