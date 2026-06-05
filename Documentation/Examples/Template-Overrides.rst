@@ -190,7 +190,7 @@ In your site package, create the override directory:
 Step 2: Configure TypoScript
 ----------------------------
 
-Add the template path to your TypoScript setup. The ``settings.*`` block
+Add the template path to your TypoScript setup. The ``settings.`` block
 must live **inside** ``preUserFunc.`` — that is the only sub-array TYPO3
 forwards to the rendering callable (see
 :php:`ContentObjectRenderer::stdWrap_preUserFunc()`, which passes only
@@ -204,29 +204,33 @@ effect — the configuration never reaches
 
     lib.parseFunc_RTE.tags.img.preUserFunc {
         # Add your templates with higher priority (higher number = higher priority)
-        settings.templateRootPaths {
-            10 = EXT:my_sitepackage/Resources/Private/Templates/
-        }
-        settings.partialRootPaths {
-            10 = EXT:my_sitepackage/Resources/Private/Partials/
-        }
-        settings.layoutRootPaths {
-            10 = EXT:my_sitepackage/Resources/Private/Layouts/
+        settings {
+            templateRootPaths {
+                10 = EXT:my_sitepackage/Resources/Private/Templates/
+            }
+            partialRootPaths {
+                10 = EXT:my_sitepackage/Resources/Private/Partials/
+            }
+            layoutRootPaths {
+                10 = EXT:my_sitepackage/Resources/Private/Layouts/
+            }
         }
     }
 
     # Captioned images render as <figure> blocks and are processed via
     # externalBlocks.figure.stdWrap.preUserFunc (renderFigure). The same
-    # settings.* block has to be duplicated here for figure rendering.
+    # settings. block has to be duplicated here for figure rendering.
     lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc {
-        settings.templateRootPaths {
-            10 = EXT:my_sitepackage/Resources/Private/Templates/
-        }
-        settings.partialRootPaths {
-            10 = EXT:my_sitepackage/Resources/Private/Partials/
-        }
-        settings.layoutRootPaths {
-            10 = EXT:my_sitepackage/Resources/Private/Layouts/
+        settings {
+            templateRootPaths {
+                10 = EXT:my_sitepackage/Resources/Private/Templates/
+            }
+            partialRootPaths {
+                10 = EXT:my_sitepackage/Resources/Private/Partials/
+            }
+            layoutRootPaths {
+                10 = EXT:my_sitepackage/Resources/Private/Layouts/
+            }
         }
     }
 
