@@ -160,4 +160,106 @@ class SelectImageControllerTest extends UnitTestCase
 
         self::assertTrue($result, 'Admin user should always have access');
     }
+
+    /**
+     * Helper to invoke calculateDisplayDimensions and return a typed result.
+     *
+     * @return array<string, int>
+     */
+    private function invokeCalculateDisplayDimensions(
+        int $originalWidth,
+        int $originalHeight,
+        int $maxWidth,
+        int $maxHeight,
+    ): array {
+        $result = $this->invokeMethod(
+            $this->getSubject(),
+            'calculateDisplayDimensions',
+            [$originalWidth, $originalHeight, $maxWidth, $maxHeight],
+        );
+        self::assertIsArray($result);
+
+        /** @var array<string, int> $result */
+        return $result;
+    }
+
+    /**
+     * Regression test for issue #846: a portrait image larger than both
+     * maxWidth and maxHeight must keep its aspect ratio instead of being
+     * clamped to maxWidth x maxHeight (which squashed it into a square).
+     *
+     * @test
+     */
+    public function calculateDisplayDimensionsPreservesAspectRatioWhenBothLimitsExceeded(): void
+    {
+        $result = $this->invokeCalculateDisplayDimensions(2000, 3000, 1000, 1000);
+
+        // Shared scale factor 1000/3000 -> 667 x 1000, NOT 1000 x 1000.
+        self::assertSame(667, $result['width']);
+        self::assertSame(1000, $result['height']);
+        self::assertLessThanOrEqual(1000, $result['width']);
+        self::assertLessThanOrEqual(1000, $result['height']);
+    }
+
+    /**
+     * @test
+     */
+    public function calculateDisplayDimensionsKeepsOriginalWhenWithinLimits(): void
+    {
+        $result = $this->invokeCalculateDisplayDimensions(800, 600, 1000, 1000);
+
+        self::assertSame(800, $result['width']);
+        self::assertSame(600, $result['height']);
+    }
+
+    /**
+     * @test
+     */
+    public function calculateDisplayDimensionsScalesLandscapeByWidth(): void
+    {
+        $result = $this->invokeCalculateDisplayDimensions(4000, 1000, 1000, 1000);
+
+        // Scale factor 1000/4000 = 0.25 -> 1000 x 250.
+        self::assertSame(1000, $result['width']);
+        self::assertSame(250, $result['height']);
+    }
+
+    /**
+     * @test
+     */
+    public function calculateDisplayDimensionsScalesPortraitWithDefaultHeightLimit(): void
+    {
+        // Default config (maxWidth 1920, maxHeight 9999): only the width is
+        // exceeded, so the height must scale down proportionally too.
+        $result = $this->invokeCalculateDisplayDimensions(2000, 3000, 1920, 9999);
+
+        self::assertSame(1920, $result['width']);
+        self::assertSame(2880, $result['height']);
+    }
+
+    /**
+     * @test
+     */
+    public function calculateDisplayDimensionsNeverReturnsZeroForExtremeAspectRatio(): void
+    {
+        // 10000 x 1 scaled to fit 1000 x 1000: the height would round to 0,
+        // which is invalid for image processing. It must be clamped to 1px.
+        $result = $this->invokeCalculateDisplayDimensions(10000, 1, 1000, 1000);
+
+        self::assertSame(1000, $result['width']);
+        self::assertSame(1, $result['height']);
+    }
+
+    /**
+     * @test
+     */
+    public function calculateDisplayDimensionsFallsBackToClampingForMissingDimensions(): void
+    {
+        // Unknown intrinsic size (0): cannot compute a ratio, fall back to
+        // independent clamping without dividing by zero.
+        $result = $this->invokeCalculateDisplayDimensions(0, 0, 1000, 1000);
+
+        self::assertSame(0, $result['width']);
+        self::assertSame(0, $result['height']);
+    }
 }

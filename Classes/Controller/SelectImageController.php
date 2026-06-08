@@ -132,12 +132,21 @@ class SelectImageController extends ElementBrowserController
         $maxDimensions = $this->getMaxDimensions($params);
         $processedFile = $this->processImage($file, $params, $maxDimensions);
 
+        $rawWidth          = $file->getProperty('width');
+        $rawHeight         = $file->getProperty('height');
+        $displayDimensions = $this->calculateDisplayDimensions(
+            is_numeric($rawWidth) ? (int) $rawWidth : 0,
+            is_numeric($rawHeight) ? (int) $rawHeight : 0,
+            $maxDimensions['width'],
+            $maxDimensions['height'],
+        );
+
         return new JsonResponse([
             'uid'       => $file->getUid(),
             'alt'       => $file->getProperty('alternative') ?? '',
             'title'     => $file->getProperty('title') ?? '',
-            'width'     => min($file->getProperty('width'), $maxDimensions['width']),
-            'height'    => min($file->getProperty('height'), $maxDimensions['height']),
+            'width'     => $displayDimensions['width'],
+            'height'    => $displayDimensions['height'],
             'url'       => $file->getPublicUrl(),
             'processed' => [
                 'width'  => $processedFile->getProperty('width'),
@@ -231,16 +240,76 @@ class SelectImageController extends ElementBrowserController
     {
         $rawWidth  = $params['width'] ?? $file->getProperty('width');
         $rawHeight = $params['height'] ?? $file->getProperty('height');
-        $width     = min($maxDimensions['width'], is_numeric($rawWidth) ? (int) $rawWidth : 0);
-        $height    = min($maxDimensions['height'], is_numeric($rawHeight) ? (int) $rawHeight : 0);
+
+        // Scale the requested dimensions into the configured limits while
+        // preserving the aspect ratio (see calculateDisplayDimensions), so the
+        // processed file matches the suggested display size (issue #846).
+        $dimensions = $this->calculateDisplayDimensions(
+            is_numeric($rawWidth) ? (int) $rawWidth : 0,
+            is_numeric($rawHeight) ? (int) $rawHeight : 0,
+            $maxDimensions['width'],
+            $maxDimensions['height'],
+        );
 
         return $file->process(
             ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
             [
-                'width'  => $width,
-                'height' => $height,
+                'width'  => $dimensions['width'],
+                'height' => $dimensions['height'],
             ],
         );
+    }
+
+    /**
+     * Calculate display dimensions that fit within the configured max limits
+     * while preserving the image's aspect ratio.
+     *
+     * When either dimension exceeds its limit, both dimensions are scaled by the
+     * same (smaller) factor. This prevents the distortion reported in issue #846,
+     * where width and height were clamped independently and a portrait image
+     * larger than both limits was squashed into a square.
+     *
+     * @param int $originalWidth  Original image width in pixels
+     * @param int $originalHeight Original image height in pixels
+     * @param int $maxWidth       Maximum allowed width
+     * @param int $maxHeight      Maximum allowed height
+     *
+     * @return array<string, int> Array with 'width' and 'height' keys
+     */
+    protected function calculateDisplayDimensions(
+        int $originalWidth,
+        int $originalHeight,
+        int $maxWidth,
+        int $maxHeight,
+    ): array {
+        // Without both positive dimensions an aspect ratio cannot be computed;
+        // fall back to independent clamping and avoid a division by zero.
+        if ($originalWidth <= 0 || $originalHeight <= 0) {
+            return [
+                'width'  => min(max(0, $originalWidth), $maxWidth),
+                'height' => min(max(0, $originalHeight), $maxHeight),
+            ];
+        }
+
+        // Image already fits: keep its original dimensions (never upscale).
+        if ($originalWidth <= $maxWidth && $originalHeight <= $maxHeight) {
+            return [
+                'width'  => $originalWidth,
+                'height' => $originalHeight,
+            ];
+        }
+
+        // Use the smaller scale so both dimensions end up within the limits.
+        $scale = min($maxWidth / $originalWidth, $maxHeight / $originalHeight);
+
+        // round() keeps the aspect ratio as close as possible and lands the
+        // limiting axis exactly on its max (avoiding float-floor off-by-one);
+        // max(1, ...) guarantees at least 1px for extreme aspect ratios so the
+        // processed dimensions never become 0.
+        return [
+            'width'  => max(1, (int) round($originalWidth * $scale)),
+            'height' => max(1, (int) round($originalHeight * $scale)),
+        ];
     }
 
     /**
