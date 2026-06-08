@@ -1,3 +1,9 @@
+# 12.0.14
+
+## BUGFIX
+
+- [BUGFIX] Image squashed/distorted when both `maxWidth` and `maxHeight` are exceeded ([#846](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/846)) — `SelectImageController` clamped each axis independently with `min()`, so an image larger than both limits was forced to `maxWidth × maxHeight`, destroying its aspect ratio (a portrait image was squashed into a square). Both dimensions are now scaled by a single shared factor so the image fits within the limits while keeping its aspect ratio ([#847](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/847)).
+
 # 12.0.13
 
 ## BUGFIX
