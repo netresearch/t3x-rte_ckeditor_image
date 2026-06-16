@@ -19,7 +19,7 @@ docker run --rm \
   -v "$(pwd)":/app \
   -w /app \
   -e BASE_URL=https://v13.rte-ckeditor-image.ddev.site \
-  mcr.microsoft.com/playwright:v1.60.0-noble \
+  mcr.microsoft.com/playwright:v1.61.0-noble \
   /bin/bash -c "npm install && npx playwright test"
 
 echo ""
