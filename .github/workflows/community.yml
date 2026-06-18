@@ -5,7 +5,10 @@ on:
     - cron: '0 0 * * *'
   issues:
     types: [opened]
-  pull_request_target:
+  # greetings only posts a first-time contributor comment via the reusable; it
+  # never checks out or runs PR head code. pull_request_target is required to
+  # comment on fork PRs.
+  pull_request_target: # zizmor: ignore[dangerous-triggers]
     types: [opened]
   workflow_dispatch:
 

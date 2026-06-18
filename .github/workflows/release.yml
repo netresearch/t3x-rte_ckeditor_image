@@ -15,8 +15,8 @@ jobs:
       id-token: write
       attestations: write
     with:
-      archive-prefix: rte-ckeditor-image
-      package-name: netresearch/rte-ckeditor-image
-      extension-key: rte_ckeditor_image
+      archive-prefix: 'rte-ckeditor-image'
+      package-name: 'netresearch/rte-ckeditor-image'
+      extension-key: 'rte_ckeditor_image'
     secrets:
       TYPO3_TER_ACCESS_TOKEN: ${{ secrets.TYPO3_TER_ACCESS_TOKEN }}

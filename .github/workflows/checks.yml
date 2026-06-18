@@ -1,0 +1,70 @@
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+  schedule:
+    - cron: '0 6 * * 1'
+
+permissions: {}
+
+# Security + quality jobs with their explicit per-call-site permissions. This
+# file is byte-identical and drift-enforced across every typo3-extension — the
+# extension-specific test matrix lives in ci.yml (intentional-drift). Every
+# `uses:` job grants exactly the reusable's caller contract; no reliance on
+# default_workflow_permissions.
+jobs:
+  security:
+    uses: netresearch/typo3-ci-workflows/.github/workflows/security.yml@main
+    permissions:
+      contents: read
+      security-events: write
+
+  fuzz:
+    uses: netresearch/typo3-ci-workflows/.github/workflows/fuzz.yml@main
+    permissions:
+      contents: read
+
+  license-check:
+    uses: netresearch/typo3-ci-workflows/.github/workflows/license-check.yml@main
+    permissions:
+      contents: read
+
+  codeql:
+    uses: netresearch/.github/.github/workflows/codeql.yml@main
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+  scorecard:
+    if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == github.event.repository.default_branch)
+    uses: netresearch/.github/.github/workflows/scorecard.yml@main
+    permissions:
+      contents: read
+      security-events: write
+      id-token: write
+      actions: read
+
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    uses: netresearch/.github/.github/workflows/dependency-review.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
+
+  pr-quality:
+    if: github.event_name == 'pull_request'
+    uses: netresearch/.github/.github/workflows/pr-quality.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
+
+  labeler:
+    if: github.event_name == 'pull_request'
+    uses: netresearch/.github/.github/workflows/labeler.yml@main
+    permissions:
+      contents: read
+      pull-requests: write

@@ -1,0 +1,17 @@
+# Label configuration for PR Labeler
+# https://github.com/actions/labeler
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ['Documentation/**/*', '**/*.md']
+tests:
+  - changed-files:
+      - any-glob-to-any-file: ['Tests/**/*', 'Build/phpunit/**/*']
+ci:
+  - changed-files:
+      - any-glob-to-any-file: ['.github/**/*', 'Build/**/*']
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file: ['composer.json', 'composer.lock', 'package.json', 'package-lock.json', 'yarn.lock']
+configuration:
+  - changed-files:
+      - any-glob-to-any-file: ['Configuration/**/*', 'ext_*.php', 'composer.json']

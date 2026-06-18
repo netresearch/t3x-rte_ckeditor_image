@@ -8,23 +8,20 @@ on:
   schedule:
     - cron: '0 6 * * 1'
 
-permissions: {}
+permissions:
+  contents: read
 
+# Per-extension test matrix (intentional-drift). Security/quality jobs are in checks.yml.
 jobs:
   ci:
     uses: netresearch/typo3-ci-workflows/.github/workflows/ci.yml@main
     permissions:
       contents: read
-      # `actions: read` lets the reusable workflow's preflight gate query
-      # actions/workflows/{file}/runs and skip the post-merge `push` run
-      # when a successful `merge_group` run for the same SHA exists. Same
-      # rationale for e2e/security/fuzz/license-check below.
-      actions: read
     with:
-        php-versions: '["8.2","8.3","8.4","8.5"]'
-        typo3-versions: '["^13.4.21","^14.3"]'
-        run-functional-tests: true
-        typo3-packages: '["typo3/cms-core","typo3/cms-rte-ckeditor"]'
+      php-versions: '["8.2","8.3","8.4","8.5"]'
+      typo3-versions: '["^13.4.21","^14.3"]'
+      run-functional-tests: true
+      typo3-packages: '["typo3/cms-core","typo3/cms-rte-ckeditor"]'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -34,16 +31,17 @@ jobs:
   # visible in specific configurations. See Build/Scripts/runTests.sh -X
   # for variant definitions.
   #
-  # Advisory mode: new variants are not yet listed in the repo's
-  # required_status_checks ruleset, so a failing variant won't block
-  # merge. Once each variant stabilizes (failures investigated/fixed),
-  # the corresponding context can be added to the ruleset to make it
-  # blocking.
+  # Blocking: all six "e2e / E2E (TYPO3 <ver>, <variant>)" contexts are
+  # listed in the repo's `default` branch ruleset as required status
+  # checks, so a failing variant blocks merge. Keep the job name, the
+  # typo3-versions matrix, and the setup-variants list in sync with the
+  # ruleset's required_status_checks — renaming any of them silently
+  # detaches the requirement (the old context never reports and the PR
+  # stays BLOCKED waiting on it).
   e2e:
     uses: netresearch/typo3-ci-workflows/.github/workflows/e2e.yml@main
     permissions:
       contents: read
-      actions: read
     with:
       typo3-versions: '["^13.4.21","^14.3"]'
       typo3-packages: '["typo3/cms-core","typo3/cms-rte-ckeditor"]'
@@ -51,144 +49,3 @@ jobs:
       setup-script: 'Build/Scripts/ci-e2e.sh'
       artifact-path: 'Build/test-results/'
       timeout-minutes: 45
-
-  security:
-    uses: netresearch/typo3-ci-workflows/.github/workflows/security.yml@main
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
-
-  fuzz:
-    uses: netresearch/typo3-ci-workflows/.github/workflows/fuzz.yml@main
-    permissions:
-      contents: read
-      actions: read
-    with:
-      run-fuzz-tests: false
-      run-mutation-tests: false
-
-  license-check:
-    uses: netresearch/typo3-ci-workflows/.github/workflows/license-check.yml@main
-    permissions:
-      contents: read
-      actions: read
-
-  scorecard:
-    if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == github.event.repository.default_branch)
-    uses: netresearch/.github/.github/workflows/scorecard.yml@main
-    permissions:
-      contents: read
-      security-events: write
-      id-token: write
-      actions: read
-
-  dependency-review:
-    if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
-    uses: netresearch/.github/.github/workflows/dependency-review.yml@main
-    permissions:
-      contents: read
-      pull-requests: write
-
-  pr-quality:
-    if: github.event_name == 'pull_request'
-    uses: netresearch/.github/.github/workflows/pr-quality.yml@main
-    permissions:
-      contents: read
-      pull-requests: write
-
-  sonarqube:
-    # Sonar covers push to main + same-repo PRs. Fork PRs do not receive
-    # repository secrets, so SONAR_TOKEN would be empty and the scan would
-    # fail; skip them. merge_group / schedule add no new signal (same code
-    # already analyzed) and would only burn analysis quota.
-    #
-    # Inline (not the language-agnostic
-    # netresearch/.github/.github/workflows/sonarqube.yml) so we can run
-    # PHPUnit with coverage and feed the resulting Clover report to the
-    # scanner — the reusable workflow only checks out + scans, with no
-    # test execution. Single PHP/TYPO3 combo to keep CI cost bounded;
-    # the `ci` job still exercises the full matrix.
-    if: >-
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.head.repo.full_name == github.repository)
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
-        with:
-          egress-policy: audit
-
-      - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          # Sonar requires full history for accurate blame / new-code detection.
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
-        with:
-          php-version: '8.3'
-          tools: composer:v2
-          coverage: xdebug
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Composer dependencies
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-sonar-${{ hashFiles('composer.json') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-sonar-
-
-      - name: Install TYPO3
-        run: |
-          composer require --no-update "typo3/cms-core:^14.3" "typo3/cms-rte-ckeditor:^14.3"
-          composer install --prefer-dist --no-progress
-
-      - name: Run PHP unit tests with coverage
-        env:
-          XDEBUG_MODE: coverage
-        # Reuses the existing composer script (which writes to
-        # .Build/logs/clover-unit.xml) so the CI command matches what
-        # developers run locally — same Xdebug driver, same output paths.
-        run: composer ci:coverage:unit
-
-      - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: '24'
-
-      - name: Run JS unit tests with coverage
-        # Vitest writes lcov to Tests/JavaScript/coverage/lcov.info,
-        # picked up via `sonar.javascript.lcov.reportPaths` in
-        # sonar-project.properties. Coverage is bounded — only files
-        # importable without the CKEditor module graph (typolink-parser,
-        # sanitize-src, select-image-bparams) get instrumented;
-        # typo3image.js itself can't be loaded by vitest.
-        #
-        # Vitest's v8 provider emits SF paths relative to the cwd
-        # (Tests/JavaScript), so they read as "../../Resources/...".
-        # SonarCloud's scanner anchors SF lines to the project root and
-        # otherwise warns "Could not resolve N file paths" → 0% coverage.
-        # Strip the "../../" prefix so SF reads "Resources/..." (project
-        # root-relative) and the scanner can match it to sonar.sources.
-        run: |
-          cd Tests/JavaScript
-          npm ci --silent
-          npm test -- --coverage
-          sed -i 's|^SF:\.\./\.\./|SF:|g' coverage/lcov.info
-
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e # v8.2.0
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: 'https://sonarcloud.io'
