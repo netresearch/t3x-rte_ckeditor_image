@@ -31,11 +31,13 @@ jobs:
   # visible in specific configurations. See Build/Scripts/runTests.sh -X
   # for variant definitions.
   #
-  # Advisory mode: new variants are not yet listed in the repo's
-  # required_status_checks ruleset, so a failing variant won't block
-  # merge. Once each variant stabilizes (failures investigated/fixed),
-  # the corresponding context can be added to the ruleset to make it
-  # blocking.
+  # Blocking: all six "e2e / E2E (TYPO3 <ver>, <variant>)" contexts are
+  # listed in the repo's `default` branch ruleset as required status
+  # checks, so a failing variant blocks merge. Keep the job name, the
+  # typo3-versions matrix, and the setup-variants list in sync with the
+  # ruleset's required_status_checks — renaming any of them silently
+  # detaches the requirement (the old context never reports and the PR
+  # stays BLOCKED waiting on it).
   e2e:
     uses: netresearch/typo3-ci-workflows/.github/workflows/e2e.yml@main
     permissions:
