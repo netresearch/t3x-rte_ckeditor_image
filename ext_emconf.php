@@ -20,7 +20,7 @@ $EM_CONF[$_EXTKEY] = [
     'author_email'   => 'sebastian.koschel@netresearch.de, sebastian.mendel@netresearch.de, rico.sonntag@netresearch.de',
     'author_company' => 'Netresearch DTT GmbH',
     'state'          => 'stable',
-    'version'        => '13.10.0',
+    'version'        => '13.10.1',
     'constraints'    => [
         'depends' => [
             // ext_emconf does not support disjoint ranges. The supported

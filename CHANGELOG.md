@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.10.1] - 2026-06-18
+
+### Documentation
+
+- **Corrected template-override TypoScript examples** ([#845](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/845)) — the documented override mechanism was broken: `settings.templateRootPaths`/`partialRootPaths`/`layoutRootPaths` placed as siblings of `preUserFunc` never reach `ImageRenderingService::buildTemplatePaths()`, because `stdWrap_preUserFunc` only forwards `$conf['preUserFunc.']` to the callable. The `Configuration/TypoScript/ImageRendering/setup.typoscript` comments and `Documentation/Examples/Template-Overrides.rst` now show the correct nested structure, plus the matching `lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc` block required for captioned (figure-wrapped) images.
+- **README restructured** ([#842](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/842)) — narrative, SEO, and GitHub-UX conventions, plus a documented TYPO3 version-compatibility branch matrix.
+
 ## [13.10.0] - 2026-05-28
 
 ### Changed
