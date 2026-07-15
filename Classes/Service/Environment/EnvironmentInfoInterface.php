@@ -55,8 +55,6 @@ interface EnvironmentInfoInterface
      *
      * Returns the authenticated backend user from the current session,
      * or null if not in a backend context.
-     *
-     * @return BackendUserAuthentication|null
      */
     public function getBackendUser(): ?BackendUserAuthentication;
 }
