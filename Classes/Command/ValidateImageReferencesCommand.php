@@ -145,8 +145,6 @@ class ValidateImageReferencesCommand extends Command
     }
 
     /**
-     * @param mixed $rawInclude
-     *
      * @return list<SrcOrigin>
      */
     private function parseIncludeOption(mixed $rawInclude, SymfonyStyle $io): array
