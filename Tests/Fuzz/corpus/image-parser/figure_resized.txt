@@ -1,0 +1,1 @@
+<figure class="image image_resized" style="width:26.43%;"><img src="/fileadmin/example.jpg" width="1334" height="1000" data-htmlarea-file-uid="1" /><figcaption>Caption</figcaption></figure>
