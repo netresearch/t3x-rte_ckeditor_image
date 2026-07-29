@@ -33,6 +33,7 @@ final readonly class ImageRenderingDto
      * @param LinkDto|null        $link           Link/popup configuration (nullable for linked images)
      * @param bool                $isMagicImage   Whether this is a magic image (TYPO3 processing enabled)
      * @param string|null         $figureClass    Figure element class for alignment (image-left, image-center, image-right)
+     * @param string|null         $figureWidth    Author resize width from the CKEditor 5 figure (e.g. `26.43%`), already normalised
      */
     public function __construct(
         public string $src,
@@ -45,5 +46,6 @@ final readonly class ImageRenderingDto
         public ?LinkDto $link,
         public bool $isMagicImage,
         public ?string $figureClass = null,
+        public ?string $figureWidth = null,
     ) {}
 }

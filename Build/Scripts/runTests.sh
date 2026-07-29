@@ -1241,6 +1241,33 @@ $bodytext790 = '<p>Lorem ipsum dolor sit amet.</p><p>Another paragraph here for 
 $stmt->execute([1, 'text', 'Plain RTE Bodytext (#790)', $bodytext790, 0, 0, $now, $now, 0, 11008]);
 echo "Plain bodytext CE created for #790\n";
 
+// CE for #863: CKEditor 5 image resize. The resize handles store the chosen
+// size as a `width` declaration on the <figure> (class image_resized) and leave
+// the <img> at its intrinsic pixel size. The frontend used to replace that
+// declaration with the computed max-width, so every resized image rendered full
+// width. Covers percentage, pixel, no-caption and linked variants, plus a figure
+// whose style carries declarations that must never reach the output.
+$bodytextResize = '<figure class="image image_resized" style="width:25%;">'
+    . '<img src="fileadmin/user_upload/example.jpg" alt="Resize Percent Caption" width="400" height="300" data-htmlarea-file-uid="1" />'
+    . '<figcaption>Resized to 25 percent</figcaption></figure>'
+    . '<figure class="image image_resized" style="width:25%;">'
+    . '<img src="fileadmin/user_upload/example.jpg" alt="Resize Percent No Caption" width="400" height="300" data-htmlarea-file-uid="1" />'
+    . '</figure>'
+    . '<figure class="image image_resized" style="width:120px;">'
+    . '<img src="fileadmin/user_upload/example.jpg" alt="Resize Pixels Caption" width="400" height="300" data-htmlarea-file-uid="1" />'
+    . '<figcaption>Resized to 120 pixels</figcaption></figure>'
+    . '<figure class="image image_resized" style="width:25%;">'
+    . '<a href="https://typo3.org" target="_blank"><img src="fileadmin/user_upload/example.jpg" alt="Resize Linked" width="400" height="300" data-htmlarea-file-uid="1" /></a>'
+    . '<figcaption>Resized and linked</figcaption></figure>'
+    . '<figure class="image image_resized" style="width:expression(alert(1));background:url(//evil.example/x);">'
+    . '<img src="fileadmin/user_upload/example.jpg" alt="Resize Unsafe Style" width="400" height="300" data-htmlarea-file-uid="1" />'
+    . '<figcaption>Unsafe declarations</figcaption></figure>'
+    . '<figure class="image">'
+    . '<img src="fileadmin/user_upload/example.jpg" alt="Resize Never Applied" width="400" height="300" data-htmlarea-file-uid="1" />'
+    . '<figcaption>Never resized</figcaption></figure>';
+$stmt->execute([1, 'text', 'Image Resize (#863)', $bodytextResize, 0, 0, $now, $now, 0, 11264]);
+echo "Image resize CE created for #863\n";
+
 CONTENT_EOF
 
         # Start MariaDB container for E2E tests

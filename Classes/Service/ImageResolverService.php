@@ -102,6 +102,7 @@ class ImageResolverService
      * @param ServerRequestInterface    $request        Current request
      * @param array<string,string>|null $linkAttributes Optional link attributes for linked images
      * @param string|null               $figureClass    Optional figure class for alignment (image-left, etc.)
+     * @param string|null               $figureWidth    Optional normalised resize width from the figure (e.g. `26.43%`)
      *
      * @return ImageRenderingDto|null Validated DTO or null if validation fails
      */
@@ -111,6 +112,7 @@ class ImageResolverService
         ServerRequestInterface $request,
         ?array $linkAttributes = null,
         ?string $figureClass = null,
+        ?string $figureWidth = null,
     ): ?ImageRenderingDto {
         // Extract file UID from data-htmlarea-file-uid attribute
         $fileUid = (int) ($attributes['data-htmlarea-file-uid'] ?? 0);
@@ -193,6 +195,14 @@ class ImageResolverService
                 $htmlAttributes['class'] = trim(($existingClass !== '' ? $existingClass . ' ' : '') . $figureClass);
             }
 
+            // Same for the resize width: without a <figure> to carry it, the width
+            // has to go on the <img> itself. `height:auto` keeps the aspect ratio,
+            // which the height attribute would otherwise pin to the intrinsic size.
+            // The declaration is composed here, never copied from the input.
+            if ($caption === '' && $figureWidth !== null && $figureWidth !== '') {
+                $htmlAttributes['style'] = 'width:' . $figureWidth . ';height:auto';
+            }
+
             // Build link DTO if link attributes provided OR if popup attributes are present
             $link = null;
 
@@ -214,6 +224,7 @@ class ImageResolverService
                 link: $link,
                 isMagicImage: true,
                 figureClass: $figureClass !== '' ? $figureClass : null,
+                figureWidth: $figureWidth !== '' ? $figureWidth : null,
             );
         } catch (FileDoesNotExistException $exception) {
             $this->logger->log(
