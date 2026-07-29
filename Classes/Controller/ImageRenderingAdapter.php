@@ -736,6 +736,7 @@ class ImageRenderingAdapter
         $caption         = $parsed['caption'];
         $linkAttributes  = $parsed['link'];
         $figureClass     = $parsed['figureClass'] ?? '';
+        $figureWidth     = $parsed['figureWidth'] ?? '';
 
         // Skip images without file UID (external images)
         $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
@@ -761,9 +762,10 @@ class ImageRenderingAdapter
         // This ensures the correct template (LinkWithCaption) is selected
         $linkAttributesOrNull = $linkAttributes !== [] ? $linkAttributes : null;
         $figureClassOrNull    = $figureClass !== '' ? $figureClass : null;
+        $figureWidthOrNull    = $figureWidth !== '' ? $figureWidth : null;
 
         // Resolve image to validated DTO
-        $dto = $this->resolverService->resolve($imageAttributes, $conf, $request, $linkAttributesOrNull, $figureClassOrNull);
+        $dto = $this->resolverService->resolve($imageAttributes, $conf, $request, $linkAttributesOrNull, $figureClassOrNull, $figureWidthOrNull);
 
         if (!$dto instanceof ImageRenderingDto) {
             // Resolution failed - return original content

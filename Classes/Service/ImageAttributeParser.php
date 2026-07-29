@@ -165,14 +165,14 @@ class ImageAttributeParser
      *
      * @param string $html HTML string containing figure-wrapped image
      *
-     * @return array{attributes: array<string,string>, caption: string, link: array<string,string>, figureClass: string}
+     * @return array{attributes: array<string,string>, caption: string, link: array<string,string>, figureClass: string, figureWidth: string}
      *
      * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
      */
     public function parseFigureWithCaption(string $html): array
     {
         if (trim($html) === '') {
-            return ['attributes' => [], 'caption' => '', 'link' => [], 'figureClass' => ''];
+            return ['attributes' => [], 'caption' => '', 'link' => [], 'figureClass' => '', 'figureWidth' => ''];
         }
 
         $dom = new DOMDocument();
@@ -191,7 +191,7 @@ class ImageAttributeParser
         $figures = $xpath->query('//figure');
 
         if ($figures === false || $figures->length === 0) {
-            return ['attributes' => [], 'caption' => '', 'link' => [], 'figureClass' => ''];
+            return ['attributes' => [], 'caption' => '', 'link' => [], 'figureClass' => '', 'figureWidth' => ''];
         }
 
         /** @var DOMElement $figure */
@@ -199,6 +199,9 @@ class ImageAttributeParser
 
         // Extract figure class (for alignment: image-left, image-center, image-right)
         $figureClass = $figure->getAttribute('class') ?? '';
+
+        // Extract the resize width CKEditor 5 stores on the figure (image_resized)
+        $figureWidth = $this->parseCssWidthDeclaration($figure->getAttribute('style') ?? '');
 
         // Extract image attributes
         $images     = $xpath->query('.//img', $figure);
@@ -231,7 +234,60 @@ class ImageAttributeParser
             $linkAttributes = $this->extractAttributes($link);
         }
 
-        return ['attributes' => $attributes, 'caption' => $caption, 'link' => $linkAttributes, 'figureClass' => $figureClass];
+        return ['attributes' => $attributes, 'caption' => $caption, 'link' => $linkAttributes, 'figureClass' => $figureClass, 'figureWidth' => $figureWidth];
+    }
+
+    /**
+     * Parse the `width` declaration out of a CSS declaration list.
+     *
+     * CKEditor 5's image resize feature writes the chosen size as a single
+     * `width` declaration on the <figure> element (class `image_resized`) and
+     * leaves the <img> at its intrinsic pixel size.
+     *
+     * Only a bare <number><unit> value is recognised. Functions (`calc()`,
+     * `var()`, `url()`, legacy `expression()`), keywords (`auto`, `inherit`),
+     * `!important` and unsupported units do not match the grammar and yield an
+     * empty string, as does a declaration list without a `width`.
+     *
+     * The return value is rebuilt from the parsed number and unit, so no part of
+     * the input string is ever carried into the output. Later declarations win,
+     * matching CSS cascade order within a declaration list.
+     *
+     * @param string $style Value of a `style` attribute
+     *
+     * @return string Normalised width (e.g. `26.43%`), or empty string if absent or unparsable
+     *
+     * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/863
+     */
+    private function parseCssWidthDeclaration(string $style): string
+    {
+        if (trim($style) === '') {
+            return '';
+        }
+
+        $value = null;
+
+        foreach (explode(';', $style) as $declaration) {
+            $parts = explode(':', $declaration, 2);
+
+            if (count($parts) !== 2) {
+                continue;
+            }
+
+            if (strtolower(trim($parts[0])) === 'width') {
+                $value = trim($parts[1]);
+            }
+        }
+
+        if ($value === null) {
+            return '';
+        }
+
+        if (preg_match('/^(\d+(?:\.\d+)?|\.\d+)\s*(%|px|rem|em)$/i', $value, $matches) !== 1) {
+            return '';
+        }
+
+        return $matches[1] . strtolower($matches[2]);
     }
 
     /**

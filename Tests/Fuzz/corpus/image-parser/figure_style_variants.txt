@@ -1,0 +1,1 @@
+<figure class="image" style="float:left;width:.5rem;;width:expression(alert(1));background:url(//x/y);width:120PX !important"><a href="/t"><img src="a.jpg" data-htmlarea-file-uid="2" /></a><figcaption>c</figcaption></figure>

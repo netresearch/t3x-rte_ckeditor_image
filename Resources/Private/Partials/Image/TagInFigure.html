@@ -1,10 +1,16 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:comment>
+    A resized figure carries the author width, so the image has to fill it —
+    otherwise the intrinsic pixel width would overflow the narrowed figure.
+    height:auto keeps the aspect ratio against the height attribute.
+</f:comment>
+<f:variable name="imgStyle" value="{f:if(condition: image.figureWidth, then: 'width:100%;height:auto', else: image.htmlAttributes.style)}" />
 <img src="{image.src}"
      alt="{image.alt}"
      width="{image.width}"
      height="{image.height}"
      decoding="async"
      {f:if(condition: image.title, then: 'title="{image.title}"')}
-     {f:if(condition: image.htmlAttributes.style, then: 'style="{image.htmlAttributes.style}"')}
+     {f:if(condition: imgStyle, then: 'style="{imgStyle}"')}
      {f:if(condition: image.htmlAttributes.loading, then: 'loading="{image.htmlAttributes.loading}"')} />
 </html>

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Service;
 
 use Netresearch\RteCKEditorImage\Service\ImageAttributeParser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -748,5 +749,174 @@ class ImageAttributeParserTest extends TestCase
         $result = $this->parser->parseLinkWithImages($html);
 
         self::assertSame('Über uns', $result['link']['title']);
+    }
+
+    // ========================================================================
+    // parseFigureWithCaption() Tests - Figure resize width (CKEditor 5 image_resized)
+    //
+    // CKEditor 5's resize handles write the chosen size as a `width` declaration
+    // on the <figure> element and leave the <img> at its intrinsic pixel size.
+    // The width is re-emitted from the parsed number + unit, never copied from
+    // the stored string, so no author-controlled CSS can reach the output.
+    //
+    // @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/863
+    // ========================================================================
+
+    #[Test]
+    public function parseFigureWithCaptionExtractsPercentageResizeWidth(): void
+    {
+        $html = '<figure class="image image_resized" style="width:26.43%;">'
+            . '<img src="/fileadmin/example.jpg" width="1334" height="1000" data-htmlarea-file-uid="41667"/>'
+            . '<figcaption>Caption</figcaption>'
+            . '</figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('26.43%', $result['figureWidth']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionKeepsResizeWidthAlongsideFigureClassAndCaption(): void
+    {
+        $html = '<figure class="image image_resized" style="width:50%;">'
+            . '<img src="/fileadmin/example.jpg" data-htmlarea-file-uid="1"/>'
+            . '<figcaption>Caption</figcaption>'
+            . '</figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('50%', $result['figureWidth']);
+        self::assertSame('image image_resized', $result['figureClass']);
+        self::assertSame('Caption', $result['caption']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionExtractsResizeWidthFromLinkedImage(): void
+    {
+        $html = '<figure class="image image_resized" style="width:33%;">'
+            . '<a href="/target"><img src="/fileadmin/example.jpg" data-htmlarea-file-uid="1"/></a>'
+            . '<figcaption>Caption</figcaption>'
+            . '</figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('33%', $result['figureWidth']);
+        self::assertSame('/target', $result['link']['href']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionReturnsEmptyResizeWidthWhenFigureHasNoStyle(): void
+    {
+        $html = '<figure class="image"><img src="test.jpg"/><figcaption>Caption</figcaption></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('', $result['figureWidth']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionReturnsEmptyResizeWidthWhenNoFigurePresent(): void
+    {
+        $result = $this->parser->parseFigureWithCaption('<img src="test.jpg"/>');
+
+        self::assertSame('', $result['figureWidth']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionTakesResizeWidthFromOuterFigureOnly(): void
+    {
+        $html = '<figure class="image image_resized" style="width:40%;">'
+            . '<img src="outer.jpg" data-htmlarea-file-uid="1"/>'
+            . '<figcaption>Outer <figure class="image" style="width:90%;"><img src="inner.jpg"/></figure></figcaption>'
+            . '</figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('40%', $result['figureWidth']);
+    }
+
+    /**
+     * Values a resize can legitimately produce, plus the formatting noise CKEditor,
+     * RTE transformations and hand-edited HTML introduce around them.
+     *
+     * @return array<string, array{0: string, 1: string}>
+     */
+    public static function acceptedFigureWidthProvider(): array
+    {
+        return [
+            'percentage with decimals'   => ['width:26.43%;', '26.43%'],
+            'percentage integer'         => ['width:50%', '50%'],
+            'pixel value'                => ['width:320px;', '320px'],
+            'rem value'                  => ['width:20rem;', '20rem'],
+            'em value'                   => ['width:15em;', '15em'],
+            'zero width'                 => ['width:0%;', '0%'],
+            'leading decimal point'      => ['width:.5%;', '.5%'],
+            'spaces around colon'        => ['width : 26.43% ;', '26.43%'],
+            'uppercase property'         => ['WIDTH:26.43%;', '26.43%'],
+            'uppercase unit'             => ['width:320PX;', '320px'],
+            'space before unit'          => ['width:26.43 %;', '26.43%'],
+            'trailing empty declaration' => ['width:50%;;', '50%'],
+            'width after another decl'   => ['float:left;width:50%;', '50%'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('acceptedFigureWidthProvider')]
+    public function parseFigureWithCaptionNormalisesAcceptedResizeWidths(string $style, string $expected): void
+    {
+        $html = '<figure class="image image_resized" style="' . $style . '"><img src="test.jpg"/></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame($expected, $result['figureWidth']);
+    }
+
+    /**
+     * Anything that is not a plain length or percentage is dropped, so the figure
+     * falls back to the width the extension computes itself.
+     *
+     * @return array<string, array{0: string}>
+     */
+    public static function rejectedFigureWidthProvider(): array
+    {
+        return [
+            'no width declaration'    => ['border:1px solid red;'],
+            'auto keyword'            => ['width:auto;'],
+            'inherit keyword'         => ['width:inherit;'],
+            'calc expression'         => ['width:calc(100% - 10px);'],
+            'legacy IE expression'    => ['width:expression(alert(1));'],
+            'url function'            => ['width:url(//evil.example/x);'],
+            'important flag'          => ['width:50%!important;'],
+            'negative percentage'     => ['width:-50%;'],
+            'unitless number'         => ['width:50;'],
+            'unsupported unit'        => ['width:50vw;'],
+            'empty value'             => ['width:;'],
+            'var reference'           => ['width:var(--x);'],
+            'comment smuggling'       => ['width:50%/*x*/;'],
+            'attribute break attempt' => ['width:50%&quot; onload=&quot;alert(1)'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('rejectedFigureWidthProvider')]
+    public function parseFigureWithCaptionRejectsNonLengthResizeWidths(string $style): void
+    {
+        $html = '<figure class="image" style="' . $style . '"><img src="test.jpg"/></figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('', $result['figureWidth']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionDropsSiblingDeclarationsNextToResizeWidth(): void
+    {
+        $html = '<figure class="image image_resized" style="width:26%;background:url(//evil.example/x);">'
+            . '<img src="test.jpg"/>'
+            . '</figure>';
+
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('26%', $result['figureWidth']);
     }
 }

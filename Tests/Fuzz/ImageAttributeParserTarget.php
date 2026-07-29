@@ -10,8 +10,9 @@ declare(strict_types=1);
 /**
  * Fuzzing target for ImageAttributeParser.
  *
- * Tests parseImageAttributes() and parseLinkWithImages() with random/mutated inputs
- * to find crashes, memory exhaustion, or unexpected exceptions.
+ * Tests parseImageAttributes(), parseLinkWithImages() and parseFigureWithCaption()
+ * with random/mutated inputs to find crashes, memory exhaustion, or unexpected
+ * exceptions.
  *
  * Usage:
  *   composer ci:fuzz:image-parser
@@ -32,6 +33,10 @@ $config->setTarget(function (string $input) use ($parser): void {
 
     // Test parseLinkWithImages() - handles <a><img></a> structures
     $parser->parseLinkWithImages($input);
+
+    // Test parseFigureWithCaption() - handles <figure><img><figcaption> structures
+    // including the CSS width declaration parsed off the figure's style attribute
+    $parser->parseFigureWithCaption($input);
 });
 
 // Limit maximum input length to prevent excessive memory usage
