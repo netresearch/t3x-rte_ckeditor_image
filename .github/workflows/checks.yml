@@ -27,8 +27,6 @@ jobs:
     permissions:
       contents: read
       security-events: write
-    secrets:
-      GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
   zizmor:
     uses: netresearch/.github/.github/workflows/zizmor.yml@main
