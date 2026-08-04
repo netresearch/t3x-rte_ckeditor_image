@@ -185,3 +185,7 @@ Nearest AGENTS.md wins. User prompts override files.
 - For PHP patterns, follow PSR-12 + TYPO3 CGL
 - For TypoScript, follow TYPO3 conventions
 - For JavaScript, follow CKEditor 5 plugin patterns in this repo
+
+## Commit Signing
+
+Signed commits are required: `git commit -S --signoff`. The `require-signed-commits` ruleset on the default branch rejects unsigned commits at merge time, and the DCO check additionally requires the `Signed-off-by` trailer. Quickest setup is SSH signing — register your SSH key as a *signing key* on your GitHub account, then `git config gpg.format ssh && git config user.signingkey ~/.ssh/<key>.pub`.
