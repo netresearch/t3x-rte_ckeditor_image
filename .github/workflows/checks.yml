@@ -73,3 +73,62 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+
+  # One stable check name for this workflow, so a branch ruleset has something
+  # it can require on EVERY event.
+  #
+  # Requiring the individual job checks breaks a merge queue. Two of the jobs
+  # above are pull-request-only by nature — `dependency-review` compares the
+  # dependency delta of a pull request, `pr-quality` inspects its title, body
+  # and author — and a `uses:` job whose `if:` is false is skipped WITHOUT
+  # materialising the called workflow's job names, so `dependency-review /
+  # Dependency Review` and `pr-quality / Quality Gate` simply never appear on a
+  # merge_group ref. A ruleset requiring them holds every queue entry until
+  # `check_response_timeout_minutes` expires and then dequeues it. Measured
+  # 2026-08-05 on netresearch/t3x-nr-llm: a pull request sat in the queue past
+  # the 60-minute timeout waiting for contexts that cannot arrive.
+  #
+  # The same is true of the code-scanning checks (`CodeQL`, `betterleaks`,
+  # `zizmor`, `Opengrep OSS`): those are posted by the github-advanced-security
+  # app against the pull request, not by these jobs, so they are not requirable
+  # for a queue either. Require `All security checks` instead — it depends on
+  # every job here and its name does not change with the event.
+  gate:
+    name: All security checks
+    needs:
+      - security
+      - gitleaks
+      - zizmor
+      - fuzz
+      - license-check
+      - codeql
+      - scorecard
+      - dependency-review
+      - pr-quality
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions: {}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        with:
+          egress-policy: audit
+
+      # `skipped` passes: a job that does not apply to this event has nothing
+      # to say about the commit. Only `failure` and `cancelled` fail the gate.
+      - name: Fail unless every job succeeded or was skipped
+        shell: bash
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          bad=$(jq -r '
+            to_entries[]
+            | select(.value.result != "success" and .value.result != "skipped")
+            | "\(.key)=\(.value.result)"' <<<"$RESULTS")
+          if [ -n "$bad" ]; then
+            echo "::error::Security checks gate failed — $(tr "\n" " " <<<"$bad")"
+            exit 1
+          fi
+          jq -r 'to_entries[] | "  \(.key): \(.value.result)"' <<<"$RESULTS"
+          echo "All jobs succeeded or were skipped."
