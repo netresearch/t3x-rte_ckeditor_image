@@ -15,6 +15,13 @@ permissions: {}
 # extension-specific test matrix lives in ci.yml (intentional-drift). Every
 # `uses:` job grants exactly the reusable's caller contract; no reliance on
 # default_workflow_permissions.
+#
+# ANY JOB ADDED BELOW MUST ALSO BE ADDED TO `gate.needs`. The gate is the only
+# context a ruleset requires, so a job missing from that list is a job whose
+# failure cannot block a merge — the coverage loss is silent, and nothing in CI
+# catches it. GitHub Actions does not support YAML anchors in workflow files,
+# so the list cannot be shared with the job definitions; it has to be kept in
+# step by hand.
 jobs:
   security:
     uses: netresearch/typo3-ci-workflows/.github/workflows/security.yml@main
@@ -44,12 +51,20 @@ jobs:
     permissions:
       contents: read
 
+  # `auto` rather than the `actions` default: a TYPO3 extension that ships
+  # JavaScript had none of it analysed, because the default scans workflows
+  # only and GitHub disables code-scanning default setup — which did cover
+  # javascript-typescript — as soon as an advanced configuration uploads its
+  # first SARIF. Merging this file is what triggers that handover, so the
+  # narrow default silently removed a control that had been in place.
   codeql:
     uses: netresearch/.github/.github/workflows/codeql.yml@main
     permissions:
       contents: read
       security-events: write
       actions: read
+    with:
+      languages: auto
 
   scorecard:
     if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == github.event.repository.default_branch)
@@ -111,7 +126,7 @@ jobs:
     permissions: {}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           egress-policy: audit
 
