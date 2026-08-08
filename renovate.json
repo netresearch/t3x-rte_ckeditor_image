@@ -1,13 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
-    ":automergeMinor",
-    ":automergePatch"
+    "github>netresearch/renovate-config"
   ],
-  "automerge": true,
-  "automergeType": "pr",
-  "platformAutomerge": true,
   "customManagers": [
     {
       "customType": "regex",
