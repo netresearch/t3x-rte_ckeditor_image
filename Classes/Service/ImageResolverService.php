@@ -83,6 +83,22 @@ class ImageResolverService
         't3:',      // TYPO3 internal links (t3://page?uid=123)
     ];
 
+    /**
+     * Accepted values for the HTML loading attribute.
+     *
+     * Mirrors the enum of the styles.content.image.lazyLoading setting in
+     * EXT:fluid_styled_content. Anything else is discarded rather than passed
+     * through - most importantly an unresolved TypoScript constant, which is a
+     * non-empty string and would otherwise reach the markup verbatim.
+     *
+     * @var array<int, string>
+     */
+    private const ALLOWED_LAZY_LOADING_VALUES = [
+        'lazy',
+        'eager',
+        'auto',
+    ];
+
     private readonly LoggerInterface $logger;
 
     public function __construct(
@@ -412,7 +428,9 @@ class ImageResolverService
             ['lib.', 'contentElement.', 'settings.', 'media.', 'lazyLoading'],
         );
 
-        return is_string($lazyLoading) && $lazyLoading !== '' ? $lazyLoading : null;
+        return is_string($lazyLoading) && in_array($lazyLoading, self::ALLOWED_LAZY_LOADING_VALUES, true)
+            ? $lazyLoading
+            : null;
     }
 
     /**
