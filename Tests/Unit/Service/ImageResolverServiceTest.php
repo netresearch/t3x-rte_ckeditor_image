@@ -22,6 +22,8 @@ use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Security\SvgSanitizer;
+use TYPO3\CMS\Core\TypoScript\AST\Node\RootNode;
+use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
 
 /**
  * Test case for ImageResolverService.
@@ -1236,5 +1238,70 @@ final class ImageResolverServiceTest extends TestCase
         );
 
         self::assertNull($result, 'resolve() must return null on unexpected exceptions, not throw');
+    }
+
+    /**
+     * @return array<string, array{0: mixed, 1: string|null}>
+     */
+    public static function lazyLoadingValueProvider(): array
+    {
+        return [
+            'lazy is accepted'                => ['lazy', 'lazy'],
+            'eager is accepted'               => ['eager', 'eager'],
+            'auto is accepted'                => ['auto', 'auto'],
+            'unresolved constant is rejected' => ['{$styles.content.image.lazyLoading}', null],
+            'arbitrary string is rejected'    => ['sometimes', null],
+            'empty string is rejected'        => ['', null],
+            'non-string is rejected'          => [1, null],
+        ];
+    }
+
+    /**
+     * An unresolved TypoScript constant is a non-empty string. Accepting any
+     * non-empty value put it into the markup verbatim as
+     * loading="{$styles.content.image.lazyLoading}" on installations without
+     * EXT:fluid_styled_content, which is the only package defining that constant.
+     */
+    #[Test]
+    #[DataProvider('lazyLoadingValueProvider')]
+    public function getLazyLoadingConfigurationAcceptsOnlyValidLoadingValues(
+        mixed $configured,
+        ?string $expected,
+    ): void {
+        $frontendTypoScript = new FrontendTypoScript(new RootNode(), [], [], []);
+        $frontendTypoScript->setSetupArray([
+            'lib.' => [
+                'contentElement.' => [
+                    'settings.' => [
+                        'media.' => [
+                            'lazyLoading' => $configured,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->method('getAttribute')
+            ->with('frontend.typoscript')
+            ->willReturn($frontendTypoScript);
+
+        self::assertSame(
+            $expected,
+            $this->callPrivateMethod($this->service, 'getLazyLoadingConfiguration', [$request]),
+        );
+    }
+
+    #[Test]
+    public function getLazyLoadingConfigurationReturnsNullWithoutFrontendTypoScript(): void
+    {
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->method('getAttribute')
+            ->with('frontend.typoscript')
+            ->willReturn(null);
+
+        self::assertNull(
+            $this->callPrivateMethod($this->service, 'getLazyLoadingConfiguration', [$request]),
+        );
     }
 }
