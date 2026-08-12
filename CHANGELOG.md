@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.10.2] - 2026-08-12
+
+### Fixed
+
+- **Unresolved TypoScript constant no longer reaches the markup** ([#881](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/881), closes [#880](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/880)) — on installations without `EXT:fluid_styled_content`, RTE images rendered as `loading="{$styles.content.image.lazyLoading}"`. That constant is defined only by fluid_styled_content, so it never resolved and TypoScript passed the placeholder through as a plain string. `ImageResolverService::getLazyLoadingConfiguration()` accepted any non-empty string and therefore let it into the `<img>` tag. It now accepts only `lazy`, `eager` and `auto` — the enum the core setting defines — and omits the attribute otherwise.
+
 ## [13.10.1] - 2026-06-18
 
 ### Documentation
@@ -1043,7 +1049,7 @@ _See [GitHub release](https://github.com/netresearch/t3x-rte_ckeditor_image/rele
 - Update image reference index ([#45](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/45), [#62](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/62))
 - Compatibility with TYPO3 CMS 9.x
 
-[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.9.1...HEAD
+[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.10.2...HEAD
 [13.9.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.9.0...v13.9.1
 [13.9.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.3...v13.9.0
 [13.8.3]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.2...v13.8.3
