@@ -20,7 +20,7 @@ Handles image insertion, processing, rendering with captions, links, popups, qua
 
 ## Architecture Overview
 
-Three-layer design for frontend image rendering:
+Three-layer design for frontend image rendering (component map and dependency rules: `docs/ARCHITECTURE.md`):
 
 1. **ImageRenderingAdapter** (Controller) -- TypoScript entry points: `renderImageAttributes()`, `renderInlineLink()`, `renderFigure()`
 2. **ImageResolverService** -- Business logic: file resolution, security validation, quality multipliers, builds `ImageRenderingDto`
