@@ -1,4 +1,4 @@
-<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-02-13 -->
+<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-08-18 -->
 
 # AGENTS.md -- Classes
 
@@ -6,6 +6,19 @@
 
 PHP source code for the TYPO3 CKEditor image extension. PSR-4 autoloaded under `Netresearch\RteCKEditorImage\`.
 All files use `declare(strict_types=1)`. PHPStan level 10 with strict-rules.
+
+## Setup
+
+`composer install` from the repo root. Pre-commit hooks (husky) install via the root `package.json` `prepare` script and run phplint, php-cs-fixer, and phpstan automatically.
+
+## Commands
+
+| Task | Command |
+|------|---------|
+| Lint + static analysis | `composer ci:test:php:lint` / `composer ci:test:php:phpstan` |
+| Code style (auto-fix) | `composer ci:cgl` |
+| Unit tests | `composer ci:test:php:unit` |
+| All checks | `composer ci:test` |
 
 ## Architecture
 
@@ -64,7 +77,7 @@ RteImagesDbHook -> RteImageProcessor -> ImageTagParser + ImageFileResolver + Ima
 | `Listener/TCA/RteSoftrefEnforcer.php` | Event listener: auto-enforces RTE softref config on TCA fields |
 | `Utils/ProcessedFilesHandler.php` | Wrapper around TYPO3 ImageService for processed file creation |
 
-## Golden Samples (follow these patterns)
+## Patterns to Follow (Golden Samples)
 
 | Pattern | Reference |
 |---------|-----------|
@@ -149,3 +162,9 @@ All services configured in `Configuration/Services.yaml`:
 - [ ] Security-sensitive changes reviewed for XSS, SSRF, protocol injection
 - [ ] `ext_emconf.php` version updated if releasing
 - [ ] No deprecated TYPO3 APIs
+
+## When stuck
+
+- Rendering pipeline questions: `Documentation/Architecture/System-Architecture.rst` and the ADRs in `Documentation/Architecture/`
+- Frontend rendering issues: `Documentation/Troubleshooting/Frontend-Issues.rst`
+- Behavior questions: find the mirroring test in `Tests/Unit/` or `Tests/Functional/` -- tests are the executable spec

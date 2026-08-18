@@ -1,4 +1,4 @@
-<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-02-22 -->
+<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-08-18 -->
 
 # AGENTS.md -- Documentation
 
@@ -6,6 +6,10 @@
 
 TYPO3 extension documentation in RST format for rendering on docs.typo3.org.
 Includes architecture decision records (ADRs), API reference, CKEditor plugin docs, and integration examples.
+
+## Prerequisites
+
+Rendering needs Docker (official `render-guides` image) or the DDEV environment (`ddev docs`). Linting (`make docs-lint`) needs only the repo checkout.
 
 ## Structure
 
@@ -58,7 +62,7 @@ Documentation/
   Images/                        -- Screenshots and diagrams
 ```
 
-## Rendering Docs
+## Build & Render
 
 | Task | Command |
 |------|---------|
@@ -68,7 +72,7 @@ Documentation/
 | Lint docs | `make docs-lint` or `./Build/Scripts/validate-docs.sh` |
 | Fix docs | `make docs-fix` or `./Build/Scripts/validate-docs.sh --fix` |
 
-## RST Conventions
+## Style Conventions (RST)
 
 - **Format**: RST (reStructuredText), NOT Markdown (except ADRs/RFCs in Architecture/)
 - **Headings**: `=` for H1, `-` for H2, `~` for H3, `^` for H4
@@ -88,7 +92,7 @@ Documentation/
 - `.. t3-field-list-table::` for TYPO3-style tables
 - `.. figure::` with `:alt:` and `:zoom: lightbox` for screenshots
 
-## Screenshots
+## Examples: Screenshots
 
 - Format: PNG only
 - Location: `Documentation/Images/`
@@ -113,3 +117,14 @@ Documentation/
 - [ ] Code examples are tested and correct
 - [ ] Follows docs.typo3.org structure
 - [ ] New features have corresponding documentation
+
+## Security
+
+- No internal hostnames, credentials, tokens, or PII in docs, code examples, or screenshots
+- Use `example.com` / placeholder domains in examples
+
+## When stuck
+
+- Render errors: `make docs-lint` (or `./Build/Scripts/validate-docs.sh`) pinpoints invalid RST
+- Directive reference: [docs.typo3.org "How to document"](https://docs.typo3.org/m/typo3/docs-how-to-document/main/en-us/)
+- Structure questions: mirror an existing chapter under `Documentation/`

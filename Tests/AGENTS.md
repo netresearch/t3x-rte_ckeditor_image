@@ -1,10 +1,21 @@
-<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-02-13 -->
+<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-08-18 -->
 
 # AGENTS.md -- Tests
 
 ## Overview
 
 Multi-layer test suite: unit, functional, E2E (Playwright), JavaScript (Vitest), architecture (phpat), fuzz (php-fuzzer), and mutation (Infection).
+
+## Setup
+
+- PHP suites: `composer install`; functional tests additionally need `typo3DatabaseDriver=pdo_sqlite` in the environment
+- JS suite: `composer ci:test:js:unit` runs `npm ci` in `Tests/JavaScript/` on demand -- no manual setup
+- E2E: needs Docker (`Build/Scripts/runTests.sh` pulls the images)
+
+## Conventions
+
+- PHPStan level 10 and PSR-12 + TYPO3 CGL apply to test code, same as source (specific ignores in `Build/phpstan.neon`)
+- Test class mirrors source path; one behavior per test; data providers for parameterization
 
 ## Test Structure
 
@@ -93,7 +104,6 @@ Tests/
 - Override checkbox toggle: use vanilla JS `page.evaluate()` -- jQuery not on `window` in TYPO3 v13+
 - CKEditor: bare `<p><img></p>` renders as block widget (dblclick won't open dialog). Must include surrounding text
 - `clearCookies()` before frontend navigation after backend login (session interference)
-- v14 E2E runs with `continue-on-error` (non-blocking while stabilizing)
 - E2E setup variants via `-X` flag exercise the extension under different sitepackage / FSC / Bootstrap-Package combinations:
   - `-X fsc` (default): fluid_styled_content site set, no Bootstrap. Long-standing baseline.
   - `-X core-only`: minimal install, neither FSC nor Bootstrap. Models the fresh-install evaluator scenario; surfaces the bug class in [#790](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/790).
@@ -103,11 +113,11 @@ Tests/
 
 ## CI Environment
 
-- CI matrix: PHP 8.2/8.3/8.4/8.5 x TYPO3 ^13.4/^14.3
-- CGL runs only on PHP 8.2 (code style is PHP version independent)
-- Coverage runs only on PHP 8.5 + TYPO3 ^14.3
+- CI runs via the centralized `netresearch/typo3-ci-workflows` reusable workflows; the per-repo matrix lives in `.github/workflows/ci.yml`
+- CI matrix: PHP 8.2/8.3/8.4/8.5 x TYPO3 ^13.4.21/^14.3
+- CGL runs once, on the first PHP version of the matrix (currently 8.2); coverage upload is handled by the central workflow
 - JavaScript tests run once (not PHP/TYPO3 version dependent)
-- E2E matrix: TYPO3 ^13.4 + ^14.3 x setup-variants `[fsc, core-only, bootstrap]` = 6 jobs. Setup variants are advisory (not in required_status_checks ruleset) until each stabilizes.
+- E2E matrix: TYPO3 ^13.4.21 + ^14.3 x setup-variants `[fsc, core-only, bootstrap]` = 6 jobs, all blocking required status checks in the `default` branch ruleset -- keep job names in sync with the ruleset (see the comment in `ci.yml`)
 
 ## PR Checklist
 
@@ -118,3 +128,18 @@ Tests/
 - [ ] Fixtures are minimal and focused
 - [ ] No hardcoded credentials or paths in tests
 - [ ] Coverage has not decreased
+
+## Security
+
+- No credentials, tokens, or real user data in tests or fixtures
+- Security regressions get a dedicated test (XSS, SSRF, protocol allowlist) -- existing ones live in `Unit/Service/Security/` and `Unit/Service/`
+
+## Examples
+
+Golden tests to copy from: `Unit/Service/ImageResolverServiceTest.php` (mock-based service test), `Functional/Controller/FigureCaptionRenderingTest.php` (TypoScript-driven rendering assertion), `E2E/tests/helpers/typo3-backend.ts` (shared E2E helpers).
+
+## When stuck
+
+- Flaky E2E: see the isolation and waiting rules under "E2E Test Patterns" -- most flakes are missing waits or shared content elements
+- Functional DB errors: check `typo3DatabaseDriver=pdo_sqlite` is set
+- CI-only failures: reproduce with `Build/Scripts/runTests.sh` (same Docker images as CI)
