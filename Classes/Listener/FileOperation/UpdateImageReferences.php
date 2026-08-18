@@ -216,7 +216,7 @@ class UpdateImageReferences
         $connection->update(
             $tableName,
             [$field => $value],
-            ['uid'  => $recuid],
+            ['uid' => $recuid],
         );
     }
 

@@ -124,8 +124,8 @@ class ValidateImageReferencesCommand extends Command
     {
         $definitions = [
             ['Scanned records' => (string) $result->getScannedRecords()],
-            ['Scanned images'   => (string) $result->getScannedImages()],
-            ['Issues found'     => (string) count($result->getIssues())],
+            ['Scanned images' => (string) $result->getScannedImages()],
+            ['Issues found' => (string) count($result->getIssues())],
             ['Affected records' => (string) $result->getAffectedRecords()],
         ];
 
