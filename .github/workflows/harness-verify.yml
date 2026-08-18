@@ -1,0 +1,23 @@
+name: Harness Verification
+
+# Verifies agent-harness consistency (AGENTS.md line budget, dead references,
+# documented commands vs composer.json/Makefile, docs/ structure) via
+# Build/Scripts/verify-harness.sh. Thin caller of the shared script-check
+# reusable, so the checkout pin and harden-runner are maintained centrally.
+# Exit 2 means warnings only and passes; exit 1 (errors) fails the check.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  harness-verify:
+    uses: netresearch/.github/.github/workflows/script-check.yml@main
+    permissions:
+      contents: read
+    with:
+      check-cmd: bash Build/Scripts/verify-harness.sh || [ $? -eq 2 ]
