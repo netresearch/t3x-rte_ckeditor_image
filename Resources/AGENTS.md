@@ -1,10 +1,23 @@
-<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-02-13 -->
+<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-08-18 -->
 
 # AGENTS.md -- Resources
 
 ## Overview
 
 Fluid templates for image rendering, XLIFF translation files (32 languages), CKEditor 5 plugin JavaScript, and CSS for editor styling.
+
+## Setup
+
+No build step: the CKEditor plugin (`Public/JavaScript/Plugins/typo3image.js`), CSS, and templates ship as-is. `composer install` is only needed to run the test suites.
+
+## Commands
+
+| Task | Command |
+|------|---------|
+| Validate XLIFF | `bash Build/Scripts/validate-xliff.sh` |
+| JS unit tests (plugin) | `composer ci:test:js:unit` |
+| Functional tests (templates) | `composer ci:test:php:functional` |
+| E2E (plugin + rendering) | `Build/Scripts/runTests.sh -s e2e -t 13 -p 8.5` |
 
 ## Directory Structure
 
@@ -64,7 +77,7 @@ Resources/
 
 Figure wrappers are only created when there is a caption. Alignment classes without caption go directly on the `<img>` element.
 
-## Template Override Mechanism
+## Examples: Template Overrides
 
 Integrators can override templates via TypoScript. The `settings.` block
 must live inside `preUserFunc.` because TYPO3 only passes
@@ -134,3 +147,15 @@ Default paths at priority 0 are always preserved. Custom paths use numeric keys 
 - [ ] CKEditor plugin changes tested with E2E and JavaScript unit tests
 - [ ] No sensitive data in resource files
 - [ ] Images are optimized (compressed, correct dimensions)
+
+## Security
+
+- Never add `style` attributes or new raw-output sinks to templates (CSS injection / XSS)
+- `f:format.raw` appears only in `Partials/Image/Figure.html` and `Link.html`, for values sanitized upstream in `ImageResolverService` -- never use it for new user-controlled values
+- Everything else relies on default Fluid output escaping -- do not disable it
+
+## When stuck
+
+- Template override not picked up: check the `preUserFunc` placement rules above (`settings.` must live inside `preUserFunc.`)
+- Rendering differences: run `Tests/Functional/Service/PartialPathResolutionTest.php` and the parseFunc functional tests
+- Plugin behavior: `Documentation/CKEditor/` and the JS unit tests in `Tests/JavaScript/`

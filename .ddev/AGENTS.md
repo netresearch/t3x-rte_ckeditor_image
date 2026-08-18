@@ -1,4 +1,4 @@
-<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-02-13 -->
+<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-08-18 -->
 
 # AGENTS.md -- .ddev
 
@@ -15,7 +15,7 @@ DDEV local development environment for multi-version TYPO3 testing. Supports v13
 - **no_project_mount**: true (custom mount setup)
 - **Hostnames**: `rte-ckeditor-image.ddev.site`, `v13.rte-ckeditor-image.ddev.site`, `v14.rte-ckeditor-image.ddev.site`, `docs.rte-ckeditor-image.ddev.site`
 
-## Custom Commands
+## Commands
 
 ### Host Commands (`.ddev/commands/host/`)
 
@@ -33,7 +33,7 @@ DDEV local development environment for multi-version TYPO3 testing. Supports v13
 | `ddev install-v14` | Install TYPO3 v14.3 LTS instance |
 | `ddev install-all` | Install both v13 and v14 |
 
-## Quick Start
+## Getting Started
 
 ```bash
 make up          # Start DDEV + run full setup (docs + v13 + v14)
@@ -51,8 +51,11 @@ ddev setup       # Install both TYPO3 versions + render docs
 | `make stop` | `ddev stop` | Stop DDEV |
 | `make setup` | `ddev setup` | Full setup |
 | `make docs` | `ddev docs` | Render documentation |
-| `make install-v13` | `ddev install-v13` | Install TYPO3 v13 only |
-| `make install-v14` | `ddev install-v14` | Install TYPO3 v14 only |
+| `make docs-lint` | `./Build/Scripts/validate-docs.sh` | Lint documentation |
+| `make docs-fix` | `./Build/Scripts/validate-docs.sh --fix` | Auto-fix documentation |
+| `make ddev-restart` | `ddev restart` | Restart DDEV containers |
+
+Single-version installs run directly via `ddev install-v13` / `ddev install-v14` (no Make wrappers).
 
 ## URLs (when running)
 
@@ -75,3 +78,20 @@ ddev setup       # Install both TYPO3 versions + render docs
 - [ ] Custom commands have descriptions
 - [ ] No hardcoded paths or credentials
 - [ ] Both v13 and v14 installations work
+
+## Security
+
+- No credentials or tokens in `config.yaml`, docker-compose overrides, or custom commands (local dev only, but files are committed)
+- Do not edit files marked `#ddev-generated` -- DDEV overwrites them
+
+## Examples
+
+- Fresh full environment: `make up` (= `ddev start` + `ddev setup`)
+- Re-render docs after RST changes: `ddev docs`
+- Run E2E against Docker: `ddev test-e2e`
+
+## Troubleshooting
+
+- Containers wedged: `make ddev-restart`; if still broken, `ddev poweroff && ddev start`
+- Docker not running: start Docker Desktop first (WSL2)
+- Broken TYPO3 instance: re-run `ddev install-v13` / `ddev install-v14`
