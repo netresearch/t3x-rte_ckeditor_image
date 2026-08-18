@@ -518,7 +518,7 @@ class RteImageReferenceValidator
         $connection->update(
             $tableName,
             [$field => $value],
-            ['uid'  => $recuid],
+            ['uid' => $recuid],
         );
     }
 
