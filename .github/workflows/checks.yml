@@ -3,7 +3,18 @@ name: Checks
 on:
   push:
     branches: [main]
+  # `ready_for_review` is NOT in the default type set (opened, synchronize,
+  # reopened), and without it a pull request opened as a draft never gets its
+  # auto-approval: `pr-quality`'s auto-approve job is gated on
+  # `github.event.pull_request.draft == false`, so it skips while the PR is a
+  # draft and nothing re-runs it when the draft is lifted. The PR then sits at
+  # `reviewDecision: REVIEW_REQUIRED` with nothing red, and the merge tooling
+  # reports the Copilot review quota — true, and not the cause.
+  #
+  # The Go templates already carry this type set in their own pr-quality.yml;
+  # this template folded that job into `checks.yml` and lost it on the way.
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   merge_group:
   schedule:
     - cron: '0 6 * * 1'
@@ -24,29 +35,39 @@ permissions: {}
 # step by hand.
 jobs:
   security:
+    # Ran on this SHA already; lifting a draft changes no code (see `on:`).
+    if: github.event.action != 'ready_for_review'
     uses: netresearch/typo3-ci-workflows/.github/workflows/security.yml@main
     permissions:
       contents: read
       security-events: write
 
   gitleaks:
+    # Ran on this SHA already; lifting a draft changes no code (see `on:`).
+    if: github.event.action != 'ready_for_review'
     uses: netresearch/.github/.github/workflows/gitleaks.yml@main
     permissions:
       contents: read
       security-events: write
 
   zizmor:
+    # Ran on this SHA already; lifting a draft changes no code (see `on:`).
+    if: github.event.action != 'ready_for_review'
     uses: netresearch/.github/.github/workflows/zizmor.yml@main
     permissions:
       contents: read
       security-events: write
 
   fuzz:
+    # Ran on this SHA already; lifting a draft changes no code (see `on:`).
+    if: github.event.action != 'ready_for_review'
     uses: netresearch/typo3-ci-workflows/.github/workflows/fuzz.yml@main
     permissions:
       contents: read
 
   license-check:
+    # Ran on this SHA already; lifting a draft changes no code (see `on:`).
+    if: github.event.action != 'ready_for_review'
     uses: netresearch/typo3-ci-workflows/.github/workflows/license-check.yml@main
     permissions:
       contents: read
@@ -58,6 +79,8 @@ jobs:
   # first SARIF. Merging this file is what triggers that handover, so the
   # narrow default silently removed a control that had been in place.
   codeql:
+    # Ran on this SHA already; lifting a draft changes no code (see `on:`).
+    if: github.event.action != 'ready_for_review'
     uses: netresearch/.github/.github/workflows/codeql.yml@main
     permissions:
       contents: read
