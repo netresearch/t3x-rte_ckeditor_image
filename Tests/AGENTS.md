@@ -68,7 +68,7 @@ Tests/
 | Unit tests | `composer ci:test:php:unit` | Fast, no DB needed |
 | Functional tests | `composer ci:test:php:functional` | Needs `typo3DatabaseDriver=pdo_sqlite` env var |
 | JavaScript tests | `composer ci:test:js:unit` | Runs in Tests/JavaScript/ via Vitest |
-| E2E tests | `Build/Scripts/e2e.sh -s e2e -t 13 -p 8.5 -X fsc` | Docker-based, TYPO3 v13 or v14, variant via `-X` |
+| E2E tests | `E2E_TYPO3_VERSION=13 E2E_VARIANT=fsc ./Build/Scripts/runTests.sh -s e2e -p 8.5` | Docker-based, TYPO3 v13 or v14, variant via `-X` |
 | Fuzz tests | `composer ci:fuzz` | 10,000 runs per target |
 | Mutation tests | `composer ci:mutation` | Infection, runs unit tests first |
 | Unit coverage | `composer ci:coverage:unit` | Outputs to `.Build/coverage-unit/` |
@@ -108,7 +108,7 @@ Tests/
   - `-X fsc` (default): fluid_styled_content site set, no Bootstrap. Long-standing baseline.
   - `-X core-only`: minimal install, neither FSC nor Bootstrap. Models the fresh-install evaluator scenario; surfaces the bug class in [#790](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/790).
   - `-X bootstrap`: FSC + Bootstrap Package (`^15.0` for v13, `^16.0` for v14). Common real-world setup.
-- CI invokes via `Build/Scripts/ci-e2e.sh` (wrapper that translates the workflow's `E2E_VARIANT`/`E2E_TYPO3_VERSION` env vars into runTests.sh CLI flags).
+- CI invokes via `Build/Scripts/ci-e2e.sh`, a thin wrapper that passes the workflow's `E2E_VARIANT`/`E2E_TYPO3_VERSION` through to `runTests.sh -s e2e`. The environment itself (MariaDB, TYPO3, PHP-FPM, Apache) is built by the shared runner from the hooks in `Build/Scripts/runTests.conf`.
 - Specs that fundamentally require a specific variant (e.g. Bootstrap lightbox CSS) should `test.skip(process.env.E2E_VARIANT === 'core-only', '...')` to keep the matrix clean.
 
 ## CI Environment
