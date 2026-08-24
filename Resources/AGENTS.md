@@ -17,7 +17,7 @@ No build step: the CKEditor plugin (`Public/JavaScript/Plugins/typo3image.js`), 
 | Validate XLIFF | `bash Build/Scripts/validate-xliff.sh` |
 | JS unit tests (plugin) | `composer ci:test:js:unit` |
 | Functional tests (templates) | `composer ci:test:php:functional` |
-| E2E (plugin + rendering) | `Build/Scripts/runTests.sh -s e2e -t 13 -p 8.5` |
+| E2E (plugin + rendering) | `Build/Scripts/e2e.sh -s e2e -t 13 -p 8.5` |
 
 ## Directory Structure
 

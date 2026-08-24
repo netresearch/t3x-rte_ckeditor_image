@@ -1,0 +1,1776 @@
+#!/usr/bin/env bash
+
+#
+# TYPO3 core test runner based on docker.
+#
+
+trap 'cleanUp;exit 2' SIGINT
+
+waitFor() {
+    local HOST=${1}
+    local PORT=${2}
+    local TESTCOMMAND="
+        COUNT=0;
+        while ! nc -z ${HOST} ${PORT}; do
+            if [ \"\${COUNT}\" -gt 20 ]; then
+              echo \"Can not connect to ${HOST} port ${PORT}. Aborting.\";
+              exit 1;
+            fi;
+            sleep 1;
+            COUNT=\$((COUNT + 1));
+        done;
+    "
+    ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name wait-for-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${IMAGE_ALPINE} /bin/sh -c "${TESTCOMMAND}"
+    if [[ $? -gt 0 ]]; then
+        kill -SIGINT -$$
+    fi
+}
+
+cleanUp() {
+    ATTACHED_CONTAINERS=$(${CONTAINER_BIN} ps --filter network=${NETWORK} --format='{{.Names}}')
+    for ATTACHED_CONTAINER in ${ATTACHED_CONTAINERS}; do
+        ${CONTAINER_BIN} kill ${ATTACHED_CONTAINER} >/dev/null
+    done
+    ${CONTAINER_BIN} network rm ${NETWORK} >/dev/null
+}
+
+# Remove a directory the e2e containers wrote into. They run as root, so on a
+# developer machine a plain `rm -rf` hits "Permission denied" on the files they
+# created — it fails quietly, the directory survives, and the next
+# `composer create-project` aborts with "Project directory is not empty".
+# A fresh CI runner never sees this. Delete from inside a container, which runs
+# as the same user that created the files.
+removeContainerOwnedDir() {
+    local target="${1}"
+    [ -d "${target}" ] || return 0
+    rm -rf "${target}" 2>/dev/null || true
+    if [ -d "${target}" ]; then
+        ${CONTAINER_BIN} run --rm -v "${target}:/target" ${IMAGE_PHP} \
+            sh -c 'rm -rf /target/* /target/.[!.]* 2>/dev/null; true' >/dev/null 2>&1 || true
+        rmdir "${target}" 2>/dev/null || true
+    fi
+}
+
+handleDbmsOptions() {
+    # -a, -d, -i depend on each other. Validate input combinations and set defaults.
+    case ${DBMS} in
+        mariadb)
+            [ -z "${DATABASE_DRIVER}" ] && DATABASE_DRIVER="mysqli"
+            if [ "${DATABASE_DRIVER}" != "mysqli" ] && [ "${DATABASE_DRIVER}" != "pdo_mysql" ]; then
+                echo "Invalid combination -d ${DBMS} -a ${DATABASE_DRIVER}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            [ -z "${DBMS_VERSION}" ] && DBMS_VERSION="10.2"
+            if ! [[ ${DBMS_VERSION} =~ ^(10.2|10.3|10.4|10.5|10.6|10.7|10.8|10.9|10.10|10.11|11.0|11.1)$ ]]; then
+                echo "Invalid combination -d ${DBMS} -i ${DBMS_VERSION}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            ;;
+        mysql)
+            [ -z "${DATABASE_DRIVER}" ] && DATABASE_DRIVER="mysqli"
+            if [ "${DATABASE_DRIVER}" != "mysqli" ] && [ "${DATABASE_DRIVER}" != "pdo_mysql" ]; then
+                echo "Invalid combination -d ${DBMS} -a ${DATABASE_DRIVER}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            [ -z "${DBMS_VERSION}" ] && DBMS_VERSION="5.5"
+            if ! [[ ${DBMS_VERSION} =~ ^(5.5|5.6|5.7|8.0)$ ]]; then
+                echo "Invalid combination -d ${DBMS} -i ${DBMS_VERSION}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            ;;
+        postgres)
+            if [ -n "${DATABASE_DRIVER}" ]; then
+                echo "Invalid combination -d ${DBMS} -a ${DATABASE_DRIVER}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            [ -z "${DBMS_VERSION}" ] && DBMS_VERSION="10"
+            if ! [[ ${DBMS_VERSION} =~ ^(10|11|12|13|14|15|16)$ ]]; then
+                echo "Invalid combination -d ${DBMS} -i ${DBMS_VERSION}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            ;;
+        sqlite)
+            if [ -n "${DATABASE_DRIVER}" ]; then
+                echo "Invalid combination -d ${DBMS} -a ${DATABASE_DRIVER}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            if [ -n "${DBMS_VERSION}" ]; then
+                echo "Invalid combination -d ${DBMS} -i ${DATABASE_DRIVER}" >&2
+                echo >&2
+                echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+                exit 1
+            fi
+            ;;
+        *)
+            echo "Invalid option -d ${DBMS}" >&2
+            echo >&2
+            echo "Use \".Build/Scripts/runTests.sh -h\" to display help and valid options" >&2
+            exit 1
+            ;;
+    esac
+}
+
+cleanCacheFiles() {
+    echo -n "Clean caches ... "
+    rm -rf \
+        .Build/.cache \
+        .php-cs-fixer.cache
+    echo "done"
+}
+
+cleanTestFiles() {
+    # test related
+    echo -n "Clean test related files ... "
+    rm -rf \
+        .Build/public/typo3temp/var/tests/
+    echo "done"
+}
+
+cleanRenderedDocumentationFiles() {
+    echo -n "Clean rendered documentation files ... "
+    rm -rf \
+        Documentation-GENERATED-temp
+    echo "done"
+}
+
+cleanComposer() {
+  rm -rf \
+    .Build/vendor \
+    .Build/bin \
+    composer.lock
+}
+
+stashComposerFiles() {
+    cp composer.json composer.json.orig
+    if [ -f "composer.json.testing" ]; then
+        cp composer.json composer.json.orig
+    fi
+}
+
+restoreComposerFiles() {
+    cp composer.json composer.json.testing
+    mv composer.json.orig composer.json
+}
+
+loadHelp() {
+    # Load help text into $HELP
+    read -r -d '' HELP <<EOF
+TYPO3 core test runner. Execute unit, functional and other test suites in
+a container based test environment. Handles execution of single test files,
+sending xdebug information to a local IDE and more.
+
+Usage: $0 [options] [file]
+
+Options:
+    -s <...>
+        Specifies which test suite to run
+            - cgl: cgl test and fix all php files
+            - clean: clean up build and testing related files
+            - cleanRenderedDocumentation: clean up rendered documentation files and folders (Documentation-GENERATED-temp)
+            - composer: Execute "composer" command, using -e for command arguments pass-through, ex. -e "ci:php:stan"
+            - composerInstall: "composer update", handy if host has no PHP
+            - composerInstallLowest: "composer update", handy if host has no PHP
+            - composerInstallHighest: "composer update", handy if host has no PHP
+            - coveralls: Generate coverage
+            - docsGenerate: Renders the extension ReST documentation.
+            - e2e: Playwright E2E tests (TYPO3 Core pattern, no DDEV)
+            - functional: functional tests
+            - fuzz: Run fuzz tests with php-fuzzer
+            - lint: PHP linting
+            - mutation: Run mutation tests with Infection
+            - unit: PHP unit tests
+
+    -a <mysqli|pdo_mysql>
+        Only with -s functional|functionalDeprecated
+        Specifies to use another driver, following combinations are available:
+            - mysql
+                - mysqli (default)
+                - pdo_mysql
+            - mariadb
+                - mysqli (default)
+                - pdo_mysql
+
+    -b <docker|podman>
+        Container environment:
+            - docker (default)
+            - podman
+
+    -c <packages>
+        Only with -s e2e
+        Extra Composer packages to install in the E2E TYPO3 instance.
+        Example: -c "friendsoftypo3/content-blocks"
+
+    -d <sqlite|mariadb|mysql|postgres>
+        Only with -s functional|functionalDeprecated
+        Specifies on which DBMS tests are performed
+            - sqlite: (default): use sqlite
+            - mariadb: use mariadb
+            - mysql: use MySQL
+            - postgres: use postgres
+
+    -i version
+        Specify a specific database version
+        With "-d mariadb":
+            - 10.2   short-term, maintained until 2023-05-25 (default)
+            - 10.3   short-term, maintained until 2023-05-25
+            - 10.4   short-term, maintained until 2024-06-18
+            - 10.5   short-term, maintained until 2025-06-24
+            - 10.6   long-term, maintained until 2026-06
+            - 10.7   short-term, no longer maintained
+            - 10.8   short-term, maintained until 2023-05
+            - 10.9   short-term, maintained until 2023-08
+            - 10.10  short-term, maintained until 2023-11
+            - 10.11  long-term, maintained until 2028-02
+            - 11.0   development series
+            - 11.1   short-term development series
+        With "-d mysql":
+            - 5.5   unmaintained since 2018-12 (default)
+            - 5.6   unmaintained since 2021-02
+            - 5.7   maintained until 2023-10
+            - 8.0   maintained until 2026-04
+        With "-d postgres":
+            - 10    unmaintained since 2022-11-10 (default)
+            - 11    unmaintained since 2023-11-09
+            - 12    maintained until 2024-11-14
+            - 13    maintained until 2025-11-13
+            - 14    maintained until 2026-11-12
+            - 15    maintained until 2027-11-11
+            - 16    maintained until 2028-11-09
+
+    -t <11|12|13|14>
+        Only with -s composerInstall|composerInstallMin|composerInstallMax|e2e
+        Specifies the TYPO3 CORE Version to be used
+            - 11.5: use TYPO3 v11 (default)
+            - 12.4: use TYPO3 v12
+            - 13.4: use TYPO3 v13
+            - 14.0: use TYPO3 v14
+        Note: E2E tests (-s e2e) only support v13 and v14.
+
+    -p <8.2|8.3|8.4|8.5>
+        Specifies the PHP minor version to be used
+            - 8.2: use PHP 8.2 (default)
+            - 8.3: use PHP 8.3
+            - 8.4: use PHP 8.4
+            - 8.5: use PHP 8.5
+
+    -e "<phpunit options>"
+        Only with -s docsGenerate|functional|unit
+        Additional options to send to phpunit (unit & functional tests). For phpunit,
+        options starting with "--" must be added after options starting with "-".
+        Example -e "--filter classCanBeRegistered" to enable verbose output AND filter tests
+        named "classCanBeRegistered"
+
+        DEPRECATED - pass arguments after the `--` separator directly. For example, instead of
+            Build/Scripts/runTests.sh -s unit -e "--filter classCanBeRegistered"
+        use
+            Build/Scripts/runTests.sh -s unit -- --filter classCanBeRegistered
+
+    -X <bootstrap|core-only|fsc>
+        Only with -s e2e
+        Selects the "extension neighborhood" the E2E TYPO3 instance is set up with.
+        Different variants exercise the extension under different sitepackage / FSC /
+        Bootstrap-Package combinations to surface regressions that only manifest in
+        specific configurations (e.g. issue #790: vanilla install with no FSC site set
+        and no Bootstrap behaves differently than one with Bootstrap, where the bug
+        is masked by Bootstrap's own parseFunc_RTE config).
+
+            - core-only: minimal install — TYPO3 core only, no fluid_styled_content,
+              no Bootstrap Package. Models the fresh-install evaluator scenario.
+            - fsc      : (default) FSC site set enabled, no Bootstrap. Current
+              long-standing E2E baseline.
+            - bootstrap: FSC + Bootstrap Package. Common real-world setup.
+
+        Also reads the E2E_VARIANT env var as a fallback when -X is omitted (used
+        by ci-e2e.sh wrapper so the reusable e2e.yml workflow can pass the variant
+        through without re-translating flags).
+
+    -x
+        Only with -s functional|functionalDeprecated|unit|unitDeprecated|unitRandom
+        Send information to host instance for test or system under test break points. This is especially
+        useful if a local PhpStorm instance is listening on default xdebug port 9003. A different port
+        can be selected with -y
+
+    -y <port>
+        Send xdebug information to a different port than default 9003 if an IDE like PhpStorm
+        is not listening on default port.
+
+    -n
+        Only with -s cgl|composerNormalize
+        Activate dry-run in CGL check that does not actively change files and only prints broken ones.
+
+    -u
+        Update existing typo3/core-testing-*:latest container images and remove dangling local volumes.
+        New images are published once in a while and only the latest ones are supported by core testing.
+        Use this if weird test errors occur. Also removes obsolete image versions of typo3/core-testing-*.
+
+    -h
+        Show this help.
+
+Examples:
+    # Run all core unit tests using PHP 7.4
+    ./Build/Scripts/runTests.sh -s unit
+
+    # Run all core units tests and enable xdebug (have a PhpStorm listening on port 9003!)
+    ./Build/Scripts/runTests.sh -x -s unit
+
+    # Run unit tests in phpunit verbose mode with xdebug on PHP 8.1 and filter for test canRetrieveValueWithGP
+    ./Build/Scripts/runTests.sh -x -p 8.1 -- --filter 'classCanBeRegistered'
+
+    # Run functional tests in phpunit with a filtered test method name in a specified file
+    # example will currently execute two tests, both of which start with the search term
+    ./Build/Scripts/runTests.sh -s functional -- --filter 'findRecordByImportSource' Tests/Functional/Repository/CategoryRepositoryTest.php
+
+    # Run functional tests on postgres with xdebug, php 8.1 and execute a restricted set of tests
+    ./Build/Scripts/runTests.sh -x -p 8.1 -s functional -d postgres -- Tests/Functional/Repository/CategoryRepositoryTest.php
+
+    # Run functional tests on postgres 11
+    ./Build/Scripts/runTests.sh -s functional -d postgres -i 11
+
+    # Run E2E Playwright tests with PHP 8.3
+    ./Build/Scripts/runTests.sh -s e2e -p 8.3
+
+    # Run specific E2E test file
+    ./Build/Scripts/runTests.sh -s e2e -- tests/click-to-enlarge.spec.ts
+
+    # Run E2E tests with Content Blocks installed
+    ./Build/Scripts/runTests.sh -s e2e -t 13 -c "friendsoftypo3/content-blocks"
+EOF
+}
+
+# Test if at least one of the supported container binaries exists, else exit out with error
+if ! type "docker" >/dev/null 2>&1 && ! type "podman" >/dev/null 2>&1; then
+    echo "This script relies on docker or podman. Please install at least one of them" >&2
+    exit 1
+fi
+
+# Go to the directory this script is located, so everything else is relative
+# to this dir, no matter from where this script is called, then go up two dirs.
+THIS_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
+cd "$THIS_SCRIPT_DIR" || exit 1
+cd ../../ || exit 1
+ROOT_DIR="${PWD}"
+
+# Option defaults
+TEST_SUITE=""
+TYPO3_VERSION="11"
+DBMS="sqlite"
+DBMS_VERSION=""
+PHP_VERSION="8.2"
+PHP_XDEBUG_ON=0
+PHP_XDEBUG_PORT=9003
+EXTRA_TEST_OPTIONS=""
+CGLCHECK_DRY_RUN=0
+DATABASE_DRIVER=""
+CONTAINER_BIN=""
+COMPOSER_ROOT_VERSION="11.4.3-dev"
+# Default to non-interactive; detect TTY below
+CONTAINER_INTERACTIVE="--init"
+HOST_UID=$(id -u)
+HOST_PID=$(id -g)
+USERSET=""
+SUFFIX=$(echo $RANDOM)
+NETWORK="friendsoftypo3-tea-${SUFFIX}"
+CI_PARAMS="${CI_PARAMS:-}"
+CONTAINER_HOST="host.docker.internal"
+PHPSTAN_CONFIG_FILE="phpstan.neon"
+E2E_EXTRA_PACKAGES=""
+IS_CI=0
+
+# Option parsing updates above default vars
+# Reset in case getopts has been used previously in the shell
+OPTIND=1
+# Array for invalid options
+INVALID_OPTIONS=()
+# E2E setup variant — controls which sitepackage / FSC / Bootstrap-Package combo
+# the E2E TYPO3 instance is built with. Allow env override so CI can drive the
+# matrix without rewriting flags (the ci-e2e.sh wrapper sets E2E_VARIANT).
+# Both the env var path and the -X CLI flag path go through the same
+# validation regex so an invalid value never silently changes setup behavior.
+E2E_VARIANT="${E2E_VARIANT:-fsc}"
+if ! [[ ${E2E_VARIANT} =~ ^(bootstrap|core-only|fsc)$ ]]; then
+    INVALID_OPTIONS+=("E2E_VARIANT=${E2E_VARIANT} (must be bootstrap|core-only|fsc)")
+fi
+
+# Simple option parsing based on getopts (! not getopt)
+while getopts "a:b:c:s:d:i:p:e:t:xy:nhuX:" OPT; do
+    case ${OPT} in
+        s)
+            TEST_SUITE=${OPTARG}
+            ;;
+        a)
+            DATABASE_DRIVER=${OPTARG}
+            ;;
+        b)
+            if ! [[ ${OPTARG} =~ ^(docker|podman)$ ]]; then
+                INVALID_OPTIONS+=("-b ${OPTARG}")
+            fi
+            CONTAINER_BIN=${OPTARG}
+            ;;
+        c)
+            if ! [[ "${OPTARG}" =~ ^[a-zA-Z0-9/_.:^\*\ -]+$ ]]; then
+                INVALID_OPTIONS+=("-c ${OPTARG}")
+            fi
+            E2E_EXTRA_PACKAGES=${OPTARG}
+            ;;
+        d)
+            DBMS=${OPTARG}
+            ;;
+        i)
+            DBMS_VERSION=${OPTARG}
+            ;;
+        p)
+            PHP_VERSION=${OPTARG}
+            if ! [[ ${PHP_VERSION} =~ ^(8.2|8.3|8.4|8.5)$ ]]; then
+                INVALID_OPTIONS+=("-p ${OPTARG}")
+            fi
+            ;;
+        e)
+            EXTRA_TEST_OPTIONS=${OPTARG}
+            ;;
+        t)
+            TYPO3_VERSION=${OPTARG}
+            if ! [[ ${TYPO3_VERSION} =~ ^(11|12|13|14)$ ]]; then
+                INVALID_OPTIONS+=("-t ${OPTARG}")
+            fi
+            ;;
+        x)
+            PHP_XDEBUG_ON=1
+            ;;
+        X)
+            E2E_VARIANT=${OPTARG}
+            if ! [[ ${E2E_VARIANT} =~ ^(bootstrap|core-only|fsc)$ ]]; then
+                INVALID_OPTIONS+=("-X ${OPTARG}")
+            fi
+            ;;
+        y)
+            PHP_XDEBUG_PORT=${OPTARG}
+            ;;
+        n)
+            CGLCHECK_DRY_RUN=1
+            ;;
+        h)
+            loadHelp
+            echo "${HELP}"
+            exit 0
+            ;;
+        u)
+            TEST_SUITE=update
+            ;;
+        \?)
+            INVALID_OPTIONS+=("-${OPTARG}")
+            ;;
+        :)
+            INVALID_OPTIONS+=("-${OPTARG}")
+            ;;
+    esac
+done
+
+# Exit on invalid options
+if [ ${#INVALID_OPTIONS[@]} -ne 0 ]; then
+    echo "Invalid option(s):" >&2
+    for I in "${INVALID_OPTIONS[@]}"; do
+        echo ${I} >&2
+    done
+    echo >&2
+    echo "call \".Build/Scripts/runTests.sh -h\" to display help and valid options"
+    exit 1
+fi
+
+handleDbmsOptions
+
+# ENV var "CI" is set by gitlab-ci. Use it to force some CI details.
+if [ "${CI}" == "true" ]; then
+    IS_CI=1
+    CONTAINER_INTERACTIVE=""
+# Detect TTY availability for interactive mode (allows running from scripts/pipes)
+# Note: Use -i (interactive) but NOT -t (tty) since -t fails in non-TTY contexts
+# even when [ -t 0 ] returns true (e.g., when running from CI tools)
+elif [ -t 0 ] && [ -t 1 ]; then
+    CONTAINER_INTERACTIVE="-i --init"
+fi
+
+# determine default container binary to use: 1. podman 2. docker
+if [[ -z "${CONTAINER_BIN}" ]]; then
+    if type "podman" >/dev/null 2>&1; then
+        CONTAINER_BIN="podman"
+    elif type "docker" >/dev/null 2>&1; then
+        CONTAINER_BIN="docker"
+    fi
+fi
+
+if [ $(uname) != "Darwin" ] && [ "${CONTAINER_BIN}" == "docker" ]; then
+    # Run docker jobs as current user to prevent permission issues. Not needed with podman.
+    USERSET="--user $HOST_UID"
+fi
+
+if ! type ${CONTAINER_BIN} >/dev/null 2>&1; then
+    echo "Selected container environment \"${CONTAINER_BIN}\" not found. Please install \"${CONTAINER_BIN}\" or use -b option to select one." >&2
+    exit 1
+fi
+
+# Create .cache dir: composer need this.
+mkdir -p .cache
+mkdir -p .Build/public/typo3temp/var/tests
+
+IMAGE_PHP="ghcr.io/typo3/core-testing-$(echo "php${PHP_VERSION}" | sed -e 's/\.//'):latest"
+IMAGE_ALPINE="docker.io/alpine:3.8"
+IMAGE_DOCS="ghcr.io/typo3-documentation/render-guides:latest"
+IMAGE_MARIADB="docker.io/mariadb:${DBMS_VERSION}"
+IMAGE_MYSQL="docker.io/mysql:${DBMS_VERSION}"
+IMAGE_POSTGRES="docker.io/postgres:${DBMS_VERSION}-alpine"
+# E2E testing images (TYPO3 Core pattern)
+IMAGE_APACHE="ghcr.io/typo3/core-testing-apache24:1.7"
+IMAGE_PLAYWRIGHT="mcr.microsoft.com/playwright:v1.62.1-noble"
+
+# Set $1 to first mass argument, this is the optional test file or test directory to execute
+shift $((OPTIND - 1))
+
+${CONTAINER_BIN} network create ${NETWORK} >/dev/null
+
+if [ "${CONTAINER_BIN}" == "docker" ]; then
+    CONTAINER_COMMON_PARAMS="${CONTAINER_INTERACTIVE} --rm --network ${NETWORK} --add-host "${CONTAINER_HOST}:host-gateway" ${USERSET} -v ${ROOT_DIR}:${ROOT_DIR} -w ${ROOT_DIR}"
+else
+    # podman
+    CONTAINER_HOST="host.containers.internal"
+    CONTAINER_COMMON_PARAMS="${CONTAINER_INTERACTIVE} ${CI_PARAMS} --rm --network ${NETWORK} -v ${ROOT_DIR}:${ROOT_DIR} -w ${ROOT_DIR}"
+fi
+
+if [ ${PHP_XDEBUG_ON} -eq 0 ]; then
+    XDEBUG_MODE="-e XDEBUG_MODE=off"
+    XDEBUG_CONFIG=" "
+else
+    XDEBUG_MODE="-e XDEBUG_MODE=debug -e XDEBUG_TRIGGER=foo"
+    XDEBUG_CONFIG="client_port=${PHP_XDEBUG_PORT} client_host=host.docker.internal"
+fi
+
+# Suite execution
+case ${TEST_SUITE} in
+    cgl)
+        DRY_RUN_OPTIONS=''
+        if [ "${CGLCHECK_DRY_RUN}" -eq 1 ]; then
+            DRY_RUN_OPTIONS='--dry-run --diff'
+        fi
+        COMMAND="php -dxdebug.mode=off .Build/bin/php-cs-fixer fix -v ${DRY_RUN_OPTIONS} --config=Build/.php-cs-fixer.dist.php --using-cache=no"
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-command-${SUFFIX} -e COMPOSER_CACHE_DIR=.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} /bin/sh -c "${COMMAND}"
+        SUITE_EXIT_CODE=$?
+        ;;
+    clean)
+        rm -rf \
+          var/ \
+          .cache \
+          composer.lock \
+          .Build/ \
+          Tests/Acceptance/Support/_generated/ \
+          composer.json.testing \
+          Documentation-GENERATED-temp
+        ;;
+    composer)
+        COMMAND=(composer "$@")
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-command-${SUFFIX} -e COMPOSER_CACHE_DIR=.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} "${COMMAND[@]}"
+        SUITE_EXIT_CODE=$?
+        ;;
+    composerInstall)
+        cleanComposer
+        stashComposerFiles
+        COMMAND=(composer install "$@")
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-install-${SUFFIX} -e COMPOSER_CACHE_DIR=.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} "${COMMAND[@]}"
+        SUITE_EXIT_CODE=$?
+        restoreComposerFiles
+        ;;
+    composerInstallHighest)
+        cleanComposer
+        stashComposerFiles
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-install-highest-${SUFFIX} -e COMPOSER_CACHE_DIR=.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} /bin/bash -c "
+            if [ ${TYPO3_VERSION} -eq 11 ]; then
+              composer require --no-ansi --no-interaction --no-progress --no-install \
+                typo3/cms-core:^11.5.38 \\
+                typo3/cms-backend:^11.5.38 \\
+                typo3/cms-frontend:^11.5.38 \\
+                typo3/cms-extbase:^11.5.38 \\
+                typo3/cms-rte-ckeditor:^11.5.38 \\
+                || exit 1
+            fi
+            if [ ${TYPO3_VERSION} -eq 12 ]; then
+              composer require --no-ansi --no-interaction --no-progress --no-install \
+                typo3/cms-core:^12.4.17 \\
+                typo3/cms-backend:^12.4.17 \\
+                typo3/cms-frontend:^12.4.17 \\
+                typo3/cms-extbase:^12.4.17 \\
+                typo3/cms-rte-ckeditor:^12.4.17 \\
+                 || exit 1
+            fi
+            if [ ${TYPO3_VERSION} -eq 13 ]; then
+              composer require --no-ansi --no-interaction --no-progress --no-install \
+                typo3/cms-core:^13.4 \\
+                typo3/cms-backend:^13.4 \\
+                typo3/cms-frontend:^13.4 \\
+                typo3/cms-extbase:^13.4 \\
+                typo3/cms-rte-ckeditor:^13.4 \\
+                 || exit 1
+            fi
+            if [ ${TYPO3_VERSION} -eq 14 ]; then
+              composer require --no-ansi --no-interaction --no-progress --no-install \
+                typo3/cms-core:^14.0 \\
+                typo3/cms-backend:^14.0 \\
+                typo3/cms-frontend:^14.0 \\
+                typo3/cms-extbase:^14.0 \\
+                typo3/cms-rte-ckeditor:^14.0 \\
+                 || exit 1
+            fi
+            composer update --no-progress --no-interaction  || exit 1
+            composer show || exit 1
+        "
+        SUITE_EXIT_CODE=$?
+        restoreComposerFiles
+        ;;
+    composerInstallLowest)
+        cleanComposer
+        stashComposerFiles
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-install-lowest-${SUFFIX} -e COMPOSER_CACHE_DIR=.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} /bin/bash -c "
+            if [ ${TYPO3_VERSION} -eq 11 ]; then
+              composer require --no-ansi --no-interaction --no-progress --no-install \
+                typo3/cms-core:^11.5.38 || exit 1
+            fi
+            if [ ${TYPO3_VERSION} -eq 12 ]; then
+              composer require --no-ansi --no-interaction --no-progress --no-install \
+                typo3/cms-core:^12.4.17 || exit 1
+            fi
+            if [ ${TYPO3_VERSION} -eq 13 ]; then
+              composer require --no-ansi --no-interaction --no-progress --no-install \
+                typo3/cms-core:^13.4 || exit 1
+            fi
+            if [ ${TYPO3_VERSION} -eq 14 ]; then
+              composer require --no-ansi --no-interaction --no-progress --no-install \
+                typo3/cms-core:^14.0 || exit 1
+            fi
+            composer update --no-ansi --no-interaction --no-progress --with-dependencies --prefer-lowest || exit 1
+            composer show || exit 1
+        "
+        SUITE_EXIT_CODE=$?
+        restoreComposerFiles
+        ;;
+    docsGenerate)
+        mkdir -p Documentation-GENERATED-temp
+        chown -R ${HOST_UID}:${HOST_PID} Documentation-GENERATED-temp
+        COMMAND=(--config=Documentation --fail-on-log ${EXTRA_TEST_OPTIONS} "$@")
+        ${CONTAINER_BIN} run ${CONTAINER_INTERACTIVE} --rm --pull always ${USERSET} -v "${ROOT_DIR}":/project ${IMAGE_DOCS} "${COMMAND[@]}"
+        SUITE_EXIT_CODE=$?
+        ;;
+    e2e)
+        # E2E tests using TYPO3 Core pattern: PHP + MariaDB + Playwright
+        # No DDEV dependency - lightweight containers only
+        # Uses MariaDB because SQLite doesn't work with TYPO3's database:updateschema
+        E2E_ROOT="${ROOT_DIR}/.Build/e2e-typo3"
+        E2E_WEB_PORT=8080
+        E2E_SCRIPTS="${ROOT_DIR}/.Build/e2e-scripts"
+
+        echo "Setting up E2E test environment..."
+
+        # Clean and create E2E TYPO3 instance.
+        #
+        # The containers below write as root, so on a developer machine the
+        # previous run leaves files this `rm` cannot touch. It fails quietly,
+        # the `mkdir -p` after it succeeds anyway, and the next
+        # `composer create-project` aborts with "Project directory is not
+        # empty" — a fresh CI runner never sees this. Remove the leftovers
+        # from inside a container, which runs as the same user that made them.
+        removeContainerOwnedDir "${E2E_ROOT}"
+        rm -rf "${E2E_SCRIPTS}"
+        mkdir -p "${E2E_ROOT}"
+        mkdir -p "${E2E_SCRIPTS}"
+        mkdir -p "${ROOT_DIR}/Build/test-results"
+
+        # Create helper scripts on host (to avoid heredoc-in-double-quotes bash parsing issues)
+        # These will be mounted into the container
+
+        # additional.php - TYPO3 system configuration with verbose error output
+        cat > "${E2E_SCRIPTS}/additional.php" << 'ADDITIONAL_EOF'
+<?php
+return [
+    'BE' => ['debug' => true],
+    'FE' => [
+        'debug' => true,
+        'debugExceptionHandler' => \TYPO3\CMS\Core\Error\DebugExceptionHandler::class,
+    ],
+    'SYS' => [
+        'devIPmask' => '*',
+        'displayErrors' => 1,
+        'exceptionalErrors' => E_WARNING | E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE,
+        'trustedHostsPattern' => '.*',
+        'debugExceptionHandler' => \TYPO3\CMS\Core\Error\DebugExceptionHandler::class,
+        'productionExceptionHandler' => \TYPO3\CMS\Core\Error\DebugExceptionHandler::class,
+    ],
+];
+ADDITIONAL_EOF
+
+        # db-setup.php - Insert required database records (tables are created by database:updateschema)
+        cat > "${E2E_SCRIPTS}/db-setup.php" << 'DBSETUP_EOF'
+<?php
+// Connect to MariaDB
+$pdo = new PDO(
+    'mysql:host=mariadb-e2e;port=3306;dbname=e2e_test',
+    'root',
+    'root',
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
+$now = time();
+
+// Debug: List existing tables to verify schema was created by TYPO3's database:updateschema
+echo "Checking existing tables...\n";
+$tables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+echo "Found " . count($tables) . " tables\n";
+if (count($tables) < 10) {
+    echo "WARNING: Expected many tables from database:updateschema, but found only " . count($tables) . "\n";
+}
+
+// Ensure default file storage has correct configuration
+// TYPO3 uses FlexForm XML format for sys_file_storage.configuration
+// TYPO3 setup may create uid=1 with empty configuration — we must fix it
+// CRITICAL: is_public = 1 is required for click-to-enlarge to work (imageLinkWrap)
+$storageConfig = '<?xml version="1.0" encoding="utf-8" standalone="yes" ?><T3FlexForms><data><sheet index="sDEF"><language index="lDEF"><field index="basePath"><value index="vDEF">fileadmin/</value></field><field index="pathType"><value index="vDEF">relative</value></field></language></sheet></data></T3FlexForms>';
+$pdo->prepare("INSERT INTO sys_file_storage (uid, name, driver, configuration, is_default, is_public, tstamp, crdate) VALUES (1, 'fileadmin', 'Local', ?, 1, 1, ?, ?) ON DUPLICATE KEY UPDATE configuration = VALUES(configuration), is_public = 1")
+    ->execute([$storageConfig, $now, $now]);
+echo "Default file storage ensured (FlexForm XML with basePath)\n";
+
+// Insert root page
+$pdo->exec("INSERT IGNORE INTO pages (uid, pid, title, slug, doktype, is_siteroot, hidden, deleted, tstamp, crdate) VALUES (1, 0, 'Home', '/', 1, 1, 0, 0, $now, $now)");
+echo "Pages record inserted\n";
+
+// Insert error handling test page (child of root) — isolates edge-case CEs from main page
+$pdo->exec("INSERT IGNORE INTO pages (uid, pid, title, slug, doktype, is_siteroot, hidden, deleted, tstamp, crdate) VALUES (2, 1, 'Error Handling Tests', '/error-handling-tests', 1, 0, 0, 0, $now, $now)");
+echo "Error handling test page (uid=2) inserted\n";
+
+// TypoScript constants and config are split into a variant-specific
+// header (the @imports / styles.content.get definition) and a shared
+// body (page = PAGE, popup config, allowTags additions). The core-only
+// variant skips fluid_styled_content composer-side, so importing
+// EXT:fluid_styled_content TS would fail at TS-parse time — its header
+// instead inlines a minimal styles.content.get definition that mirrors
+// what fluid_styled_content normally provides.
+$variant = getenv('E2E_VARIANT') ?: 'fsc';
+
+if ($variant === 'core-only') {
+    $tsConstants = <<<'TYPOSCRIPT'
+# core-only: no fluid_styled_content constants import (extension not installed).
+styles.content.image.lazyLoading = lazy
+TYPOSCRIPT;
+
+    // Inline styles.content.get because fluid_styled_content (the usual
+    // provider) isn't installed in this variant. Shape mirrors FSC.
+    $tsConfigHeader = <<<'TYPOSCRIPT'
+styles.content.get = CONTENT
+styles.content.get {
+    table = tt_content
+    select {
+        orderBy = sorting
+        where = {#colPos}=0
+    }
+}
+
+@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
+TYPOSCRIPT;
+} else {
+    // fsc and bootstrap: fluid_styled_content provides constants and the
+    // styles.content.get definition. Bootstrap layers Bootstrap Package
+    // on top via the site set; the sys_template TS is identical to fsc.
+    $tsConstants = <<<'TYPOSCRIPT'
+@import 'EXT:fluid_styled_content/Configuration/TypoScript/constants.typoscript'
+
+# Image lazy loading setting
+styles.content.image.lazyLoading = lazy
+TYPOSCRIPT;
+
+    $tsConfigHeader = <<<'TYPOSCRIPT'
+@import 'EXT:fluid_styled_content/Configuration/TypoScript/setup.typoscript'
+@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
+TYPOSCRIPT;
+}
+
+// Shared body across all variants — page rendering, popup, allowTags
+// additions for tags that aren't in the default whitelist.
+$tsConfigBody = <<<'TYPOSCRIPT'
+
+# Ensure lib.contentElement.settings.media.popup is set for click-to-enlarge
+# This path MUST exist for ImageRenderingController to find popup config
+lib.contentElement.settings.media.popup {
+    bodyTag = <body style="margin:0; background:#fff;">
+    wrap = <a href="javascript:close();"> | </a>
+    width = 800m
+    height = 600m
+    crop.data = file:current:crop
+    JSwindow = 1
+    JSwindow.newWindow = 1
+    directImageLink = 0
+}
+
+page = PAGE
+page.typeNum = 0
+page.10 < styles.content.get
+
+# Include CSS for image alignment styles (image-left, image-center, image-right)
+page.includeCSS.rte_ckeditor_image_alignment = EXT:rte_ckeditor_image/Resources/Public/Css/image-alignment.css
+
+# Note (#790): earlier versions of this file had two
+# `lib.parseFunc_RTE.allowTags := addToList(...)` lines here — one for
+# heading tags (h1-h6), one for table/list tags. The justifying comment
+# claimed fluid_styled_content "may not include all heading tags in its
+# allowTags across TYPO3 versions". That justification was wrong:
+# neither v13.4 nor v14.3 fluid_styled_content sets `allowTags` on
+# `lib.parseFunc_RTE` at all. With `allowTags` undefined, the
+# "everything allowed" short-circuit in
+# ContentObjectRenderer::parseFuncInternal() applies and every tag
+# passes through unencoded — exactly the desired behavior.
+#
+# `addToList` on an *undefined* `allowTags` produced a *restrictive*
+# whitelist of just the listed tags, encoding every other tag (most
+# importantly <p>) — the same bug class that #790 reported in the
+# extension itself (setup.typoscript). The lines are removed here so
+# the test infrastructure stops reproducing the very bug it is supposed
+# to be testing the absence of. Test data with <h3> and <table>
+# elements renders correctly without needing whitelisting.
+TYPOSCRIPT;
+
+$tsConfig = $tsConfigHeader . $tsConfigBody;
+
+// Insert or update sys_template with BOTH constants and config
+// Use ON DUPLICATE KEY UPDATE to ensure our TypoScript is applied even if TYPO3 setup pre-created it
+$stmt = $pdo->prepare("INSERT INTO sys_template (uid, pid, root, title, clear, constants, config, hidden, deleted, tstamp, crdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE constants = VALUES(constants), config = VALUES(config), root = 1, clear = 1");
+$stmt->execute([1, 1, 1, 'Root', 1, $tsConstants, $tsConfig, 0, 0, $now, $now]);
+echo "sys_template record ensured with constants and config\n";
+DBSETUP_EOF
+
+        # site-config.yaml - Site configuration
+        # Site-set dependencies match the composer-required extensions selected
+        # by E2E_VARIANT (see -X flag docs and the composer require step below).
+        # core-only intentionally lists only our own set so the bug class in
+        # #790 (vanilla install with no FSC site set) is reproduced faithfully.
+        case "${E2E_VARIANT}" in
+            core-only)
+                E2E_SITE_DEPENDENCIES='  - netresearch/rte-ckeditor-image'
+                ;;
+            fsc)
+                E2E_SITE_DEPENDENCIES='  - typo3/fluid-styled-content
+  - netresearch/rte-ckeditor-image'
+                ;;
+            bootstrap)
+                # Bootstrap Package site set name differs by major: v15 → "bootstrap-package",
+                # v16 → still "bootstrap-package/full" plus the company set.
+                # Use the universal "full" set which exists in both ranges.
+                E2E_SITE_DEPENDENCIES='  - bootstrap-package/full
+  - typo3/fluid-styled-content
+  - netresearch/rte-ckeditor-image'
+                ;;
+            *)
+                echo "::error::Unknown E2E_VARIANT for site-config: ${E2E_VARIANT}" >&2
+                exit 1
+                ;;
+        esac
+        cat > "${E2E_SCRIPTS}/site-config.yaml" << SITECONFIG_EOF
+rootPageId: 1
+base: /
+languages:
+  - title: English
+    enabled: true
+    languageId: 0
+    base: /
+    locale: en_US.UTF-8
+    navigationTitle: English
+    flag: us
+dependencies:
+${E2E_SITE_DEPENDENCIES}
+SITECONFIG_EOF
+
+        # create-test-content.php - Create test image and content records
+        cat > "${E2E_SCRIPTS}/create-test-content.php" << 'CONTENT_EOF'
+<?php
+// Create test image
+$im = imagecreatetruecolor(800, 600);
+$blue = imagecolorallocate($im, 0, 100, 200);
+$white = imagecolorallocate($im, 255, 255, 255);
+imagefill($im, 0, 0, $blue);
+imagestring($im, 5, 300, 280, 'E2E Test Image', $white);
+imagejpeg($im, 'public/fileadmin/user_upload/example.jpg', 90);
+imagedestroy($im);
+echo "Test image created\n";
+
+// Connect to MariaDB
+$pdo = new PDO(
+    'mysql:host=mariadb-e2e;port=3306;dbname=e2e_test',
+    'root',
+    'root',
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
+$now = time();
+
+// Create or update sys_file entry
+$identifierHash = sha1('/user_upload/example.jpg');
+$folderHash = sha1('/user_upload/');
+$pdo->exec("INSERT INTO sys_file (uid, storage, identifier, identifier_hash, folder_hash, name, extension, mime_type, size, tstamp, creation_date)
+            VALUES (1, 1, '/user_upload/example.jpg', '$identifierHash', '$folderHash', 'example.jpg', 'jpg', 'image/jpeg', 48000, $now, $now)
+            ON DUPLICATE KEY UPDATE storage = 1, identifier = '/user_upload/example.jpg', identifier_hash = '$identifierHash', folder_hash = '$folderHash'");
+echo "sys_file record created\n";
+
+// Create sys_file_metadata with dimensions, alt, and title
+// width/height are TCA columns on sys_file_metadata — used by getImageInfo() for dialog constraints
+// alternative/title provide FAL metadata defaults — enables override checkbox in image dialog
+// Use DELETE + INSERT to ensure our values win over any auto-indexed metadata
+$pdo->exec("DELETE FROM sys_file_metadata WHERE file = 1");
+$pdo->exec("INSERT INTO sys_file_metadata (uid, file, title, description, alternative, width, height, tstamp, crdate)
+            VALUES (1, 1, 'Example Image Title', 'Test image for E2E', 'Example Alt from Metadata', 800, 600, $now, $now)");
+echo "sys_file_metadata record created\n";
+
+// Insert test content with RTE image (no caption)
+$bodytext = '<p>This is a test page with an RTE image:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Example" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>Click the image to see click-to-enlarge.</p>';
+$stmt = $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt->execute([1, 'text', 'RTE CKEditor Image Demo', $bodytext, 0, 0, $now, $now, 0, 256]);
+echo "tt_content record created\n";
+
+// Insert test content with RTE image WITH CAPTION (to test for <p>&nbsp;</p> artifacts)
+// Uses <figure><figcaption> markup which triggers the WithCaption.html Fluid template
+$bodytextCaption = '<p>Image with caption test:</p>'
+    . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Caption Test" width="400" height="300" data-htmlarea-file-uid="1" /><figcaption>Test Caption Text</figcaption></figure>';
+$stmt->execute([1, 'text', 'Caption Test', $bodytextCaption, 0, 0, $now, $now, 0, 512]);
+echo "tt_content record with caption created\n";
+
+// Insert test content with LINKED IMAGE (issue #565 - duplicate links)
+// This tests that linked images render with a single <a> tag, not duplicated
+$bodytextLinked = '<p>Test linked image (should have single link wrapper):</p><a href="https://example.com" target="_blank" title="Example Link" class="test-linked-image"><img src="fileadmin/user_upload/example.jpg" alt="Linked Image" width="400" height="300" data-htmlarea-file-uid="1" /></a><p>The image above should link to example.com with a single &lt;a&gt; tag.</p>';
+$stmt->execute([1, 'text', 'Linked Image Test (#565)', $bodytextLinked, 0, 0, $now, $now, 0, 768]);
+echo "tt_content record with linked image created\n";
+
+// Insert test content with LINKED IMAGE with CAPTION using data-caption attribute
+// This tests that linked images with captions render correctly via the renderImages handler
+// Note: We DON'T use raw <figure> because parseFunc_RTE.tags.figure.preUserFunc handles
+// figure-wrapped images, but linked images inside figures have complex processing
+// The simpler case tests link + data-caption combination
+$bodytextFigureLinked = '<p>Test linked image with caption:</p><p><a href="https://netresearch.de" target="_blank" class="test-figure-linked"><img src="fileadmin/user_upload/example.jpg" alt="Captioned Linked Image" width="400" height="300" data-htmlarea-file-uid="1" /></a></p>';
+$stmt->execute([1, 'text', 'Figure Linked Image Test', $bodytextFigureLinked, 0, 0, $now, $now, 0, 1024]);
+echo "tt_content record with linked image created\n";
+
+// Insert test content with standalone linked image (no figure, no caption) for regression test
+$bodytextSimpleLinked = '<p>Simple linked image without caption:</p><p><a href="https://typo3.org" class="test-simple-link"><img src="fileadmin/user_upload/example.jpg" alt="Simple Link" width="300" height="225" data-htmlarea-file-uid="1" /></a></p>';
+$stmt->execute([1, 'text', 'Simple Linked Image', $bodytextSimpleLinked, 0, 0, $now, $now, 0, 1280]);
+echo "tt_content record with simple linked image created\n";
+
+// UID 6: Styled/Alignment Images (needed by image-styles.spec.ts)
+$bodytextStyles = '<p>Images with alignment classes:</p>'
+    . '<p><img class="image-left" src="fileadmin/user_upload/example.jpg" alt="Left Aligned" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-right" src="fileadmin/user_upload/example.jpg" alt="Right Aligned" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-center" src="fileadmin/user_upload/example.jpg" alt="Center Aligned" width="400" height="300" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-block" src="fileadmin/user_upload/example.jpg" alt="Block Image" width="400" height="300" data-htmlarea-file-uid="1" /></p>'
+    . '<figure class="image-center"><img src="fileadmin/user_upload/example.jpg" alt="Centered Figure" width="400" height="300" data-htmlarea-file-uid="1" /><figcaption>Centered figure with caption</figcaption></figure>';
+$stmt->execute([1, 'text', 'Styled/Alignment Images', $bodytextStyles, 0, 0, $now, $now, 0, 1536]);
+echo "tt_content record with styled/alignment images created\n";
+
+// UID 7: Inline Images (needed by inline-images.spec.ts, inline-image-editing.spec.ts, inline-image-issues.spec.ts)
+// Line 1: Plain inline (no zoom, no link) — used by "no indicators" test
+// Line 2: Linked inline — used by linked inline tests
+// Line 3: Multiple inline images in one paragraph
+// Line 4: Inline with zoom — demonstrates #639 fix (zoom indicator)
+// Line 5: Inline with link + zoom — demonstrates combined indicators
+// Line 6: Block image coexistence
+$bodytextInline = '<p>Text before <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Inline Example" width="100" height="75" data-htmlarea-file-uid="1" /> text after.</p>'
+    . '<p>A linked inline image: <a href="https://example.com"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Linked Inline" width="80" height="60" data-htmlarea-file-uid="1" /></a> in text.</p>'
+    . '<p>Multiple inline images: <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="First Inline" width="50" height="38" data-htmlarea-file-uid="1" /> and <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Second Inline" width="50" height="38" data-htmlarea-file-uid="1" /> in one paragraph.</p>'
+    . '<p>Inline with zoom: <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Zoom Inline" width="80" height="60" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /> click to enlarge.</p>'
+    . '<p>Inline with link and zoom: <a href="https://example.com"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Link+Zoom Inline" width="80" height="60" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></a> both indicators.</p>'
+    . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Block in Inline CE" width="400" height="300" data-htmlarea-file-uid="1" /></figure>';
+$stmt->execute([1, 'text', 'Inline Images', $bodytextInline, 0, 0, $now, $now, 0, 1792]);
+echo "tt_content record with inline images created\n";
+
+// UID 8: Inline Image Complex Patterns (needed by inline-image-patterns.spec.ts)
+$bodytextInlinePatterns = '<p>Link with inline image at start:</p>'
+    . '<p><a href="https://docs.example.com"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="docs" width="16" height="16" data-htmlarea-file-uid="1" /> Documentation</a></p>'
+    . '<p>Link with inline image at end:</p>'
+    . '<p><a href="https://download.example.com">Get the latest version <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="download" width="20" height="20" data-htmlarea-file-uid="1" /></a></p>'
+    . '<p>Link with text before and after image:</p>'
+    . '<p><a href="https://example.com">Check our <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="icon" width="16" height="16" data-htmlarea-file-uid="1" /> documentation</a></p>'
+    . '<table><tr><td>Feature <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="feature" width="24" height="24" data-htmlarea-file-uid="1" /></td><td>Works great</td></tr></table>'
+    . '<ul><li>Support for <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="feature" width="20" height="20" data-htmlarea-file-uid="1" /> inline images</li></ul>'
+    . '<h3>Features <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="feature" width="24" height="24" data-htmlarea-file-uid="1" /></h3>';
+$stmt->execute([1, 'text', 'Inline Image Complex Patterns', $bodytextInlinePatterns, 0, 0, $now, $now, 0, 2048]);
+echo "tt_content record with inline image complex patterns created\n";
+
+// UID 9: Multiple Popup/Zoom Images (needed by click-to-enlarge.spec.ts "multiple images all have popup functionality")
+$bodytextMultiZoom = '<p>Multiple images with click-to-enlarge:</p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="popup1" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="popup2" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="popup3" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Multiple Popup Images', $bodytextMultiZoom, 0, 0, $now, $now, 0, 2304]);
+echo "tt_content record with multiple popup images created\n";
+
+// UID 10: Mixed Content with Text Links (needed by linked-image-backend.spec.ts "regular text links still show link balloon")
+$bodytextMixed = '<p>Visit our <a href="https://example.com">website</a> for more info.</p><p><img src="fileadmin/user_upload/example.jpg" alt="Mixed Content" width="400" height="300" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Mixed Content with Text Links', $bodytextMixed, 0, 0, $now, $now, 0, 2560]);
+echo "tt_content record with mixed content created\n";
+
+// UID 11: t3:// link image (needed by t3-link-resolution.spec.ts — regression test for #594)
+$bodytextT3Link = '<p>Image linked with t3:// protocol:</p>'
+    . '<p><a href="t3://page?uid=1" class="test-t3-link"><img src="fileadmin/user_upload/example.jpg" alt="T3 Linked Image" width="400" height="300" data-htmlarea-file-uid="1" /></a></p>';
+$stmt->execute([1, 'text', 'T3 Link Image (#594)', $bodytextT3Link, 0, 0, $now, $now, 0, 2816]);
+echo "tt_content record with t3:// link created\n";
+
+// UID 12: Alignment WITHOUT caption (needed by alignment-no-caption.spec.ts — regression test for #595)
+// These should render as bare <img class="..."> NOT wrapped in <figure>
+$bodytextAlignNoCaption = '<p>Alignment classes without caption:</p>'
+    . '<p><img class="image-left" src="fileadmin/user_upload/example.jpg" alt="Align Left No Caption" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-center" src="fileadmin/user_upload/example.jpg" alt="Align Center No Caption" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img class="image-right" src="fileadmin/user_upload/example.jpg" alt="Align Right No Caption" width="300" height="225" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Alignment Without Caption (#595)', $bodytextAlignNoCaption, 0, 0, $now, $now, 0, 3072]);
+echo "tt_content record with alignment-no-caption created\n";
+
+// UID 13: Alignment WITH caption (needed by alignment-no-caption.spec.ts — contrast test)
+// These should render as <figure class="image-..."><img><figcaption>
+$bodytextAlignWithCaption = '<p>Alignment classes with caption:</p>'
+    . '<figure class="image image-left"><img src="fileadmin/user_upload/example.jpg" alt="Align Left With Caption" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>Left caption</figcaption></figure>'
+    . '<figure class="image image-center"><img src="fileadmin/user_upload/example.jpg" alt="Align Center With Caption" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>Center caption</figcaption></figure>'
+    . '<figure class="image image-right"><img src="fileadmin/user_upload/example.jpg" alt="Align Right With Caption" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>Right caption</figcaption></figure>';
+$stmt->execute([1, 'text', 'Alignment With Caption (#595)', $bodytextAlignWithCaption, 0, 0, $now, $now, 0, 3328]);
+echo "tt_content record with alignment-with-caption created\n";
+
+// UIDs 14-19: Template rendering matrix (one CE per Fluid template)
+// Each has identifiable alt text for precise assertion in rendering-template-matrix.spec.ts
+
+// UID 14: Standalone template — bare <img> without link or caption
+$bodytextTplStandalone = '<p><img src="fileadmin/user_upload/example.jpg" alt="Template Standalone" width="400" height="300" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Template: Standalone', $bodytextTplStandalone, 0, 0, $now, $now, 0, 3584]);
+
+// UID 15: WithCaption template — <figure><img><figcaption>
+$bodytextTplCaption = '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Template WithCaption" width="400" height="300" data-htmlarea-file-uid="1" /><figcaption>Template caption text</figcaption></figure>';
+$stmt->execute([1, 'text', 'Template: WithCaption', $bodytextTplCaption, 0, 0, $now, $now, 0, 3840]);
+
+// UID 16: Link template — <a href="..."><img>
+$bodytextTplLink = '<p><a href="https://example.com/template-link" class="test-template-link"><img src="fileadmin/user_upload/example.jpg" alt="Template Link" width="400" height="300" data-htmlarea-file-uid="1" /></a></p>';
+$stmt->execute([1, 'text', 'Template: Link', $bodytextTplLink, 0, 0, $now, $now, 0, 4096]);
+
+// UID 17: LinkWithCaption template — <figure><a><img></a><figcaption>
+$bodytextTplLinkCaption = '<figure class="image"><a href="https://example.com/template-link-caption" class="test-template-link-caption"><img src="fileadmin/user_upload/example.jpg" alt="Template LinkWithCaption" width="400" height="300" data-htmlarea-file-uid="1" /></a><figcaption>Linked caption text</figcaption></figure>';
+$stmt->execute([1, 'text', 'Template: LinkWithCaption', $bodytextTplLinkCaption, 0, 0, $now, $now, 0, 4352]);
+
+// UID 18: Popup template — <img data-htmlarea-zoom="true">
+$bodytextTplPopup = '<p><img src="fileadmin/user_upload/example.jpg" alt="Template Popup" width="400" height="300" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p>';
+$stmt->execute([1, 'text', 'Template: Popup', $bodytextTplPopup, 0, 0, $now, $now, 0, 4608]);
+
+// UID 19: PopupWithCaption template — <figure><img data-htmlarea-zoom="true"><figcaption>
+$bodytextTplPopupCaption = '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Template PopupWithCaption" width="400" height="300" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /><figcaption>Popup caption text</figcaption></figure>';
+$stmt->execute([1, 'text', 'Template: PopupWithCaption', $bodytextTplPopupCaption, 0, 0, $now, $now, 0, 4864]);
+
+echo "Template matrix content elements (UIDs 14-19) created\n";
+
+// UIDs 20-25: Error handling & edge cases — on PAGE 2 to isolate from main page
+// These CEs test error handling and security edge cases that could affect page rendering
+$stmtP2 = $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+// UID 20: Error handling — missing file UID (references non-existent sys_file)
+$bodytextMissingFile = '<p>Image with missing file:</p>'
+    . '<p><img src="fileadmin/user_upload/nonexistent.jpg" alt="Missing File" width="300" height="225" data-htmlarea-file-uid="9999" /></p>';
+$stmtP2->execute([2, 'text', 'Error: Missing File', $bodytextMissingFile, 0, 0, $now, $now, 0, 256]);
+
+// UID 21: Error handling — XSS in alt/title/caption
+$bodytextXss = '<p>XSS test content:</p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="&lt;script&gt;alert(1)&lt;/script&gt;" title="&lt;img onerror=alert(1)&gt;" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="XSS Caption Test" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>&lt;script&gt;alert("xss")&lt;/script&gt;</figcaption></figure>';
+$stmtP2->execute([2, 'text', 'Error: XSS Payloads', $bodytextXss, 0, 0, $now, $now, 0, 512]);
+
+// UID 22: Error handling — special characters in alt/title
+$bodytextSpecialChars = '<p>Special characters in attributes:</p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="Quotes &quot;double&quot; and &apos;single&apos;" title="Ampersand &amp; entities" width="300" height="225" data-htmlarea-file-uid="1" /></p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="Unicode: äöü éàè 日本語" width="300" height="225" data-htmlarea-file-uid="1" /></p>';
+$stmtP2->execute([2, 'text', 'Error: Special Characters', $bodytextSpecialChars, 0, 0, $now, $now, 0, 768]);
+
+// UID 23: Error handling — empty alt text
+$bodytextEmptyAlt = '<p>Image with empty alt:</p>'
+    . '<p><img src="fileadmin/user_upload/example.jpg" alt="" width="300" height="225" data-htmlarea-file-uid="1" /></p>';
+$stmtP2->execute([2, 'text', 'Error: Empty Alt', $bodytextEmptyAlt, 0, 0, $now, $now, 0, 1024]);
+
+// UID 24: Error handling — whitespace-only caption (should NOT render <figure>)
+$bodytextWhitespaceCaption = '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Whitespace Caption" width="300" height="225" data-htmlarea-file-uid="1" /><figcaption>   </figcaption></figure>';
+$stmtP2->execute([2, 'text', 'Error: Whitespace Caption', $bodytextWhitespaceCaption, 0, 0, $now, $now, 0, 1280]);
+
+// UID 25: Click behavior — image with both link and zoom (popup takes priority per selectTemplate())
+$bodytextLinkPriority = '<p>Link + zoom conflict:</p>'
+    . '<p><a href="https://example.com/priority-test"><img src="fileadmin/user_upload/example.jpg" alt="Link Priority Test" width="300" height="225" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></a></p>';
+$stmtP2->execute([2, 'text', 'Popup Priority over Link', $bodytextLinkPriority, 0, 0, $now, $now, 0, 1536]);
+
+echo "Error handling & edge case content elements (UIDs 20-25) created on page 2\n";
+
+// UIDs 26-33: Isolated CEs for backend tests that SAVE content
+// Each saving spec gets its own CE to prevent cross-file pollution (#621)
+// (Parallel test execution with fullyParallel=true means save order is random)
+// IMPORTANT: CKEditor needs surrounding text paragraphs — bare <p><img></p>
+// renders as a block widget where double-click doesn't trigger the image dialog.
+
+// UID 26: For image-dialog-dimensions.spec.ts (saves dimension changes)
+$bodytextDimensions = '<p>Dimensions test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Dimensions Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of dimensions test.</p>';
+$stmt->execute([1, 'text', 'Dimensions Test CE', $bodytextDimensions, 0, 0, $now, $now, 0, 6656]);
+
+// UID 27: For image-dialog-quality.spec.ts (saves quality changes)
+$bodytextQuality = '<p>Quality test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Quality Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of quality test.</p>';
+$stmt->execute([1, 'text', 'Quality Test CE', $bodytextQuality, 0, 0, $now, $now, 0, 6912]);
+
+// UID 28: For image-dialog-overrides.spec.ts (saves override state)
+// data-alt-override="false" and data-title-override="false" ensure override checkboxes
+// start UNCHECKED — alt/title inputs are disabled, showing FAL metadata as placeholder.
+// Without these attributes, typo3image.js defaults to override=checked (inputs enabled).
+$bodytextOverrides = '<p>Overrides test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="" data-alt-override="false" data-title-override="false" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of overrides test.</p>';
+$stmt->execute([1, 'text', 'Overrides Test CE', $bodytextOverrides, 0, 0, $now, $now, 0, 7168]);
+
+// UID 29: For image-dialog-click-behavior.spec.ts (saves link/zoom changes)
+$bodytextClickBehavior = '<p>Click behavior test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Click Behavior Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of click behavior test.</p>';
+$stmt->execute([1, 'text', 'Click Behavior Test CE', $bodytextClickBehavior, 0, 0, $now, $now, 0, 7424]);
+
+// UID 30: For image-dialog-click-behavior.spec.ts zoom tests (has zoom pre-set)
+$bodytextClickZoom = '<p>Click zoom test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Click Zoom Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of click zoom test.</p>';
+$stmt->execute([1, 'text', 'Click Zoom Test CE', $bodytextClickZoom, 0, 0, $now, $now, 0, 7680]);
+
+// UID 31: For image-dialog-apply-changes.spec.ts (saves alt/title/dimension/link changes)
+// No data-htmlarea-zoom: zoom is explicitly set by the "click-to-enlarge" test,
+// and having it pre-set makes confirmImageDialog() less reliable.
+$bodytextApply = '<p>Apply changes test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Apply Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of apply changes test.</p>';
+$stmt->execute([1, 'text', 'Apply Changes Test CE', $bodytextApply, 0, 0, $now, $now, 0, 7936]);
+
+// UID 32: For link-attributes-roundtrip.spec.ts (saves link attribute changes)
+$bodytextRoundtrip = '<p>Roundtrip test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Roundtrip Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Roundtrip Test CE', $bodytextRoundtrip, 0, 0, $now, $now, 0, 8192]);
+
+// UID 33: For image-insertion.spec.ts (read-only verification of image attributes)
+$bodytextInsertion = '<p>Insertion test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Insertion Test" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of insertion test.</p>';
+$stmt->execute([1, 'text', 'Insertion Test CE', $bodytextInsertion, 0, 0, $now, $now, 0, 8448]);
+
+// UID 34: For link-attributes-roundtrip.spec.ts alignment test (saves link + alignment)
+// Separate from CE 32 to prevent parallel test pollution with fullyParallel=true
+$bodytextAlignRoundtrip = '<p>Alignment roundtrip test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Alignment Roundtrip Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of alignment roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Alignment Roundtrip Test CE', $bodytextAlignRoundtrip, 0, 0, $now, $now, 0, 8704]);
+
+// UID 35: For save-render-roundtrip.spec.ts zoom test (saves zoom toggle)
+// Needs surrounding text to avoid CKEditor block widget rendering.
+$bodytextZoomRoundtrip = '<p>Zoom roundtrip test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Zoom Roundtrip Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of zoom roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Zoom Roundtrip Test CE', $bodytextZoomRoundtrip, 0, 0, $now, $now, 0, 8960]);
+
+// UID 36: For save-render-roundtrip.spec.ts "save unchanged" test (saves CE without changes)
+// Dedicated CE to avoid corrupting CE 1 which is used by read-only tests.
+$bodytextSaveRoundtrip = '<p>Save roundtrip test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Save Roundtrip" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>End of save roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Save Roundtrip Test CE', $bodytextSaveRoundtrip, 0, 0, $now, $now, 0, 9216]);
+
+// UID 37: For save-render-roundtrip.spec.ts "preserves attributes" test
+$bodytextAttrRoundtrip = '<p>Attribute roundtrip test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Attr Roundtrip" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of attribute roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Attr Roundtrip Test CE', $bodytextAttrRoundtrip, 0, 0, $now, $now, 0, 9472]);
+
+// UID 38: For save-render-roundtrip.spec.ts "modify alt text" test
+$bodytextAltRoundtrip = '<p>Alt text roundtrip test:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Alt Roundtrip" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of alt text roundtrip test.</p>';
+$stmt->execute([1, 'text', 'Alt Roundtrip Test CE', $bodytextAltRoundtrip, 0, 0, $now, $now, 0, 9728]);
+
+echo "Isolated test CEs (UIDs 26-38) created for saving specs\n";
+
+// UIDs 39-41: Inline image issues (#636, #637, #638, #639)
+// These CEs provide test data for inline image bug fixes.
+// CE 39: Double-link corrupted inline image — tests upcast recovery (#638)
+// CE 40: Inline image with zoom — tests zoom indicator in editor (#639)
+// CE 41: Inline image with link — tests link indicator in editor (#639)
+
+// UID 39: Double-link corrupted inline image (<a><a><img class="image-inline"></a></a>)
+// This simulates content corrupted by previous save cycles where the double-link
+// recovery upcast would incorrectly create a block element instead of inline.
+$bodytextDoubleLinkInline = '<p>Double-link inline image recovery test:</p>'
+    . '<p>Text before <a href="https://example.com"><a href="https://example.com"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Double Link Inline" width="100" height="75" data-htmlarea-file-uid="1" /></a></a> text after.</p>'
+    . '<p>End of double-link inline test.</p>';
+// Page 2: corrupted data should not appear on the main frontend page
+$stmtP2->execute([2, 'text', 'Double-Link Inline (#638)', $bodytextDoubleLinkInline, 0, 0, $now, $now, 0, 1792]);
+
+// UID 40: Inline image with zoom — should show zoom indicator in CKEditor editing view
+$bodytextInlineZoom = '<p>Inline zoom indicator test:</p>'
+    . '<p>Text before <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Inline Zoom" width="100" height="75" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /> text after zoom image.</p>'
+    . '<p>End of inline zoom test.</p>';
+$stmt->execute([1, 'text', 'Inline Zoom (#639)', $bodytextInlineZoom, 0, 0, $now, $now, 0, 10240]);
+
+// UID 41: Inline image with link — should show link indicator in CKEditor editing view
+$bodytextInlineLink = '<p>Inline link indicator test:</p>'
+    . '<p>Text before <a href="https://example.com/inline-link"><img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="Inline Link" width="100" height="75" data-htmlarea-file-uid="1" /></a> text after linked image.</p>'
+    . '<p>End of inline link test.</p>';
+$stmt->execute([1, 'text', 'Inline Link (#639)', $bodytextInlineLink, 0, 0, $now, $now, 0, 10496]);
+
+echo "Inline image issue CEs (UIDs 39-41) created for #636/#637/#638/#639\n";
+
+// Content Blocks demo page and CEs (only when Content Blocks is installed)
+// The package registers CTypes from ContentBlocks/ definitions; we create
+// a demo page and CEs so the E2E content-blocks-preview spec has data.
+if (is_dir('/var/www/html/vendor/friendsoftypo3/content-blocks')) {
+    echo "Content Blocks detected — creating demo page and content elements...\n";
+
+    // Page uid=3: Content Blocks Demo (child of root page)
+    $pdo->exec("INSERT IGNORE INTO pages (uid, pid, title, slug, doktype, is_siteroot, hidden, deleted, tstamp, crdate, sorting) VALUES (3, 1, 'Content Blocks Demo', '/content-blocks-demo', 1, 0, 0, 0, $now, $now, 768)");
+    echo "Content Blocks demo page (uid=3) inserted\n";
+
+    // UID 42: Content Block with block image and caption
+    $bodytextCB1 = '<p>This content uses a Content Block type with our ViewHelper for backend preview.</p>'
+        . '<p><img src="fileadmin/user_upload/example.jpg" alt="Content Block Demo" width="400" height="300" data-htmlarea-file-uid="1" /></p>'
+        . '<p>Image rendered via Content Block with RteImagePreview ViewHelper.</p>';
+    $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        ->execute([3, 'netresearch_rteimagedemo', 'Content Block: Block Image', $bodytextCB1, 0, 0, $now, $now, 0, 256]);
+
+    // UID 43: Content Block with inline images
+    $bodytextCB2 = '<p>Inline images work in Content Blocks too: here is one '
+        . '<img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="inline demo" width="50" height="38" data-htmlarea-file-uid="1" /> embedded in text.</p>'
+        . '<p>And a second paragraph with another inline <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="second inline" width="50" height="38" data-htmlarea-file-uid="1" /> for good measure.</p>';
+    $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        ->execute([3, 'netresearch_rteimagedemo', 'Content Block: Inline Images', $bodytextCB2, 0, 0, $now, $now, 0, 512]);
+
+    echo "Content Block CEs (UIDs 42-43) created on page 3\n";
+} else {
+    echo "Content Blocks not installed — skipping demo page/CEs\n";
+}
+
+// Table with nested image figures (#698 regression from #692)
+// CKEditor 5 wraps tables in <figure class="table">, which our externalBlocks.figure captures.
+// The inner <figure class="image"> must be re-processed through parseFunc_RTE.
+// Tests: max-width on figure, zoom popup link, linked image, and image src resolution.
+$bodytextTableImage = '<figure class="table"><table><tbody>'
+    . '<tr><td>'
+    . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Table Image Zoom" width="400" height="300" data-htmlarea-file-uid="1" data-htmlarea-zoom="true" /><figcaption>Zoomable image in table</figcaption></figure>'
+    . '</td><td>This cell has a zoomable image with caption</td></tr>'
+    . '<tr><td>'
+    . '<figure class="image"><img src="fileadmin/user_upload/example.jpg" alt="Table Image Plain" width="300" height="225" data-htmlarea-file-uid="1" /></figure>'
+    . '</td><td>This cell has a plain image without caption</td></tr>'
+    . '<tr><td>'
+    . '<figure class="image"><a href="https://typo3.org" target="_blank"><img src="fileadmin/user_upload/example.jpg" alt="Table Image Linked" width="300" height="225" data-htmlarea-file-uid="1" /></a><figcaption>Linked image in table</figcaption></figure>'
+    . '</td><td>This cell has a linked image with caption</td></tr>'
+    . '</tbody></table></figure>';
+$stmt->execute([1, 'text', 'Table Image (#698)', $bodytextTableImage, 0, 0, $now, $now, 0, 10752]);
+echo "Table image CE created for #698\n";
+
+// CE for #790 regression: plain RTE bodytext with NO images. Reporter
+// states the symptom occurs "regardless of whether I have an image in
+// the text" — so the test fixture must be image-free to faithfully
+// reproduce the bug class. The bug is parseFunc_RTE.allowTags being
+// set to a restrictive whitelist via addToList(...) when the default
+// (in TYPO3 v13.2+) is empty. With a whitelist of just "a,figure,
+// figcaption", the <p> tag isn't allowed → htmlspecialchars'd to
+// &lt;p&gt; → encapsLines wraps the encoded "text" in real <p>,
+// producing literal "<p>...</p>" text inside actual paragraphs.
+$bodytext790 = '<p>Lorem ipsum dolor sit amet.</p><p>Another paragraph here for the regression check.</p>';
+$stmt->execute([1, 'text', 'Plain RTE Bodytext (#790)', $bodytext790, 0, 0, $now, $now, 0, 11008]);
+echo "Plain bodytext CE created for #790\n";
+
+// CE for #863: CKEditor 5 image resize. The resize handles store the chosen
+// size as a `width` declaration on the <figure> (class image_resized) and leave
+// the <img> at its intrinsic pixel size. The frontend used to replace that
+// declaration with the computed max-width, so every resized image rendered full
+// width. Covers percentage, pixel, no-caption and linked variants, plus a figure
+// whose style carries declarations that must never reach the output.
+$bodytextResize = '<figure class="image image_resized" style="width:25%;">'
+    . '<img src="fileadmin/user_upload/example.jpg" alt="Resize Percent Caption" width="400" height="300" data-htmlarea-file-uid="1" />'
+    . '<figcaption>Resized to 25 percent</figcaption></figure>'
+    . '<figure class="image image_resized" style="width:25%;">'
+    . '<img src="fileadmin/user_upload/example.jpg" alt="Resize Percent No Caption" width="400" height="300" data-htmlarea-file-uid="1" />'
+    . '</figure>'
+    . '<figure class="image image_resized" style="width:120px;">'
+    . '<img src="fileadmin/user_upload/example.jpg" alt="Resize Pixels Caption" width="400" height="300" data-htmlarea-file-uid="1" />'
+    . '<figcaption>Resized to 120 pixels</figcaption></figure>'
+    . '<figure class="image image_resized" style="width:25%;">'
+    . '<a href="https://typo3.org" target="_blank"><img src="fileadmin/user_upload/example.jpg" alt="Resize Linked" width="400" height="300" data-htmlarea-file-uid="1" /></a>'
+    . '<figcaption>Resized and linked</figcaption></figure>'
+    . '<figure class="image image_resized" style="width:expression(alert(1));background:url(//evil.example/x);">'
+    . '<img src="fileadmin/user_upload/example.jpg" alt="Resize Unsafe Style" width="400" height="300" data-htmlarea-file-uid="1" />'
+    . '<figcaption>Unsafe declarations</figcaption></figure>'
+    . '<figure class="image">'
+    . '<img src="fileadmin/user_upload/example.jpg" alt="Resize Never Applied" width="400" height="300" data-htmlarea-file-uid="1" />'
+    . '<figcaption>Never resized</figcaption></figure>';
+$stmt->execute([1, 'text', 'Image Resize (#863)', $bodytextResize, 0, 0, $now, $now, 0, 11264]);
+echo "Image resize CE created for #863\n";
+
+CONTENT_EOF
+
+        # Start MariaDB container for E2E tests
+        # TYPO3's database:updateschema works properly with MariaDB (not SQLite)
+        # Use network alias so PHP scripts can use a fixed hostname
+        echo "Starting MariaDB container..."
+        # Admin password used for TYPO3 setup and Playwright backend tests
+        E2E_ADMIN_PASSWORD="${TYPO3_BACKEND_PASSWORD:-Joh316!!}"
+        # Set default MariaDB version for E2E (DBMS_VERSION is only set for functional tests)
+        E2E_MARIADB_IMAGE="docker.io/mariadb:10.11"
+        ${CONTAINER_BIN} run -d --rm ${CI_PARAMS} \
+            --name mariadb-e2e-${SUFFIX} \
+            --network ${NETWORK} \
+            --network-alias mariadb-e2e \
+            -e MYSQL_ROOT_PASSWORD=root \
+            -e MYSQL_DATABASE=e2e_test \
+            ${E2E_MARIADB_IMAGE} \
+            --character-set-server=utf8mb4 \
+            --collation-server=utf8mb4_unicode_ci
+
+        # Wait for MariaDB to be ready (use network alias since waitFor runs in a container)
+        waitFor mariadb-e2e 3306
+
+        # Determine TYPO3 version constraint for E2E
+        # E2E only supports v13+; fall back to v13 for unsupported versions
+        E2E_TYPO3_VERSION=${TYPO3_VERSION}
+        if [[ "${E2E_TYPO3_VERSION}" == "11" || "${E2E_TYPO3_VERSION}" == "12" ]]; then
+            E2E_TYPO3_VERSION="13"
+        fi
+        case ${E2E_TYPO3_VERSION} in
+            14) E2E_TYPO3_CONSTRAINT="^14.0" ;;
+            *)  E2E_TYPO3_CONSTRAINT="^13.4" ;;
+        esac
+
+        # Install TYPO3 with the extension FIRST (before starting services)
+        echo "Installing TYPO3 v${E2E_TYPO3_VERSION} for E2E tests..."
+
+        # Persistent Composer cache — mount host dir so cached packages survive across runs
+        E2E_COMPOSER_CACHE="${ROOT_DIR}/.Build/.cache/composer"
+        mkdir -p "${E2E_COMPOSER_CACHE}"
+
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name e2e-setup-${SUFFIX} \
+            -v ${E2E_ROOT}:/var/www/html \
+            -v ${E2E_SCRIPTS}:/e2e-scripts:ro \
+            -v ${ROOT_DIR}:/extension:ro \
+            -v ${E2E_COMPOSER_CACHE}:/.cache/composer \
+            -w /var/www/html \
+            -e COMPOSER_CACHE_DIR=/.cache/composer \
+            -e COMPOSER_HOME=/.cache/composer/home \
+            -e E2E_VARIANT="${E2E_VARIANT}" \
+            -e COMPOSER_RETRY="${COMPOSER_RETRY:-}" \
+            ${IMAGE_PHP} /bin/bash -c "
+                # Abort at the failing command. Without this the block runs on
+                # after a failed composer install, and the first visible error is
+                # Playwright reporting ERR_NAME_NOT_RESOLVED for the Apache
+                # container ~1200 log lines later.
+                set -e
+
+                # composer_retry is defined once, in the reusable workflow
+                # (netresearch/typo3-ci-workflows .github/workflows/e2e.yml). It is
+                # passed in as COMPOSER_RETRY and retries transport failures three
+                # times; an intermittent HTTP 504 from api.github.com otherwise
+                # fails the whole matrix, because Composer's source fallback is off
+                # by default and never tries git. Outside CI the variable is empty
+                # and this stays a plain passthrough.
+                if [ -n \"\${COMPOSER_RETRY:-}\" ]; then
+                    eval \"\$COMPOSER_RETRY\"
+                else
+                    composer_retry() { composer \"\$@\"; }
+                fi
+
+                # Disable Composer's block-insecure feature for transient upstream advisories
+                # (e.g., CVE-2025-45769 in firebase/php-jwt <7.0, a TYPO3 Core dependency)
+                composer config --global audit.block-insecure false
+
+                # Create TYPO3 project (--no-scripts to prevent DB access before setup)
+                composer_retry create-project typo3/cms-base-distribution:${E2E_TYPO3_CONSTRAINT} . --no-interaction --no-progress --no-scripts
+
+                # Install ALL packages with --no-scripts FIRST, so database:updateschema knows about all tables
+                # Mount extension at /extension and use that path for composer
+                composer config repositories.local path /extension
+                composer_retry require netresearch/rte-ckeditor-image:@dev --no-interaction --no-progress --no-scripts
+
+                # Install variant-specific extension neighborhood. See -X flag
+                # docs in this script's header. cms-reports is included in all
+                # variants for the post-install healthcheck commands.
+                case \"${E2E_VARIANT}\" in
+                    core-only)
+                        echo \"E2E variant: core-only (no fluid_styled_content, no Bootstrap Package)\"
+                        composer_retry require typo3/cms-reports --no-interaction --no-progress --no-scripts
+                        ;;
+                    fsc)
+                        echo \"E2E variant: fsc (fluid_styled_content site set, no Bootstrap Package)\"
+                        composer_retry require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
+                        ;;
+                    bootstrap)
+                        echo \"E2E variant: bootstrap (FSC + Bootstrap Package)\"
+                        composer_retry require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
+                        # Bootstrap Package versions track TYPO3 majors:
+                        # ^15.0 → TYPO3 v13, ^16.0 → TYPO3 v14
+                        # E2E_TYPO3_VERSION is expanded by the outer shell (no \\\$ escape).
+                        if [ \"${E2E_TYPO3_VERSION}\" = \"14\" ]; then
+                            composer_retry require bk2k/bootstrap-package:'^16.0' --no-interaction --no-progress --no-scripts
+                        else
+                            composer_retry require bk2k/bootstrap-package:'^15.0' --no-interaction --no-progress --no-scripts
+                        fi
+                        ;;
+                    *)
+                        echo \"::error::Unknown E2E_VARIANT: ${E2E_VARIANT}\" >&2
+                        exit 1
+                        ;;
+                esac
+
+                # Install extra Composer packages if specified via -c flag
+                if [ -n \"${E2E_EXTRA_PACKAGES}\" ]; then
+                    echo \"Installing extra packages: ${E2E_EXTRA_PACKAGES}\"
+                    composer_retry require ${E2E_EXTRA_PACKAGES} --no-interaction --no-progress --no-scripts
+                fi
+
+                # Install typo3-console for database:updateschema command (not in TYPO3 Core)
+                composer_retry require helhum/typo3-console --no-interaction --no-progress --no-scripts
+
+                # NOW run composer install to execute ALL Composer scripts
+                # This registers TYPO3 commands, sets up autoloading, and configures extensions
+                # Must be done AFTER all packages are added but BEFORE TYPO3 setup
+                echo 'Running Composer scripts to register TYPO3 commands...'
+                composer_retry install --no-interaction --no-progress
+
+                # Use TYPO3 setup command for proper installation with MariaDB
+                # All env vars prevent interactive prompts
+                # Use network alias 'mariadb-e2e' for database host
+                TYPO3_SETUP_ADMIN_USERNAME=admin \
+                TYPO3_SETUP_ADMIN_PASSWORD="${E2E_ADMIN_PASSWORD}" \
+                TYPO3_SETUP_ADMIN_EMAIL='admin@example.com' \
+                vendor/bin/typo3 setup \
+                    --driver=mysqli \
+                    --host=mariadb-e2e \
+                    --port=3306 \
+                    --dbname=e2e_test \
+                    --username=root \
+                    --password=root \
+                    --server-type=other \
+                    --no-interaction \
+                    --force || exit 1
+
+                # Copy configuration files from mounted scripts
+                mkdir -p config/system
+                cp /e2e-scripts/additional.php config/system/additional.php
+
+                # CRITICAL: Inject trustedHostsPattern directly into settings.php
+                # This MUST be done because TYPO3 checks trustedHostsPattern BEFORE
+                # loading additional.php or environment variables
+                echo \"Injecting trustedHostsPattern into settings.php...\"
+                sed -i \"s/'SYS' => \\[/'SYS' => [\\n        'trustedHostsPattern' => '.*',/\" config/system/settings.php
+
+                # Verify the change was applied
+                grep -q \"trustedHostsPattern\" config/system/settings.php && echo \"trustedHostsPattern injected successfully\" || echo \"WARNING: trustedHostsPattern injection failed\"
+
+                # Copy Content Block fixtures into the content-blocks extension
+                # Content Blocks v1.3 only discovers definitions inside loaded
+                # extensions, so we place them in the content-blocks package dir.
+                if composer show friendsoftypo3/content-blocks >/dev/null 2>&1; then
+                    CB_EXT_PATH=\$(composer show friendsoftypo3/content-blocks --path 2>/dev/null | awk '{print \$NF}')
+                    if [ -n \"\${CB_EXT_PATH}\" ] && [ -d \"\${CB_EXT_PATH}\" ]; then
+                        echo \"Content Blocks detected at \${CB_EXT_PATH} — copying test Content Block definitions...\"
+                        mkdir -p \"\${CB_EXT_PATH}/ContentBlocks/ContentElements/\"
+                        cp -r /extension/Tests/Fixtures/ContentBlocks/netresearch-rte-image-demo \
+                              \"\${CB_EXT_PATH}/ContentBlocks/ContentElements/netresearch-rte-image-demo\"
+                    fi
+                fi
+
+                # Setup extensions (configures extensions, doesn't create tables)
+                vendor/bin/typo3 extension:setup || exit 1
+
+                # Create database tables - this works correctly with MariaDB
+                echo 'Creating database tables...'
+                vendor/bin/typo3 database:updateschema '*' --verbose 2>&1 || exit 1
+
+                # Create site configuration (needed for frontend rendering)
+                mkdir -p config/sites/main
+                cp /e2e-scripts/site-config.yaml config/sites/main/config.yaml
+
+                # Insert required database records (pages, sys_template)
+                php /e2e-scripts/db-setup.php || exit 1
+
+                # Create test content (sys_file, tt_content)
+                mkdir -p public/fileadmin/user_upload
+                php /e2e-scripts/create-test-content.php || exit 1
+
+                # Create .htaccess for Apache URL rewriting (not needed with
+                # PHP built-in server, but required with Apache + PHP-FPM)
+                if [ ! -f public/.htaccess ]; then
+                    echo 'Creating .htaccess for Apache...'
+                    cat > public/.htaccess << 'HTACCESS'
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-l
+RewriteRule ^(.*)$ index.php [QSA,L]
+HTACCESS
+                fi
+
+                # Set permissions BEFORE cache operations
+                chmod -R 777 var/ public/typo3temp/ public/fileadmin/
+
+                echo '[DEBUG] Setup container finishing'
+            "
+        E2E_SETUP_EXIT=$?
+
+        # Stop here when the setup container failed. Without this check the
+        # script carries on, starts Apache against a docroot that has no
+        # TYPO3, and the first error anyone sees is Playwright reporting
+        # ERR_NAME_NOT_RESOLVED for a container that exited long ago.
+        if [[ ${E2E_SETUP_EXIT} -ne 0 ]]; then
+            echo "" >&2
+            echo "E2E setup failed (exit ${E2E_SETUP_EXIT}). TYPO3 was not installed;" >&2
+            echo "the cause is in the setup container output above, not in any" >&2
+            echo "later networking or Playwright error." >&2
+            cleanUp
+            exit ${E2E_SETUP_EXIT}
+        fi
+
+        # Run cache operations in a SEPARATE container to isolate any issues
+        echo "Running cache warmup in separate container..."
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name e2e-cache-${SUFFIX} \
+            -v ${E2E_ROOT}:/var/www/html \
+            -v ${ROOT_DIR}:/extension:ro \
+            -w /var/www/html \
+            ${IMAGE_PHP} /bin/bash -c "
+                echo '[CACHE] Flushing caches...'
+                vendor/bin/typo3 cache:flush || echo '[CACHE] cache:flush failed'
+                echo '[CACHE] Warming up caches (rebuilds DI container)...'
+                vendor/bin/typo3 cache:warmup || echo '[CACHE] cache:warmup failed'
+                echo '[CACHE] Checking DI cache...'
+                ls var/cache/code/di/ || echo '[CACHE] DI cache not found'
+                echo '[SITE] Listing configured sites...'
+                vendor/bin/typo3 site:list || echo '[SITE] site:list failed'
+                echo '[SITE] Site configuration details...'
+                vendor/bin/typo3 site:show main 2>/dev/null || echo '[SITE] No site named main found'
+                echo '[CACHE] Done'
+            "
+
+        # Start Apache + PHP-FPM (replaces PHP built-in server).
+        # PHP built-in server has no URL rewriting, so FAL image processing
+        # routes fail (returns empty images after save). Apache + .htaccess
+        # provides proper TYPO3 URL routing — same pattern as TYPO3 Core
+        # acceptance tests.
+
+        # 1) PHP-FPM container — serves PHP requests on port 9000
+        # -R: allow running as root (required for Podman in CI)
+        # PHPFPM_USER/GROUP: configure FPM pool user (same as TYPO3 Core)
+        echo "Starting PHP-FPM container..."
+        ${CONTAINER_BIN} run -d --rm ${CI_PARAMS} \
+            --name phpfpm-e2e-${SUFFIX} \
+            --network ${NETWORK} \
+            --network-alias phpfpm \
+            -v ${E2E_ROOT}:/var/www/html \
+            -v ${ROOT_DIR}:/extension:ro \
+            -w /var/www/html \
+            -e PHPFPM_USER=0 \
+            -e PHPFPM_GROUP=0 \
+            ${IMAGE_PHP} php-fpm -R -F
+
+        waitFor phpfpm-e2e-${SUFFIX} 9000
+
+        # 2) Apache container — serves static files + proxies PHP to FPM
+        # Must also mount /extension because _assets/ symlinks chain
+        # through vendor/netresearch/rte-ckeditor-image → /extension
+        echo "Starting Apache container..."
+        ${CONTAINER_BIN} run -d --rm ${CI_PARAMS} \
+            --name apache-e2e-${SUFFIX} \
+            --network ${NETWORK} \
+            -v ${E2E_ROOT}:/var/www/html \
+            -v ${ROOT_DIR}:/extension:ro \
+            -e APACHE_RUN_USER="#$(id -u)" \
+            -e APACHE_RUN_GROUP="#$(id -g)" \
+            -e APACHE_RUN_SERVERNAME=apache-e2e-${SUFFIX} \
+            -e APACHE_RUN_DOCROOT=/var/www/html/public \
+            -e PHPFPM_HOST=phpfpm \
+            -e PHPFPM_PORT=9000 \
+            ${IMAGE_APACHE}
+
+        waitFor apache-e2e-${SUFFIX} 80
+        sleep 2
+
+        # Verify Apache + PHP-FPM are serving TYPO3
+        echo "Verifying TYPO3 frontend via Apache..."
+        ${CONTAINER_BIN} run --rm ${CI_PARAMS} \
+            --name curl-check-${SUFFIX} \
+            --network ${NETWORK} \
+            ${IMAGE_PHP} curl -sS -o /dev/null -w "Frontend: HTTP %{http_code}" http://apache-e2e-${SUFFIX}:80/ 2>&1
+
+        echo "Running Playwright E2E tests..."
+
+        # Build extra env vars for Playwright based on installed packages
+        PLAYWRIGHT_EXTRA_ENV=""
+        if [[ "${E2E_EXTRA_PACKAGES}" == *"content-blocks"* ]]; then
+            PLAYWRIGHT_EXTRA_ENV="-e CONTENT_BLOCKS_ENABLED=1"
+        fi
+
+        # Run Playwright tests
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name playwright-e2e-${SUFFIX} \
+            -v ${ROOT_DIR}/Tests/E2E:/app \
+            -v ${ROOT_DIR}/Build/test-results:/app/test-results \
+            -w /app \
+            -e BASE_URL=http://apache-e2e-${SUFFIX}:80 \
+            -e TYPO3_BACKEND_PASSWORD="${E2E_ADMIN_PASSWORD}" \
+            -e TYPO3_VERSION="${E2E_TYPO3_VERSION}" \
+            -e E2E_VARIANT="${E2E_VARIANT}" \
+            -e CI=true \
+            ${PLAYWRIGHT_EXTRA_ENV} \
+            ${IMAGE_PLAYWRIGHT} /bin/bash -c "
+                # Skip npm install if node_modules exists (pre-cached in CI)
+                if [ ! -d node_modules ] || [ ! -f node_modules/.package-lock.json ]; then
+                    npm ci --ignore-scripts 2>/dev/null || npm install --no-save
+                fi
+                npx playwright test ${EXTRA_TEST_OPTIONS} $@
+            "
+        SUITE_EXIT_CODE=$?
+
+        # Stop containers
+        ${CONTAINER_BIN} kill apache-e2e-${SUFFIX} >/dev/null 2>&1 || true
+        ${CONTAINER_BIN} kill phpfpm-e2e-${SUFFIX} >/dev/null 2>&1 || true
+        ${CONTAINER_BIN} kill mariadb-e2e-${SUFFIX} >/dev/null 2>&1 || true
+
+        # Clean up E2E directories (keep for debugging if failed)
+        if [[ ${SUITE_EXIT_CODE} -eq 0 ]]; then
+            removeContainerOwnedDir "${E2E_ROOT}"
+            rm -rf "${E2E_SCRIPTS}"
+        else
+            echo "E2E test environment preserved at ${E2E_ROOT} for debugging"
+        fi
+        ;;
+    coveralls)
+        COMMAND=(php -dxdebug.mode=coverage ./.Build/bin/php-coveralls --coverage_clover=./.Build/logs/clover.xml --json_path=./.Build/logs/coveralls-upload.json -v)
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-coverals-${SUFFIX} -e XDEBUG_MODE=coverage -e XDEBUG_TRIGGER=foo -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" -e COMPOSER_CACHE_DIR=.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} "${COMMAND[@]}"
+        SUITE_EXIT_CODE=$?
+        ;;
+    functional)
+        COMMAND=(.Build/bin/phpunit -c Build/phpunit/FunctionalTests.xml --exclude-group not-${DBMS} ${EXTRA_TEST_OPTIONS} "$@")
+        case ${DBMS} in
+            mariadb)
+                echo "Using driver: ${DATABASE_DRIVER}"
+                ${CONTAINER_BIN} run --rm ${CI_PARAMS} --name mariadb-func-${SUFFIX} --network ${NETWORK} -d -e MYSQL_ROOT_PASSWORD=funcp --tmpfs /var/lib/mysql/:rw,noexec,nosuid ${IMAGE_MARIADB} >/dev/null
+                waitFor mariadb-func-${SUFFIX} 3306
+                CONTAINERPARAMS="-e typo3DatabaseDriver=${DATABASE_DRIVER} -e typo3DatabaseName=func_test -e typo3DatabaseUsername=root -e typo3DatabaseHost=mariadb-func-${SUFFIX} -e typo3DatabasePassword=funcp"
+                ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name functional-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${CONTAINERPARAMS} ${IMAGE_PHP} "${COMMAND[@]}"
+                SUITE_EXIT_CODE=$?
+                ;;
+            mysql)
+                echo "Using driver: ${DATABASE_DRIVER}"
+                ${CONTAINER_BIN} run --rm ${CI_PARAMS} --name mysql-func-${SUFFIX} --network ${NETWORK} -d -e MYSQL_ROOT_PASSWORD=funcp --tmpfs /var/lib/mysql/:rw,noexec,nosuid ${IMAGE_MYSQL} >/dev/null
+                waitFor mysql-func-${SUFFIX} 3306
+                CONTAINERPARAMS="-e typo3DatabaseDriver=${DATABASE_DRIVER} -e typo3DatabaseName=func_test -e typo3DatabaseUsername=root -e typo3DatabaseHost=mysql-func-${SUFFIX} -e typo3DatabasePassword=funcp"
+                ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name functional-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${CONTAINERPARAMS} ${IMAGE_PHP} "${COMMAND[@]}"
+                SUITE_EXIT_CODE=$?
+                ;;
+            postgres)
+                ${CONTAINER_BIN} run --rm ${CI_PARAMS} --name postgres-func-${SUFFIX} --network ${NETWORK} -d -e POSTGRES_PASSWORD=funcp -e POSTGRES_USER=funcu --tmpfs /var/lib/postgresql/data:rw,noexec,nosuid ${IMAGE_POSTGRES} >/dev/null
+                waitFor postgres-func-${SUFFIX} 5432
+                CONTAINERPARAMS="-e typo3DatabaseDriver=pdo_pgsql -e typo3DatabaseName=bamboo -e typo3DatabaseUsername=funcu -e typo3DatabaseHost=postgres-func-${SUFFIX} -e typo3DatabasePassword=funcp"
+                ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name functional-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${CONTAINERPARAMS} ${IMAGE_PHP} "${COMMAND[@]}"
+                SUITE_EXIT_CODE=$?
+                ;;
+            sqlite)
+                # create sqlite tmpfs mount typo3temp/var/tests/functional-sqlite-dbs/ to avoid permission issues
+                mkdir -p "${ROOT_DIR}/typo3temp/var/tests/functional-sqlite-dbs/"
+                CONTAINERPARAMS="-e typo3DatabaseDriver=pdo_sqlite --tmpfs ${ROOT_DIR}/typo3temp/var/tests/functional-sqlite-dbs/:rw,noexec,nosuid"
+                ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name functional-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${CONTAINERPARAMS} ${IMAGE_PHP} "${COMMAND[@]}"
+                SUITE_EXIT_CODE=$?
+                ;;
+        esac
+        ;;
+    fuzz)
+        # Run fuzz tests using php-fuzzer
+        # Default: run ImageAttributeParser fuzzer for 60 seconds
+        FUZZ_TARGET="${1:-Tests/Fuzz/ImageAttributeParserTarget.php}"
+        FUZZ_CORPUS="Tests/Fuzz/corpus/image-parser"
+        FUZZ_MAX_RUNS="${2:-10000}"
+
+        # Determine corpus based on target
+        if [[ "${FUZZ_TARGET}" == *"SoftReference"* ]]; then
+            FUZZ_CORPUS="Tests/Fuzz/corpus/softref-parser"
+        fi
+
+        echo "Fuzzing target: ${FUZZ_TARGET}"
+        echo "Corpus: ${FUZZ_CORPUS}"
+        echo "Max runs: ${FUZZ_MAX_RUNS}"
+
+        COMMAND=(.Build/bin/php-fuzzer fuzz "${FUZZ_TARGET}" "${FUZZ_CORPUS}" --max-runs "${FUZZ_MAX_RUNS}")
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name fuzz-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${IMAGE_PHP} "${COMMAND[@]}"
+        SUITE_EXIT_CODE=$?
+        ;;
+    mutation)
+        # Run mutation tests using Infection
+        # First run unit tests with coverage, then run mutation testing
+        echo "Running unit tests with coverage for mutation testing..."
+        COMMAND=(.Build/bin/phpunit -c Build/phpunit/UnitTests.xml --coverage-xml=.Build/logs/coverage-xml --log-junit=.Build/logs/coverage-xml/junit.xml)
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name unit-coverage-${SUFFIX} -e XDEBUG_MODE=coverage -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${IMAGE_PHP} "${COMMAND[@]}"
+        UNIT_EXIT_CODE=$?
+
+        if [ ${UNIT_EXIT_CODE} -ne 0 ]; then
+            echo "Unit tests failed, skipping mutation testing"
+            SUITE_EXIT_CODE=${UNIT_EXIT_CODE}
+        else
+            echo "Running mutation tests..."
+            COMMAND=(.Build/bin/infection --configuration=infection.json5 --threads=4 --coverage=.Build/logs/coverage-xml --skip-initial-tests "$@")
+            ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name mutation-${SUFFIX} ${IMAGE_PHP} "${COMMAND[@]}"
+            SUITE_EXIT_CODE=$?
+        fi
+        ;;
+    lint)
+        COMMAND="php -v | grep '^PHP'; find . -name '*.php' ! -path '*.Build/*' -print0 | xargs -0 -n1 -P4 php -dxdebug.mode=off -l >/dev/null"
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name composer-command-${SUFFIX} -e COMPOSER_CACHE_DIR=.cache/composer -e COMPOSER_ROOT_VERSION=${COMPOSER_ROOT_VERSION} ${IMAGE_PHP} /bin/bash -c "${COMMAND}"
+        SUITE_EXIT_CODE=$?
+        ;;
+    unit)
+        COMMAND=(.Build/bin/phpunit -c Build/phpunit/UnitTests.xml --exclude-group not-${DBMS} ${EXTRA_TEST_OPTIONS} "$@")
+        ${CONTAINER_BIN} run ${CONTAINER_COMMON_PARAMS} --name unit-${SUFFIX} ${XDEBUG_MODE} -e XDEBUG_CONFIG="${XDEBUG_CONFIG}" ${IMAGE_PHP} "${COMMAND[@]}"
+        SUITE_EXIT_CODE=$?
+        ;;
+    update)
+        # pull typo3/core-testing-*:latest versions of those ones that exist locally
+        echo "> pull ghcr.io/typo3/core-testing-*:latest versions of those ones that exist locally"
+        ${CONTAINER_BIN} images ghcr.io/typo3/core-testing-*:latest --format "{{.Repository}}:latest" | xargs -I {} ${CONTAINER_BIN} pull {}
+        echo ""
+        # remove "dangling" typo3/core-testing-* images (those tagged as <none>)
+        echo "> remove \"dangling\" ghcr.io/typo3/core-testing-* images (those tagged as <none>)"
+        ${CONTAINER_BIN} images --filter "reference=ghcr.io/typo3/core-testing-*" --filter "dangling=true" --format "{{.ID}}" | xargs -I {} ${CONTAINER_BIN} rmi {}
+        echo ""
+        ;;
+    *)
+        loadHelp
+        echo "Invalid -s option argument ${TEST_SUITE}" >&2
+        echo >&2
+        echo "${HELP}" >&2
+        exit 1
+        ;;
+esac
+
+cleanUp
+
+# Print summary
+echo "" >&2
+echo "###########################################################################" >&2
+echo "Result of ${TEST_SUITE}" >&2
+if [[ ${IS_CI} -eq 1 ]]; then
+    echo "Environment: CI" >&2
+else
+    echo "Environment: local" >&2
+fi
+echo "PHP: ${PHP_VERSION}" >&2
+echo "TYPO3: ${TYPO3_VERSION}" >&2
+echo "CONTAINER_BIN: ${CONTAINER_BIN}"
+if [[ ${TEST_SUITE} =~ ^functional$ ]]; then
+    case "${DBMS}" in
+        mariadb|mysql)
+            echo "DBMS: ${DBMS}  version ${DBMS_VERSION}  driver ${DATABASE_DRIVER}" >&2
+            ;;
+        postgres)
+            echo "DBMS: ${DBMS}  version ${DBMS_VERSION}  driver pdo_pgsql" >&2
+            ;;
+        sqlite)
+            echo "DBMS: ${DBMS}  driver pdo_sqlite" >&2
+            ;;
+    esac
+fi
+if [[ -n ${EXTRA_TEST_OPTIONS} ]]; then
+    echo " Note: Using -e is deprecated. Simply add the options at the end of the command."
+    echo " Instead of: Build/Scripts/runTests.sh -s ${TEST_SUITE} -e '${EXTRA_TEST_OPTIONS}' $@"
+    echo " use:        Build/Scripts/runTests.sh -s ${TEST_SUITE} -- ${EXTRA_TEST_OPTIONS} $@"
+fi
+if [[ ${SUITE_EXIT_CODE} -eq 0 ]]; then
+    echo "SUCCESS" >&2
+else
+    echo "FAILURE" >&2
+fi
+echo "###########################################################################" >&2
+echo "" >&2
+
+# Exit with code of test suite - This script return non-zero if the executed test failed.
+exit $SUITE_EXIT_CODE
