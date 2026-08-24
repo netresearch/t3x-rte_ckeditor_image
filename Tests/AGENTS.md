@@ -68,7 +68,7 @@ Tests/
 | Unit tests | `composer ci:test:php:unit` | Fast, no DB needed |
 | Functional tests | `composer ci:test:php:functional` | Needs `typo3DatabaseDriver=pdo_sqlite` env var |
 | JavaScript tests | `composer ci:test:js:unit` | Runs in Tests/JavaScript/ via Vitest |
-| E2E tests | `Build/Scripts/runTests.sh -s e2e -t 13 -p 8.5 -X fsc` | Docker-based, TYPO3 v13 or v14, variant via `-X` |
+| E2E tests | `Build/Scripts/e2e.sh -s e2e -t 13 -p 8.5 -X fsc` | Docker-based, TYPO3 v13 or v14, variant via `-X` |
 | Fuzz tests | `composer ci:fuzz` | 10,000 runs per target |
 | Mutation tests | `composer ci:mutation` | Infection, runs unit tests first |
 | Unit coverage | `composer ci:coverage:unit` | Outputs to `.Build/coverage-unit/` |
