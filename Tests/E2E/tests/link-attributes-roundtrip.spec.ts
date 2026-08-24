@@ -86,6 +86,16 @@ async function setDialogValues(page: Page, values: {
 }
 
 test.describe('Link Attributes Round-Trip Persistence', () => {
+  // Serial: the round-trip test and the debug test below both edit content
+  // element CE_LINK, and playwright.config.ts sets fullyParallel, which runs
+  // tests from ONE file concurrently. Two of them writing the same record
+  // interleave, and the round-trip assertion then reads the other test's link
+  // (t3://page?uid=1) instead of its own. `workers: 2` in CI only narrowed the
+  // window — it never closed it, so this was a latent flake there too. Fixing
+  // the sharing itself (a record per test) is the better answer and is not
+  // done here; until then this block must not run in parallel with itself.
+  test.describe.configure({ mode: 'serial' });
+
   test.beforeEach(async ({ page }) => {
     requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
     await loginToBackend(page);
