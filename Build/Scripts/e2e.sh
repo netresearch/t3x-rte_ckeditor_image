@@ -34,6 +34,23 @@ cleanUp() {
     ${CONTAINER_BIN} network rm ${NETWORK} >/dev/null
 }
 
+# Remove a directory the e2e containers wrote into. They run as root, so on a
+# developer machine a plain `rm -rf` hits "Permission denied" on the files they
+# created — it fails quietly, the directory survives, and the next
+# `composer create-project` aborts with "Project directory is not empty".
+# A fresh CI runner never sees this. Delete from inside a container, which runs
+# as the same user that created the files.
+removeContainerOwnedDir() {
+    local target="${1}"
+    [ -d "${target}" ] || return 0
+    rm -rf "${target}" 2>/dev/null || true
+    if [ -d "${target}" ]; then
+        ${CONTAINER_BIN} run --rm -v "${target}:/target" ${IMAGE_PHP} \
+            sh -c 'rm -rf /target/* /target/.[!.]* 2>/dev/null; true' >/dev/null 2>&1 || true
+        rmdir "${target}" 2>/dev/null || true
+    fi
+}
+
 handleDbmsOptions() {
     # -a, -d, -i depend on each other. Validate input combinations and set defaults.
     case ${DBMS} in
@@ -663,8 +680,15 @@ case ${TEST_SUITE} in
 
         echo "Setting up E2E test environment..."
 
-        # Clean and create E2E TYPO3 instance
-        rm -rf "${E2E_ROOT}"
+        # Clean and create E2E TYPO3 instance.
+        #
+        # The containers below write as root, so on a developer machine the
+        # previous run leaves files this `rm` cannot touch. It fails quietly,
+        # the `mkdir -p` after it succeeds anyway, and the next
+        # `composer create-project` aborts with "Project directory is not
+        # empty" — a fresh CI runner never sees this. Remove the leftovers
+        # from inside a container, which runs as the same user that made them.
+        removeContainerOwnedDir "${E2E_ROOT}"
         rm -rf "${E2E_SCRIPTS}"
         mkdir -p "${E2E_ROOT}"
         mkdir -p "${E2E_SCRIPTS}"
@@ -1316,19 +1340,40 @@ CONTENT_EOF
             -v ${E2E_COMPOSER_CACHE}:/.cache/composer \
             -w /var/www/html \
             -e COMPOSER_CACHE_DIR=/.cache/composer \
+            -e COMPOSER_HOME=/.cache/composer/home \
             -e E2E_VARIANT="${E2E_VARIANT}" \
+            -e COMPOSER_RETRY="${COMPOSER_RETRY:-}" \
             ${IMAGE_PHP} /bin/bash -c "
+                # Abort at the failing command. Without this the block runs on
+                # after a failed composer install, and the first visible error is
+                # Playwright reporting ERR_NAME_NOT_RESOLVED for the Apache
+                # container ~1200 log lines later.
+                set -e
+
+                # composer_retry is defined once, in the reusable workflow
+                # (netresearch/typo3-ci-workflows .github/workflows/e2e.yml). It is
+                # passed in as COMPOSER_RETRY and retries transport failures three
+                # times; an intermittent HTTP 504 from api.github.com otherwise
+                # fails the whole matrix, because Composer's source fallback is off
+                # by default and never tries git. Outside CI the variable is empty
+                # and this stays a plain passthrough.
+                if [ -n \"\${COMPOSER_RETRY:-}\" ]; then
+                    eval \"\$COMPOSER_RETRY\"
+                else
+                    composer_retry() { composer \"\$@\"; }
+                fi
+
                 # Disable Composer's block-insecure feature for transient upstream advisories
                 # (e.g., CVE-2025-45769 in firebase/php-jwt <7.0, a TYPO3 Core dependency)
                 composer config --global audit.block-insecure false
 
                 # Create TYPO3 project (--no-scripts to prevent DB access before setup)
-                composer create-project typo3/cms-base-distribution:${E2E_TYPO3_CONSTRAINT} . --no-interaction --no-progress --no-scripts
+                composer_retry create-project typo3/cms-base-distribution:${E2E_TYPO3_CONSTRAINT} . --no-interaction --no-progress --no-scripts
 
                 # Install ALL packages with --no-scripts FIRST, so database:updateschema knows about all tables
                 # Mount extension at /extension and use that path for composer
                 composer config repositories.local path /extension
-                composer require netresearch/rte-ckeditor-image:@dev --no-interaction --no-progress --no-scripts
+                composer_retry require netresearch/rte-ckeditor-image:@dev --no-interaction --no-progress --no-scripts
 
                 # Install variant-specific extension neighborhood. See -X flag
                 # docs in this script's header. cms-reports is included in all
@@ -1336,22 +1381,22 @@ CONTENT_EOF
                 case \"${E2E_VARIANT}\" in
                     core-only)
                         echo \"E2E variant: core-only (no fluid_styled_content, no Bootstrap Package)\"
-                        composer require typo3/cms-reports --no-interaction --no-progress --no-scripts
+                        composer_retry require typo3/cms-reports --no-interaction --no-progress --no-scripts
                         ;;
                     fsc)
                         echo \"E2E variant: fsc (fluid_styled_content site set, no Bootstrap Package)\"
-                        composer require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
+                        composer_retry require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
                         ;;
                     bootstrap)
                         echo \"E2E variant: bootstrap (FSC + Bootstrap Package)\"
-                        composer require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
+                        composer_retry require typo3/cms-fluid-styled-content typo3/cms-reports --no-interaction --no-progress --no-scripts
                         # Bootstrap Package versions track TYPO3 majors:
                         # ^15.0 → TYPO3 v13, ^16.0 → TYPO3 v14
                         # E2E_TYPO3_VERSION is expanded by the outer shell (no \\\$ escape).
                         if [ \"${E2E_TYPO3_VERSION}\" = \"14\" ]; then
-                            composer require bk2k/bootstrap-package:'^16.0' --no-interaction --no-progress --no-scripts
+                            composer_retry require bk2k/bootstrap-package:'^16.0' --no-interaction --no-progress --no-scripts
                         else
-                            composer require bk2k/bootstrap-package:'^15.0' --no-interaction --no-progress --no-scripts
+                            composer_retry require bk2k/bootstrap-package:'^15.0' --no-interaction --no-progress --no-scripts
                         fi
                         ;;
                     *)
@@ -1363,17 +1408,17 @@ CONTENT_EOF
                 # Install extra Composer packages if specified via -c flag
                 if [ -n \"${E2E_EXTRA_PACKAGES}\" ]; then
                     echo \"Installing extra packages: ${E2E_EXTRA_PACKAGES}\"
-                    composer require ${E2E_EXTRA_PACKAGES} --no-interaction --no-progress --no-scripts
+                    composer_retry require ${E2E_EXTRA_PACKAGES} --no-interaction --no-progress --no-scripts
                 fi
 
                 # Install typo3-console for database:updateschema command (not in TYPO3 Core)
-                composer require helhum/typo3-console --no-interaction --no-progress --no-scripts
+                composer_retry require helhum/typo3-console --no-interaction --no-progress --no-scripts
 
                 # NOW run composer install to execute ALL Composer scripts
                 # This registers TYPO3 commands, sets up autoloading, and configures extensions
                 # Must be done AFTER all packages are added but BEFORE TYPO3 setup
                 echo 'Running Composer scripts to register TYPO3 commands...'
-                composer install --no-interaction --no-progress
+                composer_retry install --no-interaction --no-progress
 
                 # Use TYPO3 setup command for proper installation with MariaDB
                 # All env vars prevent interactive prompts
@@ -1454,6 +1499,20 @@ HTACCESS
 
                 echo '[DEBUG] Setup container finishing'
             "
+        E2E_SETUP_EXIT=$?
+
+        # Stop here when the setup container failed. Without this check the
+        # script carries on, starts Apache against a docroot that has no
+        # TYPO3, and the first error anyone sees is Playwright reporting
+        # ERR_NAME_NOT_RESOLVED for a container that exited long ago.
+        if [[ ${E2E_SETUP_EXIT} -ne 0 ]]; then
+            echo "" >&2
+            echo "E2E setup failed (exit ${E2E_SETUP_EXIT}). TYPO3 was not installed;" >&2
+            echo "the cause is in the setup container output above, not in any" >&2
+            echo "later networking or Playwright error." >&2
+            cleanUp
+            exit ${E2E_SETUP_EXIT}
+        fi
 
         # Run cache operations in a SEPARATE container to isolate any issues
         echo "Running cache warmup in separate container..."
@@ -1560,7 +1619,7 @@ HTACCESS
 
         # Clean up E2E directories (keep for debugging if failed)
         if [[ ${SUITE_EXIT_CODE} -eq 0 ]]; then
-            rm -rf "${E2E_ROOT}"
+            removeContainerOwnedDir "${E2E_ROOT}"
             rm -rf "${E2E_SCRIPTS}"
         else
             echo "E2E test environment preserved at ${E2E_ROOT} for debugging"
