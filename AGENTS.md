@@ -107,7 +107,7 @@ composer ci:test:php:unit       # Unit tests only
 composer ci:test:php:functional # Functional tests (needs typo3DatabaseDriver=pdo_sqlite)
 composer ci:test:js:unit        # JavaScript unit tests (Tests/JavaScript/)
 composer ci:test:php:rector     # Rector dry-run check
-Build/Scripts/e2e.sh -s e2e -t 13 -p 8.5   # E2E, Docker-based (-t 14 for TYPO3 v14)
+E2E_TYPO3_VERSION=13 E2E_VARIANT=fsc ./Build/Scripts/runTests.sh -s e2e -p 8.5   # E2E (=14 for v14; variants: core-only|fsc|bootstrap)
 ```
 
 ## CI/CD

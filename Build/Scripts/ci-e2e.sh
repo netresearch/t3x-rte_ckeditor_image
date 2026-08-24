@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
 #
-# CI wrapper for e2e.sh -s e2e.
+# CI wrapper for runTests.sh -s e2e.
 #
 # The reusable workflow netresearch/typo3-ci-workflows/.github/workflows/e2e.yml
 # (with `setup-script: Build/Scripts/ci-e2e.sh`) invokes this script with no
 # arguments and exposes matrix env vars: E2E_TYPO3_VERSION (e.g. "^14.3") and
 # E2E_VARIANT (e.g. "core-only"). This wrapper translates those into the
-# CLI flags that e2e.sh expects, so e2e.sh stays a CLI tool and
+# environment the shared runner expects, so runTests.sh stays a CLI tool and
 # doesn't need to know about the workflow's env-var contract.
 #
-# Local invocation should call e2e.sh directly with -t/-X/-s/-p flags.
+# Local invocation should call runTests.sh directly:
+#   E2E_TYPO3_VERSION=13 E2E_VARIANT=fsc ./Build/Scripts/runTests.sh -s e2e -p 8.5
 # (The PHP suites live in runTests.sh, which is the shared runner stub.)
 
 set -euo pipefail
 
-# Map E2E_TYPO3_VERSION constraint to the major number e2e.sh expects via
+# Map the E2E_TYPO3_VERSION constraint to a major, for the log line below and
 # `-t`. We only support v13 LTS and v14 LTS in CI; reject anything else loudly
 # rather than silently falling back to a default.
 case "${E2E_TYPO3_VERSION:-}" in
@@ -22,7 +23,7 @@ case "${E2E_TYPO3_VERSION:-}" in
     "^14"*|"14"*) TYPO3_MAJOR=14 ;;
     "")
         echo "::error::ci-e2e.sh: E2E_TYPO3_VERSION env var is not set." >&2
-        echo "  This script is a CI wrapper. Run e2e.sh directly for local E2E." >&2
+        echo "  This script is a CI wrapper. Run runTests.sh -s e2e directly for local E2E." >&2
         exit 1
         ;;
     *)
