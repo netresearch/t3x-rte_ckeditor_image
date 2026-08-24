@@ -41,9 +41,16 @@ PHP_VERSION=8.5
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "ci-e2e.sh: TYPO3 v${TYPO3_MAJOR}, PHP ${PHP_VERSION}, variant=${VARIANT}"
-exec "${SCRIPT_DIR}/e2e.sh" \
+echo "ci-e2e.sh: TYPO3 ${E2E_TYPO3_VERSION} (major ${TYPO3_MAJOR}), PHP ${PHP_VERSION}, variant=${VARIANT}"
+# runTests.sh, not e2e.sh: the environment is built by the shared runner's
+# e2e-provision.sh from the hooks in Build/Scripts/runTests.conf.
+#
+# E2E_TYPO3_VERSION is exported rather than passed as -t. The runner's -t is not
+# suite-gated — it also rewrites this extension's composer.json and runs a full
+# `composer require typo3/cms-core:<constraint>` before the suite, which does
+# nothing for an instance installed separately from scratch and kills the job if
+# that resolve fails. The provisioner reads E2E_TYPO3_VERSION directly.
+export E2E_TYPO3_VERSION E2E_VARIANT="${VARIANT}"
+exec "${SCRIPT_DIR}/runTests.sh" \
     -s e2e \
-    -t "${TYPO3_MAJOR}" \
-    -p "${PHP_VERSION}" \
-    -X "${VARIANT}"
+    -p "${PHP_VERSION}"
