@@ -1,12 +1,30 @@
 <?php
-// Create test image
-$im = imagecreatetruecolor(800, 600);
-$blue = imagecolorallocate($im, 0, 100, 200);
+
+/*
+ * Copyright (c) 2025-2026 Netresearch DTT GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+declare(strict_types=1);
+
+// Create test image.
+//
+// imagecolorallocate() returns false when the palette is full. That cannot
+// happen on a truecolor image, but the return type says int|false and passing
+// false on to imagefill() would silently paint colour 0 instead of failing —
+// so it is checked rather than assumed. imagedestroy() is not called: it has
+// been a no-op since PHP 8.0, where GD images became objects freed by the
+// garbage collector, and it is deprecated in 8.4.
+$im    = imagecreatetruecolor(800, 600);
+$blue  = imagecolorallocate($im, 0, 100, 200);
 $white = imagecolorallocate($im, 255, 255, 255);
+if ($blue === false || $white === false) {
+    fwrite(STDERR, "seed: could not allocate the image colours\n");
+    exit(1);
+}
 imagefill($im, 0, 0, $blue);
 imagestring($im, 5, 300, 280, 'E2E Test Image', $white);
 imagejpeg($im, 'public/fileadmin/user_upload/example.jpg', 90);
-imagedestroy($im);
 echo "Test image created\n";
 
 // Connect to MariaDB
@@ -14,13 +32,13 @@ $pdo = new PDO(
     'mysql:host=mariadb-e2e;port=3306;dbname=e2e_test',
     'root',
     'root',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION],
 );
 $now = time();
 
 // Create or update sys_file entry
 $identifierHash = sha1('/user_upload/example.jpg');
-$folderHash = sha1('/user_upload/');
+$folderHash     = sha1('/user_upload/');
 $pdo->exec("INSERT INTO sys_file (uid, storage, identifier, identifier_hash, folder_hash, name, extension, mime_type, size, tstamp, creation_date)
             VALUES (1, 1, '/user_upload/example.jpg', '$identifierHash', '$folderHash', 'example.jpg', 'jpg', 'image/jpeg', 48000, $now, $now)
             ON DUPLICATE KEY UPDATE storage = 1, identifier = '/user_upload/example.jpg', identifier_hash = '$identifierHash', folder_hash = '$folderHash'");
@@ -30,14 +48,14 @@ echo "sys_file record created\n";
 // width/height are TCA columns on sys_file_metadata — used by getImageInfo() for dialog constraints
 // alternative/title provide FAL metadata defaults — enables override checkbox in image dialog
 // Use DELETE + INSERT to ensure our values win over any auto-indexed metadata
-$pdo->exec("DELETE FROM sys_file_metadata WHERE file = 1");
+$pdo->exec('DELETE FROM sys_file_metadata WHERE file = 1');
 $pdo->exec("INSERT INTO sys_file_metadata (uid, file, title, description, alternative, width, height, tstamp, crdate)
             VALUES (1, 1, 'Example Image Title', 'Test image for E2E', 'Example Alt from Metadata', 800, 600, $now, $now)");
 echo "sys_file_metadata record created\n";
 
 // Insert test content with RTE image (no caption)
 $bodytext = '<p>This is a test page with an RTE image:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Example" width="800" height="600" data-htmlarea-zoom="true" data-htmlarea-file-uid="1" /></p><p>Click the image to see click-to-enlarge.</p>';
-$stmt = $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmt     = $pdo->prepare('INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 $stmt->execute([1, 'text', 'RTE CKEditor Image Demo', $bodytext, 0, 0, $now, $now, 0, 256]);
 echo "tt_content record created\n";
 
@@ -175,7 +193,7 @@ echo "Template matrix content elements (UIDs 14-19) created\n";
 
 // UIDs 20-25: Error handling & edge cases — on PAGE 2 to isolate from main page
 // These CEs test error handling and security edge cases that could affect page rendering
-$stmtP2 = $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$stmtP2 = $pdo->prepare('INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 
 // UID 20: Error handling — missing file UID (references non-existent sys_file)
 $bodytextMissingFile = '<p>Image with missing file:</p>'
@@ -321,14 +339,14 @@ if (is_dir('/var/www/html/vendor/friendsoftypo3/content-blocks')) {
     $bodytextCB1 = '<p>This content uses a Content Block type with our ViewHelper for backend preview.</p>'
         . '<p><img src="fileadmin/user_upload/example.jpg" alt="Content Block Demo" width="400" height="300" data-htmlarea-file-uid="1" /></p>'
         . '<p>Image rendered via Content Block with RteImagePreview ViewHelper.</p>';
-    $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    $pdo->prepare('INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         ->execute([3, 'netresearch_rteimagedemo', 'Content Block: Block Image', $bodytextCB1, 0, 0, $now, $now, 0, 256]);
 
     // UID 43: Content Block with inline images
     $bodytextCB2 = '<p>Inline images work in Content Blocks too: here is one '
         . '<img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="inline demo" width="50" height="38" data-htmlarea-file-uid="1" /> embedded in text.</p>'
         . '<p>And a second paragraph with another inline <img class="image-inline" src="fileadmin/user_upload/example.jpg" alt="second inline" width="50" height="38" data-htmlarea-file-uid="1" /> for good measure.</p>';
-    $pdo->prepare("INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    $pdo->prepare('INSERT INTO tt_content (pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         ->execute([3, 'netresearch_rteimagedemo', 'Content Block: Inline Images', $bodytextCB2, 0, 0, $now, $now, 0, 512]);
 
     echo "Content Block CEs (UIDs 42-43) created on page 3\n";
@@ -393,4 +411,3 @@ $bodytextResize = '<figure class="image image_resized" style="width:25%;">'
     . '<figcaption>Never resized</figcaption></figure>';
 $stmt->execute([1, 'text', 'Image Resize (#863)', $bodytextResize, 0, 0, $now, $now, 0, 11264]);
 echo "Image resize CE created for #863\n";
-
