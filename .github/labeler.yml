@@ -5,7 +5,12 @@ documentation:
       - any-glob-to-any-file: ['Documentation/**/*', '**/*.md']
 tests:
   - changed-files:
-      - any-glob-to-any-file: ['Tests/**/*', 'Build/phpunit/**/*']
+      # Two layouts coexist while typo3-ci-workflows#186 runs: the reference
+      # one puts the configs at Build/phpunit.xml and Build/FunctionalTests.xml,
+      # the older one under Build/phpunit/. Matching both keeps the label
+      # correct on either side of an extension's migration; drop the last
+      # entry once #186 is finished.
+      - any-glob-to-any-file: ['Tests/**/*', 'Build/phpunit.xml', 'Build/FunctionalTests.xml', 'Build/phpunit/**/*']
 ci:
   - changed-files:
       - any-glob-to-any-file: ['.github/**/*', 'Build/**/*']
