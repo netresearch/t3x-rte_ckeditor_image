@@ -112,7 +112,7 @@ E2E_TYPO3_VERSION=13 E2E_VARIANT=fsc ./Build/Scripts/runTests.sh -s e2e -p 8.5  
 
 ## CI/CD
 
-Workflows in `.github/workflows/` are thin wrappers over centralized reusable workflows: `netresearch/typo3-ci-workflows` (ci, e2e, release, republish, security) and `netresearch/.github` (CodeQL, gitleaks, zizmor, community automation). The per-repo test matrix lives in `.github/workflows/ci.yml`; CGL and coverage cell selection are decided by the central workflow. Keep E2E job names in sync with the branch ruleset's required status checks (see the comment in `ci.yml` -- renaming silently detaches the requirement).
+Workflows in `.github/workflows/` are thin wrappers over centralized reusable workflows: `netresearch/typo3-ci-workflows` (ci, e2e, release, republish, security) and `netresearch/.github` (CodeQL, betterleaks, zizmor, community automation). The per-repo test matrix lives in `.github/workflows/ci.yml`; CGL and coverage cell selection are decided by the central workflow. Keep E2E job names in sync with the branch ruleset's required status checks (see the comment in `ci.yml` -- renaming silently detaches the requirement).
 
 **CI matrix**: PHP 8.2/8.3/8.4/8.5 x TYPO3 ^13.4.21/^14.3 (8 build combinations); E2E: TYPO3 v13/v14 x setup variants `fsc`/`core-only`/`bootstrap` = 6 blocking contexts.
 
