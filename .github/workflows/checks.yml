@@ -42,10 +42,10 @@ jobs:
       contents: read
       security-events: write
 
-  gitleaks:
+  betterleaks:
     # Ran on this SHA already; lifting a draft changes no code (see `on:`).
     if: github.event.action != 'ready_for_review'
-    uses: netresearch/.github/.github/workflows/gitleaks.yml@main
+    uses: netresearch/.github/.github/workflows/betterleaks.yml@main
     permissions:
       contents: read
       security-events: write
@@ -135,7 +135,7 @@ jobs:
     name: All security checks
     needs:
       - security
-      - gitleaks
+      - betterleaks
       - zizmor
       - fuzz
       - license-check
