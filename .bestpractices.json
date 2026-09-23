@@ -9,7 +9,7 @@
   "floss_license_status": "Met",
   "floss_license_justification": "Released under AGPL-3.0-or-later, an OSI-approved licence: https://github.com/netresearch/t3x-rte_ckeditor_image/blob/main/LICENSE",
   "license_location_status": "Met",
-  "license_location_justification": "The licence text is in the repository root: https://github.com/netresearch/t3x-rte_ckeditor_image/blob/main/LICENSE",
+  "license_location_justification": "The licence file is in the repository root: https://github.com/netresearch/t3x-rte_ckeditor_image/blob/main/LICENSE",
   "release_notes_status": "Met",
   "release_notes_justification": "Human-readable release notes per version are kept in https://github.com/netresearch/t3x-rte_ckeditor_image/blob/main/CHANGELOG.md; it covers the latest release, v13.10.2.",
   "repo_distributed_status": "Met",
