@@ -17,6 +17,7 @@ use Netresearch\RteCKEditorImage\Service\ImageRenderingService;
 use Netresearch\RteCKEditorImage\Service\ImageResolverService;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -213,6 +214,33 @@ final class ImageRenderingAdapterTest extends TestCase
         $result = $this->adapter->renderImageAttributes(null, [], $this->request);
 
         self::assertSame('<img src="/image.jpg" data-htmlarea-file-uid="999" />', $result);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function rawImageAttributesProvider(): iterable
+    {
+        yield 'self-closing with space' => ['src="/image.jpg" /', '<img src="/image.jpg" />'];
+        yield 'self-closing without space' => ['src="/image.jpg"/', '<img src="/image.jpg" />'];
+        yield 'not self-closing' => ['src="/image.jpg"', '<img src="/image.jpg" />'];
+        yield 'unquoted value ending in a slash' => ['data-htmlarea-file-uid="999" src=/images/', '<img data-htmlarea-file-uid="999" src=/images/ />'];
+    }
+
+    #[Test]
+    #[DataProvider('rawImageAttributesProvider')]
+    public function renderImageAttributesKeepsAttributeValuesWhenResolutionFails(string $allParams, string $expected): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = [
+            'data-htmlarea-file-uid' => '999',
+            'allParams'              => $allParams,
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
+
+        $this->resolverService->method('resolve')->willReturn(null);
+
+        self::assertSame($expected, $this->adapter->renderImageAttributes(null, [], $this->request));
     }
 
     #[Test]
