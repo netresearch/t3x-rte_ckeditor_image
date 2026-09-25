@@ -143,7 +143,7 @@ class ImageRenderingAdapter
 
         if (!$dto instanceof ImageRenderingDto) {
             // Resolution failed - return original content
-            return $this->getCurrentValue();
+            return $this->getOriginalImageTag();
         }
 
         // Render via Fluid templates (passing TypoScript config for template paths)
@@ -343,6 +343,26 @@ class ImageRenderingAdapter
 
         // Reconstruct the <a> wrapper with processed content
         return $this->wrapInLink($processedContent, $linkAttributes);
+    }
+
+    /**
+     * An <img> is an empty tag, so parseFunc hands tags.img no current value and replaces the whole tag
+     * with the returned string. Rebuild the tag from its raw attributes to keep the original markup.
+     */
+    private function getOriginalImageTag(): string
+    {
+        $allParams = $this->cObj instanceof ContentObjectRenderer
+            ? ($this->cObj->parameters['allParams'] ?? '')
+            : '';
+
+        if (!is_string($allParams) || $allParams === '') {
+            return '';
+        }
+
+        // Drop only a self-closing slash; a slash that ends an unquoted value belongs to the value.
+        $attributes = rtrim(preg_replace('/(?<=["\'\s])\/$/', '', rtrim($allParams)) ?? $allParams);
+
+        return '<img ' . $attributes . ' />';
     }
 
     /**
