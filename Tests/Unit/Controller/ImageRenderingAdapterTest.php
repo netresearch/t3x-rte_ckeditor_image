@@ -195,11 +195,15 @@ final class ImageRenderingAdapterTest extends TestCase
     #[Test]
     public function renderImageAttributesReturnsOriginalWhenResolutionFails(): void
     {
-        $attributes = ['src' => '/image.jpg', 'data-htmlarea-file-uid' => '999'];
-
+        // parseFunc treats <img> as an empty tag: the current value is empty and
+        // the raw attribute string is only available as parameters['allParams'].
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
-        $this->contentObjectRenderer->parameters = $attributes;
-        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('<img src="/image.jpg" />');
+        $this->contentObjectRenderer->parameters = [
+            'src'                    => '/image.jpg',
+            'data-htmlarea-file-uid' => '999',
+            'allParams'              => 'src="/image.jpg" data-htmlarea-file-uid="999" /',
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
 
         $this->resolverService
             ->expects(self::once())
@@ -208,7 +212,22 @@ final class ImageRenderingAdapterTest extends TestCase
 
         $result = $this->adapter->renderImageAttributes(null, [], $this->request);
 
-        self::assertSame('<img src="/image.jpg" />', $result);
+        self::assertSame('<img src="/image.jpg" data-htmlarea-file-uid="999" />', $result);
+    }
+
+    #[Test]
+    public function renderImageAttributesReturnsEmptyStringWhenResolutionFailsWithoutRawAttributes(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['data-htmlarea-file-uid' => '999'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
+
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->willReturn(null);
+
+        self::assertSame('', $this->adapter->renderImageAttributes(null, [], $this->request));
     }
 
     #[Test]
