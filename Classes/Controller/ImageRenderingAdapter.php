@@ -359,7 +359,10 @@ class ImageRenderingAdapter
             return '';
         }
 
-        return '<img ' . rtrim($allParams, " /\t\n\r") . ' />';
+        // Drop only a self-closing slash; a slash that ends an unquoted value belongs to the value.
+        $attributes = rtrim(preg_replace('/(?<=["\'\s])\/$/', '', rtrim($allParams)) ?? $allParams);
+
+        return '<img ' . $attributes . ' />';
     }
 
     /**
