@@ -102,14 +102,14 @@ class ImageRenderingAdapter
 
         if ($attributes === []) {
             // No attributes - return original content
-            return $this->getCurrentValue();
+            return $this->getOriginalImageTag();
         }
 
         // Skip images without data-htmlarea-file-uid — these are plain <img> tags
         // not inserted via the CKEditor image plugin (e.g., manually authored HTML,
         // screenshots, or external images). Processing them would set 0x0 dimensions
         // because the file resolver can't find a sys_file record.
-        // Note: we return the current value as-is. The HTMLparser's
+        // Note: we return the original tag unchanged. The HTMLparser's
         // nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib configuration still runs
         // after this preUserFunc. Its allparams.unset=1 strips all attributes not
         // explicitly configured (removing style, class, and any non-standard attrs),
@@ -118,7 +118,7 @@ class ImageRenderingAdapter
         $rawFileUid = $attributes['data-htmlarea-file-uid'] ?? '';
         $fileUid    = is_numeric($rawFileUid) ? (int) $rawFileUid : 0;
         if ($fileUid <= 0) {
-            return $this->getCurrentValue();
+            return $this->getOriginalImageTag();
         }
 
         // CRITICAL FIX for #546 and #566: Skip processing for images with caption.
@@ -127,7 +127,7 @@ class ImageRenderingAdapter
         // data-htmlarea-file-uid attribute, preventing renderFigure() from resolving
         // the file later.
         if (isset($attributes['data-caption']) && $attributes['data-caption'] !== '') {
-            return $this->getCurrentValue();
+            return $this->getOriginalImageTag();
         }
 
         // Filter attributes to string values for the resolver
@@ -363,20 +363,6 @@ class ImageRenderingAdapter
         $attributes = rtrim(preg_replace('/(?<=["\'\s])\/$/', '', rtrim($allParams)) ?? $allParams);
 
         return '<img ' . $attributes . ' />';
-    }
-
-    /**
-     * Get the current value from the ContentObjectRenderer as a string.
-     *
-     * @return string The current value, or empty string if unavailable
-     */
-    private function getCurrentValue(): string
-    {
-        $currentVal = $this->cObj instanceof ContentObjectRenderer
-            ? $this->cObj->getCurrentVal()
-            : null;
-
-        return is_string($currentVal) ? $currentVal : '';
     }
 
     /**

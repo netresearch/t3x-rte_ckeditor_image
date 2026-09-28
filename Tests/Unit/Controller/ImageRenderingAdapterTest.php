@@ -87,11 +87,11 @@ final class ImageRenderingAdapterTest extends TestCase
     {
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
         $this->contentObjectRenderer->parameters = [];
-        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('original');
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
 
         $result = $this->adapter->renderImageAttributes(null, [], $this->request);
 
-        self::assertSame('original', $result);
+        self::assertSame('', $result);
     }
 
     /**
@@ -115,8 +115,8 @@ final class ImageRenderingAdapterTest extends TestCase
         ];
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
-        $this->contentObjectRenderer->parameters = $attributes;
-        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($originalImg);
+        $this->contentObjectRenderer->parameters = $attributes + ['allParams' => self::rawAttributesOf($originalImg)];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
 
         // Resolver should NOT be called - processing should be skipped entirely
         $this->resolverService
@@ -150,8 +150,8 @@ final class ImageRenderingAdapterTest extends TestCase
         ];
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
-        $this->contentObjectRenderer->parameters = $attributes;
-        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($originalImg);
+        $this->contentObjectRenderer->parameters = $attributes + ['allParams' => self::rawAttributesOf($originalImg)];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
 
         $this->resolverService
             ->expects(self::never())
@@ -181,8 +181,8 @@ final class ImageRenderingAdapterTest extends TestCase
         ];
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
-        $this->contentObjectRenderer->parameters = $attributes;
-        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($originalImg);
+        $this->contentObjectRenderer->parameters = $attributes + ['allParams' => self::rawAttributesOf($originalImg)];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
 
         $this->resolverService
             ->expects(self::never())
@@ -621,8 +621,8 @@ final class ImageRenderingAdapterTest extends TestCase
         ];
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
-        $this->contentObjectRenderer->parameters = $attributes;
-        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($originalImg);
+        $this->contentObjectRenderer->parameters = $attributes + ['allParams' => self::rawAttributesOf($originalImg)];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
 
         // Resolver should NOT be called - processing should be skipped entirely
         $this->resolverService
@@ -2636,5 +2636,14 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertStringContainsString('href="/page"', $result);
         self::assertStringContainsString('valid="attribute"', $result);
         self::assertStringNotContainsString('numeric-key', $result);
+    }
+
+    /**
+     * parseFunc hands tags.img the raw attribute string of the tag as parameters['allParams']
+     * and an empty current value, since <img> is an empty tag.
+     */
+    private static function rawAttributesOf(string $imageTag): string
+    {
+        return trim(substr($imageTag, strlen('<img '), -1));
     }
 }
