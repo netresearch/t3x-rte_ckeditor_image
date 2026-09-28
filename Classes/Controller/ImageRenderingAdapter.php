@@ -349,6 +349,7 @@ class ImageRenderingAdapter
     /**
      * An <img> is an empty tag, so parseFunc hands tags.img no current value and replaces the whole tag
      * with the returned string. Rebuild the tag from its raw attributes to keep the original markup.
+     * Callers that pass the tag as the current value instead get it back unchanged.
      */
     private function getOriginalImageTag(): string
     {
@@ -357,13 +358,25 @@ class ImageRenderingAdapter
             : '';
 
         if (!is_string($allParams) || $allParams === '') {
-            return '';
+            return $this->getCurrentValue();
         }
 
         // Drop only a self-closing slash; a slash that ends an unquoted value belongs to the value.
         $attributes = rtrim(preg_replace('/(?<=["\'\s])\/$/', '', rtrim($allParams)) ?? $allParams);
 
         return '<img ' . $attributes . ' />';
+    }
+
+    /**
+     * @return string The current value, or empty string if unavailable
+     */
+    private function getCurrentValue(): string
+    {
+        $currentVal = $this->cObj instanceof ContentObjectRenderer
+            ? $this->cObj->getCurrentVal()
+            : null;
+
+        return is_string($currentVal) ? $currentVal : '';
     }
 
     /**
