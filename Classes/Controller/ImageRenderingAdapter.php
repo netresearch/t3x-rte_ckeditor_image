@@ -111,10 +111,11 @@ class ImageRenderingAdapter
         // because the file resolver can't find a sys_file record.
         // Note: we return the original tag unchanged. The HTMLparser's
         // nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib configuration still runs
-        // after this preUserFunc. Its allparams.unset=1 strips all attributes not
-        // explicitly configured (removing style, class, and any non-standard attrs),
-        // while fixAttrib entries explicitly unset data-htmlarea-file-uid,
-        // data-htmlarea-file-table, data-title-override, and data-alt-override.
+        // after this preUserFunc and unsets data-htmlarea-file-uid,
+        // data-htmlarea-file-table, data-title-override and data-alt-override.
+        // fixAttrib only handles the attributes it names, so allparams.unset=1
+        // removes nothing else. Event handlers and unsafe src values are removed
+        // by the HTML sanitizer that parseFunc runs on its result.
         $rawFileUid = $attributes['data-htmlarea-file-uid'] ?? '';
         $fileUid    = is_numeric($rawFileUid) ? (int) $rawFileUid : 0;
         if ($fileUid <= 0) {
