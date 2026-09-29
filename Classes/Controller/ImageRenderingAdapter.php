@@ -102,23 +102,24 @@ class ImageRenderingAdapter
 
         if ($attributes === []) {
             // No attributes - return original content
-            return $this->getCurrentValue();
+            return $this->getOriginalImageTag();
         }
 
         // Skip images without data-htmlarea-file-uid — these are plain <img> tags
         // not inserted via the CKEditor image plugin (e.g., manually authored HTML,
         // screenshots, or external images). Processing them would set 0x0 dimensions
         // because the file resolver can't find a sys_file record.
-        // Note: we return the current value as-is. The HTMLparser's
+        // Note: we return the original tag unchanged. The HTMLparser's
         // nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib configuration still runs
-        // after this preUserFunc. Its allparams.unset=1 strips all attributes not
-        // explicitly configured (removing style, class, and any non-standard attrs),
-        // while fixAttrib entries explicitly unset data-htmlarea-file-uid,
-        // data-htmlarea-file-table, data-title-override, and data-alt-override.
+        // after this preUserFunc and unsets data-htmlarea-file-uid,
+        // data-htmlarea-file-table, data-title-override and data-alt-override.
+        // fixAttrib only handles the attributes it names, so allparams.unset=1
+        // removes nothing else. Event handlers and unsafe src values are removed
+        // by the HTML sanitizer that parseFunc runs on its result.
         $rawFileUid = $attributes['data-htmlarea-file-uid'] ?? '';
         $fileUid    = is_numeric($rawFileUid) ? (int) $rawFileUid : 0;
         if ($fileUid <= 0) {
-            return $this->getCurrentValue();
+            return $this->getOriginalImageTag();
         }
 
         // CRITICAL FIX for #546 and #566: Skip processing for images with caption.
@@ -127,7 +128,7 @@ class ImageRenderingAdapter
         // data-htmlarea-file-uid attribute, preventing renderFigure() from resolving
         // the file later.
         if (isset($attributes['data-caption']) && $attributes['data-caption'] !== '') {
-            return $this->getCurrentValue();
+            return $this->getOriginalImageTag();
         }
 
         // Filter attributes to string values for the resolver
@@ -143,7 +144,7 @@ class ImageRenderingAdapter
 
         if (!$dto instanceof ImageRenderingDto) {
             // Resolution failed - return original content
-            return $this->getCurrentValue();
+            return $this->getOriginalImageTag();
         }
 
         // Render via Fluid templates (passing TypoScript config for template paths)
@@ -346,8 +347,27 @@ class ImageRenderingAdapter
     }
 
     /**
-     * Get the current value from the ContentObjectRenderer as a string.
-     *
+     * An <img> is an empty tag, so parseFunc hands tags.img no current value and replaces the whole tag
+     * with the returned string. Rebuild the tag from its raw attributes to keep the original markup.
+     * Callers that pass the tag as the current value instead get it back unchanged.
+     */
+    private function getOriginalImageTag(): string
+    {
+        $allParams = $this->cObj instanceof ContentObjectRenderer
+            ? ($this->cObj->parameters['allParams'] ?? '')
+            : '';
+
+        if (!is_string($allParams) || $allParams === '') {
+            return $this->getCurrentValue();
+        }
+
+        // Drop only a self-closing slash; a slash that ends an unquoted value belongs to the value.
+        $attributes = rtrim(preg_replace('/(?<=["\'\s])\/$/', '', rtrim($allParams)) ?? $allParams);
+
+        return '<img ' . $attributes . ' />';
+    }
+
+    /**
      * @return string The current value, or empty string if unavailable
      */
     private function getCurrentValue(): string
