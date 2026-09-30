@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.10.3] - 2026-09-30
+
+### Fixed
+
+- **Standalone RTE images stay in the frontend when image resolution fails** ([#909](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/909), closes [#908](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/908)) — for example, an image from a non-public storage. parseFunc hands `tags.img` an empty current value, so `renderImageAttributes()` returned an empty string and the `<img>` tag disappeared. The adapter now rebuilds the original tag from `parameters['allParams']` on every early return, as `renderFigure()` already does for captioned images. Thanks [@kryslin](https://github.com/kryslin) for the report and the fix.
+
 ## [13.10.2] - 2026-08-12
 
 ### Fixed
@@ -1049,7 +1055,7 @@ _See [GitHub release](https://github.com/netresearch/t3x-rte_ckeditor_image/rele
 - Update image reference index ([#45](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/45), [#62](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/62))
 - Compatibility with TYPO3 CMS 9.x
 
-[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.10.2...HEAD
+[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.10.3...HEAD
 [13.9.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.9.0...v13.9.1
 [13.9.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.3...v13.9.0
 [13.8.3]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.2...v13.8.3
