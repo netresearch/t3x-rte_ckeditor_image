@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Remove stale Debian default index.html if it exists
 # This ensures index.php is served instead
 if [ -f /var/www/html/index.html ]; then

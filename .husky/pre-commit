@@ -1,5 +1,8 @@
 #!/usr/bin/env sh
 
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Fast pre-commit checks for code quality
 echo "🔍 Running pre-commit checks..."
 

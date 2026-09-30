@@ -1,3 +1,6 @@
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Custom Traefik route: Mailpit UI on subdomain
 # mail.rte-ckeditor-image.ddev.site -> mailpit container:8025
 http:

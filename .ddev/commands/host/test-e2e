@@ -4,6 +4,9 @@
 ## Usage: test-e2e
 ## Example: ddev test-e2e
 
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 set -e
 
 E2E_DIR="$(dirname "$0")/../../../Tests/E2E"

@@ -4,6 +4,9 @@
 ## Usage: install-v13
 ## Example: ddev install-v13
 
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 VERSION=v13
 
 # Test image dimensions for E2E tests

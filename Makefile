@@ -1,3 +1,6 @@
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Makefile for rte_ckeditor_image TYPO3 Extension
 
 # Shared targets: help, install, update, cgl, cgl-fix, phpstan, phpstan-baseline,

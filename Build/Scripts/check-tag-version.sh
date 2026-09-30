@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Validates that ext_emconf.php version matches any semver tag pointing at HEAD.
 # Used as a pre-push hook to prevent pushing mismatched versions.
 set -euo pipefail

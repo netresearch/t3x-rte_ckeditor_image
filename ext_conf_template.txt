@@ -1,3 +1,6 @@
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # cat=basic; type=boolean; label=Enable Automatic RTE Softref: Automatically add rtehtmlarea_images soft reference to all RTE-enabled text fields. This ensures images inserted via CKEditor are properly tracked in TYPO3's reference index across all tables. (Default is on)
 enableAutomaticRteSoftref = 1
 

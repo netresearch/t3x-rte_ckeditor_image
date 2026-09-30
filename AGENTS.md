@@ -1,7 +1,7 @@
+<!-- Copyright (c) 2025-2026 Netresearch DTT GmbH | SPDX-License-Identifier: AGPL-3.0-or-later -->
 <!-- FOR AI AGENTS - Human readability is a side effect, not a goal -->
 <!-- Managed by agent: keep sections and order; edit content, not structure -->
 <!-- Last updated: 2026-08-18 | Last verified: 2026-08-18 -->
-
 # AGENTS.md
 
 **Precedence:** The **closest AGENTS.md** to changed files wins. Root holds global defaults only.
