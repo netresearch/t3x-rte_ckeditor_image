@@ -9,6 +9,10 @@
 #composer config --unset platform.php
 #composer config --unset platform
 
+# The paths below are relative to the repository root; ci.sh calls this
+# script from Build/Scripts.
+cd "$(dirname "$0")/../.." || exit 1
+
 rm -rf .Build
 rm -f composer.lock
 rm -f Build/testing-docker/.env
