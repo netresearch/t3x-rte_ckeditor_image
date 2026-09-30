@@ -15,7 +15,7 @@ Solutions for problems encountered during extension installation, configuration,
    :local:
    :depth: 2
 
-.. _troubleshooting-image-button-missing:
+.. _troubleshooting-install-image-button-missing:
 
 Image Insert Button Not Appearing
 ==================================
