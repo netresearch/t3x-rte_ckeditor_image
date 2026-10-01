@@ -1,3 +1,6 @@
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # XLIFF translation files
 *.xlf text eol=lf linguist-language=XML
 *.xml text eol=lf
@@ -14,6 +17,7 @@
 *.pdf binary
 
 # Export-ignore: exclude dev files from TER/composer archives
+/.bestpractices.json export-ignore
 /.devcontainer      export-ignore
 /.ddev              export-ignore
 /.editorconfig      export-ignore
@@ -25,20 +29,30 @@
 /Build              export-ignore
 /Tests              export-ignore
 /AGENTS.md          export-ignore
+/CLAUDE.md          export-ignore
+/Classes/AGENTS.md  export-ignore
+/Classes/CLAUDE.md  export-ignore
+/Documentation/AGENTS.md export-ignore
+/Documentation/CLAUDE.md export-ignore
+/Resources/AGENTS.md export-ignore
+/Resources/CLAUDE.md export-ignore
 /CHANGELOG.md       export-ignore
 /CODE_OF_CONDUCT.md export-ignore
 /CONTRIBUTING.md    export-ignore
 /Contributors.md    export-ignore
+/Makefile           export-ignore
 /SECURITY.md        export-ignore
 /captainhook.json   export-ignore
 /codecov.yml        export-ignore
 /commitlint.config.js export-ignore
 /composer.json.testing export-ignore
 /composer.lock      export-ignore
+/docs               export-ignore
 /crowdin.yml        export-ignore
 /infection.json5    export-ignore
 /package.json       export-ignore
 /package-lock.json  export-ignore
 /phpunit.xml        export-ignore
 /renovate.json      export-ignore
+/sonar-project.properties export-ignore
 /vex.json           export-ignore

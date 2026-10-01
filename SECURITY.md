@@ -1,3 +1,8 @@
+<!--
+Copyright (c) 2025-2026 Netresearch DTT GmbH
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 ## Security
 
 We take security very seriously and are always grateful for reports about potential problems or vulnerabilities.
@@ -21,6 +26,12 @@ Some security aspects are handled by TYPO3 Core, not this extension:
 - **Image processing security** → TYPO3 GraphicalFunctions responsibility
 
 For details, see [ADR-003: Security Responsibility Boundaries](Documentation/Architecture/ADR-003-Security-Responsibility-Boundaries.rst).
+
+## Dependency and Code Analysis Findings
+
+Findings of the dependency and code analysis checks that run on pull requests (Composer Audit, Dependency Review, License Check, Opengrep, CodeQL, Betterleaks, zizmor; see [CONTRIBUTING.md](CONTRIBUTING.md#governance-and-policies)) are handled under the organisation policy [Handling of Dependency and Code Analysis Findings](https://github.com/netresearch/.github/blob/main/SECURITY.md#handling-of-dependency-and-code-analysis-findings), which sets the thresholds, the deadlines and how exceptions are recorded.
+
+Exceptions to Composer Audit are recorded in `config.audit.ignore` in `composer.json`, each with its reason. It currently lists `PKSA-y2cr-5h3j-g3ys` (CVE-2025-45769 in `firebase/php-jwt` below 7.0, a dependency of TYPO3 Core).
 
 ## Secrets Management
 

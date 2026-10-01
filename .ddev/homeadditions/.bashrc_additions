@@ -1,3 +1,6 @@
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # TYPO3 Scheduler Aliases
 alias t3-scheduler-v11='cd /var/www/html/v11 && vendor/bin/typo3 scheduler:run'
 alias t3-scheduler-v12='cd /var/www/html/v12 && vendor/bin/typo3 scheduler:run'

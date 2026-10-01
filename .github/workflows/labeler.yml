@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 name: Labeler
 
 # pull_request_target is required: labeling fork PRs needs a write-scoped

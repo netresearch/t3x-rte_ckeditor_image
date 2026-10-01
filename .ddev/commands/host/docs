@@ -4,6 +4,9 @@
 ## Usage: docs
 ## Example: "ddev docs"
 
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 set -e
 
 PROJECT_DIR="$(pwd)"

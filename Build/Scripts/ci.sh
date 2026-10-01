@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Convenience script to run CI tests locally
-# default: PHP 8.1 and composer latest (uses TYPO3 v11)
+# default: PHP 8.2 and TYPO3 Core 13 (see the defaults below)
 
 # abort on error
 set -e

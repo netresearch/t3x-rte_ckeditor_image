@@ -1,3 +1,8 @@
+<!--
+Copyright (c) 2025-2026 Netresearch DTT GmbH
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

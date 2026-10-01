@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Validates that ext_emconf.php version matches any semver tag pointing at HEAD.
 # Used as a pre-push hook to prevent pushing mismatched versions.
 set -euo pipefail
@@ -26,6 +30,17 @@ if ! echo "${TAGS}" | grep -qFx -e "${EMCONF_VERSION}"; then
     echo "${TAGS}" >&2
     echo "Update ext_emconf.php version to match the tag and amend your commit before pushing." >&2
     exit 1
+fi
+
+# package.json is private and not published, but it declares the same
+# version; keep it in step with ext_emconf.php.
+if [[ -f package.json ]]; then
+    PACKAGE_VERSION=$(sed -nE 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' package.json | head -n1)
+    if [[ -n "${PACKAGE_VERSION}" && "${PACKAGE_VERSION}" != "${EMCONF_VERSION}" ]]; then
+        echo "ERROR: package.json version (${PACKAGE_VERSION}) does not match ext_emconf.php (${EMCONF_VERSION})." >&2
+        echo "Update the version in package.json and amend your commit before pushing." >&2
+        exit 1
+    fi
 fi
 
 echo "Version check passed: ext_emconf.php (${EMCONF_VERSION}) matches tag(s)"

@@ -1,8 +1,10 @@
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 name: Checks
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   # `ready_for_review` is NOT in the default type set (opened, synchronize,
   # reopened), and without it a pull request opened as a draft never gets its
   # auto-approval: `pr-quality`'s auto-approve job is gated on

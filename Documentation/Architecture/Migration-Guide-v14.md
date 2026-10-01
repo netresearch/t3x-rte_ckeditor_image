@@ -1,3 +1,8 @@
+<!--
+Copyright (c) 2025-2026 Netresearch DTT GmbH
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Migration Guide: v13.1.0 Fluid Templates Refactoring
 
 ## Overview

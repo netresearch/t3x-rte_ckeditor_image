@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # =============================================================================
 # TYPO3 Documentation Linting Script
 # Based on: https://docs.typo3.org/m/typo3/docs-how-to-document/main/en-us/

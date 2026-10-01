@@ -1,3 +1,8 @@
+<!--
+Copyright (c) 2025-2026 Netresearch DTT GmbH
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 [![Latest GitHub release](https://img.shields.io/github/v/release/netresearch/t3x-rte_ckeditor_image?sort=semver&logo=github)](https://github.com/netresearch/t3x-rte_ckeditor_image/releases/latest)
 [![License](https://img.shields.io/github/license/netresearch/t3x-rte_ckeditor_image)](https://github.com/netresearch/t3x-rte_ckeditor_image/blob/main/LICENSE)
 [![CI](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/ci.yml/badge.svg)](https://github.com/netresearch/t3x-rte_ckeditor_image/actions/workflows/ci.yml)
@@ -312,7 +317,7 @@ Source: [`Documentation/`](Documentation/) (reStructuredText, automatically buil
 - **[AGENTS.md](AGENTS.md)** — development guide, build commands, code standards, and PR checklist (audience: humans and AI agents).
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — contribution workflow, commit conventions, review process.
 - **[SECURITY.md](SECURITY.md)** — security policy and coordinated disclosure.
-- **[Documentation/AGENTS.md](Documentation/AGENTS.md)** — TYPO3 documentation system guide.
+- **[Documentation/AGENTS.md](https://github.com/netresearch/t3x-rte_ckeditor_image/blob/main/Documentation/AGENTS.md)** — TYPO3 documentation system guide.
 - **`claudedocs/`** *(gitignored)* — AI development context generated per session.
 
 ---

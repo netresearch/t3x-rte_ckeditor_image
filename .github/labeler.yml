@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # Label configuration for PR Labeler
 # https://github.com/actions/labeler
 documentation:

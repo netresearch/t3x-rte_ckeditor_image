@@ -1,4 +1,10 @@
 <?php
+
+/*
+ * Copyright (c) 2025-2026 Netresearch DTT GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 // Extension is mounted at /var/www/rte_ckeditor_image
 $extDir = '/var/www/rte_ckeditor_image';
 
