@@ -317,7 +317,7 @@ Source: [`Documentation/`](Documentation/) (reStructuredText, automatically buil
 - **[AGENTS.md](AGENTS.md)** — development guide, build commands, code standards, and PR checklist (audience: humans and AI agents).
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — contribution workflow, commit conventions, review process.
 - **[SECURITY.md](SECURITY.md)** — security policy and coordinated disclosure.
-- **[Documentation/AGENTS.md](Documentation/AGENTS.md)** — TYPO3 documentation system guide.
+- **[Documentation/AGENTS.md](https://github.com/netresearch/t3x-rte_ckeditor_image/blob/main/Documentation/AGENTS.md)** — TYPO3 documentation system guide.
 - **`claudedocs/`** *(gitignored)* — AI development context generated per session.
 
 ---
