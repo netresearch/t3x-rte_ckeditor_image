@@ -20,6 +20,7 @@ import { toWidget, toWidgetEditable, WidgetToolbarRepository } from '@ckeditor/c
 import { default as Modal } from '@typo3/backend/modal.js';
 import { sanitizeSrc } from './sanitize-src.js';
 import { buildSelectImageBparams } from './select-image-bparams.js';
+import { getBackendLabel } from './backend-label.js';
 // Internal callers reference parseTypoLink (l.1149, l.1189) and
 // encodeTypoLink (l.595); parseTypoLinkParts is only used by external
 // consumers via the re-export below (Sonar S1128 if imported here).
@@ -1158,7 +1159,7 @@ function openLinkBrowser(editor, currentValue) {
         // Open the link browser in a modal (standard TYPO3 pattern)
         const modal = Modal.advanced({
             type: Modal.types.iframe,
-            title: TYPO3.lang['RTE.titleLinkBrowser'] || 'Link',
+            title: getBackendLabel('RTE.titleLinkBrowser', 'Link'),
             content: linkBrowserUrl,
             size: Modal.sizes.large
         });
