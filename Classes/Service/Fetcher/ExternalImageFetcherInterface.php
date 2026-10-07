@@ -13,7 +13,7 @@ namespace Netresearch\RteCKEditorImage\Service\Fetcher;
  * Interface for fetching external images with security validation.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  */
 interface ExternalImageFetcherInterface
 {

@@ -13,7 +13,7 @@ namespace Netresearch\RteCKEditorImage\Service\Processor;
  * Interface for RTE image processing.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  */
 interface RteImageProcessorInterface
 {

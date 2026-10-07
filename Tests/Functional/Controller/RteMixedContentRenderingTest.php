@@ -38,7 +38,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  * - This is semantically correct: <figure> should only be used with <figcaption>
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/580
  */

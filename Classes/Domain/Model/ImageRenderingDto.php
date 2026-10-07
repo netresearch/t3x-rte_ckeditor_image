@@ -16,7 +16,7 @@ namespace Netresearch\RteCKEditorImage\Domain\Model;
  * This DTO represents validated, sanitized data ready for presentation.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  *
  * @see    https://www.netresearch.de
  */

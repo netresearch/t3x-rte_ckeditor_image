@@ -23,7 +23,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  * Tests the complete pipeline: Parser → Resolver → Renderer
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  */
 final class ImageRenderingIntegrationTest extends FunctionalTestCase
 {

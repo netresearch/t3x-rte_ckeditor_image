@@ -28,7 +28,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  *   <nr:rteImagePreview html="{data.bodytext}" allowedTags="<img><p><figure><figcaption>" />
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  */
 final class RteImagePreviewViewHelper extends AbstractViewHelper
 {

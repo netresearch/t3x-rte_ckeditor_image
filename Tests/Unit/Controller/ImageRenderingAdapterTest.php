@@ -28,7 +28,7 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  * Unit tests for ImageRenderingAdapter.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  */
 #[AllowMockObjectsWithoutExpectations]
 #[CoversClass(ImageRenderingAdapter::class)]

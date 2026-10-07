@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Html\HtmlParser;
  * - Normalizing image source URLs
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  */
 final readonly class ImageTagParser implements ImageTagParserInterface
 {

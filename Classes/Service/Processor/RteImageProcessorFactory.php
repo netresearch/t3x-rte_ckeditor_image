@@ -28,7 +28,7 @@ use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
  * the appropriate settings.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  */
 final readonly class RteImageProcessorFactory
 {

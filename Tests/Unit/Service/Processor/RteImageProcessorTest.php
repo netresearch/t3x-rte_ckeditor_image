@@ -35,7 +35,7 @@ use TYPO3\CMS\Core\Resource\ProcessedFile;
  * Test case for RteImageProcessor.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  */
 #[AllowMockObjectsWithoutExpectations]
 #[CoversClass(RteImageProcessor::class)]

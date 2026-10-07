@@ -24,7 +24,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  * - Double figure/figcaption wrapping in frontend output
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  *
  * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/546
  */
