@@ -5,9 +5,9 @@
 
 .. _start:
 
-===================
-RTE CKEditor Image
-===================
+======================
+CKEditor Image Support
+======================
 
 :Extension key:
    rte_ckeditor_image
