@@ -1,0 +1,38 @@
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: JavaScript Tests
+
+# Runs the Vitest suite in Tests/JavaScript (`composer ci:test:js:unit` runs
+# the same commands locally). The CKEditor plugin modules in
+# Resources/Public/JavaScript have unit tests, but no workflow ran them: the
+# shared typo3-ci-workflows ci.yml has no JavaScript job. Thin caller of the
+# shared node-test reusable, so the action pins and harden-runner stay
+# maintained centrally. The suite has its own package.json and lock file in
+# Tests/JavaScript, hence the `cd` in both commands.
+# (js-tests.yml is not part of the typo3-extension template, so
+# check-template-drift.yml does not compare it.)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  vitest:
+    uses: netresearch/.github/.github/workflows/node-test.yml@main
+    permissions:
+      contents: read
+    with:
+      package-manager: npm
+      node-version: '24'
+      install-cmd: cd Tests/JavaScript && npm ci --no-audit --no-fund
+      test-cmd: cd Tests/JavaScript && npm test

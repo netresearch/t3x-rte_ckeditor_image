@@ -1,0 +1,64 @@
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: Fuzzing
+
+# Runs the php-fuzzer targets in Tests/Fuzz (`composer ci:fuzz`, 10,000
+# runs per target). The `fuzz` job of checks.yml runs a PHPUnit testsuite
+# named Fuzz from Build/phpunit.xml; this repository fuzzes with php-fuzzer
+# instead, so that job finds no suite and is skipped, and the targets ran
+# only when someone started them locally. php-fuzzer rewrites the corpus in
+# Tests/Fuzz/corpus while it runs; the checkout is discarded afterwards.
+# (php-fuzzer.yml is not part of the typo3-extension template, so
+# check-template-drift.yml does not compare it.)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  php-fuzzer:
+    name: php-fuzzer
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: '8.5'
+          extensions: intl, mbstring, xml
+          tools: composer:v2
+
+      - name: Install dependencies
+        # As in typo3-ci-workflows' fuzz.yml: an advisory without a public
+        # fix must not stop the install; checks.yml's Composer Audit still
+        # reports it.
+        run: |
+          composer config --no-plugins audit.block-insecure false
+          composer install --no-progress --prefer-dist
+
+      - name: Run the fuzz targets
+        run: composer ci:fuzz
