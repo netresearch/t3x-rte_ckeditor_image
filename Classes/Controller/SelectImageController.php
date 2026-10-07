@@ -33,7 +33,7 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
  * Controller for the image select wizard.
  *
  * @author  Christian Opitz <christian.opitz@netresearch.de>
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  *
  * @see    https://www.netresearch.de
  */

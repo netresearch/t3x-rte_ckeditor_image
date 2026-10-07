@@ -1,0 +1,34 @@
+rte_ckeditor_image (netresearch/rte-ckeditor-image)
+Copyright (c) Netresearch DTT GmbH and contributors
+
+This extension is licensed under the GNU Affero General Public License,
+version 3 or later (AGPL-3.0-or-later); see LICENSE. That covers every file
+without a licence notice of its own, including translated XLIFF files that
+the translation service writes.
+
+Files under the GNU General Public License, version 2 or later
+---------------------------------------------------------------
+
+The following files carry the notice of the TYPO3 CMS project, or were
+extracted from such a file, and remain under the GNU General Public License,
+version 2 or any later version (GPL-2.0-or-later). The notice in each file is
+kept unchanged (FunctionalTestsBootstrap.php also carries the SPDX
+identifier); typolink-parser.js, which lost the notice when it was
+extracted, carries the notice of the file it came from again. They are distributed together with the AGPL-3.0-or-later code of
+this extension, which version 3 of the GNU General Public License and the GNU
+Affero General Public License permit (GNU GPL v3, section 13).
+
+- Resources/Public/JavaScript/Plugins/typo3image.js
+- Resources/Public/JavaScript/Plugins/sanitize-src.js
+- Resources/Public/JavaScript/Plugins/select-image-bparams.js
+  The CKEditor image plugin and two of its modules; each file carries the
+  TYPO3 CMS notice.
+- Resources/Public/JavaScript/Plugins/typolink-parser.js
+  TypoLink helpers extracted from typo3image.js (see its file comment)
+  in commit 612e86e.
+- Build/phpunit/FunctionalTestsBootstrap.php
+  The functional test bootstrap boilerplate of the TYPO3 testing-framework.
+
+The TYPO3 CMS project: https://typo3.org/
+The GNU General Public License, version 2:
+https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

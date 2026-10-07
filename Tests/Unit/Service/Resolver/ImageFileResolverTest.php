@@ -30,7 +30,7 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
  * Test case for ImageFileResolver.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  */
 #[AllowMockObjectsWithoutExpectations]
 #[CoversClass(ImageFileResolver::class)]

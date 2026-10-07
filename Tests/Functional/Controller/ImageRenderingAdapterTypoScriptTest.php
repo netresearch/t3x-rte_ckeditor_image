@@ -25,7 +25,7 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  * is callable via TypoScript (requires #[AsAllowedCallable] in TYPO3 v14+).
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  *
  * @see https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/14.0/Breaking-108054-EnforceExplicitOpt-inForTypoScriptTSconfigCallables.html
  */

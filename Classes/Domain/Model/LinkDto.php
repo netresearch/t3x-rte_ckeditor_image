@@ -13,7 +13,7 @@ namespace Netresearch\RteCKEditorImage\Domain\Model;
  * Encapsulates link/popup configuration for linked images.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  *
  * @see    https://www.netresearch.de
  */

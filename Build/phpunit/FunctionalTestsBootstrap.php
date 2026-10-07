@@ -1,8 +1,9 @@
 <?php
 
 /*
- * Copyright (c) 2025-2026 Netresearch DTT GmbH
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ * Boilerplate from the TYPO3 testing-framework under its original notice
+ * below; see NOTICE.
  */
 
 declare(strict_types=1);

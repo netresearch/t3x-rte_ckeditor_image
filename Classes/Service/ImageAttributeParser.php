@@ -20,7 +20,7 @@ use DOMXPath;
  * NO business logic, NO validation, NO sanitization - just parsing.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  *
  * @see    https://www.netresearch.de
  */

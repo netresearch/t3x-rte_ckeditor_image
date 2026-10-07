@@ -27,7 +27,7 @@ use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
  * in the page module preview.
  *
  * @author  Rico Sonntag <rico.sonntag@netresearch.de>
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  *
  * @see    https://www.netresearch.de
  */

@@ -29,7 +29,7 @@ use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
  * Test case for ImageResolverService.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  */
 #[AllowMockObjectsWithoutExpectations]
 final class ImageResolverServiceTest extends TestCase

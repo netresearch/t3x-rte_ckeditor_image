@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
  * Test case for RteImagePreviewViewHelper.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  */
 #[CoversClass(RteImagePreviewViewHelper::class)]
 class RteImagePreviewViewHelperTest extends TestCase

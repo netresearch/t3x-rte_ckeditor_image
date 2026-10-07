@@ -32,7 +32,7 @@ use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
  * Test case for RteImageProcessorFactory.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  */
 #[AllowMockObjectsWithoutExpectations]
 #[CoversClass(RteImageProcessorFactory::class)]

@@ -24,7 +24,7 @@ use TYPO3\CMS\Core\View\ViewFactoryInterface;
  * SECURITY: All validation MUST occur in ImageResolverService before reaching this layer.
  *
  * @author  Netresearch DTT GmbH
- * @license https://www.gnu.org/licenses/agpl-3.0.de.html
+ * @license AGPL-3.0-or-later
  *
  * @see    https://www.netresearch.de
  */
