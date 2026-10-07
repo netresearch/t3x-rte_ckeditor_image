@@ -12,7 +12,7 @@ ADR-001: Image Scaling Behavior
 :Status: Accepted
 :Date: 2025-10-27
 :Authors: Development Team
-:Context: RTE CKEditor Image Extension for TYPO3
+:Context: CKEditor Image Support Extension for TYPO3
 
 .. contents:: Table of Contents
    :depth: 3
@@ -21,7 +21,7 @@ ADR-001: Image Scaling Behavior
 Context and Problem Statement
 ==============================
 
-The RTE CKEditor Image extension needs to provide flexible image processing options that balance quality, performance, and file size. Users need clear control over when images should be processed versus when original files should be used directly.
+The CKEditor Image Support extension needs to provide flexible image processing options that balance quality, performance, and file size. Users need clear control over when images should be processed versus when original files should be used directly.
 
 The system must handle various scenarios:
 

@@ -9,7 +9,7 @@
 Testing Examples
 ================
 
-Examples for writing functional and unit tests for the RTE CKEditor Image extension.
+Examples for writing functional and unit tests for the CKEditor Image Support extension.
 
 .. contents:: Table of Contents
    :depth: 3

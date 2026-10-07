@@ -12,7 +12,7 @@ ADR-002: Native CKEditor 5 vs Custom TYPO3 Image Plugin
 :Status: Accepted
 :Date: 2025-11-09
 :Authors: Development Team
-:Context: RTE CKEditor Image Extension for TYPO3
+:Context: CKEditor Image Support Extension for TYPO3
 
 .. contents:: Table of Contents
    :depth: 3

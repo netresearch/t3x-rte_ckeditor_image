@@ -12,7 +12,7 @@
 Design Patterns & Integration
 ============================
 
-Design patterns, integration points, data flow, and extension mechanisms for the RTE CKEditor Image extension.
+Design patterns, integration points, data flow, and extension mechanisms for the CKEditor Image Support extension.
 
 .. contents:: Table of Contents
    :depth: 3
@@ -21,7 +21,7 @@ Design patterns, integration points, data flow, and extension mechanisms for the
 Overview
 ========
 
-This document explains the design patterns, integration approaches, and data flow used in the RTE CKEditor Image extension. For system architecture and components, see :ref:`architecture-overview`.
+This document explains the design patterns, integration approaches, and data flow used in the CKEditor Image Support extension. For system architecture and components, see :ref:`architecture-overview`.
 
 Key Design Patterns
 ===================

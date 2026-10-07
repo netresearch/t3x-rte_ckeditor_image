@@ -9,7 +9,7 @@
 Integration & Configuration
 ============================
 
-Complete configuration reference and integration guide for the RTE CKEditor Image extension.
+Complete configuration reference and integration guide for the CKEditor Image Support extension.
 
 .. versionchanged:: 13.1.5
 

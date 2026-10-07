@@ -11,7 +11,7 @@
 System Architecture
 ============================
 
-System architecture overview for the RTE CKEditor Image extension, covering the three-layer architecture, core components, and technology stack.
+System architecture overview for the CKEditor Image Support extension, covering the three-layer architecture, core components, and technology stack.
 
 .. contents:: Table of Contents
    :depth: 3
@@ -20,7 +20,7 @@ System architecture overview for the RTE CKEditor Image extension, covering the 
 Overview
 ========
 
-This document explains the architectural structure and core components of the RTE CKEditor Image extension. For design patterns and integration details, see :ref:`architecture-design-patterns`.
+This document explains the architectural structure and core components of the CKEditor Image Support extension. For design patterns and integration details, see :ref:`architecture-design-patterns`.
 
 Three-Layer Architecture
 ------------------------

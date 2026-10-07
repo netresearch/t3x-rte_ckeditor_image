@@ -10,7 +10,7 @@
 Architecture & Design
 ============================
 
-System architecture, component design, and technical implementation details for the RTE CKEditor Image extension.
+System architecture, component design, and technical implementation details for the CKEditor Image Support extension.
 
 .. contents:: Table of Contents
    :depth: 2
@@ -19,7 +19,7 @@ System architecture, component design, and technical implementation details for 
 Overview
 ========
 
-This section explains the architectural decisions, design patterns, and component interactions in the RTE CKEditor Image extension.
+This section explains the architectural decisions, design patterns, and component interactions in the CKEditor Image Support extension.
 
 Architecture Topics
 ===================
