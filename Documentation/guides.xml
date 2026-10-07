@@ -24,7 +24,7 @@
                typo3-core-preferred="stable"/>
 
     <!-- Project Metadata -->
-    <project title="RTE CKEditor Image"
+    <project title="CKEditor Image Support"
              version="main"
              release="main"
              copyright="since 2017 by Netresearch &amp; Contributors"/>

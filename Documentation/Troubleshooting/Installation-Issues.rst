@@ -386,7 +386,7 @@ Add TypoScript directly to the sys_template record:
 
 .. code-block:: typoscript
 
-   # Include RTE CKEditor Image TypoScript
+   # Include CKEditor Image Support TypoScript
    <INCLUDE_TYPOSCRIPT: source="FILE:EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript">
 
 5. Save template

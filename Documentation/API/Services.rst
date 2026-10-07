@@ -14,7 +14,7 @@ Services API
    The new service architecture replaces legacy controllers with a clean pipeline:
    Parser → Resolver → Renderer.
 
-The RTE CKEditor Image extension uses a three-service architecture following TYPO3 v13
+The CKEditor Image Support extension uses a three-service architecture following TYPO3 v13
 best practices with clear separation of concerns.
 
 .. contents:: Table of contents

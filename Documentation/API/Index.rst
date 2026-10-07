@@ -10,7 +10,7 @@
 API Documentation
 ==================
 
-Complete API reference for all PHP classes in the RTE CKEditor Image extension.
+Complete API reference for all PHP classes in the CKEditor Image Support extension.
 
 .. contents:: Table of Contents
    :depth: 2

@@ -13,8 +13,8 @@
  */
 
 $EM_CONF[$_EXTKEY] = [
-    'title'          => 'CKEditor Rich Text Editor Image Support',
-    'description'    => 'Adds FAL image support to CKEditor for TYPO3 - by Netresearch.',
+    'title'          => 'CKEditor Image Support',
+    'description'    => 'Adds FAL image support to CKEditor in the rich text editor.',
     'category'       => 'be',
     'author'         => 'Sebastian Koschel, Sebastian Mendel, Rico Sonntag',
     'author_email'   => 'sebastian.koschel@netresearch.de, sebastian.mendel@netresearch.de, rico.sonntag@netresearch.de',

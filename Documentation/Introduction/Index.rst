@@ -9,7 +9,7 @@
 Introduction
 ============
 
-The RTE CKEditor Image extension provides comprehensive image handling capabilities
+The CKEditor Image Support extension provides comprehensive image handling capabilities
 for TYPO3's CKEditor Rich Text Editor. This extension enables editors to insert,
 configure, and style images directly within the CKEditor interface, with full
 integration into TYPO3's File Abstraction Layer (FAL).

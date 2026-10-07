@@ -14,7 +14,7 @@ Security
    Comprehensive security measures including protocol blocking, file validation,
    and XSS prevention.
 
-Security features and best practices for the RTE CKEditor Image extension.
+Security features and best practices for the CKEditor Image Support extension.
 
 .. contents:: Table of contents
    :depth: 2

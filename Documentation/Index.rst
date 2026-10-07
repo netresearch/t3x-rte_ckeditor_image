@@ -5,9 +5,9 @@
 
 .. _start:
 
-===================
-RTE CKEditor Image
-===================
+======================
+CKEditor Image Support
+======================
 
 :Extension key:
    rte_ckeditor_image
@@ -45,7 +45,7 @@ Image support in CKEditor for the TYPO3 ecosystem - by Netresearch.
 
     ..  card:: 📘 Introduction
 
-        The RTE CKEditor Image extension provides comprehensive image handling
+        The CKEditor Image Support extension provides comprehensive image handling
         capabilities for TYPO3's CKEditor Rich Text Editor with full FAL integration.
 
         ..  card-footer:: :ref:`Read more <introduction>`

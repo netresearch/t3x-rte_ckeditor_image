@@ -24,7 +24,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 [![Latest TER version](https://typo3-badges.dev/badge/rte_ckeditor_image/version/shields.svg)](https://extensions.typo3.org/extension/rte_ckeditor_image)
 <!-- Generated with care at typo3-badges.dev -->
 
-# RTE CKEditor Image — Image Support for CKEditor 5 in TYPO3
+# CKEditor Image Support for TYPO3
 
 > A TYPO3 extension that restores and modernises rich-text image handling for **TYPO3 v13.4 LTS** and **v14.3 LTS**, built on **CKEditor 5** with full **File Abstraction Layer (FAL)** integration, image processing, accessibility metadata, and content security in mind.
 
