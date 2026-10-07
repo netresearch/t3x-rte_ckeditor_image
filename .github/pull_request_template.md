@@ -1,29 +1,13 @@
-**IMPORTANT: Please do not create a Pull Request without creating an issue first.**
+## Summary
 
-*Any change needs to be discussed before proceeding. Failure to do so may result in the rejection of the pull request.*
+<!-- Brief description of what this PR does and why -->
 
+## Test plan
 
-**Please provide enough information so that others can review your pull request:**
+- [ ] Pre-commit hooks pass (`composer ci:test:php:lint`, `composer ci:test:php:cgl`, `composer ci:test:php:phpstan`)
+- [ ] Unit tests pass (`composer ci:test:php:unit`)
+- [ ] Manual testing performed (if applicable)
 
-You can skip this if you're fixing a typo. 
+## Related issues
 
-
-**Explain the details**
-
-Explain the details for making this change. What existing problem does the pull request solve?
-Example: When "Adding a function to do X", explain why it is necessary to have a way to do X. 
-
-
-**Test plan (required)**
-
-Make sure your changes pass all checks. 
-
-
-**Code formatting**
-
-Stick to the coding style, PSR-12 at least.
-
-
-**Closing issues**
-
-Put `Closes #XXXX` in your comment to auto-close the issue that your PR fixes (if such).
+<!-- Closes #123, Fixes #456. CONTRIBUTING.md asks for an issue linked to every pull request. -->
