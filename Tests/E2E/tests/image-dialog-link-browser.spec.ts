@@ -4,7 +4,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, waitForCKEditor, selectImageInEditor, openImageEditDialog, requireCondition } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, waitForCKEditor, selectImageInEditor, openImageEditDialog, requireCondition, getModuleFrame } from './helpers/typo3-backend';
 
 /**
  * E2E tests for the image dialog link browser functionality.
@@ -391,5 +391,64 @@ test.describe('Link Browser Error Handling', () => {
       url.includes('wizard/link') || url.includes('wizard_link')
     );
     expect(hasWizardLinkRequest).toBe(true);
+  });
+
+  /**
+   * Regression: the modal title was read straight off TYPO3.lang, which is
+   * only populated in frames that received the inline label payload. Where
+   * it is absent the lookup threw before Modal.advanced() was reached and
+   * the browser never opened.
+   *
+   * TYPO3.lang is removed explicitly rather than reached through a route
+   * that happens to lack it: the classic record_edit form populates it on
+   * both v13 and v14, so the tests above cannot cover this path.
+   */
+  test('opens the link browser when TYPO3.lang is unavailable', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', error => {
+      errors.push(error.message);
+    });
+
+    await navigateToContentEdit(page);
+
+    await waitForCKEditor(page);
+
+    await selectImageInEditor(page);
+
+    await openImageEditDialog(page);
+
+    // Select "Link" option
+    const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
+    if (await linkRadio.count() > 0) {
+      await linkRadio.click();
+      await page.waitForTimeout(500);
+    }
+
+    // Drop the inline labels right before the click, so only the link
+    // browser is affected and the dialog itself stays intact.
+    // Both documents: the plugin's module scope is the content iframe,
+    // while the modal renders into the top document.
+    const dropLabels = () => {
+      delete (window as unknown as { TYPO3?: { lang?: unknown } }).TYPO3?.lang;
+    };
+    const labelsGone = () =>
+      (window as unknown as { TYPO3?: { lang?: unknown } }).TYPO3?.lang === undefined;
+
+    const moduleBody = getModuleFrame(page).locator('body');
+
+    await page.evaluate(dropLabels);
+    await moduleBody.evaluate(dropLabels);
+
+    requireCondition(await page.evaluate(labelsGone), 'TYPO3.lang should be undefined in the top document');
+    requireCondition(await moduleBody.evaluate(labelsGone), 'TYPO3.lang should be undefined in the module frame');
+
+    const browseButton = page.locator('button:has-text("Browse"), .btn:has-text("Browse")');
+    await browseButton.click();
+
+    const linkBrowserModal = page.locator('.modal-dialog iframe, .t3js-modal iframe');
+    await expect(linkBrowserModal).toBeVisible({ timeout: 10000 });
+
+    const labelErrors = errors.filter(e => e.includes('TypeError'));
+    expect(labelErrors).toEqual([]);
   });
 });
