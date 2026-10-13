@@ -26,6 +26,9 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
         'typo3/cms-rte-ckeditor',
     ];
 
+    /**
+     * Verify RTE image entries against the storage relations declared by Core.
+     */
     #[Test]
     public function updateReferenceIndexAddsIndexEntryForImage(): void
     {
