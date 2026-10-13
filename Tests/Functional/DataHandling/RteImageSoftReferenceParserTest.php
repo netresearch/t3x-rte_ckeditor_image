@@ -12,6 +12,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Functional\DataHandling;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ReferenceIndex;
 use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Schema\TcaSchemaFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
@@ -36,7 +37,14 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
         } else {
             $this->get(ReferenceIndex::class)->updateIndex(false);
         }
+        $storageHasReference = ($this
+            ->get(TcaSchemaFactory::class)
+            ->get('sys_file')
+            ->getField('storage')
+            ->getConfiguration()['foreign_table'] ?? '') === 'sys_file_storage';
+        // TYPO3 14.3.8 stopped indexing sys_file.storage as a database relation.
+        $expectedDataSet = $storageHasReference ? 'UpdateReferenceIndexResult.csv' : 'UpdateReferenceIndexResultWithoutStorageRelation.csv';
 
-        $this->assertCSVDataSet(__DIR__ . '/Fixtures/ReferenceIndex/UpdateReferenceIndexResult.csv');
+        $this->assertCSVDataSet(__DIR__ . '/Fixtures/ReferenceIndex/' . $expectedDataSet);
     }
 }

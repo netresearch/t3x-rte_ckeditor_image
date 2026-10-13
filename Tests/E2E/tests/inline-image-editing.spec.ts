@@ -169,37 +169,24 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
 
     await waitForCKEditor(page);
 
-    const images = await getEditorImages(page);
-    requireCondition(images.inline > 0, 'No inline images in test content - need inline image to test typing before it');
+    const editor = getEditor(page);
+    const inlineWidget = editor.locator('.ck-widget_inline-image').first();
+    await expect(inlineWidget).toBeVisible();
+    await inlineWidget.click();
+    await expect(editor).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
 
-    // Focus editor and position cursor
-    await focusEditor(page);
+    const testText = 'BEFORE_IMAGE_';
+    await page.keyboard.type(testText);
 
-    const frame = getModuleFrame(page);
-
-    // Try to click just before the inline image widget
-    const inlineWidget = frame.locator('.ck-widget_inline-image').first();
-    if (await inlineWidget.count() > 0) {
-      // Click slightly to the left of the widget
-      const box = await inlineWidget.boundingBox();
-      if (box) {
-        await page.mouse.click(box.x - 5, box.y + box.height / 2);
-        await page.waitForTimeout(300);
-
-        // Type some text
-        const testText = 'BEFORE_IMAGE_';
-        await page.keyboard.type(testText);
-        await page.waitForTimeout(500);
-
-        // Verify text appears before the image
-        const html = await getEditorHtml(page);
-        const hasTextBeforeImage = html.includes(testText);
-        console.log(`Text "${testText}" appears in editor: ${hasTextBeforeImage}`);
-
-        // The text should be in the same paragraph as the image
-        expect(hasTextBeforeImage).toBe(true);
-      }
-    }
+    await expect.poll(() => inlineWidget.evaluate((widget, text) => {
+      const paragraph = widget.closest('p');
+      if (!paragraph) return false;
+      const beforeImage = widget.ownerDocument.createRange();
+      beforeImage.selectNodeContents(paragraph);
+      beforeImage.setEndBefore(widget);
+      return beforeImage.toString().includes(text);
+    }, testText)).toBe(true);
   });
 
   test('can type text after inline image in same paragraph', async ({ page }) => {
@@ -207,34 +194,24 @@ test.describe('Inline Image Editing in CKEditor (#580)', () => {
 
     await waitForCKEditor(page);
 
-    const images = await getEditorImages(page);
-    requireCondition(images.inline > 0, 'No inline images in test content');
+    const editor = getEditor(page);
+    const inlineWidget = editor.locator('.ck-widget_inline-image').first();
+    await expect(inlineWidget).toBeVisible();
+    await inlineWidget.click();
+    await expect(editor).toBeFocused();
+    await page.keyboard.press('ArrowRight');
 
-    await focusEditor(page);
+    const testText = '_AFTER_IMAGE';
+    await page.keyboard.type(testText);
 
-    const frame = getModuleFrame(page);
-    const inlineWidget = frame.locator('.ck-widget_inline-image').first();
-
-    if (await inlineWidget.count() > 0) {
-      // Click slightly to the right of the widget
-      const box = await inlineWidget.boundingBox();
-      if (box) {
-        await page.mouse.click(box.x + box.width + 5, box.y + box.height / 2);
-        await page.waitForTimeout(300);
-
-        // Type some text
-        const testText = '_AFTER_IMAGE';
-        await page.keyboard.type(testText);
-        await page.waitForTimeout(500);
-
-        // Verify text appears after the image
-        const html = await getEditorHtml(page);
-        const hasTextAfterImage = html.includes(testText);
-        console.log(`Text "${testText}" appears in editor: ${hasTextAfterImage}`);
-
-        expect(hasTextAfterImage).toBe(true);
-      }
-    }
+    await expect.poll(() => inlineWidget.evaluate((widget, text) => {
+      const paragraph = widget.closest('p');
+      if (!paragraph) return false;
+      const afterImage = widget.ownerDocument.createRange();
+      afterImage.selectNodeContents(paragraph);
+      afterImage.setStartAfter(widget);
+      return afterImage.toString().includes(text);
+    }, testText)).toBe(true);
   });
 
   test('inline image and text are in same paragraph element', async ({ page }) => {
