@@ -209,7 +209,7 @@ class RteImageProcessorFactoryTest extends TestCase
             ->method('warning')
             ->with(
                 'Failed to read fetchExternalImages configuration, using default value',
-                self::callback(static fn(mixed $context): bool => is_array($context)
+                self::callback(static fn (mixed $context): bool => is_array($context)
                     && isset($context['exception'])
                     && is_string($context['exception'])
                     && str_contains($context['exception'], 'Configuration not found')),

@@ -9,15 +9,15 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Service;
 
-use Psr\Log\LoggerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 use Netresearch\RteCKEditorImage\Service\ImageResolverService;
 use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 use RuntimeException;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -100,7 +100,7 @@ final class ImageResolverServiceTest extends TestCase
     {
         $fileMock = $this->createMock(File::class);
         $fileMock->method('getProperty')
-            ->willReturnCallback(static fn(string $key): mixed => $properties[$key] ?? null);
+            ->willReturnCallback(static fn (string $key): mixed => $properties[$key] ?? null);
 
         return $fileMock;
     }

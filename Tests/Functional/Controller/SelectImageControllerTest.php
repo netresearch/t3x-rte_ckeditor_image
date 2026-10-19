@@ -75,7 +75,6 @@ class SelectImageControllerTest extends FunctionalTestCase
      *
      * @param string $constantName
      *
-     *
      * @throws ReflectionException
      */
     private function getConstant(string $constantName): mixed

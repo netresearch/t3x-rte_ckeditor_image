@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Service\Processor;
 
-use TYPO3\CMS\Core\Resource\ResourceStorage;
 use Netresearch\RteCKEditorImage\Service\Builder\ImageTagBuilderInterface;
 use Netresearch\RteCKEditorImage\Service\Environment\EnvironmentInfoInterface;
 use Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcherInterface;
@@ -31,6 +30,7 @@ use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
+use TYPO3\CMS\Core\Resource\ResourceStorage;
 
 /**
  * Test case for RteImageProcessor.
@@ -894,7 +894,7 @@ class RteImageProcessorTest extends TestCase
             ->method('error')
             ->with(
                 'Failed to process external image',
-                self::callback(static fn(mixed $context): bool => is_array($context) && isset($context['url']) && isset($context['exception'])),
+                self::callback(static fn (mixed $context): bool => is_array($context) && isset($context['url']) && isset($context['exception'])),
             );
 
         $processor = $this->createProcessor(true);

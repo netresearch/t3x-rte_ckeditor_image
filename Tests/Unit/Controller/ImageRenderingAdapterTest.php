@@ -594,7 +594,6 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertSame('Classes/Controller/ImageRenderingAdapter.php', $this->adapter->scriptRelPath);
     }
 
-
     // ========================================================================
     // Issue #566 Tests - renderImageAttributes must skip captioned images
     // ========================================================================
@@ -895,7 +894,7 @@ final class ImageRenderingAdapterTest extends TestCase
             ->expects(self::once())
             ->method('resolve')
             ->with(
-                self::callback(static fn(array $attributes): bool => $attributes['data-caption'] === 'My Caption'
+                self::callback(static fn (array $attributes): bool => $attributes['data-caption'] === 'My Caption'
                     && $attributes['data-htmlarea-file-uid'] === '1'),
                 [],
                 $this->request,
@@ -1069,15 +1068,16 @@ final class ImageRenderingAdapterTest extends TestCase
             ->expects(self::once())
             ->method('resolve')
             ->with(
-                self::callback(static fn(array $attributes): bool => $attributes['data-htmlarea-file-uid'] === '1'
+                self::callback(static fn (array $attributes): bool => $attributes['data-htmlarea-file-uid'] === '1'
                     && $attributes['data-caption'] === 'Caption'),
                 [],
                 $this->request,
                 self::callback(
                     // Link attributes MUST be passed (this is the bug - currently null)
-                    static fn(?array $linkAttributes): bool => is_array($linkAttributes)
+                    static fn (?array $linkAttributes): bool => is_array($linkAttributes)
                     && $linkAttributes['href'] === 'https://example.com'
-                    && $linkAttributes['target'] === '_blank'),
+                    && $linkAttributes['target'] === '_blank',
+                ),
             )
             ->willReturn($dto);
 
@@ -1210,11 +1210,12 @@ final class ImageRenderingAdapterTest extends TestCase
             ->with(
                 self::callback(
                     // No data-caption should be added when caption is empty
-                    static fn(array $attributes): bool => !array_key_exists('data-caption', $attributes)
-                    && $attributes['data-htmlarea-file-uid'] === '1'),
+                    static fn (array $attributes): bool => !array_key_exists('data-caption', $attributes)
+                    && $attributes['data-htmlarea-file-uid'] === '1',
+                ),
                 [],
                 $this->request,
-                self::callback(static fn(?array $linkAttributes): bool => is_array($linkAttributes)
+                self::callback(static fn (?array $linkAttributes): bool => is_array($linkAttributes)
                     && $linkAttributes['href'] === 'https://example.com'),
             )
             ->willReturn($dto);
@@ -1289,8 +1290,9 @@ final class ImageRenderingAdapterTest extends TestCase
             ->with(
                 self::callback(
                     // Popup attribute MUST be preserved
-                    static fn(array $attributes): bool => $attributes['data-htmlarea-zoom'] === '1'
-                    && $attributes['data-caption'] === 'Popup Caption'),
+                    static fn (array $attributes): bool => $attributes['data-htmlarea-zoom'] === '1'
+                    && $attributes['data-caption'] === 'Popup Caption',
+                ),
                 [],
                 $this->request,
                 null, // No explicit link attributes
@@ -1566,7 +1568,7 @@ final class ImageRenderingAdapterTest extends TestCase
             ->expects(self::once())
             ->method('resolve')
             ->with(
-                self::callback(static fn(array $attributes): bool => !array_key_exists('data-caption', $attributes)
+                self::callback(static fn (array $attributes): bool => !array_key_exists('data-caption', $attributes)
                     && !array_key_exists('data-htmlarea-zoom', $attributes)
                     && !array_key_exists('data-htmlarea-clickenlarge', $attributes)
                     && ($attributes['data-htmlarea-file-uid'] ?? '') === '1'),

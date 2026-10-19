@@ -115,7 +115,7 @@ class ImageFileResolverTest extends TestCase
             ->method('warning')
             ->with(
                 'Could not resolve file by UID',
-                self::callback(static fn(mixed $context): bool => is_array($context)
+                self::callback(static fn (mixed $context): bool => is_array($context)
                     && $context['fileUid'] === 999
                     && is_string($context['exception'])
                     && str_contains($context['exception'], 'File not found')),
@@ -216,7 +216,7 @@ class ImageFileResolverTest extends TestCase
             ->method('warning')
             ->with(
                 'Could not resolve file by path',
-                self::callback(static fn(mixed $context): bool => is_array($context) && $context['path'] === 'fileadmin/missing.jpg'),
+                self::callback(static fn (mixed $context): bool => is_array($context) && $context['path'] === 'fileadmin/missing.jpg'),
             );
 
         $result = $this->resolver->resolveByPath('fileadmin/missing.jpg');
@@ -339,7 +339,7 @@ class ImageFileResolverTest extends TestCase
             ->method('error')
             ->with(
                 'Failed to process image',
-                self::callback(static fn(mixed $context): bool => is_array($context)
+                self::callback(static fn (mixed $context): bool => is_array($context)
                     && $context['fileUid'] === 123
                     && $context['width'] === 400
                     && $context['height'] === 300),
@@ -383,7 +383,7 @@ class ImageFileResolverTest extends TestCase
             ->method('error')
             ->with(
                 'Failed to import external image',
-                self::callback(static fn(mixed $context): bool => is_array($context) && $context['url'] === 'https://external.com/image.jpg'),
+                self::callback(static fn (mixed $context): bool => is_array($context) && $context['url'] === 'https://external.com/image.jpg'),
             );
 
         $result = $this->resolver->importExternalImage('https://external.com/image.jpg');

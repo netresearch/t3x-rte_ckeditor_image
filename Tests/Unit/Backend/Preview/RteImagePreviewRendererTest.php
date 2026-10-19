@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Backend\Preview;
 
-use TYPO3\CMS\Core\Domain\RecordInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 use Netresearch\RteCKEditorImage\Backend\Preview\RteImagePreviewRenderer;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssueType;
@@ -19,9 +17,11 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
+use TYPO3\CMS\Core\Domain\RecordInterface;
 
 /**
  * Test case for RteImagePreviewRenderer.
