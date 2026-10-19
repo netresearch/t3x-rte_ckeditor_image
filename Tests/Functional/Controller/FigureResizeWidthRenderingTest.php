@@ -80,6 +80,7 @@ final class FigureResizeWidthRenderingTest extends FunctionalTestCase
         $contentObjectRenderer = $this->get(ContentObjectRenderer::class);
 
         $contentObjectRenderer->setCurrentVal($inputHtml);
+
         $adapter->setContentObjectRenderer($contentObjectRenderer);
 
         /** @var string $result */

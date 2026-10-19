@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Backend\Preview;
 
+use TYPO3\CMS\Core\Domain\RecordInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use Netresearch\RteCKEditorImage\Backend\Preview\RteImagePreviewRenderer;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssueType;
@@ -63,7 +65,7 @@ class RteImagePreviewRendererTest extends TestCase
      *
      * @param array<string, mixed> $row The row data to return from getRow() or getRecord()
      *
-     * @return GridColumnItem&\PHPUnit\Framework\MockObject\MockObject
+     * @return GridColumnItem&MockObject
      */
     protected function createGridColumnItemMock(array $row): GridColumnItem
     {
@@ -72,7 +74,7 @@ class RteImagePreviewRendererTest extends TestCase
         // TYPO3 v14+ uses getRow() which returns array from RecordInterface
         // TYPO3 v13 uses getRecord() which returns array directly
         if (method_exists(GridColumnItem::class, 'getRow')) {
-            $recordMock = $this->createMock(\TYPO3\CMS\Core\Domain\RecordInterface::class);
+            $recordMock = $this->createMock(RecordInterface::class);
             $gridColumnItemMock
                 ->method('getRecord')
                 ->willReturn($recordMock);

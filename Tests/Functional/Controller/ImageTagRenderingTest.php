@@ -98,6 +98,7 @@ final class ImageTagRenderingTest extends FunctionalTestCase
         /** @var ContentObjectRenderer $cObj */
         $cObj = $this->get(ContentObjectRenderer::class);
         $cObj->setRequest($this->request);
+
         $adapter->setContentObjectRenderer($cObj);
 
         // The original img tag as it appears in the content
@@ -156,6 +157,7 @@ final class ImageTagRenderingTest extends FunctionalTestCase
         /** @var ContentObjectRenderer $cObj */
         $cObj = $this->get(ContentObjectRenderer::class);
         $cObj->setRequest($this->request);
+
         $adapter->setContentObjectRenderer($cObj);
 
         // Simulate tags.img handler receiving an img WITHOUT data-caption
@@ -205,6 +207,7 @@ final class ImageTagRenderingTest extends FunctionalTestCase
         /** @var ContentObjectRenderer $cObj */
         $cObj = $this->get(ContentObjectRenderer::class);
         $cObj->setRequest($this->request);
+
         $adapter->setContentObjectRenderer($cObj);
 
         // Simulate tags.a handler: currentVal is the INNER content of the <a> tag
@@ -254,6 +257,7 @@ final class ImageTagRenderingTest extends FunctionalTestCase
         /** @var ContentObjectRenderer $cObj */
         $cObj = $this->get(ContentObjectRenderer::class);
         $cObj->setRequest($this->request);
+
         $adapter->setContentObjectRenderer($cObj);
 
         // Image with zoom attribute inside a link
@@ -298,6 +302,7 @@ final class ImageTagRenderingTest extends FunctionalTestCase
         /** @var ContentObjectRenderer $cObj */
         $cObj = $this->get(ContentObjectRenderer::class);
         $cObj->setRequest($this->request);
+
         $adapter->setContentObjectRenderer($cObj);
 
         // The original img tag with data-caption (as it appears in CKEditor output)

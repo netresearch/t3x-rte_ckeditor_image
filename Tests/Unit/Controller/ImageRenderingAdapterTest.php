@@ -115,7 +115,7 @@ final class ImageRenderingAdapterTest extends TestCase
         ];
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
-        $this->contentObjectRenderer->parameters = $attributes + ['allParams' => self::rawAttributesOf($originalImg)];
+        $this->contentObjectRenderer->parameters = $attributes + ['allParams' => $this->rawAttributesOf($originalImg)];
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
 
         // Resolver should NOT be called - processing should be skipped entirely
@@ -150,7 +150,7 @@ final class ImageRenderingAdapterTest extends TestCase
         ];
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
-        $this->contentObjectRenderer->parameters = $attributes + ['allParams' => self::rawAttributesOf($originalImg)];
+        $this->contentObjectRenderer->parameters = $attributes + ['allParams' => $this->rawAttributesOf($originalImg)];
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
 
         $this->resolverService
@@ -181,7 +181,7 @@ final class ImageRenderingAdapterTest extends TestCase
         ];
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
-        $this->contentObjectRenderer->parameters = $attributes + ['allParams' => self::rawAttributesOf($originalImg)];
+        $this->contentObjectRenderer->parameters = $attributes + ['allParams' => $this->rawAttributesOf($originalImg)];
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
 
         $this->resolverService
@@ -621,7 +621,7 @@ final class ImageRenderingAdapterTest extends TestCase
         ];
 
         $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
-        $this->contentObjectRenderer->parameters = $attributes + ['allParams' => self::rawAttributesOf($originalImg)];
+        $this->contentObjectRenderer->parameters = $attributes + ['allParams' => $this->rawAttributesOf($originalImg)];
         $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
 
         // Resolver should NOT be called - processing should be skipped entirely
@@ -733,6 +733,7 @@ final class ImageRenderingAdapterTest extends TestCase
 
         $this->adapter->renderImageAttributes(null, [], $this->request);
     }
+
     // ========================================================================
     // renderFigure() Tests
     // ========================================================================
@@ -894,10 +895,8 @@ final class ImageRenderingAdapterTest extends TestCase
             ->expects(self::once())
             ->method('resolve')
             ->with(
-                self::callback(static function (array $attributes): bool {
-                    return $attributes['data-caption'] === 'My Caption'
-                        && $attributes['data-htmlarea-file-uid'] === '1';
-                }),
+                self::callback(static fn(array $attributes): bool => $attributes['data-caption'] === 'My Caption'
+                    && $attributes['data-htmlarea-file-uid'] === '1'),
                 [],
                 $this->request,
                 null, // No link attributes (empty link array from parser)
@@ -1070,18 +1069,15 @@ final class ImageRenderingAdapterTest extends TestCase
             ->expects(self::once())
             ->method('resolve')
             ->with(
-                self::callback(static function (array $attributes): bool {
-                    return $attributes['data-htmlarea-file-uid'] === '1'
-                        && $attributes['data-caption'] === 'Caption';
-                }),
+                self::callback(static fn(array $attributes): bool => $attributes['data-htmlarea-file-uid'] === '1'
+                    && $attributes['data-caption'] === 'Caption'),
                 [],
                 $this->request,
-                self::callback(static function (?array $linkAttributes): bool {
+                self::callback(
                     // Link attributes MUST be passed (this is the bug - currently null)
-                    return is_array($linkAttributes)
-                        && $linkAttributes['href'] === 'https://example.com'
-                        && $linkAttributes['target'] === '_blank';
-                }),
+                    static fn(?array $linkAttributes): bool => is_array($linkAttributes)
+                    && $linkAttributes['href'] === 'https://example.com'
+                    && $linkAttributes['target'] === '_blank'),
             )
             ->willReturn($dto);
 
@@ -1212,17 +1208,14 @@ final class ImageRenderingAdapterTest extends TestCase
             ->expects(self::once())
             ->method('resolve')
             ->with(
-                self::callback(static function (array $attributes): bool {
+                self::callback(
                     // No data-caption should be added when caption is empty
-                    return !array_key_exists('data-caption', $attributes)
-                        && $attributes['data-htmlarea-file-uid'] === '1';
-                }),
+                    static fn(array $attributes): bool => !array_key_exists('data-caption', $attributes)
+                    && $attributes['data-htmlarea-file-uid'] === '1'),
                 [],
                 $this->request,
-                self::callback(static function (?array $linkAttributes): bool {
-                    return is_array($linkAttributes)
-                        && $linkAttributes['href'] === 'https://example.com';
-                }),
+                self::callback(static fn(?array $linkAttributes): bool => is_array($linkAttributes)
+                    && $linkAttributes['href'] === 'https://example.com'),
             )
             ->willReturn($dto);
 
@@ -1294,11 +1287,10 @@ final class ImageRenderingAdapterTest extends TestCase
             ->expects(self::once())
             ->method('resolve')
             ->with(
-                self::callback(static function (array $attributes): bool {
+                self::callback(
                     // Popup attribute MUST be preserved
-                    return $attributes['data-htmlarea-zoom'] === '1'
-                        && $attributes['data-caption'] === 'Popup Caption';
-                }),
+                    static fn(array $attributes): bool => $attributes['data-htmlarea-zoom'] === '1'
+                    && $attributes['data-caption'] === 'Popup Caption'),
                 [],
                 $this->request,
                 null, // No explicit link attributes
@@ -1574,12 +1566,10 @@ final class ImageRenderingAdapterTest extends TestCase
             ->expects(self::once())
             ->method('resolve')
             ->with(
-                self::callback(static function (array $attributes): bool {
-                    return !array_key_exists('data-caption', $attributes)
-                        && !array_key_exists('data-htmlarea-zoom', $attributes)
-                        && !array_key_exists('data-htmlarea-clickenlarge', $attributes)
-                        && ($attributes['data-htmlarea-file-uid'] ?? '') === '1';
-                }),
+                self::callback(static fn(array $attributes): bool => !array_key_exists('data-caption', $attributes)
+                    && !array_key_exists('data-htmlarea-zoom', $attributes)
+                    && !array_key_exists('data-htmlarea-clickenlarge', $attributes)
+                    && ($attributes['data-htmlarea-file-uid'] ?? '') === '1'),
                 self::anything(),
                 self::anything(),
             )
@@ -2642,7 +2632,7 @@ final class ImageRenderingAdapterTest extends TestCase
      * parseFunc hands tags.img the raw attribute string of the tag as parameters['allParams']
      * and an empty current value, since <img> is an empty tag.
      */
-    private static function rawAttributesOf(string $imageTag): string
+    private function rawAttributesOf(string $imageTag): string
     {
         return trim(substr($imageTag, strlen('<img '), -1));
     }

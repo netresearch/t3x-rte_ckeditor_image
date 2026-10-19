@@ -483,10 +483,8 @@ final class ExternalImageFetcherTest extends UnitTestCase
             ->with(
                 self::anything(),
                 'GET',
-                self::callback(static function (array $options): bool {
-                    return isset($options['headers']['Host'])
-                        && $options['headers']['Host'] === 'cdn.example.com';
-                }),
+                self::callback(static fn(array $options): bool => isset($options['headers']['Host'])
+                    && $options['headers']['Host'] === 'cdn.example.com'),
             )
             ->willReturn($responseMock);
 
