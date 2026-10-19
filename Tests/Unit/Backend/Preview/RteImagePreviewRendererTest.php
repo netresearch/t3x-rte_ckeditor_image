@@ -17,9 +17,11 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
+use TYPO3\CMS\Core\Domain\RecordInterface;
 
 /**
  * Test case for RteImagePreviewRenderer.
@@ -63,7 +65,7 @@ class RteImagePreviewRendererTest extends TestCase
      *
      * @param array<string, mixed> $row The row data to return from getRow() or getRecord()
      *
-     * @return GridColumnItem&\PHPUnit\Framework\MockObject\MockObject
+     * @return GridColumnItem&MockObject
      */
     protected function createGridColumnItemMock(array $row): GridColumnItem
     {
@@ -72,7 +74,7 @@ class RteImagePreviewRendererTest extends TestCase
         // TYPO3 v14+ uses getRow() which returns array from RecordInterface
         // TYPO3 v13 uses getRecord() which returns array directly
         if (method_exists(GridColumnItem::class, 'getRow')) {
-            $recordMock = $this->createMock(\TYPO3\CMS\Core\Domain\RecordInterface::class);
+            $recordMock = $this->createMock(RecordInterface::class);
             $gridColumnItemMock
                 ->method('getRecord')
                 ->willReturn($recordMock);

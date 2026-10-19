@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Service;
 
+use Netresearch\RteCKEditorImage\Dto\SrcOrigin;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssueType;
 use Netresearch\RteCKEditorImage\Dto\ValidationResult;
@@ -16,6 +17,7 @@ use Netresearch\RteCKEditorImage\Service\RteImageReferenceValidator;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -36,7 +38,7 @@ class RteImageReferenceValidatorTest extends TestCase
 {
     private RteImageReferenceValidator $subject;
 
-    /** @var ResourceFactory&\PHPUnit\Framework\MockObject\MockObject */
+    /** @var ResourceFactory&MockObject */
     private ResourceFactory $resourceFactory;
 
     protected function setUp(): void
@@ -180,7 +182,7 @@ class RteImageReferenceValidatorTest extends TestCase
             1,
             'bodytext',
             $result,
-            [\Netresearch\RteCKEditorImage\Dto\SrcOrigin::ExternalUrl],
+            [SrcOrigin::ExternalUrl],
         );
 
         self::assertCount(1, $issues);

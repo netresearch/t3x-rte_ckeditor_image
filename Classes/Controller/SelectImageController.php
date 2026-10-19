@@ -90,7 +90,6 @@ class SelectImageController extends ElementBrowserController
      */
     public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
-
         $parsedBody  = $request->getParsedBody();
         $queryParams = $request->getQueryParams();
 

@@ -30,6 +30,7 @@ use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
+use TYPO3\CMS\Core\Resource\ResourceStorage;
 
 /**
  * Test case for RteImageProcessor.
@@ -42,13 +43,21 @@ use TYPO3\CMS\Core\Resource\ProcessedFile;
 class RteImageProcessorTest extends TestCase
 {
     private ImageTagParserInterface&MockObject $parser;
+
     private ImageTagBuilderInterface&MockObject $builder;
+
     private ImageFileResolverInterface&MockObject $fileResolver;
+
     private ExternalImageFetcherInterface&MockObject $externalFetcher;
+
     private EnvironmentInfoInterface&MockObject $environmentInfo;
+
     private SecurityValidatorInterface&MockObject $securityValidator;
+
     private Context&MockObject $context;
+
     private DefaultUploadFolderResolver&MockObject $uploadFolderResolver;
+
     private LoggerInterface&MockObject $logger;
 
     protected function setUp(): void
@@ -885,9 +894,7 @@ class RteImageProcessorTest extends TestCase
             ->method('error')
             ->with(
                 'Failed to process external image',
-                self::callback(static function (mixed $context): bool {
-                    return is_array($context) && isset($context['url']) && isset($context['exception']);
-                }),
+                self::callback(static fn (mixed $context): bool => is_array($context) && isset($context['url']) && isset($context['exception'])),
             );
 
         $processor = $this->createProcessor(true);
@@ -935,7 +942,7 @@ class RteImageProcessorTest extends TestCase
             ->method('getDimension')
             ->willReturnOnConsecutiveCalls(400, 300);
 
-        $storageMock = $this->createMock(\TYPO3\CMS\Core\Resource\ResourceStorage::class);
+        $storageMock = $this->createMock(ResourceStorage::class);
         $storageMock->method('getPublicUrl')
             ->willReturn('/fileadmin/_processed_/image_real.jpg');
 

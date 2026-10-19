@@ -41,7 +41,8 @@ final class ProcessedFilesHandlerTest extends UnitTestCase
         $imageServiceMock = $this->createMock(ImageService::class);
 
         $this->imageServiceMock = $imageServiceMock;
-        $this->subject          = new ProcessedFilesHandler($this->imageServiceMock);
+
+        $this->subject = new ProcessedFilesHandler($this->imageServiceMock);
     }
 
     #[Test]

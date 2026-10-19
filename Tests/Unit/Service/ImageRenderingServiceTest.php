@@ -13,6 +13,7 @@ use Netresearch\RteCKEditorImage\Domain\Model\ImageRenderingDto;
 use Netresearch\RteCKEditorImage\Domain\Model\LinkDto;
 use Netresearch\RteCKEditorImage\Service\ImageRenderingService;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionMethod;
@@ -31,7 +32,7 @@ class ImageRenderingServiceTest extends TestCase
 {
     private ImageRenderingService $service;
 
-    /** @var ViewFactoryInterface&\PHPUnit\Framework\MockObject\MockObject */
+    /** @var ViewFactoryInterface&MockObject */
     private ViewFactoryInterface $viewFactoryMock;
 
     protected function setUp(): void
@@ -47,8 +48,6 @@ class ImageRenderingServiceTest extends TestCase
      * @param object  $object     Object instance
      * @param string  $methodName Method name to call
      * @param mixed[] $parameters Parameters to pass
-     *
-     * @return mixed
      */
     protected function callProtectedMethod(object $object, string $methodName, array $parameters = []): mixed
     {

@@ -39,14 +39,23 @@ use TYPO3\CMS\Core\Resource\DefaultUploadFolderResolver;
 class RteImageProcessorFactoryTest extends TestCase
 {
     private ImageTagParserInterface&MockObject $parser;
+
     private ImageTagBuilderInterface&MockObject $builder;
+
     private ImageFileResolverInterface&MockObject $fileResolver;
+
     private ExternalImageFetcherInterface&MockObject $externalFetcher;
+
     private EnvironmentInfoInterface&MockObject $environmentInfo;
+
     private SecurityValidatorInterface&MockObject $securityValidator;
+
     private Context&MockObject $context;
+
     private DefaultUploadFolderResolver&MockObject $uploadFolderResolver;
+
     private ExtensionConfiguration&MockObject $extensionConfiguration;
+
     private LoggerInterface&MockObject $logger;
 
     protected function setUp(): void
@@ -200,12 +209,10 @@ class RteImageProcessorFactoryTest extends TestCase
             ->method('warning')
             ->with(
                 'Failed to read fetchExternalImages configuration, using default value',
-                self::callback(static function (mixed $context): bool {
-                    return is_array($context)
-                        && isset($context['exception'])
-                        && is_string($context['exception'])
-                        && str_contains($context['exception'], 'Configuration not found');
-                }),
+                self::callback(static fn (mixed $context): bool => is_array($context)
+                    && isset($context['exception'])
+                    && is_string($context['exception'])
+                    && str_contains($context['exception'], 'Configuration not found')),
             );
 
         $factory = $this->createFactory();

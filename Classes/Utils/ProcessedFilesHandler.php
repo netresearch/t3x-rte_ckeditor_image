@@ -42,7 +42,6 @@ class ProcessedFilesHandler
      */
     public function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile
     {
-
         // Process the file with the given configuration
         try {
             return $this->imageService->applyProcessingInstructions($file, $imageConfiguration);

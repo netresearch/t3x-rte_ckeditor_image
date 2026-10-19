@@ -14,8 +14,10 @@ use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use ReflectionMethod;
 use RuntimeException;
 use TYPO3\CMS\Core\Log\LogManager;
@@ -36,16 +38,16 @@ final class ImageResolverServiceTest extends TestCase
 {
     private ImageResolverService $service;
 
-    /** @var ResourceFactory&\PHPUnit\Framework\MockObject\MockObject */
+    /** @var ResourceFactory&MockObject */
     private ResourceFactory $resourceFactoryMock;
 
-    /** @var ProcessedFilesHandler&\PHPUnit\Framework\MockObject\MockObject */
+    /** @var ProcessedFilesHandler&MockObject */
     private ProcessedFilesHandler $processedFilesHandlerMock;
 
-    /** @var SvgSanitizer&\PHPUnit\Framework\MockObject\MockObject */
+    /** @var SvgSanitizer&MockObject */
     private SvgSanitizer $svgSanitizerMock;
 
-    /** @var LogManager&\PHPUnit\Framework\MockObject\MockObject */
+    /** @var LogManager&MockObject */
     private LogManager $logManagerMock;
 
     protected function setUp(): void
@@ -58,7 +60,7 @@ final class ImageResolverServiceTest extends TestCase
         $this->logManagerMock            = $this->createMock(LogManager::class);
 
         // Mock logger to prevent null reference
-        $loggerMock = $this->createMock(\Psr\Log\LoggerInterface::class);
+        $loggerMock = $this->createMock(LoggerInterface::class);
         $this->logManagerMock->method('getLogger')->willReturn($loggerMock);
 
         // Default: SvgSanitizer returns content unchanged (pass-through)
@@ -79,8 +81,6 @@ final class ImageResolverServiceTest extends TestCase
      * @param object  $object     Object instance
      * @param string  $methodName Method name to call
      * @param mixed[] $parameters Parameters to pass
-     *
-     * @return mixed
      */
     protected function callPrivateMethod(object $object, string $methodName, array $parameters = []): mixed
     {
@@ -94,15 +94,13 @@ final class ImageResolverServiceTest extends TestCase
      *
      * @param array<string, mixed> $properties File properties
      *
-     * @return File&\PHPUnit\Framework\MockObject\MockObject
+     * @return File&MockObject
      */
     private function createFileMock(array $properties = []): File
     {
         $fileMock = $this->createMock(File::class);
         $fileMock->method('getProperty')
-            ->willReturnCallback(static function (string $key) use ($properties): mixed {
-                return $properties[$key] ?? null;
-            });
+            ->willReturnCallback(static fn (string $key): mixed => $properties[$key] ?? null);
 
         return $fileMock;
     }

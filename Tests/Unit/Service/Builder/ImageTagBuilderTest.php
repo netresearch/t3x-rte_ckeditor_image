@@ -150,7 +150,6 @@ final class ImageTagBuilderTest extends UnitTestCase
             300,
             200,
             'processed.jpg',
-            null,
         );
 
         self::assertArrayNotHasKey('data-htmlarea-file-uid', $result);

@@ -91,6 +91,7 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
         /** @var ContentObjectRenderer $cObj */
         $cObj = $this->get(ContentObjectRenderer::class);
         $cObj->setRequest($this->request);
+
         $adapter->setContentObjectRenderer($cObj);
 
         // First render - CKEditor input
@@ -149,6 +150,7 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
         /** @var ContentObjectRenderer $cObj */
         $cObj = $this->get(ContentObjectRenderer::class);
         $cObj->setRequest($this->request);
+
         $adapter->setContentObjectRenderer($cObj);
 
         // Simulate already-rendered figure (no data-htmlarea-file-uid)
@@ -181,6 +183,7 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
         /** @var ContentObjectRenderer $cObj */
         $cObj = $this->get(ContentObjectRenderer::class);
         $cObj->setRequest($this->request);
+
         $adapter->setContentObjectRenderer($cObj);
 
         $externalFigure = '<figure class="image">'
@@ -224,6 +227,7 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
         /** @var ContentObjectRenderer $cObj */
         $cObj = $this->get(ContentObjectRenderer::class);
         $cObj->setRequest($this->request);
+
         $adapter->setContentObjectRenderer($cObj);
 
         // CKEditor output: figure with captioned image
@@ -304,6 +308,7 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
         /** @var ContentObjectRenderer $cObj */
         $cObj = $this->get(ContentObjectRenderer::class);
         $cObj->setRequest($this->request);
+
         $adapter->setContentObjectRenderer($cObj);
 
         // Standalone image without caption
@@ -360,6 +365,7 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
         /** @var ContentObjectRenderer $cObj */
         $cObj = $this->get(ContentObjectRenderer::class);
         $cObj->setRequest($this->request);
+
         $adapter->setContentObjectRenderer($cObj);
 
         // Simulate historical double-wrapped data: parseFunc passes inner <a><img>
@@ -390,6 +396,7 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
         /** @var ContentObjectRenderer $cObj */
         $cObj = $this->get(ContentObjectRenderer::class);
         $cObj->setRequest($this->request);
+
         $adapter->setContentObjectRenderer($cObj);
 
         // Regular link content (text, processed image) — should pass through unchanged

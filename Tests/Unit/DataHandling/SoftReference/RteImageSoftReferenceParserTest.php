@@ -22,6 +22,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 final class RteImageSoftReferenceParserTest extends UnitTestCase
 {
     private RteImageSoftReferenceParser $subject;
+
     private HtmlParser $htmlParser;
 
     protected function setUp(): void

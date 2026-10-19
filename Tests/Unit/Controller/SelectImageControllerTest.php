@@ -879,11 +879,11 @@ final class SelectImageControllerTest extends UnitTestCase
         $uriBuilderMock
             ->expects(self::once())
             ->method('buildUriFromRoute')
-            ->with('wizard_link', self::callback(static function (array $params): bool {
+            ->with('wizard_link', self::callback(
                 // Verify default values are used
-                return $params['P']['pid'] === 0
-                    && $params['P']['currentValue'] === '';
-            }))
+                static fn (array $params): bool => $params['P']['pid'] === 0
+                && $params['P']['currentValue'] === '',
+            ))
             ->willReturn('/typo3/wizard/link');
 
         /** @var ElementBrowserRegistry&MockObject $elementBrowserRegistryMock */
@@ -999,9 +999,7 @@ final class SelectImageControllerTest extends UnitTestCase
         $uriBuilderMock
             ->expects(self::once())
             ->method('buildUriFromRoute')
-            ->with('wizard_link', self::callback(static function (array $params): bool {
-                return $params['P']['pid'] === 42;
-            }))
+            ->with('wizard_link', self::callback(static fn (array $params): bool => $params['P']['pid'] === 42))
             ->willReturn('/typo3/wizard/link');
 
         /** @var ElementBrowserRegistry&MockObject $elementBrowserRegistryMock */

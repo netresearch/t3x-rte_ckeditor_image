@@ -22,6 +22,7 @@ if ($blue === false || $white === false) {
     fwrite(STDERR, "seed: could not allocate the image colours\n");
     exit(1);
 }
+
 imagefill($im, 0, 0, $blue);
 imagestring($im, 5, 300, 280, 'E2E Test Image', $white);
 imagejpeg($im, 'public/fileadmin/user_upload/example.jpg', 90);

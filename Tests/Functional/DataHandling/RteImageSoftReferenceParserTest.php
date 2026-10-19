@@ -40,6 +40,7 @@ class RteImageSoftReferenceParserTest extends FunctionalTestCase
         } else {
             $this->get(ReferenceIndex::class)->updateIndex(false);
         }
+
         $storageHasReference = ($this
             ->get(TcaSchemaFactory::class)
             ->get('sys_file')
