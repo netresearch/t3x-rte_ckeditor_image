@@ -243,11 +243,11 @@
       <trans-unit id="labels.ckeditor.inline" xml:space="preserve">
 				<source>Inline</source>
 				
-			<target state="needs-translation">Inline</target><note>Toolbar button label for inline image display mode (flows with text).</note></trans-unit>
+			<target state="translated">Eingebettet</target><note>Toolbar button label for inline image display mode (flows with text).</note></trans-unit>
       <trans-unit id="labels.ckeditor.block" xml:space="preserve">
 				<source>Block</source>
 				
-			<target state="needs-translation">Block</target><note>Toolbar button label for block image display mode (own paragraph).</note></trans-unit>
+			<target state="translated">Block</target><note>Toolbar button label for block image display mode (own paragraph).</note></trans-unit>
       <trans-unit id="labels.ckeditor.selectimage" xml:space="preserve">
 				<source>Select image</source>
 				
