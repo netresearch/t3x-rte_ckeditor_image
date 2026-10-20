@@ -8,6 +8,13 @@ on:
   schedule:
     - cron: '0 6 * * 1'
 
+# A new push to a pull request cancels the run for the push before it, so
+# superseded test matrices stop taking runners. Runs on main, in the merge
+# queue and on the schedule are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
