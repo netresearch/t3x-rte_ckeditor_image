@@ -236,7 +236,19 @@ export async function saveContentElement(page: Page): Promise<void> {
     ).first();
 
     await expect(saveButton, 'Save button not found in docheader').toBeVisible();
-    await saveButton.click();
+
+    // Wait for the server's answer to the form POST, not for a load state:
+    // waitForLoadState('networkidle') returns at once on a page that is
+    // already idle, often before the POST is even sent, and a navigation
+    // started right after aborts it before the record is stored (#929).
+    const [response] = await Promise.all([
+        page.waitForResponse(
+            (r) => r.request().method() === 'POST' && r.url().includes('/typo3/record/edit'),
+            { timeout: 30000 }
+        ),
+        saveButton.click(),
+    ]);
+    expect(response.status(), 'Saving the content element failed').toBeLessThan(400);
     await page.waitForLoadState('networkidle');
 }
 
