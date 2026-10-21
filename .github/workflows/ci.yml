@@ -8,15 +8,17 @@ on:
   schedule:
     - cron: '0 6 * * 1'
 
+permissions:
+  contents: read
+
 # A new push to a pull request cancels the run for the push before it, so
 # superseded test matrices stop taking runners. Runs on main, in the merge
-# queue and on the schedule are never cancelled.
+# queue and on the schedule are never cancelled. The group sits here in the
+# caller, not in the reusable workflow: a caller that invokes ci.yml twice
+# would otherwise put both calls in one group and cancel one with the other.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
-permissions:
-  contents: read
 
 # Per-extension test matrix (intentional-drift). Security/quality jobs are in checks.yml.
 jobs:
