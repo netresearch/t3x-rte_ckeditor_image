@@ -11,6 +11,18 @@ on:
 permissions:
   contents: read
 
+# A new push to a pull request cancels the run for the push before it, so
+# superseded test matrices stop taking runners. Every other run (main, merge
+# queue, schedule) gets a group of its own through github.run_id: GitHub keeps
+# one pending run per group and cancels the older pending run even when
+# cancel-in-progress is off, so a group shared by main pushes and the schedule
+# would drop runs. The group sits here in the caller, not in the reusable
+# workflow: a caller that invokes ci.yml twice would otherwise put both calls
+# in one group and cancel one with the other.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 # Per-extension test matrix (intentional-drift). Security/quality jobs are in checks.yml.
 jobs:
   ci:
