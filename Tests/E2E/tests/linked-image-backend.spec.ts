@@ -4,7 +4,7 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, BASE_URL, navigateToContentEdit, getModuleFrame, waitForCKEditor, requireCondition, BACKEND_PASSWORD, openImageEditDialog, confirmImageDialog, getEditorHtml, getCKEditorData, saveContentElement, selectImageInEditor, gotoFrontendPage } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, requireCondition, BACKEND_PASSWORD, openImageEditDialog, confirmImageDialog, getCKEditorData, saveContentElement, selectImageInEditor, gotoFrontendPage } from './helpers/typo3-backend';
 
 /**
  * E2E tests for the actual CKEditor workflow where issue #565 manifests.

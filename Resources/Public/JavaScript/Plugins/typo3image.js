@@ -16,7 +16,7 @@
 import { Plugin, Command } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
-import { toWidget, toWidgetEditable, WidgetToolbarRepository } from '@ckeditor/ckeditor5-widget';
+import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
 import { default as Modal } from '@typo3/backend/modal.js';
 import { sanitizeSrc } from './sanitize-src.js';
 import { buildSelectImageBparams } from './select-image-bparams.js';
@@ -1572,16 +1572,6 @@ function getCaptionFromImageModelElement(imageElement) {
     return null;
 }
 
-/**
- * Check if caption element exists and has content
- * @param {Element} imageElement - The typo3image model element
- * @return {boolean} True if caption exists with content
- */
-function hasCaptionContent(imageElement) {
-    const caption = getCaptionFromImageModelElement(imageElement);
-    return caption?.childCount > 0;
-}
-
 export default class Typo3Image extends Plugin {
     static pluginName = 'Typo3Image';
 
@@ -2986,17 +2976,6 @@ export default class Typo3Image extends Plugin {
         });
 
 
-        // Loop over existing images
-        // SECURITY: Removed debug logging to prevent information disclosure
-        editor.model.change(writer => {
-            const range = writer.createRangeIn(editor.model.document.getRoot());
-            // Process existing images if needed
-            for (const value of range.getWalker({ ignoreElementEnd: true })) {
-                // Image processing logic would go here
-            }
-        });
-
-
         editor.ui.componentFactory.add('insertimage', () => {
             const button = new ButtonView();
 
@@ -3317,7 +3296,7 @@ export default class Typo3Image extends Plugin {
             });
         }
 
-        // NOTE: Balloon toolbar is implemented using WidgetToolbarRepository (see lines 19, 874-875)
+        // NOTE: Balloon toolbar is implemented using WidgetToolbarRepository (editor.plugins.get() in init())
         // WidgetResize is NOT available in TYPO3's CKEditor 5 build - visual resize handles not supported
         // Resize functionality is available via context toolbar buttons instead
 
