@@ -100,6 +100,7 @@ Tests/
 ## E2E Test Patterns (Playwright)
 
 - Shared helpers in `tests/helpers/typo3-backend.ts` for login and navigation
+- `tests/backend-login.setup.ts` runs as the `setup` project, which `chromium` depends on: one backend login before the parallel workers start. Without it, the first logins of the same user race in TYPO3's `Registry::set()` and one fails with a duplicate `formProtectionSessionToken` entry (#926). Do not add a logout to a test: it deletes that entry and reopens the race
 - Selectors centralized in `tests/helpers/selectors.ts`
 - Each `test()` gets a fresh page -- module-level state does not persist
 - Always `waitForLoadState('networkidle')` after `page.goto()`
