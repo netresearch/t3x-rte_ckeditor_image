@@ -430,3 +430,14 @@ echo "Image link attributes CE (UID 101) created for #935\n";
 $pdo->prepare('INSERT INTO tt_content (uid, pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
     ->execute([102, 2, 'text', 'Block Image Link Attributes (#935)', '<p>Some text</p>', 0, 0, $now, $now, 0, 2560]);
 echo "Block image link attributes CE (UID 102) created for #935\n";
+
+// UID 103: For regression-936-938-linked-inline-images.spec.ts (saves an image inside a link that also wraps text).
+$pdo->prepare('INSERT INTO tt_content (uid, pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    ->execute([103, 2, 'text', 'Image In Text Link (#936)', '<p>Some text</p>', 0, 0, $now, $now, 0, 2816]);
+echo "Image in text link CE (UID 103) created for #936\n";
+
+// UID 104: For regression-936-938-linked-inline-images.spec.ts (saves a linked inline image).
+// Its own CE, because the tests of a spec run in parallel and UID 103 is saved by another test.
+$pdo->prepare('INSERT INTO tt_content (uid, pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    ->execute([104, 2, 'text', 'Linked Inline Image Class (#938)', '<p>Some text</p>', 0, 0, $now, $now, 0, 3072]);
+echo "Linked inline image class CE (UID 104) created for #938\n";

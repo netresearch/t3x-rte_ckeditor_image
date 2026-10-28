@@ -1595,13 +1595,7 @@ class ToggleImageTypeCommand extends Command {
                 }
             } else {
                 // Block → Inline: remove block style classes, add image-inline
-                classValue = classValue
-                    .split(' ')
-                    .filter(cls => cls !== 'image' && !cls.match(/^image-(left|right|center|block)$/))
-                    .join(' ')
-                    .trim();
-
-                classValue = classValue ? classValue + ' image-inline' : 'image-inline';
+                classValue = toInlineImageClass(classValue);
             }
 
             attributes['class'] = classValue;
@@ -1706,6 +1700,44 @@ function viewNodeHasText(node, skip = null) {
             if (viewNodeHasText(child, skip)) {
                 return true;
             }
+        }
+    }
+    return false;
+}
+
+/**
+ * Turn the class of a block image into the class of an inline image.
+ *
+ * Removes the block style classes (image, image-left, image-right,
+ * image-center, image-block) and adds image-inline.
+ *
+ * @param {string} classValue - The class attribute value
+ * @return {string} The class attribute value for an inline image
+ */
+function toInlineImageClass(classValue) {
+    const classes = (classValue || '')
+        .split(' ')
+        .filter(cls => cls !== 'image' && !cls.match(/^image-(left|right|center|block)$/))
+        .join(' ')
+        .trim();
+
+    return classes ? classes + ' image-inline' : 'image-inline';
+}
+
+/**
+ * Check if a view <a> holds content besides one image: text or another element.
+ *
+ * @param {Element} linkElement - The view <a> element
+ * @param {Element} imgElement - The view <img> inside the link
+ * @return {boolean} True if the link holds more than the image
+ */
+function linkHoldsMoreThan(linkElement, imgElement) {
+    for (const child of linkElement.getChildren()) {
+        if (child === imgElement) {
+            continue;
+        }
+        if (child.is('element') || (child.is('$text') && child.data.trim() !== '')) {
+            return true;
         }
     }
     return false;
@@ -2791,8 +2823,11 @@ export default class Typo3Image extends Plugin {
                 },
                 model: (viewElement, { writer }) => {
                     // Skip if parent is <a> - handled by linked image converter above
-                    // This prevents double processing
-                    if (viewElement.parent?.name === 'a') {
+                    // This prevents double processing. That converter skips an <a> that
+                    // holds more than the image, such as text, and leaves it to the link
+                    // plugin. The image of such an <a> is converted here (#936).
+                    const linkElement = viewElement.parent?.name === 'a' ? viewElement.parent : null;
+                    if (linkElement && !linkHoldsMoreThan(linkElement, viewElement)) {
                         return null;
                     }
 
@@ -2813,6 +2848,14 @@ export default class Typo3Image extends Plugin {
                     const cleanSrc = sanitizeSrc(viewElement.getAttribute('src'));
                     if (cleanSrc !== null) {
                         imageAttributes.src = cleanSrc;
+                    }
+
+                    // Only an inline image can sit in a link that also wraps text.
+                    // The link plugin keeps the <a> on the text and on the image (#936).
+                    // Block style classes are removed, as the inline/block toggle does.
+                    if (linkElement) {
+                        imageAttributes.class = toInlineImageClass(imageAttributes.class);
+                        return writer.createElement('typo3imageInline', imageAttributes);
                     }
 
                     if (isClasslessImageInText(viewElement, viewElement)) {
@@ -3274,8 +3317,11 @@ export default class Typo3Image extends Plugin {
             view: 'class'
         });
 
-        // Register class attribute converter for inline images
-        editor.conversion.for('downcast').attributeToAttribute({
+        // Register class attribute converter for inline images.
+        // Editing downcast only: in the data downcast, the view element of a linked
+        // inline image is the <a>, which then got the image's class (#938).
+        // createInlineImageViewElement() already puts the class on the <img>.
+        editor.conversion.for('editingDowncast').attributeToAttribute({
             model: {
                 name: 'typo3imageInline',
                 key: 'class'
