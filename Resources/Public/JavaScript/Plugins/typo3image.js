@@ -1217,6 +1217,83 @@ function openLinkBrowser(editor, currentValue) {
 }
 
 
+/**
+ * Check if a model attribute belongs to a link plugin: CKEditor's link plugin,
+ * TYPO3's Typo3LinkEditing or General HTML Support.
+ * Same filter as TYPO3's Typo3LinkEditing getLinkAttributesAllowedOnText().
+ *
+ * @param {string} key - The model attribute name
+ * @return {boolean} True for linkHref, linkTarget, linkTitle, linkRel, htmlA and similar
+ */
+function isLinkPluginAttribute(key) {
+    return key.startsWith('link') || key === 'htmlA';
+}
+
+/**
+ * Get the link plugin attributes of an inline image, if the image has no own link.
+ *
+ * Such a link was set with the toolbar Link button, or comes from an <a> that
+ * also wraps text. The image dialog keeps it on the new inline image (#935).
+ *
+ * @param {Element|null} element - The model element
+ * @return {Object} Attribute name to value; empty if there is no such link
+ */
+function getLinkPluginAttributes(element) {
+    const attributes = {};
+    if (!element?.is('element', 'typo3imageInline') || element.hasAttribute('imageLinkHref')) {
+        return attributes;
+    }
+    for (const [key, value] of element.getAttributes()) {
+        if (isLinkPluginAttribute(key)) {
+            attributes[key] = value;
+        }
+    }
+    return attributes;
+}
+
+/**
+ * Convert the link plugin link of an inline image into imageLink* attributes.
+ *
+ * A block image cannot carry text attributes such as linkHref, so the
+ * inline→block toggle moves the link into the image's own link (#935).
+ *
+ * @param {Element} element - The typo3imageInline model element
+ * @return {Object} imageLink* attribute name to value; empty if there is no such link
+ */
+function linkPluginLinkToImageLink(element) {
+    const linkAttributes = getLinkPluginAttributes(element);
+    const imageLink = {};
+    const href = linkAttributes.linkHref;
+    if (typeof href !== 'string' || href.trim() === '' || href.trim() === '/') {
+        return imageLink;
+    }
+    imageLink.imageLinkHref = linkAttributes.linkHref;
+    if (linkAttributes.linkTarget) {
+        imageLink.imageLinkTarget = linkAttributes.linkTarget;
+    }
+    if (linkAttributes.linkTitle) {
+        imageLink.imageLinkTitle = linkAttributes.linkTitle;
+    }
+    const classes = linkAttributes.htmlA?.classes;
+    if (Array.isArray(classes) && classes.length > 0) {
+        imageLink.imageLinkClass = classes.join(' ');
+    }
+    const extra = {};
+    if (linkAttributes.linkRel) {
+        extra.rel = linkAttributes.linkRel;
+    }
+    const htmlAttributes = linkAttributes.htmlA?.attributes || {};
+    for (const name of IMAGE_LINK_EXTRA_ATTRIBUTES) {
+        if (!(name in extra) && typeof htmlAttributes[name] === 'string') {
+            extra[name] = htmlAttributes[name];
+        }
+    }
+    if (Object.keys(extra).length > 0) {
+        imageLink.imageLinkAttributes = extra;
+    }
+    return imageLink;
+}
+
 function edit(selectedImage, editor, imageAttributes) {
     // Capture whether this is an inline image BEFORE the async operations
     // This flag is passed from the caller and indicates the original element type
@@ -1268,6 +1345,21 @@ function edit(selectedImage, editor, imageAttributes) {
                 }
                 if (attributes.linkParams?.trim()) {
                     newImageAttributes.imageLinkParams = attributes.linkParams;
+                }
+                // The dialog does not show the extra attributes of the <a>, such as
+                // rel or download. Keep them only while the link target stays the
+                // same, so that they do not move to a different link (#935).
+                if (newImageAttributes.imageLinkHref
+                    && newImageAttributes.imageLinkHref.trim() === (imageAttributes.linkHref || '').trim()
+                    && imageAttributes.linkAttributes) {
+                    newImageAttributes.imageLinkAttributes = imageAttributes.linkAttributes;
+                }
+
+                // The dialog does not manage a link of the link plugin (Link button,
+                // or an <a> that also wraps text). Keep it while the image has no
+                // own link (#935).
+                if (isInlineImage && !newImageAttributes.imageLinkHref && imageAttributes.linkPluginAttributes) {
+                    Object.assign(newImageAttributes, imageAttributes.linkPluginAttributes);
                 }
 
                 // Create the appropriate element type based on whether this was an inline image
@@ -1474,7 +1566,8 @@ class ToggleImageTypeCommand extends Command {
                 'src', 'fileUid', 'fileTable', 'alt', 'altOverride',
                 'title', 'titleOverride', 'width', 'height',
                 'enableZoom', 'noScale', 'quality',
-                'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle', 'imageLinkClass', 'imageLinkParams'
+                'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle', 'imageLinkClass', 'imageLinkParams',
+                'imageLinkAttributes'
             ];
 
             const attributes = {};
@@ -1529,6 +1622,12 @@ class ToggleImageTypeCommand extends Command {
                 } else {
                     delete attributes['imageLinkClass'];
                 }
+            }
+
+            // A block image cannot carry the link plugin's text attributes.
+            // Keep such a link as the image's own link (#935).
+            if (isCurrentlyInline) {
+                Object.assign(attributes, linkPluginLinkToImageLink(imageElement));
             }
 
             // Create new element with appropriate type
@@ -1646,6 +1745,59 @@ function isClasslessImageInText(imgElement, node) {
         }
     }
     return false;
+}
+
+/**
+ * Attributes of an image's own <a> that have no imageLink* model attribute of
+ * their own, but are kept in imageLinkAttributes (#935): rel, which TYPO3's
+ * link editing sets, and download. Other attributes are left out, as before.
+ */
+const IMAGE_LINK_EXTRA_ATTRIBUTES = ['rel', 'download'];
+
+/**
+ * Collect the extra attributes of an image's own <a>, such as rel or download (#935).
+ *
+ * They go into the imageLinkAttributes model attribute, so that the <a> keeps
+ * them on save.
+ *
+ * @param {...(Element|null)} linkElements - The view <a> elements; the first one wins per attribute
+ * @return {Object|null} Attribute name to value, or null if there are none
+ */
+function getExtraLinkAttributes(...linkElements) {
+    const extra = {};
+    for (const linkElement of linkElements) {
+        if (!linkElement) {
+            continue;
+        }
+        for (const [key, value] of linkElement.getAttributes()) {
+            const name = key.toLowerCase();
+            if (!IMAGE_LINK_EXTRA_ATTRIBUTES.includes(name)) {
+                continue;
+            }
+            if (!(name in extra)) {
+                extra[name] = value;
+            }
+        }
+    }
+    return Object.keys(extra).length > 0 ? extra : null;
+}
+
+/**
+ * Add the imageLinkAttributes of a model element to the attributes of its <a>
+ *
+ * @param {Object} linkAttributes - The attributes of the <a>, changed in place
+ * @param {Element} modelElement - The typo3image or typo3imageInline model element
+ */
+function addExtraLinkAttributes(linkAttributes, modelElement) {
+    const extra = modelElement.getAttribute('imageLinkAttributes');
+    if (!extra || typeof extra !== 'object') {
+        return;
+    }
+    for (const [name, value] of Object.entries(extra)) {
+        if (IMAGE_LINK_EXTRA_ATTRIBUTES.includes(name) && !(name in linkAttributes)) {
+            linkAttributes[name] = value;
+        }
+    }
 }
 
 export default class Typo3Image extends Plugin {
@@ -1911,7 +2063,8 @@ export default class Typo3Image extends Plugin {
                 'imageLinkTarget',
                 'imageLinkTitle',
                 'imageLinkClass',
-                'imageLinkParams'
+                'imageLinkParams',
+                'imageLinkAttributes'
             ],
         });
 
@@ -1950,7 +2103,8 @@ export default class Typo3Image extends Plugin {
                 'imageLinkTarget',
                 'imageLinkTitle',
                 'imageLinkClass',
-                'imageLinkParams'
+                'imageLinkParams',
+                'imageLinkAttributes'
             ],
         });
 
@@ -1959,8 +2113,8 @@ export default class Typo3Image extends Plugin {
         // linkHref, linkTarget, linkTitle or htmlA on it, and each of those added
         // a second, outer <a>. Drop them there. An <a> that also wraps text stays
         // a link of the link plugin (the image has no imageLinkHref then).
-        // Same filter as TYPO3's Typo3LinkEditing getLinkAttributesAllowedOnText().
-        const isLinkPluginAttribute = (key) => key.startsWith('link') || key === 'htmlA';
+        // isLinkPluginAttribute() is the same filter as TYPO3's Typo3LinkEditing
+        // getLinkAttributesAllowedOnText().
         editor.model.document.registerPostFixer(writer => {
             let changed = false;
             for (const change of editor.model.document.differ.getChanges()) {
@@ -2074,6 +2228,10 @@ export default class Typo3Image extends Plugin {
                         }
                         if (linkParams?.trim()) {
                             imageAttributes.imageLinkParams = linkParams;
+                        }
+                        const extraLinkAttributes = getExtraLinkAttributes(innerLink, viewOuterLink);
+                        if (extraLinkAttributes) {
+                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
                         }
                     }
 
@@ -2209,6 +2367,10 @@ export default class Typo3Image extends Plugin {
                         if (linkParams?.trim()) {
                             imageAttributes.imageLinkParams = linkParams;
                         }
+                        const extraLinkAttributes = getExtraLinkAttributes(innerLinkElement, viewLink);
+                        if (extraLinkAttributes) {
+                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
+                        }
                     }
 
                     const typo3image = writer.createElement('typo3image', imageAttributes);
@@ -2327,6 +2489,10 @@ export default class Typo3Image extends Plugin {
                         }
                         if (linkParams?.trim()) {
                             imageAttributes.imageLinkParams = linkParams;
+                        }
+                        const extraLinkAttributes = getExtraLinkAttributes(linkElement);
+                        if (extraLinkAttributes) {
+                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
                         }
                     }
 
@@ -2475,6 +2641,10 @@ export default class Typo3Image extends Plugin {
                         if (linkParams?.trim()) {
                             imageAttributes.imageLinkParams = linkParams;
                         }
+                        const extraLinkAttributes = getExtraLinkAttributes(viewElement);
+                        if (extraLinkAttributes) {
+                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
+                        }
                     }
 
                     if (isClasslessImageInText(imgElement, viewElement)) {
@@ -2591,6 +2761,10 @@ export default class Typo3Image extends Plugin {
                         }
                         if (linkParams?.trim()) {
                             imageAttributes.imageLinkParams = linkParams;
+                        }
+                        const extraLinkAttributes = getExtraLinkAttributes(effectiveLinkElement);
+                        if (extraLinkAttributes) {
+                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
                         }
                     }
 
@@ -2747,6 +2921,8 @@ export default class Typo3Image extends Plugin {
                     linkAttributes['data-link-params'] = linkParams;
                 }
 
+                addExtraLinkAttributes(linkAttributes, modelElement);
+
                 // Wrap image in link element
                 return writer.createContainerElement('a', linkAttributes, imgElement);
             }
@@ -2771,7 +2947,8 @@ export default class Typo3Image extends Plugin {
                         'imageLinkTarget',
                         'imageLinkTitle',
                         'imageLinkClass',
-                        'imageLinkParams'
+                        'imageLinkParams',
+                        'imageLinkAttributes'
                     ]
                 },
                 view: (modelElement, { writer }) => {
@@ -2994,6 +3171,8 @@ export default class Typo3Image extends Plugin {
                     linkAttributes['data-link-params'] = linkParams;
                 }
 
+                addExtraLinkAttributes(linkAttributes, modelElement);
+
                 return writer.createContainerElement('a', linkAttributes, imgElement);
             }
 
@@ -3017,7 +3196,8 @@ export default class Typo3Image extends Plugin {
                         'imageLinkTarget',
                         'imageLinkTitle',
                         'imageLinkClass',
-                        'imageLinkParams'
+                        'imageLinkParams',
+                        'imageLinkAttributes'
                     ]
                 },
                 view: (modelElement, { writer }) => {
@@ -3150,6 +3330,8 @@ export default class Typo3Image extends Plugin {
                             linkTitle: selectedElement.getAttribute('imageLinkTitle'),
                             linkClass: selectedElement.getAttribute('imageLinkClass'),
                             linkParams: selectedElement.getAttribute('imageLinkParams'),
+                            linkAttributes: selectedElement.getAttribute('imageLinkAttributes'),
+                            linkPluginAttributes: getLinkPluginAttributes(selectedElement),
                         }
                     );
                 } else {
@@ -3245,6 +3427,8 @@ export default class Typo3Image extends Plugin {
                             linkTitle: selectedElement.getAttribute('imageLinkTitle'),
                             linkClass: selectedElement.getAttribute('imageLinkClass'),
                             linkParams: selectedElement.getAttribute('imageLinkParams'),
+                            linkAttributes: selectedElement.getAttribute('imageLinkAttributes'),
+                            linkPluginAttributes: getLinkPluginAttributes(selectedElement),
                             // Pass flag to indicate if this is an inline image (for hiding caption field)
                             isInlineImage: selectedElement.name === 'typo3imageInline',
                             // Pass flag to indicate if image is inside an external link (for disabling link options)
@@ -3547,6 +3731,8 @@ export default class Typo3Image extends Plugin {
                         linkTitle: modelElement.getAttribute('imageLinkTitle'),
                         linkClass: modelElement.getAttribute('imageLinkClass'),
                         linkParams: modelElement.getAttribute('imageLinkParams'),
+                        linkAttributes: modelElement.getAttribute('imageLinkAttributes'),
+                        linkPluginAttributes: getLinkPluginAttributes(modelElement),
                         caption: captionText,
                         // Pass flag to indicate if this is an inline image (for hiding caption field)
                         isInlineImage: modelElement.name === 'typo3imageInline',

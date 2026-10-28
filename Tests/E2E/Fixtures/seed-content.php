@@ -419,3 +419,14 @@ echo "Image resize CE created for #863\n";
 $pdo->prepare('INSERT INTO tt_content (uid, pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
     ->execute([100, 2, 'text', 'Block Image In Paragraph (#933)', '<p>Some text</p>', 0, 0, $now, $now, 0, 2048]);
 echo "Block image in paragraph CE (UID 100) created for #933\n";
+
+// UID 101: For regression-935-image-link-attributes.spec.ts (saves a linked image with rel).
+$pdo->prepare('INSERT INTO tt_content (uid, pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    ->execute([101, 2, 'text', 'Image Link Attributes (#935)', '<p>Some text</p>', 0, 0, $now, $now, 0, 2304]);
+echo "Image link attributes CE (UID 101) created for #935\n";
+
+// UID 102: For regression-935-image-link-attributes.spec.ts (saves a linked block image with rel).
+// Its own CE, because the tests of a spec run in parallel and UID 101 is saved by another test.
+$pdo->prepare('INSERT INTO tt_content (uid, pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    ->execute([102, 2, 'text', 'Block Image Link Attributes (#935)', '<p>Some text</p>', 0, 0, $now, $now, 0, 2560]);
+echo "Block image link attributes CE (UID 102) created for #935\n";
