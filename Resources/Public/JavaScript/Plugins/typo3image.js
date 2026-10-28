@@ -1504,7 +1504,7 @@ class ToggleImageTypeCommand extends Command {
                 // Block → Inline: remove block style classes, add image-inline
                 classValue = classValue
                     .split(' ')
-                    .filter(cls => !cls.match(/^image-(left|right|center|block)$/))
+                    .filter(cls => cls !== 'image' && !cls.match(/^image-(left|right|center|block)$/))
                     .join(' ')
                     .trim();
 
@@ -1537,7 +1537,24 @@ class ToggleImageTypeCommand extends Command {
 
             // Insert new element at the same position
             const position = writer.createPositionBefore(imageElement);
-            writer.insert(newImage, position);
+
+            if (isCurrentlyInline) {
+                // A block image is not allowed in the paragraph that holds the
+                // inline image. insertObject() splits the paragraph, so the text
+                // around the image stays in paragraphs of its own (#933).
+                writer.remove(imageElement);
+                model.insertObject(newImage, position, null, { setSelection: 'on' });
+                return;
+            }
+
+            // An inline image is not allowed at the root, where a block image sits
+            if (model.schema.checkChild(position, newElementName)) {
+                writer.insert(newImage, position);
+            } else {
+                const paragraph = writer.createElement('paragraph');
+                writer.insert(paragraph, position);
+                writer.insert(newImage, paragraph, 0);
+            }
 
             // Remove old element
             writer.remove(imageElement);
@@ -1570,6 +1587,65 @@ function getCaptionFromImageModelElement(imageElement) {
         }
     }
     return null;
+}
+
+/**
+ * Check if a view element holds text that is not whitespace
+ * @param {Node} node - The view node to check
+ * @param {Node|null} skip - A descendant to leave out, with its own children
+ * @return {boolean} True if the node or a descendant holds text
+ */
+function viewNodeHasText(node, skip = null) {
+    if (node === skip) {
+        return false;
+    }
+    if (node.is('$text')) {
+        return node.data.trim() !== '';
+    }
+    if (node.is('element')) {
+        for (const child of node.getChildren()) {
+            if (viewNodeHasText(child, skip)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * Inline wrappers an image can sit in inside a paragraph
+ */
+const INLINE_WRAPPER_ELEMENTS = ['span', 'strong', 'b', 'em', 'i', 'u', 's', 'sub', 'sup', 'small', 'mark', 'code'];
+
+/**
+ * Check if a class-less <img> sits between text in a paragraph.
+ *
+ * Such legacy content renders inline in the frontend. A block typo3image is
+ * not allowed in a paragraph, so it would split the paragraph and move the
+ * image out of the text. The upcast creates a typo3imageInline instead (#933).
+ *
+ * @param {Element} imgElement - The view <img> element
+ * @param {Element} node - The <img> itself, or the <a> that wraps it
+ * @return {boolean} True if the image is to be upcast as typo3imageInline
+ */
+function isClasslessImageInText(imgElement, node) {
+    if ((imgElement.getAttribute('class') || '').trim() !== '') {
+        return false;
+    }
+    // Climb through inline wrappers such as <span> or <strong> to the paragraph
+    let paragraph = node.parent;
+    while (paragraph?.is('element') && INLINE_WRAPPER_ELEMENTS.includes(paragraph.name)) {
+        paragraph = paragraph.parent;
+    }
+    if (!paragraph || !paragraph.is('element', 'p')) {
+        return false;
+    }
+    for (const child of paragraph.getChildren()) {
+        if (viewNodeHasText(child, node)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 export default class Typo3Image extends Plugin {
@@ -1806,9 +1882,13 @@ export default class Typo3Image extends Plugin {
         // Link handling is done through custom upcast/downcast converters
         // Note: CKEditor's LinkImage plugin cannot be used due to conflict with TYPO3's Typo3LinkEditing
         // See: Documentation/ADR/001-native-ckeditor-architecture-linkimage-incompatibility.md
+        // A block image must not be allowed inside a paragraph: insertObject() and
+        // upcast then split the paragraph instead of nesting <figure> in <p>, which
+        // TYPO3 repairs on save by dropping the paragraph text (#933).
+        // Images that flow with text use typo3imageInline.
         editor.model.schema.register('typo3image', {
             inheritAllFrom: '$blockObject',
-            allowIn: ['$text', '$block'],
+            allowIn: ['$text'],
             allowAttributes: [
                 'src',
                 'fileUid',
@@ -1995,6 +2075,10 @@ export default class Typo3Image extends Plugin {
                         if (linkParams?.trim()) {
                             imageAttributes.imageLinkParams = linkParams;
                         }
+                    }
+
+                    if (isClasslessImageInText(imgElement, viewOuterLink)) {
+                        imageAttributes.class = 'image-inline';
                     }
 
                     // Check image class to create correct element type (inline vs block)
@@ -2393,6 +2477,10 @@ export default class Typo3Image extends Plugin {
                         }
                     }
 
+                    if (isClasslessImageInText(imgElement, viewElement)) {
+                        imageAttributes.class = 'image-inline';
+                    }
+
                     // Check if this should be an inline image based on class
                     const imgClass = imageAttributes.class || '';
                     const classList = imgClass.split(/\s+/);
@@ -2551,6 +2639,11 @@ export default class Typo3Image extends Plugin {
                     const cleanSrc = sanitizeSrc(viewElement.getAttribute('src'));
                     if (cleanSrc !== null) {
                         imageAttributes.src = cleanSrc;
+                    }
+
+                    if (isClasslessImageInText(viewElement, viewElement)) {
+                        imageAttributes.class = 'image-inline';
+                        return writer.createElement('typo3imageInline', imageAttributes);
                     }
 
                     return writer.createElement('typo3image', imageAttributes);

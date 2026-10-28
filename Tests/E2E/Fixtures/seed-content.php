@@ -412,3 +412,10 @@ $bodytextResize = '<figure class="image image_resized" style="width:25%;">'
     . '<figcaption>Never resized</figcaption></figure>';
 $stmt->execute([1, 'text', 'Image Resize (#863)', $bodytextResize, 0, 0, $now, $now, 0, 11264]);
 echo "Image resize CE created for #863\n";
+
+// UID 100: For regression-933-block-image-in-paragraph.spec.ts (saves an inserted image).
+// Fixed uid: the uids after 41 depend on whether Content Blocks is installed.
+// Page 2, so the saved image does not change the main frontend page.
+$pdo->prepare('INSERT INTO tt_content (uid, pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    ->execute([100, 2, 'text', 'Block Image In Paragraph (#933)', '<p>Some text</p>', 0, 0, $now, $now, 0, 2048]);
+echo "Block image in paragraph CE (UID 100) created for #933\n";
