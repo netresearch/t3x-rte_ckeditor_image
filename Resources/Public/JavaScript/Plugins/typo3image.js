@@ -1874,6 +1874,41 @@ export default class Typo3Image extends Plugin {
             ],
         });
 
+        // An inline image whose link is in the imageLink* attributes gets its <a>
+        // from this plugin. The link plugins' upcast of the same <a> also set
+        // linkHref, linkTarget, linkTitle or htmlA on it, and each of those added
+        // a second, outer <a>. Drop them there. An <a> that also wraps text stays
+        // a link of the link plugin (the image has no imageLinkHref then).
+        // Same filter as TYPO3's Typo3LinkEditing getLinkAttributesAllowedOnText().
+        const isLinkPluginAttribute = (key) => key.startsWith('link') || key === 'htmlA';
+        editor.model.document.registerPostFixer(writer => {
+            let changed = false;
+            for (const change of editor.model.document.differ.getChanges()) {
+                let range = null;
+                if (change.type === 'insert') {
+                    range = writer.createRange(change.position, change.position.getShiftedBy(change.length));
+                } else if (change.type === 'attribute'
+                    && (isLinkPluginAttribute(change.attributeKey) || change.attributeKey === 'imageLinkHref')) {
+                    range = change.range;
+                }
+                if (!range) {
+                    continue;
+                }
+                for (const item of range.getItems()) {
+                    if (!item.is('element', 'typo3imageInline') || !item.hasAttribute('imageLinkHref')) {
+                        continue;
+                    }
+                    for (const [key] of [...item.getAttributes()]) {
+                        if (isLinkPluginAttribute(key)) {
+                            writer.removeAttribute(key, item);
+                            changed = true;
+                        }
+                    }
+                }
+            }
+            return changed;
+        });
+
         // Upcast converter for corrupted double-link structure: <a><a><img></a></a>
         // This handles content that was corrupted by previous save cycles
         editor.conversion
@@ -3443,7 +3478,10 @@ export default class Typo3Image extends Plugin {
                 const selection = editor.model.document.selection;
                 const selectedElement = selection.getSelectedElement();
 
-                if (selectedElement?.name === 'typo3image') {
+                // An inline image with its own link is edited the same way; an
+                // inline image without one stays linkable with the text around it
+                if (selectedElement?.name === 'typo3image'
+                    || (selectedElement?.name === 'typo3imageInline' && selectedElement.hasAttribute('imageLinkHref'))) {
                     this.isEnabled = false;
                 }
             };

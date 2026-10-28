@@ -10,6 +10,7 @@ import {
     getModuleFrame,
     waitForCKEditor,
     getEditorHtml,
+    getCKEditorData,
     gotoFrontendPage,
     requireCondition,
 } from './helpers/typo3-backend';
@@ -141,6 +142,88 @@ test.describe('Inline image indicators (#639)', () => {
             count,
             'Inline image with link should show link indicator (chain icon)'
         ).toBeGreaterThan(0);
+    });
+
+    test('inline image with link is output with a single <a>', async ({ page }) => {
+        // CE 41: Contains <a href="..."><img class="image-inline"></a>
+        // The link plugin's upcast set linkHref on the inline image, so the output
+        // carried a second, outer <a> around the plugin's own <a>.
+        await navigateToContentEdit(page, 41);
+        await waitForCKEditor(page);
+
+        const data = await getCKEditorData(page);
+
+        expect(data, `editor data: ${data}`).toContain('alt="Inline Link"');
+        expect(data, `editor data: ${data}`).not.toMatch(/<a [^>]*>\s*<a /);
+        expect(data, `editor data: ${data}`).toMatch(
+            /<a [^>]*href="https:\/\/example\.com\/inline-link"[^>]*><img[^>]*alt="Inline Link"/
+        );
+    });
+
+    test('inline image with a target and title link is output with a single <a>', async ({ page }) => {
+        // linkTarget and linkTitle from the link plugin added an outer <a> the same way linkHref did
+        await navigateToContentEdit(page, 41);
+        await waitForCKEditor(page);
+
+        const frame = getModuleFrame(page);
+        await frame.locator('.ck-editor__editable').first().evaluate((el) => {
+            (el as any).ckeditorInstance.setData(
+                '<p>Text before <a href="https://example.com/target-link" target="_blank" title="Link Title">'
+                + '<img class="image-inline" src="/fileadmin/user_upload/example.jpg" alt="Target Link" width="50" height="38" data-htmlarea-file-uid="1">'
+                + '</a> text after.</p>'
+            );
+        });
+
+        const data = await getCKEditorData(page);
+
+        expect(data, `editor data: ${data}`).not.toMatch(/<a [^>]*>\s*<a /);
+        expect(data, `editor data: ${data}`).toMatch(
+            /<a [^>]*href="https:\/\/example\.com\/target-link"[^>]*><img[^>]*alt="Target Link"/
+        );
+        expect(data, `editor data: ${data}`).toContain('target="_blank"');
+    });
+
+    test('link button is disabled on an inline image with its own link, enabled on one without', async ({ page }) => {
+        await navigateToContentEdit(page, 41);
+        await waitForCKEditor(page);
+
+        const frame = getModuleFrame(page);
+        const states = await frame.locator('.ck-editor__editable').first().evaluate((el) => {
+            const editor = (el as any).ckeditorInstance;
+            editor.setData(
+                '<p>Linked <a href="https://example.com/own"><img class="image-inline" src="/fileadmin/user_upload/example.jpg" alt="Own Link" width="50" height="38" data-htmlarea-file-uid="1"></a> image.</p>'
+                + '<p>Plain <img class="image-inline" src="/fileadmin/user_upload/example.jpg" alt="No Link" width="50" height="38" data-htmlarea-file-uid="1"> image.</p>'
+            );
+            const model = editor.model;
+            const result: Record<string, boolean> = {};
+            for (const paragraph of model.document.getRoot().getChildren()) {
+                for (const child of paragraph.getChildren()) {
+                    if (child.is('element', 'typo3imageInline')) {
+                        model.change((writer: any) => writer.setSelection(child, 'on'));
+                        result[child.getAttribute('alt')] = editor.commands.get('link').isEnabled;
+                    }
+                }
+            }
+            return result;
+        });
+
+        expect(states, JSON.stringify(states)).toEqual({ 'Own Link': false, 'No Link': true });
+    });
+
+    test('inline image inside a link that also wraps text keeps the link', async ({ page }) => {
+        // CE 8: <a href="https://example.com">Check our <img class="image-inline" alt="icon"> documentation</a>
+        // The plugin leaves such a link to the link plugin (linkHref), so the
+        // fix for the second <a> must not remove linkHref from this image.
+        await navigateToContentEdit(page, 8);
+        await waitForCKEditor(page);
+
+        // CE 8 holds a table, so there are nested editables; the root comes first
+        const data = await getModuleFrame(page).locator('.ck-editor__editable').first()
+            .evaluate((el) => (el as any).ckeditorInstance.getData() as string);
+
+        expect(data, `editor data: ${data}`).toMatch(
+            /<a href="https:\/\/example\.com">Check our(?: |&nbsp;)<img[^>]*alt="icon"[^>]*>(?: |&nbsp;)documentation<\/a>/
+        );
     });
 
     test('inline image without zoom or link shows no indicators', async ({ page }) => {
