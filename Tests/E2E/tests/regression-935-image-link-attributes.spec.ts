@@ -257,4 +257,27 @@ test.describe('Regression #935: attributes of an image\'s own link', () => {
     expect(data, `editor data: ${data}`).toMatch(/<figure[^>]*>\s*<a [^>]*class="button-link"[^>]*><img[^>]*alt="Link Button Toggle"/);
     expect(countLinks(data), `editor data: ${data}`).toBe(1);
   });
+
+  test('download set with the Link button on an inline image survives the toggle to block', async ({ page }) => {
+    const frame = getModuleFrame(page);
+    const hasLinkDownload = await frame.locator('.ck-editor__editable').first().evaluate(
+      (el) => (el as any).ckeditorInstance.model.schema.checkAttribute('$text', 'linkDownload')
+    );
+    // Only TYPO3 v14's link plugin has the linkDownload attribute
+    test.skip(!hasLinkDownload, 'The link plugin of this TYPO3 version has no linkDownload attribute');
+
+    await setEditorData(
+      page,
+      `<p>Text before <img class="image-inline" alt="Link Button Download" ${IMG}> text after.</p>`
+    );
+    await linkFirstImageWithLinkButton(page, 'https://example.com/935-button-download', { linkDownload: 'file.jpg' });
+    const linked = await getCKEditorData(page);
+    expect.soft(linked, `editor data after Link button: ${linked}`).toMatch(/<a [^>]*download="file\.jpg"[^>]*><img[^>]*alt="Link Button Download"/);
+
+    await toggleFirstImage(page);
+
+    const data = await getCKEditorData(page);
+    expect(data, `editor data: ${data}`).toMatch(/<figure[^>]*>\s*<a [^>]*download="file\.jpg"[^>]*><img[^>]*alt="Link Button Download"/);
+    expect(countLinks(data), `editor data: ${data}`).toBe(1);
+  });
 });

@@ -1282,6 +1282,10 @@ function linkPluginLinkToImageLink(element) {
     if (linkAttributes.linkRel) {
         extra.rel = linkAttributes.linkRel;
     }
+    // TYPO3 v14's link plugin keeps download in linkDownload; "true" is a download attribute without a value
+    if (typeof linkAttributes.linkDownload === 'string') {
+        extra.download = linkAttributes.linkDownload === 'true' ? '' : linkAttributes.linkDownload;
+    }
     const htmlAttributes = linkAttributes.htmlA?.attributes || {};
     for (const name of IMAGE_LINK_EXTRA_ATTRIBUTES) {
         if (!(name in extra) && typeof htmlAttributes[name] === 'string') {
