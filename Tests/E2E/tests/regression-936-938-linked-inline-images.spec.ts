@@ -33,6 +33,9 @@ import {
  * element of a linked inline image is the <a>.
  * Fix: that converter runs in the editing downcast only. The data downcast
  * puts the class on the <img>.
+ * Content saved with that bug keeps class="image-inline" on the <a>. The
+ * upcasts of a linked image remove the alignment classes from the link class,
+ * so the next save drops it.
  */
 
 /** Dedicated CE (seed-content.php), saved by the #936 round-trip test. */
@@ -169,6 +172,38 @@ test.describe('Regression #936 and #938: images inside links', () => {
     );
 
     const data = await getCKEditorData(page);
+    expect(linkClasses(data), `editor data: ${data}`).toEqual(['button-link']);
+  });
+
+  test('#938: stored content with image-inline on the <a> loses that class on load', async ({ page }) => {
+    await setEditorData(
+      page,
+      `<p>Text before <a class="image-inline" href="https://example.com/938"><img class="image-inline" alt="Linked Inline" ${IMG}></a> text after.</p>`
+    );
+
+    const data = await getCKEditorData(page);
+    expect(data, `editor data: ${data}`).toMatch(/<a [^>]*href="https:\/\/example\.com\/938"[^>]*><img[^>]*class="image-inline"[^>]*alt="Linked Inline"/);
+    expect(linkClasses(data), `editor data: ${data}`).toEqual(['']);
+  });
+
+  test('#938: stored content keeps the own class of the <a> and loses image-inline on load', async ({ page }) => {
+    await setEditorData(
+      page,
+      `<p>Text before <a class="button-link image-inline" href="https://example.com/938"><img class="image-inline" alt="Linked Inline" ${IMG}></a> text after.</p>`
+    );
+
+    const data = await getCKEditorData(page);
+    expect(linkClasses(data), `editor data: ${data}`).toEqual(['button-link']);
+  });
+
+  test('#938: the <a> of a linked image in a figure loses alignment classes on load', async ({ page }) => {
+    await setEditorData(
+      page,
+      `<p>Text before.</p><figure class="image"><a class="button-link image-block" href="https://example.com/938"><img alt="Linked Block" ${IMG}></a></figure><p>Text after.</p>`
+    );
+
+    const data = await getCKEditorData(page);
+    expect(data, `editor data: ${data}`).toMatch(/<a [^>]*href="https:\/\/example\.com\/938"[^>]*><img[^>]*alt="Linked Block"/);
     expect(linkClasses(data), `editor data: ${data}`).toEqual(['button-link']);
   });
 
