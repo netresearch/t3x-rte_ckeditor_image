@@ -1725,6 +1725,23 @@ function toInlineImageClass(classValue) {
 }
 
 /**
+ * Remove the image alignment classes from the class of an image link.
+ *
+ * Content saved before #938 was fixed carries image-inline on the <a>.
+ * The alignment classes belong to the image, so the link keeps only its own.
+ *
+ * @param {string} classValue - The class attribute value of the <a>
+ * @return {string} The class attribute value without alignment classes
+ */
+function withoutAlignmentClasses(classValue) {
+    const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
+    return (classValue || '')
+        .split(/\s+/)
+        .filter(cls => cls !== '' && !alignmentClasses.includes(cls))
+        .join(' ');
+}
+
+/**
  * Check if a view <a> holds content besides one image: text or another element.
  *
  * @param {Element} linkElement - The view <a> element
@@ -2485,7 +2502,7 @@ export default class Typo3Image extends Plugin {
                     const linkHref = linkElement?.getAttribute('href') || '';
                     const linkTarget = linkElement?.getAttribute('target') || '';
                     const linkTitle = linkElement?.getAttribute('title') || '';
-                    const linkClass = linkElement?.getAttribute('class') || '';
+                    const linkClass = withoutAlignmentClasses(linkElement?.getAttribute('class'));
                     const linkParams = linkElement?.getAttribute('data-link-params') || '';
 
                     const imageAttributes = {
@@ -2618,7 +2635,7 @@ export default class Typo3Image extends Plugin {
                     const linkHref = viewElement.getAttribute('href') || '';
                     const linkTarget = viewElement.getAttribute('target') || '';
                     const linkTitle = viewElement.getAttribute('title') || '';
-                    const linkClass = viewElement.getAttribute('class') || '';
+                    const linkClass = withoutAlignmentClasses(viewElement.getAttribute('class'));
                     const linkParams = viewElement.getAttribute('data-link-params') || '';
 
                     // Determine if this is a real link (non-empty, non-placeholder href)
