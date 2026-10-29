@@ -173,6 +173,7 @@ test.describe('Regression #936 and #938: images inside links', () => {
 
     const data = await getCKEditorData(page);
     expect(linkClasses(data), `editor data: ${data}`).toEqual(['button-link']);
+    expect(data, `editor data: ${data}`).toMatch(/<img[^>]*class="image-inline"[^>]*alt="Linked Inline"/);
   });
 
   test('#938: stored content with image-inline on the <a> loses that class on load', async ({ page }) => {
