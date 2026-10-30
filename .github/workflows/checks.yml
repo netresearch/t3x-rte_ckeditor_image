@@ -34,6 +34,12 @@ on:
 
 permissions: {}
 
+# Superseded PR scans stop consuming runners. Every non-PR run has its own
+# group, including active merge groups and main/scheduled runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 # Security + quality jobs with their explicit per-call-site permissions. This
 # file is byte-identical and drift-enforced across every typo3-extension — the
 # extension-specific test matrix lives in ci.yml (intentional-drift). Every
@@ -132,6 +138,11 @@ jobs:
   # app against the pull request, not by these jobs, so they are not requirable
   # for a queue either. Require `All security checks` instead — it depends on
   # every job here and its name does not change with the event.
+  #
+  # The gate does not block a zizmor finding: zizmor is report-only and its
+  # job succeeds whatever it finds (zizmor.yml). A finding blocks a pull
+  # request only through a ruleset `code_scanning` rule, which this gate does
+  # not replace.
   gate:
     name: All security checks
     needs:
