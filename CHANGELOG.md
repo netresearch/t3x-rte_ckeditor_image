@@ -12,6 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.10.4] - 2026-10-31
+
+### Fixed
+
+- **Block images no longer swallow paragraph text** ([#934](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/934)) — a block image inserted with the cursor in a text paragraph now lands after the paragraph instead of inside it, so `RteHtmlParser` no longer drops the paragraph text on save. Class-less images between text stay in their sentence as inline images, and a linked inline image is written with one `<a>` instead of two.
+- **Image links keep `rel`, `download` and Link-button links** ([#937](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/937), [#941](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/941)) — an image's own link keeps its `rel` and `download` attributes on save, and a link set with the toolbar Link button on an inline image survives the image dialog and the switch to a block image.
+- **Images inside links with text stay in the content** ([#939](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/939)) — such an image loads as an inline image inside the link, and the link no longer gets the image's `image-inline` class.
+- **Stored image links lose alignment classes** ([#940](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/940)) — a stored `<a>` that carries `image-inline` or another alignment class is written back with its own classes only.
+- **The link browser opens where `TYPO3.lang` is unavailable** ([#913](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/913)) — the **Browse...** button next to *Link URL* in the image dialog threw a `TypeError` and opened nothing. Thanks [@marcelmarty](https://github.com/marcelmarty).
+- **Release archives leave out development files** ([#912](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/912)) — including a dangling `CLAUDE.md` symlink.
+
+### Changed
+
+- **One extension title in `ext_emconf.php` and `composer.json`** ([#915](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/915)) — the TYPO3 Reports "Composer Manifest" check no longer reports a description mismatch.
+- **Licence notices** ([#912](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/912), [#916](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/916)) — source files carry SPDX licence and copyright notices; `NOTICE` lists the files that stay under GPL-2.0-or-later, and `typolink-parser.js` gets its TYPO3 CMS notice back.
+
 ## [13.10.3] - 2026-09-30
 
 ### Fixed
