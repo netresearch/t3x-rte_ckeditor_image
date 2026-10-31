@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+    Copyright (c) 2025-2026 Netresearch DTT GmbH
+    SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" product-name="rte_ckeditor_image" target-language="t3">
+    <header/>
+    <body>
+      <trans-unit id="labels.ckeditor.cssclass" xml:space="preserve">
+				<source>Custom CSS class</source>
+			<target>crwdns378772:0crwdne378772:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.width" xml:space="preserve">
+				<source>Width</source>
+			<target>crwdns378774:0crwdne378774:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.height" xml:space="preserve">
+				<source>Height</source>
+			<target>crwdns378776:0crwdne378776:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.title" xml:space="preserve">
+				<source>Advisory Title</source>
+				
+			<target>crwdns378778:0crwdne378778:0</target><note>Refers to the HTML title attribute (tooltip on hover). Standard CKEditor/web terminology.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.alt" xml:space="preserve">
+				<source>Alternative Text</source>
+			<target>crwdns378780:0crwdne378780:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clicktoenlarge" xml:space="preserve">
+				<source>Click to Enlarge</source>
+			<target>crwdns378782:0crwdne378782:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.enabled" xml:space="preserve">
+				<source>Enabled</source>
+				
+			<target>crwdns378784:0crwdne378784:0</target><note>State label for a toggle checkbox enabling click-to-enlarge. Use adjective (enabled/activated), not verb.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.skipimageprocessing" xml:space="preserve">
+				<source>Skip Image Processing</source>
+			<target>crwdns378786:0crwdne378786:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.imageproperties" xml:space="preserve">
+				<source>Image Properties</source>
+			<target>crwdns378788:0crwdne378788:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.cancel" xml:space="preserve">
+				<source>Cancel</source>
+				
+			<target>crwdns378790:0crwdne378790:0</target><note>Button label to close the image properties dialog without saving.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.save" xml:space="preserve">
+				<source>Save</source>
+				
+			<target>crwdns378792:0crwdne378792:0</target><note>Button label to apply changes in the image properties dialog.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.insertimage" xml:space="preserve">
+				<source>Insert image</source>
+			<target>crwdns378794:0crwdne378794:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.editimage" xml:space="preserve">
+				<source>Edit image</source>
+				
+			<target>crwdns394120:0crwdne394120:0</target><note>Toolbar button label shown when an existing image is selected for editing.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.nodefaultmetadata" xml:space="preserve">
+				<source>No default %s available in file metadata. Cannot override empty value.</source>
+				
+			<target>crwdns378796:0%scrwdne378796:0</target><note>Warning when file metadata is empty. %s is replaced with the field name (e.g. "title", "alt text"). Preserve the %s placeholder.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.zoomhelp" xml:space="preserve">
+				<source>Enables click-to-enlarge/lightbox functionality. Default popup configuration is provided automatically. See documentation for custom lightbox library integration.</source>
+			<target>crwdns378798:0crwdne378798:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.noscalehelp" xml:space="preserve">
+				<source>Skips image processing and uses the original file. Useful for newsletters, PDFs, maximum resolution displays, and SVG graphics. Configure globally via TypoScript or enable per-image.</source>
+			<target>crwdns378800:0crwdne378800:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality" xml:space="preserve">
+				<source>Image Quality</source>
+			<target>crwdns378802:0crwdne378802:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.none" xml:space="preserve">
+				<source>No Scaling</source>
+				
+			<target>crwdns378804:0crwdne378804:0</target><note>Dropdown option: image will not be resized, uses original dimensions.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard" xml:space="preserve">
+				<source>Standard (1.0x)</source>
+				
+			<target>crwdns378806:0crwdne378806:0</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina" xml:space="preserve">
+				<source>Retina (2.0x)</source>
+				
+			<target>crwdns378808:0crwdne378808:0</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra" xml:space="preserve">
+				<source>Ultra (3.0x)</source>
+				
+			<target>crwdns378810:0crwdne378810:0</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print" xml:space="preserve">
+				<source>Print (6.0x)</source>
+				
+			<target>crwdns378812:0crwdne378812:0</target><note>Dropdown option for print-quality scaling (noun, not the verb "to print"). Preserve the multiplier in parentheses.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.label" xml:space="preserve">
+				<source>Low</source>
+				
+			<target>crwdns378814:0crwdne378814:0</target><note>Quality indicator label for below-standard but not poor resolution. Conveys below-average quality.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.low.tooltip" xml:space="preserve">
+				<source>Low quality (%sx) - Image may appear blurry</source>
+			<target>crwdns378816:0%scrwdne378816:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.label" xml:space="preserve">
+				<source>Standard</source>
+				
+			<target>crwdns378818:0crwdne378818:0</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.standard.tooltip" xml:space="preserve">
+				<source>Standard quality (%sx) - Sharp on basic displays</source>
+			<target>crwdns378820:0%scrwdne378820:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.label" xml:space="preserve">
+				<source>Retina</source>
+				
+			<target>crwdns378822:0crwdne378822:0</target><note>Multilingual term - keep as-is or transliterate if more natural in your language</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.retina.tooltip" xml:space="preserve">
+				<source>Retina quality (%sx) - Optimal for modern displays</source>
+			<target>crwdns378824:0%scrwdne378824:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.label" xml:space="preserve">
+				<source>Ultra</source>
+				
+			<target>crwdns378826:0crwdne378826:0</target><note>Multilingual term - keep as-is unless your language has a more natural equivalent</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.ultra.tooltip" xml:space="preserve">
+				<source>Ultra quality (%sx) - For ultra-high DPI or small print</source>
+			<target>crwdns378828:0%scrwdne378828:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.label" xml:space="preserve">
+				<source>Print</source>
+				
+			<target>crwdns378830:0crwdne378830:0</target><note>Short label for print-quality tier. Noun (print quality), not verb (print command).</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.print.tooltip" xml:space="preserve">
+				<source>Print quality (%sx) - Suitable for high-quality printing (300 DPI)</source>
+			<target>crwdns378832:0%scrwdne378832:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.label" xml:space="preserve">
+				<source>Excessive</source>
+				
+			<target>crwdns378834:0crwdne378834:0</target><note>Warning label for unnecessarily high image resolution. Conveys "too much".</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.excessive.tooltip" xml:space="preserve">
+				<source>Excessive resolution (%sx) - Unnecessarily high</source>
+			<target>crwdns378836:0%scrwdne378836:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.poor.label" xml:space="preserve">
+				<source>Poor</source>
+				
+			<target>crwdns394122:0crwdne394122:0</target><note>Quality indicator label when image resolution is below standard (ratio less than 1.0x). Conveys insufficient quality.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.quality.poor.tooltip" xml:space="preserve">
+				<source>Poor quality (%sx) - Image will appear blurry</source>
+			<target>crwdns394124:0%scrwdne394124:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.qualityerror.zerodimensions" xml:space="preserve">
+				<source>Display dimensions cannot be zero.</source>
+				
+			<target>crwdns394126:0crwdne394126:0</target><note>Error message in quality indicator when width or height is set to zero.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.qualityinfo.svg" xml:space="preserve">
+				<source>Vector image will not be processed (scales perfectly at any resolution).</source>
+				
+			<target>crwdns394128:0crwdne394128:0</target><note>Info message shown for SVG files in the quality indicator.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.scaling" xml:space="preserve">
+				<source>Scaling</source>
+				
+			<target>crwdns394130:0crwdne394130:0</target><note>Label for the quality/scaling dropdown in the image properties dialog.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.caption" xml:space="preserve">
+				<source>Caption</source>
+				
+			<target>crwdns394132:0crwdne394132:0</target><note>Label for the image caption textarea field.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.displaywidth" xml:space="preserve">
+				<source>Display width in px</source>
+				
+			<target>crwdns394134:0crwdne394134:0</target><note>Label for the display width input field. "px" = pixels.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.displayheight" xml:space="preserve">
+				<source>Display height in px</source>
+				
+			<target>crwdns394136:0crwdne394136:0</target><note>Label for the display height input field. "px" = pixels.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.clickBehavior" xml:space="preserve">
+				<source>Click Behavior</source>
+				
+			<target>crwdns390978:0crwdne390978:0</target><note>Section heading: what happens when a frontend user clicks the image.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.clickBehaviorNone" xml:space="preserve">
+				<source>None - image is not clickable</source>
+			<target>crwdns390980:0crwdne390980:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clickBehaviorEnlarge" xml:space="preserve">
+				<source>Enlarge - opens full-size in lightbox</source>
+			<target>crwdns390982:0crwdne390982:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.clickBehaviorLink" xml:space="preserve">
+				<source>Link - opens custom URL</source>
+			<target>crwdns390984:0crwdne390984:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkUrl" xml:space="preserve">
+				<source>Link URL</source>
+			<target>crwdns390986:0crwdne390986:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTarget" xml:space="preserve">
+				<source>Link Target</source>
+				
+			<target>crwdns390988:0crwdne390988:0</target><note>HTML target attribute for links (_blank, _self, etc.).</note></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTitle" xml:space="preserve">
+				<source>Link Title</source>
+			<target>crwdns390990:0crwdne390990:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkCssClass" xml:space="preserve">
+				<source>Link CSS Class</source>
+			<target>crwdns390992:0crwdne390992:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.browse" xml:space="preserve">
+				<source>Browse...</source>
+				
+			<target>crwdns390994:0crwdne390994:0</target><note>Button to open the file browser for selecting an image or link target. Keep the trailing ellipsis.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetDefault" xml:space="preserve">
+				<source>(default)</source>
+			<target>crwdns390996:0crwdne390996:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetBlank" xml:space="preserve">
+				<source>New window (_blank)</source>
+			<target>crwdns390998:0crwdne390998:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetTop" xml:space="preserve">
+				<source>Top frame (_top)</source>
+			<target>crwdns391000:0crwdne391000:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetSelf" xml:space="preserve">
+				<source>Same window (_self)</source>
+			<target>crwdns391002:0crwdne391002:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetParent" xml:space="preserve">
+				<source>Parent frame (_parent)</source>
+			<target>crwdns391004:0crwdne391004:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkParams" xml:space="preserve">
+				<source>Additional Parameters</source>
+			<target>crwdns391006:0crwdne391006:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkParamsPlaceholder" xml:space="preserve">
+				<source>e.g., &amp;L=1&amp;type=123</source>
+			<target>crwdns391008:0crwdne391008:0</target></trans-unit>
+      <trans-unit id="labels.ckeditor.linkTargetPlaceholder" xml:space="preserve">
+				<source>e.g. _blank, _top, nav_frame</source>
+				
+			<target>crwdns394138:0crwdne394138:0</target><note>Placeholder text in the link target input field showing example values.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.imageinsidelinktitle" xml:space="preserve">
+				<source>Image is inside a link</source>
+				
+			<target>crwdns394140:0crwdne394140:0</target><note>Info box title shown when the image is wrapped in a link element in the editor.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.imageinsidelinkmessage" xml:space="preserve">
+				<source>Click behavior options are disabled because this image is inside a link that was created around the text. To change link settings, edit the link directly in the editor.</source>
+				
+			<target>crwdns394142:0crwdne394142:0</target><note>Info box message explaining why click behavior options are disabled for linked images.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.togglecaption" xml:space="preserve">
+				<source>Toggle caption</source>
+				
+			<target>crwdns394144:0crwdne394144:0</target><note>Toolbar button label to show/hide the image caption.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.toggleinlineblock" xml:space="preserve">
+				<source>Toggle inline/block</source>
+				
+			<target>crwdns394146:0crwdne394146:0</target><note>Toolbar button label to switch between inline and block image display.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.alignleft" xml:space="preserve">
+				<source>Align left</source>
+				
+			<target>crwdns394148:0crwdne394148:0</target><note>Toolbar button to align the image to the left.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.aligncenter" xml:space="preserve">
+				<source>Align center</source>
+				
+			<target>crwdns394150:0crwdne394150:0</target><note>Toolbar button to center-align the image.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.alignright" xml:space="preserve">
+				<source>Align right</source>
+				
+			<target>crwdns394152:0crwdne394152:0</target><note>Toolbar button to align the image to the right.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.inline" xml:space="preserve">
+				<source>Inline</source>
+				
+			<target>crwdns394154:0crwdne394154:0</target><note>Toolbar button label for inline image display mode (flows with text).</note></trans-unit>
+      <trans-unit id="labels.ckeditor.block" xml:space="preserve">
+				<source>Block</source>
+				
+			<target>crwdns394156:0crwdne394156:0</target><note>Toolbar button label for block image display mode (own paragraph).</note></trans-unit>
+      <trans-unit id="labels.ckeditor.selectimage" xml:space="preserve">
+				<source>Select image</source>
+				
+			<target>crwdns394158:0crwdne394158:0</target><note>Title of the modal dialog for browsing and selecting an image file.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.imagewidget" xml:space="preserve">
+				<source>image widget</source>
+				
+			<target>crwdns394160:0crwdne394160:0</target><note>Accessibility (ARIA) label for the block image widget. Used by screen readers.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.inlineimagewidget" xml:space="preserve">
+				<source>inline image widget</source>
+				
+			<target>crwdns394162:0crwdne394162:0</target><note>Accessibility (ARIA) label for the inline image widget. Used by screen readers.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.imagetoolbar" xml:space="preserve">
+				<source>Image toolbar</source>
+				
+			<target>crwdns394164:0crwdne394164:0</target><note>Accessibility (ARIA) label for the image editing toolbar balloon.</note></trans-unit>
+      <trans-unit id="labels.ckeditor.enterimagecaption" xml:space="preserve">
+				<source>Enter image caption</source>
+				
+			<target>crwdns394166:0crwdne394166:0</target><note>Placeholder text shown inside an empty image caption field.</note></trans-unit>
+    </body>
+  </file>
+</xliff>
