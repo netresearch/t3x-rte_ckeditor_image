@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
+name: Crowdin Translations
+
+# Brings what the Crowdin integration pushed to l10n_main in through a signed
+# pull request. Scheduled, because Crowdin's commits carry `[ci skip]` and
+# GitHub drops their push event. A run without an l10n_main branch does nothing.
+on:
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  translations:
+    uses: netresearch/typo3-ci-workflows/.github/workflows/crowdin-translations.yml@main
+    permissions:
+      contents: read
+    # Only these two secrets are passed, not `secrets: inherit`.
+    secrets:
+      app-id: ${{ secrets.PROJECT_APP_ID }}
+      app-private-key: ${{ secrets.PROJECT_APP_PRIVATE_KEY }}
