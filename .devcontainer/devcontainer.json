@@ -9,7 +9,7 @@
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {},
-		"ghcr.io/devcontainers-contrib/features/composer:1": {},
+		"ghcr.io/devcontainers-extra/features/composer:1": {},
 		"ghcr.io/opencodeco/devcontainers/install-php-extensions:0": {
 			"extensions": "intl soap imagick pcov pcntl apcu exif gd mysqli zip"
 		},
