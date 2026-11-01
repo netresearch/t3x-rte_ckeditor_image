@@ -10,6 +10,7 @@
 #   - .github/workflows/release.yml — archive-prefix / package-name / extension-key
 # Customize those two in-repo; everything else stays in sync with the template.
 template: typo3-extension
+strict-pins: true
 intentional-drift:
   - .github/workflows/ci.yml
   - .github/workflows/release.yml
