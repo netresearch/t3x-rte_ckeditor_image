@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.10.5] - 2026-11-05
+
+### Fixed
+
+- **The preset works with the Visual Editor** ([#952](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/952)) — `Configuration/RTE/Plugin.yaml` declares the image plugin in `importModules` as `{ module: ..., exports: ['default'] }` instead of a plain string. TYPO3's RTE loads the same module as before; the Visual Editor of FriendsOfTYPO3, which reads `module` from every entry, no longer fails on rich-text fields with this preset. The documentation examples use the same form.
+
+### Changed
+
+- **Translations** ([#950](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/950)) — updated from Crowdin.
+
 ## [13.10.4] - 2026-10-31
 
 ### Fixed
