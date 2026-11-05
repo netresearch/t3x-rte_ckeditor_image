@@ -381,6 +381,21 @@ final class SelectImageControllerTest extends UnitTestCase
     }
 
     #[Test]
+    public function infoActionReturns412WhenFileIdIsZero(): void
+    {
+        /** @var ServerRequestInterface&MockObject $requestMock */
+        $requestMock = $this->createMock(ServerRequestInterface::class);
+        $requestMock->method('getQueryParams')->willReturn([
+            'fileId' => '0',
+            'table'  => 'tt_content',
+        ]);
+
+        $response = $this->subject->infoAction($requestMock);
+
+        self::assertSame(412, $response->getStatusCode());
+    }
+
+    #[Test]
     public function infoActionReturns404WhenFileNotFound(): void
     {
         /** @var ServerRequestInterface&MockObject $requestMock */
