@@ -4,8 +4,11 @@
 # Register image plugin for ckeditor
 editor:
   config:
+    # Descriptor form { module, exports }: rte_ckeditor turns a plain string into
+    # exactly this, but other consumers of the preset (e.g. the Visual Editor of
+    # FriendsOfTYPO3) read 'module' from every entry and fail on a string.
     importModules:
-      -  '@netresearch/rte-ckeditor-image/Plugins/typo3image.js'
+      - { module: '@netresearch/rte-ckeditor-image/Plugins/typo3image.js', exports: ['default'] }
 
     contentsCss:
       - 'EXT:rte_ckeditor_image/Resources/Public/Css/editor-image-widget.css'

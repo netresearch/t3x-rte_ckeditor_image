@@ -9,7 +9,7 @@ imports:
 editor:
   config:
     # IMPORTANT: DO NOT override importModules here!
-    # Plugin.yaml provides: importModules: ['@netresearch/rte-ckeditor-image/Plugins/typo3image.js']
+    # Plugin.yaml provides: importModules: [{ module: '@netresearch/rte-ckeditor-image/Plugins/typo3image.js', exports: ['default'] }]
     # If you need to add additional modules, ensure proper array merging in your custom preset
 
     toolbar:

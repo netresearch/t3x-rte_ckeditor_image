@@ -107,7 +107,11 @@ Register Plugin
    editor:
      config:
        importModules:
-         - '@my-vendor/my-site/extended-typo3image.js'
+         - { module: '@my-vendor/my-site/extended-typo3image.js', exports: ['default'] }
+
+TYPO3's RTE also accepts the module as a plain string, but integrations that
+read the preset themselves, such as the Visual Editor of FriendsOfTYPO3, expect
+the ``{ module, exports }`` form.
 
 **Result**: Custom image metadata fields ✅
 
