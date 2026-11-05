@@ -504,7 +504,7 @@ Registration (Configuration/RTE/Plugin.yaml)
    editor:
      config:
        importModules:
-         - '@netresearch/rte-ckeditor-image/Plugins/typo3image.js'
+         - { module: '@netresearch/rte-ckeditor-image/Plugins/typo3image.js', exports: ['default'] }
 
      externalPlugins:
        typo3image: { route: "rteckeditorimage_wizard_select_image" }

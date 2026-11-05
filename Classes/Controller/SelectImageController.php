@@ -345,7 +345,8 @@ class SelectImageController extends ElementBrowserController
             ]);
         }
 
-        if (!$id || !is_numeric($id)) {
+        // Numeric and not the falsy '0' (what `!$id` rejected for a numeric value)
+        if (!is_numeric($id) || in_array($id, [0, 0.0, '0'], true)) {
             return (new Response())->withStatus(412, 'Precondition Failed');
         }
 
