@@ -106,7 +106,7 @@ Build/            -> PHPStan, PHPUnit configs, CI tooling
 
 ## Release Process
 
-See [RELEASE.md](RELEASE.md): bump `ext_emconf.php` via PR → merge → **signed tag** `vX.Y.Z` + push → **GitHub Release** from that tag (web UI; do not use `gh release create` to create the tag) → optional `gh release edit --notes-file` → verify Packagist + TER.
+See [RELEASE.md](RELEASE.md): bump `ext_emconf.php` via PR → merge → **signed tag** `vX.Y.Z` + push → `.github/workflows/release.yml` creates the GitHub Release and publishes to TER (do not create the release by hand) → optional `gh release edit --notes-file` → verify Packagist + TER.
 
 ## Index of scoped AGENTS.md
 
