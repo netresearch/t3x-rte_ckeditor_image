@@ -58,6 +58,11 @@ jobs:
             -   id: install
                 name: Install dependencies with typo3/cms-core:${{ matrix.typo3 }}
                 run: |
+                    # Every public typo3/cms-* 12.4.x release carries Packagist
+                    # security advisories, and Composer blocks such versions by
+                    # default, so ^12.4 resolves to nothing. Same setting as the
+                    # shared netresearch/typo3-ci-workflows ci.yml.
+                    composer config --no-plugins audit.block-insecure false
                     composer require typo3/cms-core:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-backend:${{ matrix.typo3 }} --no-progress --no-update
                     composer require typo3/cms-extbase:${{ matrix.typo3 }} --no-progress --no-update
