@@ -70,6 +70,18 @@ async function clickOverrideLabel(page: Page, checkboxId: string): Promise<void>
 }
 
 test.describe('Image Dialog - Override Checkboxes', () => {
+  // Serial: every test here opens CE 28, and "override state persists after
+  // save and reload" stores an alt override on it. The tests that assert or
+  // toggle the alt override expect it unchecked first, the save test included
+  // (toggling a stored override unchecks it); only the cancel test compares
+  // with what it read itself. playwright.config.ts
+  // sets fullyParallel, which runs the tests of one file concurrently, so
+  // those tests could read the saved override. Serial mode runs them in
+  // declaration order in one worker. A retry of the group after the save has
+  // run still sees the override; a record per test would remove that, and is
+  // not done here.
+  test.describe.configure({ mode: 'serial' });
+
   test.beforeEach(async ({ page }) => {
     requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
     await loginToBackend(page);

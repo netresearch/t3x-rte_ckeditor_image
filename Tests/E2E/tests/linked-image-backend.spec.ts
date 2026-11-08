@@ -253,6 +253,14 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
 });
 
 test.describe('Linked Image Workflow (#565)', () => {
+  // Serial: "edit existing linked image" and "save and reload preserves link
+  // structure" both save CE 3 and compare what they read before their save
+  // with what they read after it. playwright.config.ts sets fullyParallel,
+  // which runs the tests of one file concurrently, so a save by one test can
+  // land between the two reads of the other, and that test then measures the
+  // other test's write. Serial mode runs them one after the other.
+  test.describe.configure({ mode: 'serial' });
+
   test.beforeEach(async () => {
     requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
   });
