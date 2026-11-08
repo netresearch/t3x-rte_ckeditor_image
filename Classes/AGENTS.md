@@ -3,7 +3,7 @@ Copyright (c) 2025-2026 Netresearch DTT GmbH
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-08-18 -->
+<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-11-08 -->
 
 # AGENTS.md -- Classes
 
@@ -35,7 +35,7 @@ TypoScript parseFunc_RTE
     v
 ImageRenderingAdapter (Controller)     <-- TypoScript entry points
     |                                       renderImageAttributes() -> standalone <img>
-    |                                       renderInlineLink()      -> <a> (resolve t3://, validate protocol)
+    |                                       prepareInlineLinkContent() -> <a> content (strip nested <a>; typolink builds the <a>)
     |                                       renderFigure()          -> <figure> with caption
     v
 ImageResolverService (Service)         <-- Business logic + security
@@ -61,7 +61,7 @@ RteImagesDbHook -> RteImageProcessor -> ImageTagParser + ImageFileResolver + Ima
 
 | File | Purpose |
 |------|---------|
-| `Controller/ImageRenderingAdapter.php` | TypoScript adapter: `renderImageAttributes()`, `renderInlineLink()`, `renderFigure()` entry points |
+| `Controller/ImageRenderingAdapter.php` | TypoScript adapter: `renderImageAttributes()`, `prepareInlineLinkContent()`, `renderFigure()` entry points (`renderInlineLink()` deprecated since v13.7.0) |
 | `Controller/SelectImageController.php` | Backend AJAX controller for image select wizard and file browser |
 | `Service/ImageResolverService.php` | Core business logic: file resolution, security validation, quality, DTO building |
 | `Service/ImageRenderingService.php` | Presentation: template selection (`selectTemplate()`), Fluid rendering, whitespace normalization |

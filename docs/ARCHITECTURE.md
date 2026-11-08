@@ -18,7 +18,7 @@ TYPO3 CKEditor 5 extension adding FAL (File Abstraction Layer) image support to 
 
 | Component | Responsibility | Key Files |
 |---|---|---|
-| Rendering adapter | TypoScript entry points (`renderImageAttributes()`, `renderInlineLink()`, `renderFigure()`) | `Classes/Controller/ImageRenderingAdapter.php` |
+| Rendering adapter | TypoScript entry points (`renderImageAttributes()`, `prepareInlineLinkContent()`, `renderFigure()`; `renderInlineLink()` is deprecated since v13.7.0) | `Classes/Controller/ImageRenderingAdapter.php` |
 | Resolver service | Business logic: file resolution, security validation, quality multipliers, builds DTO | `Classes/Service/ImageResolverService.php` |
 | Rendering service | Presentation: template selection via `match(true)`, Fluid rendering | `Classes/Service/ImageRenderingService.php` |
 | DTOs | Immutable data contracts between resolver and renderer | `Classes/Domain/Model/ImageRenderingDto.php`, `LinkDto.php` |

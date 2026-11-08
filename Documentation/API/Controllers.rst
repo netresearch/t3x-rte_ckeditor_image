@@ -157,8 +157,49 @@ renderImageAttributes()
         }
     }
 
+prepareInlineLinkContent()
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: 13.7.0
+
+..  php:method:: prepareInlineLinkContent($content, $conf, $request)
+
+    Pre-processes the content of an :html:`<a>` tag before the standard
+    :typoscript:`typolink` builds the link. It only strips nested link
+    wrappers from historical double-wrapped content. ``t3://`` resolution,
+    targets and the original attributes are handled by :typoscript:`typolink`.
+
+    :param string|null $content: Inner content of the :html:`<a>` tag.
+    :param array $conf: TypoScript configuration.
+    :param ServerRequestInterface $request: Current request.
+    :returns: Pre-processed content for :typoscript:`typolink` to wrap.
+    :returntype: string
+
+**TypoScript integration:**
+
+..  code-block:: typoscript
+    :caption: Link processing configuration
+
+    lib.parseFunc_RTE {
+        tags.a = TEXT
+        tags.a {
+            current = 1
+            typolink {
+                parameter.data = parameters:href
+                title.data = parameters:title
+                ATagParams.data = parameters:allParams
+                target.ifEmpty.data = parameters:target
+            }
+        }
+        tags.a.preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->prepareInlineLinkContent
+    }
+
 renderInlineLink()
 ~~~~~~~~~~~~~~~~~~
+
+..  deprecated:: 13.7.0
+    Use :php:`prepareInlineLinkContent()` as :typoscript:`tags.a.preUserFunc`
+    together with :typoscript:`typolink`, as shown above.
 
 ..  php:method:: renderInlineLink($content, $conf, $request)
 
@@ -172,19 +213,6 @@ renderInlineLink()
     :param ServerRequestInterface $request: Current request.
     :returns: Rendered HTML with link wrapper.
     :returntype: string
-
-**TypoScript integration:**
-
-..  code-block:: typoscript
-    :caption: Link processing configuration
-
-    lib.parseFunc_RTE {
-        tags.a = TEXT
-        tags.a {
-            current = 1
-            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderInlineLink
-        }
-    }
 
 Service configuration
 =====================

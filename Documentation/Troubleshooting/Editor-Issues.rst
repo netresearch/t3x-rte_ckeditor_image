@@ -431,9 +431,10 @@ Inline linked images with unresolved t3:// URLs
 ``<a>`` tag was never listed in the ``externalBlocks`` comma list, so the
 per-tag configuration was silently ignored by TYPO3's parseFunc.
 
-**Status:** Fixed. Link resolution now uses ``tags.a`` with a dedicated
-``renderInlineLink()`` method in the ``ImageRenderingAdapter``. No action
-required.
+**Status:** Fixed. Link resolution uses ``tags.a``. Since 13.7.0 the
+``<a>`` is built by the standard ``typolink`` and
+``prepareInlineLinkContent()`` runs as ``tags.a.preUserFunc``; the earlier
+``renderInlineLink()`` handler is deprecated. No action required.
 
 ----
 

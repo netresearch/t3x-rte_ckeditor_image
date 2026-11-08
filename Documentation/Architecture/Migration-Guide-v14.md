@@ -179,10 +179,18 @@ lib.parseFunc_RTE {
         preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
     }
     tags.a {
-        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderInlineLink
+        typolink {
+            parameter.data = parameters:href
+            title.data = parameters:title
+            ATagParams.data = parameters:allParams
+            target.ifEmpty.data = parameters:target
+        }
+        preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->prepareInlineLinkContent
     }
 }
 ```
+
+Since v13.7.0, `tags.a.preUserFunc` is `prepareInlineLinkContent()` and the `<a>` is built by `typolink`. The earlier `renderInlineLink()` handler is deprecated since v13.7.0.
 
 The new `ImageRenderingAdapter` internally uses the modern service architecture while maintaining full backward compatibility with the TypoScript interface.
 
