@@ -107,7 +107,7 @@ Tests/
 - Playwright strict mode: use `.first()` when selectors could match multiple elements
 - Content element isolation: saving tests use dedicated CEs to avoid pollution. `playwright.config.ts` sets `fullyParallel`, so tests of one spec file also run concurrently and their order protects nothing: tests that write the same CE need `test.describe.configure({ mode: 'serial' })` (see `link-attributes-roundtrip.spec.ts`)
 - CE map: `Fixtures/seed-content.php` is the source (one `// UID n:` comment per CE, naming the spec that uses it); specs reference theirs via a `CE_ID` constant. Do not copy uids into docs
-- `selectOption()` works only on a `<select>` (Playwright throws `Element is not a <select> element`); use `fill()` for `<input>`
+- `selectOption()` works only on a `<select>` (Playwright throws `Element is not a <select> element`); use `fill()` for a text-like `<input>`, and `check()`/`setChecked()` for a checkbox or radio
 - CKEditor's editing view does not keep width/height as DOM attributes: assert dimensions via the dialog fields (see `image-dialog-dimensions.spec.ts`), not the editing DOM
 - Click-to-enlarge is the radio `#clickBehavior-enlarge`, not a checkbox
 - Clipboard: Ctrl+C/Ctrl+V inside the backend iframe does not reach CKEditor's clipboard pipeline (those specs are skipped); Ctrl+X does. See `copy-paste-undo-redo.spec.ts`
@@ -138,7 +138,7 @@ Tests/
 - [ ] Fixtures are minimal and focused
 - [ ] No hardcoded credentials or paths in tests
 - [ ] Coverage has not decreased
-- [ ] New production code is reached by a unit test: SonarCloud reads only unit coverage (`sonar.php.coverage.reportPaths=.Build/logs/clover-unit.xml`; functional coverage goes to `clover.xml`), so code covered only by functional tests fails the `new_coverage` gate. If a functional test already covers the path, tighten that test (e.g. filter by uid) instead of adding production code for it
+- [ ] New production code is reached by a unit test: SonarCloud reads only unit coverage (`sonar.php.coverage.reportPaths=.Build/logs/clover-unit.xml`; functional coverage goes to `clover.xml`), so code covered only by functional tests counts as uncovered and lowers new-code coverage, which can fail the `new_coverage` gate. If a functional test already covers the path, tighten that test (e.g. filter by uid) instead of adding production code for it
 
 ## Security
 

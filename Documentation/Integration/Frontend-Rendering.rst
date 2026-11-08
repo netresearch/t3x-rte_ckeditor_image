@@ -97,6 +97,12 @@ The extension provides default configuration. You can customize it:
 
     lib.parseFunc_RTE.nonTypoTagStdWrap.encapsLines.encapsTagList := addToList(img)
 
+..  important::
+    ``ATagParams.data = parameters:allParams`` passes the stored link
+    attributes through. Keep ``lib.parseFunc_RTE.htmlSanitize`` enabled (the
+    TYPO3 default) so the sanitizer removes event handlers such as
+    ``onclick`` from editor content.
+
 Default CSS Class
 -----------------
 
