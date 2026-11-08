@@ -73,8 +73,14 @@ The extension provides default configuration. You can customize it:
         tags.a = TEXT
         tags.a {
             current = 1
-            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderInlineLink
+            typolink {
+                parameter.data = parameters:href
+                title.data = parameters:title
+                ATagParams.data = parameters:allParams
+                target.ifEmpty.data = parameters:target
+            }
         }
+        tags.a.preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->prepareInlineLinkContent
 
         nonTypoTagStdWrap.HTMLparser.tags.img.fixAttrib {
             # Remove internal data attributes from frontend
@@ -259,6 +265,10 @@ Image Rendering
 Link Rendering
 ~~~~~~~~~~~~~~
 
+The ``<a>`` around a linked image is built by the standard
+:typoscript:`typolink`. :php:`prepareInlineLinkContent()` only strips nested
+link wrappers from historical double-wrapped content before that.
+
 ..  code-block:: typoscript
     :caption: Link tag processing for linked images
 
@@ -266,9 +276,20 @@ Link Rendering
         tags.a = TEXT
         tags.a {
             current = 1
-            preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderInlineLink
+            typolink {
+                parameter.data = parameters:href
+                title.data = parameters:title
+                ATagParams.data = parameters:allParams
+                target.ifEmpty.data = parameters:target
+            }
         }
+        tags.a.preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->prepareInlineLinkContent
     }
+
+..  deprecated:: 13.7.0
+    :php:`renderInlineLink()` as :typoscript:`tags.a.preUserFunc` is
+    deprecated. Use :php:`prepareInlineLinkContent()` with the typolink
+    configuration above.
 
 HTML Parser Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
