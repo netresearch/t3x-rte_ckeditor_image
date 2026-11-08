@@ -1,7 +1,7 @@
 <!-- Copyright (c) 2025-2026 Netresearch DTT GmbH | SPDX-License-Identifier: AGPL-3.0-or-later -->
 <!-- FOR AI AGENTS - Human readability is a side effect, not a goal -->
 <!-- Managed by agent: keep sections and order; edit content, not structure -->
-<!-- Last updated: 2026-08-18 | Last verified: 2026-08-18 -->
+<!-- Last updated: 2026-11-08 | Last verified: 2026-11-08 -->
 # AGENTS.md
 
 **Precedence:** The **closest AGENTS.md** to changed files wins. Root holds global defaults only.
@@ -22,7 +22,7 @@ Handles image insertion, processing, rendering with captions, links, popups, qua
 
 Three-layer design for frontend image rendering (component map and dependency rules: `docs/ARCHITECTURE.md`):
 
-1. **ImageRenderingAdapter** (Controller) -- TypoScript entry points: `renderImageAttributes()`, `renderInlineLink()`, `renderFigure()`
+1. **ImageRenderingAdapter** (Controller) -- TypoScript entry points: `renderImageAttributes()`, `prepareInlineLinkContent()` (`tags.a.preUserFunc`; the `<a>` itself comes from typolink), `renderFigure()`. `renderInlineLink()` is deprecated since v13.7.0
 2. **ImageResolverService** -- Business logic: file resolution, security validation, quality multipliers, builds `ImageRenderingDto`
 3. **ImageRenderingService** -- Presentation: template selection via `match(true)` (Popup > Link > Caption > Standalone), Fluid rendering
 

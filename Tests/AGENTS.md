@@ -3,7 +3,7 @@ Copyright (c) 2025-2026 Netresearch DTT GmbH
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-08-18 -->
+<!-- Managed by agent: keep sections and order; edit content, not structure. Last updated: 2026-11-08 -->
 
 # AGENTS.md -- Tests
 
@@ -105,8 +105,12 @@ Tests/
 - Each `test()` gets a fresh page -- module-level state does not persist
 - Always `waitForLoadState('networkidle')` after `page.goto()`
 - Playwright strict mode: use `.first()` when selectors could match multiple elements
-- Content element isolation: saving tests use dedicated CEs to avoid pollution
-- CE isolation map (in `runTests.sh`): CE 26=dimensions, 27=quality, 28=overrides, 29-30=click-behavior, 31=apply-changes, 32=roundtrip, 33=insertion
+- Content element isolation: saving tests use dedicated CEs to avoid pollution. `playwright.config.ts` sets `fullyParallel`, so tests of one spec file also run concurrently and their order protects nothing: tests that write the same CE need `test.describe.configure({ mode: 'serial' })` (see `link-attributes-roundtrip.spec.ts`)
+- CE map: `Fixtures/seed-content.php` is the source (one `// UID n:` comment per CE, naming the spec that uses it); specs reference theirs via a `CE_ID` constant. Do not copy uids into docs
+- `selectOption()` works only on a `<select>` (Playwright throws `Element is not a <select> element`); use `fill()` for `<input>`
+- CKEditor's editing view does not keep width/height as DOM attributes: assert dimensions via the dialog fields (see `image-dialog-dimensions.spec.ts`), not the editing DOM
+- Click-to-enlarge is the radio `#clickBehavior-enlarge`, not a checkbox
+- Clipboard: Ctrl+C/Ctrl+V inside the backend iframe does not reach CKEditor's clipboard pipeline (those specs are skipped); Ctrl+X does. See `copy-paste-undo-redo.spec.ts`
 - Override checkbox toggle: use vanilla JS `page.evaluate()` -- jQuery not on `window` in TYPO3 v13+
 - CKEditor: bare `<p><img></p>` renders as block widget (dblclick won't open dialog). Must include surrounding text
 - `clearCookies()` before frontend navigation after backend login (session interference)
@@ -114,7 +118,7 @@ Tests/
   - `-X fsc` (default): fluid_styled_content site set, no Bootstrap. Long-standing baseline.
   - `-X core-only`: minimal install, neither FSC nor Bootstrap. Models the fresh-install evaluator scenario; surfaces the bug class in [#790](https://github.com/netresearch/t3x-rte_ckeditor_image/issues/790).
   - `-X bootstrap`: FSC + Bootstrap Package (`^15.0` for v13, `^16.0` for v14). Common real-world setup.
-- CI invokes via `Build/Scripts/ci-e2e.sh`, a thin wrapper that passes the workflow's `E2E_VARIANT`/`E2E_TYPO3_VERSION` through to `runTests.sh -s e2e`. The environment itself (MariaDB, TYPO3, PHP-FPM, Apache) is built by the shared runner from the hooks in `Build/Scripts/runTests.conf`.
+- CI invokes via `Build/Scripts/ci-e2e.sh`, a thin wrapper that passes the workflow's `E2E_VARIANT`/`E2E_TYPO3_VERSION` through to `runTests.sh -s e2e`. The environment itself (MariaDB, TYPO3, PHP-FPM, Apache) is built by the shared runner from the hooks in `Build/Scripts/runTests.conf`. It uses Apache in front of PHP-FPM, not `php -S`: the built-in server has no rewriting, so TYPO3's routes do not resolve.
 - Specs that fundamentally require a specific variant (e.g. Bootstrap lightbox CSS) should `test.skip(process.env.E2E_VARIANT === 'core-only', '...')` to keep the matrix clean.
 
 ## CI Environment
@@ -134,6 +138,7 @@ Tests/
 - [ ] Fixtures are minimal and focused
 - [ ] No hardcoded credentials or paths in tests
 - [ ] Coverage has not decreased
+- [ ] New production code is reached by a unit test: SonarCloud reads only unit coverage (`sonar.php.coverage.reportPaths=.Build/logs/clover-unit.xml`; functional coverage goes to `clover.xml`), so code covered only by functional tests fails the `new_coverage` gate. If a functional test already covers the path, tighten that test (e.g. filter by uid) instead of adding production code for it
 
 ## Security
 

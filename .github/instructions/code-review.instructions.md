@@ -187,7 +187,7 @@ composer ci:cgl            # Code style
 2. parseFunc_RTE processes content via ImageRenderingAdapter
 3. `renderImageAttributes()` handles standalone `<img>` tags
 4. `renderFigure()` handles `<figure>` wrapped images
-5. `renderInlineLink()` handles `<a>` tags (resolves t3:// URLs, validates protocols)
+5. `prepareInlineLinkContent()` (`tags.a.preUserFunc`) strips nested `<a>` wrappers; typolink builds the `<a>` itself (`renderInlineLink()` is deprecated since v13.7.0)
 
 ### Link Attributes
 Model attributes use `imageLink*` prefix:
