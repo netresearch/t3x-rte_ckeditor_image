@@ -226,5 +226,6 @@ test.describe('Image Dialog - Quality Selector', () => {
     console.log(`Quality after reload: "${selectedValue}"`);
 
     expect(selectedValue).toBe('print');
-    console.log('SUCCESS: Quality selection persisted after save/reload');  });
+    console.log('SUCCESS: Quality selection persisted after save/reload');
+  });
 });

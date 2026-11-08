@@ -241,7 +241,8 @@ test.describe('Image Dialog - Override Checkboxes', () => {
     console.log(`Alt value after reload: "${valueAfterReload}"`);
 
     expect(valueAfterReload).toBe(persistAlt);
-    console.log('Override state and value persisted after save/reload');  });
+    console.log('Override state and value persisted after save/reload');
+  });
 
   test('cancel does not change override state', async ({ page }) => {
     await navigateToContentEdit(page, CE_ID);
