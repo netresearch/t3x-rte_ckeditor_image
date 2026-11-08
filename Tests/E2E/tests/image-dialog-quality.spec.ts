@@ -66,24 +66,19 @@ async function confirmImageDialogWithDiagnostics(page: import('@playwright/test'
   }
 }
 
-test.describe('Image Dialog - Quality Selector', () => {
-  // Serial: every test here opens CE 27, and "quality persists after save and
-  // reload" stores data-quality="print" on it, while "default quality is
-  // retina" expects CE 27 without a stored quality. playwright.config.ts sets
-  // fullyParallel, which runs the tests of one file concurrently, so the
-  // default test could read the saved "print". Serial mode runs them in
-  // declaration order in one worker. A retry of the group after the save has
-  // run still sees "print"; a record per test would remove that, and is not
-  // done here.
-  test.describe.configure({ mode: 'serial' });
+/** Seeded CE (seed-content.php) that no test saves: "default quality is retina" expects its seeded state. */
+const CE_ID = 27;
+/** Copy of CE 27, saved by "quality persists after save and reload". */
+const CE_ID_SAVE = 105;
 
+test.describe('Image Dialog - Quality Selector', () => {
   test.beforeEach(async ({ page }) => {
     requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
     await loginToBackend(page);
   });
 
   test('quality dropdown is present in dialog', async ({ page }) => {
-    await navigateToContentEdit(page, 27);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     await openImageEditDialog(page);
@@ -105,7 +100,7 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('quality dropdown has expected options', async ({ page }) => {
-    await navigateToContentEdit(page, 27);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     await openImageEditDialog(page);
@@ -138,9 +133,9 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('default quality is retina for fresh image', async ({ page }) => {
-    // Must run BEFORE "quality persists after save and reload", which stores
-    // data-quality on CE 27; the serial mode of this describe guarantees it.
-    await navigateToContentEdit(page, 27);
+    // Needs CE 27 without a stored data-quality: the save test writes to
+    // CE_ID_SAVE instead, so the order of the tests does not matter.
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     // Open image dialog on CE 27 (800x600, alt="Quality Test")
@@ -161,7 +156,7 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('selecting quality updates data attribute in editor', async ({ page }) => {
-    await navigateToContentEdit(page, 27);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     await openImageEditDialog(page);
@@ -188,7 +183,7 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('quality persists after save and reload', async ({ page }) => {
-    await navigateToContentEdit(page, 27);
+    await navigateToContentEdit(page, CE_ID_SAVE);
     await waitForCKEditor(page);
 
     // Open dialog and set quality to "print"
@@ -213,7 +208,7 @@ test.describe('Image Dialog - Quality Selector', () => {
     console.log('Content element saved');
 
     // Reload the page and navigate back to the content element
-    await navigateToContentEdit(page, 27);
+    await navigateToContentEdit(page, CE_ID_SAVE);
     await waitForCKEditor(page);
 
     // Verify data-quality persisted in editor HTML
@@ -231,6 +226,5 @@ test.describe('Image Dialog - Quality Selector', () => {
     console.log(`Quality after reload: "${selectedValue}"`);
 
     expect(selectedValue).toBe('print');
-    console.log('SUCCESS: Quality selection persisted after save/reload');
-  });
+    console.log('SUCCESS: Quality selection persisted after save/reload');  });
 });
