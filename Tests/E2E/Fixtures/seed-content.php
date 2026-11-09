@@ -239,11 +239,11 @@ echo "Error handling & edge case content elements (UIDs 20-25) created on page 2
 $bodytextDimensions = '<p>Dimensions test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Dimensions Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of dimensions test.</p>';
 $stmt->execute([1, 'text', 'Dimensions Test CE', $bodytextDimensions, 0, 0, $now, $now, 0, 6656]);
 
-// UID 27: For image-dialog-quality.spec.ts (saves quality changes)
+// UID 27: For image-dialog-quality.spec.ts (never saved; its save test uses UID 105)
 $bodytextQuality = '<p>Quality test content:</p><p><img src="fileadmin/user_upload/example.jpg" alt="Quality Test" width="800" height="600" data-htmlarea-file-uid="1" /></p><p>End of quality test.</p>';
 $stmt->execute([1, 'text', 'Quality Test CE', $bodytextQuality, 0, 0, $now, $now, 0, 6912]);
 
-// UID 28: For image-dialog-overrides.spec.ts (saves override state)
+// UID 28: For image-dialog-overrides.spec.ts (never saved; its save test uses UID 106)
 // data-alt-override="false" and data-title-override="false" ensure override checkboxes
 // start UNCHECKED — alt/title inputs are disabled, showing FAL metadata as placeholder.
 // Without these attributes, typo3image.js defaults to override=checked (inputs enabled).
@@ -441,3 +441,17 @@ echo "Image in text link CE (UID 103) created for #936\n";
 $pdo->prepare('INSERT INTO tt_content (uid, pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
     ->execute([104, 2, 'text', 'Linked Inline Image Class (#938)', '<p>Some text</p>', 0, 0, $now, $now, 0, 3072]);
 echo "Linked inline image class CE (UID 104) created for #938\n";
+
+// UID 105: For image-dialog-quality.spec.ts "quality persists after save and reload" (saves quality).
+// Same content as UID 27. Its own CE, so UID 27 is never saved and the other tests of the
+// spec read the seeded state, also when a test is retried.
+$pdo->prepare('INSERT INTO tt_content (uid, pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    ->execute([105, 2, 'text', 'Quality Save Test CE', $bodytextQuality, 0, 0, $now, $now, 0, 3328]);
+echo "Quality save CE (UID 105) created for image-dialog-quality.spec.ts\n";
+
+// UID 106: For image-dialog-overrides.spec.ts "override state persists after save and reload"
+// (saves an alt override). Same content as UID 28. Its own CE, so UID 28 is never saved and
+// the other tests of the spec read the seeded state, also when a test is retried.
+$pdo->prepare('INSERT INTO tt_content (uid, pid, CType, header, bodytext, hidden, deleted, tstamp, crdate, colPos, sorting) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    ->execute([106, 2, 'text', 'Overrides Save Test CE', $bodytextOverrides, 0, 0, $now, $now, 0, 3584]);
+echo "Overrides save CE (UID 106) created for image-dialog-overrides.spec.ts\n";

@@ -66,6 +66,11 @@ async function confirmImageDialogWithDiagnostics(page: import('@playwright/test'
   }
 }
 
+/** Seeded CE (seed-content.php) that no test saves: "default quality is retina" expects its seeded state. */
+const CE_ID = 27;
+/** Copy of CE 27, saved by "quality persists after save and reload". */
+const CE_ID_SAVE = 105;
+
 test.describe('Image Dialog - Quality Selector', () => {
   test.beforeEach(async ({ page }) => {
     requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
@@ -73,7 +78,7 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('quality dropdown is present in dialog', async ({ page }) => {
-    await navigateToContentEdit(page, 27);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     await openImageEditDialog(page);
@@ -95,7 +100,7 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('quality dropdown has expected options', async ({ page }) => {
-    await navigateToContentEdit(page, 27);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     await openImageEditDialog(page);
@@ -128,9 +133,9 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('default quality is retina for fresh image', async ({ page }) => {
-    // IMPORTANT: This test must run BEFORE saving tests that modify CE 27's
-    // data-quality attribute, since tests run sequentially within a spec file.
-    await navigateToContentEdit(page, 27);
+    // Needs CE 27 without a stored data-quality: the save test writes to
+    // CE_ID_SAVE instead, so the order of the tests does not matter.
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     // Open image dialog on CE 27 (800x600, alt="Quality Test")
@@ -151,7 +156,7 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('selecting quality updates data attribute in editor', async ({ page }) => {
-    await navigateToContentEdit(page, 27);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     await openImageEditDialog(page);
@@ -178,7 +183,7 @@ test.describe('Image Dialog - Quality Selector', () => {
   });
 
   test('quality persists after save and reload', async ({ page }) => {
-    await navigateToContentEdit(page, 27);
+    await navigateToContentEdit(page, CE_ID_SAVE);
     await waitForCKEditor(page);
 
     // Open dialog and set quality to "print"
@@ -203,7 +208,7 @@ test.describe('Image Dialog - Quality Selector', () => {
     console.log('Content element saved');
 
     // Reload the page and navigate back to the content element
-    await navigateToContentEdit(page, 27);
+    await navigateToContentEdit(page, CE_ID_SAVE);
     await waitForCKEditor(page);
 
     // Verify data-quality persisted in editor HTML

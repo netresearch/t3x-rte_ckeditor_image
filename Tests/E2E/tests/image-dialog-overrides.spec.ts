@@ -69,6 +69,11 @@ async function clickOverrideLabel(page: Page, checkboxId: string): Promise<void>
   await page.waitForTimeout(300);
 }
 
+/** Seeded CE (seed-content.php) that no test saves: the tests here expect its overrides unchecked. */
+const CE_ID = 28;
+/** Copy of CE 28, saved by "override state persists after save and reload". */
+const CE_ID_SAVE = 106;
+
 test.describe('Image Dialog - Override Checkboxes', () => {
   test.beforeEach(async ({ page }) => {
     requireCondition(!!BACKEND_PASSWORD, 'TYPO3_BACKEND_PASSWORD must be configured');
@@ -76,7 +81,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('alt override checkbox exists in image dialog', async ({ page }) => {
-    await navigateToContentEdit(page, 28);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -85,7 +90,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('alt input is disabled when override is unchecked', async ({ page }) => {
-    await navigateToContentEdit(page, 28);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -102,7 +107,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('clicking alt override label enables the input', async ({ page }) => {
-    await navigateToContentEdit(page, 28);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -125,7 +130,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('custom alt text is applied after enabling override', async ({ page }) => {
-    await navigateToContentEdit(page, 28);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -153,7 +158,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('title override checkbox exists in image dialog', async ({ page }) => {
-    await navigateToContentEdit(page, 28);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -162,7 +167,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('clicking title override label enables the title input', async ({ page }) => {
-    await navigateToContentEdit(page, 28);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -185,7 +190,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('override state persists after save and reload', async ({ page }) => {
-    await navigateToContentEdit(page, 28);
+    await navigateToContentEdit(page, CE_ID_SAVE);
     await waitForCKEditor(page);
     await openImageEditDialog(page);
 
@@ -193,8 +198,12 @@ test.describe('Image Dialog - Override Checkboxes', () => {
 
     await expect(altInput, 'Alt input not found').toBeVisible();
 
-    // Enable override by clicking label
-    await clickOverrideLabel(page, 'checkbox-alt');
+    // Enable override by clicking label. A retry of this test finds the
+    // override its earlier attempt stored on CE_ID_SAVE, and toggling would
+    // uncheck it, so click only while it is unchecked.
+    if (!(await page.locator('#checkbox-alt').isChecked())) {
+      await clickOverrideLabel(page, 'checkbox-alt');
+    }
     await expect(altInput).toBeEnabled();
 
     // Set a unique value to verify persistence
@@ -211,7 +220,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
     console.log('Saved content element');
 
     // Reload and navigate back to content edit
-    await navigateToContentEdit(page, 28);
+    await navigateToContentEdit(page, CE_ID_SAVE);
     await waitForCKEditor(page);
 
     // Re-open the image dialog
@@ -236,7 +245,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
   });
 
   test('cancel does not change override state', async ({ page }) => {
-    await navigateToContentEdit(page, 28);
+    await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 
     // First, open dialog and record the initial override state
