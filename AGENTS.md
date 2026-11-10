@@ -89,7 +89,7 @@ Make targets are DDEV/docs conveniences only (`setup`, `start`, `stop`, `up`, `d
 ## Development Workflow
 
 1. Create feature branch from `main`
-2. Make changes with tests
+2. Make changes with tests. **Changelog:** feature and fix PRs leave [`CHANGELOG.md`](CHANGELOG.md) alone; the release PR `chore(release): X.Y.Z` writes the version's section (Keep a Changelog: `## [X.Y.Z] - YYYY-MM-DD` with `### Added`, `### Changed`, `### Fixed`, `### Security`, `### Documentation` as needed, newest first, below `## [Unreleased]`)
 3. Pre-commit hooks run automatically: phplint -> php-cs-fixer -> phpstan
 4. Commit with conventional format (commitlint validates)
 5. Push and create PR
