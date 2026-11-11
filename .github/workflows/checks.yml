@@ -36,9 +36,20 @@ permissions: {}
 
 # Superseded PR scans stop consuming runners. Every non-PR run has its own
 # group, including active merge groups and main/scheduled runs.
+#
+# Only a `synchronize` run cancels: it is the only PR event that moves the
+# head SHA, so the run it cancels belongs to a commit that is no longer the
+# head. `ready_for_review` and `reopened` arrive on the SAME SHA, and a run
+# cancelled there leaves a failed `All security checks` check-run on the head:
+# the gate below runs under `always()` and fails on `cancelled` needs. Each
+# run keeps its own check-run, so the newer run's green gate does not replace
+# the red one: the commit's check rollup stays FAILURE with both listed, and
+# the PR stayed blocked until the old run was re-run (t3x-nr-vault run
+# 42936523040, t3x-nr-llm run 42927203718). On those events the new run waits in the group
+# instead, and both runs scan the head and report.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.action == 'synchronize' }}
 
 # Security + quality jobs with their explicit per-call-site permissions. This
 # file is byte-identical and drift-enforced across every typo3-extension — the
@@ -161,12 +172,17 @@ jobs:
     permissions: {}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
 
       # `skipped` passes: a job that does not apply to this event has nothing
       # to say about the commit. Only `failure` and `cancelled` fail the gate.
+      # `cancelled` must keep failing: a job that hit its timeout or was
+      # cancelled by hand scanned nothing. A run superseded on the same SHA is
+      # kept from reaching this step by `concurrency` above, not by a
+      # tolerance here — a gate that passed on `cancelled` would post a green
+      # required check from a run that scanned nothing.
       - name: Fail unless every job succeeded or was skipped
         shell: bash
         env:
