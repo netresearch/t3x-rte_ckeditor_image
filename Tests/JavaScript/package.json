@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^5.0.0",
-    "jsdom": "^30.0.0",
+    "jsdom": "^31.0.0",
     "vitest": "^5.0.0"
   }
 }
