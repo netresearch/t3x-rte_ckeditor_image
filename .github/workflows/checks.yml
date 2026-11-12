@@ -138,6 +138,13 @@ jobs:
   # listing starts a run for a newer head, and that run must not be cancelled.
   # A re-run keeps its run's original `created_at`.
   #
+  # The head is read again before every cancel, and cancelling stops as soon as
+  # it is no longer this run's head: a force-push can make a candidate's commit
+  # the head again, and a run cancelled on the head leaves a failed gate there
+  # (#594). This narrows the window to one API round-trip; it does not close
+  # it. A run cancelled while its commit was not the head stays cancelled if a
+  # later force-push restores that commit; re-run it.
+  #
   # Not in `gate.needs`: it scans nothing, so it has no verdict on the commit,
   # and every error path ends in a warning rather than a failed run. Pull
   # requests from forks are skipped, because their token cannot cancel runs.
@@ -190,6 +197,14 @@ jobs:
           done
           sort -u <<<"$runs" | while read -r id; do
             [ -n "$id" ] || continue
+            if ! now=$(gh api "repos/$REPO/pulls/$PR_NUMBER" --jq .head.sha); then
+              echo "::warning::Could not re-read the pull request head; stopped before run $id."
+              break
+            fi
+            if [ "$now" != "$HEAD_SHA" ]; then
+              echo "::notice::The pull request head is now $now; stopped before run $id."
+              break
+            fi
             if gh api --method POST "repos/$REPO/actions/runs/$id/cancel" >/dev/null; then
               echo "Cancelled run $id (an earlier head commit)."
             else
