@@ -251,6 +251,22 @@ class RteImagePreviewViewHelperTest extends TestCase
         self::assertStringContainsString('<img', $result);
     }
 
+    #[Test]
+    public function processHtmlKeepsTextOutsideElements(): void
+    {
+        $result = RteImagePreviewViewHelper::processHtml('Lead <p>Para</p> mid <p>End</p>');
+
+        self::assertSame('Lead <p>Para</p> mid <p>End</p>', $result);
+    }
+
+    #[Test]
+    public function processHtmlOmitsEncodingDeclaration(): void
+    {
+        $result = RteImagePreviewViewHelper::processHtml('<p>Text</p>');
+
+        self::assertStringNotContainsString('xml', $result);
+    }
+
     // ========================================================================
     // State reset between invocations (stateless static method)
     // ========================================================================

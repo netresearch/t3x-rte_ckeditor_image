@@ -34,11 +34,19 @@ on:
 
 permissions: {}
 
-# Superseded PR scans stop consuming runners. Every non-PR run has its own
-# group, including active merge groups and main/scheduled runs.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+# No `concurrency` block: superseded pull-request runs are cancelled by the
+# `supersede` job below, not by a concurrency group. A run cancelled on the
+# head SHA leaves a failed `All security checks` check-run there (the gate
+# runs under `always()` and fails on `cancelled` needs), and the newer run's
+# green gate does not replace it (t3x-nr-vault run 42936523040, t3x-nr-llm run
+# 42927203718). A concurrency group cannot avoid that: whether a run is
+# superseded depends on the pull request's current head, which no expression
+# can read. `synchronize` can arrive late, `reopened` after a push to the
+# closed pull request can carry the old head, a re-run carries its original
+# event, and a group keeps only one pending run,
+# so every group-based rule let one run for the head SHA cancel or replace
+# another (#592). Push, merge-group and scheduled runs had a group of their own
+# before and still run independently.
 
 # Security + quality jobs with their explicit per-call-site permissions. This
 # file is byte-identical and drift-enforced across every typo3-extension — the
@@ -46,7 +54,8 @@ concurrency:
 # `uses:` job grants exactly the reusable's caller contract; no reliance on
 # default_workflow_permissions.
 #
-# ANY JOB ADDED BELOW MUST ALSO BE ADDED TO `gate.needs`. The gate is the only
+# ANY JOB ADDED BELOW MUST ALSO BE ADDED TO `gate.needs` (the one exception is
+# `supersede`, which scans nothing and is explained there). The gate is the only
 # context a ruleset requires, so a job missing from that list is a job whose
 # failure cannot block a merge — the coverage loss is silent, and nothing in CI
 # catches it. GitHub Actions does not support YAML anchors in workflow files,
@@ -119,6 +128,90 @@ jobs:
       contents: read
       pull-requests: write
 
+  # Cancels the Checks runs of earlier head commits of this pull request, so
+  # superseded scans stop consuming runners. It acts only when this run's head
+  # commit is the pull request's head right now, and it never cancels a run for
+  # that commit: runs for the same head SHA (ready_for_review, reopened,
+  # re-runs) all finish and report. A run whose head has moved on cancels
+  # nothing; the run for the new head cancels it. Only runs created before this
+  # one are candidates: a push that lands between the head read and the
+  # listing starts a run for a newer head, and that run must not be cancelled.
+  # A re-run keeps its run's original `created_at`.
+  #
+  # The head is read again before every cancel, and cancelling stops as soon as
+  # it is no longer this run's head: a force-push can make a candidate's commit
+  # the head again, and a run cancelled on the head leaves a failed gate there
+  # (#594). This narrows the window to one API round-trip; it does not close
+  # it. A run cancelled while its commit was not the head stays cancelled if a
+  # later force-push restores that commit; re-run it.
+  #
+  # Not in `gate.needs`: it scans nothing, so it has no verdict on the commit,
+  # and every error path ends in a warning rather than a failed run. Pull
+  # requests from forks are skipped, because their token cannot cancel runs.
+  supersede:
+    name: Cancel superseded runs
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+      pull-requests: read
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
+      - name: Cancel runs for earlier head commits
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          if ! live=$(gh api "repos/$REPO/pulls/$PR_NUMBER" --jq .head.sha); then
+            echo "::warning::Could not read the pull request head; nothing cancelled."
+            exit 0
+          fi
+          if [ "$live" != "$HEAD_SHA" ]; then
+            echo "::notice::This run is for $HEAD_SHA, the pull request head is now $live; nothing cancelled."
+            exit 0
+          fi
+          if ! own=$(gh api "repos/$REPO/actions/runs/$RUN_ID" --jq '"\(.workflow_id) \(.created_at)"'); then
+            echo "::warning::Could not read this run's workflow; nothing cancelled."
+            exit 0
+          fi
+          read -r workflow created <<<"$own"
+          runs=""
+          for status in requested queued pending waiting in_progress; do
+            if ! page=$(gh api --method GET --paginate "repos/$REPO/actions/workflows/$workflow/runs" \
+                -f event=pull_request -f branch="$HEAD_REF" -f status="$status" -f per_page=100 \
+                --jq ".workflow_runs[] | select(.head_sha != \"$HEAD_SHA\" and .head_repository.full_name == \"$REPO\" and .created_at < \"$created\") | .id"); then
+              echo "::warning::Could not list $status runs; nothing cancelled."
+              exit 0
+            fi
+            runs+="$page"$'\n'
+          done
+          sort -u <<<"$runs" | while read -r id; do
+            [ -n "$id" ] || continue
+            if ! now=$(gh api "repos/$REPO/pulls/$PR_NUMBER" --jq .head.sha); then
+              echo "::warning::Could not re-read the pull request head; stopped before run $id."
+              break
+            fi
+            if [ "$now" != "$HEAD_SHA" ]; then
+              echo "::notice::The pull request head is now $now; stopped before run $id."
+              break
+            fi
+            if gh api --method POST "repos/$REPO/actions/runs/$id/cancel" >/dev/null; then
+              echo "Cancelled run $id (an earlier head commit)."
+            else
+              echo "::warning::Could not cancel run $id; it may have finished already."
+            fi
+          done
+
   # One stable check name for this workflow, so a branch ruleset has something
   # it can require on EVERY event.
   #
@@ -161,12 +254,17 @@ jobs:
     permissions: {}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           egress-policy: audit
 
       # `skipped` passes: a job that does not apply to this event has nothing
       # to say about the commit. Only `failure` and `cancelled` fail the gate.
+      # `cancelled` must keep failing: a job that hit its timeout or was
+      # cancelled by hand scanned nothing. A run for the head SHA is kept from
+      # being cancelled by the `supersede` job above, not by a tolerance here —
+      # a gate that passed on `cancelled` would post a green required check
+      # from a run that scanned nothing.
       - name: Fail unless every job succeeded or was skipped
         shell: bash
         env:

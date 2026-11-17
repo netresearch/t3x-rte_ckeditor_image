@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\ViewHelpers;
 
 use DOMDocument;
+use DOMElement;
 use DOMNode;
 use DOMText;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
@@ -100,9 +101,11 @@ final class RteImagePreviewViewHelper extends AbstractViewHelper
     {
         $internalErrors = libxml_use_internal_errors(true);
 
+        // Wrap the fragment in a <div>: libxml2 2.14+ drops bare text at the
+        // top level of a fragment loaded with LIBXML_HTML_NOIMPLIED.
         $dom = new DOMDocument();
         $dom->loadHTML(
-            '<?xml encoding="UTF-8">' . $html,
+            '<?xml encoding="UTF-8"><div>' . $html . '</div>',
             LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
@@ -118,14 +121,31 @@ final class RteImagePreviewViewHelper extends AbstractViewHelper
             $child->parentNode?->removeChild($child);
         }
 
-        $result = $dom->saveHTML();
+        return self::saveChildren($dom);
+    }
 
-        if ($result === false) {
+    /**
+     * Serialize the children of the wrapper <div> that truncate() adds.
+     */
+    private static function saveChildren(DOMDocument $dom): string
+    {
+        $root = $dom->documentElement;
+
+        if (!$root instanceof DOMElement) {
             return '';
         }
 
-        // Remove the XML encoding PI that was prepended for UTF-8 support
-        return str_replace('<?xml encoding="UTF-8">', '', $result);
+        $result = '';
+
+        foreach ($root->childNodes as $child) {
+            $html = $dom->saveHTML($child);
+
+            if ($html !== false) {
+                $result .= $html;
+            }
+        }
+
+        return $result;
     }
 
     /**

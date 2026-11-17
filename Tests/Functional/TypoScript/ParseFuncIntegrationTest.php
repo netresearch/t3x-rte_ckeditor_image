@@ -11,6 +11,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Functional\TypoScript;
 
 use Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter;
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -69,7 +70,19 @@ final class ParseFuncIntegrationTest extends FunctionalTestCase
             ],
         ]);
 
-        $this->request = (new ServerRequest())
+        // A frontend request always carries normalizedParams (set by the
+        // NormalizedParamsAttribute middleware). Since TYPO3 14.3.11 typolink
+        // needs it to decide whether an external link gets rel="noreferrer".
+        $request = new ServerRequest('http://localhost/', 'GET', null, [], [
+            'HTTP_HOST'   => 'localhost',
+            'SERVER_NAME' => 'localhost',
+            'SERVER_PORT' => '80',
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/',
+        ]);
+
+        $this->request = $request
+            ->withAttribute('normalizedParams', NormalizedParams::createFromRequest($request))
             ->withAttribute('site', $this->site)
             ->withAttribute('language', $this->site->getDefaultLanguage());
     }
