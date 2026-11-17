@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Backend\Preview;
 
 use DOMDocument;
+use DOMElement;
 use DOMNode;
 use DOMText;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
@@ -62,17 +63,7 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
         $row  = method_exists($item, 'getRow') ? $item->getRow() : $record;
         $html = $row['bodytext'] ?? '';
 
-        // Sanitize HTML (replaces invalid chars with U+FFFD).
-        // - Invalid control chars: [\x00-\x08\x0B\x0C\x0E-\x1F]
-        // - UTF-16 surrogates (UTF-8 encoded): \xED[\xA0-\xBF][\x80-\xBF]
-        // - Non-characters U+FFFE and U+FFFF: \xEF\xBF[\xBE\xBF]
-        $html = is_string($html)
-            ? (preg_replace(
-                '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF][\x80-\xBF]|\xEF\xBF[\xBE\xBF]/',
-                "\xEF\xBF\xBD",
-                $html,
-            ) ?? '')
-            : '';
+        $html = is_string($html) ? $this->sanitizeInvalidCharacters($html) : '';
 
         $warning = $this->detectIssuesAndRenderWarning($html, $row);
 
@@ -83,6 +74,22 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
                     $record,
                 )
             . '<br />';
+    }
+
+    /**
+     * Replace characters that are invalid in HTML with U+FFFD.
+     *
+     * - Invalid control chars: [\x00-\x08\x0B\x0C\x0E-\x1F]
+     * - UTF-16 surrogates (UTF-8 encoded): \xED[\xA0-\xBF][\x80-\xBF]
+     * - Non-characters U+FFFE and U+FFFF: \xEF\xBF[\xBE\xBF]
+     */
+    private function sanitizeInvalidCharacters(string $html): string
+    {
+        return preg_replace(
+            '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF][\x80-\xBF]|\xEF\xBF[\xBE\xBF]/',
+            "\xEF\xBF\xBD",
+            $html,
+        ) ?? '';
     }
 
     /**
@@ -195,9 +202,11 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
         // Set error level
         $internalErrors = libxml_use_internal_errors(true);
 
+        // Wrap the fragment in a <div>: libxml2 2.14+ drops bare text at the
+        // top level of a fragment loaded with LIBXML_HTML_NOIMPLIED.
         $dom = new DOMDocument();
         $dom->loadHTML(
-            '<?xml encoding="UTF-8">' . $html,
+            '<?xml encoding="UTF-8"><div>' . $html . '</div>',
             LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
@@ -211,9 +220,31 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
             $child->parentNode?->removeChild($child);
         }
 
-        $result = $dom->saveHTML();
+        return $this->saveChildren($dom);
+    }
 
-        return $result === false ? '' : $result;
+    /**
+     * Serialize the children of the wrapper <div> that truncate() adds.
+     */
+    private function saveChildren(DOMDocument $dom): string
+    {
+        $root = $dom->documentElement;
+
+        if (!$root instanceof DOMElement) {
+            return '';
+        }
+
+        $result = '';
+
+        foreach ($root->childNodes as $child) {
+            $html = $dom->saveHTML($child);
+
+            if ($html !== false) {
+                $result .= $html;
+            }
+        }
+
+        return $result;
     }
 
     /**

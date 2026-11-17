@@ -101,8 +101,7 @@ class RteImagePreviewRendererTest extends TestCase
         // Content with invalid control characters
         $contentWithControlChars = "<p>Text\x00with\x08invalid\x0Bcontrol\x1Fchars</p>";
 
-        // Test the sanitization logic by processing through renderTextWithHtml
-        $result = $this->callMethod($this->renderer, 'renderTextWithHtml', [$contentWithControlChars]);
+        $result = $this->callMethod($this->renderer, 'sanitizeInvalidCharacters', [$contentWithControlChars]);
 
         // Control characters should be replaced with U+FFFD (replacement character)
         self::assertStringNotContainsString("\x00", $result);
@@ -117,15 +116,8 @@ class RteImagePreviewRendererTest extends TestCase
         // Content with UTF-16 surrogate characters
         $contentWithSurrogates = "<p>Text\xED\xA0\x80with\xED\xBF\xBFsurrogates</p>";
 
-        // Sanitization happens before renderTextWithHtml in renderPageModulePreviewContent
-        // Simulate the sanitization (regex must match implementation)
-        $sanitized = preg_replace(
-            '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF][\x80-\xBF]|\xEF\xBF[\xBE\xBF]/',
-            "\xEF\xBF\xBD",
-            $contentWithSurrogates,
-        );
+        $sanitized = $this->callMethod($this->renderer, 'sanitizeInvalidCharacters', [$contentWithSurrogates]);
 
-        self::assertIsString($sanitized);
         // Surrogates should be replaced
         self::assertStringContainsString("\xEF\xBF\xBD", $sanitized);
     }
@@ -136,14 +128,8 @@ class RteImagePreviewRendererTest extends TestCase
         // Content with non-characters U+FFFE and U+FFFF
         $contentWithNonChars = "<p>Text\xEF\xBF\xBEwith\xEF\xBF\xBFnon-chars</p>";
 
-        // Simulate the sanitization (regex must match implementation)
-        $sanitized = preg_replace(
-            '/[\x00-\x08\x0B\x0C\x0E-\x1F]|\xED[\xA0-\xBF][\x80-\xBF]|\xEF\xBF[\xBE\xBF]/',
-            "\xEF\xBF\xBD",
-            $contentWithNonChars,
-        );
+        $sanitized = $this->callMethod($this->renderer, 'sanitizeInvalidCharacters', [$contentWithNonChars]);
 
-        self::assertIsString($sanitized);
         // Non-characters should be replaced
         self::assertStringContainsString("\xEF\xBF\xBD", $sanitized);
     }
@@ -151,6 +137,26 @@ class RteImagePreviewRendererTest extends TestCase
     // ========================================================================
     // renderTextWithHtml() Tests
     // ========================================================================
+
+    #[Test]
+    public function renderTextWithHtmlKeepsTextOutsideElements(): void
+    {
+        $input = 'Lead <figure><img src="test.jpg" /><figcaption>Caption</figcaption></figure> mid <p>Text</p>';
+
+        $result = $this->callMethod($this->renderer, 'renderTextWithHtml', [$input]);
+
+        self::assertStringContainsString('Lead', $result);
+        self::assertStringContainsString('mid', $result);
+        self::assertStringContainsString('<p>Text</p>', $result);
+    }
+
+    #[Test]
+    public function renderTextWithHtmlOmitsEncodingDeclaration(): void
+    {
+        $result = $this->callMethod($this->renderer, 'renderTextWithHtml', ['<p>Text</p>']);
+
+        self::assertSame('<p>Text</p>', $result);
+    }
 
     #[Test]
     public function renderTextWithHtmlPreservesImgTags(): void
