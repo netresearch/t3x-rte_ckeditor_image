@@ -124,7 +124,7 @@ Tests/
 ## CI Environment
 
 - CI runs via the centralized `netresearch/typo3-ci-workflows` reusable workflows; the per-repo matrix lives in `.github/workflows/ci.yml`
-- CI matrix: PHP 8.2/8.3/8.4/8.5 x TYPO3 ^13.4.21/^14.3
+- CI matrix: PHP 8.2/8.3/8.4/8.5/8.6 x TYPO3 ^13.4.21/^14.3
 - CGL runs once, on the first PHP version of the matrix (currently 8.2); coverage upload is handled by the central workflow
 - JavaScript tests run once (not PHP/TYPO3 version dependent)
 - E2E matrix: TYPO3 ^13.4.21 + ^14.3 x setup-variants `[fsc, core-only, bootstrap]` = 6 jobs, all blocking required status checks in the `default` branch ruleset -- keep job names in sync with the ruleset (see the comment in `ci.yml`)
