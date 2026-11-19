@@ -30,7 +30,7 @@ jobs:
     permissions:
       contents: read
     with:
-      php-versions: '["8.2","8.3","8.4","8.5"]'
+      php-versions: '["8.2","8.3","8.4","8.5","8.6"]'
       typo3-versions: '["^13.4.21","^14.3"]'
       compact-jobs: true
       run-functional-tests: true
