@@ -99,7 +99,7 @@ If your editorial workflow needs **inline images inside paragraphs** — with al
 | Component | Supported versions |
 |-----------|--------------------|
 | TYPO3 | **13.4.21+ LTS** or **14.3+ LTS** |
-| PHP | **8.2**, 8.3, 8.4, 8.5 |
+| PHP | **8.2**, 8.3, 8.4, 8.5, 8.6 |
 | Required TYPO3 extensions | `typo3/cms-rte-ckeditor` (extension key `rte_ckeditor`, shipped with TYPO3 core) |
 | Required PHP extensions | `ext-dom`, `ext-libxml` |
 
@@ -111,7 +111,7 @@ The `main` branch targets the current TYPO3 LTS releases. Earlier TYPO3 versions
 
 | TYPO3 | Extension branch | Latest release | PHP | Status |
 |-------|------------------|----------------|-----|--------|
-| **13.4 LTS / 14.3 LTS** | [`main`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/main) | 13.10.0 | 8.2 – 8.5 | **Actively maintained** (CKEditor 5) |
+| **13.4 LTS / 14.3 LTS** | [`main`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/main) | 13.10.0 | 8.2 – 8.6 | **Actively maintained** (CKEditor 5) |
 | **12.4 LTS** | [`TYPO3_12`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_12) | 12.0.12 | 8.1+ | Maintained (bugfixes) |
 | **11.5 LTS** | [`TYPO3_11`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_11) | 11.0.17 | 7.4+ | End of life — available, no further updates |
 | **10.4 LTS** | [`TYPO3_10`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_10) | 10.2.5 | — | End of life — available, no further updates |
@@ -392,7 +392,7 @@ The full development guide — code standards, CI matrix, PR checklist, security
 - **Playwright** E2E suite running against both v13 and v14 in CI.
 - **Infection** mutation testing.
 - **php-fuzzer** fuzz harnesses for `ImageAttributeParser` and `RteImageSoftReferenceParser`.
-- **CI matrix**: PHP 8.2 / 8.3 / 8.4 / 8.5 × TYPO3 ^13.4 / ^14.3 — 8 combinations for build, plus blocking E2E on v13 and v14.
+- **CI matrix**: PHP 8.2 / 8.3 / 8.4 / 8.5 / 8.6 × TYPO3 ^13.4 / ^14.3 — 10 combinations for build, plus blocking E2E on v13 and v14.
 
 ---
 
