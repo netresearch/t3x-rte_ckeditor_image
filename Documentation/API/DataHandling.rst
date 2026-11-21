@@ -25,38 +25,14 @@ RteImagesDbHook
 :Hook Registration: ``$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][]``
 :Service Configuration: Public service (automatically registered via ext_localconf.php)
 
-Class Properties
-----------------
-
-fetchExternalImages
-~~~~~~~~~~~~~~~~~~~
-
-.. php:attr:: fetchExternalImages
-
-   :Type: bool
-   :Visibility: protected
-
-   Controls whether external image URLs should be fetched and uploaded to TYPO3.
-
-   **Configuration:**
-
-   Set via Extension Manager or settings.php:
-
-   .. code-block:: php
-
-      $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['rte_ckeditor_image']['fetchExternalImages'] = true;
-
 Constructor
 -----------
 
-.. php:method:: __construct(ExtensionConfiguration $extensionConfiguration, LogManager $logManager)
+.. php:method:: __construct(RteImageProcessorInterface $imageProcessor)
 
-   Initializes hook with extension configuration and logging.
-
-   :param ExtensionConfiguration $extensionConfiguration: TYPO3 extension configuration service
-   :param LogManager $logManager: Logger manager for error logging
-   :throws ExtensionConfigurationExtensionNotConfiguredException: If extension not configured
-   :throws ExtensionConfigurationPathDoesNotExistException: If configuration path missing
+   :param RteImageProcessorInterface $imageProcessor: Processor for the
+      :html:`<img>` tags of an RTE field (``RteImageProcessor``, created by
+      ``RteImageProcessorFactory``)
 
 Main Hook Methods
 -----------------
@@ -79,7 +55,7 @@ processDatamap_postProcessFieldArray()
    1. Iterates through all fields in ``$fieldArray``
    2. Identifies RTE text fields via TCA configuration
    3. Checks for ``enableRichtext`` flag
-   4. Processes image tags in RTE content
+   4. Passes the field value to ``RteImageProcessorInterface::process()``
    5. Updates ``$fieldArray`` with processed content
 
    **Example Usage** (automatic via hook):
@@ -90,173 +66,31 @@ processDatamap_postProcessFieldArray()
       $dataHandler->process_datamap();
       // Hook is automatically called for each RTE field
 
-Image Processing Methods
-------------------------
+Image Processing
+----------------
 
-modifyRteField()
-~~~~~~~~~~~~~~~~
+The hook delegates all image handling to
+``Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessor::process()``.
+It returns the HTML unchanged outside a backend request.
+For each :html:`<img>` tag with a ``src`` it:
 
-.. php:method:: modifyRteField($value)
+1. Normalizes the image source URL.
+2. Loads the FAL file from ``data-htmlarea-file-uid`` if present.
+3. Reads width and height from the attributes (``ImageTagParser::getDimension()``)
+   and falls back to the file's dimensions.
+4. Processes the image by source: an existing FAL file, an external URL,
+   or a local file.
+5. Converts the ``src`` to a relative URL and rebuilds the tag
+   (``ImageTagBuilder``).
 
-   Main processing method for RTE field content with images.
+External images are fetched only if the extension setting
+``fetchExternalImages`` is enabled.
+``RteImageProcessorFactory`` reads this setting and passes it to
+``RteImageProcessor``:
 
-   :param string $value: RTE HTML content
-   :returns: Processed HTML content
-   :returntype: string
-   :visibility: private
+.. code-block:: php
 
-   **Processing Logic:**
-
-   **1. Image Tag Splitting**
-
-   .. code-block:: php
-
-      $imgSplit = $rteHtmlParser->splitTags('img', $value);
-      // Results in: ['text', '<img...>', 'text', '<img...>', ...]
-
-   **2. URL Processing**
-
-   - Converts absolute URLs to relative
-   - Handles site subpath scenarios
-   - Processes ``data-htmlarea-file-uid`` references
-
-   **3. FAL Integration**
-
-   .. code-block:: php
-
-      if (isset($attribArray['data-htmlarea-file-uid'])) {
-          $originalImageFile = $resourceFactory->getFileObject($uid);
-      }
-
-   **4. Magic Image Processing**
-
-   .. code-block:: php
-
-      $imageConfiguration = [
-          'width' => $imageWidth,
-          'height' => $imageHeight,
-      ];
-
-      $magicImage = $originalImageFile->process(
-          ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
-          $imageConfiguration
-      );
-
-   **5. External Image Fetching**
-
-   - Only in backend context
-   - Only if ``fetchExternalImages`` is true
-   - Downloads and uploads to user's default folder
-
-   **6. Local File Detection**
-
-   - Checks if image is in fileadmin/
-   - Attempts to find FAL reference
-   - Adds ``data-htmlarea-file-uid`` if found
-
-   **Scenarios Handled:**
-
-   +--------------------------------------------+------------------------------------------------------+
-   | Scenario                                   | Action                                               |
-   +============================================+======================================================+
-   | Image with ``data-htmlarea-file-uid``      | Load from FAL, process if dimensions differ          |
-   +--------------------------------------------+------------------------------------------------------+
-   | External URL (backend)                     | Fetch, upload, create FAL record                     |
-   +--------------------------------------------+------------------------------------------------------+
-   | External URL (frontend)                    | Leave as-is                                          |
-   +--------------------------------------------+------------------------------------------------------+
-   | Local file without UID                     | Search FAL, add UID if found                         |
-   +--------------------------------------------+------------------------------------------------------+
-   | Relative URL                               | Convert to site-relative path                        |
-   +--------------------------------------------+------------------------------------------------------+
-
-Helper Methods
---------------
-
-getImageWidthFromAttributes()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. php:method:: getImageWidthFromAttributes(array $attributes): int
-
-   Extracts width from image attributes, preferring style attribute.
-
-   :param array $attributes: Image tag attributes
-   :returns: Integer width value
-   :returntype: int
-   :visibility: private
-
-   **Priority:**
-
-   1. Style attribute: ``style="width: 800px"``
-   2. Width attribute: ``width="800"``
-
-getImageHeightFromAttributes()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. php:method:: getImageHeightFromAttributes(array $attributes): int
-
-   Extracts height from image attributes, preferring style attribute.
-
-   :param array $attributes: Image tag attributes
-   :returns: Integer height value
-   :returntype: int
-   :visibility: private
-
-   **Priority:**
-
-   1. Style attribute: ``style="height: 600px"``
-   2. Height attribute: ``height="600"``
-
-extractFromAttributeValueOrStyle()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. php:method:: extractFromAttributeValueOrStyle(array $attributes, string $imageAttribute)
-
-   Generic extractor for image dimension from attributes or style.
-
-   :param array $attributes: Image tag attributes array
-   :param string $imageAttribute: Attribute name ('width' or 'height')
-   :returns: Attribute value (mixed type) or null
-   :visibility: private
-
-matchStyleAttribute()
-~~~~~~~~~~~~~~~~~~~~~
-
-.. php:method:: matchStyleAttribute($styleAttribute, $imageAttribute)
-
-   Extracts dimension value from CSS style attribute.
-
-   :param string $styleAttribute: CSS style string.
-   :param string $imageAttribute: Attribute name to extract.
-   :returns: Extracted value or null
-   :returntype: string|null
-   :visibility: private
-
-   **Pattern:** ``/width[[:space:]]*:[[:space:]]*([0-9]*)[[:space:]]*px/i``
-
-   **Example:**
-
-   .. code-block:: php
-
-      $style = "width: 800px; height: 600px;";
-      $width = $this->matchStyleAttribute($style, 'width');
-      // Returns: "800"
-
-resolveFieldConfigurationAndRespectColumnsOverrides()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. php:method:: resolveFieldConfigurationAndRespectColumnsOverrides($dataHandler, $table, $field)
-
-   Gets TCA field configuration with type-specific overrides applied.
-
-   :param DataHandler $dataHandler: Data handler instance
-   :param string $table: Table name
-   :param string $field: Field name
-   :returns: Merged TCA configuration array
-   :returntype: array
-   :visibility: private
-
-   **Use Case:** Handles cases where field config varies by content type (e.g., different RTE configs for header vs. bodytext).
+   $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['rte_ckeditor_image']['fetchExternalImages'] = true;
 
 RteImageSoftReferenceParser
 ============================
@@ -320,10 +154,10 @@ And creates soft reference entries:
    [
        'matchString' => '<img data-htmlarea-file-uid="123" ... />',
        'subst' => [
-           'type' => 'file',
+           'type' => 'db',
+           'recordRef' => 'sys_file:123',
            'tokenID' => '...',
-           'tokenValue' => 'file:123',
-           'recordRef' => 'sys_file:123'
+           'tokenValue' => '123'
        ]
    ]
 
@@ -393,6 +227,7 @@ Find all content using a specific file:
 
 .. code-block:: php
 
+   use TYPO3\CMS\Core\Database\Connection;
    use TYPO3\CMS\Core\Database\ConnectionPool;
    use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -409,7 +244,7 @@ Find all content using a specific file:
            ),
            $queryBuilder->expr()->eq(
                'ref_uid',
-               $queryBuilder->createNamedParameter(123, \PDO::PARAM_INT)
+               $queryBuilder->createNamedParameter(123, Connection::PARAM_INT)
            ),
            $queryBuilder->expr()->eq(
                'softref_key',
@@ -499,9 +334,6 @@ Check Processed Files
 
    # List processed images
    ls -la fileadmin/_processed_/
-
-   # Check file processing status
-   ./vendor/bin/typo3 cleanup:processedfiles
 
 Verify Soft References
 ----------------------
