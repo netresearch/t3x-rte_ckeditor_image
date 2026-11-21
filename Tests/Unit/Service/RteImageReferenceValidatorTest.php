@@ -631,6 +631,28 @@ class RteImageReferenceValidatorTest extends TestCase
     }
 
     #[Test]
+    public function applyFixesTreatsOnlyHtmlWhitespaceAsAttributeSeparator(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::OrphanedFileUid,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 999,
+                currentSrc: '/fileadmin/deleted.jpg',
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+        ];
+
+        // A vertical tab is not HTML whitespace: the tag is not rewritten.
+        $html = "<p><img data-htmlarea-file-uid=\"999\"\x0Bonerror=\"x\" src=\"/fileadmin/deleted.jpg\" /></p>";
+
+        self::assertSame($html, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
     public function applyFixesLeavesUnparsableTagUnchangedForOrphanedFileUid(): void
     {
         $issues = [

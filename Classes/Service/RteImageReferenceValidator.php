@@ -519,19 +519,18 @@ class RteImageReferenceValidator
     {
         // Walk the attributes in order, anchored with \G, so that a quoted value
         // is always consumed as a whole: text inside an attribute value can never
-        // be taken for an attribute. Anything that does not parse completely is
-        // left unchanged.
-        if (preg_match('/^<img\b/i', $imgTag) !== 1) {
+        // be taken for an attribute. Whitespace is HTML whitespace only. Anything
+        // that does not parse completely is left unchanged.
+        if (preg_match('/^<img(?=[ \t\n\f\r\/>])/i', $imgTag) !== 1) {
             return $imgTag;
         }
 
         $offset  = 4;
-        $length  = strlen($imgTag);
         $kept    = '';
         $removed = false;
 
         while (preg_match(
-            '/\G(\s+)([^\s=\/>]+)(\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s"\'>]+))?/',
+            '/\G([ \t\n\f\r]+)([^ \t\n\f\r=\/>]+)([ \t\n\f\r]*=[ \t\n\f\r]*(?:"[^"]*"|\'[^\']*\'|[^ \t\n\f\r"\'>]+))?/',
             $imgTag,
             $match,
             0,
@@ -548,11 +547,24 @@ class RteImageReferenceValidator
 
         $rest = substr($imgTag, $offset);
 
-        if (!$removed || $offset > $length || preg_match('/^\s*\/?>$/', $rest) !== 1) {
+        if (!$removed || preg_match('/^[ \t\n\f\r]*\/?>$/', $rest) !== 1) {
             return $imgTag;
         }
 
-        return '<img' . $kept . $rest;
+        $result = '<img' . $kept . $rest;
+
+        // Cross-check with the parser that found the attribute: the result must
+        // hold exactly the original attributes minus data-htmlarea-file-uid.
+        $before = $this->htmlParser->get_tag_attributes($imgTag)[0] ?? [];
+        $after  = $this->htmlParser->get_tag_attributes($result)[0] ?? [];
+
+        if (!is_array($before) || !is_array($after)) {
+            return $imgTag; // @codeCoverageIgnore
+        }
+
+        unset($before['data-htmlarea-file-uid']);
+
+        return $before === $after ? $result : $imgTag;
     }
 
     /**
