@@ -90,7 +90,8 @@ a standalone image is removed,
 a figure is removed together with its link and caption,
 and an image inside a text link is removed while the link and its text stay.
 A link whose only content is a blocked image stays,
-and typolink shows its URL as the link text.
+and typolink fills in its default link text:
+the page title for a page link, otherwise the URL, e-mail address or file path.
 
 XSS prevention
 ==============
