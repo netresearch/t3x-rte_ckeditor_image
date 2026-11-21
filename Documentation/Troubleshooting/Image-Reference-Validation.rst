@@ -83,8 +83,9 @@ current ``getPublicUrl()`` value. For ``orphaned_file_uid`` it removes the
 stale ``data-htmlarea-file-uid`` attribute and keeps the ``src`` unchanged,
 because the underlying file no longer exists. Such an image needs manual
 intervention. A later scan reports it as ``missing_file_uid`` only while the
-record still has a reference index entry: ``referenceindex:update`` drops the
-entry of a record whose only images were orphaned, and the validator then no
+record still has a reference index entry: ``referenceindex:update`` (or the next
+save of the record in the backend) drops the entry of a record whose only
+images were orphaned, and the validator then no
 longer scans that record. Note the ``orphaned_file_uid`` records from a
 ``--dry-run`` before you apply ``--fix``.
 
