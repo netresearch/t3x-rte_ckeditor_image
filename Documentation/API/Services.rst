@@ -190,6 +190,8 @@ resolve()
     :param string|null $figureWidth: Optional normalized resize width from the figure (for example ``26.43%``).
     :returns: Validated DTO or null if validation fails.
     :returntype: ImageRenderingDto|null
+    :throws NonPublicFileException: If the file is in a non-public storage.
+        The caller must render nothing for the image.
 
 **Example:**
 

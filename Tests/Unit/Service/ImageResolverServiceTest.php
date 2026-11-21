@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Service;
 
+use Netresearch\RteCKEditorImage\Service\Exception\NonPublicFileException;
 use Netresearch\RteCKEditorImage\Service\ImageResolverService;
 use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
@@ -18,11 +19,14 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel as PsrLogLevel;
 use ReflectionMethod;
 use RuntimeException;
 use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Resource\Security\SvgSanitizer;
 use TYPO3\CMS\Core\TypoScript\AST\Node\RootNode;
 use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
@@ -1301,5 +1305,120 @@ final class ImageResolverServiceTest extends TestCase
         self::assertNull(
             $this->callPrivateMethod($this->service, 'getLazyLoadingConfiguration', [$request]),
         );
+    }
+
+    // ========================================================================
+    // File visibility: files in non-public storages are blocked
+    // ========================================================================
+
+    /**
+     * @return File&MockObject
+     */
+    private function createFileInStorageMock(bool $storageIsPublic): File
+    {
+        $storageMock = $this->createMock(ResourceStorage::class);
+        $storageMock->method('isPublic')->willReturn($storageIsPublic);
+        $storageMock->method('getUid')->willReturn(2);
+
+        $fileMock = $this->createFileMock(['width' => 100, 'height' => 100]);
+        $fileMock->method('getStorage')->willReturn($storageMock);
+
+        return $fileMock;
+    }
+
+    #[Test]
+    public function resolveThrowsNonPublicFileExceptionAndLogsWarningForFileInNonPublicStorage(): void
+    {
+        $loggerMock     = $this->createMock(LoggerInterface::class);
+        $logManagerMock = $this->createMock(LogManager::class);
+        $logManagerMock->method('getLogger')->willReturn($loggerMock);
+
+        $service = new ImageResolverService(
+            $this->resourceFactoryMock,
+            $this->processedFilesHandlerMock,
+            $this->svgSanitizerMock,
+            $logManagerMock,
+        );
+
+        $this->resourceFactoryMock
+            ->expects(self::once())
+            ->method('getFileObject')
+            ->with(2)
+            ->willReturn($this->createFileInStorageMock(false));
+
+        $this->processedFilesHandlerMock->expects(self::never())->method('createProcessedFile');
+
+        $loggerMock
+            ->expects(self::once())
+            ->method('log')
+            ->with(
+                PsrLogLevel::WARNING,
+                'Blocked rendering of non-public file in frontend context',
+                ['fileUid' => 2, 'storage' => 2],
+            );
+
+        $this->expectException(NonPublicFileException::class);
+
+        $service->resolve(
+            ['data-htmlarea-file-uid' => '2', 'src' => '/protected/secret.jpg'],
+            [],
+            $this->createMock(ServerRequestInterface::class),
+        );
+    }
+
+    #[Test]
+    public function resolveReturnsNullWhenFileDoesNotExist(): void
+    {
+        $this->resourceFactoryMock
+            ->method('getFileObject')
+            ->willThrowException(new FileDoesNotExistException());
+
+        self::assertNull($this->service->resolve(
+            ['data-htmlarea-file-uid' => '999'],
+            [],
+            $this->createMock(ServerRequestInterface::class),
+        ));
+    }
+
+    #[Test]
+    public function isNonPublicFileReturnsTrueForFileInNonPublicStorage(): void
+    {
+        $this->resourceFactoryMock
+            ->expects(self::once())
+            ->method('getFileObject')
+            ->with(2)
+            ->willReturn($this->createFileInStorageMock(false));
+
+        self::assertTrue($this->service->isNonPublicFile(2));
+    }
+
+    #[Test]
+    public function isNonPublicFileReturnsFalseForFileInPublicStorage(): void
+    {
+        $this->resourceFactoryMock
+            ->expects(self::once())
+            ->method('getFileObject')
+            ->with(1)
+            ->willReturn($this->createFileInStorageMock(true));
+
+        self::assertFalse($this->service->isNonPublicFile(1));
+    }
+
+    #[Test]
+    public function isNonPublicFileReturnsFalseWhenFileCannotBeLoaded(): void
+    {
+        $this->resourceFactoryMock
+            ->method('getFileObject')
+            ->willThrowException(new FileDoesNotExistException());
+
+        self::assertFalse($this->service->isNonPublicFile(999));
+    }
+
+    #[Test]
+    public function isNonPublicFileReturnsFalseWithoutLookupForInvalidUid(): void
+    {
+        $this->resourceFactoryMock->expects(self::never())->method('getFileObject');
+
+        self::assertFalse($this->service->isNonPublicFile(0));
     }
 }

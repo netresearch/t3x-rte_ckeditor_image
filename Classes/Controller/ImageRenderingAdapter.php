@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Controller;
 
 use Netresearch\RteCKEditorImage\Domain\Model\ImageRenderingDto;
+use Netresearch\RteCKEditorImage\Service\Exception\NonPublicFileException;
 use Netresearch\RteCKEditorImage\Service\ImageAttributeParser;
 use Netresearch\RteCKEditorImage\Service\ImageRenderingService;
 use Netresearch\RteCKEditorImage\Service\ImageResolverService;
@@ -128,6 +129,12 @@ class ImageRenderingAdapter
         // data-htmlarea-file-uid attribute, preventing renderFigure() from resolving
         // the file later.
         if (isset($attributes['data-caption']) && $attributes['data-caption'] !== '') {
+            // SECURITY: the original tag carries the file's public URL. A file in a
+            // non-public storage must not be output, whichever handler would render it.
+            if ($this->resolverService->isNonPublicFile($fileUid)) {
+                return '';
+            }
+
             return $this->getOriginalImageTag();
         }
 
@@ -140,7 +147,12 @@ class ImageRenderingAdapter
         );
 
         // Resolve image to validated DTO
-        $dto = $this->resolverService->resolve($stringAttributes, $conf, $request);
+        try {
+            $dto = $this->resolverService->resolve($stringAttributes, $conf, $request);
+        } catch (NonPublicFileException) {
+            // SECURITY: file in a non-public storage - render nothing, not the original tag
+            return '';
+        }
 
         if (!$dto instanceof ImageRenderingDto) {
             // Resolution failed - return original content
@@ -306,6 +318,15 @@ class ImageRenderingAdapter
             $classTokens = is_array($splitResult) ? $splitResult : [];
 
             if (!in_array('image-inline', $classTokens, true)) {
+                // SECURITY: a skipped image keeps its original tag, which carries the
+                // file's public URL - remove it if the file is in a non-public storage
+                if (
+                    $this->resolverService->isNonPublicFile($fileUid)
+                    && !$this->removeNonPublicImage($linkContent, $originalHtml, $replacements)
+                ) {
+                    return '';
+                }
+
                 // Not an inline image - skip and let renderFigure handle it
                 continue;
             }
@@ -320,7 +341,16 @@ class ImageRenderingAdapter
             );
 
             // Resolve image to DTO (no link attributes - image is already in a link)
-            $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
+            try {
+                $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
+            } catch (NonPublicFileException) {
+                // SECURITY: drop the image, keep the link and its other content
+                if (!$this->removeNonPublicImage($linkContent, $originalHtml, $replacements)) {
+                    return '';
+                }
+
+                continue;
+            }
 
             if (!$dto instanceof ImageRenderingDto) {
                 continue;
@@ -344,6 +374,27 @@ class ImageRenderingAdapter
 
         // Reconstruct the <a> wrapper with processed content
         return $this->wrapInLink($processedContent, $linkAttributes);
+    }
+
+    /**
+     * Schedule an image of a file in a non-public storage for removal from link content.
+     *
+     * @param string                $content      Link content the replacements are applied to
+     * @param string                $originalHtml Image markup as found by the parser
+     * @param array<string, string> $replacements Replacement map, extended by reference
+     *
+     * @return bool False if the image cannot be located in the content; the caller must
+     *              then output nothing for the link, as the image cannot be removed reliably
+     */
+    private function removeNonPublicImage(string $content, string $originalHtml, array &$replacements): bool
+    {
+        if ($originalHtml === '' || !str_contains($content, $originalHtml)) {
+            return false;
+        }
+
+        $replacements[$originalHtml] = '';
+
+        return true;
     }
 
     /**
@@ -567,6 +618,15 @@ class ImageRenderingAdapter
             $classTokens = is_array($splitResult) ? $splitResult : [];
 
             if (!in_array('image-inline', $classTokens, true)) {
+                // SECURITY: a skipped image keeps its original tag, which carries the
+                // file's public URL - remove it if the file is in a non-public storage
+                if (
+                    $this->resolverService->isNonPublicFile($fileUid)
+                    && !$this->removeNonPublicImage($innerContent, $originalHtml, $replacements)
+                ) {
+                    return '';
+                }
+
                 continue;
             }
 
@@ -578,7 +638,16 @@ class ImageRenderingAdapter
             );
 
             // Resolve and render the image
-            $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
+            try {
+                $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
+            } catch (NonPublicFileException) {
+                // SECURITY: drop the image, keep the link and its other content
+                if (!$this->removeNonPublicImage($innerContent, $originalHtml, $replacements)) {
+                    return '';
+                }
+
+                continue;
+            }
 
             if (!$dto instanceof ImageRenderingDto) {
                 continue;
@@ -785,7 +854,13 @@ class ImageRenderingAdapter
         $figureWidthOrNull    = $figureWidth !== '' ? $figureWidth : null;
 
         // Resolve image to validated DTO
-        $dto = $this->resolverService->resolve($imageAttributes, $conf, $request, $linkAttributesOrNull, $figureClassOrNull, $figureWidthOrNull);
+        try {
+            $dto = $this->resolverService->resolve($imageAttributes, $conf, $request, $linkAttributesOrNull, $figureClassOrNull, $figureWidthOrNull);
+        } catch (NonPublicFileException) {
+            // SECURITY: file in a non-public storage - drop the whole figure
+            // (image, link and caption), not only the image
+            return '';
+        }
 
         if (!$dto instanceof ImageRenderingDto) {
             // Resolution failed - return original content
