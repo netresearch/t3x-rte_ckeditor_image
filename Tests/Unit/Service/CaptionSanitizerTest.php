@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Service;
 
+use DOMDocument;
 use Netresearch\RteCKEditorImage\Service\CaptionSanitizer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -58,10 +59,10 @@ final class CaptionSanitizerTest extends UnitTestCase
             'mailto and tel'          => ['<a href="mailto:a@example.com">m</a> <a href="tel:+491">t</a>', '<a href="mailto:a@example.com">m</a> <a href="tel:+491">t</a>'],
             'formatted link text'     => ['<a href="/p"><strong>x</strong></a>', '<a href="/p"><strong>x</strong></a>'],
             'umlauts'                 => ['Grüße <b>ÄÖÜß</b>', 'Grüße <b>ÄÖÜß</b>'],
-            'encoded special chars'   => ['Tom &amp; Jerry &lt;3 &quot;q&quot;', 'Tom &amp; Jerry &lt;3 "q"'],
+            'encoded special chars'   => ['Tom &amp; Jerry &lt;3 &quot;q&quot;', 'Tom &amp; Jerry &lt;3 &quot;q&quot;'],
             'bare ampersand'          => ['A & B', 'A &amp; B'],
-            'attribute with quote'    => ['<a href="/p" title="a&quot;b">x</a>', '<a href="/p" title=\'a"b\'>x</a>'],
-            'attribute with quotes'   => ['<a href="/p" title="a&quot;b\'c">x</a>', '<a href="/p" title="a&quot;b\'c">x</a>'],
+            'attribute with quote'    => ['<a href="/p" title="a&quot;b">x</a>', '<a href="/p" title="a&quot;b">x</a>'],
+            'attribute with quotes'   => ['<a href="/p" title="a&quot;b\'c">x</a>', '<a href="/p" title="a&quot;b&apos;c">x</a>'],
         ];
     }
 
@@ -136,7 +137,6 @@ final class CaptionSanitizerTest extends UnitTestCase
             'allowed inside disallowed' => ['<u><b>bold</b> under</u>', 'bold under'],
             'unclosed allowed tag'      => ['<strong>bold', '<strong>bold</strong>'],
             'unclosed disallowed tag'   => ['x <span onclick="alert(1)">y', 'x y'],
-            'unclosed attribute'        => ['<a href="https://example.com/a onclick=alert(1)>x', '<a href="https://example.com/a%20onclick=alert(1)&gt;x"></a>'],
             'comment dropped'           => ['a<!-- <script>alert(1)</script> -->b', 'ab'],
             'javascript href'           => ['<a href="javascript:alert(1)">Evil</a>', 'Evil'],
             'uppercase javascript href' => ['<a href="JaVaScRiPt:alert(1)">Evil</a>', 'Evil'],
@@ -173,6 +173,36 @@ final class CaptionSanitizerTest extends UnitTestCase
 
         self::assertStringNotContainsString('javascript:', $result);
         self::assertStringNotContainsString('&colon;', str_replace('&amp;colon;', '', $result));
+    }
+
+    /**
+     * How libxml recovers from an unclosed attribute differs between versions
+     * (the link is kept with the rest as its href, or dropped). Both are safe:
+     * assert that no element and no attribute outside the allowlist survives.
+     */
+    #[Test]
+    public function unclosedAttributeNeverYieldsAnEventHandler(): void
+    {
+        $result = CaptionSanitizer::sanitize(
+            '<a href="https://example.com/a onclick=alert(1)>x',
+            static fn (string $href): string => $href,
+        );
+
+        $document = new DOMDocument();
+        $previous = libxml_use_internal_errors(true);
+        $document->loadHTML('<!DOCTYPE html><html><body>' . $result . '</body></html>');
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+
+        foreach ($document->getElementsByTagName('body')->item(0)?->getElementsByTagName('*') ?? [] as $element) {
+            self::assertContains($element->nodeName, ['a', 'br', 'strong', 'b', 'em', 'i']);
+
+            foreach ($element->attributes ?? [] as $attribute) {
+                self::assertContains($attribute->nodeName, ['href', 'target', 'title', 'rel']);
+            }
+        }
+
+        self::assertSame($result, CaptionSanitizer::sanitize($result, static fn (string $href): string => $href));
     }
 
     #[Test]

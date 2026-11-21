@@ -25,8 +25,10 @@ use DOMText;
  * The input is parsed with DOMDocument and the output is built as a new
  * document from the allowed nodes only; text is written as text nodes and
  * attribute values via setAttribute(), so nothing of the input is copied as
- * markup. Serialisation by DOMDocument::saveHTML() encodes <, > and & in
- * text and quotes in attribute values.
+ * markup. The clean tree is serialised by serializeChildren(), not by libxml,
+ * so the output does not depend on the libxml version: element and attribute
+ * names come from the allowlist and every text and attribute value is
+ * escaped with htmlspecialchars().
  *
  * The caller decides which link targets are allowed: $hrefFilter receives
  * the trimmed href and returns the href to write, or null to replace the
@@ -46,6 +48,13 @@ final class CaptionSanitizer
      * @var list<string>
      */
     private const ALLOWED_ELEMENTS = ['br', 'strong', 'b', 'em', 'i', 'a'];
+
+    /**
+     * Attributes written on a link, in output order.
+     *
+     * @var list<string>
+     */
+    private const LINK_ATTRIBUTES = ['href', 'target', 'title', 'rel'];
 
     /**
      * @param string                   $html       Inner HTML of a figcaption
@@ -84,13 +93,58 @@ final class CaptionSanitizer
 
         self::copyChildren($body, $container, $hrefFilter, false);
 
-        $result = '';
+        return trim(self::serializeChildren($container));
+    }
 
-        foreach ($container->childNodes as $child) {
-            $result .= $target->saveHTML($child);
+    /**
+     * Serialise the children of a node built by copyChildren().
+     *
+     * Only allowlisted elements and attributes can occur in that tree.
+     */
+    private static function serializeChildren(DOMNode $node): string
+    {
+        $html = '';
+
+        foreach ($node->childNodes as $child) {
+            if ($child instanceof DOMText) {
+                $html .= self::escape($child->data);
+
+                continue;
+            }
+
+            if (!$child instanceof DOMElement) {
+                continue; // @codeCoverageIgnore
+            }
+
+            $name = $child->nodeName;
+
+            if (!in_array($name, self::ALLOWED_ELEMENTS, true)) {
+                continue; // @codeCoverageIgnore
+            }
+
+            if ($name === 'br') {
+                $html .= '<br>';
+
+                continue;
+            }
+
+            $html .= '<' . $name;
+
+            foreach (self::LINK_ATTRIBUTES as $attribute) {
+                if ($name === 'a' && $child->hasAttribute($attribute)) {
+                    $html .= ' ' . $attribute . '="' . self::escape($child->getAttribute($attribute)) . '"';
+                }
+            }
+
+            $html .= '>' . self::serializeChildren($child) . '</' . $name . '>';
         }
 
-        return trim($result);
+        return $html;
+    }
+
+    private static function escape(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
     }
 
     /**
