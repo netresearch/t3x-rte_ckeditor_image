@@ -199,11 +199,17 @@ resolve()
     :caption: Resolving image attributes to DTO
 
     $resolver = GeneralUtility::makeInstance(ImageResolverService::class);
-    $dto = $resolver->resolve(
-        $attributes,
-        $typoScriptConfig,
-        $request
-    );
+
+    try {
+        $dto = $resolver->resolve(
+            $attributes,
+            $typoScriptConfig,
+            $request
+        );
+    } catch (NonPublicFileException) {
+        // File is in a non-public storage - render nothing
+        return '';
+    }
 
     if ($dto === null) {
         // Validation failed - return original content

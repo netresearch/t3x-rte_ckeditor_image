@@ -36,8 +36,8 @@ This checklist ensures all security measures from the current implementation are
 ```php
 // Test: Non-public file blocked
 $fileUid = 123; // Points to file in non-public storage
+$this->expectException(NonPublicFileException::class);
 $dto = $imageResolverService->resolve(['data-htmlarea-file-uid' => $fileUid], ...);
-$this->assertNull($dto); // resolve() catches exceptions and returns null
 
 // Test: Public file allowed
 $fileUid = 456; // Points to file in public storage (fileadmin)
@@ -277,7 +277,7 @@ $this->assertStringContainsString('&quot;', $html);
 2. **Privilege Escalation:**
    ```
    Action: Render image from non-public storage as non-admin user
-   Expected: resolve() returns null and logs a warning; ImageRenderingAdapter::renderImageAttributes() then returns the original tag unprocessed
+   Expected: NonPublicFileException, nothing rendered, security log entry
    ```
 
 3. **ReDoS Attack:**

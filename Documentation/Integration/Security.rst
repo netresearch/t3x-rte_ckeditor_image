@@ -89,6 +89,8 @@ If the file is in a non-public storage, nothing is rendered for it:
 a standalone image is removed,
 a figure is removed together with its link and caption,
 and an image inside a text link is removed while the link and its text stay.
+A link whose only content is a blocked image stays,
+and typolink shows its URL as the link text.
 
 XSS prevention
 ==============
