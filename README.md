@@ -411,8 +411,11 @@ Release tags are **signed with an SSH key** and ship with **SLSA Level 3** prove
 
 ### Verify tag signature
 
+GitHub shows a **Verified** badge on each signed tag. To verify locally, git needs an allowed-signers file that maps the signer's e-mail address to the public SSH key published at `https://github.com/<signer>.keys`:
+
 ```bash
-git tag -v <release-tag>
+# allowed_signers holds one line per key: <signer-email> <public-ssh-key>
+git -c gpg.ssh.allowedSignersFile=allowed_signers tag -v <release-tag>
 ```
 
 ### Verify SLSA provenance

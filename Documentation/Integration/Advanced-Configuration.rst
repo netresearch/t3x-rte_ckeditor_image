@@ -81,8 +81,9 @@ an image or inserts a new one:
    * - **Quality (Scaling)**
      - Dropdown: No Scaling, Standard (1.0x), Retina (2.0x), Ultra (3.0x), Print (6.0x).
        Images without a stored quality (new or older content) open with Retina
-       (2.0x) selected; SVG images default to Print and the dropdown is
-       disabled for them.
+       (2.0x) selected; older images with the legacy ``data-noscale``
+       attribute open with No Scaling. SVG images default to Print and the
+       dropdown is disabled for them.
 
    * - **Title**
      - Advisory title attribute. Checkbox toggles override of FAL metadata default.

@@ -63,6 +63,11 @@ CKEditor Plugin Extension
    The image dialog has no extension point for extra fields.
    The plugin fires no dialog event; the only custom event it fires is
    ``dblclick:typo3image``, which opens the built-in dialog.
+   Saving the dialog creates the image model element again from the dialog
+   fields, so attributes added this way are lost once an editor edits the
+   image in the dialog.
+   Inline images use the separate ``typo3imageInline`` model, which needs
+   its own ``schema.extend()`` and converters.
 
 Register Plugin
 ~~~~~~~~~~~~~~~
@@ -79,7 +84,7 @@ TYPO3's RTE also accepts the module as a plain string, but integrations that
 read the preset themselves, such as the Visual Editor of FriendsOfTYPO3, expect
 the ``{ module, exports }`` form.
 
-**Result**: Custom image metadata fields ✅
+**Result**: Custom attributes survive loading and saving the content, but not editing the image in the dialog.
 
 External Image Handling
 =======================
