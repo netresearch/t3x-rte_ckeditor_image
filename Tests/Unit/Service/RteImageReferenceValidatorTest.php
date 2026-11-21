@@ -605,6 +605,54 @@ class RteImageReferenceValidatorTest extends TestCase
     }
 
     #[Test]
+    public function applyFixesNeverEditsInsideAnAttributeValueForOrphanedFileUid(): void
+    {
+        // Security regression: the attribute name inside another quoted value must
+        // be left alone; only the real attribute is removed and quoting stays intact.
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::OrphanedFileUid,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 999,
+                currentSrc: '/fileadmin/deleted.jpg',
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+        ];
+
+        $html = '<p><img alt=\'x data-htmlarea-file-uid="1\' title="t" data-htmlarea-file-uid="999" src="/fileadmin/deleted.jpg" /></p>';
+
+        self::assertSame(
+            '<p><img alt=\'x data-htmlarea-file-uid="1\' title="t" src="/fileadmin/deleted.jpg" /></p>',
+            $this->invokeApplyFixes($html, $issues),
+        );
+    }
+
+    #[Test]
+    public function applyFixesLeavesUnparsableTagUnchangedForOrphanedFileUid(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::OrphanedFileUid,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 999,
+                currentSrc: '/fileadmin/deleted.jpg',
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+        ];
+
+        // Unbalanced quote: the tag cannot be read completely, so it is not rewritten.
+        $html = '<p><img data-htmlarea-file-uid="999" alt="broken src="/fileadmin/deleted.jpg" /></p>';
+
+        self::assertSame($html, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
     public function applyFixesRemovesOrphanedFileUidOnlyFromMatchingImage(): void
     {
         $issues = [
