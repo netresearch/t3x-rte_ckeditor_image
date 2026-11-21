@@ -67,7 +67,7 @@ If your editorial workflow needs **inline images inside paragraphs** — with al
 - **Image properties dialog** — width, height, alt, title, with automatic aspect-ratio locking.
 - **Quality selector** — choose **No Scaling**, **Standard (1.0x)**, **Retina (2.0x)**, **Ultra (3.0x)**, or **Print (6.0x)** per image; persisted as `data-quality` so behaviour is reproducible across re-edits.
 - **True inline images** — cursor positioning before/after the image, mid-paragraph insertion, and round-trip-safe save/load.
-- **SVG support** — intelligent dimension extraction from `viewBox` and width/height attributes; original vectors used as-is.
+- **SVG support** — dimensions taken from the file's FAL metadata; original vectors used as-is, never rasterized.
 
 ### Frontend rendering
 
@@ -87,7 +87,7 @@ If your editorial workflow needs **inline images inside paragraphs** — with al
 
 ### Quality & security
 
-- **PSR-14 events** for extensibility at every rendering decision point.
+- **PSR-14 listeners** on TYPO3 core events (soft reference registration, preview renderer, image references after file move/rename); the extension dispatches no events of its own.
 - **Defense-in-depth security**: caption XSS sanitization, file-visibility validation, URL protocol allowlist (`http`, `https`, `mailto`, `tel`, `t3`), SVG sanitization, SSRF protection on external image fetch, and `style`-attribute exclusion.
 - **PHPStan level 10**, strict-rules, deprecation-rules, [phpat](https://github.com/carlosas/phpat) architecture rules — **zero baseline errors**.
 - **SLSA Level 3** provenance attestation, signed release tags, [OpenSSF Best Practices](https://www.bestpractices.dev/projects/11718) participation.
@@ -111,7 +111,7 @@ The `main` branch targets the current TYPO3 LTS releases. Earlier TYPO3 versions
 
 | TYPO3 | Extension branch | Latest release | PHP | Status |
 |-------|------------------|----------------|-----|--------|
-| **13.4 LTS / 14.3 LTS** | [`main`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/main) | 13.10.0 | 8.2 – 8.6 | **Actively maintained** (CKEditor 5) |
+| **13.4 LTS / 14.3 LTS** | [`main`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/main) | 13.10.5 | 8.2 – 8.6 | **Actively maintained** (CKEditor 5) |
 | **12.4 LTS** | [`TYPO3_12`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_12) | 12.0.12 | 8.1+ | Maintained (bugfixes) |
 | **11.5 LTS** | [`TYPO3_11`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_11) | 11.0.17 | 7.4+ | End of life — available, no further updates |
 | **10.4 LTS** | [`TYPO3_10`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_10) | 10.2.5 | — | End of life — available, no further updates |
@@ -216,25 +216,27 @@ The snippets below cover the configuration questions that arrive most often. The
 
 ### Set maximum width / height
 
-Magic Images obey the limits configured in Page TSConfig. Defaults are conservative — raise them for editorial sites with large hero images:
+When an editor selects an image, the image dialog suggests display dimensions within the limits configured in Page TSConfig (read from `RTE.default.buttons.image.options.magic`):
 
 ```typoscript
 # Page TSConfig
 RTE.default.buttons.image.options.magic {
-    # Default: 300
+    # Default: 1920
     maxWidth = 1020
-    # Default: 1000
+    # Default: 9999
     maxHeight = 800
 }
 ```
 
 > If TSConfig from a custom template extension does not take effect, place the settings directly on the root page record.
 
-### Lightbox via fluid_styled_content
+### CSS class for click-to-enlarge links
+
+Images with **Enlarge** enabled link to the original file. Set the link class for your lightbox library:
 
 ```typoscript
-# Template Constants
-styles.content.textmedia.linkWrap.lightboxEnabled = 1
+# TypoScript Setup
+lib.contentElement.settings.media.popup.linkClass = lightbox
 ```
 
 ### Default CSS class for every RTE image
@@ -276,13 +278,19 @@ The choice is stored in the `data-quality` HTML attribute, so it survives re-edi
 For all-original-images integrations (newsletter exports, PDF-bound content), keep originals globally:
 
 ```typoscript
-# TypoScript Setup — enable globally for all RTE images
-lib.parseFunc_RTE.tags.img.noScale = 1
+# TypoScript Setup — standalone images (tags.img) and captioned images (figure handler).
+# The options must sit inside preUserFunc: TYPO3 passes only that block to the renderer.
+lib.parseFunc_RTE.tags.img.preUserFunc.noScale = 1
+# Images with a caption are rendered by the figure handler and need the same setting
+lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc.noScale = 1
+```
 
-# Optional safety net: do not serve very large originals silently
-lib.parseFunc_RTE.tags.img.noScale {
-    maxFileSizeForAuto = 2000000  # 2 MB
-}
+Without `noScale`, processing is still skipped when the requested dimensions equal the original. `maxFileSizeForAuto` (bytes) forces processing in that case for files above the limit. It has no effect while `noScale = 1` is set:
+
+```typoscript
+# 2 MB
+lib.parseFunc_RTE.tags.img.preUserFunc.noScale.maxFileSizeForAuto = 2000000
+lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc.noScale.maxFileSizeForAuto = 2000000
 ```
 
 The modern, per-image equivalent is the Quality selector set to **No Scaling** — better UX, same effect (`data-quality="none"`). Processing is skipped automatically when requested dimensions equal the original, when the file is an SVG, or when Quality is set to **No Scaling**.
@@ -373,13 +381,14 @@ The DDEV environment is preconfigured for testing image insertion in the RTE, cl
 
 ```bash
 composer install
-make help                    # Show all available targets
-
-make lint                    # Run all linters (phplint + phpstan + rector + cgl + docs)
-make format                  # Auto-fix code style (php-cs-fixer)
-make test                    # Run tests
-make ci                      # Full CI pipeline (pre-commit equivalent)
+composer ci:test                  # All checks: lint, phpstan, rector, cgl, unit, JS unit, functional
+composer ci:test:php:unit         # Unit tests
+composer ci:test:php:functional   # Functional tests (needs typo3DatabaseDriver=pdo_sqlite)
+composer ci:cgl                   # Auto-fix code style (php-cs-fixer)
+make docs-lint                    # Lint documentation
 ```
+
+After `composer install`, `make help` also lists the shared targets from `netresearch/typo3-ci-workflows` (for example `make cgl-fix`, `make test`, `make ci`).
 
 The full development guide — code standards, CI matrix, PR checklist, security boundaries — lives in [AGENTS.md](AGENTS.md).
 
@@ -398,7 +407,7 @@ The full development guide — code standards, CI matrix, PR checklist, security
 
 ## Verifying releases
 
-Every release tag is **GPG-signed** and ships with **SLSA Level 3** provenance attestation for supply-chain integrity.
+Release tags are **signed with an SSH key** and ship with **SLSA Level 3** provenance attestation for supply-chain integrity.
 
 ### Verify tag signature
 
@@ -430,7 +439,7 @@ Contributions of code, documentation, translations, and bug reports are welcome.
 Before opening a PR, please:
 
 1. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow, branch model, and commit conventions ([Conventional Commits](https://www.conventionalcommits.org/), validated by commitlint).
-2. Run `make ci` locally to mirror the pre-commit and CI checks.
+2. Run `composer ci:test` locally to mirror the pre-commit and CI checks.
 3. Add tests for new code paths — unit, functional, or E2E as appropriate.
 4. Keep PRs focused (~300 net LOC is a good target).
 

@@ -15,83 +15,17 @@ Examples for writing functional and unit tests for the CKEditor Image Support ex
    :depth: 3
    :local:
 
-Functional Test
-===============
+Test Suites in the Extension
+============================
 
-Controller Test Example
------------------------
+The extension's own tests are the reference for writing tests against it:
 
-.. code-block:: php
-   :caption: Tests/Functional/Controller/SelectImageControllerTest.php
+- ``Tests/Functional/Controller/SelectImageControllerTest.php`` - image dialog controller
+- ``Tests/Functional/Controller/ImageRenderingAdapterTypoScriptTest.php`` - frontend rendering via TypoScript
+- ``Tests/Unit/Database/RteImagesDbHookTest.php`` - DataHandler hook
 
-   namespace Netresearch\RteCKEditorImage\Tests\Functional\Controller;
-
-   use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
-
-   class SelectImageControllerTest extends FunctionalTestCase
-   {
-       protected $testExtensionsToLoad = [
-           'typo3conf/ext/rte_ckeditor_image'
-       ];
-
-       /**
-        * @test
-        */
-       public function infoActionReturnsJsonForValidFile(): void
-       {
-           // Import test data
-           $this->importDataSet(__DIR__ . '/Fixtures/sys_file.xml');
-
-           // Create request
-           $request = $this->createRequest('/typo3/rte/wizard/selectimage')
-               ->withQueryParams([
-                   'action' => 'info',
-                   'fileId' => 1,
-                   'table' => 'sys_file'
-               ]);
-
-           // Execute
-           $response = $this->executeFrontendRequest($request);
-
-           // Assert
-           self::assertEquals(200, $response->getStatusCode());
-
-           $json = json_decode((string)$response->getBody(), true);
-           self::assertArrayHasKey('uid', $json);
-           self::assertArrayHasKey('url', $json);
-           self::assertEquals(1, $json['uid']);
-       }
-   }
-
-Unit Test
-=========
-
-Database Hook Test Example
----------------------------
-
-.. code-block:: php
-   :caption: Tests/Unit/Database/RteImagesDbHookTest.php
-
-   namespace Netresearch\RteCKEditorImage\Tests\Unit\Database;
-
-   use Netresearch\RteCKEditorImage\Database\RteImagesDbHook;
-   use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
-
-   class RteImagesDbHookTest extends UnitTestCase
-   {
-       /**
-        * @test
-        */
-       public function processDatamapAddsImageAttributes(): void
-       {
-           $hook = new RteImagesDbHook(/* dependencies */);
-
-           $fieldArray = ['bodytext' => '<img src="/fileadmin/image.jpg" />'];
-           $hook->processDatamap_postProcessFieldArray('new', 'tt_content', '1', $fieldArray, $dataHandler);
-
-           self::assertStringContainsString('alt=', $fieldArray['bodytext']);
-       }
-   }
+They use the TYPO3 testing framework with PHPUnit attributes (``#[Test]``).
+Functional tests that need records load CSV fixtures with ``importCSVDataSet()``.
 
 Run Tests
 =========
@@ -101,11 +35,11 @@ Execute Test Suites
 
 .. code-block:: bash
 
-   # Functional tests
-   ./vendor/bin/phpunit -c Build/phpunit-functional.xml
+   # Unit tests (Build/phpunit/UnitTests.xml)
+   composer ci:test:php:unit
 
-   # Unit tests
-   ./vendor/bin/phpunit -c Build/phpunit-unit.xml
+   # Functional tests (Build/phpunit/FunctionalTests.xml, needs typo3DatabaseDriver=pdo_sqlite)
+   composer ci:test:php:functional
 
 **Result**: Automated testing suite ✅
 
