@@ -81,8 +81,12 @@ Six categories of issues are detected:
 For fixable issues the validator replaces the ``src`` attribute with the file's
 current ``getPublicUrl()`` value. For ``orphaned_file_uid`` it removes the
 stale ``data-htmlarea-file-uid`` attribute and keeps the ``src`` unchanged,
-because the underlying file no longer exists. A later scan reports such an
-image as ``missing_file_uid``, which needs manual intervention.
+because the underlying file no longer exists. Such an image needs manual
+intervention. A later scan reports it as ``missing_file_uid`` only while the
+record still has a reference index entry: ``referenceindex:update`` drops the
+entry of a record whose only images were orphaned, and the validator then no
+longer scans that record. Note the ``orphaned_file_uid`` records from a
+``--dry-run`` before you apply ``--fix``.
 
 Prerequisites
 =============
