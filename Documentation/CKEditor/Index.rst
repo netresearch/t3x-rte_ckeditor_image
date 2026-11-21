@@ -87,11 +87,33 @@ The plugin **requires** these CKEditor dependencies:
 .. code-block:: javascript
 
    static get requires() {
-       return ['StyleUtils', 'GeneralHtmlSupport'];
+       return ['StyleUtils', 'GeneralHtmlSupport', 'WidgetToolbarRepository'];
    }
 
 .. warning::
-   Missing either dependency will disable style functionality. See :ref:`ckeditor-style-integration` for details.
+   Missing ``StyleUtils`` or ``GeneralHtmlSupport`` will disable style functionality. See :ref:`ckeditor-style-integration` for details.
+
+Toolbar Items and Commands
+--------------------------
+
+The plugin registers these UI components (``editor.ui.componentFactory``):
+
+- ``insertimage``: main toolbar button; opens the image browser, or the image
+  dialog when a block image is selected
+- ``editTypo3Image``: opens the image dialog for the selected image
+- ``toggleImageCaption``: shows or hides the caption of a block image
+- ``toggleImageType``: switches between block and inline image
+- ``imageStyle:image-left``, ``imageStyle:image-center``,
+  ``imageStyle:image-right``, ``imageStyle:image-block``: alignment buttons
+- ``imageStyle:image-inline``: registered as well, but not on the balloon
+  toolbar
+
+The image balloon toolbar (``WidgetToolbarRepository``) is fixed in
+``typo3image.js`` and contains ``editTypo3Image``, ``toggleImageCaption``,
+``toggleImageType`` and the four ``imageStyle:*`` buttons.
+
+Commands (``editor.execute()``): ``setImageStyle``, ``resizeImage``,
+``toggleImageCaption``, ``toggleImageType``.
 
 Related Documentation
 =====================

@@ -23,11 +23,13 @@ Plugin Overview
 .. code-block:: javascript
 
    static get requires() {
-       return ['StyleUtils', 'GeneralHtmlSupport'];
+       return ['StyleUtils', 'GeneralHtmlSupport', 'WidgetToolbarRepository'];
    }
 
 .. warning::
    Both ``StyleUtils`` and ``GeneralHtmlSupport`` are **mandatory**. Missing them causes style functionality to fail.
+
+``WidgetToolbarRepository`` provides the image balloon toolbar.
 
 Plugin Structure
 ================
@@ -38,7 +40,7 @@ Plugin Structure
        static pluginName = 'Typo3Image';
 
        static get requires() {
-           return ['StyleUtils', 'GeneralHtmlSupport'];
+           return ['StyleUtils', 'GeneralHtmlSupport', 'WidgetToolbarRepository'];
        }
 
        init() {
@@ -60,37 +62,49 @@ Schema Definition
 
    editor.model.schema.register('typo3image', {
        inheritAllFrom: '$blockObject',
-       allowIn: ['$text', '$block'],
+       allowIn: ['$text'],
        allowAttributes: [
            'src', 'fileUid', 'fileTable',
            'alt', 'altOverride', 'title', 'titleOverride',
-           'class', 'enableZoom', 'width', 'height',
-           'htmlA', 'linkHref', 'linkTarget', 'linkTitle'
+           'class', 'enableZoom', 'noScale', 'width', 'height', 'quality',
+           'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle',
+           'imageLinkClass', 'imageLinkParams', 'imageLinkAttributes'
        ],
    });
+
+A block image is not allowed inside a paragraph.
+Images that flow with text use the separate model element ``typo3imageInline``
+(``inheritAllFrom: '$inlineObject'``) with the same attributes.
+The link attributes use the prefix ``imageLink`` on purpose: ``htmlA`` and the
+link plugin's ``link*`` attributes are not allowed, so that no second
+:html:`<a>` wrapper is created.
 
 Attribute Descriptions
 ----------------------
 
-================  ========  ===========================================
-Attribute         Type      Description
-================  ========  ===========================================
-src               string    Image source URL
-fileUid           number    TYPO3 FAL file UID
-fileTable         string    Database table (default: 'sys_file')
-alt               string    Alternative text
-altOverride       boolean   Alt text override flag
-title             string    Advisory title
-titleOverride     boolean   Title override flag
-class             string    CSS classes (space-separated)
-enableZoom        boolean   Zoom/clickenlarge functionality
-width             string    Image width
-height            string    Image height
-htmlA             string    Link wrapper HTML
-linkHref          string    Link URL
-linkTarget        string    Link target
-linkTitle         string    Link title
-================  ========  ===========================================
+====================  ========  ===========================================
+Attribute             Type      Description
+====================  ========  ===========================================
+src                   string    Image source URL
+fileUid               number    TYPO3 FAL file UID
+fileTable             string    Database table (default: 'sys_file')
+alt                   string    Alternative text
+altOverride           boolean   Alt text override flag
+title                 string    Advisory title
+titleOverride         boolean   Title override flag
+class                 string    CSS classes (space-separated)
+enableZoom            boolean   Zoom/clickenlarge functionality
+noScale               boolean   Skip image processing (original file)
+width                 string    Image width
+height                string    Image height
+quality               string    Quality multiplier (``data-quality``)
+imageLinkHref         string    Link URL
+imageLinkTarget       string    Link target
+imageLinkTitle        string    Link title
+imageLinkClass        string    Link CSS class
+imageLinkParams       string    Additional link parameters
+imageLinkAttributes   object    Further link attributes
+====================  ========  ===========================================
 
 Conversion System
 =================
@@ -98,14 +112,16 @@ Conversion System
 Upcast: HTML → Model
 --------------------
 
-Converts ``<img>`` elements with FAL attributes to ``typo3image`` model elements:
+Converts ``<img>`` elements with FAL attributes to ``typo3image`` model elements.
+This is a simplified example; the plugin registers several upcast converters
+(see :ref:`ckeditor-conversions`):
 
 .. code-block:: javascript
 
    editor.conversion.for('upcast').elementToElement({
        view: {
            name: 'img',
-           attributes: ['data-htmlarea-file-uid', 'src']
+           attributes: ['data-htmlarea-file-uid']
        },
        model: (viewElement, { writer }) => {
            return writer.createElement('typo3image', {
@@ -127,7 +143,11 @@ Converts ``<img>`` elements with FAL attributes to ``typo3image`` model elements
 Downcast: Model → HTML
 -----------------------
 
-Converts ``typo3image`` model elements to ``<img>`` HTML:
+Converts ``typo3image`` model elements to ``<img>`` HTML.
+This is a simplified example: the plugin has separate editing and data
+downcasts, and the data downcast wraps the ``<img>`` in
+``<figure class="image ...">`` when the image has a caption or a class
+(see :ref:`ckeditor-conversions`):
 
 .. code-block:: javascript
 
@@ -143,7 +163,7 @@ Converts ``typo3image`` model elements to ``<img>`` HTML:
                'data-htmlarea-file-table': modelElement.getAttribute('fileTable'),
                'width': modelElement.getAttribute('width'),
                'height': modelElement.getAttribute('height'),
-               'class': modelElement.getAttribute('class') || '',
+               // class is applied to the <figure> wrapper, not to the <img>
                'title': modelElement.getAttribute('title') || '',
                'alt': modelElement.getAttribute('alt') || '',
            };
@@ -226,7 +246,7 @@ Opens TYPO3 Modal with file browser:
        const promise = new Promise((resolve) => { resolvePromise = resolve; });
 
        const bparams = ['', '', '', ''];
-       const contentUrl = editor.config.get('style').typo3image.routeUrl
+       const contentUrl = editor.config.get('typo3image').routeUrl
            + '&contentsLanguage=en&editorId=123&bparams=' + bparams.join('|');
 
        const modal = Modal.advanced({
@@ -433,7 +453,7 @@ Custom observer for double-click detection:
        }
 
        onDomEvent(domEvent) {
-           this.fire(domEvent.type, domEvent);
+           this.fire('dblclick:typo3image', domEvent);
        }
    }
 
@@ -441,7 +461,7 @@ Custom observer for double-click detection:
    editor.editing.view.addObserver(DoubleClickObserver);
 
    // Listen for double-click
-   editor.listenTo(editor.editing.view.document, 'dblclick', (event, data) => {
+   editor.listenTo(editor.editing.view.document, 'dblclick:typo3image', (event, data) => {
        const modelElement = editor.editing.mapper.toModelElement(data.target);
        if (modelElement && modelElement.name === 'typo3image') {
            // Open edit dialog
@@ -452,18 +472,19 @@ Custom observer for double-click detection:
 Click Handler
 -------------
 
-Single-click selects image:
+The plugin selects the clicked image (block or inline) with its own click
+listener (priority ``highest``).
+A second listener with high priority stops the event when an image widget is
+selected, so that the link balloon does not open over the image toolbar:
 
 .. code-block:: javascript
 
-   editor.listenTo(editor.editing.view.document, 'click', (event, data) => {
-       const modelElement = editor.editing.mapper.toModelElement(data.target);
-       if (modelElement && modelElement.name === 'typo3image') {
-           editor.model.change(writer => {
-               writer.setSelection(modelElement, 'on');
-           });
+   this.listenTo(viewDocument, 'click', (evt, data) => {
+       if (isSelectedTypo3ImageWidget()) {
+           evt.stop();
+           data.preventDefault();
        }
-   });
+   }, { priority: 'high' });
 
 Backend API Integration
 =======================
@@ -476,7 +497,7 @@ Fetches image data from backend:
 .. code-block:: javascript
 
    function getImageInfo(editor, table, uid, params) {
-       let url = editor.config.get('style').typo3image.routeUrl
+       let url = editor.config.get('typo3image').routeUrl
            + '&action=info&fileId=' + encodeURIComponent(uid)
            + '&table=' + encodeURIComponent(table)
            + '&contentsLanguage=en&editorId=123';

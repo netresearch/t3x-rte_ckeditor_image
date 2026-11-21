@@ -51,7 +51,7 @@ Arguments
 
 .. confval:: allowedTags
    :type: string
-   :default: ``<img><p>``
+   :default: ``<img><p><figure><figcaption>``
 
    HTML tags to preserve in the preview output, in :php:`strip_tags()` format.
    All other tags are stripped (their text content is kept).
@@ -61,12 +61,14 @@ Processing Pipeline
 
 The ViewHelper processes HTML through three stages:
 
-1. **Sanitization** — Removes control characters (``\x00``-``\x1F``),
+1. **Sanitization** — Removes control characters (``\x00``-``\x1F``
+   except tab ``\x09``, line feed ``\x0A`` and carriage return ``\x0D``),
    UTF-16 surrogates, and Unicode non-characters, replacing them with
    U+FFFD (replacement character).
 
 2. **Tag stripping** — Calls :php:`strip_tags()` with the ``allowedTags``
-   argument, keeping only ``<img>`` and ``<p>`` by default.
+   argument, keeping only ``<img>``, ``<p>``, ``<figure>`` and
+   ``<figcaption>`` by default.
 
 3. **DOM-aware truncation** — Parses the remaining HTML with
    :php:`DOMDocument`, walks the DOM tree counting text length, and
@@ -94,12 +96,12 @@ block's backend preview template:
 Custom Tag Allowlist
 --------------------
 
-To also preserve ``<figure>`` and ``<figcaption>`` in the preview:
+To drop ``<figure>`` and ``<figcaption>`` from the preview:
 
 .. code-block:: html
 
    <nr:rteImagePreview html="{data.bodytext}"
-                       allowedTags="<img><p><figure><figcaption>" />
+                       allowedTags="<img><p>" />
 
 Custom Truncation Length
 ------------------------
