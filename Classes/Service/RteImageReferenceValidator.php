@@ -517,14 +517,42 @@ class RteImageReferenceValidator
      */
     private function removeFileUidAttribute(string $imgTag): string
     {
-        $result = preg_replace(
-            '/\s+data-htmlarea-file-uid\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)/i',
-            '',
-            $imgTag,
-            1,
-        );
+        // Walk the attributes in order, anchored with \G, so that a quoted value
+        // is always consumed as a whole: text inside an attribute value can never
+        // be taken for an attribute. Anything that does not parse completely is
+        // left unchanged.
+        if (preg_match('/^<img\b/i', $imgTag) !== 1) {
+            return $imgTag;
+        }
 
-        return is_string($result) ? $result : $imgTag;
+        $offset  = 4;
+        $length  = strlen($imgTag);
+        $kept    = '';
+        $removed = false;
+
+        while (preg_match(
+            '/\G(\s+)([^\s=\/>]+)(\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s"\'>]+))?/',
+            $imgTag,
+            $match,
+            0,
+            $offset,
+        ) === 1) {
+            if (strtolower($match[2]) === 'data-htmlarea-file-uid') {
+                $removed = true;
+            } else {
+                $kept .= $match[0];
+            }
+
+            $offset += strlen($match[0]);
+        }
+
+        $rest = substr($imgTag, $offset);
+
+        if (!$removed || $offset > $length || preg_match('/^\s*\/?>$/', $rest) !== 1) {
+            return $imgTag;
+        }
+
+        return '<img' . $kept . $rest;
     }
 
     /**
