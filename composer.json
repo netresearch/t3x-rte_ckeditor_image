@@ -103,7 +103,7 @@
             ".Build/bin/phpunit -c Build/phpunit/UnitTests.xml"
         ],
         "ci:test:php:lint": [
-            "phplint --configuration Build/.phplint.yml"
+            "phplint lint --configuration Build/.phplint.yml"
         ],
         "ci:test:php:phpstan": [
             "phpstan analyze --configuration Build/phpstan.neon --memory-limit=-1"
