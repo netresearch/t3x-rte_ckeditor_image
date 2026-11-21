@@ -178,7 +178,7 @@ Methods
 resolve()
 ~~~~~~~~~
 
-..  php:method:: resolve($attributes, $conf, $request, $linkAttributes = null)
+..  php:method:: resolve($attributes, $conf, $request, $linkAttributes = null, $figureClass = null, $figureWidth = null)
 
     Resolve image attributes to validated DTO.
 
@@ -186,6 +186,8 @@ resolve()
     :param array $conf: TypoScript configuration.
     :param ServerRequestInterface $request: Current request.
     :param array|null $linkAttributes: Optional link attributes for linked images.
+    :param string|null $figureClass: Optional figure class for alignment (for example ``image-left``).
+    :param string|null $figureWidth: Optional normalized resize width from the figure (for example ``26.43%``).
     :returns: Validated DTO or null if validation fails.
     :returntype: ImageRenderingDto|null
 
@@ -258,12 +260,13 @@ Methods
 render()
 ~~~~~~~~
 
-..  php:method:: render(ImageRenderingDto $imageData, ServerRequestInterface $request): string
+..  php:method:: render(ImageRenderingDto $imageData, ServerRequestInterface $request, array $config = []): string
 
     Render image HTML from validated DTO.
 
     :param ImageRenderingDto $imageData: Validated image data.
     :param ServerRequestInterface $request: Current request.
+    :param array $config: TypoScript configuration for template paths.
     :returns: Rendered HTML.
     :returntype: string
 
@@ -278,15 +281,19 @@ render()
 Service decoration
 ==================
 
-To customize service behavior, use Symfony service decoration:
+To customize service behavior, use Symfony service decoration.
+``ImageRenderingAdapter`` type-hints the concrete class
+``ImageResolverService`` in its constructor, and the extension provides no
+interface for it.
+The decorating service must therefore extend ``ImageResolverService``;
+a class that only wraps it causes a ``TypeError`` when the adapter is
+created.
 
 ..  code-block:: yaml
     :caption: EXT:my_extension/Configuration/Services.yaml
 
     App\Service\CustomImageResolver:
       decorates: Netresearch\RteCKEditorImage\Service\ImageResolverService
-      arguments:
-        $inner: '@.inner'
 
 ..  code-block:: php
     :caption: EXT:my_extension/Classes/Service/CustomImageResolver.php
@@ -297,23 +304,37 @@ To customize service behavior, use Symfony service decoration:
 
     namespace App\Service;
 
-    use Netresearch\RteCKEditorImage\Service\ImageResolverService;
     use Netresearch\RteCKEditorImage\Domain\Model\ImageRenderingDto;
+    use Netresearch\RteCKEditorImage\Service\ImageResolverService;
+    use Psr\Http\Message\ServerRequestInterface;
 
-    class CustomImageResolver
+    class CustomImageResolver extends ImageResolverService
     {
-        public function __construct(
-            private readonly ImageResolverService $inner
-        ) {}
-
-        public function resolve(...$args): ?ImageRenderingDto
-        {
+        public function resolve(
+            array $attributes,
+            array $conf,
+            ServerRequestInterface $request,
+            ?array $linkAttributes = null,
+            ?string $figureClass = null,
+            ?string $figureWidth = null,
+        ): ?ImageRenderingDto {
             // Custom pre-processing
-            $dto = $this->inner->resolve(...$args);
+            $dto = parent::resolve(
+                $attributes,
+                $conf,
+                $request,
+                $linkAttributes,
+                $figureClass,
+                $figureWidth,
+            );
             // Custom post-processing
             return $dto;
         }
     }
+
+The subclass inherits the constructor of ``ImageResolverService``.
+The extension wires its arguments explicitly in its ``Services.yaml``;
+check that your service definition provides the same arguments.
 
 Related documentation
 =====================

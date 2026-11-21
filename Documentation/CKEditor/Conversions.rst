@@ -38,7 +38,7 @@ Three-Layer System
    ┌────────────▼─────────────────────────┐
    │ View Layer (Editor Display)          │
    │ Visual HTML in contenteditable       │
-   │ <img src="..." class="..." />        │
+   │ <figure class="..."><img ...>        │
    └──────────────────────────────────────┘
 
 Upcast Conversions
@@ -55,6 +55,24 @@ Purpose
 - Paste from clipboard
 - Insert HTML programmatically
 
+.. note::
+   The examples on this page show one simplified converter per direction.
+   ``typo3image.js`` registers several upcast converters:
+
+   - ``<a><a><img></a></a>``: repairs double-wrapped links from older content
+   - ``<a><figure class="image">``: a link that wraps a figure
+   - ``<figure class="image">``: a figure with ``<img>`` and optional
+     ``<figcaption>``
+   - ``<a><img></a>``: a linked image
+   - ``<img class="image-inline" data-htmlarea-file-uid>``: creates
+     ``typo3imageInline``; images without that class are left to the next
+     converter
+   - ``<img data-htmlarea-file-uid>``: a standalone image. Creates
+     ``typo3image``, or ``typo3imageInline`` when the image sits in a link that
+     also wraps text, or when an image without class sits in text
+
+   The standalone converter has the priority ``high``, all others ``highest``.
+
 Image Element Upcast
 --------------------
 
@@ -63,7 +81,7 @@ Image Element Upcast
    editor.conversion.for('upcast').elementToElement({
        view: {
            name: 'img',
-           attributes: ['data-htmlarea-file-uid', 'src']
+           attributes: ['data-htmlarea-file-uid']
        },
        model: (viewElement, { writer }) => {
            return writer.createElement('typo3image', {
@@ -78,6 +96,8 @@ Image Element Upcast
                title: viewElement.getAttribute('title') || '',
                titleOverride: viewElement.getAttribute('data-title-override') || false,
                enableZoom: viewElement.getAttribute('data-htmlarea-zoom') || false,
+               noScale: viewElement.getAttribute('data-noscale') || false,
+               quality: viewElement.getAttribute('data-quality') || '',
            });
        }
    });
@@ -92,7 +112,7 @@ View Matcher
 
    view: {
        name: 'img',
-       attributes: ['data-htmlarea-file-uid', 'src']
+       attributes: ['data-htmlarea-file-uid']
    }
 
 **Purpose**: Defines which HTML elements should be converted
@@ -100,7 +120,8 @@ View Matcher
 **Matching Logic**:
 
 - **Element name**: Must be ``<img>``
-- **Required attributes**: Must have both ``data-htmlarea-file-uid`` AND ``src``
+- **Required attribute**: Must have ``data-htmlarea-file-uid``.
+  ``src`` is optional: the frontend renderer rebuilds it from the file UID
 
 **Examples**:
 
@@ -151,7 +172,7 @@ HTML Attribute               Model Attribute      Transformation
 ===========================  ===================  ========================
 data-htmlarea-file-uid       fileUid              Direct copy
 data-htmlarea-file-table     fileTable            Default: 'sys_file'
-src                          src                  Direct copy
+src                          src                  Sanitized, only if set
 width                        width                Default: empty string
 height                       height               Default: empty string
 class                        class                Default: empty string
@@ -160,6 +181,8 @@ data-alt-override            altOverride          Default: false
 title                        title                Default: empty string
 data-title-override          titleOverride        Default: false
 data-htmlarea-zoom           enableZoom           Default: false
+data-noscale                 noScale              Default: false
+data-quality                 quality              Default: empty string
 ===========================  ===================  ========================
 
 Upcast Example Flow
@@ -223,6 +246,22 @@ Purpose
 1. **Editing Downcast**: Render in contenteditable (editor view)
 2. **Data Downcast**: Serialize for database storage
 
+.. note::
+   The example below is simplified to a single ``<img>``.
+   ``typo3image.js`` registers separate converters for the two pipelines:
+
+   - **Editing downcast** (``elementToStructure``): always renders a figure
+     widget ``<figure class="image ck-widget ...">`` with the ``<img>``, link
+     and zoom indicator badges and a slot for the editable caption.
+   - **Data downcast** (``elementToStructure``): outputs
+     ``<figure class="image <class>"><img ...><figcaption>...</figcaption></figure>``
+     when the image has a caption element or a ``class``.
+     The ``class`` goes on the ``<figure>``, not on the ``<img>``.
+     Without caption and class, the output is a plain ``<img>``.
+     A link wraps the ``<img>`` in ``<a>``.
+   - Inline images (``typo3imageInline``) are output as a plain ``<img>``
+     with the class on the ``<img>``.
+
 Image Element Downcast
 ----------------------
 
@@ -240,7 +279,7 @@ Image Element Downcast
                'data-htmlarea-file-table': modelElement.getAttribute('fileTable'),
                'width': modelElement.getAttribute('width'),
                'height': modelElement.getAttribute('height'),
-               'class': modelElement.getAttribute('class') || '',
+               // class is applied to the <figure> wrapper, not to the <img>
                'title': modelElement.getAttribute('title') || '',
                'alt': modelElement.getAttribute('alt') || '',
            };
@@ -318,12 +357,16 @@ fileUid              data-htmlarea-file-uid       Direct copy
 fileTable            data-htmlarea-file-table     Direct copy
 width                width                        Direct copy
 height               height                       Direct copy
-class                class                        Default: empty string
+class                class of ``<figure>``        Only if set
 alt                  alt                          Default: empty string
 title                title                        Default: empty string
 altOverride          data-alt-override            Only if true
 titleOverride        data-title-override          Only if true
 enableZoom           data-htmlarea-zoom           Only if true
+noScale              data-noscale                 Only if true
+quality              data-quality                 Only if set
+caption text         data-caption                 Only if not empty
+imageLinkParams      data-link-params (on <a>)    Only if set
 ===================  ===========================  ========================
 
 Conditional Attributes
@@ -374,7 +417,7 @@ Downcast Example Flow
 **Downcast Process**:
 
 1. CKEditor needs to render model element
-2. Finds typo3image → elementToElement converter
+2. Finds typo3image → data downcast converter (``elementToStructure``)
 3. Calls view creator function
 4. Maps all attributes
 5. Adds conditional attributes
@@ -384,17 +427,18 @@ Downcast Example Flow
 
 .. code-block:: html
 
-   <img
-       src="/fileadmin/image.jpg"
-       data-htmlarea-file-uid="123"
-       data-htmlarea-file-table="sys_file"
-       width="800"
-       height="600"
-       alt="Product photo"
-       data-alt-override="true"
-       class="img-fluid"
-       data-htmlarea-zoom="true"
-   />
+   <figure class="image img-fluid">
+       <img
+           src="/fileadmin/image.jpg"
+           data-htmlarea-file-uid="123"
+           data-htmlarea-file-table="sys_file"
+           width="800"
+           height="600"
+           alt="Product photo"
+           data-alt-override="true"
+           data-htmlarea-zoom="true"
+       />
+   </figure>
 
 Attribute Converters
 ====================
@@ -423,8 +467,8 @@ Class Attribute Converter
        writer.setAttribute('class', 'float-left mr-3', modelElement);
    });
 
-   // Immediately reflected in view
-   <img class="float-left mr-3" ... />
+   // Immediately reflected on the figure wrapper in the view
+   <figure class="image ... float-left mr-3"><img ... /></figure>
 
 Custom Attribute Converters
 ----------------------------
@@ -472,12 +516,14 @@ Complete Load → Edit → Save Flow
    4. Downcast (Model → View)
       ─────────────────────►
       View Updates
-      <img width="1200" class="float-left" ... />
+      <figure class="image ... float-left"><img width="1200" ... /></figure>
 
    5. Save to Database
       ─────────────────────►
       Data Downcast → HTML String
-      <img data-htmlarea-file-uid="123" width="1200" class="float-left" ... />
+      <figure class="image float-left">
+        <img data-htmlarea-file-uid="123" width="1200" ... />
+      </figure>
 
    6. Backend Processing
       ─────────────────────►
@@ -585,7 +631,7 @@ Pattern 3: Multi-Element Conversion
    editor.conversion.for('downcast').elementToStructure({
        model: 'typo3image',
        view: (modelElement, { writer }) => {
-           const linkHref = modelElement.getAttribute('linkHref');
+           const linkHref = modelElement.getAttribute('imageLinkHref');
 
            if (linkHref) {
                // Create nested structure: <a><img/></a>
