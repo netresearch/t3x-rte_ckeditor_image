@@ -136,6 +136,10 @@ Known Boundaries & Limitations
    Note (2026): See the note under *SVG Data URI Sanitization*: the adapter returns
    images without a file UID (which includes inline ``data:`` images) before the
    resolver runs, so ``SvgSanitizer`` is not applied on the frontend render path.
+   The protection on that path is TYPO3's HTML sanitizer, which parseFunc runs
+   unless an integrator sets ``htmlSanitize = 0``: in ``img src`` it allows only
+   ``http:``, ``https:``, ``cid:`` and ``data:`` URIs of the media types image,
+   audio and video, and browsers do not run scripts in an SVG loaded as an image.
 
 2. **Frontend Context Processing**
 
