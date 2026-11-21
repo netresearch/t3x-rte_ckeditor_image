@@ -27,17 +27,26 @@ Step 1: Install Extension
 
    composer require netresearch/rte-ckeditor-image:^13.0
 
-The extension automatically configures the **backend RTE**:
+The extension registers the ``rteWithImages`` preset with the ``insertimage`` button.
+The preset becomes active through the Site Set ``netresearch/rte-ckeditor-image``:
 
-- ✅ Registers the ``rteWithImages`` preset
-- ✅ Configures toolbar with ``insertimage`` button for all sites
+.. code-block:: yaml
+   :caption: config/sites/<site>/config.yaml
+
+   dependencies:
+     - netresearch/rte-ckeditor-image
+
+The Site Set also includes the frontend TypoScript and the image alignment CSS.
+Without the Site Set, set ``RTE.default.preset = rteWithImages`` in page TSconfig
+and include the TypoScript as shown in step 2.
 
 Step 2: Include TypoScript
 --------------------------
 
-For **frontend rendering**, include the TypoScript:
+If you do not use the Site Set, include the TypoScript for **frontend rendering**.
+It covers rendering only, not the image alignment CSS:
 
-**Option A: Static Template (Recommended)**
+**Option A: Static Template**
 
 #. Go to :guilabel:`WEB > Template` module
 #. Select your root page, edit the template
@@ -60,7 +69,7 @@ Verification
    :class: with-shadow
    :width: 600px
 
-   The ``insertimage`` button is automatically available after installation
+   The ``insertimage`` button is available once the ``rteWithImages`` preset is active
 
 Custom Configuration (Optional)
 ================================
@@ -107,7 +116,7 @@ Enable Custom Preset
    RTE.default.preset = custom
 
 .. note::
-   The default ``rteWithImages`` preset is automatically configured.
+   The Site Set activates the default ``rteWithImages`` preset.
    Custom presets are only needed for specific toolbar or plugin customization.
 
 Related Documentation

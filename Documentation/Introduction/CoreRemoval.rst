@@ -159,7 +159,6 @@ What This Extension Provides
 - **Modern CKEditor 5** implementation
 - **Image attributes** (width, height, alt, title, quality)
 - **Custom styles** via CKEditor style system
-- **Event-driven architecture** for extensibility
 
 
 .. _core-removal-decision-guide:

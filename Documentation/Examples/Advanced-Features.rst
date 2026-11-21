@@ -119,15 +119,19 @@ PHP Wrapper
 
    use TYPO3\CMS\Core\Resource\FileRepository;
    use TYPO3\CMS\Core\Utility\GeneralUtility;
-   use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+   use Psr\Http\Message\ServerRequestInterface;
+   use TYPO3\CMS\Core\Attribute\AsAllowedCallable;
 
    class LightboxImageRenderer
    {
+       // TYPO3 v14 calls only methods marked with #[AsAllowedCallable]
+       #[AsAllowedCallable]
        public function render(
-           string $content,
+           ?string $content,
            array $conf,
-           ContentObjectRenderer $cObj
+           ServerRequestInterface $request
        ): string {
+           $content = (string)$content;
            // Check if zoom enabled
            if (strpos($content, 'data-htmlarea-zoom') === false) {
                return $content;

@@ -68,8 +68,8 @@ Examples by Topic
 
     ..  card:: 🔌 Custom Extensions
 
-        Extend the image plugin with custom dialog fields, external image handling,
-        multi-language support, and automatic backend processing hooks.
+        Extend the image plugin with custom model attributes, external image handling,
+        multi-language support, and backend processing via DataHandler hooks.
 
         ..  card-footer:: :ref:`Read more <examples-custom-extensions>`
             :button-style: btn btn-primary stretched-link

@@ -45,15 +45,19 @@ PHP Implementation
    use TYPO3\CMS\Core\Resource\FileRepository;
    use TYPO3\CMS\Core\Resource\ProcessedFile;
    use TYPO3\CMS\Core\Utility\GeneralUtility;
-   use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+   use Psr\Http\Message\ServerRequestInterface;
+   use TYPO3\CMS\Core\Attribute\AsAllowedCallable;
 
    class ResponsiveImageRenderer
    {
+       // TYPO3 v14 calls only methods marked with #[AsAllowedCallable]
+       #[AsAllowedCallable]
        public function render(
-           string $content,
+           ?string $content,
            array $conf,
-           ContentObjectRenderer $cObj
+           ServerRequestInterface $request
        ): string {
+           $content = (string)$content;
            // Parse img tag
            if (!preg_match('/<img([^>]*)>/i', $content, $imgMatch)) {
                return $content;
