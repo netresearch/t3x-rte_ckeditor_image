@@ -56,6 +56,16 @@ CKEditor Plugin Extension
                view: 'data-custom-caption'
            });
 
+           // Same pair for the second attribute
+           editor.conversion.for('upcast').attributeToAttribute({
+               view: 'data-custom-copyright',
+               model: 'customCopyright'
+           });
+           editor.conversion.for('downcast').attributeToAttribute({
+               model: 'customCopyright',
+               view: 'data-custom-copyright'
+           });
+
        }
    }
 
