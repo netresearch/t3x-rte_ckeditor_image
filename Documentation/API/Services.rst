@@ -188,6 +188,8 @@ resolve()
     :param array|null $linkAttributes: Optional link attributes for linked images.
     :returns: Validated DTO or null if validation fails.
     :returntype: ImageRenderingDto|null
+    :throws NonPublicFileException: If the file is in a non-public storage.
+        The caller must render nothing for the image.
 
 **Example:**
 
