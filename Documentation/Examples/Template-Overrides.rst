@@ -269,7 +269,8 @@ All templates receive the `image` variable containing an :php:`ImageRenderingDto
 
     <!-- HTML attributes -->
     {image.htmlAttributes.class}   <!-- CSS classes -->
-    {image.htmlAttributes.style}   <!-- Inline styles -->
+    {image.htmlAttributes.id}      <!-- id attribute -->
+    {image.htmlAttributes.style}   <!-- resize width (width:…;height:auto), composed by the extension -->
     {image.htmlAttributes.loading} <!-- lazy/eager -->
 
     <!-- Link properties (when linked) -->
@@ -401,13 +402,6 @@ Enable Fluid debugging to inspect available variables:
     :caption: Debug all template variables
 
     <f:debug>{_all}</f:debug>
-
-Or in TypoScript:
-
-..  code-block:: typoscript
-    :caption: Enable debug mode via TypoScript
-
-    lib.parseFunc_RTE.settings.debug = 1
 
 Related documentation
 =====================

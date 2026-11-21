@@ -12,15 +12,25 @@ RTE Setup
 Complete guide for configuring the RTE (Rich Text Editor) with CKEditor image support.
 
 .. important::
-   **Automatic Backend Configuration**
+   **Backend Configuration via the Site Set**
 
-   The extension automatically configures the backend RTE after installation:
+   Installing the extension registers the ``rteWithImages`` preset:
 
    .. code-block:: bash
 
       composer require netresearch/rte-ckeditor-image
 
-   The ``insertimage`` button is automatically available in all RTEs. **No RTE configuration needed!**
+   The preset is activated by the Site Set ``netresearch/rte-ckeditor-image``.
+   Its page TSconfig sets ``RTE.default.preset = rteWithImages``.
+   Add the Site Set as a dependency of your site, and the ``insertimage`` button
+   is available in all RTEs that use the ``default`` configuration.
+
+   Without the Site Set, set the preset yourself in page TSconfig:
+
+   .. code-block:: typoscript
+      :caption: Page TSconfig (only needed without the Site Set)
+
+      RTE.default.preset = rteWithImages
 
    .. note::
       **Frontend rendering requires TypoScript inclusion.** See :ref:`integration-configuration-frontend-rendering`.
@@ -34,10 +44,11 @@ Complete guide for configuring the RTE (Rich Text Editor) with CKEditor image su
 Automatic Configuration (Default)
 ==================================
 
-The extension automatically provides for the **backend**:
+The extension provides for the **backend**:
 
-- **Preset**: ``rteWithImages`` registered and enabled globally
-- **Toolbar**: ``insertimage`` button included in default toolbar
+- **Preset**: ``rteWithImages`` registered in ``ext_localconf.php``;
+  the Site Set activates it with ``RTE.default.preset = rteWithImages``
+- **Toolbar**: ``insertimage`` button included in the preset's toolbar
 - **Configuration**: ``Configuration/RTE/Default.yaml`` with full toolbar
 
 .. note::

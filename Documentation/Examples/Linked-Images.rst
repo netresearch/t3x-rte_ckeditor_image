@@ -218,7 +218,6 @@ In custom Fluid templates, access link properties via the ``link`` object:
    <f:if condition="{image.link}">
        <a href="{image.link.urlWithParams}"
           target="{image.link.target}"
-          title="{image.link.title}"
           class="{image.link.class}">
            <f:render partial="Image" arguments="{image: image}" />
        </a>
@@ -235,12 +234,11 @@ are cleared automatically. This prevents stale values from being retained:
    // Before: Image linked to /old-page with target="_blank" and class="old-class"
    // User selects new link: /new-page with no target or class
 
-   // After: Only the new URL is set, old attributes are cleared
-   // linkHref: '/new-page'
-   // linkTarget: null (cleared)
-   // linkClass: null (cleared)
-   // linkTitle: null (cleared)
-   // linkParams: null (cleared)
+   // After: the dialog fields hold only the new link. On save the image
+   // model element is created again from the dialog fields:
+   // imageLinkHref: '/new-page'
+   // imageLinkTarget, imageLinkClass, imageLinkTitle, imageLinkParams:
+   // not set (absent from the new model element)
 
 This behavior ensures editors always see the actual link configuration without
 inherited values from previous links.
@@ -279,24 +277,6 @@ for the complete list.
 
 Troubleshooting
 ===============
-
-Link not saved
---------------
-
-**Symptom**: Link attributes are lost after saving.
-
-**Cause**: Processing rules may be stripping link attributes.
-
-**Solution**: Ensure your RTE processing configuration allows link attributes:
-
-.. code-block:: yaml
-
-   processing:
-     allowAttributes:
-       - { attribute: 'href', elements: 'a' }
-       - { attribute: 'target', elements: 'a' }
-       - { attribute: 'title', elements: 'a' }
-       - { attribute: 'class', elements: 'a' }
 
 Link browser doesn't open
 -------------------------

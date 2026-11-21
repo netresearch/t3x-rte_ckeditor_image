@@ -62,18 +62,19 @@ The extension implements security at multiple layers:
 Protocol blocking
 =================
 
-The :php:`ImageResolverService` blocks dangerous URL protocols:
+The :php:`ImageResolverService` validates the `href` of image links against an
+allowlist. A link with any other protocol (for example `javascript:`, `file:`,
+`data:` or `vbscript:`) is dropped: no link is built from it, and the blocked
+protocol is logged.
 
--  `javascript:` - Prevents script execution via URLs.
--  `file:` - Prevents local file system access.
--  `data:text/html` - Prevents HTML injection via data URIs.
--  `vbscript:` - Prevents VBScript execution (legacy IE).
+**Allowed in link URLs:**
 
-**Safe protocols allowed:**
+-  `http:` and `https:` - Standard web URLs.
+-  `mailto:` and `tel:` - E-mail and phone links.
+-  `t3:` - TYPO3 link handler URLs.
+-  URLs without a protocol - Relative paths and anchors (`/`, `#`).
 
--  `http://` and `https://` - Standard web URLs.
--  `/` - Relative paths.
--  `t3://` - TYPO3 link handler URLs.
+The allowlist applies to link URLs only, not to the image `src`.
 
 File visibility validation
 ==========================
@@ -295,7 +296,9 @@ Security reporting
 Report security vulnerabilities to:
 
 -  **TYPO3 Security Team**: security@typo3.org
--  **Extension maintainer**: Via GitHub issues (for non-critical issues)
+-  **Extension maintainer**: Via `GitHub private vulnerability reporting
+   <https://github.com/netresearch/t3x-rte_ckeditor_image/security/advisories/new>`__.
+   Do not report vulnerabilities in public GitHub issues.
 
 Related documentation
 =====================

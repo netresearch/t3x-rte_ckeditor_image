@@ -53,21 +53,21 @@ Key Features
 
    .. card:: Responsive Images
 
-      Automatic srcset generation and picture element support for responsive layouts.
+      Examples for building srcset output with your own preUserFunc.
 
       .. card-footer:: :ref:`Responsive Examples <examples-responsive-images>`
          :button-style: btn btn-secondary stretched-link
 
    .. card:: Performance
 
-      Native lazy loading, intersection observer fallback, and optimized rendering.
+      Native lazy loading via ``styles.content.image.lazyLoading`` and optimized rendering.
 
       .. card-footer:: :ref:`Advanced Features <examples-advanced-features>`
          :button-style: btn btn-secondary stretched-link
 
-   .. card:: Event Architecture
+   .. card:: Event Listeners
 
-      PSR-14 event dispatching for custom image processing and rendering hooks.
+      PSR-14 listeners on TYPO3 core events (the extension dispatches no events of its own).
 
       .. card-footer:: :ref:`Event Listeners <api-eventlisteners>`
          :button-style: btn btn-secondary stretched-link
@@ -250,7 +250,7 @@ Add the extension to your site dependencies:
 
 This enables:
 
-- ✅ **Backend RTE**: Registers the ``rteWithImages`` preset with ``insertimage`` button
+- ✅ **Backend RTE**: Activates the ``rteWithImages`` preset with ``insertimage`` button
 - ✅ **Frontend rendering**: Includes TypoScript for image processing
 
 **Step 2: Clear Caches**
@@ -260,16 +260,19 @@ This enables:
    vendor/bin/typo3 cache:flush
 
 .. tip::
-   **Default image maxWidth**
+   **Without the Site Set**
 
-   The extension's Site Set configures ``maxWidth = 1920`` for magic images. If you
-   have **not** enabled the Site Set (e.g., when using sys_template records), TYPO3's
-   built-in default of **300px** applies, which causes images to appear unexpectedly small.
+   The Site Set's page TSconfig activates the ``rteWithImages`` preset and sets the
+   magic image dimensions. If you have **not** enabled the Site Set (e.g., when using
+   sys_template records), the editor has no image button until you set the preset
+   yourself. The static template covers frontend rendering only.
 
    In that case, add this to your Page TSConfig:
 
    .. code-block:: typoscript
 
+      RTE.default.preset = rteWithImages
+      RTE.default.proc.overruleMode := addToList(default)
       RTE.default.buttons.image.options.magic {
           maxWidth = 1920
           maxHeight = 9999
