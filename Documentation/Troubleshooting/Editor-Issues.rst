@@ -458,27 +458,21 @@ Figcaption line breaks
 
 **Symptoms:**
 
-* Pressing Shift+Enter in figcaption does not insert a line break
-* Adding ``<br>`` in source mode is removed after saving
-* Caption text always appears on a single line
+* Caption text always appears on a single line on the frontend
+* Bold, italic and links in a caption are not rendered on the frontend
 
-**Cause:** When content is loaded into the editor, the extension's upcast
-converter copies only the text nodes of a ``<figcaption>`` into the caption.
-A ``<br>`` or other inline markup in a stored caption is dropped at that
-point. CKEditor 5 itself does not have this restriction: its caption model
-accepts the same content as a paragraph.
+**Cause:** The editor keeps the inline content of a caption.
+Line breaks (Shift+Enter, or ``<br>`` in source mode), bold, italic and links
+survive loading and saving the content.
+The frontend rendering uses only the text of the ``<figcaption>`` and escapes
+it, so the markup is dropped and a ``<br>`` adds no space:
+``Line1<br>Line2`` renders as ``Line1Line2``.
 
 **Workaround:** Captions wrap naturally based on the figure container width.
 Since version 13.6.0, the ``<figure>`` element is automatically constrained
 to the image width via ``max-width``, so captions wrap within the image
 boundary without additional CSS. See :ref:`examples-image-styles` for
 details.
-
-.. note::
-   This limitation applies to all CKEditor 5 figcaptions, not just images
-   from this extension. See `CKEditor 5 image captions documentation
-   <https://ckeditor.com/docs/ckeditor5/latest/features/images/images-captions.html>`__
-   for details.
 
 ----
 

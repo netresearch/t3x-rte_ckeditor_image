@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^5.0.0",
+    "ckeditor5": "49.1.0",
     "jsdom": "^30.0.0",
     "vitest": "^5.0.0"
   }

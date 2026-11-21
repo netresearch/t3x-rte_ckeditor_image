@@ -1808,6 +1808,26 @@ function isClasslessImageInText(imgElement, node) {
 const IMAGE_LINK_EXTRA_ATTRIBUTES = ['rel', 'download'];
 
 /**
+ * Upcast a <figcaption> into a typo3imageCaption child of the given image.
+ *
+ * Converts the figcaption children with the conversion API, so everything the
+ * caption schema allows (the content of $block: text with attributes such as
+ * bold or links, soft breaks from <br>) reaches the model. Copying only the
+ * text nodes dropped that markup.
+ *
+ * @param {module:engine/view/element~ViewElement} viewFigcaption
+ * @param {module:engine/model/element~ModelElement} modelImage typo3image element
+ * @param {module:engine/conversion/upcastdispatcher~UpcastConversionApi} conversionApi
+ */
+function upcastCaption(viewFigcaption, modelImage, conversionApi) {
+    const { writer } = conversionApi;
+    const captionElement = writer.createElement('typo3imageCaption');
+    writer.append(captionElement, modelImage);
+
+    conversionApi.convertChildren(viewFigcaption, captionElement);
+}
+
+/**
  * Collect the extra attributes of an image's own <a>, such as rel or download (#935).
  *
  * They go into the imageLinkAttributes model attribute, so that the <a> keeps
@@ -2309,7 +2329,8 @@ export default class Typo3Image extends Plugin {
                 view: {
                     name: 'a'
                 },
-                model: (viewLink, { writer, consumable }) => {
+                model: (viewLink, conversionApi) => {
+                    const { writer, consumable } = conversionApi;
                     // Check if this <a> contains a figure.image
                     let figureElement = null;
                     for (const child of viewLink.getChildren()) {
@@ -2430,14 +2451,7 @@ export default class Typo3Image extends Plugin {
 
                     // Handle caption
                     if (figcaptionElement) {
-                        const captionElement = writer.createElement('typo3imageCaption');
-                        writer.append(captionElement, typo3image);
-
-                        for (const node of figcaptionElement.getChildren()) {
-                            if (node.is('$text')) {
-                                writer.insertText(node.data, captionElement);
-                            }
-                        }
+                        upcastCaption(figcaptionElement, typo3image, conversionApi);
                     }
 
                     return typo3image;
@@ -2454,7 +2468,8 @@ export default class Typo3Image extends Plugin {
                     name: 'figure',
                     classes: ['image']
                 },
-                model: (viewFigure, { writer, consumable }) => {
+                model: (viewFigure, conversionApi) => {
+                    const { writer, consumable } = conversionApi;
                     // Skip if parent is a link - handled by the linked figure upcast above
                     const parent = viewFigure.parent;
                     if (parent?.is('element', 'a')) {
@@ -2560,15 +2575,7 @@ export default class Typo3Image extends Plugin {
 
                     // Create caption element if figcaption exists
                     if (figcaptionElement) {
-                        const captionElement = writer.createElement('typo3imageCaption');
-                        writer.append(captionElement, typo3image);
-
-                        // Copy caption text content
-                        for (const node of figcaptionElement.getChildren()) {
-                            if (node.is('$text')) {
-                                writer.insertText(node.data, captionElement);
-                            }
-                        }
+                        upcastCaption(figcaptionElement, typo3image, conversionApi);
                     }
 
                     return typo3image;
