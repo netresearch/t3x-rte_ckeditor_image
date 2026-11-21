@@ -579,9 +579,10 @@ class RteImageReferenceValidatorTest extends TestCase
     }
 
     #[Test]
-    public function applyFixesHandlesIssueWithNullExpectedSrc(): void
+    public function applyFixesRemovesStaleFileUidForOrphanedFileUid(): void
     {
-        // OrphanedFileUid with null expectedSrc: should not be added to fixMap
+        // OrphanedFileUid: the FAL file is gone, so the stale data-htmlarea-file-uid
+        // attribute is removed and the src is kept as it is.
         $issues = [
             new ValidationIssue(
                 type: ValidationIssueType::OrphanedFileUid,
@@ -595,10 +596,73 @@ class RteImageReferenceValidatorTest extends TestCase
             ),
         ];
 
-        $html = '<p><img data-htmlarea-file-uid="999" src="/fileadmin/deleted.jpg" /></p>';
+        $html = '<p><img data-htmlarea-file-table="sys_file" data-htmlarea-file-uid="999" src="/fileadmin/deleted.jpg" /></p>';
 
-        // null expectedSrc means fixMap is empty, so HTML is returned unchanged
-        self::assertSame($html, $this->invokeApplyFixes($html, $issues));
+        self::assertSame(
+            '<p><img data-htmlarea-file-table="sys_file" src="/fileadmin/deleted.jpg" /></p>',
+            $this->invokeApplyFixes($html, $issues),
+        );
+    }
+
+    #[Test]
+    public function applyFixesRemovesOrphanedFileUidOnlyFromMatchingImage(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::OrphanedFileUid,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 999,
+                currentSrc: '/fileadmin/deleted.jpg',
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+            new ValidationIssue(
+                type: ValidationIssueType::SrcMismatch,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 1,
+                currentSrc: '/fileadmin/old.jpg',
+                expectedSrc: '/fileadmin/new.jpg',
+                imgIndex: 1,
+            ),
+        ];
+
+        $html = '<p><img data-htmlarea-file-uid="999" src="/fileadmin/deleted.jpg" />'
+            . '<img data-htmlarea-file-uid="1" src="/fileadmin/old.jpg" />'
+            . '<img data-htmlarea-file-uid="9990" src="/fileadmin/other.jpg" /></p>';
+
+        $expected = '<p><img src="/fileadmin/deleted.jpg" />'
+            . '<img data-htmlarea-file-uid="1" src="/fileadmin/new.jpg" />'
+            . '<img data-htmlarea-file-uid="9990" src="/fileadmin/other.jpg" /></p>';
+
+        self::assertSame($expected, $this->invokeApplyFixes($html, $issues));
+    }
+
+    #[Test]
+    public function applyFixesRemovesSingleQuotedOrphanedFileUid(): void
+    {
+        $issues = [
+            new ValidationIssue(
+                type: ValidationIssueType::OrphanedFileUid,
+                table: 'tt_content',
+                uid: 1,
+                field: 'bodytext',
+                fileUid: 999,
+                currentSrc: '/fileadmin/deleted.jpg',
+                expectedSrc: null,
+                imgIndex: 0,
+            ),
+        ];
+
+        $html = "<p><img data-htmlarea-file-uid='999' src=\"/fileadmin/deleted.jpg\" /></p>";
+
+        self::assertSame(
+            '<p><img src="/fileadmin/deleted.jpg" /></p>',
+            $this->invokeApplyFixes($html, $issues),
+        );
     }
 
     #[Test]

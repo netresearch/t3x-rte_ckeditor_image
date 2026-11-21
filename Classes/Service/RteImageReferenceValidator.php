@@ -408,16 +408,28 @@ class RteImageReferenceValidator
         // Collapse nested link wrappers first (structural fix) — #667
         $html = $this->collapseNestedLinks($html, $issues);
 
-        // Build a map of fileUid => expectedSrc for quick lookup
-        $fixMap = [];
+        // Build a map of fileUid => expectedSrc for quick lookup, and the set of
+        // file UIDs whose FAL file no longer exists (their stale attribute is removed)
+        $fixMap           = [];
+        $orphanedFileUids = [];
 
         foreach ($issues as $issue) {
-            if ($issue->fileUid !== null && $issue->expectedSrc !== null) {
+            if ($issue->fileUid === null) {
+                continue;
+            }
+
+            if ($issue->type === ValidationIssueType::OrphanedFileUid) {
+                $orphanedFileUids[$issue->fileUid] = true;
+
+                continue;
+            }
+
+            if ($issue->expectedSrc !== null) {
                 $fixMap[$issue->fileUid] = $issue->expectedSrc;
             }
         }
 
-        if ($fixMap === []) {
+        if ($fixMap === [] && $orphanedFileUids === []) {
             return $html;
         }
 
@@ -448,6 +460,17 @@ class RteImageReferenceValidator
             }
 
             $fileUid = (int) $fileUidStr;
+
+            if (isset($orphanedFileUids[$fileUid])) {
+                $withoutFileUid = $this->removeFileUidAttribute($part);
+
+                if ($withoutFileUid !== $part) {
+                    $splitContent[$key] = $withoutFileUid;
+                    $changed            = true;
+                }
+
+                continue;
+            }
 
             if (!isset($fixMap[$fileUid])) {
                 continue;
@@ -484,6 +507,24 @@ class RteImageReferenceValidator
         }
 
         return implode('', $splitContent);
+    }
+
+    /**
+     * Remove the data-htmlarea-file-uid attribute from a single img tag.
+     *
+     * Used for orphaned file UIDs: the referenced FAL file no longer exists, so
+     * the stale reference is dropped while src and all other attributes stay.
+     */
+    private function removeFileUidAttribute(string $imgTag): string
+    {
+        $result = preg_replace(
+            '/\s+data-htmlarea-file-uid\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)/i',
+            '',
+            $imgTag,
+            1,
+        );
+
+        return is_string($result) ? $result : $imgTag;
     }
 
     /**
