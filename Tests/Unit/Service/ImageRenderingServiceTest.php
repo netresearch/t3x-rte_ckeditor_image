@@ -589,6 +589,38 @@ class ImageRenderingServiceTest extends TestCase
         self::assertStringContainsString('><', $result);
     }
 
+    /**
+     * Test that render() keeps the space between inline elements of a caption
+     * while it still removes template whitespace around the figcaption.
+     */
+    public function testRenderKeepsSpacesInsideFigcaption(): void
+    {
+        $output = "<figure class=\"image\">\n    <img src=\"/a.jpg\" />\n    <figcaption><strong>Bold</strong> <em>italic</em></figcaption>\n</figure>";
+
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->method('render')->willReturn($output);
+        $this->viewFactoryMock->method('create')->willReturn($viewMock);
+
+        $dto = new ImageRenderingDto(
+            src: '/a.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: '',
+            htmlAttributes: [],
+            caption: '<strong>Bold</strong> <em>italic</em>',
+            link: null,
+            isMagicImage: true,
+        );
+
+        $result = $this->service->render($dto, $this->createMock(ServerRequestInterface::class));
+
+        self::assertSame(
+            '<figure class="image"><img src="/a.jpg" /><figcaption><strong>Bold</strong> <em>italic</em></figcaption></figure>',
+            $result,
+        );
+    }
+
     // ========================================================================
     // TypoScript Configuration Tests (Issue #434)
     // ========================================================================

@@ -1374,9 +1374,15 @@ function edit(selectedImage, editor, imageAttributes) {
 
                 // Create caption element if caption text exists (only for block images)
                 // Inline images cannot have captions
+                // The dialog shows the caption as plain text. When that text was not
+                // changed, keep the caption content of the model (line breaks, bold,
+                // links); a changed text replaces the caption with plain text.
                 if (!isInlineImage) {
                     const captionText = (attributes.caption || '').trim();
-                    if (captionText !== '') {
+                    const originalCaption = imageAttributes.captionElement;
+                    if (captionText !== '' && originalCaption && captionText === (imageAttributes.caption || '').trim()) {
+                        writer.append(writer.cloneElement(originalCaption), newImage);
+                    } else if (captionText !== '') {
                         const captionElement = writer.createElement('typo3imageCaption');
                         writer.append(captionElement, newImage);
                         writer.insertText(captionText, captionElement);
@@ -3445,8 +3451,9 @@ export default class Typo3Image extends Plugin {
                 if (isTypo3ImageElement(selectedElement)) {
                     // Get caption text from caption element (if exists) - only for block images
                     let captionText = '';
+                    let captionElement = null;
                     if (selectedElement.name === 'typo3image') {
-                        const captionElement = getCaptionFromImageModelElement(selectedElement);
+                        captionElement = getCaptionFromImageModelElement(selectedElement);
                         if (captionElement) {
                             for (const child of captionElement.getChildren()) {
                                 if (child.is('$text')) {
@@ -3491,6 +3498,8 @@ export default class Typo3Image extends Plugin {
                             alt: selectedElement.getAttribute('alt'),
                             title: selectedElement.getAttribute('title'),
                             caption: captionText,
+                            // Kept when the caption text is not changed in the dialog
+                            captionElement: captionElement,
                             'data-htmlarea-zoom': selectedElement.getAttribute('enableZoom'),
                             'data-noscale': selectedElement.getAttribute('noScale'),
                             'data-quality': selectedElement.getAttribute('quality'),
@@ -3759,8 +3768,9 @@ export default class Typo3Image extends Plugin {
 
                 // Get caption text from caption element (if exists) - only for block images
                 let captionText = '';
+                let captionElement = null;
                 if (modelElement.name === 'typo3image') {
-                    const captionElement = getCaptionFromImageModelElement(modelElement);
+                    captionElement = getCaptionFromImageModelElement(modelElement);
                     if (captionElement) {
                         for (const child of captionElement.getChildren()) {
                             if (child.is('$text')) {
@@ -3808,6 +3818,8 @@ export default class Typo3Image extends Plugin {
                         linkAttributes: modelElement.getAttribute('imageLinkAttributes'),
                         linkPluginAttributes: getLinkPluginAttributes(modelElement),
                         caption: captionText,
+                        // Kept when the caption text is not changed in the dialog
+                        captionElement: captionElement,
                         // Pass flag to indicate if this is an inline image (for hiding caption field)
                         isInlineImage: modelElement.name === 'typo3imageInline',
                         // Pass flag to indicate if image is inside an external link (for disabling link options)

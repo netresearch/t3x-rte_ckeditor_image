@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Controller;
 
+use Closure;
 use Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter;
 use Netresearch\RteCKEditorImage\Domain\Model\ImageRenderingDto;
 use Netresearch\RteCKEditorImage\Domain\Model\LinkDto;
@@ -912,6 +913,60 @@ final class ImageRenderingAdapterTest extends TestCase
         $result = $this->adapter->renderFigure(null, [], $this->request);
 
         self::assertSame('<figure><img /><figcaption>My Caption</figcaption></figure>', $result);
+    }
+
+    #[Test]
+    public function renderFigurePassesFigcaptionHtmlAndLinkResolverToResolver(): void
+    {
+        $html = '<figure><img src="test.jpg" data-htmlarea-file-uid="1" /><figcaption>A<br>B</figcaption></figure>';
+
+        $dto = new ImageRenderingDto(
+            src: '/processed.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: null,
+            htmlAttributes: [],
+            caption: 'A<br>B',
+            link: null,
+            isMagicImage: true,
+        );
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser
+            ->method('hasFigureWrapper')
+            ->willReturn(true);
+
+        $this->attributeParser
+            ->method('parseFigureWithCaption')
+            ->willReturn([
+                'attributes'  => ['src' => 'test.jpg', 'data-htmlarea-file-uid' => '1'],
+                'caption'     => 'AB',
+                'captionHtml' => 'A<br>B',
+                'link'        => [],
+            ]);
+
+        $captured = [];
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->willReturnCallback(static function (mixed ...$arguments) use (&$captured, $dto): ImageRenderingDto {
+                $captured = $arguments;
+
+                return $dto;
+            });
+
+        $this->renderingService->method('render')->willReturn('<figure></figure>');
+
+        $this->adapter->renderFigure(null, [], $this->request);
+
+        self::assertSame('A<br>B', $captured[6] ?? null);
+        $resolver = $captured[7] ?? null;
+        self::assertInstanceOf(Closure::class, $resolver);
+        // Non-t3 URLs pass through the adapter's resolver unchanged
+        self::assertSame('https://example.com', $resolver('https://example.com'));
     }
 
     #[Test]

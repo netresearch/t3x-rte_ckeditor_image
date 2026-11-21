@@ -156,7 +156,7 @@ Default paths at priority 0 are always preserved. Custom paths use numeric keys 
 ## Security
 
 - Never add `style` attributes or new raw-output sinks to templates (CSS injection / XSS)
-- `f:format.raw` appears only in `Partials/Image/Figure.html` and `Link.html`, for values sanitized upstream in `ImageResolverService` -- never use it for new user-controlled values
+- `f:format.raw` appears only in `Partials/Image/Figure.html` (`content` and `image.caption`) and `Link.html` (`content`), for values sanitized upstream in `ImageResolverService` (the caption through `CaptionSanitizer`) -- never use it for new user-controlled values
 - Everything else relies on default Fluid output escaping -- do not disable it
 
 ## When stuck

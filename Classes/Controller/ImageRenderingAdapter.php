@@ -927,9 +927,19 @@ class ImageRenderingAdapter
         $figureClassOrNull    = $figureClass !== '' ? $figureClass : null;
         $figureWidthOrNull    = $figureWidth !== '' ? $figureWidth : null;
 
-        // Resolve image to validated DTO
+        // Resolve image to validated DTO. The figcaption markup is sanitized by
+        // the resolver; t3:// links inside it are resolved like the image link.
         try {
-            $dto = $this->resolverService->resolve($imageAttributes, $conf, $request, $linkAttributesOrNull, $figureClassOrNull, $figureWidthOrNull);
+            $dto = $this->resolverService->resolve(
+                $imageAttributes,
+                $conf,
+                $request,
+                $linkAttributesOrNull,
+                $figureClassOrNull,
+                $figureWidthOrNull,
+                $parsed['captionHtml'] ?? '',
+                fn (string $url): string => $this->resolveTypo3LinkUrl($url, $request),
+            );
         } catch (NonPublicFileException) {
             // SECURITY: file in a non-public storage - drop the whole figure
             // (image, link and caption), not only the image

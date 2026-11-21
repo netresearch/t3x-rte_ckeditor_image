@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Netresearch\RteCKEditorImage\Service;
 
+use Closure;
 use Netresearch\RteCKEditorImage\Domain\Model\ImageRenderingDto;
 use Netresearch\RteCKEditorImage\Domain\Model\LinkDto;
 use Netresearch\RteCKEditorImage\Service\Exception\NonPublicFileException;
@@ -114,12 +115,14 @@ class ImageResolverService
     /**
      * Resolve image attributes to validated DTO.
      *
-     * @param array<string,string>      $attributes     Raw attributes from parser
-     * @param array<string,mixed>       $conf           TypoScript configuration
-     * @param ServerRequestInterface    $request        Current request
-     * @param array<string,string>|null $linkAttributes Optional link attributes for linked images
-     * @param string|null               $figureClass    Optional figure class for alignment (image-left, etc.)
-     * @param string|null               $figureWidth    Optional normalised resize width from the figure (e.g. `26.43%`)
+     * @param array<string,string>           $attributes      Raw attributes from parser
+     * @param array<string,mixed>            $conf            TypoScript configuration
+     * @param ServerRequestInterface         $request         Current request
+     * @param array<string,string>|null      $linkAttributes  Optional link attributes for linked images
+     * @param string|null                    $figureClass     Optional figure class for alignment (image-left, etc.)
+     * @param string|null                    $figureWidth     Optional normalised resize width from the figure (e.g. `26.43%`)
+     * @param string|null                    $captionHtml     Optional unsanitized inner HTML of the figcaption; takes precedence over data-caption
+     * @param (Closure(string): string)|null $linkUrlResolver Optional resolver for t3:// hrefs in the caption (unresolved t3:// links become text)
      *
      * @return ImageRenderingDto|null Validated DTO or null if validation fails
      *
@@ -132,6 +135,8 @@ class ImageResolverService
         ?array $linkAttributes = null,
         ?string $figureClass = null,
         ?string $figureWidth = null,
+        ?string $captionHtml = null,
+        ?Closure $linkUrlResolver = null,
     ): ?ImageRenderingDto {
         // Extract file UID from data-htmlarea-file-uid attribute
         $fileUid = (int) ($attributes['data-htmlarea-file-uid'] ?? 0);
@@ -202,8 +207,13 @@ class ImageResolverService
             // Build HTML attributes array
             $htmlAttributes = $this->buildHtmlAttributes($attributes, $lazyLoading);
 
-            // CRITICAL: Caption XSS prevention
-            $caption = $this->sanitizeCaption($attributes['data-caption'] ?? '');
+            // CRITICAL: Caption XSS prevention. The figcaption markup is reduced to
+            // the inline allowlist; the data-caption attribute is plain text.
+            $caption = $captionHtml !== null ? $this->sanitizeCaptionHtml($captionHtml, $linkUrlResolver) : '';
+
+            if ($caption === '') {
+                $caption = $this->sanitizeCaption($attributes['data-caption'] ?? '');
+            }
 
             // When there's no caption, alignment class goes on the <img> element
             // since no <figure> wrapper will be generated (see #595)
@@ -497,7 +507,8 @@ class ImageResolverService
     /**
      * Sanitize caption to prevent XSS attacks.
      *
-     * SECURITY: Caption text must be sanitized with htmlspecialchars.
+     * SECURITY: Caption text (the data-caption attribute) must be sanitized
+     * with htmlspecialchars. Figcaption markup goes through sanitizeCaptionHtml().
      *
      * @param string $caption Raw caption text
      *
@@ -512,6 +523,43 @@ class ImageResolverService
         }
 
         return htmlspecialchars($caption, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+    /**
+     * Sanitize figcaption markup to the inline allowlist (br, strong, b, em, i, a).
+     *
+     * SECURITY: Everything else is reduced to text. Link hrefs must pass the
+     * protocol allowlist of validateLinkUrl(); t3:// links are resolved with
+     * $linkUrlResolver and become text when they cannot be resolved.
+     *
+     * @param string                         $captionHtml     Unsanitized inner HTML of the figcaption
+     * @param (Closure(string): string)|null $linkUrlResolver Resolver for t3:// URLs
+     *
+     * @return string Sanitized HTML, safe to print without further escaping
+     */
+    private function sanitizeCaptionHtml(string $captionHtml, ?Closure $linkUrlResolver): string
+    {
+        $sanitized = CaptionSanitizer::sanitize(
+            $captionHtml,
+            function (string $href) use ($linkUrlResolver): ?string {
+                if ($linkUrlResolver instanceof Closure && str_starts_with(strtolower($href), 't3:')) {
+                    $href = trim($linkUrlResolver($href));
+                }
+
+                // An unresolved t3:// link has no meaning in the browser
+                if (str_starts_with(strtolower($href), 't3:')) {
+                    return null;
+                }
+
+                return $this->validateLinkUrl($href) ? $href : null;
+            },
+        );
+
+        // A caption without visible text (e.g. only <br> or an empty <strong>)
+        // counts as no caption, as the text-only check did before.
+        $text = trim(html_entity_decode(strip_tags($sanitized), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+
+        return $text !== '' ? $sanitized : '';
     }
 
     /**

@@ -208,6 +208,17 @@ class RteImagePreviewRendererTest extends TestCase
     }
 
     #[Test]
+    public function renderTextWithHtmlReducesFormattedCaptionToText(): void
+    {
+        $input = '<figure class="image"><img src="test.jpg" /><figcaption>Line1<br>Line2 <strong>bold</strong> <a href="javascript:alert(1)">x</a></figcaption></figure>';
+
+        $result = $this->callMethod($this->renderer, 'renderTextWithHtml', [$input]);
+
+        self::assertStringContainsString('<figcaption>Line1Line2 bold x</figcaption>', $result);
+        self::assertStringNotContainsString('javascript:', $result);
+    }
+
+    #[Test]
     public function renderTextWithHtmlStripsAnchorTags(): void
     {
         $input = '<p><a href="http://example.com">Link</a></p>';

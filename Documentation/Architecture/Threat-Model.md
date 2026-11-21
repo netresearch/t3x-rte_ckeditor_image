@@ -50,7 +50,7 @@ This extension provides image handling for CKEditor in TYPO3. It operates in two
 | **Attack Vector** | Backend editor injects `<script>` or event handlers in image caption |
 | **Impact** | Session hijacking, data theft on frontend visitors |
 | **Likelihood** | Medium (requires backend access) |
-| **Mitigation** | `htmlspecialchars($caption, ENT_QUOTES \| ENT_HTML5, 'UTF-8')` in `ImageResolverService::sanitizeCaption()`. Fluid auto-escaping as second layer. |
+| **Mitigation** | Figcaption markup is rebuilt from an inline allowlist (`br`, `strong`, `b`, `em`, `i`, `a` with `href`/`target`/`title`/`rel`) by `CaptionSanitizer` via `ImageResolverService::sanitizeCaptionHtml()`: other elements become text, other attributes (`style`, `on*`) are dropped, link hrefs must pass the protocol allowlist (`javascript:`/`data:` links become text, unresolved `t3://` links become text). Plain-text `data-caption` captions use `htmlspecialchars($caption, ENT_QUOTES \| ENT_HTML5, 'UTF-8')` in `ImageResolverService::sanitizeCaption()`. The Fluid partial prints the sanitized caption with `f:format.raw()`; with `lib.parseFunc_RTE.htmlSanitize` enabled (TYPO3 default), core's HTML sanitizer runs on the output as a second layer. |
 | **Status** | Mitigated |
 
 ### T2: Server-Side Request Forgery (SSRF) via External Images

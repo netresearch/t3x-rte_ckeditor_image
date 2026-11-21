@@ -152,7 +152,8 @@ The service includes comprehensive security measures:
 
 -  **File visibility validation**: Prevents access to hidden/restricted files.
 -  **Protocol blocking**: Blocks dangerous protocols (`javascript:`, `file:`, `data:text/html`, `vbscript:`).
--  **XSS prevention**: Uses :php:`htmlspecialchars()` with :php:`ENT_QUOTES | ENT_HTML5`.
+-  **XSS prevention**: Figcaption markup is reduced to an inline allowlist (``br``, ``strong``, ``b``, ``em``, ``i``, ``a``);
+   plain-text captions use :php:`htmlspecialchars()` with :php:`ENT_QUOTES | ENT_HTML5`.
 -  **Type safety**: Read-only DTO properties prevent modification.
 
 Quality settings

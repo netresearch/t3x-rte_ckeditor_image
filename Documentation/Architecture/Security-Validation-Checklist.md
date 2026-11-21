@@ -58,7 +58,8 @@ $this->assertInstanceOf(ImageRenderingDto::class, $dto);
 - [ ] Encoding: UTF-8 explicitly specified
 - [ ] Test: Inject `<script>alert('XSS')</script>` in caption (must be encoded)
 - [ ] Test: Inject `'"><script>` in caption (must be encoded)
-- [ ] Test: Verify Fluid template does NOT use `f:format.raw()` on caption
+- [ ] Figcaption markup reduced to the allowlist `br`, `strong`, `b`, `em`, `i`, `a` (`CaptionSanitizer`, tests in `Tests/Unit/Service/CaptionSanitizerTest.php`)
+- [ ] Test: Verify `Figure.html` uses `f:format.raw()` only on the sanitized caption
 
 **Code Location:** ImageResolverService::sanitizeCaption()
 
@@ -193,10 +194,10 @@ $this->assertStringContainsString('https://', $dto->src);
 
 **Validation:**
 - [ ] NO use of `{variable -> f:format.raw()}` for user-supplied data
-- [ ] Caption variable `{image.caption}` uses default escaping
+- [ ] Caption variable `{image.caption}` is printed raw only in `Partials/Image/Figure.html`, after sanitizing in PHP
 - [ ] All attribute variables auto-escaped by Fluid
 - [ ] Manual review: Check ALL `.html` templates in Resources/Private/Templates/Image/
-- [ ] Test: Inject HTML in caption variable (must be escaped in output)
+- [ ] Test: Inject HTML in caption (disallowed tags and attributes must not reach the output)
 
 **Templates to Review:**
 - [ ] Image/Standalone.html

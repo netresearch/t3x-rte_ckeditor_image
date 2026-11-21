@@ -103,10 +103,36 @@ All user-controlled content is sanitized:
 Caption text
 ------------
 
-..  code-block:: php
-    :caption: Caption sanitization
+The markup of a ``<figcaption>`` is reduced to an inline allowlist in
+``ImageResolverService`` before the caption reaches the template:
 
-    // Caption is sanitized with htmlspecialchars()
+*   Kept elements: ``<br>``, ``<strong>``, ``<b>``, ``<em>``, ``<i>``, ``<a>``.
+*   Every other element is replaced by its text content;
+    comments are removed.
+*   Every other attribute is removed, including ``style``, ``class`` and
+    ``on*`` event handlers.
+    A link keeps only ``href``, ``target``, ``title`` and ``rel``.
+*   A link ``href`` must pass the same protocol allowlist as image links
+    (``http:``, ``https:``, ``mailto:``, ``tel:``, ``t3:``, or relative).
+    ``javascript:``, ``data:`` and all other protocols replace the link by
+    its text.
+    ``t3://`` links are resolved with typolink;
+    one that cannot be resolved is replaced by its text.
+*   ``target="_blank"`` on an external link gets ``rel="noreferrer"``
+    (see :ref:`integration-security-rel`).
+
+The sanitizer parses the caption with :php:`DOMDocument` and builds the
+output as a new document from the allowed nodes only, so no markup of the
+input is copied.
+The partial ``Figure.html`` prints the sanitized caption with
+``f:format.raw()``.
+
+A plain-text caption from the ``data-caption`` attribute (an image without
+``<figcaption>``) is encoded with :php:`htmlspecialchars()`:
+
+..  code-block:: php
+    :caption: Plain-text caption sanitization
+
     $caption = htmlspecialchars($rawCaption, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
 Alt and title attributes
