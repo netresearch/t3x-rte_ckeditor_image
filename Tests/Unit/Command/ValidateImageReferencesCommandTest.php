@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Command;
 
 use Netresearch\RteCKEditorImage\Command\ValidateImageReferencesCommand;
+use Netresearch\RteCKEditorImage\Dto\SrcOrigin;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssue;
 use Netresearch\RteCKEditorImage\Dto\ValidationIssueType;
 use Netresearch\RteCKEditorImage\Dto\ValidationResult;
@@ -179,9 +180,11 @@ final class ValidateImageReferencesCommandTest extends TestCase
     {
         $result = $this->createResultWithFixableIssues();
 
+        // Second validate() call is the re-scan after fix(): nothing fixable remains
         $this->validator
+            ->expects(self::exactly(2))
             ->method('validate')
-            ->willReturn($result);
+            ->willReturn($result, $this->createCleanResult());
 
         $this->validator
             ->method('fix')
@@ -354,7 +357,7 @@ final class ValidateImageReferencesCommandTest extends TestCase
 
         $this->validator
             ->method('validate')
-            ->willReturn($result);
+            ->willReturn($result, $this->createCleanResult());
 
         $this->validator
             ->expects(self::once())
@@ -366,6 +369,76 @@ final class ValidateImageReferencesCommandTest extends TestCase
         $tester->execute(['--fix' => true]);
 
         self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+    }
+
+    #[Test]
+    public function fixModeReportsFailureWhenFixableIssuesRemainAfterFix(): void
+    {
+        $result = $this->createResultWithFixableIssues();
+
+        // The re-scan after fix() still finds both fixable issues: fix() changed nothing
+        $this->validator
+            ->expects(self::exactly(2))
+            ->method('validate')
+            ->willReturn($result, $this->createResultWithFixableIssues());
+
+        $this->validator
+            ->expects(self::once())
+            ->method('fix')
+            ->with($result)
+            ->willReturn(0);
+
+        $tester = $this->createTester();
+        $tester->execute(['--fix' => true]);
+
+        $output = $tester->getDisplay();
+
+        self::assertSame(Command::FAILURE, $tester->getStatusCode());
+        self::assertStringContainsString('2 fixable issue(s) remain', $output);
+        self::assertStringNotContainsString('[OK]', $output);
+    }
+
+    #[Test]
+    public function fixModeRescansWithSameTableAndIncludeOptions(): void
+    {
+        $result = $this->createResultWithFixableIssues();
+
+        $this->validator
+            ->expects(self::exactly(2))
+            ->method('validate')
+            ->with('tt_content', [SrcOrigin::ExternalUrl])
+            ->willReturn($result, $this->createCleanResult());
+
+        $this->validator
+            ->method('fix')
+            ->willReturn(1);
+
+        $tester = $this->createTester();
+        $tester->execute(['--fix' => true, '--table' => 'tt_content', '--include' => 'external']);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+    }
+
+    #[Test]
+    public function fixWithDryRunReportsWithoutWriting(): void
+    {
+        $this->validator
+            ->expects(self::once())
+            ->method('validate')
+            ->willReturn($this->createResultWithFixableIssues());
+
+        $this->validator
+            ->expects(self::never())
+            ->method('fix');
+
+        $tester = $this->createTester();
+        $tester->execute(['--fix' => true, '--dry-run' => true]);
+
+        $output = $tester->getDisplay();
+
+        self::assertSame(Command::FAILURE, $tester->getStatusCode());
+        self::assertStringContainsString('2 fixable issue(s) would be fixed', $output);
+        self::assertStringNotContainsString('Fixed', $output);
     }
 
     #[Test]

@@ -183,9 +183,9 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         $updatedCount = $validator->fix($result);
 
-        // Records 1 (processed src), 2 (src mismatch), 3 (slashless src), and
-        // 5 (broken src) should be fixed
-        self::assertSame(4, $updatedCount);
+        // Records 1 (processed src), 2 (src mismatch), 3 (slashless src),
+        // 4 (orphaned file uid) and 5 (broken src) should be fixed
+        self::assertSame(5, $updatedCount);
 
         $this->assertCSVDataSet(__DIR__ . '/Fixtures/RteImageValidationFixResult.csv');
     }
@@ -198,7 +198,9 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         $validator->fix($result);
 
-        // Re-validate: records 1, 2, and 5 should be clean now; record 4 (orphaned) still has issue
+        // Re-validate: records 1, 2, 3 and 5 are clean now. Record 4 lost its stale
+        // file uid, so it is no longer orphaned; without a file uid it is reported
+        // as missing_file_uid, which needs manual intervention.
         $resultAfterFix = $validator->validate();
         $remainingTypes = array_map(
             static fn (ValidationIssue $issue): ValidationIssueType => $issue->type,
@@ -208,7 +210,9 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
         self::assertNotContains(ValidationIssueType::ProcessedImageSrc, $remainingTypes);
         self::assertNotContains(ValidationIssueType::SrcMismatch, $remainingTypes);
         self::assertNotContains(ValidationIssueType::BrokenSrc, $remainingTypes);
-        self::assertContains(ValidationIssueType::OrphanedFileUid, $remainingTypes);
+        self::assertNotContains(ValidationIssueType::OrphanedFileUid, $remainingTypes);
+        self::assertSame([ValidationIssueType::MissingFileUid], $remainingTypes);
+        self::assertSame([], $resultAfterFix->getFixableIssues());
     }
 
     #[Test]
@@ -260,16 +264,16 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         $updatedCount = $validator->fix($result);
 
-        // Records 2 (src mismatch), 3 (slashless src), and 5 (broken src) should be fixed;
-        // record 1 is gone (null), record 4 (orphaned) has no change
-        self::assertSame(3, $updatedCount);
+        // Records 2 (src mismatch), 3 (slashless src), 4 (orphaned file uid) and
+        // 5 (broken src) should be fixed; record 1 is gone (null)
+        self::assertSame(4, $updatedCount);
     }
 
     #[Test]
-    public function fixSkipsOrphanedFileUidWithUnchangedHtml(): void
+    public function fixRemovesStaleFileUidFromOrphanedImage(): void
     {
-        // Record uid=4 has OrphanedFileUid (fixable), but applyFixes() returns unchanged HTML
-        // because expectedSrc is null, producing an empty fixMap.
+        // Record uid=4 has OrphanedFileUid (fixable): sys_file uid 999 does not exist.
+        // The fix removes the stale data-htmlarea-file-uid attribute and keeps the src.
         $validator = $this->getSubject();
         $result    = $validator->validate();
 
@@ -282,11 +286,10 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
 
         $updatedCount = $validator->fix($result);
 
-        // Records 1, 2, 3 (slashless src), 5 get fixed; record 4 (orphaned) goes through
-        // fix() but produces no change
-        self::assertSame(4, $updatedCount);
+        // Records 1, 2, 3 (slashless src), 4 (orphaned) and 5 get fixed
+        self::assertSame(5, $updatedCount);
 
-        // Verify record 4's bodytext is unchanged
+        // Verify record 4's bodytext lost only the stale file uid
         $connectionPool = $this->get(ConnectionPool::class);
         self::assertSame(ConnectionPool::class, $connectionPool::class);
 
@@ -301,7 +304,7 @@ class RteImageReferenceValidatorTest extends FunctionalTestCase
             ->fetchOne();
 
         self::assertSame(
-            '<p><img data-htmlarea-file-table="sys_file" data-htmlarea-file-uid="999" src="/fileadmin/deleted.jpg" /></p>',
+            '<p><img data-htmlarea-file-table="sys_file" src="/fileadmin/deleted.jpg" /></p>',
             $bodytext,
         );
     }

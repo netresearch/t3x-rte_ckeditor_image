@@ -81,6 +81,30 @@ final class ValidateRteImageReferencesWizardTest extends TestCase
     }
 
     #[Test]
+    public function updateNecessaryReturnsFalseWhenOnlyUnfixableIssuesExist(): void
+    {
+        // The wizard cannot change a missing_file_uid issue, so it must not stay pending for it
+        $result = new ValidationResult();
+        $result->addIssue(new ValidationIssue(
+            type: ValidationIssueType::MissingFileUid,
+            table: 'tt_content',
+            uid: 1,
+            field: 'bodytext',
+            fileUid: null,
+            currentSrc: '/fileadmin/deleted.jpg',
+            expectedSrc: null,
+            imgIndex: 0,
+        ));
+
+        $this->validator
+            ->expects(self::once())
+            ->method('validate')
+            ->willReturn($result);
+
+        self::assertFalse($this->subject->updateNecessary());
+    }
+
+    #[Test]
     public function updateNecessaryReturnsFalseWhenNoIssues(): void
     {
         $this->validator
@@ -106,10 +130,11 @@ final class ValidateRteImageReferencesWizardTest extends TestCase
             imgIndex: 0,
         ));
 
+        // Second validate() call is the re-scan after fix(): nothing fixable remains
         $this->validator
-            ->expects(self::once())
+            ->expects(self::exactly(2))
             ->method('validate')
-            ->willReturn($result);
+            ->willReturn($result, new ValidationResult());
 
         $this->validator
             ->expects(self::once())
@@ -118,6 +143,39 @@ final class ValidateRteImageReferencesWizardTest extends TestCase
             ->willReturn(1);
 
         self::assertTrue($this->subject->executeUpdate());
+    }
+
+    #[Test]
+    public function executeUpdateReturnsFalseWhenFixableIssuesRemainAfterFix(): void
+    {
+        $issue = new ValidationIssue(
+            type: ValidationIssueType::OrphanedFileUid,
+            table: 'tt_content',
+            uid: 4,
+            field: 'bodytext',
+            fileUid: 999,
+            currentSrc: '/fileadmin/deleted.jpg',
+            expectedSrc: null,
+            imgIndex: 0,
+        );
+        $result = new ValidationResult();
+        $result->addIssue($issue);
+
+        $rescan = new ValidationResult();
+        $rescan->addIssue($issue);
+
+        $this->validator
+            ->expects(self::exactly(2))
+            ->method('validate')
+            ->willReturn($result, $rescan);
+
+        $this->validator
+            ->expects(self::once())
+            ->method('fix')
+            ->with($result)
+            ->willReturn(0);
+
+        self::assertFalse($this->subject->executeUpdate());
     }
 
     #[Test]

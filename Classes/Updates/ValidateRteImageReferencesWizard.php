@@ -21,8 +21,12 @@ use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
  * Detects and repairs:
  * - Processed image URLs (_processed_) that won't survive migration
  * - Stale src attributes after file moves/renames
- * - Orphaned file UIDs referencing deleted FAL files
+ * - Orphaned file UIDs referencing deleted FAL files (the stale
+ *   data-htmlarea-file-uid attribute is removed)
  * - Broken/empty src attributes
+ *
+ * Only fixable issues make the wizard pending; missing_file_uid issues need
+ * manual intervention and are reported by the CLI command instead.
  *
  * Repeatable: Can be run multiple times safely.
  *
@@ -45,25 +49,26 @@ final readonly class ValidateRteImageReferencesWizard implements UpgradeWizardIn
     {
         return 'Scans RTE content fields for broken image references (stale src attributes, '
             . 'processed image URLs, orphaned file UIDs) and fixes them by resolving the '
-            . 'current public URL from FAL.';
+            . 'current public URL from FAL or by removing the file UID of a deleted file.';
     }
 
     public function updateNecessary(): bool
     {
-        return $this->validator->validate()->hasIssues();
+        return $this->validator->validate()->getFixableIssues() !== [];
     }
 
     public function executeUpdate(): bool
     {
         $result = $this->validator->validate();
 
-        if (!$result->hasIssues()) {
+        if ($result->getFixableIssues() === []) {
             return true;
         }
 
         $this->validator->fix($result);
 
-        return true;
+        // Succeed only if the re-scan confirms that no fixable issue is left
+        return $this->validator->validate()->getFixableIssues() === [];
     }
 
     /**
