@@ -56,12 +56,12 @@ $this->assertInstanceOf(ImageRenderingDto::class, $dto);
 - [ ] Caption sanitized with `htmlspecialchars()` BEFORE DTO construction
 - [ ] Flags: `ENT_QUOTES | ENT_HTML5` (encodes both single/double quotes)
 - [ ] Encoding: UTF-8 explicitly specified
-- [ ] Test: Inject `<script>alert('XSS')</script>` in caption (must be encoded)
+- [ ] Test: Inject `<script>alert('XSS')</script>` in a `data-caption` text (must be encoded); in figcaption markup the `script` element must not reach the output (its text may remain)
 - [ ] Test: Inject `'"><script>` in caption (must be encoded)
 - [ ] Figcaption markup reduced to the allowlist `br`, `strong`, `b`, `em`, `i`, `a` (`CaptionSanitizer`, tests in `Tests/Unit/Service/CaptionSanitizerTest.php`)
 - [ ] Test: Verify `Figure.html` uses `f:format.raw()` only on the sanitized caption
 
-**Code Location:** ImageResolverService::sanitizeCaption()
+**Code Location:** `ImageResolverService::sanitizeCaption()` (plain-text caption) and `ImageResolverService::sanitizeCaptionHtml()` with `CaptionSanitizer` (figcaption markup)
 
 **Test Cases:**
 ```php
