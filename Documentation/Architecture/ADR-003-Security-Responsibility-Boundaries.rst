@@ -94,6 +94,11 @@ In Scope (This Extension's Responsibility)
    - Uses TYPO3 Core's ``SvgSanitizer`` for consistency with FAL sanitization
    - Location: ``ImageResolverService::sanitizeSvgDataUri()``
    - Addresses: `#474 <https://github.com/netresearch/rte-ckeditor-image/issues/474>`_
+   - Note (2026): In the current code this sanitizer is only called from
+     ``ImageResolverService::createDtoFromExternalImage()``, which runs for images
+     without a ``data-htmlarea-file-uid``. All ``ImageRenderingAdapter`` entry
+     points return such images unchanged before calling the resolver, so the
+     frontend render path does not reach ``sanitizeSvgDataUri()``.
 
 7. **External-link rel security (Fluid path)**
 
@@ -127,6 +132,10 @@ Known Boundaries & Limitations
    images from clipboard). SVG data URIs are now sanitized at render time using the
    same sanitizer that TYPO3 FAL uses for uploaded SVG files, providing consistent
    protection regardless of how the SVG content was introduced.
+
+   Note (2026): See the note under *SVG Data URI Sanitization*: the adapter returns
+   images without a file UID (which includes inline ``data:`` images) before the
+   resolver runs, so ``SvgSanitizer`` is not applied on the frontend render path.
 
 2. **Frontend Context Processing**
 
