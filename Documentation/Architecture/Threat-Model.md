@@ -80,7 +80,7 @@ This extension provides image handling for CKEditor in TYPO3. It operates in two
 | **Attack Vector** | Image src set to `javascript:`, `vbscript:`, `data:text/html`, or `file:` URI |
 | **Impact** | Script execution, local file access |
 | **Likelihood** | Medium |
-| **Mitigation** | Protocol allowlist in `ImageResolverService::ALLOWED_LINK_PROTOCOLS` (only `http:`, `https:`, `mailto:`, `tel:`, `t3:` permitted) via `validateLinkUrl()`. SVG data URIs sanitized via TYPO3 `SvgSanitizer`. |
+| **Mitigation** | Link `href` values: protocol allowlist in `ImageResolverService::ALLOWED_LINK_PROTOCOLS` (only `http:`, `https:`, `mailto:`, `tel:`, `t3:` permitted) via `validateLinkUrl()`. The allowlist is not applied to the image `src`: an image with a file UID gets its `src` from FAL, and the adapter returns an image without a file UID unchanged; for that case `ImageRenderingAdapter::renderImageAttributes()` relies on the HTML sanitizer that parseFunc runs on the result (per its code comment). |
 | **Status** | Mitigated |
 
 ### T5: Privilege Escalation via Non-Public Files
@@ -100,7 +100,7 @@ This extension provides image handling for CKEditor in TYPO3. It operates in two
 | **Attack Vector** | Crafted HTML content with deeply nested tags causing catastrophic regex backtracking |
 | **Impact** | Server-side denial of service during content rendering |
 | **Likelihood** | Low |
-| **Mitigation** | Primary HTML parsing uses `DOMDocument` instead of regex, eliminating catastrophic backtracking. The single remaining regex (class extraction in `ImageRenderingAdapter`) uses a simple non-backtracking pattern. |
+| **Mitigation** | Primary HTML parsing uses `DOMDocument` instead of regex. `Classes/` still contains about 20 `preg_*` calls, six of them in `ImageRenderingAdapter` (class splitting, attribute trimming, nested-link stripping, link and figure extraction). |
 | **Status** | Mitigated |
 
 ### T7: SVG-Based XSS via Data URIs
@@ -110,7 +110,7 @@ This extension provides image handling for CKEditor in TYPO3. It operates in two
 | **Attack Vector** | Inline `data:image/svg+xml` containing `<script>` tags or event handlers |
 | **Impact** | Script execution on frontend |
 | **Likelihood** | Medium |
-| **Mitigation** | SVG data URIs passed through TYPO3 Core `SvgSanitizer` at render time, removing script tags, event handlers, and javascript: hrefs |
+| **Mitigation** | `ImageResolverService::sanitizeSvgDataUri()` passes SVG data URIs through TYPO3 Core `SvgSanitizer`, but it is only called from `createDtoFromExternalImage()` for images without a file UID. All `ImageRenderingAdapter` entry points return such images unchanged before calling the resolver, so on the frontend render path the extension relies on the HTML sanitizer that parseFunc runs (per the code comment in `renderImageAttributes()`). |
 | **Status** | Mitigated |
 
 ## Out-of-Scope Threats

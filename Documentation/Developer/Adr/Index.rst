@@ -15,3 +15,4 @@ ADRs for this extension live under
 - :ref:`adr-001-image-scaling` — image scaling responsibility split
 - :ref:`adr-002-ckeditor-integration` — CKEditor 5 plugin model
 - :ref:`adr-003-security-responsibility-boundaries` — security in/out of scope (incl. external-link rel)
+- :ref:`adr-004-image-src-storage-convention` — image ``src`` storage convention

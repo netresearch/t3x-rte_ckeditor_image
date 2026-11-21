@@ -117,6 +117,36 @@ Backend Layer
 
 - **RteImageSoftReferenceParser**: Tracks soft references for link management
 
+5. Services (``Classes/Service/``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **ImageResolverService**: Frontend business logic (file resolution, security checks, quality, DTO building)
+- **ImageRenderingService**: Fluid template selection and rendering
+- **ImageAttributeParser**: DOMDocument-based HTML attribute parser
+- **RteImageProcessor** (with ``RteImageProcessorFactory``): Backend save pipeline, using
+  ``ImageTagParser``, ``ImageFileResolver``, ``ImageTagBuilder``, ``ExternalImageFetcher``
+  and ``SecurityValidator``
+- **RteImageReferenceValidator**, **SrcOriginClassifier**: Image reference validation
+- **SecurityRelComputer**: Adds ``rel="noreferrer"`` to external links whose ``target`` opens a new browsing context (for example ``_blank``), keeping existing ``rel`` tokens
+- **Typo3EnvironmentInfo** (``EnvironmentInfoInterface``): Wraps TYPO3 statics for testability
+
+6. Validation Command and Upgrade Wizard
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **ValidateImageReferencesCommand** (``Classes/Command/``): CLI command ``rte_ckeditor_image:validate``
+- **ValidateRteImageReferencesWizard** (``Classes/Updates/``): Upgrade wizard running the same validation
+
+7. Backend Preview (``Classes/Backend/Preview/``, ``Classes/ViewHelpers/``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **RteImagePreviewRenderer**: Page module preview with images and reference warnings
+- **RteImagePreviewViewHelper**: Same image preview for custom backend templates (e.g. Content Blocks)
+
+8. Utilities (``Classes/Utils/``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **ProcessedFilesHandler**: Wrapper around TYPO3 image processing
+
 Frontend Layer (CKEditor Plugin)
 ---------------------------------
 
@@ -142,12 +172,13 @@ TypoScript
 ~~~~~~~~~~
 
 - **setup.typoscript**: Frontend rendering configuration
-- **page.tsconfig**: Backend RTE configuration
+- **page.tsconfig**: Backend RTE configuration (in the Site Set ``Configuration/Sets/RteCKEditorImage/``; sets ``RTE.default.preset = rteWithImages``)
 
 Backend Routes
 ~~~~~~~~~~~~~~
 
 - **Routes.php**: Backend route definitions for image selection
+- **AjaxRoutes.php**: AJAX route ``rteckeditorimage_link_browser`` for the image link browser
 
 Technology Stack
 ================

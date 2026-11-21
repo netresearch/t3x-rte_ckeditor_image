@@ -113,7 +113,7 @@ Implement a custom CKEditor 5 plugin (``typo3image``) that:
 **Pros**:
 
 - ✅ **Full FAL Integration**: Stores file UID and table references
-- ✅ **Reference Tracking**: Creates proper ``sys_file_reference`` records
+- ✅ **Reference Tracking**: Registers each image in the reference index (``sys_refindex`` entry to ``sys_file`` via the ``rtehtmlarea_images`` soft reference); no ``sys_file_reference`` records are created
 - ✅ **Magic Image Processing**: Full integration with TYPO3's image pipeline
 - ✅ **Backend Integration**: Uses TYPO3's file selector dialog
 - ✅ **Data Persistence**: All FAL attributes preserved through save/load cycles
@@ -175,6 +175,11 @@ Evidence and Technical Justification
    "By default, images in CKE are disabled within configuration typo3/sysext/rte_ckeditor/Configuration/RTE/Default.yaml with removePlugins: - image"
 
 This is **not accidental** — it's a deliberate architectural decision by the TYPO3 core team.
+
+.. note::
+
+   Note (2026): The core ``Default.yaml`` of TYPO3 v13.4 and v14.3 no longer
+   contains a ``removePlugins`` entry.
 
 2. FAL Requirements Incompatible with Native Plugins
 -----------------------------------------------------
@@ -435,6 +440,8 @@ The custom plugin currently lacks some WYSIWYG features present in native plugin
 
    - Root cause: ``toWidget()`` wrapper prevents nested editables
    - **Status**: Implementation gap - can be addressed with proper editable nesting
+   - Note (2026): The caption is now inline-editable; the editing downcast wraps
+     ``figcaption`` with ``toWidgetEditable()`` (``typo3image.js``)
 
 2. **No Contextual Toolbar**: No balloon toolbar on image selection
 

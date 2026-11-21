@@ -31,19 +31,19 @@ The easiest approach is to use the existing DDEV environment:
 Required Screenshots
 ====================
 
-ClickBehaviorDropdown.png
--------------------------
+ClickBehaviorOptions.png
+------------------------
 
-**Purpose:** Show the Click Behavior dropdown with its three options.
+**Purpose:** Show the Click Behavior radio buttons with their three options.
 
 **Steps:**
 
 1. Edit the text content element on the Home page
 2. Double-click the blue test image to open Image Properties
-3. Click the "Click Behavior" dropdown to expand it
-4. Screenshot showing "None", "Enlarge", "Link" options
+3. Scroll to the "Click Behavior" radio buttons
+4. Screenshot showing "None - image is not clickable", "Enlarge - opens full-size in lightbox", "Link - opens custom URL"
 
-**Dimensions:** Cropped to dropdown area, ~400px wide
+**Dimensions:** Cropped to the radio button area, ~400px wide
 
 LinkFieldsExpanded.png
 ----------------------
