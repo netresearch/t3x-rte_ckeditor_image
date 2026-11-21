@@ -225,10 +225,10 @@ function createDtoForType(string $type, int $index): ImageRenderingDto
         case 'withCaption':
             return new ImageRenderingDto(...$base, caption: "Caption {$index}", link: null, isMagicImage: true);
         case 'link':
-            $link = new LinkDto("/page-{$index}", null, null, false, null);
+            $link = new LinkDto(url: "/page-{$index}", target: null, class: null, params: null, isPopup: false, jsConfig: null);
             return new ImageRenderingDto(...$base, caption: null, link: $link, isMagicImage: true);
         case 'popup':
-            $link = new LinkDto("/large-{$index}.jpg", 'popup', null, true, ['width' => 800]);
+            $link = new LinkDto(url: "/large-{$index}.jpg", target: 'popup', class: null, params: null, isPopup: true, jsConfig: ['width' => 800]);
             return new ImageRenderingDto(...$base, caption: null, link: $link, isMagicImage: true);
         default: // standalone
             return new ImageRenderingDto(...$base, caption: null, link: null, isMagicImage: true);
@@ -246,7 +246,7 @@ php benchmark.php
 Enable TYPO3 Admin Panel debug mode:
 
 ```php
-// LocalConfiguration.php or AdditionalConfiguration.php
+// config/system/settings.php or config/system/additional.php
 $GLOBALS['TYPO3_CONF_VARS']['BE']['debug'] = true;
 ```
 
@@ -294,7 +294,7 @@ ab -n 100 -c 10 https://your-site.local/page-with-images
 
 **TYPO3 Logging:**
 ```php
-// Add to LocalConfiguration.php for temporary monitoring
+// Add to config/system/additional.php for temporary monitoring
 $GLOBALS['TYPO3_CONF_VARS']['LOG']['Netresearch']['RteCKEditorImage']['Service']['writerConfiguration'] = [
     \TYPO3\CMS\Core\Log\LogLevel::DEBUG => [
         \TYPO3\CMS\Core\Log\Writer\FileWriter::class => [
@@ -318,7 +318,7 @@ $GLOBALS['TYPO3_CONF_VARS']['LOG']['Netresearch']['RteCKEditorImage']['Service']
 
 2. **TYPO3 Cache Configuration:**
    ```php
-   // LocalConfiguration.php
+   // config/system/settings.php
    'SYS' => [
        'caching' => [
            'cacheConfigurations' => [

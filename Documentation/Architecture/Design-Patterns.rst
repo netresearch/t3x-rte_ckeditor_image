@@ -296,16 +296,11 @@ Example TypoScript Extension
 
 .. code-block:: typoscript
 
-   lib.parseFunc_RTE {
-       tags {
-           img {
-               width = 1920
-               height = 1080
-
-               // Custom processing
-               params = class="custom-image-class"
-           }
-       }
+   # The adapter only receives the keys inside preUserFunc
+   # (TYPO3's stdWrap_preUserFunc passes $conf['preUserFunc.']).
+   lib.parseFunc_RTE.tags.img.preUserFunc {
+       # Use original files, skip image processing
+       noScale = 1
    }
 
 Related Documentation

@@ -23,9 +23,15 @@ Overview
 Over time, image references stored inside RTE ``bodytext`` fields can become
 stale. Common causes include TYPO3 major upgrades, bulk file operations in the
 Filelist module, and manual database edits. The validator scans every ``<img>``
-tag that carries a ``data-htmlarea-file-uid`` attribute, resolves the
-corresponding FAL file, and compares the ``src`` attribute against the file's
-current public URL.
+tag in the affected records. For each tag that carries a
+``data-htmlarea-file-uid`` attribute, it resolves the corresponding FAL file
+and compares the ``src`` attribute against the file's current public URL.
+
+The validator finds records through the reference index: it only scans records
+that have at least one ``rtehtmlarea_images`` soft reference to a
+``sys_file`` record. A record whose images all lack a
+``data-htmlarea-file-uid`` attribute has no such entry and is never scanned,
+so its ``missing_file_uid`` images are not reported.
 
 Six categories of issues are detected:
 
@@ -55,9 +61,9 @@ Six categories of issues are detected:
      - Yes
    * - ``orphaned_file_uid``
      - ``data-htmlarea-file-uid`` references a FAL file that no longer exists
-       in ``sys_file``. The stale ``data-htmlarea-file-uid`` attribute is
-       removed, but no ``src`` correction is possible because the file is gone.
-     - Yes (attribute removed)
+       in ``sys_file``. No ``src`` correction is possible because the file
+       is gone.
+     - Reported as fixable, but ``--fix`` changes nothing (see below)
    * - ``missing_file_uid``
      - The ``<img>`` tag has no ``data-htmlarea-file-uid`` attribute at all.
        Without a file UID there is no way to determine which FAL file the
@@ -73,9 +79,15 @@ Six categories of issues are detected:
      - Yes
 
 For fixable issues the validator replaces the ``src`` attribute with the file's
-current ``getPublicUrl()`` value. The ``orphaned_file_uid`` type is treated as
-fixable in the scan (it is counted and reported), but no ``src`` update is
-applied because the underlying file no longer exists.
+current ``getPublicUrl()`` value.
+
+.. warning::
+   The ``orphaned_file_uid`` type is counted as fixable, but ``--fix`` does not
+   change the record: neither the ``src`` nor the stale
+   ``data-htmlarea-file-uid`` attribute is touched. The command still reports
+   success and exits with ``0``, and the issue is found again on the next scan.
+   The Upgrade Wizard stays listed as necessary for the same reason. Repair
+   these images by hand: select a new file in the editor or remove the image.
 
 Prerequisites
 =============
@@ -107,6 +119,10 @@ Run the command without any flags to perform a read-only scan:
 
    bin/typo3 rte_ckeditor_image:validate
 
+The ``--dry-run`` flag is accepted for explicitness. It does not change the
+behavior: without ``--fix`` the command never writes, and with ``--fix`` it
+writes even if ``--dry-run`` is also given.
+
 The output shows a summary of scanned records and images, followed by a table
 listing every issue found, including the current ``src``, the expected ``src``,
 and whether the issue is auto-fixable.
@@ -136,8 +152,12 @@ Skipped origins
 
 .. versionadded:: 13.9.0
 
-Not every ``<img src>`` value can be repaired by the validator. By default the
-command classifies each ``src`` and **skips four out-of-scope categories**:
+Not every ``<img src>`` value can be repaired by the validator. For each
+``<img>`` **without** a ``data-htmlarea-file-uid`` attribute the command
+classifies the ``src`` and by default **skips four out-of-scope categories**.
+An ``<img>`` that has a file UID is always validated against FAL, whatever its
+``src`` looks like, and ``--fix`` rewrites its ``src`` regardless of
+``--include``:
 
 .. list-table::
    :header-rows: 1
@@ -174,8 +194,9 @@ needs them validated:
 
 .. code-block:: bash
 
-   # Re-include external URLs (the validator will then flag them as
-   # mismatches against FAL) — useful when migrating off a CDN.
+   # Re-include external URLs (the validator will then report them as
+   # missing_file_uid, which is not auto-fixable) — useful to list them
+   # when migrating off a CDN.
    bin/typo3 rte_ckeditor_image:validate --include=external
 
    # Re-include multiple categories at once
@@ -217,7 +238,9 @@ Exit codes
    * - Code
      - Meaning
    * - ``0``
-     - No issues found, or all fixable issues were repaired successfully.
+     - No issues found, or ``--fix`` ran on at least one fixable issue.
+       ``0`` is also returned when ``--fix`` changed nothing, for example
+       for ``orphaned_file_uid`` issues.
    * - ``1``
      - Issues were found (dry-run mode), or no fixable issues exist while
        unfixable issues remain.
@@ -275,9 +298,9 @@ This warning appears automatically for all CTypes that use the
 The detection happens during page module rendering and requires no additional
 configuration.
 
-The same five issue types detected by the CLI command are shown in the warning:
+The same six issue types detected by the CLI command are shown in the warning:
 ``orphaned_file_uid``, ``src_mismatch``, ``processed_image_src``,
-``missing_file_uid``, and ``broken_src``.
+``missing_file_uid``, ``broken_src``, and ``nested_link_wrapper``.
 
 .. tip::
    The warning is purely informational and does not block editing. Editors can

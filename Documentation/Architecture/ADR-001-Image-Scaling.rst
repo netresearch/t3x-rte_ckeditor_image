@@ -377,12 +377,21 @@ Rule 4: File Size Threshold (Force Processing)
 
 .. code-block:: typoscript
 
-   lib.parseFunc_RTE.tags.img {
-       noScale = 1
+   lib.parseFunc_RTE.tags.img.preUserFunc {
+       noScale = 0
        noScale {
            maxFileSizeForAuto = 2000000  # 2MB threshold
        }
    }
+
+.. note::
+
+   Note (2026): Both keys must sit under ``preUserFunc``. TYPO3's
+   ``stdWrap_preUserFunc`` passes only ``$conf['preUserFunc.']`` to the
+   rendering adapter, so keys next to ``preUserFunc`` are never read. The
+   threshold only applies while ``noScale`` is off: with ``noScale = 1``
+   processing is skipped before the file size is checked. Captioned images
+   use ``lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc``.
 
 **Rationale**:
 
@@ -405,6 +414,13 @@ Frontend Rendering (ImageRenderingAdapter)
 
 Processing Decision Logic
 --------------------------
+
+.. note::
+
+   Note (2026): This logic now lives in the private method
+   ``ImageResolverService::shouldSkipProcessing()``, not in
+   ``ImageRenderingAdapter``. The current method has no separate
+   "no dimensions requested" rule.
 
 .. code-block:: php
 
@@ -463,7 +479,7 @@ Global No Processing (All RTE Images)
    :caption: TypoScript Setup
 
    # TypoScript Setup
-   lib.parseFunc_RTE.tags.img.noScale = 1
+   lib.parseFunc_RTE.tags.img.preUserFunc.noScale = 1
 
 **Result**: ALL images use originals, no processing
 
@@ -480,7 +496,7 @@ File Size Optimized
 .. code-block:: typoscript
    :caption: TypoScript Setup
 
-   lib.parseFunc_RTE.tags.img {
+   lib.parseFunc_RTE.tags.img.preUserFunc {
        noScale = 0  # Enable processing
        noScale {
            maxFileSizeForAuto = 2000000  # 2MB

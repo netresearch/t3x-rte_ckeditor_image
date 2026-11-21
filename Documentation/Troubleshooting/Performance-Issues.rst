@@ -39,7 +39,7 @@ Issue: Slow Editor Loading
 
 .. code-block:: php
 
-   // LocalConfiguration.php
+   // config/system/settings.php
    $GLOBALS['TYPO3_CONF_VARS']['GFX']['jpg_quality'] = 85;
    $GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_effects'] = false;  // If not needed
 
@@ -90,15 +90,7 @@ Issue: Image Selection Dialog Slow
    * Use year/month folder structure
    * Keep directories under 100 files
 
-2. **Pre-generate Thumbnails:**
-
-.. code-block:: bash
-
-   # Generate missing thumbnails
-   ./vendor/bin/typo3 cleanup:missingfiles
-   ./vendor/bin/typo3 cleanup:previewlinks
-
-3. **Optimize File Storage:**
+2. **Optimize File Storage:**
 
 .. code-block:: typoscript
 
@@ -132,7 +124,7 @@ Issue: Slow Page Load Due to Images
 
 .. code-block:: php
 
-   // LocalConfiguration.php
+   // config/system/settings.php
    $GLOBALS['TYPO3_CONF_VARS']['GFX'] = [
        'processor_enabled' => true,
        'processor' => 'ImageMagick',
@@ -150,18 +142,15 @@ Issue: Slow Page Load Due to Images
 
 3. **Implement Lazy Loading:**
 
+The extension renders the ``loading`` attribute itself from the TypoScript
+constant ``styles.content.image.lazyLoading`` (``lazy``, ``eager`` or
+``auto``). Set the constant instead of rewriting the ``<img>`` tag, which
+would duplicate the attribute:
+
 .. code-block:: typoscript
 
-   lib.parseFunc_RTE.tags.img {
-       current = 1
-       preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderImageAttributes
-       stdWrap.replacement {
-           10 {
-               search = <img
-               replace = <img loading="lazy"
-           }
-       }
-   }
+   # TypoScript constants
+   styles.content.image.lazyLoading = lazy
 
 4. **Enable Browser Caching:**
 
@@ -192,7 +181,7 @@ Issue: Excessive Bandwidth Usage
 
 .. code-block:: php
 
-   // LocalConfiguration.php
+   // config/system/settings.php
    $GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_allowUpscaling'] = false;
    $GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_stripColorProfileByDefault'] = true;
 
@@ -235,7 +224,7 @@ Issue: Image Processing Timeouts
 
 .. code-block:: php
 
-   // php.ini or LocalConfiguration.php
+   // php.ini or config/system/settings.php
    memory_limit = 512M
    max_execution_time = 300
    upload_max_filesize = 20M
@@ -245,18 +234,15 @@ Issue: Image Processing Timeouts
 
 .. code-block:: php
 
-   // LocalConfiguration.php
-   $GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_path_lzw'] = '';
+   // config/system/settings.php
    $GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_colorspace'] = 'RGB';
 
 3. **Limit Upload Size:**
 
-.. code-block:: typoscript
-
-   # Page TSConfig
-   RTE.default.buttons.image.options.magic {
-       maxFileSize = 5000  # 5MB in KB
-   }
+The upload size is limited by the PHP settings ``upload_max_filesize`` and
+``post_max_size`` shown above. The extension's
+``RTE.default.buttons.image.options.magic`` options only limit the
+dimensions (``maxWidth``, ``maxHeight``), not the file size.
 
 ----
 
@@ -284,14 +270,7 @@ Issue: Processed Images Directory Growing
    # Remove processed files older than 30 days
    find fileadmin/_processed_ -type f -mtime +30 -delete
 
-2. **Implement Automated Cleanup:**
-
-.. code-block:: php
-
-   // LocalConfiguration.php
-   $GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_allowTemporaryMasksAsPng'] = false;
-
-3. **Schedule Cleanup Task:**
+2. **Schedule Cleanup Task:**
 
 Create a scheduler task to regularly clean old processed images:
 
@@ -356,11 +335,13 @@ Issue: Slow Reference Index Updates
 
 **Solutions:**
 
-1. **Batch Update References:**
+1. **Check Before Updating:**
+
+``referenceindex:update`` has no batch option. ``--check`` only reports
+what would change and writes nothing:
 
 .. code-block:: bash
 
-   # Update in smaller batches
    ./vendor/bin/typo3 referenceindex:update --check
 
 2. **Schedule Off-Peak Updates:**
@@ -398,7 +379,7 @@ Issue: Excessive Cache Invalidation
 
 .. code-block:: php
 
-   // LocalConfiguration.php
+   // config/system/settings.php
    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['pages'] = [
        'backend' => \TYPO3\CMS\Core\Cache\Backend\RedisBackend::class,
        'options' => [
@@ -478,8 +459,8 @@ Performance Monitoring
 
 .. code-block:: bash
 
-   # Check processing time
-   ./vendor/bin/typo3 backend:test:imageprocessing
+   # Check processing time: TYPO3 has no CLI command for this test.
+   # Use the Environment backend module, card Image Processing, Test Images.
 
 3. **Track Page Load Times:**
 
@@ -503,9 +484,6 @@ Image Processing Profiling
 ---------------------------
 
 .. code-block:: bash
-
-   # Time image processing
-   time ./vendor/bin/typo3 backend:test:imageprocessing
 
    # Monitor processed files
    watch -n 5 "ls -lh fileadmin/_processed_/ | wc -l"

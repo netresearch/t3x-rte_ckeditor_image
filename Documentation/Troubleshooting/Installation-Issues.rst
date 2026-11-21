@@ -173,7 +173,7 @@ The plugin now requires:
 .. code-block:: javascript
 
    static get requires() {
-       return ['StyleUtils', 'GeneralHtmlSupport'];  // Both mandatory
+       return ['StyleUtils', 'GeneralHtmlSupport', 'WidgetToolbarRepository'];
    }
 
 .. important::
@@ -319,9 +319,9 @@ Issue: Static Template Not Included
 
 1. **Include Static Template:**
 
-   * Go to **Template** → **Info/Modify**
+   * Go to **TypoScript** → **Edit TypoScript Record**
    * Edit whole template record
-   * Include ``CKEditor Image Support`` before Fluid Styled Content
+   * Include ``CKEditor Image Support`` after Fluid Styled Content
 
 2. **Verify TypoScript:**
 
@@ -336,17 +336,18 @@ Issue: Static Template Not Included
    }
 
 .. warning::
-   Always include the static template BEFORE Fluid Styled Content for proper rendering.
+   Include the static template AFTER Fluid Styled Content.
+   The Site Set orders itself the same way (``optionalDependencies`` in
+   ``Configuration/Sets/RteCKEditorImage/config.yaml``).
 
 ----
 
 Issue: Click-to-Enlarge Not Working with sys_template Records (TYPO3 v13)
 --------------------------------------------------------------------------
 
-.. versionadded:: 13.0.0
-   TYPO3 v13 introduced site sets as a modern alternative to sys_template records.
-   When sys_template records exist, site sets are bypassed, which affects extensions
-   that rely on site set dependencies.
+.. note::
+   TYPO3 13.1 introduced site sets as a modern alternative to sys_template records.
+   A site set is only loaded when the site configuration lists it as a dependency.
 
 **Symptoms:**
 
@@ -357,10 +358,15 @@ Issue: Click-to-Enlarge Not Working with sys_template Records (TYPO3 v13)
 
 **Cause:**
 
-In TYPO3 v13, **sys_template records prevent site sets from loading**. Legacy installations
-like the Introduction Package use sys_template records instead of modern site sets. When
-a sys_template exists on a page, TYPO3 ignores site set dependencies, so the extension's
-TypoScript configuration is never loaded.
+The extension's TypoScript is not part of the active TypoScript. Two setups cause this:
+
+* The site configuration does not list the site set ``netresearch/rte-ckeditor-image``
+  in ``dependencies`` and the sys_template record does not include the static template.
+  Legacy installations like the Introduction Package use sys_template records only.
+* A sys_template record has the **Clear** flag for setup set. TYPO3 applies
+  sys_template records after the TypoScript of the site sets, and a record with
+  this flag discards all TypoScript built before it, including the site set's.
+  A sys_template record without the flag does not stop site sets from loading.
 
 **Detection:**
 
@@ -379,7 +385,7 @@ TypoScript is not being loaded.
 
 Add TypoScript directly to the sys_template record:
 
-1. Go to **WEB > Template** module
+1. Go to the **TypoScript** module → **Edit TypoScript Record**
 2. Select page with sys_template record
 3. Click **Edit the whole template record**
 4. In **Setup** field, add:
@@ -387,7 +393,7 @@ Add TypoScript directly to the sys_template record:
 .. code-block:: typoscript
 
    # Include CKEditor Image Support TypoScript
-   <INCLUDE_TYPOSCRIPT: source="FILE:EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript">
+   @import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'
 
 5. Save template
 6. Clear all caches:
@@ -425,7 +431,7 @@ Modern TYPO3 v13 approach:
 * **TypoScript must be manually included** via static template or import
 * **sys_template records** control TypoScript for their page tree
 * **Bootstrap Package** in sys_template may clear ``lib.parseFunc_RTE`` hooks
-* **Load order matters** - include the extension's TypoScript after theme packages but before Fluid Styled Content
+* **Load order matters** - include the extension's TypoScript after theme packages and after Fluid Styled Content
 
 **Verification:**
 
@@ -437,7 +443,8 @@ After applying fix, check frontend HTML:
    <img src="..." data-htmlarea-zoom="true" data-htmlarea-file-uid="2" />
 
    <!-- After (WORKING): -->
-   <a href="/index.php?eID=tx_cms_showpic&file=2&...">
+   <!-- class="lightbox" instead of "popup-link" when the Site Set is used -->
+   <a href="fileadmin/..." target="_blank" class="popup-link" data-popup="true" rel="lightbox-group-rte">
        <img src="..." />
    </a>
 
@@ -465,15 +472,13 @@ Issue: Insert Image Button Missing with Bootstrap Package or Other Site Sets
 **Cause:**
 
 Third-party extensions like ``bootstrap_package`` use **Site Sets** to configure the RTE.
-In TYPO3 v13, Site Sets have **higher priority** than extension ``page.tsconfig`` files.
+This extension sets ``RTE.default.preset = rteWithImages`` only in its own Site Set
+(``Configuration/Sets/RteCKEditorImage/page.tsconfig``); it ships no global
+``page.tsconfig``. When several Site Sets set ``RTE.default.preset``, the one
+loaded last wins.
 
-The loading order is:
-
-1. Extension ``Configuration/page.tsconfig`` (our ``RTE.default.preset = rteWithImages``)
-2. Site Set configurations (bootstrap's ``RTE.default.preset = bootstrap`` **overrides ours**)
-
-When your site uses a Site Set dependency like ``bootstrap-package/full``, it loads
-**after** our extension's page.tsconfig and overrides our RTE preset.
+When your site lists ``bootstrap-package/full`` but not ``netresearch/rte-ckeditor-image``,
+only bootstrap's ``RTE.default.preset = bootstrap`` is set.
 
 **Detection:**
 
@@ -565,7 +570,7 @@ Issue: ImageMagick/GraphicsMagick Not Configured
 
 .. code-block:: php
 
-   // LocalConfiguration.php
+   // config/system/settings.php
    $GLOBALS['TYPO3_CONF_VARS']['GFX'] = [
        'processor' => 'ImageMagick',  // or 'GraphicsMagick'
        'processor_path' => '/usr/bin/',
@@ -574,9 +579,9 @@ Issue: ImageMagick/GraphicsMagick Not Configured
 
 **Test Image Processing:**
 
-.. code-block:: bash
-
-   ./vendor/bin/typo3 backend:test:imageprocessing
+Open the **Environment** backend module (system maintainers only), card
+**Image Processing**, and click **Test Images…**. TYPO3 has no CLI command for
+this test.
 
 ----
 
@@ -644,6 +649,11 @@ Issue: Large Database Size
 .. code-block:: bash
 
    ./vendor/bin/typo3 referenceindex:update
+
+The extension adds the ``rtehtmlarea_images`` soft reference to every RTE field
+by default. To limit which tables get it, use the extension settings
+``enableAutomaticRteSoftref``, ``excludedTables`` and ``includedTablesOnly``
+(see :ref:`integration-configuration-extension-settings`).
 
 **Check References:**
 
