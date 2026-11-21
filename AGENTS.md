@@ -84,7 +84,7 @@ composer ci:test    # Full local check suite (lint, phpstan, rector, cgl, unit, 
 make up             # DDEV: start environment + install TYPO3 v13/v14 + render docs
 ```
 
-Make targets are DDEV/docs conveniences only (`setup`, `start`, `stop`, `up`, `ddev-restart`, `docs`, `docs-lint`, `docs-fix`); quality gates run through Composer scripts. For a full local environment with TYPO3 backend, see `.ddev/AGENTS.md`.
+The Makefile defines DDEV/docs conveniences (`setup`, `start`, `stop`, `up`, `ddev-restart`, `docs`, `docs-lint`, `docs-fix`). After `composer install` it also includes `.Build/vendor/netresearch/typo3-ci-workflows/Makefile.include`, which adds shared quality targets (`help`, `lint`, `phpstan`, `rector`, `cgl`, `test`, `test-unit`, `test-functional`, `ci` and others). CI runs the Composer scripts, so they are the authoritative quality gates. For a full local environment with TYPO3 backend, see `.ddev/AGENTS.md`.
 
 ## Development Workflow
 
