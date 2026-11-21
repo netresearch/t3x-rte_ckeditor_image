@@ -23,7 +23,7 @@ This checklist ensures all security measures from the current implementation are
 
 **Validation:**
 - [ ] Check `$file->getStorage()->isPublic()` returns true
-- [ ] Throw `FileDoesNotExistException` if non-public
+- [ ] Throw `NonPublicFileException` if non-public (adapter renders nothing for the image)
 - [ ] Log warning with file UID, storage UID, storage name
 - [ ] Test: Attempt to render image from non-public storage (must fail)
 - [ ] Test: Verify proper error logging without exposing sensitive info

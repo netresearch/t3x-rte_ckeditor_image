@@ -12,6 +12,7 @@ namespace Netresearch\RteCKEditorImage\Tests\Unit\Controller;
 use Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter;
 use Netresearch\RteCKEditorImage\Domain\Model\ImageRenderingDto;
 use Netresearch\RteCKEditorImage\Domain\Model\LinkDto;
+use Netresearch\RteCKEditorImage\Service\Exception\NonPublicFileException;
 use Netresearch\RteCKEditorImage\Service\ImageAttributeParser;
 use Netresearch\RteCKEditorImage\Service\ImageRenderingService;
 use Netresearch\RteCKEditorImage\Service\ImageResolverService;
@@ -2628,6 +2629,325 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertStringContainsString('href="/page"', $result);
         self::assertStringContainsString('valid="attribute"', $result);
         self::assertStringNotContainsString('numeric-key', $result);
+    }
+
+    // ========================================================================
+    // Files in non-public storages must not be rendered at all
+    // ========================================================================
+
+    #[Test]
+    public function renderImageAttributesReturnsEmptyStringWhenFileIsNotPublic(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = [
+            'src'                    => '/protected/secret.jpg',
+            'data-htmlarea-file-uid' => '2',
+            'allParams'              => 'src="/protected/secret.jpg" data-htmlarea-file-uid="2" /',
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
+
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->willThrowException(new NonPublicFileException(2));
+
+        $this->renderingService->expects(self::never())->method('render');
+
+        self::assertSame('', $this->adapter->renderImageAttributes(null, [], $this->request));
+    }
+
+    #[Test]
+    public function renderImageAttributesReturnsEmptyStringForCaptionedImageWhenFileIsNotPublic(): void
+    {
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = [
+            'src'                    => '/protected/secret.jpg',
+            'data-htmlarea-file-uid' => '2',
+            'data-caption'           => 'Caption',
+            'allParams'              => 'src="/protected/secret.jpg" data-htmlarea-file-uid="2" data-caption="Caption" /',
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
+
+        $this->resolverService
+            ->expects(self::once())
+            ->method('isNonPublicFile')
+            ->with(2)
+            ->willReturn(true);
+        $this->resolverService->expects(self::never())->method('resolve');
+
+        self::assertSame('', $this->adapter->renderImageAttributes(null, [], $this->request));
+    }
+
+    #[Test]
+    public function renderImageAttributesKeepsCaptionedImageForFigureHandlerWhenFileIsPublic(): void
+    {
+        $originalImg = '<img src="/fileadmin/test.jpg" data-htmlarea-file-uid="1" data-caption="Caption" />';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = [
+            'src'                    => '/fileadmin/test.jpg',
+            'data-htmlarea-file-uid' => '1',
+            'data-caption'           => 'Caption',
+            'allParams'              => $this->rawAttributesOf($originalImg),
+        ];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn('');
+
+        $this->resolverService
+            ->expects(self::once())
+            ->method('isNonPublicFile')
+            ->with(1)
+            ->willReturn(false);
+
+        self::assertSame($originalImg, $this->adapter->renderImageAttributes(null, [], $this->request));
+    }
+
+    #[Test]
+    public function renderImagesRemovesNonPublicImageButKeepsLinkAndText(): void
+    {
+        $blockedImg  = '<img src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image-inline" />';
+        $linkContent = 'Text ' . $blockedImg . ' more';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => '/page'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                    => '/protected/secret.jpg',
+                            'data-htmlarea-file-uid' => '2',
+                            'class'                  => 'image-inline',
+                        ],
+                        'originalHtml' => $blockedImg,
+                    ],
+                ],
+            ]);
+
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->willThrowException(new NonPublicFileException(2));
+        $this->renderingService->expects(self::never())->method('render');
+
+        $result = $this->adapter->renderImages(null, [], $this->request);
+
+        self::assertStringNotContainsString('secret.jpg', $result);
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString('Text ', $result);
+        self::assertStringContainsString(' more', $result);
+    }
+
+    #[Test]
+    public function renderImagesReturnsEmptyStringWhenNonPublicImageCannotBeLocated(): void
+    {
+        $linkContent = 'Text <img src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image-inline">';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => '/page'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                    => '/protected/secret.jpg',
+                            'data-htmlarea-file-uid' => '2',
+                            'class'                  => 'image-inline',
+                        ],
+                        // Serialised differently from the source markup
+                        'originalHtml' => '<img src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image-inline" />',
+                    ],
+                ],
+            ]);
+
+        $this->resolverService->method('resolve')->willThrowException(new NonPublicFileException(2));
+
+        self::assertSame('', $this->adapter->renderImages(null, [], $this->request));
+    }
+
+    #[Test]
+    public function renderLinkRemovesNonPublicImageButKeepsLinkAndText(): void
+    {
+        $blockedImg = '<img src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image image-inline" />';
+        $linkHtml   = '<a href="/page">Click here ' . $blockedImg . ' to visit</a>';
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                    => '/protected/secret.jpg',
+                            'data-htmlarea-file-uid' => '2',
+                            'class'                  => 'image image-inline',
+                        ],
+                        'originalHtml' => $blockedImg,
+                    ],
+                ],
+            ]);
+
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->willThrowException(new NonPublicFileException(2));
+        $this->renderingService->expects(self::never())->method('render');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertStringNotContainsString('secret.jpg', $result);
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString('Click here', $result);
+        self::assertStringContainsString('to visit', $result);
+    }
+
+    #[Test]
+    public function renderLinkReturnsEmptyStringWhenNonPublicImageCannotBeLocated(): void
+    {
+        $linkHtml = '<a href="/page">Click here <img src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image-inline"></a>';
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                    => '/protected/secret.jpg',
+                            'data-htmlarea-file-uid' => '2',
+                            'class'                  => 'image-inline',
+                        ],
+                        'originalHtml' => '',
+                    ],
+                ],
+            ]);
+
+        $this->resolverService->method('resolve')->willThrowException(new NonPublicFileException(2));
+
+        self::assertSame('', $this->adapter->renderLink($linkHtml, [], $this->request));
+    }
+
+    #[Test]
+    public function renderImagesRemovesNonPublicBlockImageThatItWouldOtherwiseSkip(): void
+    {
+        $blockedImg  = '<img src="/protected/secret.jpg" data-htmlarea-file-uid="2" />';
+        $linkContent = 'Text ' . $blockedImg;
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => '/page'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [
+                    [
+                        'attributes'   => ['src' => '/protected/secret.jpg', 'data-htmlarea-file-uid' => '2'],
+                        'originalHtml' => $blockedImg,
+                    ],
+                ],
+            ]);
+
+        $this->resolverService->expects(self::once())->method('isNonPublicFile')->with(2)->willReturn(true);
+        $this->resolverService->expects(self::never())->method('resolve');
+
+        $result = $this->adapter->renderImages(null, [], $this->request);
+
+        self::assertStringNotContainsString('secret.jpg', $result);
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString('Text ', $result);
+    }
+
+    #[Test]
+    public function renderLinkRemovesNonPublicBlockImageThatItWouldOtherwiseSkip(): void
+    {
+        $blockedImg = '<img src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image" />';
+        $linkHtml   = '<a href="/page">Click here ' . $blockedImg . '</a>';
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [
+                    [
+                        'attributes' => [
+                            'src'                    => '/protected/secret.jpg',
+                            'data-htmlarea-file-uid' => '2',
+                            'class'                  => 'image',
+                        ],
+                        'originalHtml' => $blockedImg,
+                    ],
+                ],
+            ]);
+
+        $this->resolverService->expects(self::once())->method('isNonPublicFile')->with(2)->willReturn(true);
+        $this->resolverService->expects(self::never())->method('resolve');
+
+        $result = $this->adapter->renderLink($linkHtml, [], $this->request);
+
+        self::assertStringNotContainsString('secret.jpg', $result);
+        self::assertStringContainsString('<a href="/page"', $result);
+        self::assertStringContainsString('Click here', $result);
+    }
+
+    #[Test]
+    public function renderLinkReturnsEmptyStringWhenNonPublicBlockImageCannotBeLocated(): void
+    {
+        $linkHtml = '<a href="/page">Click here <img src="/protected/secret.jpg" data-htmlarea-file-uid="2"></a>';
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn([
+                'link'   => ['href' => '/page'],
+                'images' => [
+                    [
+                        'attributes'   => ['src' => '/protected/secret.jpg', 'data-htmlarea-file-uid' => '2'],
+                        'originalHtml' => '<img src="/protected/secret.jpg" data-htmlarea-file-uid="2" />',
+                    ],
+                ],
+            ]);
+
+        $this->resolverService->method('isNonPublicFile')->willReturn(true);
+
+        self::assertSame('', $this->adapter->renderLink($linkHtml, [], $this->request));
+    }
+
+    #[Test]
+    public function renderFigureReturnsEmptyStringWhenFileIsNotPublic(): void
+    {
+        $html = '<figure><a href="/page"><img src="/protected/secret.jpg" data-htmlarea-file-uid="2" /></a>'
+            . '<figcaption>Caption</figcaption></figure>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser->method('hasFigureWrapper')->willReturn(true);
+        $this->attributeParser
+            ->method('parseFigureWithCaption')
+            ->willReturn([
+                'attributes' => [
+                    'src'                    => '/protected/secret.jpg',
+                    'data-htmlarea-file-uid' => '2',
+                ],
+                'caption' => 'Caption',
+                'link'    => ['href' => '/page'],
+            ]);
+
+        $this->resolverService
+            ->expects(self::once())
+            ->method('resolve')
+            ->willThrowException(new NonPublicFileException(2));
+        $this->renderingService->expects(self::never())->method('render');
+
+        self::assertSame('', $this->adapter->renderFigure(null, [], $this->request));
     }
 
     /**

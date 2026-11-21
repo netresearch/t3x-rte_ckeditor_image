@@ -84,7 +84,11 @@ Before rendering, the extension validates:
 #. **File accessible**: File must not be hidden or restricted.
 #. **Storage accessible**: File storage must be publicly accessible.
 
-If validation fails, the original unprocessed content is returned.
+If the file does not exist, the original unprocessed content is returned.
+If the file is in a non-public storage, nothing is rendered for it:
+a standalone image is removed,
+a figure is removed together with its link and caption,
+and an image inside a text link is removed while the link and its text stay.
 
 XSS prevention
 ==============
