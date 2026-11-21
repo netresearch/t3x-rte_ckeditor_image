@@ -50,8 +50,9 @@ mainAction()
 
 -  `mode`: Browser mode (default: `file` from route configuration).
 -  `bparams`: Browser parameters passed to file browser.
--  `action`: `info` dispatches to :php:`infoAction()`, `linkBrowser` dispatches to
-   :php:`linkBrowserAction()`. Without `action`, the file browser is shown.
+-  `action` (POST body, else query string): `info` dispatches to :php:`infoAction()`,
+   `linkBrowser` or `linkbrowser` dispatches to :php:`linkBrowserAction()`.
+   Without `action`, the file browser is shown.
 
 **Usage example:**
 
@@ -251,7 +252,7 @@ renderFigure()
     It handles :html:`<figure><img><figcaption>` and linked images
     :html:`<figure><a><img></a><figcaption>`.
 
-    :param string|null $content: Content input (not used).
+    :param string|null $content: Complete figure HTML from :typoscript:`externalBlocks`; if empty, the current value of the ContentObjectRenderer is used.
     :param array $conf: TypoScript configuration.
     :param ServerRequestInterface $request: Current request.
     :returns: Rendered HTML.
