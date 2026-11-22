@@ -26,6 +26,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Usage:
  *   bin/typo3 rte_ckeditor_image:validate           # dry-run report
  *   bin/typo3 rte_ckeditor_image:validate --fix      # apply fixes
+ *   bin/typo3 rte_ckeditor_image:validate --fix --dry-run  # report what --fix would change, write nothing
  *   bin/typo3 rte_ckeditor_image:validate --table=tt_content  # limit to table
  */
 #[AsCommand(
@@ -58,7 +59,7 @@ class ValidateImageReferencesCommand extends Command
             'dry-run',
             null,
             InputOption::VALUE_NONE,
-            'Explicitly request dry-run mode (default behavior)',
+            'Report only, write nothing (default behavior; overrides --fix)',
         );
         $this->addOption(
             'include',
@@ -78,6 +79,7 @@ class ValidateImageReferencesCommand extends Command
 
         $limitToTable = $input->getOption('table');
         $shouldFix    = (bool) $input->getOption('fix');
+        $dryRun       = (bool) $input->getOption('dry-run');
 
         if (!is_string($limitToTable)) {
             $limitToTable = null;
@@ -91,11 +93,7 @@ class ValidateImageReferencesCommand extends Command
 
         $includeOrigins = $this->parseIncludeOption($input->getOption('include'), $io);
 
-        // Only pass $includeOrigins when non-empty so existing mocks/subclasses
-        // that still expect validate($limitToTable) arity keep working.
-        $result = $includeOrigins === []
-            ? $this->validator->validate($limitToTable)
-            : $this->validator->validate($limitToTable, $includeOrigins);
+        $result = $this->runValidation($limitToTable, $includeOrigins);
 
         $this->renderSummary($io, $result);
 
@@ -107,17 +105,31 @@ class ValidateImageReferencesCommand extends Command
 
         $this->renderIssueTable($io, $output, $result);
 
-        if (!$shouldFix) {
+        if (!$shouldFix || $dryRun) {
             $fixableCount = count($result->getFixableIssues());
             $io->note(sprintf(
-                'Dry-run mode. %d fixable issue(s) found. Use --fix to apply corrections.',
+                $shouldFix
+                    ? 'Dry-run mode. %d fixable issue(s) would be fixed by --fix. No changes were written.'
+                    : 'Dry-run mode. %d fixable issue(s) found. Use --fix to apply corrections.',
                 $fixableCount,
             ));
 
             return Command::FAILURE;
         }
 
-        return $this->applyFixes($io, $result);
+        return $this->applyFixes($io, $result, $limitToTable, $includeOrigins);
+    }
+
+    /**
+     * @param list<SrcOrigin> $includeOrigins
+     */
+    private function runValidation(?string $limitToTable, array $includeOrigins): ValidationResult
+    {
+        // Only pass $includeOrigins when non-empty so existing mocks/subclasses
+        // that still expect validate($limitToTable) arity keep working.
+        return $includeOrigins === []
+            ? $this->validator->validate($limitToTable)
+            : $this->validator->validate($limitToTable, $includeOrigins);
     }
 
     private function renderSummary(SymfonyStyle $io, ValidationResult $result): void
@@ -205,8 +217,15 @@ class ValidateImageReferencesCommand extends Command
         $table->render();
     }
 
-    private function applyFixes(SymfonyStyle $io, ValidationResult $result): int
-    {
+    /**
+     * @param list<SrcOrigin> $includeOrigins
+     */
+    private function applyFixes(
+        SymfonyStyle $io,
+        ValidationResult $result,
+        ?string $limitToTable,
+        array $includeOrigins,
+    ): int {
         $fixableCount = count($result->getFixableIssues());
 
         if ($fixableCount === 0) {
@@ -217,6 +236,22 @@ class ValidateImageReferencesCommand extends Command
 
         $io->section('Applying fixes');
         $updatedCount = $this->validator->fix($result);
+
+        // Report success only for what the re-scan confirms: fix() returns a record
+        // count, which cannot show that every fixable issue was actually changed.
+        $remainingCount = count($this->runValidation($limitToTable, $includeOrigins)->getFixableIssues());
+
+        if ($remainingCount > 0) {
+            $io->error(sprintf(
+                'Updated %d record(s), but %d fixable issue(s) remain after the fix. '
+                . 'Run the command without --fix to list them.',
+                $updatedCount,
+                $remainingCount,
+            ));
+
+            return Command::FAILURE;
+        }
+
         $io->success(sprintf('Fixed %d record(s) (%d fixable issues).', $updatedCount, $fixableCount));
 
         return Command::SUCCESS;

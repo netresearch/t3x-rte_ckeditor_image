@@ -63,7 +63,8 @@ Six categories of issues are detected:
      - ``data-htmlarea-file-uid`` references a FAL file that no longer exists
        in ``sys_file``. No ``src`` correction is possible because the file
        is gone.
-     - Reported as fixable, but ``--fix`` changes nothing (see below)
+     - Yes (``--fix`` removes the stale ``data-htmlarea-file-uid``; the image
+       still needs manual intervention, see below)
    * - ``missing_file_uid``
      - The ``<img>`` tag has no ``data-htmlarea-file-uid`` attribute at all.
        Without a file UID there is no way to determine which FAL file the
@@ -79,15 +80,15 @@ Six categories of issues are detected:
      - Yes
 
 For fixable issues the validator replaces the ``src`` attribute with the file's
-current ``getPublicUrl()`` value.
-
-.. warning::
-   The ``orphaned_file_uid`` type is counted as fixable, but ``--fix`` does not
-   change the record: neither the ``src`` nor the stale
-   ``data-htmlarea-file-uid`` attribute is touched. The command still reports
-   success and exits with ``0``, and the issue is found again on the next scan.
-   The Upgrade Wizard stays listed as necessary for the same reason. Repair
-   these images by hand: select a new file in the editor or remove the image.
+current ``getPublicUrl()`` value. For ``orphaned_file_uid`` it removes the
+stale ``data-htmlarea-file-uid`` attribute and keeps the ``src`` unchanged,
+because the underlying file no longer exists. Such an image needs manual
+intervention. A later scan reports it as ``missing_file_uid`` only while the
+record still has a reference index entry: ``referenceindex:update`` (or the next
+save of the record in the backend) drops the entry of a record whose only
+images were orphaned, and the validator then no
+longer scans that record. Note the ``orphaned_file_uid`` records from a
+``--dry-run`` before you apply ``--fix``.
 
 Prerequisites
 =============
@@ -119,9 +120,9 @@ Run the command without any flags to perform a read-only scan:
 
    bin/typo3 rte_ckeditor_image:validate
 
-The ``--dry-run`` flag is accepted for explicitness. It does not change the
-behavior: without ``--fix`` the command never writes, and with ``--fix`` it
-writes even if ``--dry-run`` is also given.
+Without ``--fix`` the command never writes, so ``--dry-run`` alone changes
+nothing. Together with ``--fix`` it reports what would be fixed and writes
+nothing (see below).
 
 The output shows a summary of scanned records and images, followed by a table
 listing every issue found, including the current ``src``, the expected ``src``,
@@ -142,6 +143,16 @@ database:
 .. code-block:: bash
 
    bin/typo3 rte_ckeditor_image:validate --fix
+
+After applying the fixes, the command scans again. If fixable issues remain,
+it reports them as an error and exits with code ``1``.
+
+To see what ``--fix`` would change without writing anything, add
+``--dry-run``. It overrides ``--fix``:
+
+.. code-block:: bash
+
+   bin/typo3 rte_ckeditor_image:validate --fix --dry-run
 
 .. warning::
    ``--fix`` modifies database records directly. Always run a dry-run scan
@@ -238,12 +249,12 @@ Exit codes
    * - Code
      - Meaning
    * - ``0``
-     - No issues found, or ``--fix`` ran on at least one fixable issue.
-       ``0`` is also returned when ``--fix`` changed nothing, for example
-       for ``orphaned_file_uid`` issues.
+     - No issues found, or ``--fix`` fixed every fixable issue and the scan
+       after the fix finds none. Unfixable issues may remain.
    * - ``1``
-     - Issues were found (dry-run mode), or no fixable issues exist while
-       unfixable issues remain.
+     - Issues were found (dry-run mode, also ``--fix --dry-run``), ``--fix``
+       found no fixable issue while unfixable issues remain, or fixable issues
+       remain after ``--fix``.
 
 Upgrade Wizard
 ==============
@@ -258,8 +269,9 @@ To run it:
 3. Click **Execute**.
 
 The wizard scans all RTE fields, and if fixable issues are found it
-automatically applies corrections. It implements ``RepeatableInterface``, so it
-can be executed multiple times safely.
+automatically applies corrections. It is shown as pending only while fixable
+issues exist; ``missing_file_uid`` issues alone do not keep it pending. It
+implements ``RepeatableInterface``, so it can be executed multiple times safely.
 
 .. figure:: /Images/upgrade-wizard-validate-references.png
    :alt: TYPO3 Upgrade Wizard showing the Validate RTE Image References wizard
