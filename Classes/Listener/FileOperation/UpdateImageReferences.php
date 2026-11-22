@@ -17,6 +17,7 @@ use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Resource\Event\AfterFileMovedEvent;
 use TYPO3\CMS\Core\Resource\Event\AfterFileRenamedEvent;
+use TYPO3\CMS\Core\Resource\FileInterface;
 
 /**
  * Updates stale `src` attributes in RTE content when FAL files are moved or renamed.
@@ -45,13 +46,7 @@ class UpdateImageReferences
      */
     public function handleFileMoved(AfterFileMovedEvent $event): void
     {
-        $file = $event->getFile();
-
-        if (!$file instanceof AbstractFile) {
-            return;
-        }
-
-        $this->updateReferences($file);
+        $this->updateReferencesForFile($event->getFile());
     }
 
     /**
@@ -59,20 +54,21 @@ class UpdateImageReferences
      */
     public function handleFileRenamed(AfterFileRenamedEvent $event): void
     {
-        $file = $event->getFile();
-
-        if (!$file instanceof AbstractFile) {
-            return;
-        }
-
-        $this->updateReferences($file);
+        $this->updateReferencesForFile($event->getFile());
     }
 
     /**
      * Update all RTE image references for the given file.
+     *
+     * Files that are not an AbstractFile (e.g. a plain FileInterface) carry no
+     * UID-based references and are skipped.
      */
-    private function updateReferences(AbstractFile $file): void
+    private function updateReferencesForFile(FileInterface $file): void
     {
+        if (!$file instanceof AbstractFile) {
+            return;
+        }
+
         $fileUid = $file->getUid();
 
         if ($fileUid === 0) {
@@ -103,39 +99,9 @@ class UpdateImageReferences
         $updatedCount = 0;
 
         foreach ($affectedRecords as $record) {
-            $tableName = $record['tablename'];
-            $rawRecuid = $record['recuid'];
-            $field     = $record['field'];
-
-            if (!is_string($tableName)) {
-                continue;
+            if ($this->updateRecord($record, $fileUid, $publicUrl)) {
+                ++$updatedCount;
             }
-
-            if (!is_string($field)) {
-                continue;
-            }
-
-            // Database drivers may return int or string for integer columns
-            if (!is_int($rawRecuid) && !is_string($rawRecuid)) {
-                continue;
-            }
-
-            $recuid = (int) $rawRecuid;
-
-            $currentValue = $this->fetchFieldValue($tableName, $recuid, $field);
-
-            if ($currentValue === null) {
-                continue;
-            }
-
-            $updatedValue = $this->updateImageSrcInHtml($currentValue, $fileUid, $publicUrl);
-
-            if ($updatedValue === $currentValue) {
-                continue;
-            }
-
-            $this->writeFieldValue($tableName, $recuid, $field, $updatedValue);
-            ++$updatedCount;
         }
 
         if ($updatedCount > 0) {
@@ -144,6 +110,39 @@ class UpdateImageReferences
                 ['fileUid' => $fileUid, 'updatedRecords' => $updatedCount, 'newUrl' => $publicUrl],
             );
         }
+    }
+
+    /**
+     * Update the image src references in one record found in sys_refindex.
+     *
+     * @param array<string, mixed> $record Row with tablename, recuid and field
+     *
+     * @return bool True when the field value was written back
+     */
+    private function updateRecord(array $record, int $fileUid, string $publicUrl): bool
+    {
+        $tableName = $record['tablename'];
+        $rawRecuid = $record['recuid'];
+        $field     = $record['field'];
+
+        // Database drivers may return int or string for integer columns
+        if (!is_string($tableName) || !is_string($field) || (!is_int($rawRecuid) && !is_string($rawRecuid))) {
+            return false;
+        }
+
+        $recuid       = (int) $rawRecuid;
+        $currentValue = $this->fetchFieldValue($tableName, $recuid, $field);
+        $updatedValue = $currentValue === null
+            ? null
+            : $this->updateImageSrcInHtml($currentValue, $fileUid, $publicUrl);
+
+        if ($updatedValue === null || $updatedValue === $currentValue) {
+            return false;
+        }
+
+        $this->writeFieldValue($tableName, $recuid, $field, $updatedValue);
+
+        return true;
     }
 
     /**
@@ -256,54 +255,19 @@ class UpdateImageReferences
         $changed      = false;
 
         foreach ($splitContent as $key => $part) {
-            if (!is_string($part)) {
+            $currentSrc = is_string($part) ? $this->findReplaceableSrc($part, $fileUid, $newSrc) : null;
+
+            if ($currentSrc === null) {
                 continue;
             }
-
-            if (!str_starts_with($part, '<img')) {
-                continue;
-            }
-
-            $attributes    = $this->htmlParser->get_tag_attributes($part);
-            $tagAttributes = $attributes[0] ?? [];
-
-            if (!is_array($tagAttributes)) {
-                continue;
-            }
-
-            $uid = $tagAttributes['data-htmlarea-file-uid'] ?? '';
-
-            if (!is_string($uid)) {
-                continue;
-            }
-
-            if ($uid !== (string) $fileUid) {
-                continue;
-            }
-
-            $currentSrc = $tagAttributes['src'] ?? '';
-
-            if (!is_string($currentSrc)) {
-                continue;
-            }
-
-            if ($currentSrc === $newSrc) {
-                continue;
-            }
-
-            // A slashless src ("fileadmin/x") is a broken relative URL, not an
-            // equivalent of the normalized "/fileadmin/x" publicUrl: it must be
-            // repaired to the leading-slash form, not skipped here (#778, #837).
 
             // Replace src attribute value in the tag
-            if ($currentSrc !== '') {
-                $splitContent[$key] = str_replace(
-                    'src="' . $currentSrc . '"',
-                    'src="' . $newSrc . '"',
-                    $part,
-                );
-                $changed = true;
-            }
+            $splitContent[$key] = str_replace(
+                'src="' . $currentSrc . '"',
+                'src="' . $newSrc . '"',
+                $part,
+            );
+            $changed = true;
         }
 
         if (!$changed) {
@@ -311,5 +275,32 @@ class UpdateImageReferences
         }
 
         return implode('', $splitContent);
+    }
+
+    /**
+     * Return the src of an img tag that references the file and needs the new src.
+     *
+     * A slashless src ("fileadmin/x") is a broken relative URL, not an
+     * equivalent of the normalized "/fileadmin/x" publicUrl: it must be
+     * repaired to the leading-slash form, not skipped here (#778, #837).
+     *
+     * @return string|null The current, non-empty src to replace, or null when the
+     *                     part is not such an img tag
+     */
+    private function findReplaceableSrc(string $part, int $fileUid, string $newSrc): ?string
+    {
+        if (!str_starts_with($part, '<img')) {
+            return null;
+        }
+
+        $tagAttributes = $this->htmlParser->get_tag_attributes($part)[0] ?? [];
+
+        if (!is_array($tagAttributes) || ($tagAttributes['data-htmlarea-file-uid'] ?? '') !== (string) $fileUid) {
+            return null;
+        }
+
+        $currentSrc = $tagAttributes['src'] ?? '';
+
+        return is_string($currentSrc) && $currentSrc !== '' && $currentSrc !== $newSrc ? $currentSrc : null;
     }
 }
