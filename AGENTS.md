@@ -33,7 +33,7 @@ CKEditor 5 plugin: `Resources/Public/JavaScript/Plugins/typo3image.js`
 ## Global Rules
 
 - Conventional Commits enforced by commitlint: `type(scope): subject`
-- Pre-commit hooks (husky): phplint, php-cs-fixer, phpstan
+- Pre-commit hooks (husky): phplint, php-cs-fixer, phpstan; ESLint when plugin JavaScript is staged
 - Commit-msg hook: commitlint validates conventional commit format
 - Keep PRs small (~300 net LOC)
 - PHPStan level 10 with strict-rules and deprecation-rules -- zero baseline errors required (baseline must be empty)
@@ -94,17 +94,18 @@ The Makefile defines DDEV/docs conveniences (`setup`, `start`, `stop`, `up`, `dd
 4. Commit with conventional format (commitlint validates)
 5. Push and create PR
 6. CI runs: lint, phpstan, rector, unit tests, functional tests, E2E (all 6 E2E contexts blocking)
-7. Address review feedback (Copilot + Gemini Code Assist auto-review)
+7. Address review feedback (CodeRabbit and Copilot auto-review)
 8. Merge via merge queue with `gh pr merge --merge --auto`
 
 ## Commands
 
-Pre-commit (husky) runs automatically: `composer ci:test:php:lint`, `composer ci:test:php:cgl` (PHP-CS-Fixer dry-run), `composer ci:test:php:phpstan` (level 10).
+Pre-commit (husky) runs automatically: `composer ci:test:php:lint`, `composer ci:test:php:cgl` (PHP-CS-Fixer dry-run), `composer ci:test:php:phpstan` (level 10), and `composer ci:test:js:lint` when plugin JavaScript is staged.
 
 ```bash
-composer ci:test                # All checks: lint, phpstan, rector, cgl, unit, js-unit, functional
+composer ci:test                # All checks: lint, phpstan, rector, cgl, unit, js-lint, js-unit, functional
 composer ci:test:php:unit       # Unit tests only
 composer ci:test:php:functional # Functional tests (needs typo3DatabaseDriver=pdo_sqlite)
+composer ci:test:js:lint        # ESLint on Resources/Public/JavaScript (config: Tests/JavaScript/eslint.config.js)
 composer ci:test:js:unit        # JavaScript unit tests (Tests/JavaScript/)
 composer ci:test:php:rector     # Rector dry-run check
 E2E_TYPO3_VERSION=13 E2E_VARIANT=fsc ./Build/Scripts/runTests.sh -s e2e -p 8.5   # E2E (=14 for v14; variants: core-only|fsc|bootstrap)

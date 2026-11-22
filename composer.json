@@ -126,6 +126,7 @@
             "@ci:test:php:rector",
             "@ci:test:php:cgl",
             "@ci:test:php:unit",
+            "@ci:test:js:lint",
             "@ci:test:js:unit",
             "@ci:test:php:functional"
         ],
@@ -148,6 +149,9 @@
         ],
         "ci:mutation:quick": [
             ".Build/bin/infection --configuration=infection.json5 --threads=4 --only-covered --skip-initial-tests"
+        ],
+        "ci:test:js:lint": [
+            "cd Tests/JavaScript && npm ci --silent && npm run lint"
         ],
         "ci:test:js:unit": [
             "cd Tests/JavaScript && npm ci --silent && npm test"

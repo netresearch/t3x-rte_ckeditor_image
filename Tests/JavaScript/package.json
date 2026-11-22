@@ -4,13 +4,17 @@
   "description": "JavaScript unit tests for RTE CKEditor Image extension",
   "type": "module",
   "scripts": {
+    "lint": "cd ../.. && Tests/JavaScript/node_modules/.bin/eslint -c Tests/JavaScript/eslint.config.js Resources/Public/JavaScript",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@vitest/coverage-v8": "^5.0.0",
     "ckeditor5": "49.1.0",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
     "jsdom": "^30.0.0",
     "vitest": "^5.0.0"
   }
