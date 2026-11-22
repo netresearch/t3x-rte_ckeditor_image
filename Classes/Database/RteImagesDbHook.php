@@ -91,19 +91,8 @@ class RteImagesDbHook
      */
     private function isRteTextField(array $tcaFieldConf): bool
     {
-        if (!isset($tcaFieldConf['type'])) {
-            return false;
-        }
-
-        if ($tcaFieldConf['type'] !== 'text') {
-            return false;
-        }
-
-        if (!isset($tcaFieldConf['enableRichtext'])) {
-            return false;
-        }
-
-        return $tcaFieldConf['enableRichtext'] === true;
+        return ($tcaFieldConf['type'] ?? null) === 'text'
+            && ($tcaFieldConf['enableRichtext'] ?? null) === true;
     }
 
     /**

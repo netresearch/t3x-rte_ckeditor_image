@@ -28,39 +28,23 @@ final class SrcOriginClassifier
 
         $trimmed = ltrim($src);
 
-        if (str_starts_with($trimmed, 'data:')) {
-            return SrcOrigin::DataUri;
-        }
-
-        // Absolute http(s) URLs and protocol-relative URLs (//cdn.example.com/…)
-        // are all external references — no FAL mapping regardless of host.
-        if (
-            str_starts_with($trimmed, 'http://')
-            || str_starts_with($trimmed, 'https://')
-            || str_starts_with($trimmed, '//')
-        ) {
-            return SrcOrigin::ExternalUrl;
-        }
-
-        // Legacy extension paths are commonly stored without a leading slash
-        // (typo3conf/ext/...) or with one (/typo3conf/ext/...).
-        if (preg_match('#^/?typo3conf/ext/#', $trimmed) === 1) {
-            return SrcOrigin::LegacyExtensionPath;
-        }
-
-        // Secure downloads may appear mid-path (e.g. /fileadmin/securedl/...).
-        if (str_contains($trimmed, '/securedl/')) {
-            return SrcOrigin::SecureDownload;
-        }
-
-        if (str_contains($trimmed, '/_processed_/')) {
-            return SrcOrigin::ProcessedVariant;
-        }
-
-        if (str_starts_with($trimmed, '/') || str_starts_with($trimmed, 'fileadmin/')) {
-            return SrcOrigin::LocalFal;
-        }
-
-        return SrcOrigin::Unknown;
+        // The first matching arm wins, so the order of the arms matters.
+        return match (true) {
+            str_starts_with($trimmed, 'data:') => SrcOrigin::DataUri,
+            // Absolute http(s) URLs and protocol-relative URLs (//cdn.example.com/…)
+            // are all external references — no FAL mapping regardless of host.
+            str_starts_with($trimmed, 'http://'),
+            str_starts_with($trimmed, 'https://'),
+            str_starts_with($trimmed, '//') => SrcOrigin::ExternalUrl,
+            // Legacy extension paths are commonly stored without a leading slash
+            // (typo3conf/ext/...) or with one (/typo3conf/ext/...).
+            preg_match('#^/?typo3conf/ext/#', $trimmed) === 1 => SrcOrigin::LegacyExtensionPath,
+            // Secure downloads may appear mid-path (e.g. /fileadmin/securedl/...).
+            str_contains($trimmed, '/securedl/')    => SrcOrigin::SecureDownload,
+            str_contains($trimmed, '/_processed_/') => SrcOrigin::ProcessedVariant,
+            str_starts_with($trimmed, '/'),
+            str_starts_with($trimmed, 'fileadmin/') => SrcOrigin::LocalFal,
+            default                                 => SrcOrigin::Unknown,
+        };
     }
 }

@@ -13,8 +13,10 @@ use Netresearch\RteCKEditorImage\Database\RteImagesDbHook;
 use Netresearch\RteCKEditorImage\Service\Processor\RteImageProcessorInterface;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionMethod;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
@@ -82,5 +84,32 @@ final class RteImagesDbHookTest extends UnitTestCase
 
         // Field array should remain unchanged
         self::assertSame(['non_existing_field' => 'some value'], $fieldArray);
+    }
+
+    /**
+     * @return iterable<string, array{0: array<string, mixed>, 1: bool}>
+     */
+    public static function rteTextFieldProvider(): iterable
+    {
+        yield 'no type' => [['enableRichtext' => true], false];
+        yield 'type null' => [['type' => null, 'enableRichtext' => true], false];
+        yield 'type input' => [['type' => 'input', 'enableRichtext' => true], false];
+        yield 'text without enableRichtext' => [['type' => 'text'], false];
+        yield 'text with enableRichtext null' => [['type' => 'text', 'enableRichtext' => null], false];
+        yield 'text with enableRichtext false' => [['type' => 'text', 'enableRichtext' => false], false];
+        yield 'text with enableRichtext string 1' => [['type' => 'text', 'enableRichtext' => '1'], false];
+        yield 'text with enableRichtext true' => [['type' => 'text', 'enableRichtext' => true], true];
+    }
+
+    /**
+     * @param array<string, mixed> $tcaFieldConf
+     */
+    #[Test]
+    #[DataProvider('rteTextFieldProvider')]
+    public function isRteTextFieldDetectsRichtextTextFields(array $tcaFieldConf, bool $expected): void
+    {
+        $method = new ReflectionMethod(RteImagesDbHook::class, 'isRteTextField');
+
+        self::assertSame($expected, $method->invoke($this->subject, $tcaFieldConf));
     }
 }
