@@ -533,20 +533,27 @@ class RteImageReferenceValidator
         $kept    = '';
         $removed = false;
 
-        while (preg_match(
-            '/\G([ \t\n\f\r]+)([^ \t\n\f\r=\/>]+)([ \t\n\f\r]*=[ \t\n\f\r]*(?:"[^"]*"|\'[^\']*\'|[^ \t\n\f\r"\'>]+))?/',
-            $imgTag,
-            $match,
-            0,
-            $offset,
-        ) === 1) {
-            if (strtolower($match[2]) === 'data-htmlarea-file-uid') {
-                $removed = true;
-            } else {
-                $kept .= $match[0];
+        // Each step reads an attribute name, then its optional "= value" part.
+        while (preg_match('/\G[ \t\n\f\r]+([^ \t\n\f\r=\/>]+)/', $imgTag, $match, 0, $offset) === 1) {
+            $attribute = $match[0];
+            $offset += strlen($attribute);
+
+            if (preg_match(
+                '/\G[ \t\n\f\r]*=[ \t\n\f\r]*(?:"[^"]*"|\'[^\']*\'|[^ \t\n\f\r"\'>]+)/',
+                $imgTag,
+                $value,
+                0,
+                $offset,
+            ) === 1) {
+                $attribute .= $value[0];
+                $offset += strlen($value[0]);
             }
 
-            $offset += strlen($match[0]);
+            if (strtolower($match[1]) === 'data-htmlarea-file-uid') {
+                $removed = true;
+            } else {
+                $kept .= $attribute;
+            }
         }
 
         $rest = substr($imgTag, $offset);
