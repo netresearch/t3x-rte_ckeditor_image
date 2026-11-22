@@ -159,7 +159,7 @@ test.describe('Link Browser - All Types', () => {
 
     // Verify the URL was inserted into the image dialog's link href field
     const linkHrefInput = page.locator('#rteckeditorimage-linkHref');
-    await expect(linkHrefInput).toHaveValue(/example\.com/, { timeout: 10000 });
+    await expect.poll(() => linkHrefInput.inputValue(), { timeout: 10000 }).toContain('example.com');
     const linkValue = await linkHrefInput.inputValue();
     console.log(`Link href value after URL selection: "${linkValue}"`);
 
@@ -201,7 +201,7 @@ test.describe('Link Browser - All Types', () => {
 
     // Verify the mailto: link was inserted
     const linkHrefInput = page.locator('#rteckeditorimage-linkHref');
-    await expect(linkHrefInput).toHaveValue(/mailto:/i, { timeout: 10000 });
+    await expect.poll(async () => (await linkHrefInput.inputValue()).toLowerCase(), { timeout: 10000 }).toContain('mailto:');
     const linkValue = await linkHrefInput.inputValue();
     console.log(`Link href value after email entry: "${linkValue}"`);
 
@@ -253,7 +253,7 @@ test.describe('Link Browser - All Types', () => {
 
     // Verify the tel: link was inserted
     const linkHrefInput = page.locator('#rteckeditorimage-linkHref');
-    await expect(linkHrefInput).toHaveValue(/tel:/i, { timeout: 10000 });
+    await expect.poll(async () => (await linkHrefInput.inputValue()).toLowerCase(), { timeout: 10000 }).toContain('tel:');
     const linkValue = await linkHrefInput.inputValue();
     console.log(`Link href value after telephone entry: "${linkValue}"`);
 
