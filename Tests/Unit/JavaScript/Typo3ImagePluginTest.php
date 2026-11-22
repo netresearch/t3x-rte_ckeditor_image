@@ -48,6 +48,19 @@ final class Typo3ImagePluginTest extends UnitTestCase
         return $this->jsContent;
     }
 
+    /**
+     * Get the code of a top-level function, from its signature to its closing brace.
+     */
+    private function getTopLevelFunctionCode(string $signature): string
+    {
+        $start = strpos($this->getJsContent(), $signature);
+        self::assertIsInt($start, $signature . ' must exist in typo3image.js');
+        $end = strpos($this->getJsContent(), "\n}\n", $start);
+        self::assertIsInt($end, 'End of ' . $signature . ' must exist');
+
+        return substr($this->getJsContent(), $start, $end - $start + 2);
+    }
+
     #[Test]
     public function allowedAttributesIncludesCaption(): void
     {
@@ -56,9 +69,9 @@ final class Typo3ImagePluginTest extends UnitTestCase
 
         $jsContent = $this->getJsContent();
 
-        // Find the allowedAttributes array definition
-        // Pattern matches: allowedAttributes = [ ... ]
-        $pattern = '/allowedAttributes\s*=\s*\[(.*?)\]/s';
+        // Find the allowedAttributes list definition
+        // Pattern matches: allowedAttributes = [ ... ] or allowedAttributes = new Set([ ... ])
+        $pattern = '/allowedAttributes\s*=\s*(?:new Set\(\s*)?\[(.*?)\]/s';
         $matches = [];
         preg_match($pattern, $jsContent, $matches);
 
@@ -139,9 +152,23 @@ final class Typo3ImagePluginTest extends UnitTestCase
             'edit() must check isNewImage flag to conditionally default class (#655 bug 1)',
         );
         self::assertMatchesRegularExpression(
-            '/class.*(?:attributes\.class|\|\|).*image-block/',
+            '/imageClass = attributes\.class \|\| defaultImageClass\(isNewImage, isInlineImage\)/',
             $editCode,
-            'edit() must default class to image-block for new block images (#655 bug 1)',
+            'edit() must default an empty class through defaultImageClass() (#655 bug 1)',
+        );
+
+        // defaultImageClass() keeps an empty class for existing images and
+        // returns image-block for new block images
+        $defaultClassCode = $this->getTopLevelFunctionCode('function defaultImageClass(isNewImage, isInlineImage)');
+        self::assertMatchesRegularExpression(
+            "/if \\(!isNewImage\\) \\{\\s*return '';\\s*\\}/",
+            $defaultClassCode,
+            'defaultImageClass() must keep the empty class of an existing image (#655 bug 1)',
+        );
+        self::assertStringContainsString(
+            "return isInlineImage ? 'image-inline' : 'image-block';",
+            $defaultClassCode,
+            'defaultImageClass() must default new block images to image-block (#655 bug 1)',
         );
     }
 
@@ -170,12 +197,17 @@ final class Typo3ImagePluginTest extends UnitTestCase
         $inlineUpcastCode = substr($this->getJsContent(), $inlineUpcastPos, $nextUpcastPos - $inlineUpcastPos);
 
         // The inline upcast must filter alignment classes from the link class
-        // before storing as imageLinkClass. Look for the actualLinkClass pattern
-        // that filters out alignment classes (same pattern used in block upcast).
+        // before storing as imageLinkClass: it keeps only the own classes that
+        // splitLinkClass() returns (same helper as the double-link upcast).
         self::assertStringContainsString(
-            'actualLinkClass',
+            'link.class = splitLinkClass(link.class).own;',
             $inlineUpcastCode,
-            'Inline image upcast must filter alignment classes via actualLinkClass (#655 bug 2b)',
+            'Inline image upcast must filter alignment classes via splitLinkClass() (#655 bug 2b)',
+        );
+        self::assertStringContainsString(
+            'own: parts.filter(c => !ALIGNMENT_CLASSES.has(c))',
+            $this->getTopLevelFunctionCode('function splitLinkClass(classValue)'),
+            'splitLinkClass() must leave the alignment classes out of the own classes (#655 bug 2b)',
         );
     }
 
@@ -204,12 +236,18 @@ final class Typo3ImagePluginTest extends UnitTestCase
         $toggleCode = substr($this->getJsContent(), $togglePos, $endPos - $togglePos);
 
         // Must actively filter/clean imageLinkClass during toggle, not just copy it.
-        // The execute() method must contain code that reads imageLinkClass and
-        // removes alignment classes from it (like image-inline, image-block).
+        // execute() takes the attributes from getToggledImageAttributes(), which
+        // reads imageLinkClass and removes alignment classes from it (like
+        // image-inline, image-block).
+        self::assertStringContainsString(
+            'getToggledImageAttributes(imageElement)',
+            $toggleCode,
+            'ToggleImageTypeCommand must copy the attributes via getToggledImageAttributes() (#655 bug 3)',
+        );
         // Look for getAttribute('imageLinkClass') followed by filtering logic.
         self::assertMatchesRegularExpression(
             "/getAttribute\('imageLinkClass'\).*(?:filter|replace|split)/s",
-            $toggleCode,
+            $this->getTopLevelFunctionCode('function getToggledImageAttributes(imageElement)'),
             'ToggleImageTypeCommand must filter alignment classes from imageLinkClass (#655 bug 3)',
         );
     }

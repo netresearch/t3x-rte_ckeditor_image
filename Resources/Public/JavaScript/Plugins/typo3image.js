@@ -17,7 +17,7 @@ import { Plugin, Command } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
 import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
-import { default as Modal } from '@typo3/backend/modal.js';
+import Modal from '@typo3/backend/modal.js';
 import { sanitizeSrc } from './sanitize-src.js';
 import { buildSelectImageBparams } from './select-image-bparams.js';
 import { getBackendLabel } from './backend-label.js';
@@ -33,6 +33,12 @@ export { parseTypoLink, parseTypoLinkParts, encodeTypoLink } from './typolink-pa
 
 // Module-level translations cache for functions outside the plugin class scope
 let moduleTranslationsCache = null;
+
+/**
+ * Alignment classes of an image. The balloon toolbar sets them; they belong to
+ * the image and never to the CSS class fields or to the class of its link.
+ */
+const ALIGNMENT_CLASSES = new Set(['image-left', 'image-center', 'image-right', 'image-block', 'image-inline']);
 
 class Typo3ImageDoubleClickObserver extends DomEventObserver {
     constructor(view) {
@@ -71,15 +77,423 @@ function urlToRelative(url, storageDriver) {
     if (url.includes("http://") || url.includes("https://")) {
         const u = new URL(url);
         return u.pathname + u.search;
-    } else {
-        if (url[0] !== "/") {
-            return `/${url}`;
-        }
+    } else if (url[0] !== "/") {
+        return `/${url}`;
     }
 
     return url;
 }
 
+
+/**
+ * Debounce utility function to delay execution
+ *
+ * @param {Function} func - Function to debounce
+ * @param {number} wait - Delay in milliseconds
+ * @return {Function} Debounced function
+ */
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            func.apply(this, args);
+        }, wait);
+    };
+}
+
+/**
+ * Create a DOM element with an optional class and append it to a parent.
+ *
+ * @param {string} tag - The tag name
+ * @param {string} [className] - The class attribute value
+ * @param {HTMLElement} [parent] - The element to append to
+ * @return {HTMLElement} The new element
+ */
+function h(tag, className, parent) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (parent) parent.appendChild(el);
+    return el;
+}
+
+/**
+ * Create the form control of a dialog field.
+ *
+ * @param {string} key - The field key
+ * @param {Object} config - The field configuration (type, rows)
+ * @param {string} id - The element id
+ * @return {HTMLElement} A select, textarea or input
+ */
+function createDialogInput(key, config, id) {
+    let el;
+    if (config.type === 'select') {
+        el = document.createElement('select');
+        el.id = id;
+        el.name = key;
+        el.className = 'form-select';
+    } else if (config.type === 'textarea') {
+        el = document.createElement('textarea');
+        el.id = id;
+        el.name = key;
+        el.className = 'form-control';
+        el.rows = config.rows || 3;
+    } else {
+        el = document.createElement('input');
+        el.type = config.type;
+        el.id = id;
+        el.name = key;
+        el.className = 'form-control';
+    }
+    return el;
+}
+
+/**
+ * Create one field of the image dialog in a row and register its control in
+ * elements.
+ *
+ * @param {HTMLElement} row - The row element
+ * @param {string} key - The field key: width, height, quality, title, alt or caption
+ * @param {Object} config - The field configuration (label, type, rows)
+ * @param {Object} context - img (image info), attributes (current values), isSvg, elements
+ */
+function createDialogField(row, key, config, { img, attributes, isSvg, elements }) {
+    // Use full width for title, alt, and caption fields, otherwise use col-sm-4
+    const colClass = (key === 'title' || key === 'alt' || key === 'caption') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
+    const col = h('div', colClass, row);
+    const group = h('div', 'form-group', col);
+    const id = `rteckeditorimage-${key}`;
+    const label = h('label', 'form-label', group);
+    label.htmlFor = id;
+    label.textContent = config.label;
+
+    const el = createDialogInput(key, config, id);
+
+    const placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
+    const value = ((attributes[key] || '') + '').trim();
+
+    if (config.type !== 'select') {
+        el.placeholder = placeholder;
+        el.value = value;
+    }
+
+    if (config.type === 'text' || config.type === 'textarea') {
+        setupOverrideCheckbox(el, key, value, group, { img, attributes });
+    } else if (config.type === 'number') {
+        setupDimensionInput(el, key, img, elements);
+    } else if (config.type === 'select' && key === 'quality') {
+        setupQualitySelect(el, img, attributes, isSvg);
+    }
+
+    group.appendChild(el);
+    elements[key] = el;
+}
+
+/**
+ * Add the override checkbox of a text field (title, alt, caption): the field
+ * is editable only when it overrides the file metadata.
+ *
+ * @param {HTMLElement} el - The text control
+ * @param {string} key - The field key
+ * @param {string} value - The current value
+ * @param {HTMLElement} group - The form group of the field
+ * @param {Object} context - img (image info) and attributes (current values, changed in place)
+ */
+function setupOverrideCheckbox(el, key, value, group, { img, attributes }) {
+    let startVal = value;
+    const hasDefault = img[key]?.trim();
+
+    const cbox = document.createElement('input');
+    cbox.type = 'checkbox';
+    cbox.className = 'form-check-input';
+    cbox.id = `checkbox-${key}`;
+    cbox.checked = !!value || !hasDefault;
+    cbox.disabled = !hasDefault;
+
+    const cboxLabel = document.createElement('label');
+    cboxLabel.className = 'form-check-label';
+    cboxLabel.htmlFor = `checkbox-${key}`;
+    cboxLabel.textContent = hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault;
+
+    // Add tooltip when checkbox is disabled (no default value from file)
+    if (!hasDefault) {
+        const noDefaultMsg = img.lang.noDefaultMetadata.replace('%s', key);
+        cbox.title = noDefaultMsg;
+        cboxLabel.style.cursor = 'not-allowed';
+        cboxLabel.title = noDefaultMsg;
+    }
+
+    el.disabled = hasDefault && !value;
+
+    const checkboxContainer = h('div', 'form-check form-check-type-toggle', group);
+    checkboxContainer.style.cssText = 'margin: 0 0 6px;';
+    checkboxContainer.appendChild(cbox);
+    checkboxContainer.appendChild(cboxLabel);
+
+    cboxLabel.addEventListener('click', function () {
+        el.disabled = !cbox.checked;
+        startVal = el.value || startVal;
+
+        // Clear value or set to startvalue when clicking checkbox
+        if (!cbox.checked) {
+            el.value = '';
+        } else {
+            el.value = startVal;
+            el.focus();
+        }
+    });
+
+    // Initally read/set title/alt attributes and check if override is enabled
+    if (key === 'title' || key === 'alt') {
+        if (attributes[`data-${key}-override`] === 'false') {
+            cbox.checked = false;
+            el.disabled = true;
+            el.value = '';
+            attributes[`data-${key}-override`] = false;
+            delete attributes[key];
+        } else {
+            cbox.checked = true;
+            el.disabled = false;
+        }
+    }
+}
+
+/**
+ * Keep the width and height inputs within the image size and in its aspect
+ * ratio, on typing, change and mouse wheel.
+ *
+ * @param {HTMLInputElement} el - The width or height input
+ * @param {string} key - width or height
+ * @param {Object} img - The image info
+ * @param {Object} elements - The dialog controls by key, to find the opposite input
+ */
+function setupDimensionInput(el, key, img, elements) {
+    let ratio = img.width / img.height;
+    if (key === 'height') {
+        ratio = 1 / ratio;
+    }
+    const opposite = 1;
+    const max = img[key];
+    const min = Math.ceil(opposite * ratio);
+    el.max = max;
+    el.min = min;
+
+    const constrainDimensions = function (currentMin, delta) {
+        let value = Number.parseInt(el.value.replace(/\D/g, '') || max, 10);
+        if (delta) {
+            value += delta;
+        }
+        value = Math.max(currentMin, Math.min(value, max));
+        const oppositeEl = elements[key === 'width' ? 'height' : 'width'],
+            oppositeMax = Number.parseInt(oppositeEl.max, 10),
+            ratio = oppositeMax / max;
+
+        oppositeEl.value = value === max ? oppositeMax : Math.ceil(value * ratio);
+        el.value = value;
+    };
+
+    el.addEventListener('input', function () {
+        // Allow empty input during typing (fixes #140)
+        const val = el.value.replace(/\D/g, '');
+        if (val !== '') {
+            constrainDimensions(1);
+        }
+    });
+    el.addEventListener('change', function () {
+        constrainDimensions(min);
+    });
+    el.addEventListener('wheel', function (e) {
+        constrainDimensions(min, e.deltaY < 0 ? 1 : -1);
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+    }, { passive: false });
+}
+
+/**
+ * Get the quality the dialog preselects.
+ * Priority: 1) data-quality 2) data-noscale→'none' 3) SVG→'print' 4) default→'retina'
+ *
+ * @param {Object} attributes - The current values
+ * @param {boolean} isSvg - The image is an SVG
+ * @return {string} The quality value
+ */
+function getDefaultQuality(attributes, isSvg) {
+    if (attributes['data-quality']) {
+        return attributes['data-quality'];
+    }
+    if (attributes['data-noscale']) {
+        // Backward compatibility: data-noscale should map to 'none' quality
+        return 'none';
+    }
+    return isSvg ? 'print' : 'retina';
+}
+
+/**
+ * Fill the quality dropdown (sorted by quality ascending) and preselect the
+ * current quality. SVG images need no quality processing: the dropdown is
+ * disabled for them.
+ *
+ * @param {HTMLSelectElement} el - The quality dropdown
+ * @param {Object} img - The image info
+ * @param {Object} attributes - The current values
+ * @param {boolean} isSvg - The image is an SVG
+ */
+function setupQualitySelect(el, img, attributes, isSvg) {
+    const qualityOptions = [
+        { value: 'none', label: img.lang.qualityNone || 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
+        { value: 'standard', label: img.lang.qualityStandard || 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
+        { value: 'retina', label: img.lang.qualityRetina || 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
+        { value: 'ultra', label: img.lang.qualityUltra || 'Ultra (3.0x)', multiplier: 3.0, color: '#17a2b8', marker: '●' },
+        { value: 'print', label: img.lang.qualityPrint || 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
+    ];
+
+    for (const option of qualityOptions) {
+        const optEl = document.createElement('option');
+        optEl.value = option.value;
+        optEl.textContent = `${option.marker} ${option.label}`;
+        optEl.dataset.multiplier = option.multiplier;
+        optEl.dataset.color = option.color;
+        optEl.style.color = option.color;
+        el.appendChild(optEl);
+    }
+
+    el.value = getDefaultQuality(attributes, isSvg);
+
+    if (isSvg) {
+        el.disabled = true;
+    }
+}
+
+/**
+ * Reduce a CSS class input to valid CSS class characters.
+ *
+ * @param {string} value - The input value
+ * @return {string} The trimmed and sanitized classes
+ */
+function sanitizeCssClassInput(value) {
+    return value ? value.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
+}
+
+/**
+ * Set an attribute to a value, or delete it for an empty value.
+ *
+ * @param {Object} attributes - The dialog attributes, changed in place
+ * @param {string} key - The attribute name
+ * @param {string} value - The value
+ */
+function setOrDeleteAttribute(attributes, key, value) {
+    if (value !== '') {
+        attributes[key] = value;
+    } else {
+        delete attributes[key];
+    }
+}
+
+/**
+ * Click behavior "enlarge": set the zoom attribute, clear the link target and
+ * combine the alignment classes with the CSS class of the enlarge field.
+ *
+ * @param {Object} attributes - The dialog attributes, changed in place
+ * @param {string[]} alignmentClasses - The alignment classes of the image
+ * @param {string} cssClassValue - The value of the enlarge CSS class field
+ */
+function applyEnlargeBehavior(attributes, alignmentClasses, cssClassValue) {
+    attributes['data-htmlarea-zoom'] = true;
+    delete attributes.linkHref;
+    delete attributes.linkTarget;
+    delete attributes.linkTitle;
+    delete attributes.linkParams;
+    const enlargeCss = sanitizeCssClassInput(cssClassValue);
+    const combinedEnlargeClasses = alignmentClasses.slice();
+    if (enlargeCss) {
+        combinedEnlargeClasses.push(enlargeCss);
+    }
+    attributes.class = combinedEnlargeClasses.join(' ');
+}
+
+/**
+ * Click behavior "link": clear the zoom attributes and write the link fields.
+ * The link CSS class goes on the <a>; the image keeps its alignment classes.
+ *
+ * @param {Object} attributes - The dialog attributes, changed in place
+ * @param {string[]} alignmentClasses - The alignment classes of the image
+ * @param {{href: string, target: string, title: string, params: string, cssClass: string}} link - The link field values
+ */
+function applyLinkBehavior(attributes, alignmentClasses, link) {
+    delete attributes['data-htmlarea-zoom'];
+    delete attributes['data-htmlarea-clickenlarge'];
+    setOrDeleteAttribute(attributes, 'linkHref', link.href.trim());
+    setOrDeleteAttribute(attributes, 'linkTarget', link.target.trim());
+    setOrDeleteAttribute(attributes, 'linkTitle', link.title.trim());
+    setOrDeleteAttribute(attributes, 'linkParams', link.params.trim());
+    setOrDeleteAttribute(attributes, 'linkClass', sanitizeCssClassInput(link.cssClass));
+    attributes.class = alignmentClasses.join(' ');
+}
+
+/**
+ * Click behavior "none": clear the zoom and link attributes. The image keeps
+ * its alignment classes.
+ *
+ * @param {Object} attributes - The dialog attributes, changed in place
+ * @param {string[]} alignmentClasses - The alignment classes of the image
+ */
+function applyNoClickBehavior(attributes, alignmentClasses) {
+    delete attributes['data-htmlarea-zoom'];
+    delete attributes['data-htmlarea-clickenlarge'];
+    delete attributes.linkHref;
+    delete attributes.linkTarget;
+    delete attributes.linkTitle;
+    delete attributes.linkClass;
+    delete attributes.linkParams;
+    attributes.class = alignmentClasses.join(' ');
+}
+
+/**
+ * Write the selected quality. "none" (No Scaling) sets data-noscale, any
+ * other quality removes it; no quality removes both.
+ *
+ * @param {Object} attributes - The dialog attributes, changed in place
+ * @param {string} qualityValue - The value of the quality dropdown
+ */
+function applyQualitySelection(attributes, qualityValue) {
+    if (qualityValue) {
+        attributes['data-quality'] = qualityValue;
+        if (qualityValue === 'none') {
+            attributes['data-noscale'] = true;
+        } else {
+            delete attributes['data-noscale'];
+        }
+    } else if (attributes['data-quality']) {
+        delete attributes['data-quality'];
+        delete attributes['data-noscale'];
+    }
+}
+
+/**
+ * Write the title/alt override state of the dialog checkboxes. An override
+ * keeps the entered value (empty is allowed); without it the value is
+ * dropped so that the file metadata applies.
+ *
+ * @param {Object} attributes - The dialog attributes, changed in place
+ * @param {Element} container - The dialog element
+ */
+function applyOverrideCheckboxes(attributes, container) {
+    const titleCheckbox = container.querySelector('#checkbox-title');
+    if (titleCheckbox && !titleCheckbox.checked) {
+        delete attributes.title;
+    }
+
+    for (const item of ['title', 'alt']) {
+        const curCheckbox = container.querySelector(`#checkbox-${item}`);
+        attributes[`data-${item}-override`] = curCheckbox ? curCheckbox.checked : false;
+        if (curCheckbox?.checked) {
+            attributes[item] = attributes[item] || '';
+        } else {
+            delete attributes[item];
+        }
+    }
+}
 
 /**
  * Get the image attributes dialog
@@ -93,14 +507,6 @@ function getImageDialog(editor, img, attributes) {
     const d = {},
         rows = [],
         elements = {};
-
-    // Helper: create element with optional class, append to parent
-    function h(tag, className, parent) {
-        const el = document.createElement(tag);
-        if (className) el.className = className;
-        if (parent) parent.appendChild(el);
-        return el;
-    }
 
     const fields = [
         {
@@ -129,184 +535,7 @@ function getImageDialog(editor, img, attributes) {
 
         rows.push(row);
         for (const [key, config] of Object.entries(fieldGroup)) {
-            // Use full width for title, alt, and caption fields, otherwise use col-sm-4
-            const colClass = (key === 'title' || key === 'alt' || key === 'caption') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
-            const col = h('div', colClass, row);
-            const group = h('div', 'form-group', col);
-            const id = `rteckeditorimage-${key}`;
-            const label = h('label', 'form-label', group);
-            label.htmlFor = id;
-            label.textContent = config.label;
-
-            let el;
-            if (config.type === 'select') {
-                el = document.createElement('select');
-                el.id = id;
-                el.name = key;
-                el.className = 'form-select';
-            } else if (config.type === 'textarea') {
-                el = document.createElement('textarea');
-                el.id = id;
-                el.name = key;
-                el.className = 'form-control';
-                el.rows = config.rows || 3;
-            } else {
-                el = document.createElement('input');
-                el.type = config.type;
-                el.id = id;
-                el.name = key;
-                el.className = 'form-control';
-            }
-
-            const placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
-            const value = ((attributes[key] || '') + '').trim();
-
-            if (config.type !== 'select') {
-                el.placeholder = placeholder;
-                el.value = value;
-            }
-
-            if (config.type === 'text' || config.type === 'textarea') {
-                let startVal = value;
-                const hasDefault = img[key] && img[key].trim();
-
-                const cbox = document.createElement('input');
-                cbox.type = 'checkbox';
-                cbox.className = 'form-check-input';
-                cbox.id = `checkbox-${key}`;
-                cbox.checked = !!value || !hasDefault;
-                cbox.disabled = !hasDefault;
-
-                const cboxLabel = document.createElement('label');
-                cboxLabel.className = 'form-check-label';
-                cboxLabel.htmlFor = `checkbox-${key}`;
-                cboxLabel.textContent = hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault;
-
-                // Add tooltip when checkbox is disabled (no default value from file)
-                if (!hasDefault) {
-                    const noDefaultMsg = img.lang.noDefaultMetadata.replace('%s', key);
-                    cbox.title = noDefaultMsg;
-                    cboxLabel.style.cursor = 'not-allowed';
-                    cboxLabel.title = noDefaultMsg;
-                }
-
-                el.disabled = hasDefault && !value;
-
-                const checkboxContainer = h('div', 'form-check form-check-type-toggle', group);
-                checkboxContainer.style.cssText = 'margin: 0 0 6px;';
-                checkboxContainer.appendChild(cbox);
-                checkboxContainer.appendChild(cboxLabel);
-
-                cboxLabel.addEventListener('click', function () {
-                    el.disabled = !cbox.checked;
-                    startVal = el.value || startVal;
-
-                    // Clear value or set to startvalue when clicking checkbox
-                    if (!cbox.checked) {
-                        el.value = '';
-                    } else {
-                        el.value = startVal;
-                        el.focus();
-                    }
-                });
-
-                // Initally read/set title/alt attributes and check if override is enabled
-                if (key === 'title' || key === 'alt') {
-                    if (attributes[`data-${key}-override`] === 'false') {
-                        cbox.checked = false;
-                        el.disabled = true;
-                        el.value = '';
-                        attributes[`data-${key}-override`] = false;
-                        delete attributes[key];
-                    } else {
-                        cbox.checked = true;
-                        el.disabled = false;
-                    }
-                }
-            } else if (config.type === 'number') {
-                let ratio = img.width / img.height;
-                if (key === 'height') {
-                    ratio = 1 / ratio;
-                }
-                const opposite = 1;
-                const max = img[key];
-                const min = Math.ceil(opposite * ratio);
-                el.max = max;
-                el.min = min;
-
-                const constrainDimensions = function (currentMin, delta) {
-                    let value = Number.parseInt(el.value.replace(/[^0-9]/g, '') || max, 10);
-                    if (delta) {
-                        value += delta;
-                    }
-                    value = Math.max(currentMin, Math.min(value, max));
-                    const oppositeEl = elements[key === 'width' ? 'height' : 'width'],
-                        oppositeMax = Number.parseInt(oppositeEl.max, 10),
-                        ratio = oppositeMax / max;
-
-                    oppositeEl.value = value === max ? oppositeMax : Math.ceil(value * ratio);
-                    el.value = value;
-                };
-
-                el.addEventListener('input', function () {
-                    // Allow empty input during typing (fixes #140)
-                    const val = el.value.replace(/[^0-9]/g, '');
-                    if (val !== '') {
-                        constrainDimensions(1);
-                    }
-                });
-                el.addEventListener('change', function () {
-                    constrainDimensions(min);
-                });
-                el.addEventListener('wheel', function (e) {
-                    constrainDimensions(min, e.deltaY < 0 ? 1 : -1);
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                }, { passive: false });
-            } else if (config.type === 'select' && key === 'quality') {
-                // Image Processing quality dropdown - sorted by quality ascending
-                const qualityOptions = [
-                    { value: 'none', label: img.lang.qualityNone || 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
-                    { value: 'standard', label: img.lang.qualityStandard || 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
-                    { value: 'retina', label: img.lang.qualityRetina || 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
-                    { value: 'ultra', label: img.lang.qualityUltra || 'Ultra (3.0x)', multiplier: 3.0, color: '#17a2b8', marker: '●' },
-                    { value: 'print', label: img.lang.qualityPrint || 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
-                ];
-
-                for (const option of qualityOptions) {
-                    const optEl = document.createElement('option');
-                    optEl.value = option.value;
-                    optEl.textContent = `${option.marker} ${option.label}`;
-                    optEl.dataset.multiplier = option.multiplier;
-                    optEl.dataset.color = option.color;
-                    optEl.style.color = option.color;
-                    el.appendChild(optEl);
-                }
-
-                // Determine default quality based on image type and existing attributes
-                // Priority: 1) data-quality 2) data-noscale→'none' 3) SVG→'print' 4) default→'retina'
-                let defaultQuality;
-                if (attributes['data-quality']) {
-                    defaultQuality = attributes['data-quality'];
-                } else if (attributes['data-noscale']) {
-                    // Backward compatibility: data-noscale should map to 'none' quality
-                    defaultQuality = 'none';
-                } else if (isSvg) {
-                    defaultQuality = 'print';
-                } else {
-                    defaultQuality = 'retina';
-                }
-                el.value = defaultQuality;
-
-                // Disable for SVG (vector images don't need quality processing)
-                if (isSvg) {
-                    el.disabled = true;
-                }
-            }
-
-            group.appendChild(el);
-            elements[key] = el;
+            createDialogField(row, key, config, { img, attributes, isSvg, elements });
         }
     }
 
@@ -347,10 +576,9 @@ function getImageDialog(editor, img, attributes) {
 
     // Extract non-alignment CSS classes for the CSS class input fields
     // Alignment classes (image-left, image-center, etc.) are controlled via bubble toolbar
-    const alignmentClassList = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
     const allClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
     const nonAlignmentClasses = allClasses.filter(function(c) {
-        return !alignmentClassList.includes(c);
+        return !ALIGNMENT_CLASSES.has(c);
     }).join(' ');
 
     // Determine initial selection based on existing attributes
@@ -505,10 +733,10 @@ function getImageDialog(editor, img, attributes) {
         { value: '_self', text: img.lang.linkTargetSelf || 'Same window' },
         { value: '_parent', text: img.lang.linkTargetParent || 'Parent frame' }
     ];
-    for (let di = 0; di < datalistOptions.length; di++) {
+    for (const datalistOption of datalistOptions) {
         const opt = document.createElement('option');
-        opt.value = datalistOptions[di].value;
-        opt.textContent = datalistOptions[di].text;
+        opt.value = datalistOption.value;
+        opt.textContent = datalistOption.text;
         linkTargetDatalist.appendChild(opt);
     }
 
@@ -608,28 +836,15 @@ function getImageDialog(editor, img, attributes) {
                 inputCssClassLink.value = linkData.class || '';
                 inputLinkParams.value = linkData.additionalParams || '';
             }
+        }, function(reason) {
+            // Closing the link browser without a selection rejects without a
+            // reason; failures carry one (openLinkBrowser has logged details).
+            if (reason) {
+                console.warn('Link browser returned no link:', reason);
+            }
         });
     });
 
-
-    /**
-     * Debounce utility function to delay execution
-     *
-     * @param {Function} func - Function to debounce
-     * @param {number} wait - Delay in milliseconds
-     * @return {Function} Debounced function
-     */
-    function debounce(func, wait) {
-        let timeout;
-        return function() {
-            const context = this;
-            const args = arguments;
-            clearTimeout(timeout);
-            timeout = setTimeout(function() {
-                func.apply(context, args);
-            }, wait);
-        };
-    }
 
     // Build a quality indicator message div using safe DOM construction
     // (avoids insertAdjacentHTML with interpolated values — CodeQL js/xss-through-dom)
@@ -773,7 +988,7 @@ function getImageDialog(editor, img, attributes) {
             for (const key of Object.keys(fieldGroup)) {
                 const value = elements[key].value;
 
-                if (typeof value !== 'undefined') {
+                if (value !== undefined) {
                     attributes[key] = value;
                 }
             }
@@ -781,10 +996,9 @@ function getImageDialog(editor, img, attributes) {
 
         // Extract and preserve alignment classes from original class attribute
         // These are set via the bubble toolbar and must be preserved when saving
-        const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
         const originalClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
         const preservedAlignmentClasses = originalClasses.filter(function(c) {
-            return alignmentClasses.includes(c);
+            return ALIGNMENT_CLASSES.has(c);
         });
 
         // Handle Click Behavior radio button selection
@@ -793,108 +1007,23 @@ function getImageDialog(editor, img, attributes) {
         const selectedClickBehavior = selRadio ? selRadio.value : 'none';
 
         if (selectedClickBehavior === 'enlarge') {
-            // Enlarge mode: set zoom attribute, clear link attributes
-            attributes['data-htmlarea-zoom'] = true;
-            delete attributes.linkHref;
-            delete attributes.linkTarget;
-            delete attributes.linkTitle;
-            delete attributes.linkParams;
-            // Set CSS class from enlarge field (sanitized to valid CSS class characters)
-            const enlargeCssVal = inputCssClassEnlarge.value;
-            const enlargeCss = enlargeCssVal ? enlargeCssVal.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
-            // Combine preserved alignment classes with enlarge CSS class
-            const combinedEnlargeClasses = preservedAlignmentClasses.slice();
-            if (enlargeCss) {
-                combinedEnlargeClasses.push(enlargeCss);
-            }
-            attributes.class = combinedEnlargeClasses.join(' ');
+            applyEnlargeBehavior(attributes, preservedAlignmentClasses, inputCssClassEnlarge.value);
         } else if (selectedClickBehavior === 'link') {
-            // Link mode: clear zoom attribute, set link attributes
-            delete attributes['data-htmlarea-zoom'];
-            delete attributes['data-htmlarea-clickenlarge'];
-            // Collect link field values
-            const linkHrefVal = inputLinkHref.value.trim();
-            const linkTargetVal = inputLinkTarget.value.trim();
-            const linkTitleVal = inputLinkTitle.value.trim();
-            const linkParamsVal = inputLinkParams.value.trim();
-
-            if (linkHrefVal !== '') {
-                attributes.linkHref = linkHrefVal;
-            } else {
-                delete attributes.linkHref;
-            }
-            if (linkTargetVal !== '') {
-                attributes.linkTarget = linkTargetVal;
-            } else {
-                delete attributes.linkTarget;
-            }
-            if (linkTitleVal !== '') {
-                attributes.linkTitle = linkTitleVal;
-            } else {
-                delete attributes.linkTitle;
-            }
-            if (linkParamsVal !== '') {
-                attributes.linkParams = linkParamsVal;
-            } else {
-                delete attributes.linkParams;
-            }
-            // Set link CSS class (stored on <a> element, separate from image class)
-            const linkCssVal = inputCssClassLink.value;
-            const linkCss = linkCssVal ? linkCssVal.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
-            if (linkCss) {
-                attributes.linkClass = linkCss;
-            } else {
-                delete attributes.linkClass;
-            }
-            // Preserve alignment classes on the image (not mixed with link class)
-            attributes.class = preservedAlignmentClasses.join(' ');
+            applyLinkBehavior(attributes, preservedAlignmentClasses, {
+                href: inputLinkHref.value,
+                target: inputLinkTarget.value,
+                title: inputLinkTitle.value,
+                params: inputLinkParams.value,
+                cssClass: inputCssClassLink.value
+            });
         } else {
-            // None mode: clear both zoom and link attributes
-            delete attributes['data-htmlarea-zoom'];
-            delete attributes['data-htmlarea-clickenlarge'];
-            delete attributes.linkHref;
-            delete attributes.linkTarget;
-            delete attributes.linkTitle;
-            delete attributes.linkClass;
-            delete attributes.linkParams;
-            // Preserve alignment classes even in "none" mode
-            attributes.class = preservedAlignmentClasses.join(' ');
+            applyNoClickBehavior(attributes, preservedAlignmentClasses);
         }
 
         // Save quality attribute and sync with noScale
-        const qualityValue = qualityDropdown.value;
-        if (qualityValue && qualityValue !== '') {
-            attributes['data-quality'] = qualityValue;
-            // Sync noScale attribute: set to true when quality is 'none' (No Scaling)
-            if (qualityValue === 'none') {
-                attributes['data-noscale'] = true;
-            } else {
-                // Remove noScale when using quality processing
-                delete attributes['data-noscale'];
-            }
-        } else if (attributes['data-quality']) {
-            delete attributes['data-quality'];
-            delete attributes['data-noscale'];
-        }
+        applyQualitySelection(attributes, qualityDropdown.value);
 
-        const titleCheckbox = container.querySelector('#checkbox-title');
-        if (titleCheckbox && !titleCheckbox.checked) {
-            delete attributes.title;
-        }
-
-        // When saving, check title/alt for override mode
-        ['title', 'alt'].forEach(function (item) {
-            const curCheckbox = container.querySelector(`#checkbox-${item}`);
-
-            // When saving, check title for override mode
-            attributes[`data-${item}-override`] = curCheckbox ? curCheckbox.checked : false;
-            if (curCheckbox?.checked) {
-                // Allow empty title/alt values
-                attributes[item] = attributes[item] || '';
-            } else {
-                delete attributes[item];
-            }
-        });
+        applyOverrideCheckboxes(attributes, container);
 
         return attributes;
     };
@@ -939,15 +1068,15 @@ function askImageAttributes(editor, img, attributes, table) {
                 trigger: function () {
 
                     const dialogInfo = dialog.get();
-                    const allowedAttributes = [
+                    const allowedAttributes = new Set([
                             '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-quality', 'data-title-override', 'data-alt-override', 'caption',
                             'linkHref', 'linkTarget', 'linkTitle', 'linkClass', 'linkParams'
-                        ];
+                        ]);
                     const attributesNew = { ...img, ...dialogInfo };
 
                     let filteredAttr = Object.keys(attributesNew)
                         .filter(function (key) {
-                            return allowedAttributes.includes(key)
+                            return allowedAttributes.has(key)
                         })
                         .reduce(function (obj, key) {
                             obj[key] = attributesNew[key];
@@ -970,6 +1099,10 @@ function askImageAttributes(editor, img, attributes, table) {
                             });
                             modal.hideModal('hide');
                             resolvePromise(filteredAttr);
+                        })
+                        .catch(function (error) {
+                            // Keep the dialog open so the editor can retry or cancel
+                            console.error('Failed to fetch image info:', error);
                         });
 
                 }
@@ -993,15 +1126,15 @@ function getImageInfo(editor, table, uid, params) {
     let url = `${editor.config.get('typo3image').routeUrl}&action=info&fileId=${encodeURIComponent(uid)}&table=${encodeURIComponent(table)}`;
 
     // SECURITY: Encode URL parameters to prevent injection attacks
-    if (typeof params.width !== 'undefined' && params.width.length) {
+    if (params.width !== undefined && params.width.length) {
         url += `&P[width]=${encodeURIComponent(params.width)}`;
     }
 
-    if (typeof params.height !== 'undefined' && params.height.length) {
+    if (params.height !== undefined && params.height.length) {
         url += `&P[height]=${encodeURIComponent(params.height)}`;
     }
 
-    if (typeof params['data-quality'] !== 'undefined' && params['data-quality']) {
+    if (params['data-quality'] !== undefined && params['data-quality']) {
         url += `&P[quality]=${encodeURIComponent(params['data-quality'])}`;
     }
 
@@ -1038,7 +1171,7 @@ function selectImage(editor) {
 
                 doc.addEventListener('click', function(e) {
                     const el = e.target.closest('[data-filelist-element]');
-                    if (!el || el.dataset.filelistType !== 'file') return;
+                    if (el?.dataset.filelistType !== 'file') return;
 
                     e.stopImmediatePropagation();
 
@@ -1298,6 +1431,190 @@ function linkPluginLinkToImageLink(element) {
     return imageLink;
 }
 
+/**
+ * Get the plain text of an image caption: its text nodes, without markup.
+ *
+ * @param {Element|null|undefined} captionElement - The typo3imageCaption element
+ * @return {string} The caption text, '' without caption
+ */
+function getCaptionPlainText(captionElement) {
+    let captionText = '';
+    for (const child of captionElement?.getChildren() ?? []) {
+        if (child.is('$text')) {
+            captionText += child.data;
+        }
+    }
+    return captionText;
+}
+
+/**
+ * Check if an inline image without its own link sits in a link of the link
+ * plugin, which the user created around text that includes the image.
+ *
+ * @param {Element} modelElement - The typo3image or typo3imageInline element
+ * @param {Element|null} widgetViewElement - The widget view element of the image
+ * @return {boolean} True if the widget's parent is such an <a>
+ */
+function isInlineImageInTextLink(modelElement, widgetViewElement) {
+    if (modelElement.name !== 'typo3imageInline') {
+        return false;
+    }
+    const imageLinkHref = modelElement.getAttribute('imageLinkHref');
+    if (imageLinkHref && imageLinkHref.trim() !== '') {
+        return false;
+    }
+    const parent = widgetViewElement?.parent;
+    return Boolean(parent?.is('attributeElement') && parent.name === 'a');
+}
+
+/**
+ * Open the image dialog for an image in the document and apply the result.
+ *
+ * @param {Object} editor - The CKEditor instance
+ * @param {Element} modelElement - The typo3image or typo3imageInline element
+ * @param {Element|null} widgetViewElement - The widget view element of the image
+ */
+function editExistingImage(editor, modelElement, widgetViewElement) {
+    const isInlineImage = modelElement.name === 'typo3imageInline';
+    // Inline images have no caption
+    const captionElement = isInlineImage ? null : getCaptionFromImageModelElement(modelElement);
+
+    edit(
+        {
+            uid: modelElement.getAttribute('fileUid'),
+            table: modelElement.getAttribute('fileTable'),
+        },
+        editor,
+        {
+            width: modelElement.getAttribute('width'),
+            height: modelElement.getAttribute('height'),
+            class: modelElement.getAttribute('class'),
+            alt: modelElement.getAttribute('alt'),
+            title: modelElement.getAttribute('title'),
+            caption: getCaptionPlainText(captionElement),
+            // Kept when the caption text is not changed in the dialog
+            captionElement: captionElement,
+            'data-htmlarea-zoom': modelElement.getAttribute('enableZoom'),
+            'data-noscale': modelElement.getAttribute('noScale'),
+            'data-quality': modelElement.getAttribute('quality'),
+            'data-title-override': modelElement.getAttribute('titleOverride'),
+            'data-alt-override': modelElement.getAttribute('altOverride'),
+            linkHref: modelElement.getAttribute('imageLinkHref'),
+            linkTarget: modelElement.getAttribute('imageLinkTarget'),
+            linkTitle: modelElement.getAttribute('imageLinkTitle'),
+            linkClass: modelElement.getAttribute('imageLinkClass'),
+            linkParams: modelElement.getAttribute('imageLinkParams'),
+            linkAttributes: modelElement.getAttribute('imageLinkAttributes'),
+            linkPluginAttributes: getLinkPluginAttributes(modelElement),
+            // Pass flag to indicate if this is an inline image (for hiding caption field)
+            isInlineImage: isInlineImage,
+            // Pass flag to indicate if image is inside an external link (for disabling link options)
+            isInsideExternalLink: isInlineImageInTextLink(modelElement, widgetViewElement),
+        }
+    );
+}
+
+/**
+ * Check if a view element is the widget wrapper of an image: a <span> or
+ * <figure> with the ck-widget class.
+ *
+ * @param {Element|null|undefined} element - The view element
+ * @return {boolean} True for an image widget wrapper
+ */
+function isImageWidgetWrapper(element) {
+    return Boolean(element)
+        && (element.name === 'span' || element.name === 'figure')
+        && element.hasClass('ck-widget');
+}
+
+/**
+ * Find the image widget for the target of a double click: the target itself,
+ * or the widget of the caption, image or link that was clicked.
+ *
+ * @param {Element} target - The view element that was double-clicked
+ * @return {Element} The widget, or the target if none was found
+ */
+function findImageWidget(target) {
+    const targetElement = findClosestImageWidget(target);
+    if (targetElement.hasClass?.('ck-widget')) {
+        return targetElement;
+    }
+    // Traverse up from the original target to find any ck-widget ancestor
+    // (handles img inside CKEditor link wrapper)
+    return findImageWidgetAncestor(target) || targetElement;
+}
+
+/**
+ * Find the widget of a double-clicked caption, image or link from its
+ * nearest ancestors.
+ *
+ * @param {Element} target - The view element that was double-clicked
+ * @return {Element} The widget, or the target if none was found
+ */
+function findClosestImageWidget(target) {
+    // If we clicked on text inside figcaption, traverse up to find the widget
+    let checkElement = target;
+    while (checkElement && checkElement.name !== 'figcaption') {
+        checkElement = checkElement.parent;
+    }
+    if (checkElement?.name === 'figcaption') {
+        // We're inside figcaption, find the parent figure widget
+        const figure = checkElement.parent;
+        return figure?.name === 'figure' && figure.hasClass('ck-widget') ? figure : target;
+    }
+
+    // If clicked on img or link inside wrapper, find the parent wrapper (span or figure)
+    if (target.name !== 'img' && target.name !== 'a') {
+        return target;
+    }
+    const parent = target.parent;
+    if (isImageWidgetWrapper(parent)) {
+        return parent;
+    }
+    // Handle img inside link inside wrapper: img -> a -> span/figure
+    if (target.name === 'img' && parent?.name === 'a' && isImageWidgetWrapper(parent.parent)) {
+        return parent.parent;
+    }
+    return target;
+}
+
+/**
+ * Find the closest image widget among the ancestors of a view element.
+ *
+ * @param {Element} target - The view element
+ * @return {Element|null} The widget, or null
+ */
+function findImageWidgetAncestor(target) {
+    let searchElement = target;
+    while (searchElement) {
+        if (searchElement.hasClass?.('ck-widget') &&
+            (searchElement.name === 'span' || searchElement.name === 'figure')) {
+            return searchElement;
+        }
+        // Also check if we're on an img directly inside a widget span
+        if (searchElement.name === 'img' && searchElement.parent?.hasClass?.('ck-widget')) {
+            return searchElement.parent;
+        }
+        searchElement = searchElement.parent;
+    }
+    return null;
+}
+
+/**
+ * Class for an image whose dialog returned no class: new images get the
+ * class of their element type, existing images keep an empty class.
+ *
+ * @param {boolean} isNewImage - The image is being inserted
+ * @param {boolean} isInlineImage - The image is a typo3imageInline
+ * @return {string} The default class
+ */
+function defaultImageClass(isNewImage, isInlineImage) {
+    if (!isNewImage) {
+        return '';
+    }
+    return isInlineImage ? 'image-inline' : 'image-block';
+}
+
 function edit(selectedImage, editor, imageAttributes) {
     // Capture whether this is an inline image BEFORE the async operations
     // This flag is passed from the caller and indicates the original element type
@@ -1315,7 +1632,7 @@ function edit(selectedImage, editor, imageAttributes) {
                 // (e.g. new insertion with "none" click behavior).
                 // For existing images, preserve the current class even if empty.
                 // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/655
-                const imageClass = attributes.class || (isNewImage ? (isInlineImage ? 'image-inline' : 'image-block') : '');
+                const imageClass = attributes.class || defaultImageClass(isNewImage, isInlineImage);
 
                 const newImageAttributes = {
                     fileUid: attributes.fileUid,
@@ -1391,6 +1708,12 @@ function edit(selectedImage, editor, imageAttributes) {
 
                 editor.model.insertObject(newImage);
             });
+        })
+        .catch(function (error) {
+            // Cancelling the dialog rejects without a reason: nothing to report
+            if (error) {
+                console.error('Failed to edit image:', error);
+            }
         });
 }
 
@@ -1404,7 +1727,7 @@ class ResizeImageCommand extends Command {
         const model = this.editor.model;
         const imageElement = model.document.selection.getSelectedElement();
 
-        if (!imageElement || !imageElement.is('element', 'typo3image')) {
+        if (!imageElement?.is('element', 'typo3image')) {
             return;
         }
 
@@ -1455,7 +1778,7 @@ class ToggleCaptionCommand extends Command {
         const selection = model.document.selection;
         const imageElement = selection.getSelectedElement();
 
-        if (!imageElement || imageElement.name !== 'typo3image') {
+        if (imageElement?.name !== 'typo3image') {
             return;
         }
 
@@ -1493,7 +1816,7 @@ class SetImageStyleCommand extends Command {
         const model = this.editor.model;
         const imageElement = model.document.selection.getSelectedElement();
 
-        if (!imageElement || !imageElement.is('element', 'typo3image')) {
+        if (!imageElement?.is('element', 'typo3image')) {
             return;
         }
 
@@ -1537,6 +1860,72 @@ class SetImageStyleCommand extends Command {
 
 
 /**
+ * Attributes a toggled image keeps from the image it replaces
+ */
+const TOGGLED_IMAGE_ATTRIBUTES = [
+    'src', 'fileUid', 'fileTable', 'alt', 'altOverride',
+    'title', 'titleOverride', 'width', 'height',
+    'enableZoom', 'noScale', 'quality',
+    'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle', 'imageLinkClass', 'imageLinkParams',
+    'imageLinkAttributes'
+];
+
+/**
+ * Copy the attributes a toggled image keeps, without empty values.
+ *
+ * The alignment classes are removed from imageLinkClass: they belong to the
+ * image, and image-inline must not stay on the <a> after inline→block (#655).
+ *
+ * @param {Element} imageElement - The typo3image or typo3imageInline element
+ * @return {Object} The attributes, without class
+ */
+function getToggledImageAttributes(imageElement) {
+    const attributes = {};
+    for (const attr of TOGGLED_IMAGE_ATTRIBUTES) {
+        const value = imageElement.getAttribute(attr);
+        if (value !== undefined && value !== null && value !== '') {
+            attributes[attr] = value;
+        }
+    }
+
+    const linkClassValue = imageElement.getAttribute('imageLinkClass') || '';
+    if (linkClassValue) {
+        const cleanedLinkClass = linkClassValue
+            .split(' ')
+            .filter(cls => !ALIGNMENT_CLASSES.has(cls))
+            .join(' ')
+            .trim();
+        if (cleanedLinkClass) {
+            attributes['imageLinkClass'] = cleanedLinkClass;
+        } else {
+            delete attributes['imageLinkClass'];
+        }
+    }
+    return attributes;
+}
+
+/**
+ * Turn the class of an inline image into the class of a block image: remove
+ * image-inline and add image-block if no alignment class remains.
+ *
+ * @param {string} classValue - The class attribute value
+ * @return {string} The class attribute value for a block image
+ */
+function toBlockImageClass(classValue) {
+    const classes = classValue
+        .split(' ')
+        .filter(cls => cls !== 'image-inline')
+        .join(' ')
+        .trim();
+
+    // If no style class remains, default to image-block
+    if (/image-(left|right|center|block)/.test(classes)) {
+        return classes;
+    }
+    return classes ? classes + ' image-block' : 'image-block';
+}
+
+/**
  * Command to toggle between block (typo3image) and inline (typo3imageInline) image types
  * Block→Inline: Removes caption (inline images cannot have captions)
  * Inline→Block: Wraps image in figure
@@ -1572,61 +1961,15 @@ class ToggleImageTypeCommand extends Command {
 
         model.change(writer => {
             // Copy common attributes
-            const commonAttributes = [
-                'src', 'fileUid', 'fileTable', 'alt', 'altOverride',
-                'title', 'titleOverride', 'width', 'height',
-                'enableZoom', 'noScale', 'quality',
-                'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle', 'imageLinkClass', 'imageLinkParams',
-                'imageLinkAttributes'
-            ];
-
-            const attributes = {};
-            for (const attr of commonAttributes) {
-                const value = imageElement.getAttribute(attr);
-                if (value !== undefined && value !== null && value !== '') {
-                    attributes[attr] = value;
-                }
-            }
+            const attributes = getToggledImageAttributes(imageElement);
 
             // Handle class attribute - remove/add image-inline as needed
-            let classValue = imageElement.getAttribute('class') || '';
-
-            if (isCurrentlyInline) {
+            const classValue = imageElement.getAttribute('class') || '';
+            attributes['class'] = isCurrentlyInline
                 // Inline → Block: remove image-inline class, add image-block if no other style class
-                classValue = classValue
-                    .split(' ')
-                    .filter(cls => cls !== 'image-inline')
-                    .join(' ')
-                    .trim();
-
-                // If no style class remains, default to image-block
-                if (!classValue.match(/image-(left|right|center|block)/)) {
-                    classValue = classValue ? classValue + ' image-block' : 'image-block';
-                }
-            } else {
+                ? toBlockImageClass(classValue)
                 // Block → Inline: remove block style classes, add image-inline
-                classValue = toInlineImageClass(classValue);
-            }
-
-            attributes['class'] = classValue;
-
-            // Clean alignment classes from imageLinkClass during toggle
-            // Prevents 'image-inline' from persisting on <a> tag after inline→block
-            // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/655
-            const linkClassValue = imageElement.getAttribute('imageLinkClass') || '';
-            if (linkClassValue) {
-                const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
-                const cleanedLinkClass = linkClassValue
-                    .split(' ')
-                    .filter(cls => !alignmentClasses.includes(cls))
-                    .join(' ')
-                    .trim();
-                if (cleanedLinkClass) {
-                    attributes['imageLinkClass'] = cleanedLinkClass;
-                } else {
-                    delete attributes['imageLinkClass'];
-                }
-            }
+                : toInlineImageClass(classValue);
 
             // A block image cannot carry the link plugin's text attributes.
             // Keep such a link as the image's own link (#935).
@@ -1727,7 +2070,7 @@ function viewNodeHasText(node, skip = null) {
 function toInlineImageClass(classValue) {
     const classes = (classValue || '')
         .split(' ')
-        .filter(cls => cls !== 'image' && !cls.match(/^image-(left|right|center|block)$/))
+        .filter(cls => cls !== 'image' && !/^image-(left|right|center|block)$/.test(cls))
         .join(' ')
         .trim();
 
@@ -1744,10 +2087,9 @@ function toInlineImageClass(classValue) {
  * @return {string} The class attribute value without alignment classes
  */
 function withoutAlignmentClasses(classValue) {
-    const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
     return (classValue || '')
         .split(/\s+/)
-        .filter(cls => cls !== '' && !alignmentClasses.includes(cls))
+        .filter(cls => cls !== '' && !ALIGNMENT_CLASSES.has(cls))
         .join(' ');
 }
 
@@ -1773,7 +2115,7 @@ function linkHoldsMoreThan(linkElement, imgElement) {
 /**
  * Inline wrappers an image can sit in inside a paragraph
  */
-const INLINE_WRAPPER_ELEMENTS = ['span', 'strong', 'b', 'em', 'i', 'u', 's', 'sub', 'sup', 'small', 'mark', 'code'];
+const INLINE_WRAPPER_ELEMENTS = new Set(['span', 'strong', 'b', 'em', 'i', 'u', 's', 'sub', 'sup', 'small', 'mark', 'code']);
 
 /**
  * Check if a class-less <img> sits between text in a paragraph.
@@ -1792,10 +2134,10 @@ function isClasslessImageInText(imgElement, node) {
     }
     // Climb through inline wrappers such as <span> or <strong> to the paragraph
     let paragraph = node.parent;
-    while (paragraph?.is('element') && INLINE_WRAPPER_ELEMENTS.includes(paragraph.name)) {
+    while (paragraph?.is('element') && INLINE_WRAPPER_ELEMENTS.has(paragraph.name)) {
         paragraph = paragraph.parent;
     }
-    if (!paragraph || !paragraph.is('element', 'p')) {
+    if (!paragraph?.is('element', 'p')) {
         return false;
     }
     for (const child of paragraph.getChildren()) {
@@ -1811,7 +2153,7 @@ function isClasslessImageInText(imgElement, node) {
  * their own, but are kept in imageLinkAttributes (#935): rel, which TYPO3's
  * link editing sets, and download. Other attributes are left out, as before.
  */
-const IMAGE_LINK_EXTRA_ATTRIBUTES = ['rel', 'download'];
+const IMAGE_LINK_EXTRA_ATTRIBUTES = new Set(['rel', 'download']);
 
 /**
  * Upcast a <figcaption> into a typo3imageCaption child of the given image.
@@ -1850,7 +2192,7 @@ function getExtraLinkAttributes(...linkElements) {
         }
         for (const [key, value] of linkElement.getAttributes()) {
             const name = key.toLowerCase();
-            if (!IMAGE_LINK_EXTRA_ATTRIBUTES.includes(name)) {
+            if (!IMAGE_LINK_EXTRA_ATTRIBUTES.has(name)) {
                 continue;
             }
             if (!(name in extra)) {
@@ -1873,10 +2215,367 @@ function addExtraLinkAttributes(linkAttributes, modelElement) {
         return;
     }
     for (const [name, value] of Object.entries(extra)) {
-        if (IMAGE_LINK_EXTRA_ATTRIBUTES.includes(name) && !(name in linkAttributes)) {
+        if (IMAGE_LINK_EXTRA_ATTRIBUTES.has(name) && !(name in linkAttributes)) {
             linkAttributes[name] = value;
         }
     }
+}
+
+/**
+ * Check if an href is a link target: not blank and not the "/" placeholder.
+ *
+ * @param {string} href - The href of a view <a>
+ * @return {boolean} True for a link target
+ */
+function isUsableLinkHref(href) {
+    return Boolean(href?.trim()) && href.trim() !== '/';
+}
+
+/**
+ * Check if a class attribute value holds the image-inline class.
+ *
+ * @param {string} classValue - The class attribute value
+ * @return {boolean} True if image-inline is one of the classes
+ */
+function hasInlineImageClass(classValue) {
+    return (classValue || '').toString().split(/\s+/).includes('image-inline');
+}
+
+/**
+ * Check if all view elements can still be consumed by name.
+ *
+ * @param {Object} consumable - The conversion API's consumable
+ * @param {Element[]} viewElements - The view elements
+ * @return {boolean} True if every element can be consumed
+ */
+function canConsumeAll(consumable, viewElements) {
+    return viewElements.every(viewElement => consumable.test(viewElement, { name: true }));
+}
+
+/**
+ * Consume all view elements by name. Test them with canConsumeAll() first,
+ * so that a failing element does not leave the others half consumed.
+ *
+ * @param {Object} consumable - The conversion API's consumable
+ * @param {Element[]} viewElements - The view elements
+ */
+function consumeAll(consumable, viewElements) {
+    for (const viewElement of viewElements) {
+        consumable.consume(viewElement, { name: true });
+    }
+}
+
+/**
+ * Read the model attributes of a FAL image from its view <img>.
+ *
+ * @param {Element} imgElement - The view <img>
+ * @param {string} classValue - The class of the model element (of the <img> or its figure)
+ * @return {Object} The typo3image / typo3imageInline attributes
+ */
+function getImageModelAttributes(imgElement, classValue) {
+    const imageAttributes = {
+        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
+        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
+        width: imgElement.getAttribute('width') || '',
+        height: imgElement.getAttribute('height') || '',
+        class: classValue,
+        alt: imgElement.getAttribute('alt') || '',
+        altOverride: imgElement.getAttribute('data-alt-override') || false,
+        title: imgElement.getAttribute('title') || '',
+        titleOverride: imgElement.getAttribute('data-title-override') || false,
+        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
+        noScale: imgElement.getAttribute('data-noscale') || false,
+        quality: imgElement.getAttribute('data-quality') || ''
+    };
+    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
+    if (cleanSrc !== null) {
+        imageAttributes.src = cleanSrc;
+    }
+    return imageAttributes;
+}
+
+/**
+ * Read an attribute from the first of the given view <a> elements that has it.
+ *
+ * @param {string} name - The attribute name
+ * @param {...Element|null} linkElements - The view <a> elements, in order of preference
+ * @return {string} The value, or '' if none has it
+ */
+function readLinkAttribute(name, ...linkElements) {
+    for (const linkElement of linkElements) {
+        const value = linkElement?.getAttribute(name);
+        if (value) {
+            return value;
+        }
+    }
+    return '';
+}
+
+/**
+ * Read the link of an image from view <a> elements, in order of preference.
+ *
+ * @param {...Element|null} linkElements - The view <a> elements
+ * @return {{href: string, target: string, title: string, class: string, params: string}}
+ */
+function readImageLink(...linkElements) {
+    return {
+        href: readLinkAttribute('href', ...linkElements),
+        target: readLinkAttribute('target', ...linkElements),
+        title: readLinkAttribute('title', ...linkElements),
+        class: readLinkAttribute('class', ...linkElements),
+        params: readLinkAttribute('data-link-params', ...linkElements),
+    };
+}
+
+/**
+ * Split the class of an image link into its own classes and the image
+ * alignment classes, both as class attribute values.
+ *
+ * @param {string} classValue - The class of the view <a>
+ * @return {{own: string, alignment: string}}
+ */
+function splitLinkClass(classValue) {
+    const parts = (classValue || '').split(' ').filter(c => c.trim() !== '');
+    return {
+        own: parts.filter(c => !ALIGNMENT_CLASSES.has(c)).join(' '),
+        alignment: parts.filter(c => ALIGNMENT_CLASSES.has(c)).join(' '),
+    };
+}
+
+/**
+ * Add the imageLink* attributes of a link to the model attributes of an image.
+ *
+ * Nothing is added unless the href is a link target. The other values are
+ * added only when they are not blank. rel and download come from the given
+ * view <a> elements (#935).
+ *
+ * @param {Object} imageAttributes - The image model attributes, changed in place
+ * @param {Object} link - The link as returned by readImageLink()
+ * @param {...Element|null} linkElements - The view <a> elements of the link
+ * @return {boolean} True if the link was added
+ */
+function addImageLinkModelAttributes(imageAttributes, link, ...linkElements) {
+    if (!isUsableLinkHref(link.href)) {
+        return false;
+    }
+    imageAttributes.imageLinkHref = link.href;
+    const optional = {
+        imageLinkTarget: link.target,
+        imageLinkTitle: link.title,
+        imageLinkClass: link.class,
+        imageLinkParams: link.params,
+    };
+    for (const [name, value] of Object.entries(optional)) {
+        if (value?.trim()) {
+            imageAttributes[name] = value;
+        }
+    }
+    const extraLinkAttributes = getExtraLinkAttributes(...linkElements);
+    if (extraLinkAttributes) {
+        imageAttributes.imageLinkAttributes = extraLinkAttributes;
+    }
+    return true;
+}
+
+/**
+ * Find the image of a double-wrapped link <a><a><img></a></a>.
+ *
+ * @param {Element} viewOuterLink - The outer view <a>
+ * @return {{innerLink: Element|null, imgElement: Element|null}} The last inner
+ *     <a>, and the first FAL image of the last inner <a> that holds one
+ */
+function findDoubleLinkedImage(viewOuterLink) {
+    let innerLink = null;
+    let imgElement = null;
+    for (const child of viewOuterLink.getChildren()) {
+        if (!child.is('element', 'a')) {
+            continue;
+        }
+        innerLink = child;
+        // Find img inside inner link
+        for (const innerChild of child.getChildren()) {
+            if (innerChild.is('element', 'img') && innerChild.getAttribute('data-htmlarea-file-uid')) {
+                imgElement = innerChild;
+                break;
+            }
+        }
+    }
+    return { innerLink, imgElement };
+}
+
+/**
+ * Find the image, the caption and an inner <a> of a figure that sits in a link.
+ *
+ * @param {Element} figureElement - The view <figure>
+ * @return {{imgElement: Element|null, figcaptionElement: Element|null, innerLinkElement: Element|null}}
+ */
+function findLinkedFigureParts(figureElement) {
+    let imgElement = null;
+    let figcaptionElement = null;
+    let innerLinkElement = null;
+    for (const child of figureElement.getChildren()) {
+        if (child.is('element', 'img')) {
+            imgElement = child;
+        } else if (child.is('element', 'figcaption')) {
+            figcaptionElement = child;
+        } else if (child.is('element', 'a')) {
+            // Image might be wrapped in inner <a> too
+            innerLinkElement = child;
+            imgElement = lastChildImage(child) || imgElement;
+        }
+    }
+    return { imgElement, figcaptionElement, innerLinkElement };
+}
+
+/**
+ * Get the last <img> child of a view element.
+ *
+ * @param {Element} parent - The view element
+ * @return {Element|null} The last <img> child, or null
+ */
+function lastChildImage(parent) {
+    let imgElement = null;
+    for (const child of parent.getChildren()) {
+        if (child.is('element', 'img')) {
+            imgElement = child;
+        }
+    }
+    return imgElement;
+}
+
+/**
+ * Find the image and the caption of a figure. The image may sit in an <a>.
+ *
+ * @param {Element} viewFigure - The view <figure>
+ * @return {{imgElement: Element|null, figcaptionElement: Element|null}}
+ */
+function findFigureParts(viewFigure) {
+    let imgElement = null;
+    let figcaptionElement = null;
+    for (const child of viewFigure.getChildren()) {
+        if (child.is('element', 'img')) {
+            imgElement = child;
+        } else if (child.is('element', 'figcaption')) {
+            figcaptionElement = child;
+        } else if (child.is('element', 'a')) {
+            // Look for img inside link wrapper
+            imgElement = firstChildImage(child) || imgElement;
+        }
+    }
+    return { imgElement, figcaptionElement };
+}
+
+/**
+ * Get the first <img> child of a view element.
+ *
+ * @param {Element} parent - The view element
+ * @return {Element|null} The first <img> child, or null
+ */
+function firstChildImage(parent) {
+    for (const child of parent.getChildren()) {
+        if (child.is('element', 'img')) {
+            return child;
+        }
+    }
+    return null;
+}
+
+/**
+ * Find the FAL image of a view <a>, and whether the <a> holds anything else:
+ * text, another element, an image without file uid or a second FAL image.
+ *
+ * @param {Element} viewElement - The view <a>
+ * @return {{imgElement: Element|null, hasOtherContent: boolean}}
+ */
+function findLinkedImage(viewElement) {
+    let imgElement = null;
+    let hasOtherContent = false;
+    for (const child of viewElement.getChildren()) {
+        if (child.is('element', 'img') && child.getAttribute('data-htmlarea-file-uid')) {
+            // A second FAL image counts as other content
+            hasOtherContent = hasOtherContent || imgElement !== null;
+            imgElement = child;
+        } else if (child.is('element') || (child.is('$text') && child.data.trim() !== '')) {
+            // Text, an image without data-htmlarea-file-uid or another element
+            // (including a nested <a> from #667: double-wrapped <a><a><img></a></a>
+            // is handled by its own upcast converter)
+            hasOtherContent = true;
+        }
+    }
+    return { imgElement, hasOtherContent };
+}
+
+/**
+ * Check if the class attribute of a model element holds all given classes.
+ *
+ * @param {Element} item - The model element
+ * @param {string[]} classes - The classes to look for
+ * @return {boolean} True if the element has a string class with all of them
+ */
+function hasAllClasses(item, classes) {
+    const classAttribute = item.getAttribute('class');
+    if (!classAttribute || typeof classAttribute !== 'string') {
+        return false;
+    }
+    const classlist = new Set(classAttribute.split(' '));
+    return classes.every(value => classlist.has(value));
+}
+
+/**
+ * Add the image flags of a model element to the attributes of its view <img>:
+ * the alt/title overrides, click-to-enlarge, no-scale and the quality.
+ *
+ * @param {Object} attributes - The view attributes, changed in place
+ * @param {Element} modelElement - The typo3image or typo3imageInline element
+ */
+function addImageFlagAttributes(attributes, modelElement) {
+    if (modelElement.getAttribute('titleOverride')) {
+        attributes['data-title-override'] = true;
+    }
+    if (modelElement.getAttribute('altOverride')) {
+        attributes['data-alt-override'] = true;
+    }
+    if (modelElement.getAttribute('enableZoom')) {
+        attributes['data-htmlarea-zoom'] = true;
+    }
+    if (modelElement.getAttribute('noScale')) {
+        attributes['data-noscale'] = true;
+    }
+    const quality = modelElement.getAttribute('quality') || '';
+    if (quality) {
+        attributes['data-quality'] = quality;
+    }
+}
+
+/**
+ * Build the attributes of the view <a> of an image with its own link.
+ *
+ * Optional attributes are added only when they have a value. The link
+ * parameters go into data-link-params: TYPO3's frontend rendering appends
+ * them to the URL, so they are not appended to href here, which would double
+ * them on every save/load cycle.
+ *
+ * @param {Element} modelElement - The typo3image or typo3imageInline element
+ * @return {Object} The attributes of the <a>
+ */
+function getImageLinkViewAttributes(modelElement) {
+    const linkAttributes = {
+        href: modelElement.getAttribute('imageLinkHref')
+    };
+    const optional = {
+        target: 'imageLinkTarget',
+        title: 'imageLinkTitle',
+        class: 'imageLinkClass',
+        'data-link-params': 'imageLinkParams'
+    };
+    for (const [viewName, modelName] of Object.entries(optional)) {
+        const value = modelElement.getAttribute(modelName);
+        if (value?.trim()) {
+            linkAttributes[viewName] = value;
+        }
+    }
+    addExtraLinkAttributes(linkAttributes, modelElement);
+    return linkAttributes;
 }
 
 export default class Typo3Image extends Plugin {
@@ -1959,7 +2658,7 @@ export default class Typo3Image extends Plugin {
                     }
 
                     // Ensure the element is still in the document (defensive check for balloon errors)
-                    if (!viewElement.root || !viewElement.root.document) {
+                    if (!viewElement.root?.document) {
                         return null;
                     }
 
@@ -1972,7 +2671,7 @@ export default class Typo3Image extends Plugin {
                             return viewElement;
                         }
                     }
-                } catch (e) {
+                } catch {
                     // Return null on any error to prevent balloon positioning issues
                     // This can happen when view elements are in an inconsistent state
                     return null;
@@ -2023,10 +2722,7 @@ export default class Typo3Image extends Plugin {
             const selectedElement = selection.getSelectedElement();
 
             // Always suppress link balloon for image widgets - image toolbar takes precedence
-            if (isTypo3ImageElement(selectedElement)) {
-                return true;
-            }
-            return false;
+            return Boolean(isTypo3ImageElement(selectedElement));
         };
 
         // Listen to click events with high priority to intercept before LinkUI
@@ -2056,18 +2752,13 @@ export default class Typo3Image extends Plugin {
 
         // Add listener to check if style is active for `img` element, when a `typo3image` element is selected
         this.listenTo(styleUtils, 'isStyleActiveForBlock', (event, [style, element]) => {
-            if (style.element === 'img') {
-                for (const item of editor.model.document.selection.getFirstRange().getItems()) {
-                    if (item.name === 'typo3image') {
-                        const classAttribute = item.getAttribute('class');
-                        if (classAttribute && typeof classAttribute === 'string') {
-                            const classlist = classAttribute.split(' ');
-                            if (style.classes.filter(value => !classlist.includes(value)).length === 0) {
-                                event.return = true;
-                                break
-                            }
-                        }
-                    }
+            if (style.element !== 'img') {
+                return;
+            }
+            for (const item of editor.model.document.selection.getFirstRange().getItems()) {
+                if (item.name === 'typo3image' && hasAllClasses(item, style.classes)) {
+                    event.return = true;
+                    break;
                 }
             }
         })
@@ -2211,11 +2902,11 @@ export default class Typo3Image extends Plugin {
                     if (!item.is('element', 'typo3imageInline') || !item.hasAttribute('imageLinkHref')) {
                         continue;
                     }
-                    for (const [key] of [...item.getAttributes()]) {
-                        if (isLinkPluginAttribute(key)) {
-                            writer.removeAttribute(key, item);
-                            changed = true;
-                        }
+                    // Collect the keys first: removing changes the attributes being read
+                    const linkPluginKeys = Array.from(item.getAttributeKeys()).filter(isLinkPluginAttribute);
+                    for (const key of linkPluginKeys) {
+                        writer.removeAttribute(key, item);
+                        changed = true;
                     }
                 }
             }
@@ -2232,96 +2923,29 @@ export default class Typo3Image extends Plugin {
                 },
                 model: (viewOuterLink, { writer, consumable }) => {
                     // Check if this <a> contains another <a> with an img
-                    let innerLink = null;
-                    let imgElement = null;
-
-                    for (const child of viewOuterLink.getChildren()) {
-                        if (child.is('element', 'a')) {
-                            innerLink = child;
-                            // Find img inside inner link
-                            for (const innerChild of child.getChildren()) {
-                                if (innerChild.is('element', 'img') && innerChild.getAttribute('data-htmlarea-file-uid')) {
-                                    imgElement = innerChild;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
+                    const { innerLink, imgElement } = findDoubleLinkedImage(viewOuterLink);
                     if (!innerLink || !imgElement) {
                         return null; // Not a double-link structure
                     }
 
-                    // Test consumability
-                    if (!consumable.test(viewOuterLink, { name: true }) ||
-                        !consumable.test(innerLink, { name: true }) ||
-                        !consumable.test(imgElement, { name: true })) {
+                    const viewElements = [viewOuterLink, innerLink, imgElement];
+                    if (!canConsumeAll(consumable, viewElements)) {
                         return null;
                     }
+                    consumeAll(consumable, viewElements);
 
-                    // Consume all elements
-                    consumable.consume(viewOuterLink, { name: true });
-                    consumable.consume(innerLink, { name: true });
-                    consumable.consume(imgElement, { name: true });
-
+                    const imageAttributes = getImageModelAttributes(imgElement, imgElement.getAttribute('class') || '');
                     // Use inner link attributes (they have more complete info like data-link-params)
-                    const linkHref = innerLink.getAttribute('href') || viewOuterLink.getAttribute('href') || '';
-                    const linkTarget = innerLink.getAttribute('target') || viewOuterLink.getAttribute('target') || '';
-                    const linkTitle = innerLink.getAttribute('title') || viewOuterLink.getAttribute('title') || '';
-                    const linkClass = innerLink.getAttribute('class') || viewOuterLink.getAttribute('class') || '';
-                    const linkParams = innerLink.getAttribute('data-link-params') || viewOuterLink.getAttribute('data-link-params') || '';
-
-                    const imageAttributes = {
-                        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
-                        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        width: imgElement.getAttribute('width') || '',
-                        height: imgElement.getAttribute('height') || '',
-                        class: imgElement.getAttribute('class') || '',
-                        alt: imgElement.getAttribute('alt') || '',
-                        altOverride: imgElement.getAttribute('data-alt-override') || false,
-                        title: imgElement.getAttribute('title') || '',
-                        titleOverride: imgElement.getAttribute('data-title-override') || false,
-                        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
-                        noScale: imgElement.getAttribute('data-noscale') || false,
-                        quality: imgElement.getAttribute('data-quality') || ''
-                    };
-                    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
-                    if (cleanSrc !== null) {
-                        imageAttributes.src = cleanSrc;
-                    }
-
-                    if (linkHref?.trim() && linkHref.trim() !== '/') {
-                        imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget?.trim()) {
-                            imageAttributes.imageLinkTarget = linkTarget;
-                        }
-                        if (linkTitle?.trim()) {
-                            imageAttributes.imageLinkTitle = linkTitle;
-                        }
-                        // Filter out alignment classes
-                        const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
-                        const linkClassParts = (linkClass || '').split(' ').filter(c => c.trim() !== '');
-                        const actualLinkClass = linkClassParts.filter(c => !alignmentClasses.includes(c)).join(' ');
-                        if (actualLinkClass) {
-                            imageAttributes.imageLinkClass = actualLinkClass;
-                        }
-                        if (linkParams?.trim()) {
-                            imageAttributes.imageLinkParams = linkParams;
-                        }
-                        const extraLinkAttributes = getExtraLinkAttributes(innerLink, viewOuterLink);
-                        if (extraLinkAttributes) {
-                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
-                        }
-                    }
+                    const link = readImageLink(innerLink, viewOuterLink);
+                    link.class = splitLinkClass(link.class).own;
+                    addImageLinkModelAttributes(imageAttributes, link, innerLink, viewOuterLink);
 
                     if (isClasslessImageInText(imgElement, viewOuterLink)) {
                         imageAttributes.class = 'image-inline';
                     }
 
                     // Check image class to create correct element type (inline vs block)
-                    const imgClass = (imageAttributes.class || '').toString();
-                    const isInline = imgClass.split(/\s+/).includes('image-inline');
-                    return writer.createElement(isInline ? 'typo3imageInline' : 'typo3image', imageAttributes);
+                    return writer.createElement(hasInlineImageClass(imageAttributes.class) ? 'typo3imageInline' : 'typo3image', imageAttributes);
                 },
                 converterPriority: 'highest'
             });
@@ -2352,105 +2976,38 @@ export default class Typo3Image extends Plugin {
 
                     // Find img element within figure
                     // Also track inner link element if img is wrapped in <a>
-                    let imgElement = null;
-                    let figcaptionElement = null;
-                    let innerLinkElement = null;
-                    for (const child of figureElement.getChildren()) {
-                        if (child.is('element', 'img')) {
-                            imgElement = child;
-                        } else if (child.is('element', 'figcaption')) {
-                            figcaptionElement = child;
-                        } else if (child.is('element', 'a')) {
-                            // Image might be wrapped in inner <a> too
-                            innerLinkElement = child;
-                            for (const innerChild of child.getChildren()) {
-                                if (innerChild.is('element', 'img')) {
-                                    imgElement = innerChild;
-                                }
-                            }
-                        }
-                    }
+                    const { imgElement, figcaptionElement, innerLinkElement } = findLinkedFigureParts(figureElement);
 
-                    if (!imgElement || !imgElement.getAttribute('data-htmlarea-file-uid')) {
+                    if (!imgElement?.getAttribute('data-htmlarea-file-uid')) {
                         return null;
                     }
 
                     // Test consumability before committing
-                    if (!consumable.test(viewLink, { name: true }) ||
-                        !consumable.test(figureElement, { name: true }) ||
-                        !consumable.test(imgElement, { name: true })) {
+                    const viewElements = [viewLink, figureElement, imgElement];
+                    if (!canConsumeAll(consumable, viewElements)) {
                         return null;
                     }
 
                     // Consume all elements to prevent GHS from preserving them
-                    consumable.consume(viewLink, { name: true });
-                    consumable.consume(figureElement, { name: true });
-                    consumable.consume(imgElement, { name: true });
+                    consumeAll(consumable, viewElements);
                     // CRITICAL: Also consume inner link element to prevent duplicate links
                     if (innerLinkElement && consumable.test(innerLinkElement, { name: true })) {
                         consumable.consume(innerLinkElement, { name: true });
                     }
 
-                    // Extract link attributes - prefer inner link for data-link-params, outer for class
-                    const linkHref = viewLink.getAttribute('href') || innerLinkElement?.getAttribute('href') || '';
-                    const linkTarget = viewLink.getAttribute('target') || innerLinkElement?.getAttribute('target') || '';
-                    const linkTitle = viewLink.getAttribute('title') || innerLinkElement?.getAttribute('title') || '';
-                    // linkClass from outer or inner link
-                    const linkClass = viewLink.getAttribute('class') || innerLinkElement?.getAttribute('class') || '';
-                    // data-link-params is typically on inner link
-                    const linkParams = innerLinkElement?.getAttribute('data-link-params') || viewLink.getAttribute('data-link-params') || '';
+                    const imageAttributes = getImageModelAttributes(imgElement, figureElement.getAttribute('class') || '');
 
-                    // Build image attributes
-                    const imageAttributes = {
-                        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
-                        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        width: imgElement.getAttribute('width') || '',
-                        height: imgElement.getAttribute('height') || '',
-                        class: figureElement.getAttribute('class') || '',
-                        alt: imgElement.getAttribute('alt') || '',
-                        altOverride: imgElement.getAttribute('data-alt-override') || false,
-                        title: imgElement.getAttribute('title') || '',
-                        titleOverride: imgElement.getAttribute('data-title-override') || false,
-                        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
-                        noScale: imgElement.getAttribute('data-noscale') || false,
-                        quality: imgElement.getAttribute('data-quality') || ''
-                    };
-                    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
-                    if (cleanSrc !== null) {
-                        imageAttributes.src = cleanSrc;
-                    }
+                    // Extract link attributes - prefer outer link, but inner link for data-link-params
+                    const link = readImageLink(viewLink, innerLinkElement);
+                    link.params = readLinkAttribute('data-link-params', innerLinkElement, viewLink);
+                    const linkClasses = splitLinkClass(link.class);
+                    link.class = linkClasses.own;
+                    const linked = addImageLinkModelAttributes(imageAttributes, link, innerLinkElement, viewLink);
 
-                    // Add link attributes if valid
-                    if (linkHref?.trim() && linkHref.trim() !== '/') {
-                        imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget?.trim()) {
-                            imageAttributes.imageLinkTarget = linkTarget;
-                        }
-                        if (linkTitle?.trim()) {
-                            imageAttributes.imageLinkTitle = linkTitle;
-                        }
-                        // Filter out alignment classes from linkClass
-                        const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
-                        const linkClassParts = (linkClass || '').split(' ').filter(c => c.trim() !== '');
-                        const actualLinkClass = linkClassParts.filter(c => !alignmentClasses.includes(c)).join(' ');
-                        const alignmentFromLink = linkClassParts.filter(c => alignmentClasses.includes(c)).join(' ');
-
-                        if (actualLinkClass) {
-                            imageAttributes.imageLinkClass = actualLinkClass;
-                        }
-                        // Add alignment classes to figure class if they were on the link
-                        if (alignmentFromLink) {
-                            const existingClass = imageAttributes.class || '';
-                            const existingParts = existingClass.split(' ').filter(c => c.trim() !== '' && !alignmentClasses.includes(c));
-                            imageAttributes.class = [...existingParts, alignmentFromLink].join(' ');
-                        }
-                        if (linkParams?.trim()) {
-                            imageAttributes.imageLinkParams = linkParams;
-                        }
-                        const extraLinkAttributes = getExtraLinkAttributes(innerLinkElement, viewLink);
-                        if (extraLinkAttributes) {
-                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
-                        }
+                    // Add alignment classes to figure class if they were on the link
+                    if (linked && linkClasses.alignment) {
+                        const existingParts = imageAttributes.class.split(' ').filter(c => c.trim() !== '' && !ALIGNMENT_CLASSES.has(c));
+                        imageAttributes.class = [...existingParts, linkClasses.alignment].join(' ');
                     }
 
                     const typo3image = writer.createElement('typo3image', imageAttributes);
@@ -2484,35 +3041,12 @@ export default class Typo3Image extends Plugin {
 
                     // Find img and figcaption elements within figure
                     // Note: img may be wrapped in <a> element when linked
-                    let imgElement = null;
-                    let figcaptionElement = null;
-
-                    for (const child of viewFigure.getChildren()) {
-                        if (child.is('element', 'img')) {
-                            imgElement = child;
-                        } else if (child.is('element', 'figcaption')) {
-                            figcaptionElement = child;
-                        } else if (child.is('element', 'a')) {
-                            // Look for img inside link wrapper
-                            for (const linkChild of child.getChildren()) {
-                                if (linkChild.is('element', 'img')) {
-                                    imgElement = linkChild;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    const { imgElement, figcaptionElement } = findFigureParts(viewFigure);
 
                     // Figure must contain an img with data-htmlarea-file-uid
-                    if (!imgElement || !imgElement.getAttribute('data-htmlarea-file-uid')) {
+                    if (!imgElement?.getAttribute('data-htmlarea-file-uid')) {
                         return null;
                     }
-
-                    // Check if this is an inline image (figure has image-inline class)
-                    // If so, create typo3imageInline instead of typo3image
-                    const figureClasses = viewFigure.getAttribute('class') || '';
-                    const figureClassList = figureClasses.split(/\s+/);
-                    const isInlineImage = figureClassList.includes('image-inline');
 
                     // Check if image is wrapped in a link element (inside figure)
                     const linkElement = imgElement.parent?.is('element', 'a') ? imgElement.parent : null;
@@ -2523,56 +3057,16 @@ export default class Typo3Image extends Plugin {
                         consumable.consume(linkElement, { name: true });
                     }
 
-                    // Extract link attributes if link wrapper exists
-                    const linkHref = linkElement?.getAttribute('href') || '';
-                    const linkTarget = linkElement?.getAttribute('target') || '';
-                    const linkTitle = linkElement?.getAttribute('title') || '';
-                    const linkClass = withoutAlignmentClasses(linkElement?.getAttribute('class'));
-                    const linkParams = linkElement?.getAttribute('data-link-params') || '';
-
-                    const imageAttributes = {
-                        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
-                        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        width: imgElement.getAttribute('width') || '',
-                        height: imgElement.getAttribute('height') || '',
-                        class: viewFigure.getAttribute('class') || '',
-                        alt: imgElement.getAttribute('alt') || '',
-                        altOverride: imgElement.getAttribute('data-alt-override') || false,
-                        title: imgElement.getAttribute('title') || '',
-                        titleOverride: imgElement.getAttribute('data-title-override') || false,
-                        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
-                        noScale: imgElement.getAttribute('data-noscale') || false,
-                        quality: imgElement.getAttribute('data-quality') || ''
-                    };
-                    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
-                    if (cleanSrc !== null) {
-                        imageAttributes.src = cleanSrc;
-                    }
+                    const imageAttributes = getImageModelAttributes(imgElement, viewFigure.getAttribute('class') || '');
 
                     // Only set link attributes if they have non-empty values
-                    if (linkHref?.trim() && linkHref.trim() !== '/') {
-                        imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget?.trim()) {
-                            imageAttributes.imageLinkTarget = linkTarget;
-                        }
-                        if (linkTitle?.trim()) {
-                            imageAttributes.imageLinkTitle = linkTitle;
-                        }
-                        if (linkClass?.trim()) {
-                            imageAttributes.imageLinkClass = linkClass;
-                        }
-                        if (linkParams?.trim()) {
-                            imageAttributes.imageLinkParams = linkParams;
-                        }
-                        const extraLinkAttributes = getExtraLinkAttributes(linkElement);
-                        if (extraLinkAttributes) {
-                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
-                        }
-                    }
+                    const link = readImageLink(linkElement);
+                    link.class = withoutAlignmentClasses(link.class);
+                    addImageLinkModelAttributes(imageAttributes, link, linkElement);
 
-                    // Create typo3image or typo3imageInline based on figure class
-                    if (isInlineImage) {
-                        // Inline images: no caption support, simpler structure
+                    // Create typo3image or typo3imageInline based on figure class:
+                    // a figure with image-inline is an inline image without caption
+                    if (hasInlineImageClass(viewFigure.getAttribute('class'))) {
                         return writer.createElement('typo3imageInline', imageAttributes);
                     }
 
@@ -2612,29 +3106,7 @@ export default class Typo3Image extends Plugin {
 
                     // Find img child with data-htmlarea-file-uid
                     // Also check if link contains ONLY the image (no other content)
-                    let imgElement = null;
-                    let hasOtherContent = false;
-
-                    for (const child of viewElement.getChildren()) {
-                        if (child.is('element', 'img') && child.getAttribute('data-htmlarea-file-uid')) {
-                            if (imgElement) {
-                                // Already found an image - multiple images means other content
-                                hasOtherContent = true;
-                            }
-                            imgElement = child;
-                        } else if (child.is('element', 'img')) {
-                            // Image without data-htmlarea-file-uid is other content
-                            hasOtherContent = true;
-                        } else if (child.is('$text') && child.data.trim() !== '') {
-                            // Link contains text content besides the image
-                            hasOtherContent = true;
-                        } else if (child.is('element')) {
-                            // Link contains other elements (including nested <a> from #667).
-                            // Double-wrapped <a><a><img></a></a> is handled by a dedicated
-                            // upcast converter registered earlier in this file.
-                            hasOtherContent = true;
-                        }
-                    }
+                    const { imgElement, hasOtherContent } = findLinkedImage(viewElement);
 
                     // If no TYPO3 image found, let other converters handle this <a>
                     if (!imgElement) {
@@ -2648,81 +3120,29 @@ export default class Typo3Image extends Plugin {
                         return null;
                     }
 
-                    // Extract link attributes from <a> element
-                    const linkHref = viewElement.getAttribute('href') || '';
-                    const linkTarget = viewElement.getAttribute('target') || '';
-                    const linkTitle = viewElement.getAttribute('title') || '';
-                    const linkClass = withoutAlignmentClasses(viewElement.getAttribute('class'));
-                    const linkParams = viewElement.getAttribute('data-link-params') || '';
-
-                    // Determine if this is a real link (non-empty, non-placeholder href)
-                    const hasValidLink = linkHref?.trim() && linkHref.trim() !== '/';
-
                     // Test if both elements can be consumed before committing to conversion
                     // Using test() first ensures we don't partially consume elements
-                    if (
-                        !consumable.test(viewElement, { name: true }) ||
-                        !consumable.test(imgElement, { name: true })
-                    ) {
+                    // Note: Only consume 'name' - consuming all attributes causes iteration error
+                    const viewElements = [viewElement, imgElement];
+                    if (!canConsumeAll(consumable, viewElements)) {
                         return null;
                     }
-
-                    // Consume the <a> element and its children to prevent GHS from processing
-                    // Note: Only consume 'name' - consuming all attributes causes iteration error
-                    consumable.consume(viewElement, { name: true });
-                    consumable.consume(imgElement, { name: true });
+                    consumeAll(consumable, viewElements);
 
                     // Build image attributes from the img element
-                    const imageAttributes = {
-                        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
-                        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        width: imgElement.getAttribute('width') || '',
-                        height: imgElement.getAttribute('height') || '',
-                        class: imgElement.getAttribute('class') || '',
-                        alt: imgElement.getAttribute('alt') || '',
-                        altOverride: imgElement.getAttribute('data-alt-override') || false,
-                        title: imgElement.getAttribute('title') || '',
-                        titleOverride: imgElement.getAttribute('data-title-override') || false,
-                        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
-                        noScale: imgElement.getAttribute('data-noscale') || false,
-                        quality: imgElement.getAttribute('data-quality') || ''
-                    };
-                    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
-                    if (cleanSrc !== null) {
-                        imageAttributes.src = cleanSrc;
-                    }
+                    const imageAttributes = getImageModelAttributes(imgElement, imgElement.getAttribute('class') || '');
 
                     // Only add link attributes if href is valid (not empty/placeholder)
-                    if (hasValidLink) {
-                        imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget?.trim()) {
-                            imageAttributes.imageLinkTarget = linkTarget;
-                        }
-                        if (linkTitle?.trim()) {
-                            imageAttributes.imageLinkTitle = linkTitle;
-                        }
-                        if (linkClass?.trim()) {
-                            imageAttributes.imageLinkClass = linkClass;
-                        }
-                        if (linkParams?.trim()) {
-                            imageAttributes.imageLinkParams = linkParams;
-                        }
-                        const extraLinkAttributes = getExtraLinkAttributes(viewElement);
-                        if (extraLinkAttributes) {
-                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
-                        }
-                    }
+                    const link = readImageLink(viewElement);
+                    link.class = withoutAlignmentClasses(link.class);
+                    addImageLinkModelAttributes(imageAttributes, link, viewElement);
 
                     if (isClasslessImageInText(imgElement, viewElement)) {
                         imageAttributes.class = 'image-inline';
                     }
 
                     // Check if this should be an inline image based on class
-                    const imgClass = imageAttributes.class || '';
-                    const classList = imgClass.split(/\s+/);
-                    const isInlineImage = classList.includes('image-inline');
-
-                    return writer.createElement(isInlineImage ? 'typo3imageInline' : 'typo3image', imageAttributes);
+                    return writer.createElement(hasInlineImageClass(imageAttributes.class) ? 'typo3imageInline' : 'typo3image', imageAttributes);
                 },
                 converterPriority: 'highest'
             });
@@ -2746,36 +3166,18 @@ export default class Typo3Image extends Plugin {
                 model: (viewElement, { writer, consumable }) => {
                     // Check if this image should be inline
                     const className = viewElement.getAttribute('class') || '';
-                    const classList = className.split(/\s+/);
-                    const hasInlineClass = classList.includes('image-inline');
 
                     // If no inline class, let the block converter handle it
-                    if (!hasInlineClass) {
+                    if (!hasInlineImageClass(className)) {
                         return null;
                     }
 
                     // Check if image is wrapped in a link element
                     const linkElement = viewElement.parent?.name === 'a' ? viewElement.parent : null;
 
-                    // Check if link contains ONLY this image (no other content)
-                    // If link has other content, don't extract link attrs - let CKEditor handle the link
-                    let linkHasOnlyImage = true;
-                    if (linkElement) {
-                        for (const sibling of linkElement.getChildren()) {
-                            if (sibling === viewElement) continue;
-                            if (sibling.is('$text') && sibling.data.trim() !== '') {
-                                linkHasOnlyImage = false;
-                                break;
-                            }
-                            if (sibling.is('element')) {
-                                linkHasOnlyImage = false;
-                                break;
-                            }
-                        }
-                    }
-
                     // Extract link attributes only if link wraps ONLY this image
-                    const effectiveLinkElement = (linkElement && linkHasOnlyImage) ? linkElement : null;
+                    // If link has other content, don't extract link attrs - let CKEditor handle the link
+                    const effectiveLinkElement = (linkElement && !linkHoldsMoreThan(linkElement, viewElement)) ? linkElement : null;
 
                     // Consume the parent <a> element to prevent CKEditor's link plugin
                     // from also processing it, which would create double <a> tags
@@ -2783,56 +3185,14 @@ export default class Typo3Image extends Plugin {
                     if (effectiveLinkElement) {
                         consumable.consume(effectiveLinkElement, { name: true });
                     }
-                    const linkHref = effectiveLinkElement?.getAttribute('href') || '';
-                    const linkTarget = effectiveLinkElement?.getAttribute('target') || '';
-                    const linkTitle = effectiveLinkElement?.getAttribute('title') || '';
-                    const linkClass = effectiveLinkElement?.getAttribute('class') || '';
-                    const linkParams = effectiveLinkElement?.getAttribute('data-link-params') || '';
 
-                    const imageAttributes = {
-                        fileUid: viewElement.getAttribute('data-htmlarea-file-uid'),
-                        fileTable: viewElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        width: viewElement.getAttribute('width') || '',
-                        height: viewElement.getAttribute('height') || '',
-                        class: className,
-                        alt: viewElement.getAttribute('alt') || '',
-                        altOverride: viewElement.getAttribute('data-alt-override') || false,
-                        title: viewElement.getAttribute('title') || '',
-                        titleOverride: viewElement.getAttribute('data-title-override') || false,
-                        enableZoom: viewElement.getAttribute('data-htmlarea-zoom') || false,
-                        noScale: viewElement.getAttribute('data-noscale') || false,
-                        quality: viewElement.getAttribute('data-quality') || ''
-                    };
-                    const cleanSrc = sanitizeSrc(viewElement.getAttribute('src'));
-                    if (cleanSrc !== null) {
-                        imageAttributes.src = cleanSrc;
-                    }
+                    const imageAttributes = getImageModelAttributes(viewElement, className);
 
-                    // Only set link attributes if they have non-empty values
-                    if (linkHref?.trim() && linkHref.trim() !== '/') {
-                        imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget?.trim()) {
-                            imageAttributes.imageLinkTarget = linkTarget;
-                        }
-                        if (linkTitle?.trim()) {
-                            imageAttributes.imageLinkTitle = linkTitle;
-                        }
-                        // Filter out alignment classes from link class
-                        // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/655
-                        const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
-                        const linkClassParts = (linkClass || '').split(' ').filter(c => c.trim() !== '');
-                        const actualLinkClass = linkClassParts.filter(c => !alignmentClasses.includes(c)).join(' ');
-                        if (actualLinkClass) {
-                            imageAttributes.imageLinkClass = actualLinkClass;
-                        }
-                        if (linkParams?.trim()) {
-                            imageAttributes.imageLinkParams = linkParams;
-                        }
-                        const extraLinkAttributes = getExtraLinkAttributes(effectiveLinkElement);
-                        if (extraLinkAttributes) {
-                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
-                        }
-                    }
+                    // Only set link attributes if they have non-empty values.
+                    // Alignment classes are left out of the link class (#655).
+                    const link = readImageLink(effectiveLinkElement);
+                    link.class = splitLinkClass(link.class).own;
+                    addImageLinkModelAttributes(imageAttributes, link, effectiveLinkElement);
 
                     return writer.createElement('typo3imageInline', imageAttributes);
                 },
@@ -2926,26 +3286,7 @@ export default class Typo3Image extends Plugin {
                 attributes['src'] = cleanSrc;
             }
 
-            if (modelElement.getAttribute('titleOverride') || false) {
-                attributes['data-title-override'] = true
-            }
-
-            if (modelElement.getAttribute('altOverride') || false) {
-                attributes['data-alt-override'] = true
-            }
-
-            if (modelElement.getAttribute('enableZoom') || false) {
-                attributes['data-htmlarea-zoom'] = true
-            }
-
-            if (modelElement.getAttribute('noScale') || false) {
-                attributes['data-noscale'] = true
-            }
-
-            const quality = modelElement.getAttribute('quality') || '';
-            if (quality) {
-                attributes['data-quality'] = quality
-            }
+            addImageFlagAttributes(attributes, modelElement);
 
             // Add data-caption attribute for PHP backend compatibility
             // The caption is stored in typo3imageCaption child element
@@ -2970,38 +3311,8 @@ export default class Typo3Image extends Plugin {
             // link indicator from duplicating our custom indicator badges (#687)
             const linkHref = modelElement.getAttribute('imageLinkHref');
             if (wrapInLink && isValidLink(linkHref)) {
-                const linkAttributes = {
-                    href: linkHref
-                };
-
-                // Add optional link attributes only if they have values
-                const linkTarget = modelElement.getAttribute('imageLinkTarget');
-                if (linkTarget?.trim()) {
-                    linkAttributes.target = linkTarget;
-                }
-
-                const linkTitle = modelElement.getAttribute('imageLinkTitle');
-                if (linkTitle?.trim()) {
-                    linkAttributes.title = linkTitle;
-                }
-
-                const linkClass = modelElement.getAttribute('imageLinkClass');
-                if (linkClass?.trim()) {
-                    linkAttributes.class = linkClass;
-                }
-
-                // Store linkParams as data attribute for TYPO3 to process on render
-                // TYPO3's frontend rendering will append these to the final URL
-                // We don't append to href here to avoid doubling on save/load cycles
-                const linkParams = modelElement.getAttribute('imageLinkParams');
-                if (linkParams?.trim()) {
-                    linkAttributes['data-link-params'] = linkParams;
-                }
-
-                addExtraLinkAttributes(linkAttributes, modelElement);
-
                 // Wrap image in link element
-                return writer.createContainerElement('a', linkAttributes, imgElement);
+                return writer.createContainerElement('a', getImageLinkViewAttributes(modelElement), imgElement);
             }
 
             return imgElement;
@@ -3189,26 +3500,7 @@ export default class Typo3Image extends Plugin {
                 attributes['src'] = cleanSrc;
             }
 
-            if (modelElement.getAttribute('titleOverride') || false) {
-                attributes['data-title-override'] = true;
-            }
-
-            if (modelElement.getAttribute('altOverride') || false) {
-                attributes['data-alt-override'] = true;
-            }
-
-            if (modelElement.getAttribute('enableZoom') || false) {
-                attributes['data-htmlarea-zoom'] = true;
-            }
-
-            if (modelElement.getAttribute('noScale') || false) {
-                attributes['data-noscale'] = true;
-            }
-
-            const quality = modelElement.getAttribute('quality') || '';
-            if (quality) {
-                attributes['data-quality'] = quality;
-            }
+            addImageFlagAttributes(attributes, modelElement);
 
             // Ensure image-inline class is present
             const existingClasses = (attributes['class'] || '').split(/\s+/);
@@ -3224,33 +3516,7 @@ export default class Typo3Image extends Plugin {
             // wrapInLink=false is used by editing downcast to prevent double link icon (#687)
             const linkHref = modelElement.getAttribute('imageLinkHref');
             if (wrapInLink && isValidLink(linkHref)) {
-                const linkAttributes = {
-                    href: linkHref
-                };
-
-                const linkTarget = modelElement.getAttribute('imageLinkTarget');
-                if (linkTarget?.trim()) {
-                    linkAttributes.target = linkTarget;
-                }
-
-                const linkTitle = modelElement.getAttribute('imageLinkTitle');
-                if (linkTitle?.trim()) {
-                    linkAttributes.title = linkTitle;
-                }
-
-                const linkClass = modelElement.getAttribute('imageLinkClass');
-                if (linkClass?.trim()) {
-                    linkAttributes.class = linkClass;
-                }
-
-                const linkParams = modelElement.getAttribute('imageLinkParams');
-                if (linkParams?.trim()) {
-                    linkAttributes['data-link-params'] = linkParams;
-                }
-
-                addExtraLinkAttributes(linkAttributes, modelElement);
-
-                return writer.createContainerElement('a', linkAttributes, imgElement);
+                return writer.createContainerElement('a', getImageLinkViewAttributes(modelElement), imgElement);
             }
 
             return imgElement;
@@ -3376,7 +3642,7 @@ export default class Typo3Image extends Plugin {
             });
 
             // Fetch and apply translated label
-            getTranslations().then(translations => {
+            void getTranslations().then(translations => {
                 if (translations.insertImage) {
                     button.set({
                         label: translations.insertImage
@@ -3427,7 +3693,7 @@ export default class Typo3Image extends Plugin {
                         }
                     );
                 } else {
-                    selectImage(editor).then(selectedImage => {
+                    void selectImage(editor).then(selectedImage => {
                         edit(selectedImage, editor, {});
                     });
                 }
@@ -3448,7 +3714,7 @@ export default class Typo3Image extends Plugin {
             });
 
             // Fetch and apply translated label
-            getTranslations().then(translations => {
+            void getTranslations().then(translations => {
                 if (translations.editImage) {
                     button.set({
                         label: translations.editImage
@@ -3461,75 +3727,10 @@ export default class Typo3Image extends Plugin {
 
                 // Handle both block (typo3image) and inline (typo3imageInline) images
                 if (isTypo3ImageElement(selectedElement)) {
-                    // Get caption text from caption element (if exists) - only for block images
-                    let captionText = '';
-                    let captionElement = null;
-                    if (selectedElement.name === 'typo3image') {
-                        captionElement = getCaptionFromImageModelElement(selectedElement);
-                        if (captionElement) {
-                            for (const child of captionElement.getChildren()) {
-                                if (child.is('$text')) {
-                                    captionText += child.data;
-                                }
-                            }
-                        }
-                    }
-
-                    // Check if inline image is inside an external link (link wrapping the image from outside)
-                    // This happens when user creates a link around text that includes an inline image
-                    let isInsideExternalLink = false;
-                    if (selectedElement.name === 'typo3imageInline') {
-                        // The image itself doesn't have imageLinkHref, so check if we're inside a link
-                        const imageLinkHref = selectedElement.getAttribute('imageLinkHref');
-                        if (!imageLinkHref || imageLinkHref.trim() === '') {
-                            // No link on the image itself - check if there's an external link wrapping us
-                            // Use the view selection which gives us the widget element
-                            const viewSelection = editor.editing.view.document.selection;
-                            const viewElement = viewSelection.getSelectedElement();
-                            if (viewElement) {
-                                // The viewElement is the widget span, check its parent for a link
-                                const parent = viewElement.parent;
-                                if (parent?.is('attributeElement') && parent.name === 'a') {
-                                    // Image is inside an external link in the view
-                                    isInsideExternalLink = true;
-                                }
-                            }
-                        }
-                    }
-
-                    edit(
-                        {
-                            uid: selectedElement.getAttribute('fileUid'),
-                            table: selectedElement.getAttribute('fileTable'),
-                        },
-                        editor,
-                        {
-                            width: selectedElement.getAttribute('width'),
-                            height: selectedElement.getAttribute('height'),
-                            class: selectedElement.getAttribute('class'),
-                            alt: selectedElement.getAttribute('alt'),
-                            title: selectedElement.getAttribute('title'),
-                            caption: captionText,
-                            // Kept when the caption text is not changed in the dialog
-                            captionElement: captionElement,
-                            'data-htmlarea-zoom': selectedElement.getAttribute('enableZoom'),
-                            'data-noscale': selectedElement.getAttribute('noScale'),
-                            'data-quality': selectedElement.getAttribute('quality'),
-                            'data-title-override': selectedElement.getAttribute('titleOverride'),
-                            'data-alt-override': selectedElement.getAttribute('altOverride'),
-                            linkHref: selectedElement.getAttribute('imageLinkHref'),
-                            linkTarget: selectedElement.getAttribute('imageLinkTarget'),
-                            linkTitle: selectedElement.getAttribute('imageLinkTitle'),
-                            linkClass: selectedElement.getAttribute('imageLinkClass'),
-                            linkParams: selectedElement.getAttribute('imageLinkParams'),
-                            linkAttributes: selectedElement.getAttribute('imageLinkAttributes'),
-                            linkPluginAttributes: getLinkPluginAttributes(selectedElement),
-                            // Pass flag to indicate if this is an inline image (for hiding caption field)
-                            isInlineImage: selectedElement.name === 'typo3imageInline',
-                            // Pass flag to indicate if image is inside an external link (for disabling link options)
-                            isInsideExternalLink: isInsideExternalLink,
-                        }
-                    );
+                    // The view selection gives the widget element: its parent is an <a>
+                    // when the user created a link around text that includes an inline image
+                    const widgetViewElement = editor.editing.view.document.selection.getSelectedElement();
+                    editExistingImage(editor, selectedElement, widgetViewElement);
                 }
             });
 
@@ -3548,7 +3749,7 @@ export default class Typo3Image extends Plugin {
                 isToggleable: true
             });
 
-            getTranslations().then(translations => {
+            void getTranslations().then(translations => {
                 if (translations.toggleCaption) {
                     button.set({ label: translations.toggleCaption });
                 }
@@ -3579,7 +3780,7 @@ export default class Typo3Image extends Plugin {
                 isToggleable: true
             });
 
-            getTranslations().then(translations => {
+            void getTranslations().then(translations => {
                 if (translations.toggleInlineBlock) {
                     button.set({ label: translations.toggleInlineBlock });
                 }
@@ -3663,7 +3864,7 @@ export default class Typo3Image extends Plugin {
         };
 
         // Apply translated titles to style definitions
-        getTranslations().then(translations => {
+        void getTranslations().then(translations => {
             const titleMap = {
                 'image-left': translations.alignLeft,
                 'image-center': translations.alignCenter,
@@ -3717,128 +3918,21 @@ export default class Typo3Image extends Plugin {
         editor.commands.add('toggleImageType', new ToggleImageTypeCommand(editor));
 
         editor.listenTo(editor.editing.view.document, 'dblclick:typo3image', (event, data) => {
-            // Find the widget wrapper - traverse UP if we clicked the inner img/link
-            let targetElement = data.target;
-
-            // If we clicked on text inside figcaption, traverse up to find the widget
-            let checkElement = targetElement;
-            while (checkElement && checkElement.name !== 'figcaption') {
-                checkElement = checkElement.parent;
-            }
-
-            if (checkElement?.name === 'figcaption') {
-                // We're inside figcaption, find the parent figure widget
-                const parent = checkElement.parent;
-                if (parent?.name === 'figure' && parent.hasClass('ck-widget')) {
-                    targetElement = parent;
-                }
-            }
-            // If clicked on img, link, or figcaption inside wrapper, find the parent wrapper (span or figure)
-            else if (targetElement.name === 'img' || targetElement.name === 'a' || targetElement.name === 'figcaption') {
-                const parent = targetElement.parent;
-                if (parent && (parent.name === 'span' || parent.name === 'figure') && parent.hasClass('ck-widget')) {
-                    targetElement = parent;
-                }
-                // Handle img inside link inside wrapper: img -> a -> span/figure
-                else if (targetElement.name === 'img' && parent?.name === 'a') {
-                    const grandparent = parent.parent;
-                    if (grandparent && (grandparent.name === 'span' || grandparent.name === 'figure') && grandparent.hasClass('ck-widget')) {
-                        targetElement = grandparent;
-                    }
-                }
-            }
-
-            // If we still don't have a widget, traverse up from the original target
-            // to find any ck-widget ancestor (handles img inside CKEditor link wrapper)
-            if (!targetElement.hasClass?.('ck-widget')) {
-                let searchElement = data.target;
-                while (searchElement) {
-                    if (searchElement.hasClass?.('ck-widget') &&
-                        (searchElement.name === 'span' || searchElement.name === 'figure')) {
-                        targetElement = searchElement;
-                        break;
-                    }
-                    // Also check if we're on an img directly inside a widget span
-                    if (searchElement.name === 'img') {
-                        const widgetParent = searchElement.parent;
-                        if (widgetParent?.hasClass?.('ck-widget')) {
-                            targetElement = widgetParent;
-                            break;
-                        }
-                    }
-                    searchElement = searchElement.parent;
-                }
-            }
+            // Find the widget wrapper - traverse UP if we clicked the inner img/link/caption
+            const targetElement = findImageWidget(data.target);
 
             const modelElement = editor.editing.mapper.toModelElement(targetElement);
             // Handle both block (typo3image) and inline (typo3imageInline) images
-            if (isTypo3ImageElement(modelElement)) {
-                // Select the clicked element
-                editor.model.change(writer => {
-                    writer.setSelection(modelElement, 'on');
-                });
-
-                // Get caption text from caption element (if exists) - only for block images
-                let captionText = '';
-                let captionElement = null;
-                if (modelElement.name === 'typo3image') {
-                    captionElement = getCaptionFromImageModelElement(modelElement);
-                    if (captionElement) {
-                        for (const child of captionElement.getChildren()) {
-                            if (child.is('$text')) {
-                                captionText += child.data;
-                            }
-                        }
-                    }
-                }
-
-                // Check if inline image is inside an external link (link wrapping from outside)
-                let isInsideExternalLink = false;
-                if (modelElement.name === 'typo3imageInline') {
-                    const imageLinkHref = modelElement.getAttribute('imageLinkHref');
-                    if (!imageLinkHref || imageLinkHref.trim() === '') {
-                        // No link on the image - check if targetElement's parent is a link
-                        const parent = targetElement.parent;
-                        if (parent?.is('attributeElement') && parent.name === 'a') {
-                            isInsideExternalLink = true;
-                        }
-                    }
-                }
-
-                edit(
-                    {
-                        uid: modelElement.getAttribute('fileUid'),
-                        table: modelElement.getAttribute('fileTable'),
-                    },
-                    editor,
-                    {
-                        width: modelElement.getAttribute('width'),
-                        height: modelElement.getAttribute('height'),
-                        class: modelElement.getAttribute('class'),
-                        alt: modelElement.getAttribute('alt'),
-                        title: modelElement.getAttribute('title'),
-                        'data-htmlarea-zoom': modelElement.getAttribute('enableZoom'),
-                        'data-noscale': modelElement.getAttribute('noScale'),
-                        'data-quality': modelElement.getAttribute('quality'),
-                        'data-title-override': modelElement.getAttribute('titleOverride'),
-                        'data-alt-override': modelElement.getAttribute('altOverride'),
-                        linkHref: modelElement.getAttribute('imageLinkHref'),
-                        linkTarget: modelElement.getAttribute('imageLinkTarget'),
-                        linkTitle: modelElement.getAttribute('imageLinkTitle'),
-                        linkClass: modelElement.getAttribute('imageLinkClass'),
-                        linkParams: modelElement.getAttribute('imageLinkParams'),
-                        linkAttributes: modelElement.getAttribute('imageLinkAttributes'),
-                        linkPluginAttributes: getLinkPluginAttributes(modelElement),
-                        caption: captionText,
-                        // Kept when the caption text is not changed in the dialog
-                        captionElement: captionElement,
-                        // Pass flag to indicate if this is an inline image (for hiding caption field)
-                        isInlineImage: modelElement.name === 'typo3imageInline',
-                        // Pass flag to indicate if image is inside an external link (for disabling link options)
-                        isInsideExternalLink: isInsideExternalLink,
-                    }
-                );
+            if (!isTypo3ImageElement(modelElement)) {
+                return;
             }
+
+            // Select the clicked element
+            editor.model.change(writer => {
+                writer.setSelection(modelElement, 'on');
+            });
+
+            editExistingImage(editor, modelElement, targetElement);
         });
 
         // Disable external link command when typo3image is selected
