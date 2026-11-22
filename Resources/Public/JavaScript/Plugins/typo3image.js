@@ -3277,7 +3277,7 @@ export default class Typo3Image extends Plugin {
                 // not to img element to avoid double margin application
                 'title': modelElement.getAttribute('title') || '',
                 'alt': modelElement.getAttribute('alt') || '',
-            }
+            };
             // Guard: never emit src="undefined"/"null" — if the model lost the
             // value, drop the attribute so ImageRenderingController can rebuild
             // it from data-htmlarea-file-uid on frontend render.
