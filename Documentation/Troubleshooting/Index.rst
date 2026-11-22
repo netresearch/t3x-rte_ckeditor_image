@@ -28,7 +28,7 @@ Most Common Issues
 
    // Ensure these dependencies are present:
    static get requires() {
-       return ['StyleUtils', 'GeneralHtmlSupport'];
+       return ['StyleUtils', 'GeneralHtmlSupport', 'WidgetToolbarRepository'];
    }
 
 .. seealso::

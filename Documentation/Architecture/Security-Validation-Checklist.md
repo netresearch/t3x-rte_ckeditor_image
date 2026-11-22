@@ -13,6 +13,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 This checklist ensures all security measures from the current implementation are preserved during the Fluid Templates refactoring. **All items MUST be validated** before merging to production.
 
+> **Note (2026):** This checklist predates the refactoring. The "Current Implementation" lines name controller classes that no longer exist; the checks now live in `ImageResolverService` and `ImageRenderingAdapter`. Where the shipped code differs from this checklist, the items below say so.
+
 ## Pre-Template Validation (ImageResolverService)
 
 ### ✅ File Visibility Checks
@@ -23,7 +25,7 @@ This checklist ensures all security measures from the current implementation are
 
 **Validation:**
 - [ ] Check `$file->getStorage()->isPublic()` returns true
-- [ ] Throw `FileDoesNotExistException` if non-public
+- [ ] Throw `FileDoesNotExistException` if non-public (shipped code: `validateFileVisibility()` returns `false` and `resolve()` returns `null`)
 - [ ] Log warning with file UID, storage UID, storage name
 - [ ] Test: Attempt to render image from non-public storage (must fail)
 - [ ] Test: Verify proper error logging without exposing sensitive info
@@ -34,8 +36,8 @@ This checklist ensures all security measures from the current implementation are
 ```php
 // Test: Non-public file blocked
 $fileUid = 123; // Points to file in non-public storage
-$this->expectException(FileDoesNotExistException::class);
 $dto = $imageResolverService->resolve(['data-htmlarea-file-uid' => $fileUid], ...);
+$this->assertNull($dto); // resolve() catches exceptions and returns null
 
 // Test: Public file allowed
 $fileUid = 456; // Points to file in public storage (fileadmin)
@@ -85,12 +87,12 @@ $this->assertSame('Café ☕ 中文', $dto->caption); // Should NOT be double-en
 
 **Current Implementation:** `ImageLinkRenderingController::renderImages()` (Classes/Controller/ImageLinkRenderingController.php:82-89)
 - Uses atomic groups `(?:...)` and possessive quantifiers `*+`
-- Sets PCRE limits: `ini_set('pcre.backtrack_limit', '100000')`
+- Sets PCRE limits: `ini_set('pcre.backtrack_limit', '100000')` (shipped code: `Classes/` contains no `ini_set()` call; HTML attributes are parsed with `DOMDocument` in `ImageAttributeParser`)
 
 **Validation:**
 - [ ] Regex patterns use atomic groups or possessive quantifiers
-- [ ] PCRE backtrack limit configured: 100,000
-- [ ] PCRE recursion limit configured: 100,000
+- [ ] PCRE backtrack limit configured: 100,000 (not implemented)
+- [ ] PCRE recursion limit configured: 100,000 (not implemented)
 - [ ] Test: Process large HTML with nested structures (must not hang)
 - [ ] Test: Verify regex completes in < 1 second for 10KB HTML
 
@@ -170,7 +172,8 @@ $this->assertNull($dto->title); // NULL allowed for optional attributes
 **Test Cases:**
 ```php
 // Test: File protocol blocked
-$this->expectException(InvalidArgumentException::class);
+// Shipped code: without a file UID resolve() does not throw; it returns a DTO
+// whose src is '/file:///etc/passwd' (a leading slash is prepended)
 $dto = $imageResolverService->resolve(['src' => 'file:///etc/passwd'], ...);
 
 // Test: Directory traversal blocked
@@ -241,7 +244,7 @@ $this->assertStringContainsString('&quot;', $html);
 
 **Risk:** Unsafe usage of ContentObjectRenderer methods
 
-**Current Implementation:** Uses `$this->cObj->imageLinkWrap()` for popup rendering
+**Current Implementation:** Uses `$this->cObj->imageLinkWrap()` for popup rendering (shipped code: popups are built by `ImageResolverService::buildPopupLinkDto()` and rendered by `Partials/Image/Link.html`; `imageLinkWrap()` is not used)
 
 **Validation:**
 - [ ] ContentObjectRenderer passed explicitly (not global state)
@@ -274,7 +277,7 @@ $this->assertStringContainsString('&quot;', $html);
 2. **Privilege Escalation:**
    ```
    Action: Render image from non-public storage as non-admin user
-   Expected: FileDoesNotExistException, security log entry
+   Expected: resolve() returns null and logs a warning; ImageRenderingAdapter::renderImageAttributes() then returns the original tag unprocessed
    ```
 
 3. **ReDoS Attack:**

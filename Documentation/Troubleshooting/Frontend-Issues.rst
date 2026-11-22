@@ -42,7 +42,7 @@ Issue: Images Not Appearing in Frontend
 
    **Option A: Static Template**
 
-   #. Go to :guilabel:`WEB > Template` module
+   #. Go to the :guilabel:`TypoScript` module, :guilabel:`Edit TypoScript Record`
    #. Select your root page, edit the template
    #. In :guilabel:`Includes` tab, add: :guilabel:`CKEditor Image Support`
 
@@ -88,7 +88,7 @@ Issue: Processed Images Not Generated
 
 .. code-block:: php
 
-   // LocalConfiguration.php
+   // config/system/settings.php
    $GLOBALS['TYPO3_CONF_VARS']['GFX'] = [
        'processor' => 'ImageMagick',  // or 'GraphicsMagick'
        'processor_path' => '/usr/bin/',
@@ -97,10 +97,9 @@ Issue: Processed Images Not Generated
 
 2. **Test Image Processing:**
 
-.. code-block:: bash
-
-   # TYPO3 CLI
-   ./vendor/bin/typo3 backend:test:imageprocessing
+Open the **Environment** backend module (system maintainers only), card
+**Image Processing**, and click **Test Images…**. TYPO3 has no CLI command for
+this test.
 
 3. **Check Directory Permissions:**
 
@@ -375,8 +374,9 @@ Issue: Lightbox/Zoom Not Working
 
    When an editor selects "Enlarge" in the image dialog, the extension outputs an
    ``<a>`` link wrapping the ``<img>`` that points to the full-size image. It does
-   **not** include any JavaScript lightbox library. You must provide one yourself
-   or enable the built-in TYPO3 popup.
+   **not** include any JavaScript lightbox library. You must provide one yourself.
+   Without one, the link opens the full-size image in a new tab
+   (``target="_blank"``).
 
 **Symptoms:**
 
@@ -384,20 +384,17 @@ Issue: Lightbox/Zoom Not Working
 * ``data-htmlarea-zoom`` attribute present in HTML but no lightbox appears
 * Image opens in a new browser window instead of a lightbox overlay
 
-**Solution for fluid_styled_content users:**
+The popup configuration (``lib.contentElement.settings.media.popup``) is passed to
+the link object, but the shipped templates do not render ``JSwindow`` or
+``directImageLink``; only ``linkClass`` (or a ``class`` inside ``linkParams.ATagParams``) changes
+the link. The fluid_styled_content constant
+``styles.content.textmedia.linkWrap.lightboxEnabled`` has no effect on RTE images.
+The zoom link always carries ``data-popup="true"``; a lightbox script can hook into it.
 
-If you use ``fluid_styled_content``, enable the built-in lightbox via TypoScript constants:
+**Solution (minimal lightbox):**
 
-.. code-block:: typoscript
-
-   styles.content.textmedia.linkWrap.lightboxEnabled = 1
-
-This activates TYPO3's built-in popup window for enlarged images.
-
-**Solution for custom setups (minimal lightbox):**
-
-If you do not use ``fluid_styled_content`` or want a modern lightbox overlay,
-include a lightweight JavaScript snippet in your site package:
+Include a lightweight JavaScript snippet in your site package; it can hook
+into the ``data-popup="true"`` attribute of the zoom link:
 
 .. code-block:: javascript
    :caption: Minimal lightbox initialization

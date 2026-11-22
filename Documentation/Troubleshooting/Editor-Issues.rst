@@ -14,7 +14,10 @@ Solutions for problems encountered in the TYPO3 backend editor and CKEditor func
 .. important::
    **Backend vs Frontend Issues**
 
-   The **backend RTE** works automatically after ``composer require netresearch/rte-ckeditor-image``.
+   The **backend RTE** shows the image button only when the ``rteWithImages`` preset is active.
+   The extension's Site Set ``netresearch/rte-ckeditor-image`` activates it (``RTE.default.preset = rteWithImages``).
+   Without the Site Set, set ``RTE.default.preset = rteWithImages`` in page TSconfig yourself.
+   See :ref:`integration-configuration-rte-setup`.
 
    For **frontend rendering issues**, ensure you've included the TypoScript.
    See :ref:`integration-configuration-frontend-rendering`.
@@ -44,9 +47,12 @@ Issue: Image Button Not Visible in Toolbar
 
 **Causes:**
 
-1. Plugin not properly imported in RTE configuration
-2. ``removePlugins`` includes image plugin
-3. Toolbar configuration missing ``insertimage`` item
+1. The ``rteWithImages`` preset is not active: the site does not use the Site Set
+   ``netresearch/rte-ckeditor-image`` and page TSconfig does not set
+   ``RTE.default.preset = rteWithImages``
+2. Plugin not properly imported in RTE configuration
+3. ``removePlugins`` includes image plugin
+4. Toolbar configuration missing ``insertimage`` item
 
 **Solution:**
 
@@ -91,7 +97,7 @@ The plugin now requires:
 .. code-block:: javascript
 
    static get requires() {
-       return ['StyleUtils', 'GeneralHtmlSupport'];  // Both mandatory
+       return ['StyleUtils', 'GeneralHtmlSupport', 'WidgetToolbarRepository'];
    }
 
 .. important::
@@ -362,12 +368,14 @@ Browser console:
 
 .. code-block:: javascript
 
-   // Check if plugin loaded
-   console.log(CKEDITOR.instances);
+   // CKEditor 5 stores the editor instance on its editable element
+   const editor = document.querySelector('.ck-editor__editable').ckeditorInstance;
+
+   // Check if the image plugin is loaded
+   console.log(editor.plugins.has('Typo3Image'));
 
    // Inspect editor config
-   const editor = Object.values(CKEDITOR.instances)[0];
-   console.log(editor.config);
+   console.log(editor.config.get('toolbar'));
 
 Monitor Network Requests
 -------------------------
@@ -454,10 +462,11 @@ Figcaption line breaks
 * Adding ``<br>`` in source mode is removed after saving
 * Caption text always appears on a single line
 
-**Cause:** CKEditor 5's ``figcaption`` content model only supports inline
-text — it does not allow ``<br>`` tags or block-level elements. The editor
-strips unsupported elements during content serialization. This is a CKEditor 5
-limitation, not a bug in this extension.
+**Cause:** When content is loaded into the editor, the extension's upcast
+converter copies only the text nodes of a ``<figcaption>`` into the caption.
+A ``<br>`` or other inline markup in a stored caption is dropped at that
+point. CKEditor 5 itself does not have this restriction: its caption model
+accepts the same content as a paragraph.
 
 **Workaround:** Captions wrap naturally based on the figure container width.
 Since version 13.6.0, the ``<figure>`` element is automatically constrained
