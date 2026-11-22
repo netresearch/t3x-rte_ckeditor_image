@@ -120,8 +120,16 @@ test.describe('CKEditor Backend Workflow (#565)', () => {
 
 test.describe('Backend Integration Smoke Tests', () => {
   test('TYPO3 backend is accessible', async ({ page }) => {
-    // Use gotoFrontendPage for retry logic — PHP-FPM may not be ready yet in CI
+    // Use gotoFrontendPage for retry logic — PHP-FPM may not be ready yet in CI.
+    // It returns once /typo3/ answers below 500, a 4xx included, so assert
+    // that the backend actually rendered: its login form, or the backend
+    // itself when a session already exists.
     await gotoFrontendPage(page, '/typo3/');
+
+    const loginFormOrBackend = page.locator(
+      'form[name="loginform"], #typo3-login-form, .modulemenu, .typo3-module-menu, [data-modulemenu], .scaffold'
+    );
+    await expect(loginFormOrBackend.first(), 'TYPO3 backend rendered neither its login form nor the backend').toBeVisible();
   });
 
   test('backend login page renders without errors', async ({ page }) => {
