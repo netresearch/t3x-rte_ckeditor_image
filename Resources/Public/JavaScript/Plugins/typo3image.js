@@ -17,7 +17,7 @@ import { Plugin, Command } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { DomEventObserver } from '@ckeditor/ckeditor5-engine';
 import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
-import { default as Modal } from '@typo3/backend/modal.js';
+import Modal from '@typo3/backend/modal.js';
 import { sanitizeSrc } from './sanitize-src.js';
 import { buildSelectImageBparams } from './select-image-bparams.js';
 import { getBackendLabel } from './backend-label.js';
@@ -1308,6 +1308,21 @@ function linkPluginLinkToImageLink(element) {
     return imageLink;
 }
 
+/**
+ * Class for an image whose dialog returned no class: new images get the
+ * class of their element type, existing images keep an empty class.
+ *
+ * @param {boolean} isNewImage - The image is being inserted
+ * @param {boolean} isInlineImage - The image is a typo3imageInline
+ * @return {string} The default class
+ */
+function defaultImageClass(isNewImage, isInlineImage) {
+    if (!isNewImage) {
+        return '';
+    }
+    return isInlineImage ? 'image-inline' : 'image-block';
+}
+
 function edit(selectedImage, editor, imageAttributes) {
     // Capture whether this is an inline image BEFORE the async operations
     // This flag is passed from the caller and indicates the original element type
@@ -1325,7 +1340,7 @@ function edit(selectedImage, editor, imageAttributes) {
                 // (e.g. new insertion with "none" click behavior).
                 // For existing images, preserve the current class even if empty.
                 // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/655
-                const imageClass = attributes.class || (isNewImage ? (isInlineImage ? 'image-inline' : 'image-block') : '');
+                const imageClass = attributes.class || defaultImageClass(isNewImage, isInlineImage);
 
                 const newImageAttributes = {
                     fileUid: attributes.fileUid,
@@ -1986,7 +2001,7 @@ export default class Typo3Image extends Plugin {
                             return viewElement;
                         }
                     }
-                } catch (e) {
+                } catch {
                     // Return null on any error to prevent balloon positioning issues
                     // This can happen when view elements are in an inconsistent state
                     return null;
@@ -2222,7 +2237,7 @@ export default class Typo3Image extends Plugin {
                     if (!item.is('element', 'typo3imageInline') || !item.hasAttribute('imageLinkHref')) {
                         continue;
                     }
-                    for (const [key] of [...item.getAttributes()]) {
+                    for (const [key] of item.getAttributes()) {
                         if (isLinkPluginAttribute(key)) {
                             writer.removeAttribute(key, item);
                             changed = true;
