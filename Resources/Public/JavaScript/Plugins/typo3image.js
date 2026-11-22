@@ -77,10 +77,8 @@ function urlToRelative(url, storageDriver) {
     if (url.includes("http://") || url.includes("https://")) {
         const u = new URL(url);
         return u.pathname + u.search;
-    } else {
-        if (url[0] !== "/") {
-            return `/${url}`;
-        }
+    } else if (url[0] !== "/") {
+        return `/${url}`;
     }
 
     return url;
@@ -784,7 +782,7 @@ function getImageDialog(editor, img, attributes) {
             for (const key of Object.keys(fieldGroup)) {
                 const value = elements[key].value;
 
-                if (typeof value !== 'undefined') {
+                if (value !== undefined) {
                     attributes[key] = value;
                 }
             }
@@ -1007,15 +1005,15 @@ function getImageInfo(editor, table, uid, params) {
     let url = `${editor.config.get('typo3image').routeUrl}&action=info&fileId=${encodeURIComponent(uid)}&table=${encodeURIComponent(table)}`;
 
     // SECURITY: Encode URL parameters to prevent injection attacks
-    if (typeof params.width !== 'undefined' && params.width.length) {
+    if (params.width !== undefined && params.width.length) {
         url += `&P[width]=${encodeURIComponent(params.width)}`;
     }
 
-    if (typeof params.height !== 'undefined' && params.height.length) {
+    if (params.height !== undefined && params.height.length) {
         url += `&P[height]=${encodeURIComponent(params.height)}`;
     }
 
-    if (typeof params['data-quality'] !== 'undefined' && params['data-quality']) {
+    if (params['data-quality'] !== undefined && params['data-quality']) {
         url += `&P[quality]=${encodeURIComponent(params['data-quality'])}`;
     }
 
@@ -2041,10 +2039,7 @@ export default class Typo3Image extends Plugin {
             const selectedElement = selection.getSelectedElement();
 
             // Always suppress link balloon for image widgets - image toolbar takes precedence
-            if (isTypo3ImageElement(selectedElement)) {
-                return true;
-            }
-            return false;
+            return Boolean(isTypo3ImageElement(selectedElement));
         };
 
         // Listen to click events with high priority to intercept before LinkUI
@@ -2941,19 +2936,19 @@ export default class Typo3Image extends Plugin {
                 attributes['src'] = cleanSrc;
             }
 
-            if (modelElement.getAttribute('titleOverride') || false) {
+            if (modelElement.getAttribute('titleOverride')) {
                 attributes['data-title-override'] = true
             }
 
-            if (modelElement.getAttribute('altOverride') || false) {
+            if (modelElement.getAttribute('altOverride')) {
                 attributes['data-alt-override'] = true
             }
 
-            if (modelElement.getAttribute('enableZoom') || false) {
+            if (modelElement.getAttribute('enableZoom')) {
                 attributes['data-htmlarea-zoom'] = true
             }
 
-            if (modelElement.getAttribute('noScale') || false) {
+            if (modelElement.getAttribute('noScale')) {
                 attributes['data-noscale'] = true
             }
 
@@ -3204,19 +3199,19 @@ export default class Typo3Image extends Plugin {
                 attributes['src'] = cleanSrc;
             }
 
-            if (modelElement.getAttribute('titleOverride') || false) {
+            if (modelElement.getAttribute('titleOverride')) {
                 attributes['data-title-override'] = true;
             }
 
-            if (modelElement.getAttribute('altOverride') || false) {
+            if (modelElement.getAttribute('altOverride')) {
                 attributes['data-alt-override'] = true;
             }
 
-            if (modelElement.getAttribute('enableZoom') || false) {
+            if (modelElement.getAttribute('enableZoom')) {
                 attributes['data-htmlarea-zoom'] = true;
             }
 
-            if (modelElement.getAttribute('noScale') || false) {
+            if (modelElement.getAttribute('noScale')) {
                 attributes['data-noscale'] = true;
             }
 
