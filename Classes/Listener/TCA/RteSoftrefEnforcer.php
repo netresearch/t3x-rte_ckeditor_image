@@ -69,56 +69,66 @@ final readonly class RteSoftrefEnforcer
 
         // Process each table
         foreach ($tca as $tableName => &$tableConfig) {
-            if (!is_array($tableConfig)) {
-                continue;
-            }
-
-            // Apply inclusion list filter (if configured)
-            if (!is_string($tableName)) {
-                continue;
-            }
-
-            if ($includedTablesOnly !== [] && !in_array($tableName, $includedTablesOnly, true)) {
-                continue;
-            }
-
-            // Apply exclusion list filter (only if inclusion list is not configured)
-            if ($includedTablesOnly === [] && in_array($tableName, $excludedTables, true)) {
-                continue;
-            }
-
-            // Process each column in the table
-            if (!isset($tableConfig['columns'])) {
-                continue;
-            }
-
-            if (!is_array($tableConfig['columns'])) {
+            if (
+                !is_array($tableConfig)
+                || !is_string($tableName)
+                || !$this->isTableSelected($tableName, $includedTablesOnly, $excludedTables)
+                || !is_array($tableConfig['columns'] ?? null)
+            ) {
                 continue;
             }
 
             /** @var array<string, mixed> $columns */
-            $columns = $tableConfig['columns'];
-
-            foreach ($columns as &$columnConfig) {
-                if (!is_array($columnConfig)) {
-                    continue;
-                }
-
-                /** @var array<string, mixed> $typedColumnConfig */
-                $typedColumnConfig = $columnConfig;
-
-                if ($this->isRteEnabledTextField($typedColumnConfig)) {
-                    $this->addRteSoftref($typedColumnConfig);
-                    $columnConfig = $typedColumnConfig;
-                }
-            }
-
-            unset($columnConfig);
-            $tableConfig['columns'] = $columns;
+            $columns                = $tableConfig['columns'];
+            $tableConfig['columns'] = $this->withRteSoftref($columns);
         }
 
         unset($tableConfig);
         $event->setTca($tca);
+    }
+
+    /**
+     * Check the table against the inclusion list or, when no inclusion list is
+     * configured, against the exclusion list.
+     *
+     * @param string[] $includedTablesOnly
+     * @param string[] $excludedTables
+     */
+    private function isTableSelected(string $tableName, array $includedTablesOnly, array $excludedTables): bool
+    {
+        if ($includedTablesOnly !== []) {
+            return in_array($tableName, $includedTablesOnly, true);
+        }
+
+        return !in_array($tableName, $excludedTables, true);
+    }
+
+    /**
+     * Add the rtehtmlarea_images softref to every RTE-enabled text column.
+     *
+     * @param array<string, mixed> $columns
+     *
+     * @return array<string, mixed>
+     */
+    private function withRteSoftref(array $columns): array
+    {
+        foreach ($columns as &$columnConfig) {
+            if (!is_array($columnConfig)) {
+                continue;
+            }
+
+            /** @var array<string, mixed> $typedColumnConfig */
+            $typedColumnConfig = $columnConfig;
+
+            if ($this->isRteEnabledTextField($typedColumnConfig)) {
+                $this->addRteSoftref($typedColumnConfig);
+                $columnConfig = $typedColumnConfig;
+            }
+        }
+
+        unset($columnConfig);
+
+        return $columns;
     }
 
     /**

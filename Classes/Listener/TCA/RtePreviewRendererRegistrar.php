@@ -70,55 +70,57 @@ final readonly class RtePreviewRendererRegistrar
         );
 
         foreach ($tca as $tableName => &$tableConfig) {
-            // Apply inclusion list filter (if configured)
-            if ($includedTablesOnly !== [] && !in_array($tableName, $includedTablesOnly, true)) {
-                continue;
-            }
-
-            // Apply exclusion list filter (only if inclusion list is not configured)
-            if ($includedTablesOnly === [] && in_array($tableName, $excludedTables, true)) {
-                continue;
-            }
-
-            if (!is_array($tableConfig)) {
-                continue;
-            }
-
-            if (!isset($tableConfig['types'])) {
-                continue;
-            }
-
-            if (!is_array($tableConfig['types'])) {
+            if (
+                !$this->isTableSelected($tableName, $includedTablesOnly, $excludedTables)
+                || !is_array($tableConfig)
+                || !is_array($tableConfig['types'] ?? null)
+            ) {
                 continue;
             }
 
             foreach ($tableConfig['types'] as &$typeConfig) {
-                if (!is_array($typeConfig)) {
-                    continue;
+                if (is_array($typeConfig) && $this->needsPreviewRenderer($typeConfig, $tableConfig)) {
+                    $typeConfig['previewRenderer'] = RteImagePreviewRenderer::class;
                 }
-
-                if (!$this->hasRteEnabledBodytext($typeConfig, $tableConfig)) {
-                    continue;
-                }
-
-                // Skip types that have FILE-type columns in their showitem.
-                // StandardContentPreviewRenderer renders file field thumbnails
-                // (e.g. textpic's image, textmedia's assets) that our renderer
-                // does not handle. Overriding would lose those thumbnails (#720).
-                if ($this->hasFileFieldsInShowitem($typeConfig, $tableConfig)) {
-                    continue;
-                }
-
-                // Only register if no custom preview renderer is already set
-                if (isset($typeConfig['previewRenderer']) && $typeConfig['previewRenderer'] !== '') {
-                    continue;
-                }
-
-                $typeConfig['previewRenderer'] = RteImagePreviewRenderer::class;
             }
         }
 
         $event->setTca($tca);
+    }
+
+    /**
+     * Check the table against the inclusion list or, when no inclusion list is
+     * configured, against the exclusion list.
+     *
+     * @param string[] $includedTablesOnly
+     * @param string[] $excludedTables
+     */
+    private function isTableSelected(int|string $tableName, array $includedTablesOnly, array $excludedTables): bool
+    {
+        if ($includedTablesOnly !== []) {
+            return in_array($tableName, $includedTablesOnly, true);
+        }
+
+        return !in_array($tableName, $excludedTables, true);
+    }
+
+    /**
+     * Check if a type should get RteImagePreviewRenderer.
+     *
+     * Types that have FILE-type columns in their showitem are skipped:
+     * StandardContentPreviewRenderer renders file field thumbnails (e.g.
+     * textpic's image, textmedia's assets) that our renderer does not handle.
+     * Overriding would lose those thumbnails (#720). A custom preview renderer
+     * that is already set is never replaced.
+     *
+     * @param array<mixed> $typeConfig
+     * @param array<mixed> $tableConfig
+     */
+    private function needsPreviewRenderer(array $typeConfig, array $tableConfig): bool
+    {
+        return $this->hasRteEnabledBodytext($typeConfig, $tableConfig)
+            && !$this->hasFileFieldsInShowitem($typeConfig, $tableConfig)
+            && ($typeConfig['previewRenderer'] ?? '') === '';
     }
 
     /**
@@ -157,40 +159,30 @@ final readonly class RtePreviewRendererRegistrar
     private function hasRteEnabledBodytext(array $typeConfig, array $tableConfig): bool
     {
         // Check columnsOverrides first (higher priority)
-        $columnsOverrides = $typeConfig['columnsOverrides'] ?? null;
+        $overrideConfig = $this->getBodytextConfig($typeConfig['columnsOverrides'] ?? null);
 
-        if (is_array($columnsOverrides)) {
-            $bodytextOverride = $columnsOverrides['bodytext'] ?? null;
-
-            if (is_array($bodytextOverride)) {
-                $config = $bodytextOverride['config'] ?? null;
-
-                if (is_array($config) && isset($config['enableRichtext'])) {
-                    return (bool) $config['enableRichtext'];
-                }
-            }
+        if (isset($overrideConfig['enableRichtext'])) {
+            return (bool) $overrideConfig['enableRichtext'];
         }
 
         // Fall back to base column definition
-        $columns = $tableConfig['columns'] ?? null;
+        $baseConfig = $this->getBodytextConfig($tableConfig['columns'] ?? null);
 
-        if (!is_array($columns)) {
-            return false;
-        }
+        return (bool) ($baseConfig['enableRichtext'] ?? false);
+    }
 
-        $bodytext = $columns['bodytext'] ?? null;
+    /**
+     * Return the config array of the bodytext column in a columns or
+     * columnsOverrides structure, or an empty array when there is none.
+     *
+     * @return array<mixed>
+     */
+    private function getBodytextConfig(mixed $columns): array
+    {
+        $bodytext = is_array($columns) ? ($columns['bodytext'] ?? null) : null;
+        $config   = is_array($bodytext) ? ($bodytext['config'] ?? null) : null;
 
-        if (!is_array($bodytext)) {
-            return false;
-        }
-
-        $config = $bodytext['config'] ?? null;
-
-        if (!is_array($config)) {
-            return false;
-        }
-
-        return (bool) ($config['enableRichtext'] ?? false);
+        return is_array($config) ? $config : [];
     }
 
     /**
@@ -211,14 +203,9 @@ final readonly class RtePreviewRendererRegistrar
     private function hasFileFieldsInShowitem(array $typeConfig, array $tableConfig): bool
     {
         $showitem = $typeConfig['showitem'] ?? '';
+        $columns  = $tableConfig['columns'] ?? null;
 
-        if (!is_string($showitem) || $showitem === '') {
-            return false;
-        }
-
-        $columns = $tableConfig['columns'] ?? null;
-
-        if (!is_array($columns)) {
+        if (!is_string($showitem) || $showitem === '' || !is_array($columns)) {
             return false;
         }
 

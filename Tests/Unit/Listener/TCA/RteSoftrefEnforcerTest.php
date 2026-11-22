@@ -520,4 +520,32 @@ final class RteSoftrefEnforcerTest extends UnitTestCase
             $modifiedTca['tt_content']['columns']['bodytext']['config']['softref'],
         );
     }
+
+    #[Test]
+    public function listenerSkipsMalformedTableAndColumnEntries(): void
+    {
+        $rteField = ['config' => ['type' => 'text', 'enableRichtext' => true]];
+        $tca      = [
+            'scalar_table'  => 'not an array',
+            'string_cols'   => ['columns' => 'not an array'],
+            'mixed_columns' => [
+                'columns' => [
+                    'broken'   => 'not an array',
+                    'bodytext' => $rteField,
+                ],
+            ],
+        ];
+
+        $modifiedTca = $this->invokeListenerAndGetTca($tca);
+
+        self::assertSame('not an array', $modifiedTca['scalar_table']);
+        self::assertSame(['columns' => 'not an array'], $modifiedTca['string_cols']);
+        self::assertSame(
+            [
+                'broken'   => 'not an array',
+                'bodytext' => ['config' => ['type' => 'text', 'enableRichtext' => true, 'softref' => 'rtehtmlarea_images']],
+            ],
+            $modifiedTca['mixed_columns']['columns'],
+        );
+    }
 }
