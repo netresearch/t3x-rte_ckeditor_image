@@ -1,0 +1,117 @@
+# Copyright (c) 2025-2026 Netresearch DTT GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: SonarQube
+
+# SonarQube Cloud analysis with PHP and JavaScript coverage. The job ran in
+# ci.yml until that file was replaced by the typo3-extension template, which
+# has no Sonar job; the last analysis on SonarQube Cloud dates from that
+# change. It lives in its own file because the template does not govern it
+# (check-template-drift.yml does not compare it).
+#
+# Inline, not the shared netresearch/.github sonarqube.yml: the reusable
+# workflow only checks out and scans, and the scanner needs the Clover and
+# lcov reports that the test steps below write. sonar-project.properties
+# names the report paths.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  sonarqube:
+    name: SonarQube Scan
+    # Fork pull requests get no repository or organisation secrets, so
+    # SONAR_TOKEN would be empty and the scan would fail.
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@aebdcf6156ab6691adf63218240e476564a1ed4c # v2.23.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Sonar needs the full history for blame and new-code detection.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: xdebug
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-sonar-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-sonar-
+
+      - name: Install TYPO3
+        run: |
+          composer require --no-update "typo3/cms-core:^14.3" "typo3/cms-rte-ckeditor:^14.3"
+          composer install --prefer-dist --no-progress
+
+      - name: Run PHP unit tests with coverage
+        env:
+          XDEBUG_MODE: coverage
+        # Writes .Build/logs/clover-unit.xml, the same command developers run.
+        run: composer ci:coverage:unit
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+
+      - name: Run JS unit tests with coverage
+        # Vitest writes Tests/JavaScript/coverage/lcov.info with paths
+        # relative to Tests/JavaScript ("SF:../../Resources/..."). The
+        # scanner resolves them against the project root, so the sed call
+        # strips the "../../" prefix; without it SonarQube Cloud reports
+        # "Could not resolve N file paths" and 0 % JavaScript coverage.
+        run: |
+          cd Tests/JavaScript
+          npm ci --no-audit --no-fund
+          npm test -- --coverage
+          sed -i 's|^SF:\.\./\.\./|SF:|g' coverage/lcov.info
+
+      - name: Preserve runner JVM options for the scanner
+        id: scanner-java
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const existing = process.env.JDK_JAVA_OPTIONS || '';
+            const mitigation = '-XX:+UnlockDiagnosticVMOptions -XX:-UseBASE64Intrinsics';
+            core.setOutput('options', [existing, mitigation].filter(Boolean).join(' '));
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@59202af334b4ba7b5db01b701b8e79f8b3bef0f4 # v8.5
+        env:
+          # Same mitigation as netresearch/.github sonarqube.yml: CVE-2026-114938
+          # affects the Java scanner process on capable x86-64 runners.
+          JDK_JAVA_OPTIONS: ${{ steps.scanner-java.outputs.options }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: 'https://sonarcloud.io'
