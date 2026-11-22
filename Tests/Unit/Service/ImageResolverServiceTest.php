@@ -21,6 +21,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel as PsrLogLevel;
 use ReflectionMethod;
+use ReflectionProperty;
 use RuntimeException;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
@@ -641,6 +642,35 @@ final class ImageResolverServiceTest extends TestCase
         $this->callPrivateMethod($this->service, 'sanitizeCaptionHtml', ['<a href="https://example.com">x</a>', $resolver]);
 
         self::assertSame(0, $calls);
+    }
+
+    #[Test]
+    public function resolveKeepsItsSixParameterSignatureForSubclasses(): void
+    {
+        // Subclasses that override resolve() must stay loadable
+        self::assertSame(6, (new ReflectionMethod(ImageResolverService::class, 'resolve'))->getNumberOfParameters());
+    }
+
+    #[Test]
+    public function withFigureCaptionReturnsCopyAndLeavesServiceUnchanged(): void
+    {
+        $copy = $this->service->withFigureCaption('A<br>B');
+
+        self::assertNotSame($this->service, $copy);
+        self::assertNull((new ReflectionProperty(ImageResolverService::class, 'figureCaptionHtml'))->getValue($this->service));
+        self::assertSame('A<br>B', (new ReflectionProperty(ImageResolverService::class, 'figureCaptionHtml'))->getValue($copy));
+    }
+
+    #[Test]
+    public function sanitizeCaptionHtmlTurnsLinkIntoTextWhenResolverThrows(): void
+    {
+        $resolver = static function (string $url): string {
+            throw new RuntimeException('link listener failed', 1732250000);
+        };
+
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaptionHtml', ['See <a href="t3://page?uid=1">home</a>', $resolver]);
+
+        self::assertSame('See home', $result);
     }
 
     #[Test]

@@ -113,16 +113,44 @@ class ImageResolverService
     }
 
     /**
+     * Figcaption markup for the next resolve() call of this copy, see withFigureCaption().
+     */
+    private ?string $figureCaptionHtml = null;
+
+    /**
+     * @var (Closure(string): string)|null
+     */
+    private ?Closure $captionLinkUrlResolver = null;
+
+    /**
+     * Return a copy of this service that renders the given figcaption markup.
+     *
+     * resolve() keeps its signature, so subclasses that override it stay
+     * compatible. The copy sanitizes $captionHtml to the inline allowlist; it
+     * takes precedence over data-caption. t3:// links in it are resolved with
+     * $linkUrlResolver and become text when they cannot be resolved.
+     *
+     * @param string                         $captionHtml     Unsanitized inner HTML of the figcaption
+     * @param (Closure(string): string)|null $linkUrlResolver Resolver for t3:// hrefs in the caption
+     */
+    public function withFigureCaption(string $captionHtml, ?Closure $linkUrlResolver = null): static
+    {
+        $clone                         = clone $this;
+        $clone->figureCaptionHtml      = $captionHtml;
+        $clone->captionLinkUrlResolver = $linkUrlResolver;
+
+        return $clone;
+    }
+
+    /**
      * Resolve image attributes to validated DTO.
      *
-     * @param array<string,string>           $attributes      Raw attributes from parser
-     * @param array<string,mixed>            $conf            TypoScript configuration
-     * @param ServerRequestInterface         $request         Current request
-     * @param array<string,string>|null      $linkAttributes  Optional link attributes for linked images
-     * @param string|null                    $figureClass     Optional figure class for alignment (image-left, etc.)
-     * @param string|null                    $figureWidth     Optional normalised resize width from the figure (e.g. `26.43%`)
-     * @param string|null                    $captionHtml     Optional unsanitized inner HTML of the figcaption; takes precedence over data-caption
-     * @param (Closure(string): string)|null $linkUrlResolver Optional resolver for t3:// hrefs in the caption (unresolved t3:// links become text)
+     * @param array<string,string>      $attributes     Raw attributes from parser
+     * @param array<string,mixed>       $conf           TypoScript configuration
+     * @param ServerRequestInterface    $request        Current request
+     * @param array<string,string>|null $linkAttributes Optional link attributes for linked images
+     * @param string|null               $figureClass    Optional figure class for alignment (image-left, etc.)
+     * @param string|null               $figureWidth    Optional normalised resize width from the figure (e.g. `26.43%`)
      *
      * @return ImageRenderingDto|null Validated DTO or null if validation fails
      *
@@ -135,8 +163,6 @@ class ImageResolverService
         ?array $linkAttributes = null,
         ?string $figureClass = null,
         ?string $figureWidth = null,
-        ?string $captionHtml = null,
-        ?Closure $linkUrlResolver = null,
     ): ?ImageRenderingDto {
         // Extract file UID from data-htmlarea-file-uid attribute
         $fileUid = (int) ($attributes['data-htmlarea-file-uid'] ?? 0);
@@ -209,7 +235,9 @@ class ImageResolverService
 
             // CRITICAL: Caption XSS prevention. The figcaption markup is reduced to
             // the inline allowlist; the data-caption attribute is plain text.
-            $caption = $captionHtml !== null ? $this->sanitizeCaptionHtml($captionHtml, $linkUrlResolver) : '';
+            $caption = $this->figureCaptionHtml !== null
+                ? $this->sanitizeCaptionHtml($this->figureCaptionHtml, $this->captionLinkUrlResolver)
+                : '';
 
             if ($caption === '') {
                 $caption = $this->sanitizeCaption($attributes['data-caption'] ?? '');
@@ -543,7 +571,14 @@ class ImageResolverService
             $captionHtml,
             function (string $href) use ($linkUrlResolver): ?string {
                 if ($linkUrlResolver instanceof Closure && str_starts_with(strtolower($href), 't3:')) {
-                    $href = trim($linkUrlResolver($href));
+                    try {
+                        $href = trim($linkUrlResolver($href));
+                    } catch (Throwable $exception) {
+                        // A failing link listener must not drop the figure: the link becomes text
+                        $this->logger->warning('Could not resolve caption link', ['href' => $href, 'exception' => $exception]);
+
+                        return null;
+                    }
                 }
 
                 // An unresolved t3:// link has no meaning in the browser

@@ -57,7 +57,9 @@ final class ImageRenderingAdapterTest extends TestCase
     {
         parent::setUp();
 
-        $this->resolverService       = $this->createMock(ImageResolverService::class);
+        $this->resolverService = $this->createMock(ImageResolverService::class);
+        // resolve() is called on the copy that withFigureCaption() returns
+        $this->resolverService->method('withFigureCaption')->willReturnSelf();
         $this->renderingService      = $this->createMock(ImageRenderingService::class);
         $this->attributeParser       = $this->createMock(ImageAttributeParser::class);
         $this->contentObjectRenderer = $this->createMock(ContentObjectRenderer::class);
@@ -951,19 +953,20 @@ final class ImageRenderingAdapterTest extends TestCase
         $captured = [];
         $this->resolverService
             ->expects(self::once())
-            ->method('resolve')
-            ->willReturnCallback(static function (mixed ...$arguments) use (&$captured, $dto): ImageRenderingDto {
+            ->method('withFigureCaption')
+            ->willReturnCallback(function (mixed ...$arguments) use (&$captured): ImageResolverService {
                 $captured = $arguments;
 
-                return $dto;
+                return $this->resolverService;
             });
+        $this->resolverService->expects(self::once())->method('resolve')->willReturn($dto);
 
         $this->renderingService->method('render')->willReturn('<figure></figure>');
 
         $this->adapter->renderFigure(null, [], $this->request);
 
-        self::assertSame('A<br>B', $captured[6] ?? null);
-        $resolver = $captured[7] ?? null;
+        self::assertSame('A<br>B', $captured[0] ?? null);
+        $resolver = $captured[1] ?? null;
         self::assertInstanceOf(Closure::class, $resolver);
         // Non-t3 URLs pass through the adapter's resolver unchanged
         self::assertSame('https://example.com', $resolver('https://example.com'));

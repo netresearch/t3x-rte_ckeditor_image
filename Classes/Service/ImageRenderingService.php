@@ -117,7 +117,7 @@ class ImageRenderingService
         // The caption content is skipped: there a space between two inline
         // elements (<strong>a</strong> <em>b</em>) is content, not template
         // indentation. The sanitized caption cannot contain "</figcaption>".
-        $parts = preg_split('#(<figcaption\b[^>]*>.*?</figcaption>)#s', $output, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $parts = preg_split('#(<figcaption\b[^>]*>.*?</figcaption>)#is', $output, -1, PREG_SPLIT_DELIM_CAPTURE);
 
         if ($parts !== false) {
             foreach ($parts as $index => $part) {

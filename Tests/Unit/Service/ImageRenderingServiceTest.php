@@ -621,6 +621,38 @@ class ImageRenderingServiceTest extends TestCase
         );
     }
 
+    /**
+     * HTML tag names are case-insensitive, so an override template that writes
+     * <FIGCAPTION> keeps the space between inline elements as well.
+     */
+    public function testRenderKeepsSpacesInsideUppercaseFigcaption(): void
+    {
+        $output = "<figure class=\"image\">\n    <img src=\"/a.jpg\" />\n    <FIGCAPTION><strong>North</strong> <em>Sea</em></FIGCAPTION>\n</figure>";
+
+        $viewMock = $this->createMock(ViewInterface::class);
+        $viewMock->method('render')->willReturn($output);
+        $this->viewFactoryMock->method('create')->willReturn($viewMock);
+
+        $dto = new ImageRenderingDto(
+            src: '/a.jpg',
+            width: 800,
+            height: 600,
+            alt: 'Test',
+            title: '',
+            htmlAttributes: [],
+            caption: '<strong>North</strong> <em>Sea</em>',
+            link: null,
+            isMagicImage: true,
+        );
+
+        $result = $this->service->render($dto, $this->createMock(ServerRequestInterface::class));
+
+        self::assertSame(
+            '<figure class="image"><img src="/a.jpg" /><FIGCAPTION><strong>North</strong> <em>Sea</em></FIGCAPTION></figure>',
+            $result,
+        );
+    }
+
     // ========================================================================
     // TypoScript Configuration Tests (Issue #434)
     // ========================================================================
