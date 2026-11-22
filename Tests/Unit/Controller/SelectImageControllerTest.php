@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Controller;
 
 use Exception;
+use Netresearch\RteCKEditorImage\Controller\Exception\FileNotAvailableException;
 use Netresearch\RteCKEditorImage\Controller\SelectImageController;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -132,6 +133,42 @@ final class SelectImageControllerTest extends UnitTestCase
         $this->expectExceptionCode(1734282000);
 
         $this->callProtectedMethod('getImage', [$fileId]);
+    }
+
+    #[Test]
+    public function getImageThrowsFileNotAvailableExceptionWithPreviousWhenFileNotFound(): void
+    {
+        $previous = new Exception('File not found');
+
+        $this->resourceFactoryMock
+            ->method('getFileObject')
+            ->willThrowException($previous);
+
+        try {
+            $this->callProtectedMethod('getImage', [999]);
+            self::fail('Expected FileNotAvailableException');
+        } catch (FileNotAvailableException $exception) {
+            self::assertSame(1734282000, $exception->getCode());
+            self::assertSame($previous, $exception->getPrevious());
+        }
+    }
+
+    #[Test]
+    public function getImageThrowsFileNotAvailableExceptionWhenFileIsMissing(): void
+    {
+        /** @var File&MockObject $fileMock */
+        $fileMock = $this->createMock(File::class);
+        $fileMock->method('isDeleted')->willReturn(false);
+        $fileMock->method('isMissing')->willReturn(true);
+
+        $this->resourceFactoryMock
+            ->method('getFileObject')
+            ->willReturn($fileMock);
+
+        $this->expectException(FileNotAvailableException::class);
+        $this->expectExceptionCode(1734282001);
+
+        $this->callProtectedMethod('getImage', [123]);
     }
 
     #[Test]

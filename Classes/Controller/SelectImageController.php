@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Controller;
 
 use Exception;
+use Netresearch\RteCKEditorImage\Controller\Exception\FileNotAvailableException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -720,18 +721,18 @@ class SelectImageController extends ElementBrowserController
      *
      * @return File
      *
-     * @throws RuntimeException If file not found, deleted, or missing
+     * @throws FileNotAvailableException If file not found, deleted, or missing
      */
     protected function getImage(int $id): File
     {
         try {
             $file = $this->resourceFactory->getFileObject($id);
         } catch (Exception $exception) {
-            throw new RuntimeException('File not found', 1734282000, $exception);
+            throw new FileNotAvailableException('File not found', 1734282000, $exception);
         }
 
         if ($file->isDeleted() || $file->isMissing()) {
-            throw new RuntimeException('File is deleted or missing', 1734282001);
+            throw new FileNotAvailableException('File is deleted or missing', 1734282001);
         }
 
         return $file;
