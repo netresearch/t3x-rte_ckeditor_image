@@ -1909,6 +1909,290 @@ function addExtraLinkAttributes(linkAttributes, modelElement) {
 }
 
 /**
+ * Check if an href is a link target: not blank and not the "/" placeholder.
+ *
+ * @param {string} href - The href of a view <a>
+ * @return {boolean} True for a link target
+ */
+function isUsableLinkHref(href) {
+    return Boolean(href?.trim()) && href.trim() !== '/';
+}
+
+/**
+ * Check if a class attribute value holds the image-inline class.
+ *
+ * @param {string} classValue - The class attribute value
+ * @return {boolean} True if image-inline is one of the classes
+ */
+function hasInlineImageClass(classValue) {
+    return (classValue || '').toString().split(/\s+/).includes('image-inline');
+}
+
+/**
+ * Check if all view elements can still be consumed by name.
+ *
+ * @param {Object} consumable - The conversion API's consumable
+ * @param {Element[]} viewElements - The view elements
+ * @return {boolean} True if every element can be consumed
+ */
+function canConsumeAll(consumable, viewElements) {
+    return viewElements.every(viewElement => consumable.test(viewElement, { name: true }));
+}
+
+/**
+ * Consume all view elements by name. Test them with canConsumeAll() first,
+ * so that a failing element does not leave the others half consumed.
+ *
+ * @param {Object} consumable - The conversion API's consumable
+ * @param {Element[]} viewElements - The view elements
+ */
+function consumeAll(consumable, viewElements) {
+    for (const viewElement of viewElements) {
+        consumable.consume(viewElement, { name: true });
+    }
+}
+
+/**
+ * Read the model attributes of a FAL image from its view <img>.
+ *
+ * @param {Element} imgElement - The view <img>
+ * @param {string} classValue - The class of the model element (of the <img> or its figure)
+ * @return {Object} The typo3image / typo3imageInline attributes
+ */
+function getImageModelAttributes(imgElement, classValue) {
+    const imageAttributes = {
+        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
+        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
+        width: imgElement.getAttribute('width') || '',
+        height: imgElement.getAttribute('height') || '',
+        class: classValue,
+        alt: imgElement.getAttribute('alt') || '',
+        altOverride: imgElement.getAttribute('data-alt-override') || false,
+        title: imgElement.getAttribute('title') || '',
+        titleOverride: imgElement.getAttribute('data-title-override') || false,
+        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
+        noScale: imgElement.getAttribute('data-noscale') || false,
+        quality: imgElement.getAttribute('data-quality') || ''
+    };
+    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
+    if (cleanSrc !== null) {
+        imageAttributes.src = cleanSrc;
+    }
+    return imageAttributes;
+}
+
+/**
+ * Read an attribute from the first of the given view <a> elements that has it.
+ *
+ * @param {string} name - The attribute name
+ * @param {...Element|null} linkElements - The view <a> elements, in order of preference
+ * @return {string} The value, or '' if none has it
+ */
+function readLinkAttribute(name, ...linkElements) {
+    for (const linkElement of linkElements) {
+        const value = linkElement?.getAttribute(name);
+        if (value) {
+            return value;
+        }
+    }
+    return '';
+}
+
+/**
+ * Read the link of an image from view <a> elements, in order of preference.
+ *
+ * @param {...Element|null} linkElements - The view <a> elements
+ * @return {{href: string, target: string, title: string, class: string, params: string}}
+ */
+function readImageLink(...linkElements) {
+    return {
+        href: readLinkAttribute('href', ...linkElements),
+        target: readLinkAttribute('target', ...linkElements),
+        title: readLinkAttribute('title', ...linkElements),
+        class: readLinkAttribute('class', ...linkElements),
+        params: readLinkAttribute('data-link-params', ...linkElements),
+    };
+}
+
+/**
+ * Split the class of an image link into its own classes and the image
+ * alignment classes, both as class attribute values.
+ *
+ * @param {string} classValue - The class of the view <a>
+ * @return {{own: string, alignment: string}}
+ */
+function splitLinkClass(classValue) {
+    const parts = (classValue || '').split(' ').filter(c => c.trim() !== '');
+    return {
+        own: parts.filter(c => !ALIGNMENT_CLASSES.has(c)).join(' '),
+        alignment: parts.filter(c => ALIGNMENT_CLASSES.has(c)).join(' '),
+    };
+}
+
+/**
+ * Add the imageLink* attributes of a link to the model attributes of an image.
+ *
+ * Nothing is added unless the href is a link target. The other values are
+ * added only when they are not blank. rel and download come from the given
+ * view <a> elements (#935).
+ *
+ * @param {Object} imageAttributes - The image model attributes, changed in place
+ * @param {Object} link - The link as returned by readImageLink()
+ * @param {...Element|null} linkElements - The view <a> elements of the link
+ * @return {boolean} True if the link was added
+ */
+function addImageLinkModelAttributes(imageAttributes, link, ...linkElements) {
+    if (!isUsableLinkHref(link.href)) {
+        return false;
+    }
+    imageAttributes.imageLinkHref = link.href;
+    const optional = {
+        imageLinkTarget: link.target,
+        imageLinkTitle: link.title,
+        imageLinkClass: link.class,
+        imageLinkParams: link.params,
+    };
+    for (const [name, value] of Object.entries(optional)) {
+        if (value?.trim()) {
+            imageAttributes[name] = value;
+        }
+    }
+    const extraLinkAttributes = getExtraLinkAttributes(...linkElements);
+    if (extraLinkAttributes) {
+        imageAttributes.imageLinkAttributes = extraLinkAttributes;
+    }
+    return true;
+}
+
+/**
+ * Find the image of a double-wrapped link <a><a><img></a></a>.
+ *
+ * @param {Element} viewOuterLink - The outer view <a>
+ * @return {{innerLink: Element|null, imgElement: Element|null}} The last inner
+ *     <a>, and the first FAL image of the last inner <a> that holds one
+ */
+function findDoubleLinkedImage(viewOuterLink) {
+    let innerLink = null;
+    let imgElement = null;
+    for (const child of viewOuterLink.getChildren()) {
+        if (!child.is('element', 'a')) {
+            continue;
+        }
+        innerLink = child;
+        // Find img inside inner link
+        for (const innerChild of child.getChildren()) {
+            if (innerChild.is('element', 'img') && innerChild.getAttribute('data-htmlarea-file-uid')) {
+                imgElement = innerChild;
+                break;
+            }
+        }
+    }
+    return { innerLink, imgElement };
+}
+
+/**
+ * Find the image, the caption and an inner <a> of a figure that sits in a link.
+ *
+ * @param {Element} figureElement - The view <figure>
+ * @return {{imgElement: Element|null, figcaptionElement: Element|null, innerLinkElement: Element|null}}
+ */
+function findLinkedFigureParts(figureElement) {
+    let imgElement = null;
+    let figcaptionElement = null;
+    let innerLinkElement = null;
+    for (const child of figureElement.getChildren()) {
+        if (child.is('element', 'img')) {
+            imgElement = child;
+        } else if (child.is('element', 'figcaption')) {
+            figcaptionElement = child;
+        } else if (child.is('element', 'a')) {
+            // Image might be wrapped in inner <a> too
+            innerLinkElement = child;
+            imgElement = lastChildImage(child) || imgElement;
+        }
+    }
+    return { imgElement, figcaptionElement, innerLinkElement };
+}
+
+/**
+ * Get the last <img> child of a view element.
+ *
+ * @param {Element} parent - The view element
+ * @return {Element|null} The last <img> child, or null
+ */
+function lastChildImage(parent) {
+    let imgElement = null;
+    for (const child of parent.getChildren()) {
+        if (child.is('element', 'img')) {
+            imgElement = child;
+        }
+    }
+    return imgElement;
+}
+
+/**
+ * Find the image and the caption of a figure. The image may sit in an <a>.
+ *
+ * @param {Element} viewFigure - The view <figure>
+ * @return {{imgElement: Element|null, figcaptionElement: Element|null}}
+ */
+function findFigureParts(viewFigure) {
+    let imgElement = null;
+    let figcaptionElement = null;
+    for (const child of viewFigure.getChildren()) {
+        if (child.is('element', 'img')) {
+            imgElement = child;
+        } else if (child.is('element', 'figcaption')) {
+            figcaptionElement = child;
+        } else if (child.is('element', 'a')) {
+            // Look for img inside link wrapper
+            imgElement = firstChildImage(child) || imgElement;
+        }
+    }
+    return { imgElement, figcaptionElement };
+}
+
+/**
+ * Get the first <img> child of a view element.
+ *
+ * @param {Element} parent - The view element
+ * @return {Element|null} The first <img> child, or null
+ */
+function firstChildImage(parent) {
+    for (const child of parent.getChildren()) {
+        if (child.is('element', 'img')) {
+            return child;
+        }
+    }
+    return null;
+}
+
+/**
+ * Find the FAL image of a view <a>, and whether the <a> holds anything else:
+ * text, another element, an image without file uid or a second FAL image.
+ *
+ * @param {Element} viewElement - The view <a>
+ * @return {{imgElement: Element|null, hasOtherContent: boolean}}
+ */
+function findLinkedImage(viewElement) {
+    let imgElement = null;
+    let hasOtherContent = false;
+    for (const child of viewElement.getChildren()) {
+        if (child.is('element', 'img') && child.getAttribute('data-htmlarea-file-uid')) {
+            // A second FAL image counts as other content
+            hasOtherContent = hasOtherContent || imgElement !== null;
+            imgElement = child;
+        } else if (child.is('element') || (child.is('$text') && child.data.trim() !== '')) {
+            // Text, an image without data-htmlarea-file-uid or another element
+            // (including a nested <a> from #667: double-wrapped <a><a><img></a></a>
+            // is handled by its own upcast converter)
+            hasOtherContent = true;
+        }
+    }
+    return { imgElement, hasOtherContent };
+}
+
+/**
  * Check if the class attribute of a model element holds all given classes.
  *
  * @param {Element} item - The model element
@@ -2326,95 +2610,29 @@ export default class Typo3Image extends Plugin {
                 },
                 model: (viewOuterLink, { writer, consumable }) => {
                     // Check if this <a> contains another <a> with an img
-                    let innerLink = null;
-                    let imgElement = null;
-
-                    for (const child of viewOuterLink.getChildren()) {
-                        if (child.is('element', 'a')) {
-                            innerLink = child;
-                            // Find img inside inner link
-                            for (const innerChild of child.getChildren()) {
-                                if (innerChild.is('element', 'img') && innerChild.getAttribute('data-htmlarea-file-uid')) {
-                                    imgElement = innerChild;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
+                    const { innerLink, imgElement } = findDoubleLinkedImage(viewOuterLink);
                     if (!innerLink || !imgElement) {
                         return null; // Not a double-link structure
                     }
 
-                    // Test consumability
-                    if (!consumable.test(viewOuterLink, { name: true }) ||
-                        !consumable.test(innerLink, { name: true }) ||
-                        !consumable.test(imgElement, { name: true })) {
+                    const viewElements = [viewOuterLink, innerLink, imgElement];
+                    if (!canConsumeAll(consumable, viewElements)) {
                         return null;
                     }
+                    consumeAll(consumable, viewElements);
 
-                    // Consume all elements
-                    consumable.consume(viewOuterLink, { name: true });
-                    consumable.consume(innerLink, { name: true });
-                    consumable.consume(imgElement, { name: true });
-
+                    const imageAttributes = getImageModelAttributes(imgElement, imgElement.getAttribute('class') || '');
                     // Use inner link attributes (they have more complete info like data-link-params)
-                    const linkHref = innerLink.getAttribute('href') || viewOuterLink.getAttribute('href') || '';
-                    const linkTarget = innerLink.getAttribute('target') || viewOuterLink.getAttribute('target') || '';
-                    const linkTitle = innerLink.getAttribute('title') || viewOuterLink.getAttribute('title') || '';
-                    const linkClass = innerLink.getAttribute('class') || viewOuterLink.getAttribute('class') || '';
-                    const linkParams = innerLink.getAttribute('data-link-params') || viewOuterLink.getAttribute('data-link-params') || '';
-
-                    const imageAttributes = {
-                        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
-                        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        width: imgElement.getAttribute('width') || '',
-                        height: imgElement.getAttribute('height') || '',
-                        class: imgElement.getAttribute('class') || '',
-                        alt: imgElement.getAttribute('alt') || '',
-                        altOverride: imgElement.getAttribute('data-alt-override') || false,
-                        title: imgElement.getAttribute('title') || '',
-                        titleOverride: imgElement.getAttribute('data-title-override') || false,
-                        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
-                        noScale: imgElement.getAttribute('data-noscale') || false,
-                        quality: imgElement.getAttribute('data-quality') || ''
-                    };
-                    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
-                    if (cleanSrc !== null) {
-                        imageAttributes.src = cleanSrc;
-                    }
-
-                    if (linkHref?.trim() && linkHref.trim() !== '/') {
-                        imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget?.trim()) {
-                            imageAttributes.imageLinkTarget = linkTarget;
-                        }
-                        if (linkTitle?.trim()) {
-                            imageAttributes.imageLinkTitle = linkTitle;
-                        }
-                        // Filter out alignment classes
-                        const linkClassParts = (linkClass || '').split(' ').filter(c => c.trim() !== '');
-                        const actualLinkClass = linkClassParts.filter(c => !ALIGNMENT_CLASSES.has(c)).join(' ');
-                        if (actualLinkClass) {
-                            imageAttributes.imageLinkClass = actualLinkClass;
-                        }
-                        if (linkParams?.trim()) {
-                            imageAttributes.imageLinkParams = linkParams;
-                        }
-                        const extraLinkAttributes = getExtraLinkAttributes(innerLink, viewOuterLink);
-                        if (extraLinkAttributes) {
-                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
-                        }
-                    }
+                    const link = readImageLink(innerLink, viewOuterLink);
+                    link.class = splitLinkClass(link.class).own;
+                    addImageLinkModelAttributes(imageAttributes, link, innerLink, viewOuterLink);
 
                     if (isClasslessImageInText(imgElement, viewOuterLink)) {
                         imageAttributes.class = 'image-inline';
                     }
 
                     // Check image class to create correct element type (inline vs block)
-                    const imgClass = (imageAttributes.class || '').toString();
-                    const isInline = imgClass.split(/\s+/).includes('image-inline');
-                    return writer.createElement(isInline ? 'typo3imageInline' : 'typo3image', imageAttributes);
+                    return writer.createElement(hasInlineImageClass(imageAttributes.class) ? 'typo3imageInline' : 'typo3image', imageAttributes);
                 },
                 converterPriority: 'highest'
             });
@@ -2445,104 +2663,38 @@ export default class Typo3Image extends Plugin {
 
                     // Find img element within figure
                     // Also track inner link element if img is wrapped in <a>
-                    let imgElement = null;
-                    let figcaptionElement = null;
-                    let innerLinkElement = null;
-                    for (const child of figureElement.getChildren()) {
-                        if (child.is('element', 'img')) {
-                            imgElement = child;
-                        } else if (child.is('element', 'figcaption')) {
-                            figcaptionElement = child;
-                        } else if (child.is('element', 'a')) {
-                            // Image might be wrapped in inner <a> too
-                            innerLinkElement = child;
-                            for (const innerChild of child.getChildren()) {
-                                if (innerChild.is('element', 'img')) {
-                                    imgElement = innerChild;
-                                }
-                            }
-                        }
-                    }
+                    const { imgElement, figcaptionElement, innerLinkElement } = findLinkedFigureParts(figureElement);
 
                     if (!imgElement?.getAttribute('data-htmlarea-file-uid')) {
                         return null;
                     }
 
                     // Test consumability before committing
-                    if (!consumable.test(viewLink, { name: true }) ||
-                        !consumable.test(figureElement, { name: true }) ||
-                        !consumable.test(imgElement, { name: true })) {
+                    const viewElements = [viewLink, figureElement, imgElement];
+                    if (!canConsumeAll(consumable, viewElements)) {
                         return null;
                     }
 
                     // Consume all elements to prevent GHS from preserving them
-                    consumable.consume(viewLink, { name: true });
-                    consumable.consume(figureElement, { name: true });
-                    consumable.consume(imgElement, { name: true });
+                    consumeAll(consumable, viewElements);
                     // CRITICAL: Also consume inner link element to prevent duplicate links
                     if (innerLinkElement && consumable.test(innerLinkElement, { name: true })) {
                         consumable.consume(innerLinkElement, { name: true });
                     }
 
-                    // Extract link attributes - prefer inner link for data-link-params, outer for class
-                    const linkHref = viewLink.getAttribute('href') || innerLinkElement?.getAttribute('href') || '';
-                    const linkTarget = viewLink.getAttribute('target') || innerLinkElement?.getAttribute('target') || '';
-                    const linkTitle = viewLink.getAttribute('title') || innerLinkElement?.getAttribute('title') || '';
-                    // linkClass from outer or inner link
-                    const linkClass = viewLink.getAttribute('class') || innerLinkElement?.getAttribute('class') || '';
-                    // data-link-params is typically on inner link
-                    const linkParams = innerLinkElement?.getAttribute('data-link-params') || viewLink.getAttribute('data-link-params') || '';
+                    const imageAttributes = getImageModelAttributes(imgElement, figureElement.getAttribute('class') || '');
 
-                    // Build image attributes
-                    const imageAttributes = {
-                        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
-                        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        width: imgElement.getAttribute('width') || '',
-                        height: imgElement.getAttribute('height') || '',
-                        class: figureElement.getAttribute('class') || '',
-                        alt: imgElement.getAttribute('alt') || '',
-                        altOverride: imgElement.getAttribute('data-alt-override') || false,
-                        title: imgElement.getAttribute('title') || '',
-                        titleOverride: imgElement.getAttribute('data-title-override') || false,
-                        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
-                        noScale: imgElement.getAttribute('data-noscale') || false,
-                        quality: imgElement.getAttribute('data-quality') || ''
-                    };
-                    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
-                    if (cleanSrc !== null) {
-                        imageAttributes.src = cleanSrc;
-                    }
+                    // Extract link attributes - prefer outer link, but inner link for data-link-params
+                    const link = readImageLink(viewLink, innerLinkElement);
+                    link.params = readLinkAttribute('data-link-params', innerLinkElement, viewLink);
+                    const linkClasses = splitLinkClass(link.class);
+                    link.class = linkClasses.own;
+                    const linked = addImageLinkModelAttributes(imageAttributes, link, innerLinkElement, viewLink);
 
-                    // Add link attributes if valid
-                    if (linkHref?.trim() && linkHref.trim() !== '/') {
-                        imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget?.trim()) {
-                            imageAttributes.imageLinkTarget = linkTarget;
-                        }
-                        if (linkTitle?.trim()) {
-                            imageAttributes.imageLinkTitle = linkTitle;
-                        }
-                        // Filter out alignment classes from linkClass
-                        const linkClassParts = (linkClass || '').split(' ').filter(c => c.trim() !== '');
-                        const actualLinkClass = linkClassParts.filter(c => !ALIGNMENT_CLASSES.has(c)).join(' ');
-                        const alignmentFromLink = linkClassParts.filter(c => ALIGNMENT_CLASSES.has(c)).join(' ');
-
-                        if (actualLinkClass) {
-                            imageAttributes.imageLinkClass = actualLinkClass;
-                        }
-                        // Add alignment classes to figure class if they were on the link
-                        if (alignmentFromLink) {
-                            const existingClass = imageAttributes.class || '';
-                            const existingParts = existingClass.split(' ').filter(c => c.trim() !== '' && !ALIGNMENT_CLASSES.has(c));
-                            imageAttributes.class = [...existingParts, alignmentFromLink].join(' ');
-                        }
-                        if (linkParams?.trim()) {
-                            imageAttributes.imageLinkParams = linkParams;
-                        }
-                        const extraLinkAttributes = getExtraLinkAttributes(innerLinkElement, viewLink);
-                        if (extraLinkAttributes) {
-                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
-                        }
+                    // Add alignment classes to figure class if they were on the link
+                    if (linked && linkClasses.alignment) {
+                        const existingParts = imageAttributes.class.split(' ').filter(c => c.trim() !== '' && !ALIGNMENT_CLASSES.has(c));
+                        imageAttributes.class = [...existingParts, linkClasses.alignment].join(' ');
                     }
 
                     const typo3image = writer.createElement('typo3image', imageAttributes);
@@ -2576,35 +2728,12 @@ export default class Typo3Image extends Plugin {
 
                     // Find img and figcaption elements within figure
                     // Note: img may be wrapped in <a> element when linked
-                    let imgElement = null;
-                    let figcaptionElement = null;
-
-                    for (const child of viewFigure.getChildren()) {
-                        if (child.is('element', 'img')) {
-                            imgElement = child;
-                        } else if (child.is('element', 'figcaption')) {
-                            figcaptionElement = child;
-                        } else if (child.is('element', 'a')) {
-                            // Look for img inside link wrapper
-                            for (const linkChild of child.getChildren()) {
-                                if (linkChild.is('element', 'img')) {
-                                    imgElement = linkChild;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    const { imgElement, figcaptionElement } = findFigureParts(viewFigure);
 
                     // Figure must contain an img with data-htmlarea-file-uid
                     if (!imgElement?.getAttribute('data-htmlarea-file-uid')) {
                         return null;
                     }
-
-                    // Check if this is an inline image (figure has image-inline class)
-                    // If so, create typo3imageInline instead of typo3image
-                    const figureClasses = viewFigure.getAttribute('class') || '';
-                    const figureClassList = figureClasses.split(/\s+/);
-                    const isInlineImage = figureClassList.includes('image-inline');
 
                     // Check if image is wrapped in a link element (inside figure)
                     const linkElement = imgElement.parent?.is('element', 'a') ? imgElement.parent : null;
@@ -2615,56 +2744,16 @@ export default class Typo3Image extends Plugin {
                         consumable.consume(linkElement, { name: true });
                     }
 
-                    // Extract link attributes if link wrapper exists
-                    const linkHref = linkElement?.getAttribute('href') || '';
-                    const linkTarget = linkElement?.getAttribute('target') || '';
-                    const linkTitle = linkElement?.getAttribute('title') || '';
-                    const linkClass = withoutAlignmentClasses(linkElement?.getAttribute('class'));
-                    const linkParams = linkElement?.getAttribute('data-link-params') || '';
-
-                    const imageAttributes = {
-                        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
-                        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        width: imgElement.getAttribute('width') || '',
-                        height: imgElement.getAttribute('height') || '',
-                        class: viewFigure.getAttribute('class') || '',
-                        alt: imgElement.getAttribute('alt') || '',
-                        altOverride: imgElement.getAttribute('data-alt-override') || false,
-                        title: imgElement.getAttribute('title') || '',
-                        titleOverride: imgElement.getAttribute('data-title-override') || false,
-                        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
-                        noScale: imgElement.getAttribute('data-noscale') || false,
-                        quality: imgElement.getAttribute('data-quality') || ''
-                    };
-                    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
-                    if (cleanSrc !== null) {
-                        imageAttributes.src = cleanSrc;
-                    }
+                    const imageAttributes = getImageModelAttributes(imgElement, viewFigure.getAttribute('class') || '');
 
                     // Only set link attributes if they have non-empty values
-                    if (linkHref?.trim() && linkHref.trim() !== '/') {
-                        imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget?.trim()) {
-                            imageAttributes.imageLinkTarget = linkTarget;
-                        }
-                        if (linkTitle?.trim()) {
-                            imageAttributes.imageLinkTitle = linkTitle;
-                        }
-                        if (linkClass?.trim()) {
-                            imageAttributes.imageLinkClass = linkClass;
-                        }
-                        if (linkParams?.trim()) {
-                            imageAttributes.imageLinkParams = linkParams;
-                        }
-                        const extraLinkAttributes = getExtraLinkAttributes(linkElement);
-                        if (extraLinkAttributes) {
-                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
-                        }
-                    }
+                    const link = readImageLink(linkElement);
+                    link.class = withoutAlignmentClasses(link.class);
+                    addImageLinkModelAttributes(imageAttributes, link, linkElement);
 
-                    // Create typo3image or typo3imageInline based on figure class
-                    if (isInlineImage) {
-                        // Inline images: no caption support, simpler structure
+                    // Create typo3image or typo3imageInline based on figure class:
+                    // a figure with image-inline is an inline image without caption
+                    if (hasInlineImageClass(viewFigure.getAttribute('class'))) {
                         return writer.createElement('typo3imageInline', imageAttributes);
                     }
 
@@ -2704,29 +2793,7 @@ export default class Typo3Image extends Plugin {
 
                     // Find img child with data-htmlarea-file-uid
                     // Also check if link contains ONLY the image (no other content)
-                    let imgElement = null;
-                    let hasOtherContent = false;
-
-                    for (const child of viewElement.getChildren()) {
-                        if (child.is('element', 'img') && child.getAttribute('data-htmlarea-file-uid')) {
-                            if (imgElement) {
-                                // Already found an image - multiple images means other content
-                                hasOtherContent = true;
-                            }
-                            imgElement = child;
-                        } else if (child.is('element', 'img')) {
-                            // Image without data-htmlarea-file-uid is other content
-                            hasOtherContent = true;
-                        } else if (child.is('$text') && child.data.trim() !== '') {
-                            // Link contains text content besides the image
-                            hasOtherContent = true;
-                        } else if (child.is('element')) {
-                            // Link contains other elements (including nested <a> from #667).
-                            // Double-wrapped <a><a><img></a></a> is handled by a dedicated
-                            // upcast converter registered earlier in this file.
-                            hasOtherContent = true;
-                        }
-                    }
+                    const { imgElement, hasOtherContent } = findLinkedImage(viewElement);
 
                     // If no TYPO3 image found, let other converters handle this <a>
                     if (!imgElement) {
@@ -2740,81 +2807,29 @@ export default class Typo3Image extends Plugin {
                         return null;
                     }
 
-                    // Extract link attributes from <a> element
-                    const linkHref = viewElement.getAttribute('href') || '';
-                    const linkTarget = viewElement.getAttribute('target') || '';
-                    const linkTitle = viewElement.getAttribute('title') || '';
-                    const linkClass = withoutAlignmentClasses(viewElement.getAttribute('class'));
-                    const linkParams = viewElement.getAttribute('data-link-params') || '';
-
-                    // Determine if this is a real link (non-empty, non-placeholder href)
-                    const hasValidLink = linkHref?.trim() && linkHref.trim() !== '/';
-
                     // Test if both elements can be consumed before committing to conversion
                     // Using test() first ensures we don't partially consume elements
-                    if (
-                        !consumable.test(viewElement, { name: true }) ||
-                        !consumable.test(imgElement, { name: true })
-                    ) {
+                    // Note: Only consume 'name' - consuming all attributes causes iteration error
+                    const viewElements = [viewElement, imgElement];
+                    if (!canConsumeAll(consumable, viewElements)) {
                         return null;
                     }
-
-                    // Consume the <a> element and its children to prevent GHS from processing
-                    // Note: Only consume 'name' - consuming all attributes causes iteration error
-                    consumable.consume(viewElement, { name: true });
-                    consumable.consume(imgElement, { name: true });
+                    consumeAll(consumable, viewElements);
 
                     // Build image attributes from the img element
-                    const imageAttributes = {
-                        fileUid: imgElement.getAttribute('data-htmlarea-file-uid'),
-                        fileTable: imgElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        width: imgElement.getAttribute('width') || '',
-                        height: imgElement.getAttribute('height') || '',
-                        class: imgElement.getAttribute('class') || '',
-                        alt: imgElement.getAttribute('alt') || '',
-                        altOverride: imgElement.getAttribute('data-alt-override') || false,
-                        title: imgElement.getAttribute('title') || '',
-                        titleOverride: imgElement.getAttribute('data-title-override') || false,
-                        enableZoom: imgElement.getAttribute('data-htmlarea-zoom') || false,
-                        noScale: imgElement.getAttribute('data-noscale') || false,
-                        quality: imgElement.getAttribute('data-quality') || ''
-                    };
-                    const cleanSrc = sanitizeSrc(imgElement.getAttribute('src'));
-                    if (cleanSrc !== null) {
-                        imageAttributes.src = cleanSrc;
-                    }
+                    const imageAttributes = getImageModelAttributes(imgElement, imgElement.getAttribute('class') || '');
 
                     // Only add link attributes if href is valid (not empty/placeholder)
-                    if (hasValidLink) {
-                        imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget?.trim()) {
-                            imageAttributes.imageLinkTarget = linkTarget;
-                        }
-                        if (linkTitle?.trim()) {
-                            imageAttributes.imageLinkTitle = linkTitle;
-                        }
-                        if (linkClass?.trim()) {
-                            imageAttributes.imageLinkClass = linkClass;
-                        }
-                        if (linkParams?.trim()) {
-                            imageAttributes.imageLinkParams = linkParams;
-                        }
-                        const extraLinkAttributes = getExtraLinkAttributes(viewElement);
-                        if (extraLinkAttributes) {
-                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
-                        }
-                    }
+                    const link = readImageLink(viewElement);
+                    link.class = withoutAlignmentClasses(link.class);
+                    addImageLinkModelAttributes(imageAttributes, link, viewElement);
 
                     if (isClasslessImageInText(imgElement, viewElement)) {
                         imageAttributes.class = 'image-inline';
                     }
 
                     // Check if this should be an inline image based on class
-                    const imgClass = imageAttributes.class || '';
-                    const classList = imgClass.split(/\s+/);
-                    const isInlineImage = classList.includes('image-inline');
-
-                    return writer.createElement(isInlineImage ? 'typo3imageInline' : 'typo3image', imageAttributes);
+                    return writer.createElement(hasInlineImageClass(imageAttributes.class) ? 'typo3imageInline' : 'typo3image', imageAttributes);
                 },
                 converterPriority: 'highest'
             });
@@ -2838,36 +2853,18 @@ export default class Typo3Image extends Plugin {
                 model: (viewElement, { writer, consumable }) => {
                     // Check if this image should be inline
                     const className = viewElement.getAttribute('class') || '';
-                    const classList = className.split(/\s+/);
-                    const hasInlineClass = classList.includes('image-inline');
 
                     // If no inline class, let the block converter handle it
-                    if (!hasInlineClass) {
+                    if (!hasInlineImageClass(className)) {
                         return null;
                     }
 
                     // Check if image is wrapped in a link element
                     const linkElement = viewElement.parent?.name === 'a' ? viewElement.parent : null;
 
-                    // Check if link contains ONLY this image (no other content)
-                    // If link has other content, don't extract link attrs - let CKEditor handle the link
-                    let linkHasOnlyImage = true;
-                    if (linkElement) {
-                        for (const sibling of linkElement.getChildren()) {
-                            if (sibling === viewElement) continue;
-                            if (sibling.is('$text') && sibling.data.trim() !== '') {
-                                linkHasOnlyImage = false;
-                                break;
-                            }
-                            if (sibling.is('element')) {
-                                linkHasOnlyImage = false;
-                                break;
-                            }
-                        }
-                    }
-
                     // Extract link attributes only if link wraps ONLY this image
-                    const effectiveLinkElement = (linkElement && linkHasOnlyImage) ? linkElement : null;
+                    // If link has other content, don't extract link attrs - let CKEditor handle the link
+                    const effectiveLinkElement = (linkElement && !linkHoldsMoreThan(linkElement, viewElement)) ? linkElement : null;
 
                     // Consume the parent <a> element to prevent CKEditor's link plugin
                     // from also processing it, which would create double <a> tags
@@ -2875,55 +2872,14 @@ export default class Typo3Image extends Plugin {
                     if (effectiveLinkElement) {
                         consumable.consume(effectiveLinkElement, { name: true });
                     }
-                    const linkHref = effectiveLinkElement?.getAttribute('href') || '';
-                    const linkTarget = effectiveLinkElement?.getAttribute('target') || '';
-                    const linkTitle = effectiveLinkElement?.getAttribute('title') || '';
-                    const linkClass = effectiveLinkElement?.getAttribute('class') || '';
-                    const linkParams = effectiveLinkElement?.getAttribute('data-link-params') || '';
 
-                    const imageAttributes = {
-                        fileUid: viewElement.getAttribute('data-htmlarea-file-uid'),
-                        fileTable: viewElement.getAttribute('data-htmlarea-file-table') || 'sys_file',
-                        width: viewElement.getAttribute('width') || '',
-                        height: viewElement.getAttribute('height') || '',
-                        class: className,
-                        alt: viewElement.getAttribute('alt') || '',
-                        altOverride: viewElement.getAttribute('data-alt-override') || false,
-                        title: viewElement.getAttribute('title') || '',
-                        titleOverride: viewElement.getAttribute('data-title-override') || false,
-                        enableZoom: viewElement.getAttribute('data-htmlarea-zoom') || false,
-                        noScale: viewElement.getAttribute('data-noscale') || false,
-                        quality: viewElement.getAttribute('data-quality') || ''
-                    };
-                    const cleanSrc = sanitizeSrc(viewElement.getAttribute('src'));
-                    if (cleanSrc !== null) {
-                        imageAttributes.src = cleanSrc;
-                    }
+                    const imageAttributes = getImageModelAttributes(viewElement, className);
 
-                    // Only set link attributes if they have non-empty values
-                    if (linkHref?.trim() && linkHref.trim() !== '/') {
-                        imageAttributes.imageLinkHref = linkHref;
-                        if (linkTarget?.trim()) {
-                            imageAttributes.imageLinkTarget = linkTarget;
-                        }
-                        if (linkTitle?.trim()) {
-                            imageAttributes.imageLinkTitle = linkTitle;
-                        }
-                        // Filter out alignment classes from link class
-                        // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/655
-                        const linkClassParts = (linkClass || '').split(' ').filter(c => c.trim() !== '');
-                        const actualLinkClass = linkClassParts.filter(c => !ALIGNMENT_CLASSES.has(c)).join(' ');
-                        if (actualLinkClass) {
-                            imageAttributes.imageLinkClass = actualLinkClass;
-                        }
-                        if (linkParams?.trim()) {
-                            imageAttributes.imageLinkParams = linkParams;
-                        }
-                        const extraLinkAttributes = getExtraLinkAttributes(effectiveLinkElement);
-                        if (extraLinkAttributes) {
-                            imageAttributes.imageLinkAttributes = extraLinkAttributes;
-                        }
-                    }
+                    // Only set link attributes if they have non-empty values.
+                    // Alignment classes are left out of the link class (#655).
+                    const link = readImageLink(effectiveLinkElement);
+                    link.class = splitLinkClass(link.class).own;
+                    addImageLinkModelAttributes(imageAttributes, link, effectiveLinkElement);
 
                     return writer.createElement('typo3imageInline', imageAttributes);
                 },
