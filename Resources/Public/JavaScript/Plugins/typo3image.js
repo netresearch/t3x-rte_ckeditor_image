@@ -174,7 +174,7 @@ function getImageDialog(editor, img, attributes) {
 
             if (config.type === 'text' || config.type === 'textarea') {
                 let startVal = value;
-                const hasDefault = img[key] && img[key].trim();
+                const hasDefault = img[key]?.trim();
 
                 const cbox = document.createElement('input');
                 cbox.type = 'checkbox';
@@ -1052,7 +1052,7 @@ function selectImage(editor) {
 
                 doc.addEventListener('click', function(e) {
                     const el = e.target.closest('[data-filelist-element]');
-                    if (!el || el.dataset.filelistType !== 'file') return;
+                    if (el?.dataset.filelistType !== 'file') return;
 
                     e.stopImmediatePropagation();
 
@@ -1424,7 +1424,7 @@ class ResizeImageCommand extends Command {
         const model = this.editor.model;
         const imageElement = model.document.selection.getSelectedElement();
 
-        if (!imageElement || !imageElement.is('element', 'typo3image')) {
+        if (!imageElement?.is('element', 'typo3image')) {
             return;
         }
 
@@ -1475,7 +1475,7 @@ class ToggleCaptionCommand extends Command {
         const selection = model.document.selection;
         const imageElement = selection.getSelectedElement();
 
-        if (!imageElement || imageElement.name !== 'typo3image') {
+        if (imageElement?.name !== 'typo3image') {
             return;
         }
 
@@ -1513,7 +1513,7 @@ class SetImageStyleCommand extends Command {
         const model = this.editor.model;
         const imageElement = model.document.selection.getSelectedElement();
 
-        if (!imageElement || !imageElement.is('element', 'typo3image')) {
+        if (!imageElement?.is('element', 'typo3image')) {
             return;
         }
 
@@ -1813,7 +1813,7 @@ function isClasslessImageInText(imgElement, node) {
     while (paragraph?.is('element') && INLINE_WRAPPER_ELEMENTS.has(paragraph.name)) {
         paragraph = paragraph.parent;
     }
-    if (!paragraph || !paragraph.is('element', 'p')) {
+    if (!paragraph?.is('element', 'p')) {
         return false;
     }
     for (const child of paragraph.getChildren()) {
@@ -1977,7 +1977,7 @@ export default class Typo3Image extends Plugin {
                     }
 
                     // Ensure the element is still in the document (defensive check for balloon errors)
-                    if (!viewElement.root || !viewElement.root.document) {
+                    if (!viewElement.root?.document) {
                         return null;
                     }
 
@@ -2388,7 +2388,7 @@ export default class Typo3Image extends Plugin {
                         }
                     }
 
-                    if (!imgElement || !imgElement.getAttribute('data-htmlarea-file-uid')) {
+                    if (!imgElement?.getAttribute('data-htmlarea-file-uid')) {
                         return null;
                     }
 
@@ -2520,7 +2520,7 @@ export default class Typo3Image extends Plugin {
                     }
 
                     // Figure must contain an img with data-htmlarea-file-uid
-                    if (!imgElement || !imgElement.getAttribute('data-htmlarea-file-uid')) {
+                    if (!imgElement?.getAttribute('data-htmlarea-file-uid')) {
                         return null;
                     }
 
