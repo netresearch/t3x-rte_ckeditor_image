@@ -51,13 +51,16 @@ The extension provides five quality levels for processed images:
    :Indicator: ● Green
 
    Best for:
-   - High-DPI displays (default)
+   - High-DPI displays (dialog default)
    - MacBook Retina screens
    - Modern mobile devices
    - Sharp images on 4K monitors
 
    .. note::
-      This is the default quality setting for optimal display on modern devices.
+      The image dialog preselects Retina for new images that have no
+      ``data-quality`` (and no ``data-noscale``) attribute.
+      The frontend renders an image without ``data-quality``, for example
+      legacy content, with Standard (1.0x).
 
 .. confval:: Ultra (3.0x)
 
@@ -85,7 +88,8 @@ The extension provides five quality levels for processed images:
 Dialog Layout
 =============
 
-The image properties dialog features a responsive 3-row layout:
+The image properties dialog features a responsive 4-row layout, followed by
+the click behavior settings:
 
 **Row 1: Dimensions and Quality**
    - Display width in px (col-sm-4)
@@ -97,6 +101,15 @@ The image properties dialog features a responsive 3-row layout:
 
 **Row 3: Alternative Text**
    - Alternative Text for accessibility (full width)
+
+**Row 4: Caption**
+   - Caption textarea (full width)
+
+**Click behavior**
+   - Radio buttons: none, enlarge, link
+   - Link fields when "link" is selected
+
+For SVG images the quality selector preselects Print and is disabled.
 
 Visual Indicators
 =================
@@ -115,7 +128,7 @@ Backend Processing
 
 The backend automatically:
 
-1. **Detects SVG files** - Extracts dimensions from viewBox or width/height attributes
+1. **Detects SVG files** - By file extension; the dialog disables the quality selector for them
 2. **Calculates target dimensions** - Multiplies display dimensions by quality multiplier
 3. **Preserves aspect ratio** - Maintains original image proportions
 4. **Suggests optimal dimensions** - Provides backend dimension suggestions
@@ -128,7 +141,8 @@ Quality selection persists using:
 
 - **data-quality attribute** - Stores selected quality (none, standard, retina, ultra, print)
 - **Backward compatibility** - Maps legacy data-noscale to "No Scaling"
-- **Priority order** - data-quality > data-noscale > SVG default (print) > standard default (retina)
+- **Dialog preselection** - data-quality > data-noscale > SVG default (print) > standard default (retina).
+  On the frontend, an image without ``data-quality`` is rendered with Standard (1.0x)
 
 .. code-block:: html
    :caption: Rendered HTML with quality attribute

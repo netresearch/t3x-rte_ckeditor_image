@@ -50,6 +50,9 @@ mainAction()
 
 -  `mode`: Browser mode (default: `file` from route configuration).
 -  `bparams`: Browser parameters passed to file browser.
+-  `action` (POST body, else query string): `info` dispatches to :php:`infoAction()`,
+   `linkBrowser` or `linkbrowser` dispatches to :php:`linkBrowserAction()`.
+   Without `action`, the file browser is shown.
 
 **Usage example:**
 
@@ -90,6 +93,8 @@ infoAction()
       "height": 1080,
       "title": "Image title",
       "alt": "Alternative text",
+      "extension": "jpg",
+      "storageDriver": "Local",
       "processed": {
         "url": "/fileadmin/_processed_/image_hash.jpg",
         "width": 800,
@@ -102,6 +107,28 @@ infoAction()
         "cssClass": "CSS Class"
       }
     }
+
+linkBrowserAction()
+~~~~~~~~~~~~~~~~~~~
+
+..  php:method:: linkBrowserAction(ServerRequestInterface $request): ResponseInterface
+
+    Returns JSON with the URL of the TYPO3 link browser (route `wizard_link`)
+    for linking an image.
+
+    :param ServerRequestInterface $request: Server request.
+    :returns: JSON response `{"url": "..."}`, or `{"error": "..."}` with status 500.
+    :returntype: ResponseInterface
+
+    :AJAX Route: `rteckeditorimage_link_browser` → `/rte/image/linkbrowser`
+
+**Query parameters:**
+
+-  `P[pid]` (or `pid`): Page ID for the link browser context.
+-  `currentValue`: Current link value.
+
+The link type and field restrictions (`allowedTypes`, `blindLinkOptions`,
+`allowedOptions`, `blindLinkFields`) are read from the active RTE preset.
 
 ImageRenderingAdapter
 =====================
@@ -129,12 +156,13 @@ Methods
 renderImageAttributes()
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-..  php:method:: renderImageAttributes($content, $conf)
+..  php:method:: renderImageAttributes($content, $conf, $request)
 
     Processes :html:`<img>` tags in RTE content using the service pipeline.
 
     :param string $content: Current HTML content (single :html:`<img>` tag).
     :param array $conf: TypoScript configuration.
+    :param ServerRequestInterface $request: Current request.
     :returns: Processed HTML with updated image URL and attributes.
     :returntype: string
 
@@ -214,6 +242,38 @@ renderInlineLink()
     :returns: Rendered HTML with link wrapper.
     :returntype: string
 
+renderFigure()
+~~~~~~~~~~~~~~
+
+..  php:method:: renderFigure($content, $conf, $request)
+
+    Renders figure-wrapped images with caption support. This is the default
+    handler for :typoscript:`lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc`.
+    It handles :html:`<figure><img><figcaption>` and linked images
+    :html:`<figure><a><img></a><figcaption>`.
+
+    :param string|null $content: Complete figure HTML from :typoscript:`externalBlocks`; if empty, the current value of the ContentObjectRenderer is used.
+    :param array $conf: TypoScript configuration.
+    :param ServerRequestInterface $request: Current request.
+    :returns: Rendered HTML.
+    :returntype: string
+
+renderImages() and renderLink()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+..  php:method:: renderImages($content, $conf, $request)
+
+    `tags.a` handler that renders images inside :html:`<a>` tags and
+    reconstructs the :html:`<a>` wrapper.
+
+..  php:method:: renderLink($content, $conf, $request)
+
+    `externalBlocks.a` handler that receives the complete :html:`<a>...</a>`
+    HTML and renders the images inside it.
+
+The default TypoScript uses neither method. Both are kept for backward
+compatibility with custom TypoScript configurations.
+
 Service configuration
 =====================
 
@@ -240,7 +300,8 @@ If you were extending the legacy controllers via XCLASS, migrate to:
 #. **Template overrides** (recommended): Override Fluid templates in your site package.
    See :ref:`examples-template-overrides`.
 
-#. **Service decoration**: Decorate :php:`ImageResolverService` or :php:`ImageRenderingService`.
+#. **Service decoration**: Decorate :php:`ImageResolverService` or :php:`ImageRenderingService`
+   with a subclass of the decorated class.
    See :ref:`api-services`.
 
 The TypoScript interface remains 100% backward compatible - no changes required for standard usage.

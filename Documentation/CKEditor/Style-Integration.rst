@@ -24,11 +24,17 @@ Overview
 .. code-block:: javascript
 
    static get requires() {
-       return ['StyleUtils', 'GeneralHtmlSupport'];
+       return ['StyleUtils', 'GeneralHtmlSupport', 'WidgetToolbarRepository'];
    }
+
+``WidgetToolbarRepository`` provides the image balloon toolbar.
 
 .. warning::
    Both ``StyleUtils`` and ``GeneralHtmlSupport`` are **mandatory** for style functionality. Missing either plugin causes style drop-down to be disabled for images.
+
+.. note::
+   All style listeners check for the block image model element ``typo3image``.
+   Inline images (``typo3imageInline``) get no styles from the style drop-down.
 
 The Style System Problem
 =========================
@@ -56,9 +62,9 @@ After v13.0.0 (Fixed)
 
 .. code-block:: javascript
 
-   // Both dependencies required
+   // Both style dependencies required
    static get requires() {
-       return ['StyleUtils', 'GeneralHtmlSupport'];
+       return ['StyleUtils', 'GeneralHtmlSupport', 'WidgetToolbarRepository'];
    }
 
 **Result**: Full style system integration working correctly
@@ -285,7 +291,7 @@ Decoration Pattern
 Event: addModelHtmlClass
 -------------------------
 
-**Purpose**: Add CSS class to model element
+**Purpose**: Set the CSS classes of the model element
 
 **When Fired**: Style system applies a style (adds classes)
 
@@ -320,8 +326,15 @@ Event: addModelHtmlClass
 
 3. **Update Model**: ``writer.setAttribute('class', ..., selectable)``
 
-   - Apply classes to model element
+   - Replaces the whole ``class`` attribute of the model element with the
+     style's classes; existing classes, for example the toolbar alignment
+     class ``image-left``, are dropped
    - Triggers view update automatically
+
+.. note::
+   The toolbar alignment buttons (``setImageStyle``) work the other way round:
+   they remove every class that starts with ``image-`` and keep all other
+   classes.
 
 **Example Flow**::
 
@@ -335,7 +348,7 @@ Event: addModelHtmlClass
        ↓
    Model updated: class = 'float-left mr-3'
        ↓
-   View automatically updates: <img class="float-left mr-3" ... />
+   Data output: <figure class="image float-left mr-3"><img ... /></figure>
 
 Event: removeModelHtmlClass
 ----------------------------
@@ -402,7 +415,7 @@ Style Configuration (YAML)
 
 .. code-block:: yaml
 
-   # Configuration/RTE/Default.yaml
+   # EXT:my_sitepackage/Configuration/RTE/MyPreset.yaml
    editor:
      config:
        style:
@@ -427,7 +440,7 @@ Plugin Integration (JavaScript)
 
    export default class Typo3Image extends Core.Plugin {
        static get requires() {
-           return ['StyleUtils', 'GeneralHtmlSupport'];
+           return ['StyleUtils', 'GeneralHtmlSupport', 'WidgetToolbarRepository'];
        }
 
        init() {
@@ -523,7 +536,7 @@ Verify Dependencies
 .. code-block:: javascript
 
    static get requires() {
-       return ['StyleUtils', 'GeneralHtmlSupport'];  // Both required!
+       return ['StyleUtils', 'GeneralHtmlSupport', 'WidgetToolbarRepository'];  // StyleUtils and GeneralHtmlSupport required!
    }
 
 Verify Style Definitions
@@ -536,16 +549,6 @@ Verify Style Definitions
        - name: 'My Style'
          element: 'img'  # Must be 'img', not 'image'
          classes: ['my-class']
-
-Check Event Listeners
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: javascript
-
-   // Debug in browser console
-   const styleUtils = editor.plugins.get('StyleUtils');
-   console.log(styleUtils.listenerCount('isStyleEnabledForBlock'));
-   // Should be > 0
 
 Issue: Style Changes Not Applied
 ---------------------------------
@@ -563,15 +566,6 @@ Issue: Style Changes Not Applied
 3. CSS classes not defined in stylesheet
 
 **Solutions**:
-
-Verify GHS Listeners
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: javascript
-
-   const ghs = editor.plugins.get('GeneralHtmlSupport');
-   console.log(ghs.listenerCount('addModelHtmlClass'));
-   // Should be > 0
 
 Check Class Attribute Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -640,8 +634,8 @@ Multiple Class Styles
    // Results in model:
    class: 'img-fluid rounded shadow-sm d-block'
 
-   // View output:
-   <img class="img-fluid rounded shadow-sm d-block" src="..." />
+   // Data output:
+   <figure class="image img-fluid rounded shadow-sm d-block"><img src="..." /></figure>
 
 Conditional Style Availability
 -------------------------------
@@ -672,24 +666,9 @@ Conditional Style Availability
 Style Groups
 ------------
 
-.. code-block:: yaml
-
-   # Organize styles into groups
-   style:
-     definitions:
-       - name: 'Left Align'
-         element: 'img'
-         classes: ['float-left']
-       - name: 'Right Align'
-         element: 'img'
-         classes: ['float-right']
-       - name: 'Center Align'
-         element: 'img'
-         classes: ['mx-auto', 'd-block']
-
-     groupDefinitions:
-       - name: 'Image Alignment'
-         styles: ['Left Align', 'Right Align', 'Center Align']
+The CKEditor 5 style configuration has only ``definitions``.
+There is no option for custom style groups: the style drop-down groups the
+definitions automatically into block styles and text styles.
 
 Performance Considerations
 ==========================

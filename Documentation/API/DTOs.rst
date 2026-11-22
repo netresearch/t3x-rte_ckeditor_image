@@ -52,6 +52,8 @@ Properties
             public ?string $caption,         // Caption text (XSS-sanitized)
             public ?LinkDto $link,           // Link/popup configuration
             public bool $isMagicImage,       // Whether TYPO3 processing enabled
+            public ?string $figureClass = null, // Figure class for alignment (image-left, ...)
+            public ?string $figureWidth = null, // Normalized resize width from the figure (e.g. 26.43%)
         ) {}
     }
 
@@ -98,12 +100,21 @@ Property details
     :type: array<string,mixed>
     :required: true
 
-    Additional HTML attributes such as:
+    Additional HTML attributes. For FAL images, :php:`ImageResolverService`
+    sets:
 
-    -  `class`: CSS classes.
-    -  `style`: Inline styles.
-    -  `loading`: Lazy loading setting (`lazy`, `eager`).
-    -  `data-*`: Custom data attributes.
+    -  `class`: CSS classes from the source tag. Without a caption, the
+       figure alignment class (:confval:`figureClass <dto-figureclass>`) is
+       appended.
+    -  `id`: Element ID from the source tag.
+    -  `loading`: Lazy loading setting (`lazy`, `eager`), if configured.
+    -  `style`: Only without a caption and only when
+       :confval:`figureWidth <dto-figurewidth>` is set; the service composes
+       `width:<figureWidth>;height:auto` itself. A `style` attribute of the
+       source tag is never copied.
+
+    For images without a FAL file, only `class` and `id` of the source tag
+    are set (empty string when absent).
 
 ..  confval:: caption
     :name: dto-caption
@@ -125,6 +136,22 @@ Property details
     :required: true
 
     Indicates whether TYPO3 image processing (magic images) was applied.
+
+..  confval:: figureClass
+    :name: dto-figureclass
+    :type: ?string
+    :required: false
+
+    Class of the :html:`<figure>` element for alignment (`image-left`,
+    `image-center`, `image-right`).
+
+..  confval:: figureWidth
+    :name: dto-figurewidth
+    :type: ?string
+    :required: false
+
+    Resize width set by the author on the CKEditor 5 figure (for example
+    `26.43%`), already normalized.
 
 LinkDto
 =======
@@ -150,6 +177,7 @@ Properties
             public ?string $params,    // Additional URL parameters
             public bool $isPopup,      // Whether this is a popup/lightbox link
             public ?array $jsConfig,   // JavaScript configuration for lightbox
+            public ?string $rel = null, // Link rel attribute (e.g. noreferrer)
         ) {}
 
         /**
@@ -221,6 +249,14 @@ Property details
             'effect' => 'fade'
         ]
 
+..  confval:: rel
+    :name: linkdto-rel
+    :type: ?string
+    :required: false
+
+    Link :html:`rel` attribute, for example `noreferrer` for external links
+    with target `_blank`.
+
 Methods
 -------
 
@@ -235,15 +271,36 @@ Methods
     ..  code-block:: php
 
         // URL without query string
-        $dto = new LinkDto(url: '/page', params: '&L=1');
+        $dto = new LinkDto(
+            url: '/page',
+            target: null,
+            class: null,
+            params: '&L=1',
+            isPopup: false,
+            jsConfig: null,
+        );
         $dto->getUrlWithParams(); // '/page?L=1'
 
         // URL with existing query string
-        $dto = new LinkDto(url: '/page?foo=bar', params: '&L=1');
+        $dto = new LinkDto(
+            url: '/page?foo=bar',
+            target: null,
+            class: null,
+            params: '&L=1',
+            isPopup: false,
+            jsConfig: null,
+        );
         $dto->getUrlWithParams(); // '/page?foo=bar&L=1'
 
         // URL with fragment (preserved at end)
-        $dto = new LinkDto(url: '/page#section', params: '&L=1');
+        $dto = new LinkDto(
+            url: '/page#section',
+            target: null,
+            class: null,
+            params: '&L=1',
+            isPopup: false,
+            jsConfig: null,
+        );
         $dto->getUrlWithParams(); // '/page?L=1#section'
 
 Usage example

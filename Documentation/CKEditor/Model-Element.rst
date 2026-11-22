@@ -74,13 +74,13 @@ Block Image Schema (typo3image)
 
    editor.model.schema.register('typo3image', {
        inheritAllFrom: '$blockObject',
-       allowIn: ['$text', '$block'],
+       allowIn: ['$text'],
        allowAttributes: [
            'src', 'fileUid', 'fileTable',
            'alt', 'altOverride', 'title', 'titleOverride',
-           'class', 'enableZoom', 'width', 'height',
-           'htmlA', 'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle',
-           'imageLinkClass', 'imageLinkParams'
+           'class', 'enableZoom', 'noScale', 'width', 'height', 'quality',
+           'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle',
+           'imageLinkClass', 'imageLinkParams', 'imageLinkAttributes'
        ],
    });
 
@@ -95,13 +95,12 @@ Inline Image Schema (typo3imageInline)
 
    editor.model.schema.register('typo3imageInline', {
        inheritAllFrom: '$inlineObject',
-       allowIn: ['$block'],
        allowAttributes: [
            'src', 'fileUid', 'fileTable',
            'alt', 'altOverride', 'title', 'titleOverride',
            'class', 'enableZoom', 'width', 'height', 'noScale', 'quality',
            'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle',
-           'imageLinkClass', 'imageLinkParams'
+           'imageLinkClass', 'imageLinkParams', 'imageLinkAttributes'
        ],
    });
 
@@ -178,20 +177,21 @@ Inherits all properties from CKEditor's base ``$blockObject``:
 - **Focusable**: Can receive focus for editing
 - **Non-Breaking**: Cannot be split by Enter key
 
-allowIn: ['$text', '$block']
+allowIn: ['$text']
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Defines where ``typo3image`` can exist:
-
-- **$text**: Inside text content (inline-like behavior)
-- **$block**: Inside block elements (paragraphs, divs, etc.)
-
-**Result**: Images can be placed in any text flow or block context.
+Adds ``$text`` to the places where ``typo3image`` is allowed, in addition to
+those inherited from ``$blockObject``.
+``$block`` is deliberately not listed: a block image must not be inside a
+paragraph. ``insertObject()`` and upcast split the paragraph instead of
+nesting ``<figure>`` in ``<p>``.
+Images that flow with text use ``typo3imageInline``.
 
 allowAttributes: [...]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Lists all valid attributes for the model element. Attributes not listed are stripped.
+Lists all attributes the schema allows for the model element.
+The model writer does not check the schema (see :ref:`ckeditor-model-element-validation`).
 
 Attribute Reference
 ===================
@@ -532,9 +532,9 @@ enableZoom
 
 .. code-block:: html
 
-   <!-- When enableZoom is true -->
-   <a href="large-image.jpg" data-lightbox="gallery">
-       <img src="thumb.jpg" data-htmlarea-zoom="true" />
+   <!-- When enableZoom is true (Partials/Image/Link.html) -->
+   <a href="large-image.jpg" data-popup="true" rel="lightbox-group-rte">
+       <img src="thumb.jpg" ... />
    </a>
 
 **Usage**:
@@ -546,28 +546,15 @@ enableZoom
 Link Attributes
 ---------------
 
-htmlA
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: javascript
-
-   type: String
-   default: undefined
-
-**Purpose**: Complete HTML anchor tag wrapping the image (legacy attribute)
-
-**Format**: Full HTML string
-
-**Example**:
-
-.. code-block:: javascript
-
-   htmlA: '<a href="/page/123" target="_blank" title="Link title">...</a>'
-
 .. note::
-   This is a legacy attribute. Modern approach uses separate link attributes.
+   Link attributes use the prefix ``imageLink``.
+   ``htmlA`` and the link plugin's ``linkHref``, ``linkTarget``, ``linkTitle``
+   and so on are not part of the ``typo3image`` schema; each would add a second
+   ``<a>``. ``typo3imageInline`` inherits the text attributes from
+   ``$inlineObject``, so a post-fixer removes the link plugin's attributes from
+   an inline image that has ``imageLinkHref``.
 
-linkHref
+imageLinkHref
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
@@ -581,17 +568,17 @@ linkHref
 
 .. code-block:: javascript
 
-   linkHref: '/page/detail'
-   linkHref: 'https://example.com'
-   linkHref: 'mailto:info@example.com'
+   imageLinkHref: '/page/detail'
+   imageLinkHref: 'https://example.com'
+   imageLinkHref: 'mailto:info@example.com'
 
 **Usage**:
 
 .. code-block:: javascript
 
-   writer.setAttribute('linkHref', '/page/123', modelElement);
+   writer.setAttribute('imageLinkHref', '/page/123', modelElement);
 
-linkTarget
+imageLinkTarget
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
@@ -607,15 +594,15 @@ linkTarget
 
 .. code-block:: javascript
 
-   linkTarget: '_blank'
+   imageLinkTarget: '_blank'
 
 **Usage**:
 
 .. code-block:: javascript
 
-   writer.setAttribute('linkTarget', '_blank', modelElement);
+   writer.setAttribute('imageLinkTarget', '_blank', modelElement);
 
-linkTitle
+imageLinkTitle
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: javascript
@@ -629,15 +616,15 @@ linkTitle
 
 .. code-block:: javascript
 
-   linkTitle: 'Click to view product details'
+   imageLinkTitle: 'Click to view product details'
 
 **Usage**:
 
 .. code-block:: javascript
 
-   writer.setAttribute('linkTitle', 'Link description', modelElement);
+   writer.setAttribute('imageLinkTitle', 'Link description', modelElement);
 
-linkClass
+imageLinkClass
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. versionadded:: 13.5.0
@@ -653,15 +640,15 @@ linkClass
 
 .. code-block:: javascript
 
-   linkClass: 'external-link btn-primary'
+   imageLinkClass: 'external-link btn-primary'
 
 **Usage**:
 
 .. code-block:: javascript
 
-   writer.setAttribute('linkClass', 'my-link-class', modelElement);
+   writer.setAttribute('imageLinkClass', 'my-link-class', modelElement);
 
-linkParams
+imageLinkParams
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. versionadded:: 13.5.0
@@ -679,13 +666,13 @@ linkParams
 
 .. code-block:: javascript
 
-   linkParams: '&L=1&type=123'
+   imageLinkParams: '&L=1&type=123'
 
 **Usage**:
 
 .. code-block:: javascript
 
-   writer.setAttribute('linkParams', '&cHash=abc123', modelElement);
+   writer.setAttribute('imageLinkParams', '&cHash=abc123', modelElement);
 
 **TypoLink Integration**:
 
@@ -693,7 +680,7 @@ This corresponds to the fifth parameter in TYPO3's TypoLink format::
 
    url target class "title" additionalParams
    ↓                         ↓
-   linkHref                 linkParams
+   imageLinkHref             imageLinkParams
 
 Working with Model Elements
 ============================
@@ -866,27 +853,23 @@ Walking the Model Tree
    // Find all images in document
    const allImages = findAllImages(editor.model.document.getRoot());
 
+.. _ckeditor-model-element-validation:
+
 Attribute Validation
 ====================
 
 Allowed Attributes Enforcement
 -------------------------------
 
-CKEditor automatically strips attributes not in ``allowAttributes`` list:
+The methods of the model writer do not check the schema.
+``writer.setAttribute()`` sets an attribute even if ``allowAttributes`` does
+not list it. Check the schema yourself before setting an attribute:
 
 .. code-block:: javascript
 
-   // This attribute will be stripped
-   writer.setAttribute('invalidAttr', 'value', modelElement);
-
-   // Only these attributes are preserved
-   allowAttributes: [
-       'src', 'fileUid', 'fileTable',
-       'alt', 'altOverride', 'title', 'titleOverride',
-       'class', 'enableZoom', 'width', 'height',
-       'htmlA', 'linkHref', 'linkTarget', 'linkTitle',
-       'linkClass', 'linkParams'
-   ]
+   if (editor.model.schema.checkAttribute(modelElement, 'myAttr')) {
+       writer.setAttribute('myAttr', 'value', modelElement);
+   }
 
 Custom Validation
 -----------------
@@ -894,15 +877,16 @@ Custom Validation
 .. code-block:: javascript
 
    editor.model.schema.addAttributeCheck((context, attributeName) => {
-       // Only allow width/height with valid numeric values
-       if (attributeName === 'width' || attributeName === 'height') {
-           if (context.endsWith('typo3image')) {
-               const value = context.getAttribute(attributeName);
-               return /^\d+$/.test(value);  // Must be numeric
-           }
+       // Disallow zoom on inline images
+       if (attributeName === 'enableZoom' && context.endsWith('typo3imageInline')) {
+           return false;
        }
-       return true;
+       // Return nothing: the declarative rules and other callbacks decide
    });
+
+The callback receives the schema context and the attribute name, not the
+attribute value. Returning ``true`` overrides all declarative rules, so return
+a value only when the callback makes a decision.
 
 Model Change Listeners
 ======================
@@ -1021,7 +1005,7 @@ Monitor Model Changes
 .. code-block:: javascript
 
    editor.model.document.on('change', (evt, batch) => {
-       console.log('Model changed, batch type:', batch.type);
+       console.log('Is typing:', batch.isTyping);
        console.log('Is undoable:', batch.isUndoable);
 
        const changes = editor.model.document.differ.getChanges();
