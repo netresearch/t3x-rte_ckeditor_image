@@ -192,6 +192,16 @@ export async function cancelImageDialog(page: Page): Promise<void> {
 }
 
 /**
+ * Wait until every TYPO3 modal has been removed from the DOM.
+ *
+ * A closed modal stays in the DOM until its hide transition ends; opening
+ * the next dialog before that lets `.t3js-modal` match the old one.
+ */
+export async function waitForModalsRemoved(page: Page): Promise<void> {
+    await expect(page.locator('.t3js-modal')).toHaveCount(0, { timeout: 10000 });
+}
+
+/**
  * Get the HTML content of the CKEditor editing view DOM.
  *
  * NOTE: The editing view DOM may differ from CKEditor's data output.
@@ -250,6 +260,36 @@ export async function saveContentElement(page: Page): Promise<void> {
     ]);
     expect(response.status(), 'Saving the content element failed').toBeLessThan(400);
     await page.waitForLoadState('networkidle');
+}
+
+/**
+ * Name of the model element CKEditor has selected, or '' when the selection
+ * is not on an element (e.g. 'typo3image' after clicking a block image).
+ */
+export async function getSelectedModelElementName(page: Page): Promise<string> {
+    const frame = getModuleFrame(page);
+    return await frame.locator('.ck-editor__editable').first().evaluate((el) => {
+        const editor = (el as any).ckeditorInstance;
+        return editor?.model.document.selection.getSelectedElement()?.name ?? '';
+    });
+}
+
+/**
+ * Wait until CKEditor's model selection is on an image (block or inline).
+ */
+export async function waitForImageSelected(page: Page): Promise<void> {
+    await expect.poll(
+        () => getSelectedModelElementName(page),
+        { message: 'No image is selected in CKEditor' }
+    ).toMatch(/^typo3image(Inline)?$/);
+}
+
+/**
+ * Wait until CKEditor's focus tracker marks the editable as focused.
+ */
+export async function waitForEditorFocus(page: Page): Promise<void> {
+    const frame = getModuleFrame(page);
+    await expect(frame.locator('.ck-editor__editable').first()).toHaveClass(/ck-focused/);
 }
 
 /**

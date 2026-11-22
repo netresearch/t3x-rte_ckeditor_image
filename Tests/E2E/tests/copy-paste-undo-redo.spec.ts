@@ -4,7 +4,7 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, waitForCKEditor, getEditorHtml, getModuleFrame, selectImageInEditor, openImageEditDialog, confirmImageDialog, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, waitForCKEditor, getEditorHtml, getModuleFrame, selectImageInEditor, waitForImageSelected, waitForEditorFocus, openImageEditDialog, confirmImageDialog, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
 
 /**
  * E2E tests for copy/paste and undo/redo operations with images in CKEditor.
@@ -31,7 +31,7 @@ import { loginToBackend, navigateToContentEdit, waitForCKEditor, getEditorHtml, 
 async function focusEditable(page: Page): Promise<void> {
   const frame = getModuleFrame(page);
   await frame.locator('.ck-editor__editable').first().click();
-  await page.waitForTimeout(300);
+  await waitForEditorFocus(page);
 }
 
 /**
@@ -87,24 +87,19 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
 
     // Select the image by clicking on it
     await selectImageInEditor(page);
-    await page.waitForTimeout(500);
+    await waitForImageSelected(page);
 
     // Copy the selected image
     await page.keyboard.press('Control+c');
-    await page.waitForTimeout(500);
 
     // Move cursor to end of editor content to paste in a new position
     await page.keyboard.press('End');
-    await page.waitForTimeout(300);
 
     // Paste the image
     await page.keyboard.press('Control+v');
-    await page.waitForTimeout(1000);
 
     // Verify: should now have one more image than before
-    const afterPasteCount = await countTypo3Images(page);
-    console.log(`After paste image count: ${afterPasteCount}`);
-    expect(afterPasteCount).toBe(initialCount + 1);
+    await expect.poll(() => countTypo3Images(page)).toBe(initialCount + 1);
 
     // Verify: all images (original + pasted) should have data-htmlarea-file-uid
     const afterPasteUids = await getFileUids(page);
@@ -116,7 +111,7 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
 
     // The pasted image should have the same UID as the source
     expect(afterPasteUids).toContain(initialUids[0]);
-    expect(afterPasteUids.filter(uid => uid === initialUids[0]).length).toBe(2);
+    expect(afterPasteUids.filter(uid => uid === initialUids[0])).toHaveLength(2);
   });
 
   test.skip('undo removes pasted image', async ({ page }) => {
@@ -129,33 +124,24 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
 
     // Select and copy the image
     await selectImageInEditor(page);
-    await page.waitForTimeout(500);
+    await waitForImageSelected(page);
     await page.keyboard.press('Control+c');
-    await page.waitForTimeout(500);
 
     // Move cursor and paste
     await page.keyboard.press('End');
-    await page.waitForTimeout(300);
     await page.keyboard.press('Control+v');
-    await page.waitForTimeout(1000);
 
     // Verify paste happened
-    const afterPasteCount = await countTypo3Images(page);
-    console.log(`After paste: ${afterPasteCount} images (expected ${initialCount + 1})`);
-    expect(afterPasteCount).toBe(initialCount + 1);
+    await expect.poll(() => countTypo3Images(page)).toBe(initialCount + 1);
 
     // Focus the editable area to ensure undo targets CKEditor
     await focusEditable(page);
-    await page.waitForTimeout(300);
 
     // Undo the paste
     await page.keyboard.press('Control+z');
-    await page.waitForTimeout(1000);
 
     // Verify: should be back to original count
-    const afterUndoCount = await countTypo3Images(page);
-    console.log(`After undo: ${afterUndoCount} images (expected ${initialCount})`);
-    expect(afterUndoCount).toBe(initialCount);
+    await expect.poll(() => countTypo3Images(page)).toBe(initialCount);
   });
 
   test.skip('redo restores pasted image after undo', async ({ page }) => {
@@ -168,38 +154,27 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
 
     // Select, copy, move, paste
     await selectImageInEditor(page);
-    await page.waitForTimeout(500);
+    await waitForImageSelected(page);
     await page.keyboard.press('Control+c');
-    await page.waitForTimeout(500);
     await page.keyboard.press('End');
-    await page.waitForTimeout(300);
     await page.keyboard.press('Control+v');
-    await page.waitForTimeout(1000);
 
     // Verify paste
-    const afterPasteCount = await countTypo3Images(page);
-    expect(afterPasteCount).toBe(initialCount + 1);
+    await expect.poll(() => countTypo3Images(page)).toBe(initialCount + 1);
 
     // Undo
     await focusEditable(page);
-    await page.waitForTimeout(300);
     await page.keyboard.press('Control+z');
-    await page.waitForTimeout(1000);
 
     // Verify undo
-    const afterUndoCount = await countTypo3Images(page);
-    expect(afterUndoCount).toBe(initialCount);
+    await expect.poll(() => countTypo3Images(page)).toBe(initialCount);
 
     // Redo — try Ctrl+Y first (most common CKEditor redo shortcut)
     await focusEditable(page);
-    await page.waitForTimeout(300);
     await page.keyboard.press('Control+y');
-    await page.waitForTimeout(1000);
 
     // Verify: should have the pasted image back
-    const afterRedoCount = await countTypo3Images(page);
-    console.log(`After redo: ${afterRedoCount} images (expected ${initialCount + 1})`);
-    expect(afterRedoCount).toBe(initialCount + 1);
+    await expect.poll(() => countTypo3Images(page)).toBe(initialCount + 1);
 
     // Verify the restored image retains its data-htmlarea-file-uid
     const afterRedoUids = await getFileUids(page);
@@ -231,7 +206,7 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
       const checkboxDisabled = await altCheckbox.isDisabled();
       if (!checkboxDisabled) {
         await altCheckbox.click();
-        await page.waitForTimeout(300);
+        await expect(altInput).toBeEnabled();
       }
     }
 
@@ -241,23 +216,16 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
 
     // Confirm dialog to apply changes
     await confirmImageDialog(page);
-    await page.waitForTimeout(1000);
 
     // Verify alt was changed
-    const afterChangeAlt = await getFirstImageAlt(page);
-    console.log(`After dialog confirm alt: "${afterChangeAlt}"`);
-    expect(afterChangeAlt).toBe(modifiedAlt);
+    await expect.poll(() => getFirstImageAlt(page)).toBe(modifiedAlt);
 
     // Try to undo the dialog change
     await focusEditable(page);
-    await page.waitForTimeout(300);
     await page.keyboard.press('Control+z');
-    await page.waitForTimeout(1000);
 
     // Check if undo reverted the alt text
-    const afterUndoAlt = await getFirstImageAlt(page);
-    console.log(`After undo alt: "${afterUndoAlt}"`);
-    expect(afterUndoAlt).toBe(originalAlt);
+    await expect.poll(() => getFirstImageAlt(page)).toBe(originalAlt);
   });
 
   test('cut and paste image moves it to new position', async ({ page }) => {
@@ -273,31 +241,23 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
 
     // Select the image
     await selectImageInEditor(page);
-    await page.waitForTimeout(500);
+    await waitForImageSelected(page);
 
     // Cut the image
     await page.keyboard.press('Control+x');
-    await page.waitForTimeout(1000);
 
     // Verify image was removed (cut)
-    const afterCutCount = await countTypo3Images(page);
-    console.log(`After cut: ${afterCutCount} images (expected ${initialCount - 1})`);
-    expect(afterCutCount).toBe(initialCount - 1);
+    await expect.poll(() => countTypo3Images(page)).toBe(initialCount - 1);
 
     // Focus and move cursor to a different position
     await focusEditable(page);
-    await page.waitForTimeout(300);
     await page.keyboard.press('End');
-    await page.waitForTimeout(300);
 
     // Paste the image at the new position
     await page.keyboard.press('Control+v');
-    await page.waitForTimeout(1000);
 
     // Verify: should be back to original count (image moved, not duplicated)
-    const afterPasteCount = await countTypo3Images(page);
-    console.log(`After paste: ${afterPasteCount} images (expected ${initialCount})`);
-    expect(afterPasteCount).toBe(initialCount);
+    await expect.poll(() => countTypo3Images(page)).toBe(initialCount);
 
     // Verify the pasted image retains data-htmlarea-file-uid
     const afterPasteUids = await getFileUids(page);

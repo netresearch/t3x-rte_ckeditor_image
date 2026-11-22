@@ -4,7 +4,7 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, getEditorHtml, saveContentElement, requireCondition } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, getEditorHtml, saveContentElement, requireCondition, waitForEditorFocus, waitForImageSelected } from './helpers/typo3-backend';
 
 /**
  * E2E tests for inline image editing in CKEditor.
@@ -34,7 +34,7 @@ function getEditor(page: Page) {
  */
 async function focusEditor(page: Page): Promise<void> {
   await getEditor(page).click();
-  await page.waitForTimeout(300);
+  await waitForEditorFocus(page);
 }
 
 /**
@@ -271,7 +271,7 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
     const frame = getModuleFrame(page);
     const firstImage = frame.locator('.ck-editor__editable img').first();
     await firstImage.click();
-    await page.waitForTimeout(500);
+    await waitForImageSelected(page);
 
     // Check for balloon toolbar with toggle button
     // The toolbar should appear when image is selected
@@ -307,7 +307,7 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
     const frame = getModuleFrame(page);
     const blockImage = frame.locator('.ck-editor__editable figure img').first();
     await blockImage.click();
-    await page.waitForTimeout(500);
+    await waitForImageSelected(page);
 
     // Try to find and click toggle button
     // Note: actual button selector depends on implementation
@@ -315,16 +315,9 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
 
     if (await toggleButton.count() > 0) {
       await toggleButton.click();
-      await page.waitForTimeout(1000);
-
-      // Check if image is now inline
-      const newHtml = await getEditorHtml(page);
-      const nowHasInline = newHtml.includes('image-inline') || newHtml.includes('ck-widget_inline-image');
-
-      console.log(`After toggle - has inline widget: ${nowHasInline}`);
 
       // The image should now be inline
-      expect(nowHasInline).toBe(true);
+      await expect.poll(() => hasInlineImageWidget(page)).toBe(true);
     } else {
       console.log('Toggle button not found - implementation may differ');
       // Hard-fail: toggle button is expected in test content
@@ -350,14 +343,16 @@ test.describe('Toggle Image Type in CKEditor (#580)', () => {
     const captionedFigure = frame.locator('.ck-editor__editable figure:has(figcaption)').first();
     const imageInFigure = captionedFigure.locator('img').first();
     await imageInFigure.click();
-    await page.waitForTimeout(500);
+    await waitForImageSelected(page);
 
     // Try to toggle to inline
     const toggleButton = frame.locator('[data-command="toggleImageType"], .ck-button:has-text("Inline")').first();
 
     if (await toggleButton.count() > 0) {
+      // getEditor() takes the root editable: the caption is a nested editable too
+      const htmlBeforeToggle = await getEditor(page).innerHTML();
       await toggleButton.click();
-      await page.waitForTimeout(1000);
+      await expect.poll(() => getEditor(page).innerHTML()).not.toBe(htmlBeforeToggle);
 
       // After toggling to inline, caption should be removed
       const newHtml = await getEditorHtml(page);
@@ -395,9 +390,8 @@ test.describe('Inline Image Persistence (#580)', () => {
     // Reload the page
     await page.reload();
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
 
-    // Navigate back to content edit
+    // Navigate back to content edit (waits until CKEditor is rendered)
     await navigateToContentEdit(page, 7);
     await waitForCKEditor(page);
 

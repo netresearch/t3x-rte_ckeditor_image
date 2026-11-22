@@ -43,8 +43,8 @@ test.describe('Save-Render Roundtrip', () => {
     expect(editorHtml).toContain('<img');
     expect(editorHtml).toContain('data-htmlarea-file-uid');
 
+    // saveContentElement waits for the server's answer to the save POST
     await saveContentElement(page);
-    await page.waitForTimeout(2000);
 
     // Clear backend session before frontend navigation
     await page.context().clearCookies();
@@ -74,8 +74,8 @@ test.describe('Save-Render Roundtrip', () => {
     expect(hasAlt, 'Editor should have alt attribute on images').toBe(true);
 
     // Step 3: Save
+    // saveContentElement waits for the server's answer to the save POST
     await saveContentElement(page);
-    await page.waitForTimeout(2000);
 
     // Step 4: Re-open the same CE
     await navigateToContentEdit(page, 37);
@@ -127,10 +127,9 @@ test.describe('Save-Render Roundtrip', () => {
 
     // Confirm dialog and save
     await confirmImageDialog(page);
+    // saveContentElement waits for the server's answer to the save POST,
+    // so the record is stored before navigateToContentEdit() reloads it
     await saveContentElement(page);
-    // TYPO3 backend needs time to persist and re-render the edit form
-    // before navigateToContentEdit() will see the updated content
-    await page.waitForTimeout(2000);
 
     // Re-open the same CE and verify the alt text persisted
     await navigateToContentEdit(page, 38);
@@ -156,8 +155,8 @@ test.describe('Save-Render Roundtrip', () => {
 
     // Confirm and save
     await confirmImageDialog(page);
+    // saveContentElement waits for the server's answer to the save POST
     await saveContentElement(page);
-    await page.waitForTimeout(2000);
 
     // Re-open the same CE and verify zoom attribute persisted
     await navigateToContentEdit(page, 35);

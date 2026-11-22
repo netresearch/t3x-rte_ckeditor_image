@@ -172,13 +172,9 @@ test.describe('Image Dialog - Quality Selector', () => {
 
     // Confirm the dialog to apply changes — with diagnostics for CI debugging
     await confirmImageDialogWithDiagnostics(page);
-    await page.waitForTimeout(1000);
 
     // Verify data-quality attribute is set in editor HTML
-    const editorHtml = await getEditorHtml(page);
-    console.log(`Editor HTML contains data-quality: ${editorHtml.includes('data-quality')}`);
-
-    expect(editorHtml).toContain('data-quality="ultra"');
+    await expect.poll(() => getEditorHtml(page)).toContain('data-quality="ultra"');
     console.log('SUCCESS: data-quality="ultra" found in editor HTML');
   });
 
@@ -196,11 +192,9 @@ test.describe('Image Dialog - Quality Selector', () => {
     console.log('Selected quality: print');
 
     await confirmImageDialogWithDiagnostics(page);
-    await page.waitForTimeout(1000);
 
     // Verify it was applied
-    const htmlBeforeSave = await getEditorHtml(page);
-    expect(htmlBeforeSave).toContain('data-quality="print"');
+    await expect.poll(() => getEditorHtml(page)).toContain('data-quality="print"');
     console.log('Quality applied before save');
 
     // Save the content element

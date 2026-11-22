@@ -12,6 +12,7 @@ import {
   getEditorHtml,
   getModuleFrame,
   requireCondition,
+  waitForEditorFocus,
 } from './helpers/typo3-backend';
 
 /** Dedicated CE for this spec to prevent cross-file pollution (parallel execution) */
@@ -185,7 +186,10 @@ test.describe('Image Insertion', () => {
       // Wait for iframe content to load
       const browserFrame = page.frameLocator('.t3js-modal iframe, .modal-dialog iframe').first();
       await browserFrame.locator('body').waitFor({ timeout: 10000 });
-      await page.waitForTimeout(2000); // Extra wait for TYPO3's JS initialization
+      // TYPO3's JS has initialised once the folder tree or the file list is rendered
+      await expect(
+        browserFrame.locator('.node').or(browserFrame.locator('a[data-file-uid], a[data-close], .filelist-item a, table.table a[href*="file"], a:has-text(".jpg"), a:has-text(".png")')).first()
+      ).toBeAttached({ timeout: 10000 });
       console.log('Step 2: Element browser modal and iframe loaded');
 
       // Take screenshot before interaction
@@ -204,7 +208,7 @@ test.describe('Image Insertion', () => {
 
       if (await fileTreeNode.count() > 0) {
         await fileTreeNode.click();
-        await page.waitForTimeout(2000);
+        await expect(browserFrame.locator('a[data-file-uid], a[data-close], .filelist-item a, table.table a[href*="file"], a:has-text(".jpg"), a:has-text(".png")').first()).toBeAttached({ timeout: 10000 });
         console.log('Step 3: Clicked fileadmin folder in file tree');
       } else {
         console.log('Step 3: fileadmin node not found, trying user_upload directly');
@@ -215,7 +219,7 @@ test.describe('Image Insertion', () => {
 
         if (await userUploadNode.count() > 0) {
           await userUploadNode.click();
-          await page.waitForTimeout(2000);
+          await expect(browserFrame.locator('a[data-file-uid], a[data-close], .filelist-item a, table.table a[href*="file"], a:has-text(".jpg"), a:has-text(".png")').first()).toBeAttached({ timeout: 10000 });
         }
       }
 
@@ -248,8 +252,11 @@ test.describe('Image Insertion', () => {
         }
       }
 
-      // Step 5: Wait for modal to close and image to be inserted
-      await page.waitForTimeout(3000);
+      // Step 5: Wait for the image to be inserted
+      await expect.poll(
+        () => frame.locator('.ck-editor__editable img').count(),
+        { timeout: 10000 }
+      ).toBeGreaterThan(initialImageCount);
 
       // Verify image was inserted
       const newImageCount = await frame.locator('.ck-editor__editable img').count();
@@ -368,12 +375,13 @@ test.describe('Image Insertion', () => {
       // Focus the editor and position cursor after the existing image
       const editor = frame.locator('.ck-editor__editable').first();
       await editor.click();
-      await page.waitForTimeout(300);
+      await waitForEditorFocus(page);
 
       // Press End to move cursor to end of content, then Enter for a new line
+      const paragraphsBefore = await editor.locator('p').count();
       await page.keyboard.press('End');
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(300);
+      await expect.poll(() => editor.locator('p').count()).toBeGreaterThan(paragraphsBefore);
 
       // Click the image insert button
       const imageButton = frame.locator(
@@ -395,7 +403,9 @@ test.describe('Image Insertion', () => {
 
       const browserFrame = page.frameLocator('.t3js-modal iframe, .modal-dialog iframe').first();
       await browserFrame.locator('body').waitFor({ timeout: 10000 });
-      await page.waitForTimeout(2000);
+      await expect(
+        browserFrame.locator('.node').or(browserFrame.locator('a[data-file-uid], a[data-close], .filelist-item a, table.table a[href*="file"], a:has-text(".jpg"), a:has-text(".png")')).first()
+      ).toBeAttached({ timeout: 10000 });
 
       // Select a file (same approach as the single insertion test)
       const fileItem = browserFrame.locator(
@@ -415,7 +425,10 @@ test.describe('Image Insertion', () => {
       }
 
       // Wait for insertion
-      await page.waitForTimeout(3000);
+      await expect.poll(
+        () => frame.locator('.ck-editor__editable img').count(),
+        { timeout: 10000 }
+      ).toBeGreaterThan(initialImageCount);
 
       // Verify second image was inserted
       const newImageCount = await frame.locator('.ck-editor__editable img').count();

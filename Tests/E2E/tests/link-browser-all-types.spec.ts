@@ -32,7 +32,6 @@ async function openLinkBrowser(page: import('@playwright/test').Page): Promise<v
   const linkRadio = page.locator('#clickBehavior-link');
   await expect(linkRadio, 'Link radio button not found in image dialog').toBeVisible();
   await linkRadio.click();
-  await page.waitForTimeout(500);
 
   // Click Browse button to open link browser
   const browseButton = page.locator('button:has-text("Browse"), .btn:has-text("Browse")');
@@ -43,8 +42,11 @@ async function openLinkBrowser(page: import('@playwright/test').Page): Promise<v
   const linkBrowserIframe = page.locator('.t3js-modal iframe').last();
   await expect(linkBrowserIframe).toBeVisible({ timeout: 10000 });
 
-  // Give the iframe content time to load
-  await page.waitForTimeout(2000);
+  // Wait until the iframe content has rendered its link type tabs
+  await expect(
+    getLinkBrowserFrame(page).locator('.nav-tabs .nav-link, .nav-tabs .nav-item a, [role="tab"]').first(),
+    'Link browser tabs did not render'
+  ).toBeVisible({ timeout: 10000 });
 }
 
 /**
@@ -136,7 +138,6 @@ test.describe('Link Browser - All Types', () => {
     ).first();
     await expect(urlTab, 'URL tab not found in link browser').toBeVisible();
     await urlTab.click();
-    await page.waitForTimeout(1000);
 
     // Find the URL input field inside the URL tab panel
     const urlInput = linkBrowserFrame.locator(
@@ -156,11 +157,9 @@ test.describe('Link Browser - All Types', () => {
       await submitButton.click();
     }
 
-    // Wait for the link browser to close and value to be inserted
-    await page.waitForTimeout(2000);
-
     // Verify the URL was inserted into the image dialog's link href field
     const linkHrefInput = page.locator('#rteckeditorimage-linkHref');
+    await expect.poll(() => linkHrefInput.inputValue(), { timeout: 10000 }).toContain('example.com');
     const linkValue = await linkHrefInput.inputValue();
     console.log(`Link href value after URL selection: "${linkValue}"`);
 
@@ -181,7 +180,6 @@ test.describe('Link Browser - All Types', () => {
     ).first();
     await expect(emailTab, 'Email tab not found in link browser').toBeVisible();
     await emailTab.click();
-    await page.waitForTimeout(1000);
 
     // Find the email input field
     const emailInput = linkBrowserFrame.locator(
@@ -201,11 +199,9 @@ test.describe('Link Browser - All Types', () => {
       await submitButton.click();
     }
 
-    // Wait for the link browser to close
-    await page.waitForTimeout(2000);
-
     // Verify the mailto: link was inserted
     const linkHrefInput = page.locator('#rteckeditorimage-linkHref');
+    await expect.poll(async () => (await linkHrefInput.inputValue()).toLowerCase(), { timeout: 10000 }).toContain('mailto:');
     const linkValue = await linkHrefInput.inputValue();
     console.log(`Link href value after email entry: "${linkValue}"`);
 
@@ -236,7 +232,6 @@ test.describe('Link Browser - All Types', () => {
     }
 
     await telTab.click();
-    await page.waitForTimeout(1000);
 
     // Find the telephone input field
     const telInput = linkBrowserFrame.locator(
@@ -256,11 +251,9 @@ test.describe('Link Browser - All Types', () => {
       await submitButton.click();
     }
 
-    // Wait for the link browser to close
-    await page.waitForTimeout(2000);
-
     // Verify the tel: link was inserted
     const linkHrefInput = page.locator('#rteckeditorimage-linkHref');
+    await expect.poll(async () => (await linkHrefInput.inputValue()).toLowerCase(), { timeout: 10000 }).toContain('tel:');
     const linkValue = await linkHrefInput.inputValue();
     console.log(`Link href value after telephone entry: "${linkValue}"`);
 

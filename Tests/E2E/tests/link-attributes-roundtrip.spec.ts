@@ -36,8 +36,8 @@ async function getDialogValues(page: Page): Promise<{
   linkParams: string;
   clickBehavior: string;
 }> {
-  // Wait for dialog to be fully loaded
-  await page.waitForTimeout(300);
+  // Wait until the dialog has rendered its link fields
+  await expect(page.locator('#rteckeditorimage-linkHref')).toBeAttached();
 
   const linkHref = await page.locator('#rteckeditorimage-linkHref').inputValue().catch(() => '');
   const linkTarget = await page.locator('#rteckeditorimage-linkTarget').inputValue().catch(() => '');
@@ -70,7 +70,7 @@ async function setDialogValues(page: Page, values: {
   const linkRadio = page.locator('#clickBehavior-link');
   if (await linkRadio.count() > 0) {
     await linkRadio.click();
-    await page.waitForTimeout(300); // Wait for fields to appear
+    await expect(page.locator('#rteckeditorimage-linkHref')).toBeVisible();
   }
 
   if (values.linkHref !== undefined) {
@@ -140,9 +140,8 @@ test.describe('Link Attributes Round-Trip Persistence', () => {
     // Step 7: Reload the page to simulate "close and edit again"
     await page.reload();
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
 
-    // Step 8: Navigate back to content edit
+    // Step 8: Navigate back to content edit (waits until CKEditor is rendered)
     await navigateToContentEdit(page, CE_LINK);
     await waitForCKEditor(page);
 

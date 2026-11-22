@@ -45,7 +45,7 @@ test.describe('Image Dialog Link Browser', () => {
     console.log(`Link radio buttons found: ${linkRadioCount}`);
     if (linkRadioCount > 0) {
       await linkRadio.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator('input[name="linkHref"]')).toBeVisible();
     }
 
     // Click Browse button to open link browser
@@ -85,7 +85,7 @@ test.describe('Image Dialog Link Browser', () => {
     // Select "Link" radio button
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
     await linkRadio.click();
-    await page.waitForTimeout(500);
+    await expect(page.locator('input[name="linkHref"]')).toBeVisible();
 
     // Get the link input field and check initial value
     const linkInput = page.locator('input[name="linkHref"]');
@@ -99,10 +99,10 @@ test.describe('Image Dialog Link Browser', () => {
     // Wait for link browser iframe to load
     console.log('Waiting for link browser iframe...');
     await page.waitForSelector('.t3js-modal iframe, .modal-dialog iframe', { timeout: 10000 });
-    await page.waitForTimeout(2000); // Wait for iframe content to load
 
-    // Get the link browser iframe
+    // Get the link browser iframe and wait until its page tree has rendered
     const linkBrowserFrame = page.frameLocator('.t3js-modal iframe, .modal-dialog iframe').last();
+    await expect(linkBrowserFrame.locator('.node[title*="- Home"]').first()).toBeAttached({ timeout: 10000 });
 
     // Take screenshot of link browser
     await page.screenshot({ path: 'test-results/link-browser-before-select.png' });
@@ -136,9 +136,9 @@ test.describe('Image Dialog Link Browser', () => {
       // and Playwright won't click hidden elements even with force:true
       await homePageLink.evaluate((el: HTMLElement) => el.click());
 
-      // Wait for the link browser to close and link to be inserted
+      // Wait for the link to be inserted
       console.log('Waiting for link to be inserted...');
-      await page.waitForTimeout(3000);
+      await expect(linkInput).not.toHaveValue(initialValue, { timeout: 10000 });
 
       // Check if link was inserted
       const newValue = await linkInput.inputValue();
@@ -157,7 +157,7 @@ test.describe('Image Dialog Link Browser', () => {
         const linkText = await anyPageLink.textContent();
         console.log(`Found page link: ${linkText}`);
         await anyPageLink.click();
-        await page.waitForTimeout(3000);
+        await expect(linkInput).not.toHaveValue('', { timeout: 10000 });
 
         const newValue = await linkInput.inputValue();
         console.log(`New link value: "${newValue}"`);
@@ -184,7 +184,7 @@ test.describe('Image Dialog Link Browser', () => {
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
     if (await linkRadio.count() > 0) {
       await linkRadio.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator('input[name="linkHref"]')).toBeVisible();
     }
 
     // Get the link input field before opening browser
@@ -205,9 +205,6 @@ test.describe('Image Dialog Link Browser', () => {
     if (await pageLink.count() > 0) {
       await pageLink.click();
 
-      // Wait for the modal to close and link to be inserted
-      await page.waitForTimeout(2000);
-
       // Check if the link browser modal closed (no remaining link browser iframes)
       await expect(page.locator('.t3js-modal iframe, .modal-dialog iframe')).toHaveCount(0);
 
@@ -224,13 +221,13 @@ test.describe('Image Dialog Link Browser', () => {
       const pageTab = iframe.locator('a:has-text("Page"), [data-identifier="page"]');
       if (await pageTab.count() > 0) {
         await pageTab.click();
-        await page.waitForTimeout(1000);
 
-        // Now try to find a page link
+        // Now try to find a page link, once the page tab has rendered its tree
         const pageLinks = iframe.locator('.page-tree a, [data-page-id]');
+        await expect(pageLinks.or(iframe.locator('.node')).first()).toBeAttached({ timeout: 10000 });
         if (await pageLinks.count() > 0) {
           await pageLinks.first().click();
-          await page.waitForTimeout(2000);
+          await expect(linkInput).not.toHaveValue('', { timeout: 10000 });
 
           const newValue = await linkInput.inputValue();
           expect(newValue).toBeTruthy();
@@ -240,6 +237,18 @@ test.describe('Image Dialog Link Browser', () => {
   });
 
   test('link browser closes without error on cancel', async ({ page }) => {
+    // Collect errors from the start, so errors thrown while the link browser
+    // opens and closes are recorded too.
+    const consoleErrors: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+    page.on('pageerror', error => {
+      consoleErrors.push(error.message);
+    });
+
     await loginToBackend(page);
     await navigateToContentEdit(page);
 
@@ -253,7 +262,7 @@ test.describe('Image Dialog Link Browser', () => {
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
     if (await linkRadio.count() > 0) {
       await linkRadio.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator('input[name="linkHref"]')).toBeVisible();
     }
 
     // Click Browse button
@@ -272,16 +281,8 @@ test.describe('Image Dialog Link Browser', () => {
       await page.keyboard.press('Escape');
     }
 
-    // Wait a moment for modal to close
-    await page.waitForTimeout(1000);
-
-    // Check no JavaScript errors in console
-    const consoleErrors: string[] = [];
-    page.on('console', msg => {
-      if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
-      }
-    });
+    // Wait for the link browser modal to close
+    await expect(page.locator('.modal-dialog iframe, .t3js-modal iframe')).toHaveCount(0);
 
     // The image edit dialog should still be visible
     const imageDialog = page.locator('.t3js-modal:has(input[name="alt"]), .modal-dialog:has(input[name="alt"])');
@@ -293,7 +294,7 @@ test.describe('Image Dialog Link Browser', () => {
       e.includes('TypeError')
     );
 
-    expect(criticalErrors.length).toBe(0);
+    expect(criticalErrors).toHaveLength(0);
   });
 });
 
@@ -327,15 +328,17 @@ test.describe('Link Browser Error Handling', () => {
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
     if (await linkRadio.count() > 0) {
       await linkRadio.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator('input[name="linkHref"]')).toBeVisible();
     }
 
     // Click Browse button
     const browseButton = page.locator('button:has-text("Browse"), .btn:has-text("Browse")');
     await browseButton.click();
 
-    // Wait for link browser
-    await page.waitForTimeout(3000);
+    // Wait until the link browser's own scripts have rendered its page tree
+    await expect(
+      page.frameLocator('.modal-dialog iframe, .t3js-modal iframe').last().locator('.node').first()
+    ).toBeAttached({ timeout: 10000 });
 
     // Check for the specific error we're fixing
     const hasModelError = errors.some(e => e.includes("Cannot read properties of undefined (reading 'model')"));
@@ -371,26 +374,24 @@ test.describe('Link Browser Error Handling', () => {
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
     if (await linkRadio.count() > 0) {
       await linkRadio.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator('input[name="linkHref"]')).toBeVisible();
     }
 
     // Click Browse button
     const browseButton = page.locator('button:has-text("Browse"), .btn:has-text("Browse")');
     await browseButton.click();
 
-    await page.waitForTimeout(3000);
-
     // Should have made request to our linkBrowser action
-    const hasLinkBrowserRequest = requests.some(url =>
-      url.includes('action=linkBrowser') || url.includes('linkbrowser')
-    );
-    expect(hasLinkBrowserRequest).toBe(true);
+    await expect.poll(
+      () => requests.some(url => url.includes('action=linkBrowser') || url.includes('linkbrowser')),
+      { timeout: 10000 }
+    ).toBe(true);
 
     // Should have made request to wizard_link route
-    const hasWizardLinkRequest = requests.some(url =>
-      url.includes('wizard/link') || url.includes('wizard_link')
-    );
-    expect(hasWizardLinkRequest).toBe(true);
+    await expect.poll(
+      () => requests.some(url => url.includes('wizard/link') || url.includes('wizard_link')),
+      { timeout: 10000 }
+    ).toBe(true);
   });
 
   /**
@@ -421,7 +422,7 @@ test.describe('Link Browser Error Handling', () => {
     const linkRadio = page.locator('input[name="clickBehavior"][value="link"]');
     if (await linkRadio.count() > 0) {
       await linkRadio.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator('input[name="linkHref"]')).toBeVisible();
     }
 
     // Drop the inline labels right before the click, so only the link
