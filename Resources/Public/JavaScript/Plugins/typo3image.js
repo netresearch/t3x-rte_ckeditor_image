@@ -1908,6 +1908,79 @@ function addExtraLinkAttributes(linkAttributes, modelElement) {
     }
 }
 
+/**
+ * Check if the class attribute of a model element holds all given classes.
+ *
+ * @param {Element} item - The model element
+ * @param {string[]} classes - The classes to look for
+ * @return {boolean} True if the element has a string class with all of them
+ */
+function hasAllClasses(item, classes) {
+    const classAttribute = item.getAttribute('class');
+    if (!classAttribute || typeof classAttribute !== 'string') {
+        return false;
+    }
+    const classlist = new Set(classAttribute.split(' '));
+    return classes.every(value => classlist.has(value));
+}
+
+/**
+ * Add the image flags of a model element to the attributes of its view <img>:
+ * the alt/title overrides, click-to-enlarge, no-scale and the quality.
+ *
+ * @param {Object} attributes - The view attributes, changed in place
+ * @param {Element} modelElement - The typo3image or typo3imageInline element
+ */
+function addImageFlagAttributes(attributes, modelElement) {
+    if (modelElement.getAttribute('titleOverride')) {
+        attributes['data-title-override'] = true;
+    }
+    if (modelElement.getAttribute('altOverride')) {
+        attributes['data-alt-override'] = true;
+    }
+    if (modelElement.getAttribute('enableZoom')) {
+        attributes['data-htmlarea-zoom'] = true;
+    }
+    if (modelElement.getAttribute('noScale')) {
+        attributes['data-noscale'] = true;
+    }
+    const quality = modelElement.getAttribute('quality') || '';
+    if (quality) {
+        attributes['data-quality'] = quality;
+    }
+}
+
+/**
+ * Build the attributes of the view <a> of an image with its own link.
+ *
+ * Optional attributes are added only when they have a value. The link
+ * parameters go into data-link-params: TYPO3's frontend rendering appends
+ * them to the URL, so they are not appended to href here, which would double
+ * them on every save/load cycle.
+ *
+ * @param {Element} modelElement - The typo3image or typo3imageInline element
+ * @return {Object} The attributes of the <a>
+ */
+function getImageLinkViewAttributes(modelElement) {
+    const linkAttributes = {
+        href: modelElement.getAttribute('imageLinkHref')
+    };
+    const optional = {
+        target: 'imageLinkTarget',
+        title: 'imageLinkTitle',
+        class: 'imageLinkClass',
+        'data-link-params': 'imageLinkParams'
+    };
+    for (const [viewName, modelName] of Object.entries(optional)) {
+        const value = modelElement.getAttribute(modelName);
+        if (value?.trim()) {
+            linkAttributes[viewName] = value;
+        }
+    }
+    addExtraLinkAttributes(linkAttributes, modelElement);
+    return linkAttributes;
+}
+
 export default class Typo3Image extends Plugin {
     static pluginName = 'Typo3Image';
 
@@ -2082,18 +2155,13 @@ export default class Typo3Image extends Plugin {
 
         // Add listener to check if style is active for `img` element, when a `typo3image` element is selected
         this.listenTo(styleUtils, 'isStyleActiveForBlock', (event, [style, element]) => {
-            if (style.element === 'img') {
-                for (const item of editor.model.document.selection.getFirstRange().getItems()) {
-                    if (item.name === 'typo3image') {
-                        const classAttribute = item.getAttribute('class');
-                        if (classAttribute && typeof classAttribute === 'string') {
-                            const classlist = new Set(classAttribute.split(' '));
-                            if (style.classes.filter(value => !classlist.has(value)).length === 0) {
-                                event.return = true;
-                                break
-                            }
-                        }
-                    }
+            if (style.element !== 'img') {
+                return;
+            }
+            for (const item of editor.model.document.selection.getFirstRange().getItems()) {
+                if (item.name === 'typo3image' && hasAllClasses(item, style.classes)) {
+                    event.return = true;
+                    break;
                 }
             }
         })
@@ -2949,26 +3017,7 @@ export default class Typo3Image extends Plugin {
                 attributes['src'] = cleanSrc;
             }
 
-            if (modelElement.getAttribute('titleOverride')) {
-                attributes['data-title-override'] = true
-            }
-
-            if (modelElement.getAttribute('altOverride')) {
-                attributes['data-alt-override'] = true
-            }
-
-            if (modelElement.getAttribute('enableZoom')) {
-                attributes['data-htmlarea-zoom'] = true
-            }
-
-            if (modelElement.getAttribute('noScale')) {
-                attributes['data-noscale'] = true
-            }
-
-            const quality = modelElement.getAttribute('quality') || '';
-            if (quality) {
-                attributes['data-quality'] = quality
-            }
+            addImageFlagAttributes(attributes, modelElement);
 
             // Add data-caption attribute for PHP backend compatibility
             // The caption is stored in typo3imageCaption child element
@@ -2993,38 +3042,8 @@ export default class Typo3Image extends Plugin {
             // link indicator from duplicating our custom indicator badges (#687)
             const linkHref = modelElement.getAttribute('imageLinkHref');
             if (wrapInLink && isValidLink(linkHref)) {
-                const linkAttributes = {
-                    href: linkHref
-                };
-
-                // Add optional link attributes only if they have values
-                const linkTarget = modelElement.getAttribute('imageLinkTarget');
-                if (linkTarget?.trim()) {
-                    linkAttributes.target = linkTarget;
-                }
-
-                const linkTitle = modelElement.getAttribute('imageLinkTitle');
-                if (linkTitle?.trim()) {
-                    linkAttributes.title = linkTitle;
-                }
-
-                const linkClass = modelElement.getAttribute('imageLinkClass');
-                if (linkClass?.trim()) {
-                    linkAttributes.class = linkClass;
-                }
-
-                // Store linkParams as data attribute for TYPO3 to process on render
-                // TYPO3's frontend rendering will append these to the final URL
-                // We don't append to href here to avoid doubling on save/load cycles
-                const linkParams = modelElement.getAttribute('imageLinkParams');
-                if (linkParams?.trim()) {
-                    linkAttributes['data-link-params'] = linkParams;
-                }
-
-                addExtraLinkAttributes(linkAttributes, modelElement);
-
                 // Wrap image in link element
-                return writer.createContainerElement('a', linkAttributes, imgElement);
+                return writer.createContainerElement('a', getImageLinkViewAttributes(modelElement), imgElement);
             }
 
             return imgElement;
@@ -3212,26 +3231,7 @@ export default class Typo3Image extends Plugin {
                 attributes['src'] = cleanSrc;
             }
 
-            if (modelElement.getAttribute('titleOverride')) {
-                attributes['data-title-override'] = true;
-            }
-
-            if (modelElement.getAttribute('altOverride')) {
-                attributes['data-alt-override'] = true;
-            }
-
-            if (modelElement.getAttribute('enableZoom')) {
-                attributes['data-htmlarea-zoom'] = true;
-            }
-
-            if (modelElement.getAttribute('noScale')) {
-                attributes['data-noscale'] = true;
-            }
-
-            const quality = modelElement.getAttribute('quality') || '';
-            if (quality) {
-                attributes['data-quality'] = quality;
-            }
+            addImageFlagAttributes(attributes, modelElement);
 
             // Ensure image-inline class is present
             const existingClasses = (attributes['class'] || '').split(/\s+/);
@@ -3247,33 +3247,7 @@ export default class Typo3Image extends Plugin {
             // wrapInLink=false is used by editing downcast to prevent double link icon (#687)
             const linkHref = modelElement.getAttribute('imageLinkHref');
             if (wrapInLink && isValidLink(linkHref)) {
-                const linkAttributes = {
-                    href: linkHref
-                };
-
-                const linkTarget = modelElement.getAttribute('imageLinkTarget');
-                if (linkTarget?.trim()) {
-                    linkAttributes.target = linkTarget;
-                }
-
-                const linkTitle = modelElement.getAttribute('imageLinkTitle');
-                if (linkTitle?.trim()) {
-                    linkAttributes.title = linkTitle;
-                }
-
-                const linkClass = modelElement.getAttribute('imageLinkClass');
-                if (linkClass?.trim()) {
-                    linkAttributes.class = linkClass;
-                }
-
-                const linkParams = modelElement.getAttribute('imageLinkParams');
-                if (linkParams?.trim()) {
-                    linkAttributes['data-link-params'] = linkParams;
-                }
-
-                addExtraLinkAttributes(linkAttributes, modelElement);
-
-                return writer.createContainerElement('a', linkAttributes, imgElement);
+                return writer.createContainerElement('a', getImageLinkViewAttributes(modelElement), imgElement);
             }
 
             return imgElement;
