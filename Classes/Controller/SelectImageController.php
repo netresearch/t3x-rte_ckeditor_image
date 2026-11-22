@@ -197,6 +197,24 @@ class SelectImageController extends ElementBrowserController
         }
 
         // Default: show file browser
+        $queryParams = $this->withDefaultImageFileExtensions($queryParams);
+        $queryParams = $this->withDefaultUploadFolder($queryParams);
+
+        $request = $request->withQueryParams($queryParams);
+
+        return parent::mainAction($request);
+    }
+
+    /**
+     * Fill an empty allowed-extensions slot of bparams (index 3) with
+     * $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'].
+     *
+     * @param array<array-key, mixed> $queryParams
+     *
+     * @return array<array-key, mixed>
+     */
+    private function withDefaultImageFileExtensions(array $queryParams): array
+    {
         $rawBparams = $queryParams['bparams'] ?? '';
         $bparams    = explode('|', is_string($rawBparams) ? $rawBparams : '');
 
@@ -213,10 +231,22 @@ class SelectImageController extends ElementBrowserController
             $queryParams['bparams'] = implode('|', $bparams);
         }
 
-        // Resolve default upload folder for users WITHOUT explicit folder context
-        // This fixes issue #290: non-admin users need explicit folder context
-        // to avoid InsufficientFolderAccessPermissionsException
-        // IMPORTANT: Only set if NOT already provided - allows folder browsing navigation
+        return $queryParams;
+    }
+
+    /**
+     * Resolve the default upload folder for users WITHOUT explicit folder context.
+     *
+     * This fixes issue #290: non-admin users need explicit folder context
+     * to avoid InsufficientFolderAccessPermissionsException.
+     * IMPORTANT: Only set if NOT already provided - allows folder browsing navigation.
+     *
+     * @param array<array-key, mixed> $queryParams
+     *
+     * @return array<array-key, mixed>
+     */
+    private function withDefaultUploadFolder(array $queryParams): array
+    {
         if (
             !isset($queryParams['expandFolder'])
             && isset($GLOBALS['BE_USER'])
@@ -235,9 +265,7 @@ class SelectImageController extends ElementBrowserController
             }
         }
 
-        $request = $request->withQueryParams($queryParams);
-
-        return parent::mainAction($request);
+        return $queryParams;
     }
 
     /**
@@ -355,8 +383,6 @@ class SelectImageController extends ElementBrowserController
      */
     protected function buildLinkBrowserParams(array $rteConfig): array
     {
-        $params = [];
-
         // Extract buttons.link.options.removeItems (always applied)
         $buttons      = is_array($rteConfig['buttons'] ?? null) ? $rteConfig['buttons'] : [];
         $buttonConfig = is_array($buttons['link'] ?? null) ? $buttons['link'] : [];
@@ -369,7 +395,31 @@ class SelectImageController extends ElementBrowserController
             $removeItems = $buttonConfig['options']['removeItems'];
         }
 
-        // Link type restrictions: allowedTypes (whitelist) takes precedence
+        $params = $this->buildLinkTypeParams($rteConfig, $removeItems);
+
+        // Link field restrictions: allowedOptions (whitelist) takes precedence
+        if (isset($rteConfig['allowedOptions']) && is_string($rteConfig['allowedOptions'])) {
+            $params['allowedOptions'] = $rteConfig['allowedOptions'];
+        } elseif (isset($rteConfig['blindLinkFields']) && is_string($rteConfig['blindLinkFields'])) {
+            $params['blindLinkFields'] = $rteConfig['blindLinkFields'];
+        }
+
+        return $params;
+    }
+
+    /**
+     * Build the link type restriction: allowedTypes (whitelist) takes precedence
+     * over blindLinkOptions; removeItems is applied to either.
+     *
+     * @param array<string, mixed> $rteConfig   The resolved RTE configuration
+     * @param string               $removeItems Comma-separated buttons.link.options.removeItems
+     *
+     * @return array<string, string> Either allowedTypes, blindLinkOptions or nothing
+     */
+    private function buildLinkTypeParams(array $rteConfig, string $removeItems): array
+    {
+        $params = [];
+
         if (isset($rteConfig['allowedTypes']) && is_string($rteConfig['allowedTypes'])) {
             $allowed = GeneralUtility::trimExplode(',', $rteConfig['allowedTypes'], true);
 
@@ -399,13 +449,6 @@ class SelectImageController extends ElementBrowserController
             if ($blind !== []) {
                 $params['blindLinkOptions'] = implode(',', $blind);
             }
-        }
-
-        // Link field restrictions: allowedOptions (whitelist) takes precedence
-        if (isset($rteConfig['allowedOptions']) && is_string($rteConfig['allowedOptions'])) {
-            $params['allowedOptions'] = $rteConfig['allowedOptions'];
-        } elseif (isset($rteConfig['blindLinkFields']) && is_string($rteConfig['blindLinkFields'])) {
-            $params['blindLinkFields'] = $rteConfig['blindLinkFields'];
         }
 
         return $params;

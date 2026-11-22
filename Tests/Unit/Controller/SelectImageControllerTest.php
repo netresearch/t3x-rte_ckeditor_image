@@ -97,6 +97,77 @@ final class SelectImageControllerTest extends UnitTestCase
     }
 
     #[Test]
+    public function withDefaultImageFileExtensionsFillsEmptyExtensionSlot(): void
+    {
+        $backup                                             = $GLOBALS['TYPO3_CONF_VARS']['GFX'] ?? null;
+        $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'] = 'gif,jpg,png';
+
+        try {
+            $result = $this->callProtectedMethod('withDefaultImageFileExtensions', [['bparams' => 'field|||', 'x' => 1]]);
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS']['GFX'] = $backup;
+        }
+
+        self::assertSame(['bparams' => 'field|||gif,jpg,png', 'x' => 1], $result);
+    }
+
+    #[Test]
+    public function withDefaultImageFileExtensionsKeepsGivenOrMissingExtensionSlot(): void
+    {
+        self::assertSame(
+            ['bparams' => 'field|||svg'],
+            $this->callProtectedMethod('withDefaultImageFileExtensions', [['bparams' => 'field|||svg']]),
+        );
+        self::assertSame(
+            ['bparams' => 'field'],
+            $this->callProtectedMethod('withDefaultImageFileExtensions', [['bparams' => 'field']]),
+        );
+        self::assertSame([], $this->callProtectedMethod('withDefaultImageFileExtensions', [[]]));
+    }
+
+    #[Test]
+    public function withDefaultUploadFolderSetsExpandFolderFromResolver(): void
+    {
+        $backendUser        = $this->createMock(BackendUserAuthentication::class);
+        $GLOBALS['BE_USER'] = $backendUser;
+
+        $folder = $this->createMock(Folder::class);
+        $folder->method('getCombinedIdentifier')->willReturn('1:/user_upload/');
+
+        $this->uploadFolderResolverMock->expects(self::once())->method('resolve')->with($backendUser)->willReturn($folder);
+
+        self::assertSame(
+            ['bparams' => 'x', 'expandFolder' => '1:/user_upload/'],
+            $this->callProtectedMethod('withDefaultUploadFolder', [['bparams' => 'x']]),
+        );
+    }
+
+    #[Test]
+    public function withDefaultUploadFolderKeepsGivenExpandFolder(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMock(BackendUserAuthentication::class);
+
+        $this->uploadFolderResolverMock->expects(self::never())->method('resolve');
+
+        self::assertSame(
+            ['expandFolder' => '1:/sub/'],
+            $this->callProtectedMethod('withDefaultUploadFolder', [['expandFolder' => '1:/sub/']]),
+        );
+    }
+
+    #[Test]
+    public function withDefaultUploadFolderLeavesParamsUnchangedWithoutBackendUserOrOnResolverError(): void
+    {
+        unset($GLOBALS['BE_USER']);
+        self::assertSame([], $this->callProtectedMethod('withDefaultUploadFolder', [[]]));
+
+        $GLOBALS['BE_USER'] = $this->createMock(BackendUserAuthentication::class);
+        $this->uploadFolderResolverMock->method('resolve')->willThrowException(new Exception('no access'));
+
+        self::assertSame([], $this->callProtectedMethod('withDefaultUploadFolder', [[]]));
+    }
+
+    #[Test]
     public function getImageReturnsFileForValidId(): void
     {
         $fileId = 123;
