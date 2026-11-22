@@ -112,12 +112,9 @@ final readonly class RteImageProcessor implements RteImageProcessorInterface
      */
     private function processImageTag(string $imgTag, string $siteUrl, string $sitePath): ?string
     {
+        // A tag without attributes has no src either
         $attributes = $this->parser->extractAttributes($imgTag);
-        if ($attributes === []) {
-            return null;
-        }
-
-        $src = trim($attributes['src'] ?? '');
+        $src        = trim($attributes['src'] ?? '');
         if ($src === '') {
             return null;
         }

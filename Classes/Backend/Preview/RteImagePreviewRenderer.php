@@ -115,11 +115,11 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
      */
     private function detectIssuesAndRenderWarning(?string $html, array $row): string
     {
-        if (!$this->validator instanceof RteImageReferenceValidator) {
-            return '';
-        }
-
-        if ($html === null || $html === '' || !str_contains($html, '<img')) {
+        if (
+            !$this->validator instanceof RteImageReferenceValidator
+            || $html === null
+            || !str_contains($html, '<img')
+        ) {
             return '';
         }
 
@@ -135,11 +135,7 @@ class RteImagePreviewRenderer extends StandardContentPreviewRenderer
 
         $issues = $this->validator->validateHtml($html, 'tt_content', $uid, 'bodytext');
 
-        if ($issues === []) {
-            return '';
-        }
-
-        return $this->renderIssueWarning($issues);
+        return $issues === [] ? '' : $this->renderIssueWarning($issues);
     }
 
     /**

@@ -278,10 +278,6 @@ class ImageAttributeParser
      */
     private function parseCssWidthDeclaration(string $style): string
     {
-        if (trim($style) === '') {
-            return '';
-        }
-
         $value = null;
 
         foreach (explode(';', $style) as $declaration) {
@@ -296,11 +292,8 @@ class ImageAttributeParser
             }
         }
 
-        if ($value === null) {
-            return '';
-        }
-
-        if (preg_match('/^(\d+(?:\.\d+)?|\.\d+)\s*(%|px|rem|em)$/i', $value, $matches) !== 1) {
+        // No width declaration (also for an empty style), or not a supported length
+        if ($value === null || preg_match('/^(\d+(?:\.\d+)?|\.\d+)\s*(%|px|rem|em)$/i', $value, $matches) !== 1) {
             return '';
         }
 
