@@ -63,7 +63,8 @@ Six categories of issues are detected:
      - ``data-htmlarea-file-uid`` references a FAL file that no longer exists
        in ``sys_file``. No ``src`` correction is possible because the file
        is gone.
-     - Reported as fixable, but ``--fix`` changes nothing (see below)
+     - Yes (``--fix`` removes the stale ``data-htmlarea-file-uid``; the image
+       still needs manual intervention, see below)
    * - ``missing_file_uid``
      - The ``<img>`` tag has no ``data-htmlarea-file-uid`` attribute at all.
        Without a file UID there is no way to determine which FAL file the
