@@ -112,7 +112,7 @@ The `main` branch targets the current TYPO3 LTS releases. Earlier TYPO3 versions
 | TYPO3 | Extension branch | Latest release | PHP | Status |
 |-------|------------------|----------------|-----|--------|
 | **13.4 LTS / 14.3 LTS** | [`main`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/main) | 13.10.5 | 8.2 – 8.6 | **Actively maintained** (CKEditor 5) |
-| **12.4 LTS** | [`TYPO3_12`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_12) | 12.0.12 | 8.1+ | Maintained (bugfixes) |
+| **12.4 LTS** | [`TYPO3_12`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_12) | 12.0.14 | 8.1+ | End of life since 2026-04-30 — available, no further updates |
 | **11.5 LTS** | [`TYPO3_11`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_11) | 11.0.17 | 7.4+ | End of life — available, no further updates |
 | **10.4 LTS** | [`TYPO3_10`](https://github.com/netresearch/t3x-rte_ckeditor_image/tree/TYPO3_10) | 10.2.5 | — | End of life — available, no further updates |
 
