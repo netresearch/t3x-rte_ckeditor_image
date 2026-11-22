@@ -195,7 +195,9 @@ original file with ``target="_blank"``, ``data-popup="true"`` and
     :caption: Default popup configuration
 
     lib.contentElement.settings.media.popup {
-        # Opens in popup window (800x600 max)
+        # Only linkClass and linkParams.ATagParams affect RTE images.
+        # The other keys are fluid_styled_content's popup settings for
+        # content-element images; RTE image links open the file in a new tab.
         bodyTag = <body style="margin:0; background:#fff;">
         wrap = <a href="javascript:close();"> | </a>
         width = 800m
