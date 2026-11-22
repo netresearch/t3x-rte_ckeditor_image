@@ -333,6 +333,71 @@ final class UpdateImageReferencesTest extends UnitTestCase
         $this->subject->handleFileRenamed($event);
     }
 
+    #[Test]
+    public function handleFileRenamedSkipsRefindexRowsWithInvalidColumnTypes(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getUid')->willReturn(1);
+        $file->method('getPublicUrl')->willReturn('/fileadmin/renamed.jpg');
+
+        $oldHtml = '<img data-htmlarea-file-uid="1" src="/fileadmin/old.jpg" />';
+        $newHtml = '<img data-htmlarea-file-uid="1" src="/fileadmin/renamed.jpg" />';
+
+        $this->setupMocks(
+            [
+                ['tablename' => null, 'recuid' => 1, 'field' => 'bodytext'],
+                ['tablename' => 'tt_content', 'recuid' => 1, 'field' => 5],
+                ['tablename' => 'tt_content', 'recuid' => 1.5, 'field' => 'bodytext'],
+                ['tablename' => 'tt_content', 'recuid' => '7', 'field' => 'bodytext'],
+            ],
+            ['tt_content' => [7 => ['bodytext' => $oldHtml]]],
+        );
+
+        $this->connection->expects(self::once())->method('update')
+            ->with('tt_content', ['bodytext' => $newHtml], ['uid' => 7]);
+
+        $event = new AfterFileRenamedEvent($file, 'old.jpg');
+        $this->subject->handleFileRenamed($event);
+    }
+
+    #[Test]
+    public function handleFileRenamedSkipsRecordWithoutFieldValue(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getUid')->willReturn(1);
+        $file->method('getPublicUrl')->willReturn('/fileadmin/renamed.jpg');
+
+        $this->setupMocks(
+            [['tablename' => 'tt_content', 'recuid' => 1, 'field' => 'bodytext']],
+            [],
+        );
+
+        $this->connection->expects(self::never())->method('update');
+
+        $event = new AfterFileRenamedEvent($file, 'old.jpg');
+        $this->subject->handleFileRenamed($event);
+    }
+
+    #[Test]
+    public function handleFileRenamedLeavesImgWithoutSrcUnchanged(): void
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getUid')->willReturn(1);
+        $file->method('getPublicUrl')->willReturn('/fileadmin/renamed.jpg');
+
+        $html = '<p><img data-htmlarea-file-uid="1" alt="x" /></p>';
+
+        $this->setupMocks(
+            [['tablename' => 'tt_content', 'recuid' => 1, 'field' => 'bodytext']],
+            ['tt_content' => [1 => ['bodytext' => $html]]],
+        );
+
+        $this->connection->expects(self::never())->method('update');
+
+        $event = new AfterFileRenamedEvent($file, 'old.jpg');
+        $this->subject->handleFileRenamed($event);
+    }
+
     /**
      * Set up ConnectionPool mocks for refindex query and field value fetching.
      *

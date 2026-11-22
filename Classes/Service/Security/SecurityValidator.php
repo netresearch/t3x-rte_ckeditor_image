@@ -115,21 +115,18 @@ final class SecurityValidator implements SecurityValidatorInterface
             return null;
         }
 
-        // Validate IP is not in private/reserved ranges
-        if (filter_var($normalizedIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
-            // Block private IPv4 ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
-            // Block loopback (127.0.0.0/8)
-            // Block link-local (169.254.0.0/16)
-            if (filter_var($normalizedIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-                return null;
-            }
-        } elseif (filter_var($normalizedIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
-            // Block private IPv6 ranges
-            if (filter_var($normalizedIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-                return null;
-            }
-        } else {
-            // Invalid IP format
+        // Invalid IP format: neither IPv4 nor IPv6
+        if (
+            filter_var($normalizedIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false
+            && filter_var($normalizedIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) === false
+        ) {
+            return null;
+        }
+
+        // Validate IP is not in private/reserved ranges, for IPv4 and IPv6 alike:
+        // private IPv4 ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16),
+        // loopback (127.0.0.0/8), link-local (169.254.0.0/16) and private IPv6 ranges
+        if (filter_var($normalizedIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
             return null;
         }
 

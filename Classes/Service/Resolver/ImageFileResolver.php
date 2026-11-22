@@ -10,10 +10,10 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Service\Resolver;
 
 use Netresearch\RteCKEditorImage\Service\Environment\EnvironmentInfoInterface;
+use Netresearch\RteCKEditorImage\Service\Exception\TemporaryFileException;
 use Netresearch\RteCKEditorImage\Service\Fetcher\ExternalImageFetcherInterface;
 use Netresearch\RteCKEditorImage\Service\Security\SecurityValidatorInterface;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 use Throwable;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
@@ -181,7 +181,7 @@ final readonly class ImageFileResolver implements ImageFileResolverInterface
             // Create temporary file
             $tempFile = tempnam(sys_get_temp_dir(), 'rte_img_');
             if ($tempFile === false) {
-                throw new RuntimeException('Could not create temporary file');
+                throw new TemporaryFileException('Could not create temporary file');
             }
 
             file_put_contents($tempFile, $content);

@@ -307,6 +307,28 @@ final class SecurityValidatorTest extends UnitTestCase
     }
 
     #[Test]
+    public function getValidatedIpForUrlAcceptsPublicIpv6Directly(): void
+    {
+        // Non-canonical notation is normalized by inet_pton()/inet_ntop()
+        $result = $this->subject->getValidatedIpForUrl('http://[2606:4700:4700:0:0:0:0:1111]/image.jpg');
+
+        self::assertSame('2606:4700:4700::1111', $result);
+    }
+
+    #[Test]
+    public function getValidatedIpForUrlBlocksReservedIpv4Ranges(): void
+    {
+        $reservedIps = [
+            'http://0.0.0.0/image.jpg',    // "This network"
+            'http://240.0.0.1/image.jpg',  // 240.0.0.0/4 reserved
+        ];
+
+        foreach ($reservedIps as $url) {
+            self::assertNull($this->subject->getValidatedIpForUrl($url), $url);
+        }
+    }
+
+    #[Test]
     public function getValidatedIpForUrlAcceptsHttpsProtocol(): void
     {
         // This just tests the https scheme is accepted (DNS may fail)

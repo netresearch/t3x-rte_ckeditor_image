@@ -38,10 +38,8 @@ final readonly class ImageTagParser implements ImageTagParserInterface
      */
     public function splitByImageTags(string $html): array
     {
-        /** @var string[] $result */
-        $result = $this->htmlParser->splitTags('img', $html);
-
-        return $result;
+        /** @var string[] */
+        return $this->htmlParser->splitTags('img', $html);
     }
 
     /**

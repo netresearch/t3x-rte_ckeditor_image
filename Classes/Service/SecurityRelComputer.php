@@ -111,11 +111,7 @@ final class SecurityRelComputer
      */
     public static function parseTokens(?string $value): array
     {
-        if ($value === null) {
-            return [];
-        }
-
-        $trimmed = trim($value);
+        $trimmed = trim($value ?? '');
         if ($trimmed === '') {
             return [];
         }

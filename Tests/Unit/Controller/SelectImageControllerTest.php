@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Controller;
 
 use Exception;
+use Netresearch\RteCKEditorImage\Controller\Exception\FileNotAvailableException;
 use Netresearch\RteCKEditorImage\Controller\SelectImageController;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -96,6 +97,77 @@ final class SelectImageControllerTest extends UnitTestCase
     }
 
     #[Test]
+    public function withDefaultImageFileExtensionsFillsEmptyExtensionSlot(): void
+    {
+        $backup                                             = $GLOBALS['TYPO3_CONF_VARS']['GFX'] ?? null;
+        $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'] = 'gif,jpg,png';
+
+        try {
+            $result = $this->callProtectedMethod('withDefaultImageFileExtensions', [['bparams' => 'field|||', 'x' => 1]]);
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS']['GFX'] = $backup;
+        }
+
+        self::assertSame(['bparams' => 'field|||gif,jpg,png', 'x' => 1], $result);
+    }
+
+    #[Test]
+    public function withDefaultImageFileExtensionsKeepsGivenOrMissingExtensionSlot(): void
+    {
+        self::assertSame(
+            ['bparams' => 'field|||svg'],
+            $this->callProtectedMethod('withDefaultImageFileExtensions', [['bparams' => 'field|||svg']]),
+        );
+        self::assertSame(
+            ['bparams' => 'field'],
+            $this->callProtectedMethod('withDefaultImageFileExtensions', [['bparams' => 'field']]),
+        );
+        self::assertSame([], $this->callProtectedMethod('withDefaultImageFileExtensions', [[]]));
+    }
+
+    #[Test]
+    public function withDefaultUploadFolderSetsExpandFolderFromResolver(): void
+    {
+        $backendUser        = $this->createMock(BackendUserAuthentication::class);
+        $GLOBALS['BE_USER'] = $backendUser;
+
+        $folder = $this->createMock(Folder::class);
+        $folder->method('getCombinedIdentifier')->willReturn('1:/user_upload/');
+
+        $this->uploadFolderResolverMock->expects(self::once())->method('resolve')->with($backendUser)->willReturn($folder);
+
+        self::assertSame(
+            ['bparams' => 'x', 'expandFolder' => '1:/user_upload/'],
+            $this->callProtectedMethod('withDefaultUploadFolder', [['bparams' => 'x']]),
+        );
+    }
+
+    #[Test]
+    public function withDefaultUploadFolderKeepsGivenExpandFolder(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMock(BackendUserAuthentication::class);
+
+        $this->uploadFolderResolverMock->expects(self::never())->method('resolve');
+
+        self::assertSame(
+            ['expandFolder' => '1:/sub/'],
+            $this->callProtectedMethod('withDefaultUploadFolder', [['expandFolder' => '1:/sub/']]),
+        );
+    }
+
+    #[Test]
+    public function withDefaultUploadFolderLeavesParamsUnchangedWithoutBackendUserOrOnResolverError(): void
+    {
+        unset($GLOBALS['BE_USER']);
+        self::assertSame([], $this->callProtectedMethod('withDefaultUploadFolder', [[]]));
+
+        $GLOBALS['BE_USER'] = $this->createMock(BackendUserAuthentication::class);
+        $this->uploadFolderResolverMock->method('resolve')->willThrowException(new Exception('no access'));
+
+        self::assertSame([], $this->callProtectedMethod('withDefaultUploadFolder', [[]]));
+    }
+
+    #[Test]
     public function getImageReturnsFileForValidId(): void
     {
         $fileId = 123;
@@ -132,6 +204,42 @@ final class SelectImageControllerTest extends UnitTestCase
         $this->expectExceptionCode(1734282000);
 
         $this->callProtectedMethod('getImage', [$fileId]);
+    }
+
+    #[Test]
+    public function getImageThrowsFileNotAvailableExceptionWithPreviousWhenFileNotFound(): void
+    {
+        $previous = new Exception('File not found');
+
+        $this->resourceFactoryMock
+            ->method('getFileObject')
+            ->willThrowException($previous);
+
+        try {
+            $this->callProtectedMethod('getImage', [999]);
+            self::fail('Expected FileNotAvailableException');
+        } catch (FileNotAvailableException $exception) {
+            self::assertSame(1734282000, $exception->getCode());
+            self::assertSame($previous, $exception->getPrevious());
+        }
+    }
+
+    #[Test]
+    public function getImageThrowsFileNotAvailableExceptionWhenFileIsMissing(): void
+    {
+        /** @var File&MockObject $fileMock */
+        $fileMock = $this->createMock(File::class);
+        $fileMock->method('isDeleted')->willReturn(false);
+        $fileMock->method('isMissing')->willReturn(true);
+
+        $this->resourceFactoryMock
+            ->method('getFileObject')
+            ->willReturn($fileMock);
+
+        $this->expectException(FileNotAvailableException::class);
+        $this->expectExceptionCode(1734282001);
+
+        $this->callProtectedMethod('getImage', [123]);
     }
 
     #[Test]

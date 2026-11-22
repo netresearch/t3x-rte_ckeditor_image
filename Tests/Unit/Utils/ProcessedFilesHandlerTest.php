@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Tests\Unit\Utils;
 
 use Exception;
+use Netresearch\RteCKEditorImage\Utils\Exception\ProcessedFileException;
 use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -84,6 +85,19 @@ final class ProcessedFilesHandlerTest extends UnitTestCase
         $this->expectExceptionMessage('Could not create processed file');
 
         $this->subject->createProcessedFile($fileMock, $imageConfiguration);
+    }
+
+    #[Test]
+    public function createProcessedFileThrowsProcessedFileExceptionWhenProcessingFails(): void
+    {
+        $this->imageServiceMock
+            ->method('applyProcessingInstructions')
+            ->willThrowException(new Exception('Processing failed'));
+
+        $this->expectException(ProcessedFileException::class);
+        $this->expectExceptionCode(1716565499);
+
+        $this->subject->createProcessedFile($this->createMock(File::class), ['width' => '100c']);
     }
 
     #[Test]

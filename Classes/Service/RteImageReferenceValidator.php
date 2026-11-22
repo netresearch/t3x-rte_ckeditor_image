@@ -408,26 +408,7 @@ class RteImageReferenceValidator
         // Collapse nested link wrappers first (structural fix) — #667
         $html = $this->collapseNestedLinks($html, $issues);
 
-        // Build a map of fileUid => expectedSrc for quick lookup, and the set of
-        // file UIDs whose FAL file no longer exists (their stale attribute is removed)
-        $fixMap           = [];
-        $orphanedFileUids = [];
-
-        foreach ($issues as $issue) {
-            if ($issue->fileUid === null) {
-                continue;
-            }
-
-            if ($issue->type === ValidationIssueType::OrphanedFileUid) {
-                $orphanedFileUids[$issue->fileUid] = true;
-
-                continue;
-            }
-
-            if ($issue->expectedSrc !== null) {
-                $fixMap[$issue->fileUid] = $issue->expectedSrc;
-            }
-        }
+        [$fixMap, $orphanedFileUids] = $this->collectFixTargets($issues);
 
         if ($fixMap === [] && $orphanedFileUids === []) {
             return $html;
@@ -438,68 +419,12 @@ class RteImageReferenceValidator
         $changed      = false;
 
         foreach ($splitContent as $key => $part) {
-            if (!is_string($part)) {
-                continue; // @codeCoverageIgnore
+            $fixedPart = is_string($part) ? $this->fixImgTag($part, $fixMap, $orphanedFileUids) : null;
+
+            if ($fixedPart !== null) {
+                $splitContent[$key] = $fixedPart;
+                $changed            = true;
             }
-
-            if (!str_starts_with($part, '<img')) {
-                continue;
-            }
-
-            $attributes    = $this->htmlParser->get_tag_attributes($part);
-            $tagAttributes = $attributes[0] ?? [];
-
-            if (!is_array($tagAttributes)) {
-                continue; // @codeCoverageIgnore
-            }
-
-            $fileUidStr = $this->getStringAttribute($tagAttributes, 'data-htmlarea-file-uid');
-
-            if ($fileUidStr === null) {
-                continue;
-            }
-
-            $fileUid = (int) $fileUidStr;
-
-            if (isset($orphanedFileUids[$fileUid])) {
-                $withoutFileUid = $this->removeFileUidAttribute($part);
-
-                if ($withoutFileUid !== $part) {
-                    $splitContent[$key] = $withoutFileUid;
-                    $changed            = true;
-                }
-
-                continue;
-            }
-
-            if (!isset($fixMap[$fileUid])) {
-                continue;
-            }
-
-            $currentSrc = $this->getStringAttribute($tagAttributes, 'src');
-            $newSrc     = $fixMap[$fileUid];
-
-            if ($currentSrc === $newSrc) {
-                continue;
-            }
-
-            if ($currentSrc === null) {
-                // No src attribute exists — insert one after <img
-                $splitContent[$key] = str_replace(
-                    '<img ',
-                    '<img src="' . $newSrc . '" ',
-                    $part,
-                );
-            } else {
-                // Replace existing src (empty or non-empty)
-                $splitContent[$key] = str_replace(
-                    'src="' . $currentSrc . '"',
-                    'src="' . $newSrc . '"',
-                    $part,
-                );
-            }
-
-            $changed = true;
         }
 
         if (!$changed) {
@@ -507,6 +432,85 @@ class RteImageReferenceValidator
         }
 
         return implode('', $splitContent);
+    }
+
+    /**
+     * Build a map of fileUid => expectedSrc for quick lookup, and the set of
+     * file UIDs whose FAL file no longer exists (their stale attribute is removed).
+     *
+     * @param list<ValidationIssue> $issues
+     *
+     * @return array{array<int, string>, array<int, true>}
+     */
+    private function collectFixTargets(array $issues): array
+    {
+        $fixMap           = [];
+        $orphanedFileUids = [];
+
+        foreach ($issues as $issue) {
+            if ($issue->fileUid === null) {
+                continue;
+            }
+
+            if ($issue->type === ValidationIssueType::OrphanedFileUid) {
+                $orphanedFileUids[$issue->fileUid] = true;
+            } elseif ($issue->expectedSrc !== null) {
+                $fixMap[$issue->fileUid] = $issue->expectedSrc;
+            }
+        }
+
+        return [$fixMap, $orphanedFileUids];
+    }
+
+    /**
+     * Fix one segment of splitTags() output if it is an img tag with a file UID
+     * that needs a fix.
+     *
+     * @param array<int, string> $fixMap           fileUid => expected src
+     * @param array<int, true>   $orphanedFileUids file UIDs whose FAL file is gone
+     *
+     * @return string|null The fixed tag, or null when the segment stays as it is
+     */
+    private function fixImgTag(string $part, array $fixMap, array $orphanedFileUids): ?string
+    {
+        $tagAttributes = str_starts_with($part, '<img')
+            ? ($this->htmlParser->get_tag_attributes($part)[0] ?? null)
+            : null;
+        $fileUidStr = is_array($tagAttributes)
+            ? $this->getStringAttribute($tagAttributes, 'data-htmlarea-file-uid')
+            : null;
+
+        if ($fileUidStr === null) {
+            return null;
+        }
+
+        $fileUid = (int) $fileUidStr;
+
+        if (isset($orphanedFileUids[$fileUid])) {
+            $withoutFileUid = $this->removeFileUidAttribute($part);
+
+            return $withoutFileUid !== $part ? $withoutFileUid : null;
+        }
+
+        return isset($fixMap[$fileUid])
+            ? $this->replaceSrc($part, $this->getStringAttribute($tagAttributes, 'src'), $fixMap[$fileUid])
+            : null;
+    }
+
+    /**
+     * Set the src of an img tag to the expected value.
+     *
+     * @return string|null The changed tag, or null when the src is already correct
+     */
+    private function replaceSrc(string $imgTag, ?string $currentSrc, string $newSrc): ?string
+    {
+        return match (true) {
+            $currentSrc === $newSrc => null,
+            // No src attribute exists — insert one after <img
+            $currentSrc === null => str_replace('<img ', '<img src="' . $newSrc . '" ', $imgTag),
+            // Replace existing src (empty or non-empty)
+            default => str_replace('src="' . $currentSrc . '"', 'src="' . $newSrc . '"', $imgTag),
+        };
     }
 
     /**
@@ -529,20 +533,27 @@ class RteImageReferenceValidator
         $kept    = '';
         $removed = false;
 
-        while (preg_match(
-            '/\G([ \t\n\f\r]+)([^ \t\n\f\r=\/>]+)([ \t\n\f\r]*=[ \t\n\f\r]*(?:"[^"]*"|\'[^\']*\'|[^ \t\n\f\r"\'>]+))?/',
-            $imgTag,
-            $match,
-            0,
-            $offset,
-        ) === 1) {
-            if (strtolower($match[2]) === 'data-htmlarea-file-uid') {
-                $removed = true;
-            } else {
-                $kept .= $match[0];
+        // Each step reads an attribute name, then its optional "= value" part.
+        while (preg_match('/\G[ \t\n\f\r]+([^ \t\n\f\r=\/>]+)/', $imgTag, $match, 0, $offset) === 1) {
+            $attribute = $match[0];
+            $offset += strlen($attribute);
+
+            if (preg_match(
+                '/\G[ \t\n\f\r]*=[ \t\n\f\r]*(?:"[^"]*"|\'[^\']*\'|[^ \t\n\f\r"\'>]+)/',
+                $imgTag,
+                $value,
+                0,
+                $offset,
+            ) === 1) {
+                $attribute .= $value[0];
+                $offset += strlen($value[0]);
             }
 
-            $offset += strlen($match[0]);
+            if (strtolower($match[1]) === 'data-htmlarea-file-uid') {
+                $removed = true;
+            } else {
+                $kept .= $attribute;
+            }
         }
 
         $rest = substr($imgTag, $offset);

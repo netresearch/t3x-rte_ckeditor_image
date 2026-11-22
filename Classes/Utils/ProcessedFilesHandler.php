@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Utils;
 
 use Exception;
+use Netresearch\RteCKEditorImage\Utils\Exception\ProcessedFileException;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Extbase\Service\ImageService;
@@ -39,6 +40,8 @@ class ProcessedFilesHandler
      * @param mixed[] $imageConfiguration The image configuration
      *
      * @return ProcessedFile
+     *
+     * @throws ProcessedFileException If the image service cannot process the file
      */
     public function createProcessedFile(File $file, array $imageConfiguration): ProcessedFile
     {
@@ -46,7 +49,7 @@ class ProcessedFilesHandler
         try {
             return $this->imageService->applyProcessingInstructions($file, $imageConfiguration);
         } catch (Exception) {
-            throw new Exception('Could not create processed file', 1716565499);
+            throw new ProcessedFileException('Could not create processed file', 1716565499);
         }
     }
 }
