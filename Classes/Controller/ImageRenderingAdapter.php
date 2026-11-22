@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Netresearch\RteCKEditorImage\Controller;
 
 use Netresearch\RteCKEditorImage\Domain\Model\ImageRenderingDto;
+use Netresearch\RteCKEditorImage\Service\Exception\NonPublicFileException;
 use Netresearch\RteCKEditorImage\Service\ImageAttributeParser;
 use Netresearch\RteCKEditorImage\Service\ImageRenderingService;
 use Netresearch\RteCKEditorImage\Service\ImageResolverService;
@@ -128,6 +129,12 @@ class ImageRenderingAdapter
         // data-htmlarea-file-uid attribute, preventing renderFigure() from resolving
         // the file later.
         if (isset($attributes['data-caption']) && $attributes['data-caption'] !== '') {
+            // SECURITY: the original tag carries the file's public URL. A file in a
+            // non-public storage must not be output, whichever handler would render it.
+            if ($this->resolverService->isNonPublicFile($fileUid)) {
+                return '';
+            }
+
             return $this->getOriginalImageTag();
         }
 
@@ -140,7 +147,12 @@ class ImageRenderingAdapter
         );
 
         // Resolve image to validated DTO
-        $dto = $this->resolverService->resolve($stringAttributes, $conf, $request);
+        try {
+            $dto = $this->resolverService->resolve($stringAttributes, $conf, $request);
+        } catch (NonPublicFileException) {
+            // SECURITY: file in a non-public storage - render nothing, not the original tag
+            return '';
+        }
 
         if (!$dto instanceof ImageRenderingDto) {
             // Resolution failed - return original content
@@ -261,6 +273,14 @@ class ImageRenderingAdapter
     #[AsAllowedCallable]
     public function renderImages(?string $content, array $conf, ServerRequestInterface $request): string
     {
+        return $this->withoutNonPublicImages($this->renderImagesInLink($conf, $request));
+    }
+
+    /**
+     * @param array<string, mixed> $conf TypoScript configuration
+     */
+    private function renderImagesInLink(array $conf, ServerRequestInterface $request): string
+    {
         // Get link inner HTML from ContentObjectRenderer
         $linkContent = $this->cObj instanceof ContentObjectRenderer
             ? $this->cObj->getCurrentVal()
@@ -283,6 +303,7 @@ class ImageRenderingAdapter
 
         // Process each image and build replacement map
         $replacements = [];
+        $occurrences  = $this->countOriginalHtml($parsed['images']);
 
         foreach ($parsed['images'] as $imageData) {
             // Extract attributes and original HTML from parsed data
@@ -306,6 +327,15 @@ class ImageRenderingAdapter
             $classTokens = is_array($splitResult) ? $splitResult : [];
 
             if (!in_array('image-inline', $classTokens, true)) {
+                // SECURITY: a skipped image keeps its original tag, which carries the
+                // file's public URL - remove it if the file is in a non-public storage
+                if (
+                    $this->resolverService->isNonPublicFile($fileUid)
+                    && !$this->removeNonPublicImage($linkContent, $originalHtml, $occurrences, $replacements)
+                ) {
+                    return '';
+                }
+
                 // Not an inline image - skip and let renderFigure handle it
                 continue;
             }
@@ -320,7 +350,16 @@ class ImageRenderingAdapter
             );
 
             // Resolve image to DTO (no link attributes - image is already in a link)
-            $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
+            try {
+                $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
+            } catch (NonPublicFileException) {
+                // SECURITY: drop the image, keep the link and its other content
+                if (!$this->removeNonPublicImage($linkContent, $originalHtml, $occurrences, $replacements)) {
+                    return '';
+                }
+
+                continue;
+            }
 
             if (!$dto instanceof ImageRenderingDto) {
                 continue;
@@ -344,6 +383,83 @@ class ImageRenderingAdapter
 
         // Reconstruct the <a> wrapper with processed content
         return $this->wrapInLink($processedContent, $linkAttributes);
+    }
+
+    /**
+     * Schedule an image of a file in a non-public storage for removal from link content.
+     *
+     * The parser serialises each image itself, so two copies of one image that are
+     * spelled differently in the source get the same originalHtml. strtr() then
+     * removes only the copies that use that spelling. The image counts as located
+     * only if the content holds the spelling at least as often as the parser found
+     * images with it.
+     *
+     * @param string                $content      Link content the replacements are applied to
+     * @param string                $originalHtml Image markup as found by the parser
+     * @param array<string, int>    $occurrences  Number of parsed images per originalHtml
+     * @param array<string, string> $replacements Replacement map, extended by reference
+     *
+     * @return bool False if the image cannot be located in the content; the caller must
+     *              then output nothing for the link, as the image cannot be removed reliably
+     */
+    private function removeNonPublicImage(string $content, string $originalHtml, array $occurrences, array &$replacements): bool
+    {
+        if ($originalHtml === '' || substr_count($content, $originalHtml) < ($occurrences[$originalHtml] ?? 1)) {
+            return false;
+        }
+
+        $replacements[$originalHtml] = '';
+
+        return true;
+    }
+
+    /**
+     * SECURITY: output nothing if the HTML still holds an image of a file in a
+     * non-public storage.
+     *
+     * Final check on what renderImages() and renderLink() return. It reads the
+     * images of the output itself, so it does not depend on how the parser
+     * scoped its search or on how the source spelled the image markup.
+     */
+    private function withoutNonPublicImages(string $html): string
+    {
+        return $this->containsNonPublicImage($html) ? '' : $html;
+    }
+
+    /**
+     * SECURITY: true if any image in the HTML belongs to a file in a non-public storage.
+     *
+     * Guards the paths that output original markup unchanged, so that a second
+     * image in that markup cannot carry the URL of a protected file.
+     */
+    private function containsNonPublicImage(string $html): bool
+    {
+        foreach ($this->attributeParser->findImageFileUids($html) as $fileUid) {
+            if ($this->resolverService->isNonPublicFile($fileUid)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Count the parsed images per originalHtml.
+     *
+     * @param array<int, array{attributes?: array<string, string>, originalHtml?: string}> $images
+     *
+     * @return array<string, int>
+     */
+    private function countOriginalHtml(array $images): array
+    {
+        $counts = [];
+
+        foreach ($images as $imageData) {
+            $originalHtml          = $imageData['originalHtml'] ?? '';
+            $counts[$originalHtml] = ($counts[$originalHtml] ?? 0) + 1;
+        }
+
+        return $counts;
     }
 
     /**
@@ -489,6 +605,14 @@ class ImageRenderingAdapter
     #[AsAllowedCallable]
     public function renderLink(?string $content, array $conf, ServerRequestInterface $request): string
     {
+        return $this->withoutNonPublicImages($this->renderLinkWithImages($content, $conf, $request));
+    }
+
+    /**
+     * @param array<string, mixed> $conf TypoScript configuration
+     */
+    private function renderLinkWithImages(?string $content, array $conf, ServerRequestInterface $request): string
+    {
         // Get link HTML from either content param or cObj->getCurrentVal()
         $linkHtml = $content;
 
@@ -549,6 +673,7 @@ class ImageRenderingAdapter
 
         // Process each image and build replacement map
         $replacements = [];
+        $occurrences  = $this->countOriginalHtml($images);
 
         foreach ($images as $imageData) {
             $imageAttributes = $imageData['attributes'] ?? [];
@@ -567,6 +692,15 @@ class ImageRenderingAdapter
             $classTokens = is_array($splitResult) ? $splitResult : [];
 
             if (!in_array('image-inline', $classTokens, true)) {
+                // SECURITY: a skipped image keeps its original tag, which carries the
+                // file's public URL - remove it if the file is in a non-public storage
+                if (
+                    $this->resolverService->isNonPublicFile($fileUid)
+                    && !$this->removeNonPublicImage($innerContent, $originalHtml, $occurrences, $replacements)
+                ) {
+                    return '';
+                }
+
                 continue;
             }
 
@@ -578,7 +712,16 @@ class ImageRenderingAdapter
             );
 
             // Resolve and render the image
-            $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
+            try {
+                $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
+            } catch (NonPublicFileException) {
+                // SECURITY: drop the image, keep the link and its other content
+                if (!$this->removeNonPublicImage($innerContent, $originalHtml, $occurrences, $replacements)) {
+                    return '';
+                }
+
+                continue;
+            }
 
             if (!$dto instanceof ImageRenderingDto) {
                 continue;
@@ -762,8 +905,8 @@ class ImageRenderingAdapter
         $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
 
         if ($fileUid === 0) {
-            // No file UID - return original content
-            return $figureHtml;
+            // No file UID - return original content, unless another image in it is blocked
+            return $this->containsNonPublicImage($figureHtml) ? '' : $figureHtml;
         }
 
         // Add caption from figcaption to attributes, overriding any existing data-caption
@@ -785,11 +928,17 @@ class ImageRenderingAdapter
         $figureWidthOrNull    = $figureWidth !== '' ? $figureWidth : null;
 
         // Resolve image to validated DTO
-        $dto = $this->resolverService->resolve($imageAttributes, $conf, $request, $linkAttributesOrNull, $figureClassOrNull, $figureWidthOrNull);
+        try {
+            $dto = $this->resolverService->resolve($imageAttributes, $conf, $request, $linkAttributesOrNull, $figureClassOrNull, $figureWidthOrNull);
+        } catch (NonPublicFileException) {
+            // SECURITY: file in a non-public storage - drop the whole figure
+            // (image, link and caption), not only the image
+            return '';
+        }
 
         if (!$dto instanceof ImageRenderingDto) {
-            // Resolution failed - return original content
-            return $figureHtml;
+            // Resolution failed - return original content, unless another image in it is blocked
+            return $this->containsNonPublicImage($figureHtml) ? '' : $figureHtml;
         }
 
         // Render via Fluid templates (will use LinkWithCaption.html if link and caption present)

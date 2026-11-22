@@ -90,7 +90,7 @@ This extension provides image handling for CKEditor in TYPO3. It operates in two
 | **Attack Vector** | Low-privilege editor references image from non-public storage, exposing internal files on frontend |
 | **Impact** | Information disclosure |
 | **Likelihood** | Low |
-| **Mitigation** | `ImageResolverService::validateFileVisibility()` checks `$file->getStorage()->isPublic()` |
+| **Mitigation** | `ImageResolverService::validateFileVisibility()` checks `$file->getStorage()->isPublic()`; `resolve()` then throws `NonPublicFileException` and `ImageRenderingAdapter` renders nothing for the image. Paths that skip `resolve()` or output original markup check `isNonPublicFile()` for every image first. |
 | **Status** | Mitigated |
 
 ### T6: Regular Expression Denial of Service (ReDoS)

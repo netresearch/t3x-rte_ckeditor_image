@@ -11,6 +11,7 @@ namespace Netresearch\RteCKEditorImage\Service;
 
 use Netresearch\RteCKEditorImage\Domain\Model\ImageRenderingDto;
 use Netresearch\RteCKEditorImage\Domain\Model\LinkDto;
+use Netresearch\RteCKEditorImage\Service\Exception\NonPublicFileException;
 use Netresearch\RteCKEditorImage\Utils\ProcessedFilesHandler;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -121,6 +122,8 @@ class ImageResolverService
      * @param string|null               $figureWidth    Optional normalised resize width from the figure (e.g. `26.43%`)
      *
      * @return ImageRenderingDto|null Validated DTO or null if validation fails
+     *
+     * @throws NonPublicFileException When the file is in a non-public storage; the caller must render nothing for it
      */
     public function resolve(
         array $attributes,
@@ -143,7 +146,7 @@ class ImageResolverService
 
             // CRITICAL: File visibility validation (prevents privilege escalation)
             if (!$this->validateFileVisibility($systemImage, $fileUid)) {
-                throw new FileDoesNotExistException();
+                throw new NonPublicFileException($fileUid);
             }
 
             // Determine noScale with proper priority order
@@ -242,6 +245,10 @@ class ImageResolverService
                 figureClass: $figureClass !== '' ? $figureClass : null,
                 figureWidth: $figureWidth !== '' ? $figureWidth : null,
             );
+        } catch (NonPublicFileException $exception) {
+            // Already logged by validateFileVisibility(). Must not fall into the
+            // Throwable branch below: null would let callers keep the original tag.
+            throw $exception;
         } catch (FileDoesNotExistException $exception) {
             $this->logger->log(
                 PsrLogLevel::ERROR,
@@ -259,6 +266,30 @@ class ImageResolverService
 
             return null;
         }
+    }
+
+    /**
+     * Whether the file is in a non-public storage and must therefore not be rendered.
+     *
+     * For callers that skip resolve() for an image (e.g. one left for the figure
+     * handler) but must still not output its original tag. A file that cannot be
+     * loaded is not reported as non-public: resolve() handles that case.
+     *
+     * @param int $fileUid sys_file uid from data-htmlarea-file-uid
+     */
+    public function isNonPublicFile(int $fileUid): bool
+    {
+        if ($fileUid <= 0) {
+            return false;
+        }
+
+        try {
+            $file = $this->resourceFactory->getFileObject($fileUid);
+        } catch (Throwable) {
+            return false;
+        }
+
+        return !$this->validateFileVisibility($file, $fileUid);
     }
 
     /**
