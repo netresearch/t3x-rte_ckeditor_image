@@ -91,12 +91,7 @@ class UpdateImageReferences
 
         // Query sys_refindex for records referencing this file via rtehtmlarea_images
         $affectedRecords = $this->findAffectedRecords($fileUid);
-
-        if ($affectedRecords === []) {
-            return;
-        }
-
-        $updatedCount = 0;
+        $updatedCount    = 0;
 
         foreach ($affectedRecords as $record) {
             if ($this->updateRecord($record, $fileUid, $publicUrl)) {
