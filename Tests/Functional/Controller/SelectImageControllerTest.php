@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use ReflectionClass;
 use ReflectionException;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
@@ -382,5 +383,113 @@ class SelectImageControllerTest extends FunctionalTestCase
         foreach (array_keys($result) as $key) {
             self::assertIsString($key, 'All translation keys should be strings');
         }
+    }
+
+    /**
+     * Pins the complete, ordered key set of getTranslations() and the label
+     * file each value comes from.
+     */
+    #[Test]
+    public function getTranslationsReturnsAllKeysInOrderWithResolvedLabels(): void
+    {
+        /** @var array<string, string|null> $result */
+        $result = $this->invokeMethod($this->subject, 'getTranslations');
+
+        self::assertSame([
+            'override',
+            'overrideNoDefault',
+            'cssClass',
+            'width',
+            'height',
+            'title',
+            'alt',
+            'clickToEnlarge',
+            'enabled',
+            'skipImageProcessing',
+            'imageProperties',
+            'cancel',
+            'save',
+            'insertImage',
+            'noDefaultMetadata',
+            'zoomHelp',
+            'noScaleHelp',
+            'zoom',
+            'quality',
+            'qualityNone',
+            'qualityStandard',
+            'qualityRetina',
+            'qualityUltra',
+            'qualityPrint',
+            'qualityLowLabel',
+            'qualityLowTooltip',
+            'qualityStandardLabel',
+            'qualityStandardTooltip',
+            'qualityRetinaLabel',
+            'qualityRetinaTooltip',
+            'qualityUltraLabel',
+            'qualityUltraTooltip',
+            'qualityPrintLabel',
+            'qualityPrintTooltip',
+            'qualityExcessiveLabel',
+            'qualityExcessiveTooltip',
+            'clickBehavior',
+            'clickBehaviorNone',
+            'clickBehaviorEnlarge',
+            'clickBehaviorLink',
+            'linkUrl',
+            'linkTarget',
+            'linkTitle',
+            'linkCssClass',
+            'browse',
+            'linkTargetDefault',
+            'linkTargetBlank',
+            'linkTargetTop',
+            'linkTargetSelf',
+            'linkTargetParent',
+            'linkParams',
+            'linkParamsPlaceholder',
+            'linkTargetPlaceholder',
+            'imageInsideLinkTitle',
+            'imageInsideLinkMessage',
+            'editImage',
+            'scaling',
+            'caption',
+            'displayWidth',
+            'displayHeight',
+            'qualityPoorLabel',
+            'qualityPoorTooltip',
+            'qualityErrorZeroDimensions',
+            'qualityInfoSvg',
+            'toggleCaption',
+            'toggleInlineBlock',
+            'alignLeft',
+            'alignCenter',
+            'alignRight',
+            'inline',
+            'block',
+            'selectImage',
+            'imageWidget',
+            'inlineImageWidget',
+            'imageToolbar',
+            'enterImageCaption',
+        ], array_keys($result));
+
+        foreach ($result as $key => $value) {
+            self::assertIsString($value, sprintf('Translation "%s" should resolve', $key));
+            self::assertNotSame('', $value, sprintf('Translation "%s" should not be empty', $key));
+        }
+
+        self::assertSame(
+            LocalizationUtility::translate('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override_not_available'),
+            $result['overrideNoDefault'],
+        );
+        self::assertSame(
+            LocalizationUtility::translate('LLL:EXT:rte_ckeditor_image/Resources/Private/Language/locallang_be.xlf:labels.ckeditor.clicktoenlarge'),
+            $result['zoom'],
+        );
+        self::assertSame(
+            LocalizationUtility::translate('LLL:EXT:rte_ckeditor_image/Resources/Private/Language/locallang_be.xlf:labels.ckeditor.enterimagecaption'),
+            $result['enterImageCaption'],
+        );
     }
 }

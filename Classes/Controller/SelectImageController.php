@@ -41,6 +41,95 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 class SelectImageController extends ElementBrowserController
 {
     /**
+     * Label file of the extension's backend labels.
+     */
+    private const BACKEND_LABEL_FILE = 'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/locallang_be.xlf:';
+
+    /**
+     * Keys sent to the CKEditor plugin, mapped to their label in BACKEND_LABEL_FILE.
+     *
+     * @var array<string, string>
+     */
+    private const BACKEND_LABELS = [
+        'cssClass'            => 'labels.ckeditor.cssclass',
+        'width'               => 'labels.ckeditor.width',
+        'height'              => 'labels.ckeditor.height',
+        'title'               => 'labels.ckeditor.title',
+        'alt'                 => 'labels.ckeditor.alt',
+        'clickToEnlarge'      => 'labels.ckeditor.clicktoenlarge',
+        'enabled'             => 'labels.ckeditor.enabled',
+        'skipImageProcessing' => 'labels.ckeditor.skipimageprocessing',
+        'imageProperties'     => 'labels.ckeditor.imageproperties',
+        'cancel'              => 'labels.ckeditor.cancel',
+        'save'                => 'labels.ckeditor.save',
+        'insertImage'         => 'labels.ckeditor.insertimage',
+        'noDefaultMetadata'   => 'labels.ckeditor.nodefaultmetadata',
+        'zoomHelp'            => 'labels.ckeditor.zoomhelp',
+        'noScaleHelp'         => 'labels.ckeditor.noscalehelp',
+        // Local label instead of the core label image_zoom_formlabel,
+        // which is deprecated in TYPO3 v14
+        'zoom'                       => 'labels.ckeditor.clicktoenlarge',
+        'quality'                    => 'labels.ckeditor.quality',
+        'qualityNone'                => 'labels.ckeditor.quality.none',
+        'qualityStandard'            => 'labels.ckeditor.quality.standard',
+        'qualityRetina'              => 'labels.ckeditor.quality.retina',
+        'qualityUltra'               => 'labels.ckeditor.quality.ultra',
+        'qualityPrint'               => 'labels.ckeditor.quality.print',
+        'qualityLowLabel'            => 'labels.ckeditor.quality.low.label',
+        'qualityLowTooltip'          => 'labels.ckeditor.quality.low.tooltip',
+        'qualityStandardLabel'       => 'labels.ckeditor.quality.standard.label',
+        'qualityStandardTooltip'     => 'labels.ckeditor.quality.standard.tooltip',
+        'qualityRetinaLabel'         => 'labels.ckeditor.quality.retina.label',
+        'qualityRetinaTooltip'       => 'labels.ckeditor.quality.retina.tooltip',
+        'qualityUltraLabel'          => 'labels.ckeditor.quality.ultra.label',
+        'qualityUltraTooltip'        => 'labels.ckeditor.quality.ultra.tooltip',
+        'qualityPrintLabel'          => 'labels.ckeditor.quality.print.label',
+        'qualityPrintTooltip'        => 'labels.ckeditor.quality.print.tooltip',
+        'qualityExcessiveLabel'      => 'labels.ckeditor.quality.excessive.label',
+        'qualityExcessiveTooltip'    => 'labels.ckeditor.quality.excessive.tooltip',
+        'clickBehavior'              => 'labels.ckeditor.clickBehavior',
+        'clickBehaviorNone'          => 'labels.ckeditor.clickBehaviorNone',
+        'clickBehaviorEnlarge'       => 'labels.ckeditor.clickBehaviorEnlarge',
+        'clickBehaviorLink'          => 'labels.ckeditor.clickBehaviorLink',
+        'linkUrl'                    => 'labels.ckeditor.linkUrl',
+        'linkTarget'                 => 'labels.ckeditor.linkTarget',
+        'linkTitle'                  => 'labels.ckeditor.linkTitle',
+        'linkCssClass'               => 'labels.ckeditor.linkCssClass',
+        'browse'                     => 'labels.ckeditor.browse',
+        'linkTargetDefault'          => 'labels.ckeditor.linkTargetDefault',
+        'linkTargetBlank'            => 'labels.ckeditor.linkTargetBlank',
+        'linkTargetTop'              => 'labels.ckeditor.linkTargetTop',
+        'linkTargetSelf'             => 'labels.ckeditor.linkTargetSelf',
+        'linkTargetParent'           => 'labels.ckeditor.linkTargetParent',
+        'linkParams'                 => 'labels.ckeditor.linkParams',
+        'linkParamsPlaceholder'      => 'labels.ckeditor.linkParamsPlaceholder',
+        'linkTargetPlaceholder'      => 'labels.ckeditor.linkTargetPlaceholder',
+        'imageInsideLinkTitle'       => 'labels.ckeditor.imageinsidelinktitle',
+        'imageInsideLinkMessage'     => 'labels.ckeditor.imageinsidelinkmessage',
+        'editImage'                  => 'labels.ckeditor.editimage',
+        'scaling'                    => 'labels.ckeditor.scaling',
+        'caption'                    => 'labels.ckeditor.caption',
+        'displayWidth'               => 'labels.ckeditor.displaywidth',
+        'displayHeight'              => 'labels.ckeditor.displayheight',
+        'qualityPoorLabel'           => 'labels.ckeditor.quality.poor.label',
+        'qualityPoorTooltip'         => 'labels.ckeditor.quality.poor.tooltip',
+        'qualityErrorZeroDimensions' => 'labels.ckeditor.qualityerror.zerodimensions',
+        'qualityInfoSvg'             => 'labels.ckeditor.qualityinfo.svg',
+        'toggleCaption'              => 'labels.ckeditor.togglecaption',
+        'toggleInlineBlock'          => 'labels.ckeditor.toggleinlineblock',
+        'alignLeft'                  => 'labels.ckeditor.alignleft',
+        'alignCenter'                => 'labels.ckeditor.aligncenter',
+        'alignRight'                 => 'labels.ckeditor.alignright',
+        'inline'                     => 'labels.ckeditor.inline',
+        'block'                      => 'labels.ckeditor.block',
+        'selectImage'                => 'labels.ckeditor.selectimage',
+        'imageWidget'                => 'labels.ckeditor.imagewidget',
+        'inlineImageWidget'          => 'labels.ckeditor.inlineimagewidget',
+        'imageToolbar'               => 'labels.ckeditor.imagetoolbar',
+        'enterImageCaption'          => 'labels.ckeditor.enterimagecaption',
+    ];
+
+    /**
      * Minimum allowed image dimension in pixels.
      */
     private const IMAGE_MIN_DIMENSION = 1;
@@ -404,314 +493,20 @@ class SelectImageController extends ElementBrowserController
      */
     protected function getTranslations(): array
     {
-        return [
+        $translations = [
             'override' => LocalizationUtility::translate(
-                'LLL:EXT:core/Resources/Private/Language/'
-                . 'locallang_core.xlf:labels.placeholder.override',
+                'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override',
             ),
             'overrideNoDefault' => LocalizationUtility::translate(
-                'LLL:EXT:core/Resources/Private/Language/'
-                . 'locallang_core.xlf:labels.placeholder.override_not_available',
-            ),
-            'cssClass' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.cssclass',
-            ),
-            'width' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.width',
-            ),
-            'height' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.height',
-            ),
-            'title' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.title',
-            ),
-            'alt' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.alt',
-            ),
-            'clickToEnlarge' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.clicktoenlarge',
-            ),
-            'enabled' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.enabled',
-            ),
-            'skipImageProcessing' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.skipimageprocessing',
-            ),
-            'imageProperties' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.imageproperties',
-            ),
-            'cancel' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.cancel',
-            ),
-            'save' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.save',
-            ),
-            'insertImage' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.insertimage',
-            ),
-            'noDefaultMetadata' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.nodefaultmetadata',
-            ),
-            'zoomHelp' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.zoomhelp',
-            ),
-            'noScaleHelp' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.noscalehelp',
-            ),
-            // Use local translation instead of deprecated TYPO3 core label
-            // (image_zoom_formlabel deprecated in TYPO3 v14)
-            'zoom' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.clicktoenlarge',
-            ),
-            'quality' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality',
-            ),
-            'qualityNone' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.none',
-            ),
-            'qualityStandard' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.standard',
-            ),
-            'qualityRetina' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.retina',
-            ),
-            'qualityUltra' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.ultra',
-            ),
-            'qualityPrint' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.print',
-            ),
-            'qualityLowLabel' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.low.label',
-            ),
-            'qualityLowTooltip' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.low.tooltip',
-            ),
-            'qualityStandardLabel' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.standard.label',
-            ),
-            'qualityStandardTooltip' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.standard.tooltip',
-            ),
-            'qualityRetinaLabel' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.retina.label',
-            ),
-            'qualityRetinaTooltip' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.retina.tooltip',
-            ),
-            'qualityUltraLabel' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.ultra.label',
-            ),
-            'qualityUltraTooltip' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.ultra.tooltip',
-            ),
-            'qualityPrintLabel' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.print.label',
-            ),
-            'qualityPrintTooltip' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.print.tooltip',
-            ),
-            'qualityExcessiveLabel' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.excessive.label',
-            ),
-            'qualityExcessiveTooltip' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.excessive.tooltip',
-            ),
-            'clickBehavior' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.clickBehavior',
-            ),
-            'clickBehaviorNone' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.clickBehaviorNone',
-            ),
-            'clickBehaviorEnlarge' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.clickBehaviorEnlarge',
-            ),
-            'clickBehaviorLink' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.clickBehaviorLink',
-            ),
-            'linkUrl' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.linkUrl',
-            ),
-            'linkTarget' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.linkTarget',
-            ),
-            'linkTitle' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.linkTitle',
-            ),
-            'linkCssClass' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.linkCssClass',
-            ),
-            'browse' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.browse',
-            ),
-            'linkTargetDefault' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.linkTargetDefault',
-            ),
-            'linkTargetBlank' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.linkTargetBlank',
-            ),
-            'linkTargetTop' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.linkTargetTop',
-            ),
-            'linkTargetSelf' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.linkTargetSelf',
-            ),
-            'linkTargetParent' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.linkTargetParent',
-            ),
-            'linkParams' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.linkParams',
-            ),
-            'linkParamsPlaceholder' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.linkParamsPlaceholder',
-            ),
-            'linkTargetPlaceholder' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.linkTargetPlaceholder',
-            ),
-            'imageInsideLinkTitle' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.imageinsidelinktitle',
-            ),
-            'imageInsideLinkMessage' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.imageinsidelinkmessage',
-            ),
-            'editImage' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.editimage',
-            ),
-            'scaling' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.scaling',
-            ),
-            'caption' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.caption',
-            ),
-            'displayWidth' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.displaywidth',
-            ),
-            'displayHeight' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.displayheight',
-            ),
-            'qualityPoorLabel' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.poor.label',
-            ),
-            'qualityPoorTooltip' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.quality.poor.tooltip',
-            ),
-            'qualityErrorZeroDimensions' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.qualityerror.zerodimensions',
-            ),
-            'qualityInfoSvg' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.qualityinfo.svg',
-            ),
-            'toggleCaption' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.togglecaption',
-            ),
-            'toggleInlineBlock' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.toggleinlineblock',
-            ),
-            'alignLeft' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.alignleft',
-            ),
-            'alignCenter' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.aligncenter',
-            ),
-            'alignRight' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.alignright',
-            ),
-            'inline' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.inline',
-            ),
-            'block' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.block',
-            ),
-            'selectImage' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.selectimage',
-            ),
-            'imageWidget' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.imagewidget',
-            ),
-            'inlineImageWidget' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.inlineimagewidget',
-            ),
-            'imageToolbar' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.imagetoolbar',
-            ),
-            'enterImageCaption' => LocalizationUtility::translate(
-                'LLL:EXT:rte_ckeditor_image/Resources/Private/Language/'
-                . 'locallang_be.xlf:labels.ckeditor.enterimagecaption',
+                'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override_not_available',
             ),
         ];
+
+        foreach (self::BACKEND_LABELS as $key => $label) {
+            $translations[$key] = LocalizationUtility::translate(self::BACKEND_LABEL_FILE . $label);
+        }
+
+        return $translations;
     }
 
     /**
