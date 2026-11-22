@@ -406,6 +406,23 @@ class ImageRenderingAdapter
     }
 
     /**
+     * SECURITY: true if any image in the HTML belongs to a file in a non-public storage.
+     *
+     * Guards the paths that output original markup unchanged, so that a second
+     * image in that markup cannot carry the URL of a protected file.
+     */
+    private function containsNonPublicImage(string $html): bool
+    {
+        foreach ($this->attributeParser->findImageFileUids($html) as $fileUid) {
+            if ($this->resolverService->isNonPublicFile($fileUid)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Count the parsed images per originalHtml.
      *
      * @param array<int, array{attributes?: array<string, string>, originalHtml?: string}> $images
@@ -859,8 +876,8 @@ class ImageRenderingAdapter
         $fileUid = (int) ($imageAttributes['data-htmlarea-file-uid'] ?? 0);
 
         if ($fileUid === 0) {
-            // No file UID - return original content
-            return $figureHtml;
+            // No file UID - return original content, unless another image in it is blocked
+            return $this->containsNonPublicImage($figureHtml) ? '' : $figureHtml;
         }
 
         // Add caption from figcaption to attributes, overriding any existing data-caption
@@ -891,8 +908,8 @@ class ImageRenderingAdapter
         }
 
         if (!$dto instanceof ImageRenderingDto) {
-            // Resolution failed - return original content
-            return $figureHtml;
+            // Resolution failed - return original content, unless another image in it is blocked
+            return $this->containsNonPublicImage($figureHtml) ? '' : $figureHtml;
         }
 
         // Render via Fluid templates (will use LinkWithCaption.html if link and caption present)

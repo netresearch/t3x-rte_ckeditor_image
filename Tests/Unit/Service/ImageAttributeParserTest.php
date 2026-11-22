@@ -919,4 +919,19 @@ class ImageAttributeParserTest extends TestCase
 
         self::assertSame('26%', $result['figureWidth']);
     }
+
+    #[Test]
+    public function findImageFileUidsReturnsTheFileUidOfEveryImage(): void
+    {
+        $html = '<figure><img src="a.jpg" /><a href="/x"><img src="b.jpg" data-htmlarea-file-uid="5" /></a>'
+            . '<p><img src="c.jpg" data-htmlarea-file-uid="2" /></p><img src="d.jpg" data-htmlarea-file-uid="" /></figure>';
+
+        self::assertSame([5, 2], $this->parser->findImageFileUids($html));
+    }
+
+    #[Test]
+    public function findImageFileUidsReturnsEmptyListForEmptyInput(): void
+    {
+        self::assertSame([], $this->parser->findImageFileUids('  '));
+    }
 }

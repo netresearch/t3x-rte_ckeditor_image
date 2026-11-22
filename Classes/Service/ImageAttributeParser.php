@@ -291,6 +291,45 @@ class ImageAttributeParser
     }
 
     /**
+     * Collect the file UIDs of all images in the HTML, in document order.
+     *
+     * Images without a file UID are skipped. The value is cast like the adapter
+     * casts it, so every UID the adapter would resolve is listed.
+     *
+     * @param string $html HTML to scan
+     *
+     * @return list<int> File UIDs greater than 0
+     */
+    public function findImageFileUids(string $html): array
+    {
+        if (trim($html) === '') {
+            return [];
+        }
+
+        $dom = new DOMDocument();
+        libxml_use_internal_errors(true);
+
+        $dom->loadHTML(
+            '<?xml encoding="UTF-8"><div>' . $html . '</div>',
+            LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
+        );
+
+        libxml_clear_errors();
+
+        $fileUids = [];
+
+        foreach ($dom->getElementsByTagName('img') as $img) {
+            $fileUid = (int) $img->getAttribute('data-htmlarea-file-uid');
+
+            if ($fileUid > 0) {
+                $fileUids[] = $fileUid;
+            }
+        }
+
+        return $fileUids;
+    }
+
+    /**
      * Check if HTML contains a figure-wrapped image structure.
      *
      * Uses DOM parsing to ensure the img is actually inside the figure element,

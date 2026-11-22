@@ -3002,6 +3002,50 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertSame('', $this->adapter->renderFigure(null, [], $this->request));
     }
 
+    #[Test]
+    public function renderFigureReturnsEmptyStringWhenFigureWithoutFileUidHoldsNonPublicImage(): void
+    {
+        // The first image has no file UID, so the original markup would be output
+        // unchanged - including a second image of a file in a non-public storage.
+        $html = '<figure><img src="external.jpg" /><img src="/protected/secret.jpg" data-htmlarea-file-uid="2" /></figure>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser->method('hasFigureWrapper')->willReturn(true);
+        $this->attributeParser
+            ->method('parseFigureWithCaption')
+            ->willReturn(['attributes' => ['src' => 'external.jpg'], 'caption' => '', 'link' => []]);
+        $this->attributeParser->method('findImageFileUids')->with($html)->willReturn([2]);
+        $this->resolverService->method('isNonPublicFile')->willReturnMap([[2, true]]);
+        $this->resolverService->expects(self::never())->method('resolve');
+
+        self::assertSame('', $this->adapter->renderFigure(null, [], $this->request));
+    }
+
+    #[Test]
+    public function renderFigureReturnsEmptyStringWhenUnresolvedFigureHoldsNonPublicImage(): void
+    {
+        $html = '<figure><img src="missing.jpg" data-htmlarea-file-uid="999" /><img src="/protected/secret.jpg" data-htmlarea-file-uid="2" /></figure>';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($html);
+
+        $this->attributeParser->method('hasFigureWrapper')->willReturn(true);
+        $this->attributeParser
+            ->method('parseFigureWithCaption')
+            ->willReturn([
+                'attributes' => ['src' => 'missing.jpg', 'data-htmlarea-file-uid' => '999'],
+                'caption'    => '',
+                'link'       => [],
+            ]);
+        $this->attributeParser->method('findImageFileUids')->with($html)->willReturn([999, 2]);
+        $this->resolverService->method('isNonPublicFile')->willReturnMap([[999, false], [2, true]]);
+        $this->resolverService->method('resolve')->willReturn(null);
+
+        self::assertSame('', $this->adapter->renderFigure(null, [], $this->request));
+    }
+
     /**
      * parseFunc hands tags.img the raw attribute string of the tag as parameters['allParams']
      * and an empty current value, since <img> is an empty tag.
