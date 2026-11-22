@@ -3,9 +3,28 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
+const nodeModules = fileURLToPath(new URL('./node_modules/', import.meta.url));
+
 export default defineConfig({
+  resolve: {
+    alias: [
+      // The plugin under test (../../Resources/Public/JavaScript/Plugins/typo3image.js)
+      // imports CKEditor packages and TYPO3 modules by bare specifier, resolved
+      // by the TYPO3 import map at runtime. Outside this workspace Node
+      // resolution cannot find them, so map them to this workspace's copies.
+      {
+        find: /^@ckeditor\/(ckeditor5-[a-z0-9-]+)$/,
+        replacement: `${nodeModules}@ckeditor/$1/dist/index.js`,
+      },
+      {
+        find: /^@typo3\/backend\/modal\.js$/,
+        replacement: fileURLToPath(new URL('./mocks/typo3-backend-modal.js', import.meta.url)),
+      },
+    ],
+  },
   test: {
     globals: true,
     environment: 'jsdom',

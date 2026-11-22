@@ -8,6 +8,6 @@
 <f:variable name="figureStyle" value="{f:if(condition: image.figureWidth, then: 'width:{image.figureWidth};')}{f:if(condition: image.width, then: 'max-width: {image.width}px')}" />
 <figure class="{figureClasses}{additionalClass}"{f:if(condition: figureStyle, then: ' style="{figureStyle}"')}>
     {content -> f:format.raw()}
-    <f:if condition="{image.caption}"><figcaption>{image.caption}</figcaption></f:if>
+    <f:if condition="{image.caption}"><figcaption>{image.caption -> f:format.raw()}</figcaption></f:if>
 </figure>
 </html>

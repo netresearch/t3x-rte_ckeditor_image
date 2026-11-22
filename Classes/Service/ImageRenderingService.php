@@ -114,7 +114,24 @@ class ImageRenderingService
 
         // Step 2: Remove whitespace between HTML tags
         // Example: </a>\n    <figcaption> becomes </a><figcaption>
-        $output = preg_replace('/>\s+</', '><', $output) ?? $output;
+        // The caption content is skipped: there a space between two inline
+        // elements (<strong>a</strong> <em>b</em>) is content, not template
+        // indentation. The sanitized caption cannot contain "</figcaption>".
+        $parts = preg_split('#(<figcaption\b[^>]*>.*?</figcaption>)#is', $output, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        if ($parts !== false) {
+            foreach ($parts as $index => $part) {
+                if ($index % 2 === 0) {
+                    // Whitespace next to a figcaption also sits between two tags
+                    $part = $index > 0 ? (preg_replace('/^\s+</', '<', $part) ?? $part) : $part;
+                    $part = $index < count($parts) - 1 ? (preg_replace('/>\s+$/', '>', $part) ?? $part) : $part;
+
+                    $parts[$index] = preg_replace('/>\s+</', '><', $part) ?? $part;
+                }
+            }
+
+            $output = implode('', $parts);
+        }
 
         return trim($output);
     }

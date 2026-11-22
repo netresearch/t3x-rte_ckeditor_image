@@ -325,6 +325,24 @@ class ImageAttributeParserTest extends TestCase
     }
 
     #[Test]
+    public function parseFigureWithCaptionReturnsInnerHtmlOfFigcaption(): void
+    {
+        $html   = '<figure class="image"><img src="test.jpg" alt="Test"/><figcaption>Line1<br>Line2 <strong>bold</strong></figcaption></figure>';
+        $result = $this->parser->parseFigureWithCaption($html);
+
+        self::assertSame('Line1Line2 bold', $result['caption']);
+        self::assertSame('Line1<br>Line2 <strong>bold</strong>', $result['captionHtml']);
+    }
+
+    #[Test]
+    public function parseFigureWithCaptionReturnsEmptyCaptionHtmlWithoutFigcaption(): void
+    {
+        $result = $this->parser->parseFigureWithCaption('<figure class="image"><img src="test.jpg"/></figure>');
+
+        self::assertSame('', $result['captionHtml']);
+    }
+
+    #[Test]
     public function parseFigureWithCaptionReturnsEmptyForNoFigure(): void
     {
         $html   = '<img src="test.jpg" alt="Test"/>';

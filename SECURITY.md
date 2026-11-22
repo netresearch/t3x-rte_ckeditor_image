@@ -11,7 +11,7 @@ We take security very seriously and are always grateful for reports about potent
 
 This extension implements the following security measures:
 
-- **Caption XSS Prevention**: All user-editable captions are sanitized with `htmlspecialchars()`
+- **Caption XSS Prevention**: Figcaption markup is reduced to an inline allowlist (`br`, `strong`, `b`, `em`, `i`, `a` with an allowed `href`); plain-text captions are sanitized with `htmlspecialchars()`
 - **File Visibility Validation**: Images from non-public storages are blocked
 - **Dangerous Protocol Blocking**: `javascript:`, `vbscript:`, `data:text/html` URLs are rejected
 - **SSRF Protection**: External image fetching includes DNS rebinding and private IP blocking

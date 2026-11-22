@@ -29,7 +29,7 @@ final readonly class ImageRenderingDto
      * @param string|null         $alt            Alternative text for accessibility
      * @param string|null         $title          Title attribute for hover tooltip
      * @param array<string,mixed> $htmlAttributes Additional HTML attributes (data-*, class, style, loading)
-     * @param string|null         $caption        Caption text (already XSS-sanitized with htmlspecialchars)
+     * @param string|null         $caption        Caption HTML, already XSS-sanitized (figcaption markup reduced to br, strong, b, em, i, a; plain text encoded with htmlspecialchars)
      * @param LinkDto|null        $link           Link/popup configuration (nullable for linked images)
      * @param bool                $isMagicImage   Whether this is a magic image (TYPO3 processing enabled)
      * @param string|null         $figureClass    Figure element class for alignment (image-left, image-center, image-right)

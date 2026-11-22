@@ -1374,9 +1374,15 @@ function edit(selectedImage, editor, imageAttributes) {
 
                 // Create caption element if caption text exists (only for block images)
                 // Inline images cannot have captions
+                // The dialog shows the caption as plain text. When that text was not
+                // changed, keep the caption content of the model (line breaks, bold,
+                // links); a changed text replaces the caption with plain text.
                 if (!isInlineImage) {
                     const captionText = (attributes.caption || '').trim();
-                    if (captionText !== '') {
+                    const originalCaption = imageAttributes.captionElement;
+                    if (captionText !== '' && originalCaption && captionText === (imageAttributes.caption || '').trim()) {
+                        writer.append(writer.cloneElement(originalCaption), newImage);
+                    } else if (captionText !== '') {
                         const captionElement = writer.createElement('typo3imageCaption');
                         writer.append(captionElement, newImage);
                         writer.insertText(captionText, captionElement);
@@ -1806,6 +1812,26 @@ function isClasslessImageInText(imgElement, node) {
  * link editing sets, and download. Other attributes are left out, as before.
  */
 const IMAGE_LINK_EXTRA_ATTRIBUTES = ['rel', 'download'];
+
+/**
+ * Upcast a <figcaption> into a typo3imageCaption child of the given image.
+ *
+ * Converts the figcaption children with the conversion API, so everything the
+ * caption schema allows (the content of $block: text with attributes such as
+ * bold or links, soft breaks from <br>) reaches the model. Copying only the
+ * text nodes dropped that markup.
+ *
+ * @param {module:engine/view/element~ViewElement} viewFigcaption
+ * @param {module:engine/model/element~ModelElement} modelImage typo3image element
+ * @param {module:engine/conversion/upcastdispatcher~UpcastConversionApi} conversionApi
+ */
+function upcastCaption(viewFigcaption, modelImage, conversionApi) {
+    const { writer } = conversionApi;
+    const captionElement = writer.createElement('typo3imageCaption');
+    writer.append(captionElement, modelImage);
+
+    conversionApi.convertChildren(viewFigcaption, captionElement);
+}
 
 /**
  * Collect the extra attributes of an image's own <a>, such as rel or download (#935).
@@ -2309,7 +2335,8 @@ export default class Typo3Image extends Plugin {
                 view: {
                     name: 'a'
                 },
-                model: (viewLink, { writer, consumable }) => {
+                model: (viewLink, conversionApi) => {
+                    const { writer, consumable } = conversionApi;
                     // Check if this <a> contains a figure.image
                     let figureElement = null;
                     for (const child of viewLink.getChildren()) {
@@ -2430,14 +2457,7 @@ export default class Typo3Image extends Plugin {
 
                     // Handle caption
                     if (figcaptionElement) {
-                        const captionElement = writer.createElement('typo3imageCaption');
-                        writer.append(captionElement, typo3image);
-
-                        for (const node of figcaptionElement.getChildren()) {
-                            if (node.is('$text')) {
-                                writer.insertText(node.data, captionElement);
-                            }
-                        }
+                        upcastCaption(figcaptionElement, typo3image, conversionApi);
                     }
 
                     return typo3image;
@@ -2454,7 +2474,8 @@ export default class Typo3Image extends Plugin {
                     name: 'figure',
                     classes: ['image']
                 },
-                model: (viewFigure, { writer, consumable }) => {
+                model: (viewFigure, conversionApi) => {
+                    const { writer, consumable } = conversionApi;
                     // Skip if parent is a link - handled by the linked figure upcast above
                     const parent = viewFigure.parent;
                     if (parent?.is('element', 'a')) {
@@ -2560,15 +2581,7 @@ export default class Typo3Image extends Plugin {
 
                     // Create caption element if figcaption exists
                     if (figcaptionElement) {
-                        const captionElement = writer.createElement('typo3imageCaption');
-                        writer.append(captionElement, typo3image);
-
-                        // Copy caption text content
-                        for (const node of figcaptionElement.getChildren()) {
-                            if (node.is('$text')) {
-                                writer.insertText(node.data, captionElement);
-                            }
-                        }
+                        upcastCaption(figcaptionElement, typo3image, conversionApi);
                     }
 
                     return typo3image;
@@ -3375,6 +3388,16 @@ export default class Typo3Image extends Plugin {
                 const selectedElement = editor.model.document.selection.getSelectedElement();
 
                 if (selectedElement?.name === 'typo3image') {
+                    // Pass the caption like the balloon and double-click handlers do,
+                    // so saving without a change keeps a formatted caption
+                    const captionElement = getCaptionFromImageModelElement(selectedElement);
+                    let captionText = '';
+                    for (const child of captionElement?.getChildren() ?? []) {
+                        if (child.is('$text')) {
+                            captionText += child.data;
+                        }
+                    }
+
                     edit(
                         {
                             uid: selectedElement.getAttribute('fileUid'),
@@ -3387,6 +3410,8 @@ export default class Typo3Image extends Plugin {
                             class: selectedElement.getAttribute('class'),
                             alt: selectedElement.getAttribute('alt'),
                             title: selectedElement.getAttribute('title'),
+                            caption: captionText,
+                            captionElement: captionElement,
                             'data-htmlarea-zoom': selectedElement.getAttribute('enableZoom'),
                             'data-noscale': selectedElement.getAttribute('noScale'),
                             'data-quality': selectedElement.getAttribute('quality'),
@@ -3438,8 +3463,9 @@ export default class Typo3Image extends Plugin {
                 if (isTypo3ImageElement(selectedElement)) {
                     // Get caption text from caption element (if exists) - only for block images
                     let captionText = '';
+                    let captionElement = null;
                     if (selectedElement.name === 'typo3image') {
-                        const captionElement = getCaptionFromImageModelElement(selectedElement);
+                        captionElement = getCaptionFromImageModelElement(selectedElement);
                         if (captionElement) {
                             for (const child of captionElement.getChildren()) {
                                 if (child.is('$text')) {
@@ -3484,6 +3510,8 @@ export default class Typo3Image extends Plugin {
                             alt: selectedElement.getAttribute('alt'),
                             title: selectedElement.getAttribute('title'),
                             caption: captionText,
+                            // Kept when the caption text is not changed in the dialog
+                            captionElement: captionElement,
                             'data-htmlarea-zoom': selectedElement.getAttribute('enableZoom'),
                             'data-noscale': selectedElement.getAttribute('noScale'),
                             'data-quality': selectedElement.getAttribute('quality'),
@@ -3752,8 +3780,9 @@ export default class Typo3Image extends Plugin {
 
                 // Get caption text from caption element (if exists) - only for block images
                 let captionText = '';
+                let captionElement = null;
                 if (modelElement.name === 'typo3image') {
-                    const captionElement = getCaptionFromImageModelElement(modelElement);
+                    captionElement = getCaptionFromImageModelElement(modelElement);
                     if (captionElement) {
                         for (const child of captionElement.getChildren()) {
                             if (child.is('$text')) {
@@ -3801,6 +3830,8 @@ export default class Typo3Image extends Plugin {
                         linkAttributes: modelElement.getAttribute('imageLinkAttributes'),
                         linkPluginAttributes: getLinkPluginAttributes(modelElement),
                         caption: captionText,
+                        // Kept when the caption text is not changed in the dialog
+                        captionElement: captionElement,
                         // Pass flag to indicate if this is an inline image (for hiding caption field)
                         isInlineImage: modelElement.name === 'typo3imageInline',
                         // Pass flag to indicate if image is inside an external link (for disabling link options)

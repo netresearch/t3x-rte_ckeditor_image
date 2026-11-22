@@ -458,27 +458,45 @@ Figcaption line breaks
 
 **Symptoms:**
 
-* Pressing Shift+Enter in figcaption does not insert a line break
-* Adding ``<br>`` in source mode is removed after saving
-* Caption text always appears on a single line
+* Caption text always appears on a single line on the frontend
+* Bold, italic and links in a caption are not rendered on the frontend
+* Editing the image in the image dialog removes the caption formatting
 
-**Cause:** When content is loaded into the editor, the extension's upcast
-converter copies only the text nodes of a ``<figcaption>`` into the caption.
-A ``<br>`` or other inline markup in a stored caption is dropped at that
-point. CKEditor 5 itself does not have this restriction: its caption model
-accepts the same content as a paragraph.
+**Cause:** Earlier versions kept only the text of the ``<figcaption>``.
+The editor now keeps the inline content of a caption:
+line breaks (Shift+Enter, or ``<br>`` in source mode), bold, italic and links
+survive loading and saving the content.
 
-**Workaround:** Captions wrap naturally based on the figure container width.
+The frontend renders the caption with this inline allowlist:
+``<br>``, ``<strong>``, ``<b>``, ``<em>``, ``<i>`` and ``<a>``.
+Every other element is reduced to its text, every other attribute is removed.
+A link keeps only ``href``, ``target``, ``title`` and ``rel``.
+Its ``href`` must use an allowed protocol (``http``, ``https``,
+``mailto``, ``tel``, ``t3``) or be relative;
+otherwise the link is replaced by its text.
+``t3://`` links are resolved like other RTE links;
+a ``t3://`` link that cannot be resolved is replaced by its text.
+``target="_blank"`` on an external link gets ``rel="noreferrer"``.
+See :ref:`integration-security` for the security rules.
+
+The image dialog shows the caption as plain text.
+Saving the dialog without changing that text keeps the formatting.
+Changing the caption text in the dialog replaces the caption with the new
+plain text, so line breaks, bold and links are lost.
+To keep formatting while changing the text, edit the caption directly in the
+editor instead of in the dialog.
+
+If your site package overrides :file:`Partials/Image/Figure.html`, the
+override still prints ``{image.caption}`` escaped, so the markup appears as
+text. Print it with ``{image.caption -> f:format.raw()}`` as the
+extension's partial does; the caption is sanitized before it reaches the
+template.
+
+**Workaround (older versions):** Captions wrap naturally based on the figure container width.
 Since version 13.6.0, the ``<figure>`` element is automatically constrained
 to the image width via ``max-width``, so captions wrap within the image
 boundary without additional CSS. See :ref:`examples-image-styles` for
 details.
-
-.. note::
-   This limitation applies to all CKEditor 5 figcaptions, not just images
-   from this extension. See `CKEditor 5 image captions documentation
-   <https://ckeditor.com/docs/ckeditor5/latest/features/images/images-captions.html>`__
-   for details.
 
 ----
 

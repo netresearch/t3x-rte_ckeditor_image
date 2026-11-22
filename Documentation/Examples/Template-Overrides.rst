@@ -264,7 +264,7 @@ All templates receive the `image` variable containing an :php:`ImageRenderingDto
     {image.height}                 <!-- Display height in pixels -->
     {image.alt}                    <!-- Alternative text -->
     {image.title}                  <!-- Title attribute -->
-    {image.caption}                <!-- Caption text (XSS-sanitized) -->
+    {image.caption -> f:format.raw()} <!-- Caption HTML (sanitized, see below) -->
     {image.isMagicImage}           <!-- Whether TYPO3 processing applied -->
 
     <!-- HTML attributes -->
@@ -280,6 +280,11 @@ All templates receive the `image` variable containing an :php:`ImageRenderingDto
     {image.link.isPopup}           <!-- Whether popup/lightbox -->
 
 See :ref:`api-imagerenderingdto` for complete property documentation.
+
+``image.caption`` holds sanitized HTML (``br``, ``strong``, ``b``, ``em``,
+``i``, ``a``) with text already encoded.
+Print it with ``f:format.raw()``; a plain ``{image.caption}`` shows the markup
+and entities as text.
 
 Example overrides
 =================
@@ -320,7 +325,7 @@ Override :file:`WithCaption.html` for custom figure styling:
              loading="lazy"
              decoding="async" />
         <figcaption class="content-image__caption">
-            {image.caption}
+            {image.caption -> f:format.raw()}
         </figcaption>
     </figure>
 

@@ -157,7 +157,9 @@ class ImageAttributeParser
     /**
      * Parse image attributes, caption, link, and figure class from <figure> wrapped images.
      *
-     * Extracts caption text from <figcaption> element if present.
+     * Extracts the caption from the <figcaption> element if present: `caption` is its
+     * text content, `captionHtml` its unsanitized inner HTML (sanitized later by
+     * ImageResolverService before it reaches any output).
      * Extracts link attributes when image is wrapped in <a> inside figure.
      * Extracts figure class for alignment (image-left, image-center, image-right).
      * This handles CKEditor 5 output format: <figure><img/><figcaption>...</figcaption></figure>
@@ -165,14 +167,14 @@ class ImageAttributeParser
      *
      * @param string $html HTML string containing figure-wrapped image
      *
-     * @return array{attributes: array<string,string>, caption: string, link: array<string,string>, figureClass: string, figureWidth: string}
+     * @return array{attributes: array<string,string>, caption: string, captionHtml: string, link: array<string,string>, figureClass: string, figureWidth: string}
      *
      * @see https://github.com/netresearch/t3x-rte_ckeditor_image/issues/555
      */
     public function parseFigureWithCaption(string $html): array
     {
         if (trim($html) === '') {
-            return ['attributes' => [], 'caption' => '', 'link' => [], 'figureClass' => '', 'figureWidth' => ''];
+            return ['attributes' => [], 'caption' => '', 'captionHtml' => '', 'link' => [], 'figureClass' => '', 'figureWidth' => ''];
         }
 
         $dom = new DOMDocument();
@@ -191,7 +193,7 @@ class ImageAttributeParser
         $figures = $xpath->query('//figure');
 
         if ($figures === false || $figures->length === 0) {
-            return ['attributes' => [], 'caption' => '', 'link' => [], 'figureClass' => '', 'figureWidth' => ''];
+            return ['attributes' => [], 'caption' => '', 'captionHtml' => '', 'link' => [], 'figureClass' => '', 'figureWidth' => ''];
         }
 
         /** @var DOMElement $figure */
@@ -214,13 +216,20 @@ class ImageAttributeParser
         }
 
         // Extract caption from figcaption
-        $captions = $xpath->query('.//figcaption', $figure);
-        $caption  = '';
+        $captions    = $xpath->query('.//figcaption', $figure);
+        $caption     = '';
+        $captionHtml = '';
 
         if ($captions !== false && $captions->length > 0) {
             /** @var DOMElement $figcaptionElement */
             $figcaptionElement = $captions->item(0);
             $caption           = trim($figcaptionElement->textContent ?? '');
+
+            foreach ($figcaptionElement->childNodes as $captionChild) {
+                $captionHtml .= $dom->saveHTML($captionChild);
+            }
+
+            $captionHtml = trim($captionHtml);
         }
 
         // Extract link attributes if image is wrapped in <a>
@@ -234,7 +243,7 @@ class ImageAttributeParser
             $linkAttributes = $this->extractAttributes($link);
         }
 
-        return ['attributes' => $attributes, 'caption' => $caption, 'link' => $linkAttributes, 'figureClass' => $figureClass, 'figureWidth' => $figureWidth];
+        return ['attributes' => $attributes, 'caption' => $caption, 'captionHtml' => $captionHtml, 'link' => $linkAttributes, 'figureClass' => $figureClass, 'figureWidth' => $figureWidth];
     }
 
     /**

@@ -95,9 +95,14 @@ test.describe('Error Handling & Edge Cases', () => {
         // Raw <script> must NOT appear in figcaption
         expect(captionHtml).not.toMatch(/<script[\s>]/i);
 
-        // The text content should be safe (escaped or stripped)
+        // No script element may exist in the caption
+        expect(await figcaption.locator('script').count()).toBe(0);
+
+        // The stored caption is the escaped text &lt;script&gt;..., so the reader
+        // sees it as literal text. (Before #978 the caption was escaped twice and
+        // showed "&lt;script&gt;" on the page; that double-encoding was a bug.)
         const captionText = await figcaption.textContent();
-        expect(captionText).not.toContain('<script>');
+        expect(captionText?.trim()).toBe('<script>alert("xss")</script>');
       }
     });
 

@@ -336,7 +336,7 @@ Source: [`Documentation/`](Documentation/) (reStructuredText, automatically buil
 
 This extension implements defense-in-depth security at every boundary where untrusted RTE content reaches a renderer or a storage path:
 
-- **Caption XSS prevention** — all editor-supplied captions are sanitized via `ImageResolverService::sanitizeCaption()`.
+- **Caption XSS prevention** — captions of images the extension resolves (with a file UID) are sanitized in `ImageResolverService`: figcaption markup is reduced to `br`, `strong`, `b`, `em`, `i` and `a` (allowed `href` protocols only), plain-text captions are encoded with `htmlspecialchars()`. A figure without a file UID is output as stored; its caption relies on the `htmlSanitize` step of `lib.parseFunc_RTE` in TYPO3 Core.
 - **File visibility validation** — files in non-public storages are blocked at render time.
 - **URL protocol allowlist** — only `http:`, `https:`, `mailto:`, `tel:`, `t3:` pass; `javascript:`, `vbscript:`, `data:text/html` are rejected.
 - **SVG sanitization** — SVG data URIs are routed through TYPO3 Core's `SvgSanitizer`.

@@ -144,7 +144,7 @@ When modifying Classes/ code:
 
 - **Never** add `style` attribute to allowed HTML attributes (CSS injection)
 - **Always** validate URLs against protocol allowlist before rendering
-- **Always** sanitize captions with `htmlspecialchars()` before output
+- **Always** sanitize captions before output: figcaption markup through `CaptionSanitizer` (allowlist `br`, `strong`, `b`, `em`, `i`, `a`; hrefs via `validateLinkUrl()`), plain-text `data-caption` with `htmlspecialchars()`
 - **Always** check file visibility (`isPublic()`) before rendering in frontend
 - **Always** use `SvgSanitizer` for SVG data URIs
 - Security validation happens in `ImageResolverService` BEFORE DTO construction

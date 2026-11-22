@@ -59,8 +59,11 @@ In Scope (This Extension's Responsibility)
 1. **Caption XSS Prevention**
 
    - User-editable caption text must be sanitized
-   - Implementation: ``htmlspecialchars($caption, ENT_QUOTES | ENT_HTML5, 'UTF-8')``
-   - Location: ``ImageResolverService::sanitizeCaption()``
+   - Implementation: figcaption markup is rebuilt from an inline allowlist
+     (``br``, ``strong``, ``b``, ``em``, ``i``, ``a`` with an allowed ``href``);
+     plain-text captions use ``htmlspecialchars($caption, ENT_QUOTES | ENT_HTML5, 'UTF-8')``
+   - Location: ``ImageResolverService::sanitizeCaptionHtml()`` (``CaptionSanitizer``)
+     and ``ImageResolverService::sanitizeCaption()``
 
 2. **File Visibility Validation**
 

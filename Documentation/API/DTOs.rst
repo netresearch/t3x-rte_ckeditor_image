@@ -121,7 +121,9 @@ Property details
     :type: ?string
     :required: false
 
-    Caption text for :html:`<figcaption>`. Already sanitized with :php:`htmlspecialchars()`.
+    Caption HTML for :html:`<figcaption>`, already sanitized: markup is reduced to
+    ``br``, ``strong``, ``b``, ``em``, ``i`` and ``a``, plain text is encoded
+    with :php:`htmlspecialchars()`. Print it with ``f:format.raw()``.
 
 ..  confval:: link
     :name: dto-link

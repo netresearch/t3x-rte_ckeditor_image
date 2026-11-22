@@ -21,6 +21,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel as PsrLogLevel;
 use ReflectionMethod;
+use ReflectionProperty;
 use RuntimeException;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\Exception\FileDoesNotExistException;
@@ -569,6 +570,108 @@ final class ImageResolverServiceTest extends TestCase
     // ========================================================================
     // Caption Extraction Tests
     // ========================================================================
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function captionHtmlProvider(): array
+    {
+        return [
+            'inline markup kept'         => ['Line1<br>Line2 <strong>bold</strong>', 'Line1<br>Line2 <strong>bold</strong>'],
+            'span reduced to text'       => ['<span style="color:red">x</span>', 'x'],
+            'https link kept'            => ['<a href="https://example.com">x</a>', '<a href="https://example.com">x</a>'],
+            'relative link kept'         => ['<a href="/page">x</a>', '<a href="/page">x</a>'],
+            'javascript link to text'    => ['<a href="javascript:alert(1)">x</a>', 'x'],
+            'data link to text'          => ['<a href="data:text/html,x">x</a>', 'x'],
+            'unresolved t3 link to text' => ['<a href="t3://page?uid=1">x</a>', 'x'],
+            'only a line break is empty' => ['<br>', ''],
+            'empty strong is empty'      => ['<strong> </strong><br>', ''],
+            'blank target gets rel'      => ['<a href="https://example.com" target="_blank">x</a>', '<a href="https://example.com" target="_blank" rel="noreferrer">x</a>'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('captionHtmlProvider')]
+    public function sanitizeCaptionHtmlAppliesAllowlistWithoutLinkResolver(string $input, string $expected): void
+    {
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaptionHtml', [$input, null]);
+
+        self::assertSame($expected, $result);
+    }
+
+    #[Test]
+    public function sanitizeCaptionHtmlResolvesT3Links(): void
+    {
+        $resolver = static fn (string $url): string => $url === 't3://page?uid=1' ? '/home' : $url;
+
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaptionHtml', ['See <a href="t3://page?uid=1">home</a>', $resolver]);
+
+        self::assertSame('See <a href="/home">home</a>', $result);
+    }
+
+    #[Test]
+    public function sanitizeCaptionHtmlDropsT3LinkTheResolverCannotResolve(): void
+    {
+        $resolver = static fn (string $url): string => $url;
+
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaptionHtml', ['See <a href="t3://page?uid=999">x</a>', $resolver]);
+
+        self::assertSame('See x', $result);
+    }
+
+    #[Test]
+    public function sanitizeCaptionHtmlRejectsResolvedUrlWithDisallowedProtocol(): void
+    {
+        $resolver = static fn (string $url): string => 'javascript:alert(1)';
+
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaptionHtml', ['<a href="t3://page?uid=1">x</a>', $resolver]);
+
+        self::assertSame('x', $result);
+    }
+
+    #[Test]
+    public function sanitizeCaptionHtmlDoesNotCallResolverForNonT3Links(): void
+    {
+        $calls    = 0;
+        $resolver = static function (string $url) use (&$calls): string {
+            ++$calls;
+
+            return $url;
+        };
+
+        $this->callPrivateMethod($this->service, 'sanitizeCaptionHtml', ['<a href="https://example.com">x</a>', $resolver]);
+
+        self::assertSame(0, $calls);
+    }
+
+    #[Test]
+    public function resolveKeepsItsSixParameterSignatureForSubclasses(): void
+    {
+        // Subclasses that override resolve() must stay loadable
+        self::assertSame(6, (new ReflectionMethod(ImageResolverService::class, 'resolve'))->getNumberOfParameters());
+    }
+
+    #[Test]
+    public function withFigureCaptionReturnsCopyAndLeavesServiceUnchanged(): void
+    {
+        $copy = $this->service->withFigureCaption('A<br>B');
+
+        self::assertNotSame($this->service, $copy);
+        self::assertNull((new ReflectionProperty(ImageResolverService::class, 'figureCaptionHtml'))->getValue($this->service));
+        self::assertSame('A<br>B', (new ReflectionProperty(ImageResolverService::class, 'figureCaptionHtml'))->getValue($copy));
+    }
+
+    #[Test]
+    public function sanitizeCaptionHtmlTurnsLinkIntoTextWhenResolverThrows(): void
+    {
+        $resolver = static function (string $url): string {
+            throw new RuntimeException('link listener failed', 1732250000);
+        };
+
+        $result = $this->callPrivateMethod($this->service, 'sanitizeCaptionHtml', ['See <a href="t3://page?uid=1">home</a>', $resolver]);
+
+        self::assertSame('See home', $result);
+    }
 
     #[Test]
     public function sanitizeCaptionReturnsEmptyStringForEmptyInput(): void
