@@ -31,7 +31,7 @@ For details, see [ADR-003: Security Responsibility Boundaries](Documentation/Arc
 
 Findings of the dependency and code analysis checks that run on pull requests (Composer Audit, Dependency Review, License Check, Opengrep, CodeQL, Betterleaks, zizmor; see [CONTRIBUTING.md](CONTRIBUTING.md#governance-and-policies)) are handled under the organisation policy [Handling of Dependency and Code Analysis Findings](https://github.com/netresearch/.github/blob/main/SECURITY.md#handling-of-dependency-and-code-analysis-findings), which sets the thresholds, the deadlines and how exceptions are recorded.
 
-Exceptions to Composer Audit are recorded in `config.audit.ignore` in `composer.json`, each with its reason. It currently lists `PKSA-y2cr-5h3j-g3ys` (CVE-2025-45769 in `firebase/php-jwt` below 7.0, a dependency of TYPO3 Core). TYPO3 Core 13.4.21 to 13.4.26 accept only `firebase/php-jwt` 6.x, and this extension still supports them; TYPO3 Core 13.4.27 and 14.3 also accept 7.x.
+Exceptions to Composer Audit are recorded in `config.audit.ignore` in `composer.json`, each with its reason. It currently lists `PKSA-y2cr-5h3j-g3ys` (CVE-2025-45769 in `firebase/php-jwt` below 7.0, a dependency of TYPO3 Core). TYPO3 Core 13.4.21 to 13.4.25 accept only `firebase/php-jwt` 6.x, and this extension still supports them; TYPO3 Core 13.4.26 and 14.3 also accept 7.x.
 
 ## Secrets Management
 

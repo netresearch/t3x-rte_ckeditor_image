@@ -62,7 +62,7 @@
         "audit": {
             "abandoned": "report",
             "ignore": {
-                "PKSA-y2cr-5h3j-g3ys": "CVE-2025-45769 in firebase/php-jwt <7.0 — TYPO3 Core 13.4.21 to 13.4.26 require php-jwt ^6.10; remove once the TYPO3 floor is 13.4.27 or higher"
+                "PKSA-y2cr-5h3j-g3ys": "CVE-2025-45769 in firebase/php-jwt <7.0 — TYPO3 Core 13.4.21 to 13.4.25 require php-jwt ^6.10; remove once the TYPO3 floor is 13.4.26 or higher"
             }
         },
         "allow-plugins": {
