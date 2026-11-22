@@ -103,6 +103,136 @@ function debounce(func, wait) {
 }
 
 /**
+ * Reduce a CSS class input to valid CSS class characters.
+ *
+ * @param {string} value - The input value
+ * @return {string} The trimmed and sanitized classes
+ */
+function sanitizeCssClassInput(value) {
+    return value ? value.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
+}
+
+/**
+ * Set an attribute to a value, or delete it for an empty value.
+ *
+ * @param {Object} attributes - The dialog attributes, changed in place
+ * @param {string} key - The attribute name
+ * @param {string} value - The value
+ */
+function setOrDeleteAttribute(attributes, key, value) {
+    if (value !== '') {
+        attributes[key] = value;
+    } else {
+        delete attributes[key];
+    }
+}
+
+/**
+ * Click behavior "enlarge": set the zoom attribute, clear the link target and
+ * combine the alignment classes with the CSS class of the enlarge field.
+ *
+ * @param {Object} attributes - The dialog attributes, changed in place
+ * @param {string[]} alignmentClasses - The alignment classes of the image
+ * @param {string} cssClassValue - The value of the enlarge CSS class field
+ */
+function applyEnlargeBehavior(attributes, alignmentClasses, cssClassValue) {
+    attributes['data-htmlarea-zoom'] = true;
+    delete attributes.linkHref;
+    delete attributes.linkTarget;
+    delete attributes.linkTitle;
+    delete attributes.linkParams;
+    const enlargeCss = sanitizeCssClassInput(cssClassValue);
+    const combinedEnlargeClasses = alignmentClasses.slice();
+    if (enlargeCss) {
+        combinedEnlargeClasses.push(enlargeCss);
+    }
+    attributes.class = combinedEnlargeClasses.join(' ');
+}
+
+/**
+ * Click behavior "link": clear the zoom attributes and write the link fields.
+ * The link CSS class goes on the <a>; the image keeps its alignment classes.
+ *
+ * @param {Object} attributes - The dialog attributes, changed in place
+ * @param {string[]} alignmentClasses - The alignment classes of the image
+ * @param {{href: string, target: string, title: string, params: string, cssClass: string}} link - The link field values
+ */
+function applyLinkBehavior(attributes, alignmentClasses, link) {
+    delete attributes['data-htmlarea-zoom'];
+    delete attributes['data-htmlarea-clickenlarge'];
+    setOrDeleteAttribute(attributes, 'linkHref', link.href.trim());
+    setOrDeleteAttribute(attributes, 'linkTarget', link.target.trim());
+    setOrDeleteAttribute(attributes, 'linkTitle', link.title.trim());
+    setOrDeleteAttribute(attributes, 'linkParams', link.params.trim());
+    setOrDeleteAttribute(attributes, 'linkClass', sanitizeCssClassInput(link.cssClass));
+    attributes.class = alignmentClasses.join(' ');
+}
+
+/**
+ * Click behavior "none": clear the zoom and link attributes. The image keeps
+ * its alignment classes.
+ *
+ * @param {Object} attributes - The dialog attributes, changed in place
+ * @param {string[]} alignmentClasses - The alignment classes of the image
+ */
+function applyNoClickBehavior(attributes, alignmentClasses) {
+    delete attributes['data-htmlarea-zoom'];
+    delete attributes['data-htmlarea-clickenlarge'];
+    delete attributes.linkHref;
+    delete attributes.linkTarget;
+    delete attributes.linkTitle;
+    delete attributes.linkClass;
+    delete attributes.linkParams;
+    attributes.class = alignmentClasses.join(' ');
+}
+
+/**
+ * Write the selected quality. "none" (No Scaling) sets data-noscale, any
+ * other quality removes it; no quality removes both.
+ *
+ * @param {Object} attributes - The dialog attributes, changed in place
+ * @param {string} qualityValue - The value of the quality dropdown
+ */
+function applyQualitySelection(attributes, qualityValue) {
+    if (qualityValue) {
+        attributes['data-quality'] = qualityValue;
+        if (qualityValue === 'none') {
+            attributes['data-noscale'] = true;
+        } else {
+            delete attributes['data-noscale'];
+        }
+    } else if (attributes['data-quality']) {
+        delete attributes['data-quality'];
+        delete attributes['data-noscale'];
+    }
+}
+
+/**
+ * Write the title/alt override state of the dialog checkboxes. An override
+ * keeps the entered value (empty is allowed); without it the value is
+ * dropped so that the file metadata applies.
+ *
+ * @param {Object} attributes - The dialog attributes, changed in place
+ * @param {Element} container - The dialog element
+ */
+function applyOverrideCheckboxes(attributes, container) {
+    const titleCheckbox = container.querySelector('#checkbox-title');
+    if (titleCheckbox && !titleCheckbox.checked) {
+        delete attributes.title;
+    }
+
+    for (const item of ['title', 'alt']) {
+        const curCheckbox = container.querySelector(`#checkbox-${item}`);
+        attributes[`data-${item}-override`] = curCheckbox ? curCheckbox.checked : false;
+        if (curCheckbox?.checked) {
+            attributes[item] = attributes[item] || '';
+        } else {
+            delete attributes[item];
+        }
+    }
+}
+
+/**
  * Get the image attributes dialog
  *
  * @param {Object} editor
@@ -799,108 +929,23 @@ function getImageDialog(editor, img, attributes) {
         const selectedClickBehavior = selRadio ? selRadio.value : 'none';
 
         if (selectedClickBehavior === 'enlarge') {
-            // Enlarge mode: set zoom attribute, clear link attributes
-            attributes['data-htmlarea-zoom'] = true;
-            delete attributes.linkHref;
-            delete attributes.linkTarget;
-            delete attributes.linkTitle;
-            delete attributes.linkParams;
-            // Set CSS class from enlarge field (sanitized to valid CSS class characters)
-            const enlargeCssVal = inputCssClassEnlarge.value;
-            const enlargeCss = enlargeCssVal ? enlargeCssVal.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
-            // Combine preserved alignment classes with enlarge CSS class
-            const combinedEnlargeClasses = preservedAlignmentClasses.slice();
-            if (enlargeCss) {
-                combinedEnlargeClasses.push(enlargeCss);
-            }
-            attributes.class = combinedEnlargeClasses.join(' ');
+            applyEnlargeBehavior(attributes, preservedAlignmentClasses, inputCssClassEnlarge.value);
         } else if (selectedClickBehavior === 'link') {
-            // Link mode: clear zoom attribute, set link attributes
-            delete attributes['data-htmlarea-zoom'];
-            delete attributes['data-htmlarea-clickenlarge'];
-            // Collect link field values
-            const linkHrefVal = inputLinkHref.value.trim();
-            const linkTargetVal = inputLinkTarget.value.trim();
-            const linkTitleVal = inputLinkTitle.value.trim();
-            const linkParamsVal = inputLinkParams.value.trim();
-
-            if (linkHrefVal !== '') {
-                attributes.linkHref = linkHrefVal;
-            } else {
-                delete attributes.linkHref;
-            }
-            if (linkTargetVal !== '') {
-                attributes.linkTarget = linkTargetVal;
-            } else {
-                delete attributes.linkTarget;
-            }
-            if (linkTitleVal !== '') {
-                attributes.linkTitle = linkTitleVal;
-            } else {
-                delete attributes.linkTitle;
-            }
-            if (linkParamsVal !== '') {
-                attributes.linkParams = linkParamsVal;
-            } else {
-                delete attributes.linkParams;
-            }
-            // Set link CSS class (stored on <a> element, separate from image class)
-            const linkCssVal = inputCssClassLink.value;
-            const linkCss = linkCssVal ? linkCssVal.trim().replace(/[^a-zA-Z0-9_\-\s]/g, '') : '';
-            if (linkCss) {
-                attributes.linkClass = linkCss;
-            } else {
-                delete attributes.linkClass;
-            }
-            // Preserve alignment classes on the image (not mixed with link class)
-            attributes.class = preservedAlignmentClasses.join(' ');
+            applyLinkBehavior(attributes, preservedAlignmentClasses, {
+                href: inputLinkHref.value,
+                target: inputLinkTarget.value,
+                title: inputLinkTitle.value,
+                params: inputLinkParams.value,
+                cssClass: inputCssClassLink.value
+            });
         } else {
-            // None mode: clear both zoom and link attributes
-            delete attributes['data-htmlarea-zoom'];
-            delete attributes['data-htmlarea-clickenlarge'];
-            delete attributes.linkHref;
-            delete attributes.linkTarget;
-            delete attributes.linkTitle;
-            delete attributes.linkClass;
-            delete attributes.linkParams;
-            // Preserve alignment classes even in "none" mode
-            attributes.class = preservedAlignmentClasses.join(' ');
+            applyNoClickBehavior(attributes, preservedAlignmentClasses);
         }
 
         // Save quality attribute and sync with noScale
-        const qualityValue = qualityDropdown.value;
-        if (qualityValue && qualityValue !== '') {
-            attributes['data-quality'] = qualityValue;
-            // Sync noScale attribute: set to true when quality is 'none' (No Scaling)
-            if (qualityValue === 'none') {
-                attributes['data-noscale'] = true;
-            } else {
-                // Remove noScale when using quality processing
-                delete attributes['data-noscale'];
-            }
-        } else if (attributes['data-quality']) {
-            delete attributes['data-quality'];
-            delete attributes['data-noscale'];
-        }
+        applyQualitySelection(attributes, qualityDropdown.value);
 
-        const titleCheckbox = container.querySelector('#checkbox-title');
-        if (titleCheckbox && !titleCheckbox.checked) {
-            delete attributes.title;
-        }
-
-        // When saving, check title/alt for override mode
-        ['title', 'alt'].forEach(function (item) {
-            const curCheckbox = container.querySelector(`#checkbox-${item}`);
-
-            // When saving, check title for override mode
-            attributes[`data-${item}-override`] = curCheckbox ? curCheckbox.checked : false;
-            if (curCheckbox?.checked) {
-                // Allow empty title/alt values
-                attributes[item] = attributes[item] || '';
-            } else {
-                delete attributes[item];
-            }
-        });
+        applyOverrideCheckboxes(attributes, container);
 
         return attributes;
     };
