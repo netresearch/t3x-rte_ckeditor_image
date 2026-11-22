@@ -157,6 +157,11 @@ PHP Wrapper
                return $imgTag;
            }
 
+           // Never expose a file from a non-public storage
+           if (!$file->getStorage()->isPublic()) {
+               return '';
+           }
+
            // Remove data attributes for frontend
            $imgTag = preg_replace('/\s*data-htmlarea-[^=]+="[^"]*"/', '', $imgTag);
 
@@ -173,8 +178,10 @@ PHP Wrapper
 
 .. note::
    This renderer replaces the extension's ``renderImageAttributes()`` for
-   ``tags.img``, so quality scaling, the non-public storage check and the
-   other processing of the extension no longer run for these images.
+   ``tags.img``, so quality scaling and the other processing of the extension
+   no longer run for these images; the example repeats only the non-public
+   storage check. Captioned images are rendered by ``renderFigure()`` through
+   ``externalBlocks.figure`` and never reach this renderer.
 
 JavaScript Initialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -73,8 +73,9 @@ protocol is logged.
 -  `mailto:` and `tel:` - E-mail and phone links.
 -  `t3:` - TYPO3 link handler URLs.
 -  URLs without a protocol - Relative paths and anchors (`/`, `#`).
-   A URL that has a colon before its first slash is treated as a protocol
-   and dropped, for example `?next=https://example.com`.
+   A URL that does not start with one of the protocols above, but has a colon
+   before its first slash, counts as an unknown protocol and is dropped,
+   for example `?next=https://example.com`.
 
 The allowlist applies to link URLs only, not to the image `src`.
 
