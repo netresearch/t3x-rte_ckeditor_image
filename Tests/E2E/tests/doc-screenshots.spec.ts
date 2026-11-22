@@ -106,7 +106,7 @@ td.fixable-no { color: #f38ba8; }
             path: 'Documentation/Images/cli-validate-references.png',
         });
 
-        expect(await terminal.isVisible()).toBe(true);
+        await expect(terminal).toBeVisible();
     });
 
     test('capture upgrade wizard screenshot', async ({ page }) => {
@@ -407,6 +407,6 @@ body {
             path: 'Documentation/Images/upgrade-wizard-validate-references.png',
         });
 
-        expect(await panel.isVisible()).toBe(true);
+        await expect(panel).toBeVisible();
     });
 });

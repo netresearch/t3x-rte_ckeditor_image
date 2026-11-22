@@ -111,7 +111,7 @@ test.describe('Copy/Paste and Undo/Redo (#620)', () => {
 
     // The pasted image should have the same UID as the source
     expect(afterPasteUids).toContain(initialUids[0]);
-    expect(afterPasteUids.filter(uid => uid === initialUids[0]).length).toBe(2);
+    expect(afterPasteUids.filter(uid => uid === initialUids[0])).toHaveLength(2);
   });
 
   test.skip('undo removes pasted image', async ({ page }) => {

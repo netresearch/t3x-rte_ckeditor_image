@@ -290,7 +290,7 @@ test.describe('Image Dialog Link Browser', () => {
       e.includes('TypeError')
     );
 
-    expect(criticalErrors.length).toBe(0);
+    expect(criticalErrors).toHaveLength(0);
   });
 });
 
