@@ -119,9 +119,9 @@ Run the command without any flags to perform a read-only scan:
 
    bin/typo3 rte_ckeditor_image:validate
 
-The ``--dry-run`` flag is accepted for explicitness. It does not change the
-behavior: without ``--fix`` the command never writes, and with ``--fix`` it
-writes even if ``--dry-run`` is also given.
+Without ``--fix`` the command never writes, so ``--dry-run`` alone changes
+nothing. Together with ``--fix`` it reports what would be fixed and writes
+nothing (see below).
 
 The output shows a summary of scanned records and images, followed by a table
 listing every issue found, including the current ``src``, the expected ``src``,
@@ -248,13 +248,12 @@ Exit codes
    * - Code
      - Meaning
    * - ``0``
-     - No issues found, or ``--fix`` ran on at least one fixable issue.
-       ``0`` is also returned when ``--fix`` changed nothing, for example
-       for ``orphaned_file_uid`` issues.
+     - No issues found, or ``--fix`` fixed every fixable issue and the scan
+       after the fix finds none. Unfixable issues may remain.
    * - ``1``
-     - Issues were found (dry-run mode, also ``--fix --dry-run``), no fixable
-       issues exist while unfixable issues remain, or fixable issues remain
-       after ``--fix``.
+     - Issues were found (dry-run mode, also ``--fix --dry-run``), ``--fix``
+       found no fixable issue while unfixable issues remain, or fixable issues
+       remain after ``--fix``.
 
 Upgrade Wizard
 ==============
