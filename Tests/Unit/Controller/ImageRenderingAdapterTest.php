@@ -3046,6 +3046,58 @@ final class ImageRenderingAdapterTest extends TestCase
         self::assertSame('', $this->adapter->renderFigure(null, [], $this->request));
     }
 
+    #[Test]
+    public function renderImagesReturnsEmptyStringWhenOutputStillHoldsNonPublicImage(): void
+    {
+        // The parser reports no image (for example because it searched only the
+        // first nested <a>), but the content that would be output holds one.
+        $linkContent = 'Text <img src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image-inline" />';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => '/page'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn(['link' => ['href' => '/page'], 'images' => []]);
+        $this->attributeParser->method('findImageFileUids')->willReturn([2]);
+        $this->resolverService->method('isNonPublicFile')->willReturnMap([[2, true]]);
+
+        self::assertSame('', $this->adapter->renderImages(null, [], $this->request));
+    }
+
+    #[Test]
+    public function renderLinkReturnsEmptyStringWhenOutputStillHoldsNonPublicImage(): void
+    {
+        $linkHtml = '<a href="/page">Text <img src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image-inline" /></a>';
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn(['link' => ['href' => '/page'], 'images' => []]);
+        $this->attributeParser->method('findImageFileUids')->willReturn([2]);
+        $this->resolverService->method('isNonPublicFile')->willReturnMap([[2, true]]);
+
+        self::assertSame('', $this->adapter->renderLink($linkHtml, [], $this->request));
+    }
+
+    #[Test]
+    public function renderImagesKeepsOutputWithOnlyPublicImages(): void
+    {
+        $linkContent = 'Text <img src="/fileadmin/a.jpg" data-htmlarea-file-uid="5" />';
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => '/page'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn(['link' => ['href' => '/page'], 'images' => []]);
+        $this->attributeParser->method('findImageFileUids')->willReturn([5]);
+        $this->resolverService->method('isNonPublicFile')->willReturnMap([[5, false]]);
+
+        self::assertStringContainsString('/fileadmin/a.jpg', $this->adapter->renderImages(null, [], $this->request));
+    }
+
     /**
      * parseFunc hands tags.img the raw attribute string of the tag as parameters['allParams']
      * and an empty current value, since <img> is an empty tag.

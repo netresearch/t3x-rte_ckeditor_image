@@ -273,6 +273,14 @@ class ImageRenderingAdapter
     #[AsAllowedCallable]
     public function renderImages(?string $content, array $conf, ServerRequestInterface $request): string
     {
+        return $this->withoutNonPublicImages($this->renderImagesInLink($conf, $request));
+    }
+
+    /**
+     * @param array<string, mixed> $conf TypoScript configuration
+     */
+    private function renderImagesInLink(array $conf, ServerRequestInterface $request): string
+    {
         // Get link inner HTML from ContentObjectRenderer
         $linkContent = $this->cObj instanceof ContentObjectRenderer
             ? $this->cObj->getCurrentVal()
@@ -403,6 +411,19 @@ class ImageRenderingAdapter
         $replacements[$originalHtml] = '';
 
         return true;
+    }
+
+    /**
+     * SECURITY: output nothing if the HTML still holds an image of a file in a
+     * non-public storage.
+     *
+     * Final check on what renderImages() and renderLink() return. It reads the
+     * images of the output itself, so it does not depend on how the parser
+     * scoped its search or on how the source spelled the image markup.
+     */
+    private function withoutNonPublicImages(string $html): string
+    {
+        return $this->containsNonPublicImage($html) ? '' : $html;
     }
 
     /**
@@ -583,6 +604,14 @@ class ImageRenderingAdapter
      */
     #[AsAllowedCallable]
     public function renderLink(?string $content, array $conf, ServerRequestInterface $request): string
+    {
+        return $this->withoutNonPublicImages($this->renderLinkWithImages($content, $conf, $request));
+    }
+
+    /**
+     * @param array<string, mixed> $conf TypoScript configuration
+     */
+    private function renderLinkWithImages(?string $content, array $conf, ServerRequestInterface $request): string
     {
         // Get link HTML from either content param or cObj->getCurrentVal()
         $linkHtml = $content;
