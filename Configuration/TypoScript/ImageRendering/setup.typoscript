@@ -78,13 +78,20 @@ lib.parseFunc_RTE {
         #
         # Default: 0 (process images as before)
         # Enable: Uncomment the lines below
+        #
+        # Both keys must live INSIDE preUserFunc: TYPO3's
+        # stdWrap_preUserFunc only forwards $conf['preUserFunc.'] to the
+        # callable, so noScale placed as a sibling of preUserFunc is
+        # never read by ImageResolverService.
         #******************************************************
-        # noScale = 1
-        # noScale {
-        #     # Maximum file size for auto-optimization (bytes)
-        #     # 0 = no limit, auto-optimization always enabled
-        #     # Example: 2000000 = 2MB threshold
-        #     maxFileSizeForAuto = 2000000
+        # preUserFunc {
+        #     noScale = 1
+        #     noScale {
+        #         # Maximum file size for auto-optimization (bytes)
+        #         # 0 = no limit, auto-optimization always enabled
+        #         # Example: 2000000 = 2MB threshold
+        #         maxFileSizeForAuto = 2000000
+        #     }
         # }
     }
     # Link processing: Pre-process inline link content for nested link cleanup.
@@ -132,10 +139,12 @@ lib.parseFunc_RTE {
             preUserFunc = Netresearch\RteCKEditorImage\Controller\ImageRenderingAdapter->renderFigure
 
             # noScale configuration for figure-wrapped images
-            # Same options as tags.img above
-            # noScale = 1
-            # noScale {
-            #     maxFileSizeForAuto = 2000000
+            # Same options as tags.img above, also INSIDE preUserFunc
+            # preUserFunc {
+            #     noScale = 1
+            #     noScale {
+            #         maxFileSizeForAuto = 2000000
+            #     }
             # }
         }
     }
