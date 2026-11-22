@@ -1309,6 +1309,175 @@ function linkPluginLinkToImageLink(element) {
 }
 
 /**
+ * Get the plain text of an image caption: its text nodes, without markup.
+ *
+ * @param {Element|null|undefined} captionElement - The typo3imageCaption element
+ * @return {string} The caption text, '' without caption
+ */
+function getCaptionPlainText(captionElement) {
+    let captionText = '';
+    for (const child of captionElement?.getChildren() ?? []) {
+        if (child.is('$text')) {
+            captionText += child.data;
+        }
+    }
+    return captionText;
+}
+
+/**
+ * Check if an inline image without its own link sits in a link of the link
+ * plugin, which the user created around text that includes the image.
+ *
+ * @param {Element} modelElement - The typo3image or typo3imageInline element
+ * @param {Element|null} widgetViewElement - The widget view element of the image
+ * @return {boolean} True if the widget's parent is such an <a>
+ */
+function isInlineImageInTextLink(modelElement, widgetViewElement) {
+    if (modelElement.name !== 'typo3imageInline') {
+        return false;
+    }
+    const imageLinkHref = modelElement.getAttribute('imageLinkHref');
+    if (imageLinkHref && imageLinkHref.trim() !== '') {
+        return false;
+    }
+    const parent = widgetViewElement?.parent;
+    return Boolean(parent?.is('attributeElement') && parent.name === 'a');
+}
+
+/**
+ * Open the image dialog for an image in the document and apply the result.
+ *
+ * @param {Object} editor - The CKEditor instance
+ * @param {Element} modelElement - The typo3image or typo3imageInline element
+ * @param {Element|null} widgetViewElement - The widget view element of the image
+ */
+function editExistingImage(editor, modelElement, widgetViewElement) {
+    const isInlineImage = modelElement.name === 'typo3imageInline';
+    // Inline images have no caption
+    const captionElement = isInlineImage ? null : getCaptionFromImageModelElement(modelElement);
+
+    edit(
+        {
+            uid: modelElement.getAttribute('fileUid'),
+            table: modelElement.getAttribute('fileTable'),
+        },
+        editor,
+        {
+            width: modelElement.getAttribute('width'),
+            height: modelElement.getAttribute('height'),
+            class: modelElement.getAttribute('class'),
+            alt: modelElement.getAttribute('alt'),
+            title: modelElement.getAttribute('title'),
+            caption: getCaptionPlainText(captionElement),
+            // Kept when the caption text is not changed in the dialog
+            captionElement: captionElement,
+            'data-htmlarea-zoom': modelElement.getAttribute('enableZoom'),
+            'data-noscale': modelElement.getAttribute('noScale'),
+            'data-quality': modelElement.getAttribute('quality'),
+            'data-title-override': modelElement.getAttribute('titleOverride'),
+            'data-alt-override': modelElement.getAttribute('altOverride'),
+            linkHref: modelElement.getAttribute('imageLinkHref'),
+            linkTarget: modelElement.getAttribute('imageLinkTarget'),
+            linkTitle: modelElement.getAttribute('imageLinkTitle'),
+            linkClass: modelElement.getAttribute('imageLinkClass'),
+            linkParams: modelElement.getAttribute('imageLinkParams'),
+            linkAttributes: modelElement.getAttribute('imageLinkAttributes'),
+            linkPluginAttributes: getLinkPluginAttributes(modelElement),
+            // Pass flag to indicate if this is an inline image (for hiding caption field)
+            isInlineImage: isInlineImage,
+            // Pass flag to indicate if image is inside an external link (for disabling link options)
+            isInsideExternalLink: isInlineImageInTextLink(modelElement, widgetViewElement),
+        }
+    );
+}
+
+/**
+ * Check if a view element is the widget wrapper of an image: a <span> or
+ * <figure> with the ck-widget class.
+ *
+ * @param {Element|null|undefined} element - The view element
+ * @return {boolean} True for an image widget wrapper
+ */
+function isImageWidgetWrapper(element) {
+    return Boolean(element)
+        && (element.name === 'span' || element.name === 'figure')
+        && element.hasClass('ck-widget');
+}
+
+/**
+ * Find the image widget for the target of a double click: the target itself,
+ * or the widget of the caption, image or link that was clicked.
+ *
+ * @param {Element} target - The view element that was double-clicked
+ * @return {Element} The widget, or the target if none was found
+ */
+function findImageWidget(target) {
+    const targetElement = findClosestImageWidget(target);
+    if (targetElement.hasClass?.('ck-widget')) {
+        return targetElement;
+    }
+    // Traverse up from the original target to find any ck-widget ancestor
+    // (handles img inside CKEditor link wrapper)
+    return findImageWidgetAncestor(target) || targetElement;
+}
+
+/**
+ * Find the widget of a double-clicked caption, image or link from its
+ * nearest ancestors.
+ *
+ * @param {Element} target - The view element that was double-clicked
+ * @return {Element} The widget, or the target if none was found
+ */
+function findClosestImageWidget(target) {
+    // If we clicked on text inside figcaption, traverse up to find the widget
+    let checkElement = target;
+    while (checkElement && checkElement.name !== 'figcaption') {
+        checkElement = checkElement.parent;
+    }
+    if (checkElement?.name === 'figcaption') {
+        // We're inside figcaption, find the parent figure widget
+        const figure = checkElement.parent;
+        return figure?.name === 'figure' && figure.hasClass('ck-widget') ? figure : target;
+    }
+
+    // If clicked on img or link inside wrapper, find the parent wrapper (span or figure)
+    if (target.name !== 'img' && target.name !== 'a') {
+        return target;
+    }
+    const parent = target.parent;
+    if (isImageWidgetWrapper(parent)) {
+        return parent;
+    }
+    // Handle img inside link inside wrapper: img -> a -> span/figure
+    if (target.name === 'img' && parent?.name === 'a' && isImageWidgetWrapper(parent.parent)) {
+        return parent.parent;
+    }
+    return target;
+}
+
+/**
+ * Find the closest image widget among the ancestors of a view element.
+ *
+ * @param {Element} target - The view element
+ * @return {Element|null} The widget, or null
+ */
+function findImageWidgetAncestor(target) {
+    let searchElement = target;
+    while (searchElement) {
+        if (searchElement.hasClass?.('ck-widget') &&
+            (searchElement.name === 'span' || searchElement.name === 'figure')) {
+            return searchElement;
+        }
+        // Also check if we're on an img directly inside a widget span
+        if (searchElement.name === 'img' && searchElement.parent?.hasClass?.('ck-widget')) {
+            return searchElement.parent;
+        }
+        searchElement = searchElement.parent;
+    }
+    return null;
+}
+
+/**
  * Class for an image whose dialog returned no class: new images get the
  * class of their element type, existing images keep an empty class.
  *
@@ -3414,75 +3583,10 @@ export default class Typo3Image extends Plugin {
 
                 // Handle both block (typo3image) and inline (typo3imageInline) images
                 if (isTypo3ImageElement(selectedElement)) {
-                    // Get caption text from caption element (if exists) - only for block images
-                    let captionText = '';
-                    let captionElement = null;
-                    if (selectedElement.name === 'typo3image') {
-                        captionElement = getCaptionFromImageModelElement(selectedElement);
-                        if (captionElement) {
-                            for (const child of captionElement.getChildren()) {
-                                if (child.is('$text')) {
-                                    captionText += child.data;
-                                }
-                            }
-                        }
-                    }
-
-                    // Check if inline image is inside an external link (link wrapping the image from outside)
-                    // This happens when user creates a link around text that includes an inline image
-                    let isInsideExternalLink = false;
-                    if (selectedElement.name === 'typo3imageInline') {
-                        // The image itself doesn't have imageLinkHref, so check if we're inside a link
-                        const imageLinkHref = selectedElement.getAttribute('imageLinkHref');
-                        if (!imageLinkHref || imageLinkHref.trim() === '') {
-                            // No link on the image itself - check if there's an external link wrapping us
-                            // Use the view selection which gives us the widget element
-                            const viewSelection = editor.editing.view.document.selection;
-                            const viewElement = viewSelection.getSelectedElement();
-                            if (viewElement) {
-                                // The viewElement is the widget span, check its parent for a link
-                                const parent = viewElement.parent;
-                                if (parent?.is('attributeElement') && parent.name === 'a') {
-                                    // Image is inside an external link in the view
-                                    isInsideExternalLink = true;
-                                }
-                            }
-                        }
-                    }
-
-                    edit(
-                        {
-                            uid: selectedElement.getAttribute('fileUid'),
-                            table: selectedElement.getAttribute('fileTable'),
-                        },
-                        editor,
-                        {
-                            width: selectedElement.getAttribute('width'),
-                            height: selectedElement.getAttribute('height'),
-                            class: selectedElement.getAttribute('class'),
-                            alt: selectedElement.getAttribute('alt'),
-                            title: selectedElement.getAttribute('title'),
-                            caption: captionText,
-                            // Kept when the caption text is not changed in the dialog
-                            captionElement: captionElement,
-                            'data-htmlarea-zoom': selectedElement.getAttribute('enableZoom'),
-                            'data-noscale': selectedElement.getAttribute('noScale'),
-                            'data-quality': selectedElement.getAttribute('quality'),
-                            'data-title-override': selectedElement.getAttribute('titleOverride'),
-                            'data-alt-override': selectedElement.getAttribute('altOverride'),
-                            linkHref: selectedElement.getAttribute('imageLinkHref'),
-                            linkTarget: selectedElement.getAttribute('imageLinkTarget'),
-                            linkTitle: selectedElement.getAttribute('imageLinkTitle'),
-                            linkClass: selectedElement.getAttribute('imageLinkClass'),
-                            linkParams: selectedElement.getAttribute('imageLinkParams'),
-                            linkAttributes: selectedElement.getAttribute('imageLinkAttributes'),
-                            linkPluginAttributes: getLinkPluginAttributes(selectedElement),
-                            // Pass flag to indicate if this is an inline image (for hiding caption field)
-                            isInlineImage: selectedElement.name === 'typo3imageInline',
-                            // Pass flag to indicate if image is inside an external link (for disabling link options)
-                            isInsideExternalLink: isInsideExternalLink,
-                        }
-                    );
+                    // The view selection gives the widget element: its parent is an <a>
+                    // when the user created a link around text that includes an inline image
+                    const widgetViewElement = editor.editing.view.document.selection.getSelectedElement();
+                    editExistingImage(editor, selectedElement, widgetViewElement);
                 }
             });
 
@@ -3670,128 +3774,21 @@ export default class Typo3Image extends Plugin {
         editor.commands.add('toggleImageType', new ToggleImageTypeCommand(editor));
 
         editor.listenTo(editor.editing.view.document, 'dblclick:typo3image', (event, data) => {
-            // Find the widget wrapper - traverse UP if we clicked the inner img/link
-            let targetElement = data.target;
-
-            // If we clicked on text inside figcaption, traverse up to find the widget
-            let checkElement = targetElement;
-            while (checkElement && checkElement.name !== 'figcaption') {
-                checkElement = checkElement.parent;
-            }
-
-            if (checkElement?.name === 'figcaption') {
-                // We're inside figcaption, find the parent figure widget
-                const parent = checkElement.parent;
-                if (parent?.name === 'figure' && parent.hasClass('ck-widget')) {
-                    targetElement = parent;
-                }
-            }
-            // If clicked on img, link, or figcaption inside wrapper, find the parent wrapper (span or figure)
-            else if (targetElement.name === 'img' || targetElement.name === 'a' || targetElement.name === 'figcaption') {
-                const parent = targetElement.parent;
-                if (parent && (parent.name === 'span' || parent.name === 'figure') && parent.hasClass('ck-widget')) {
-                    targetElement = parent;
-                }
-                // Handle img inside link inside wrapper: img -> a -> span/figure
-                else if (targetElement.name === 'img' && parent?.name === 'a') {
-                    const grandparent = parent.parent;
-                    if (grandparent && (grandparent.name === 'span' || grandparent.name === 'figure') && grandparent.hasClass('ck-widget')) {
-                        targetElement = grandparent;
-                    }
-                }
-            }
-
-            // If we still don't have a widget, traverse up from the original target
-            // to find any ck-widget ancestor (handles img inside CKEditor link wrapper)
-            if (!targetElement.hasClass?.('ck-widget')) {
-                let searchElement = data.target;
-                while (searchElement) {
-                    if (searchElement.hasClass?.('ck-widget') &&
-                        (searchElement.name === 'span' || searchElement.name === 'figure')) {
-                        targetElement = searchElement;
-                        break;
-                    }
-                    // Also check if we're on an img directly inside a widget span
-                    if (searchElement.name === 'img') {
-                        const widgetParent = searchElement.parent;
-                        if (widgetParent?.hasClass?.('ck-widget')) {
-                            targetElement = widgetParent;
-                            break;
-                        }
-                    }
-                    searchElement = searchElement.parent;
-                }
-            }
+            // Find the widget wrapper - traverse UP if we clicked the inner img/link/caption
+            const targetElement = findImageWidget(data.target);
 
             const modelElement = editor.editing.mapper.toModelElement(targetElement);
             // Handle both block (typo3image) and inline (typo3imageInline) images
-            if (isTypo3ImageElement(modelElement)) {
-                // Select the clicked element
-                editor.model.change(writer => {
-                    writer.setSelection(modelElement, 'on');
-                });
-
-                // Get caption text from caption element (if exists) - only for block images
-                let captionText = '';
-                let captionElement = null;
-                if (modelElement.name === 'typo3image') {
-                    captionElement = getCaptionFromImageModelElement(modelElement);
-                    if (captionElement) {
-                        for (const child of captionElement.getChildren()) {
-                            if (child.is('$text')) {
-                                captionText += child.data;
-                            }
-                        }
-                    }
-                }
-
-                // Check if inline image is inside an external link (link wrapping from outside)
-                let isInsideExternalLink = false;
-                if (modelElement.name === 'typo3imageInline') {
-                    const imageLinkHref = modelElement.getAttribute('imageLinkHref');
-                    if (!imageLinkHref || imageLinkHref.trim() === '') {
-                        // No link on the image - check if targetElement's parent is a link
-                        const parent = targetElement.parent;
-                        if (parent?.is('attributeElement') && parent.name === 'a') {
-                            isInsideExternalLink = true;
-                        }
-                    }
-                }
-
-                edit(
-                    {
-                        uid: modelElement.getAttribute('fileUid'),
-                        table: modelElement.getAttribute('fileTable'),
-                    },
-                    editor,
-                    {
-                        width: modelElement.getAttribute('width'),
-                        height: modelElement.getAttribute('height'),
-                        class: modelElement.getAttribute('class'),
-                        alt: modelElement.getAttribute('alt'),
-                        title: modelElement.getAttribute('title'),
-                        'data-htmlarea-zoom': modelElement.getAttribute('enableZoom'),
-                        'data-noscale': modelElement.getAttribute('noScale'),
-                        'data-quality': modelElement.getAttribute('quality'),
-                        'data-title-override': modelElement.getAttribute('titleOverride'),
-                        'data-alt-override': modelElement.getAttribute('altOverride'),
-                        linkHref: modelElement.getAttribute('imageLinkHref'),
-                        linkTarget: modelElement.getAttribute('imageLinkTarget'),
-                        linkTitle: modelElement.getAttribute('imageLinkTitle'),
-                        linkClass: modelElement.getAttribute('imageLinkClass'),
-                        linkParams: modelElement.getAttribute('imageLinkParams'),
-                        linkAttributes: modelElement.getAttribute('imageLinkAttributes'),
-                        linkPluginAttributes: getLinkPluginAttributes(modelElement),
-                        caption: captionText,
-                        // Kept when the caption text is not changed in the dialog
-                        captionElement: captionElement,
-                        // Pass flag to indicate if this is an inline image (for hiding caption field)
-                        isInlineImage: modelElement.name === 'typo3imageInline',
-                        // Pass flag to indicate if image is inside an external link (for disabling link options)
-                        isInsideExternalLink: isInsideExternalLink,
-                    }
-                );
+            if (!isTypo3ImageElement(modelElement)) {
+                return;
             }
+
+            // Select the clicked element
+            editor.model.change(writer => {
+                writer.setSelection(modelElement, 'on');
+            });
+
+            editExistingImage(editor, modelElement, targetElement);
         });
 
         // Disable external link command when typo3image is selected
