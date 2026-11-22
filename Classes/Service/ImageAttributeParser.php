@@ -27,6 +27,14 @@ use DOMXPath;
 class ImageAttributeParser
 {
     /**
+     * Wrapper that makes DOMDocument::loadHTML() parse an HTML fragment as UTF-8
+     * inside a single root element.
+     */
+    private const FRAGMENT_PREFIX = '<?xml encoding="UTF-8"><div>';
+
+    private const FRAGMENT_SUFFIX = '</div>';
+
+    /**
      * Parse attributes from <img> tag HTML string.
      *
      * @param string $html HTML string containing <img> tag
@@ -45,7 +53,7 @@ class ImageAttributeParser
 
         // Load HTML fragment - wrap in div to ensure proper parsing
         $dom->loadHTML(
-            '<?xml encoding="UTF-8"><div>' . $html . '</div>',
+            self::FRAGMENT_PREFIX . $html . self::FRAGMENT_SUFFIX,
             LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
@@ -88,7 +96,7 @@ class ImageAttributeParser
         libxml_use_internal_errors(true);
 
         $dom->loadHTML(
-            '<?xml encoding="UTF-8"><div>' . $html . '</div>',
+            self::FRAGMENT_PREFIX . $html . self::FRAGMENT_SUFFIX,
             LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
@@ -181,7 +189,7 @@ class ImageAttributeParser
         libxml_use_internal_errors(true);
 
         $dom->loadHTML(
-            '<?xml encoding="UTF-8"><div>' . $html . '</div>',
+            self::FRAGMENT_PREFIX . $html . self::FRAGMENT_SUFFIX,
             LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
@@ -319,7 +327,7 @@ class ImageAttributeParser
         libxml_use_internal_errors(true);
 
         $dom->loadHTML(
-            '<?xml encoding="UTF-8"><div>' . $html . '</div>',
+            self::FRAGMENT_PREFIX . $html . self::FRAGMENT_SUFFIX,
             LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
@@ -358,7 +366,7 @@ class ImageAttributeParser
         libxml_use_internal_errors(true);
 
         $dom->loadHTML(
-            '<?xml encoding="UTF-8"><div>' . $html . '</div>',
+            self::FRAGMENT_PREFIX . $html . self::FRAGMENT_SUFFIX,
             LIBXML_NONET | LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
         );
 
