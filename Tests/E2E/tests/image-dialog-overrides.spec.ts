@@ -11,6 +11,7 @@ import {
   openImageEditDialog,
   confirmImageDialog,
   cancelImageDialog,
+  waitForModalsRemoved,
   getEditorHtml,
   saveContentElement,
   requireCondition,
@@ -66,7 +67,6 @@ async function clickOverrideLabel(page: Page, checkboxId: string): Promise<void>
       input.value = '';
     }
   }, checkboxId);
-  await page.waitForTimeout(300);
 }
 
 /** Seeded CE (seed-content.php) that no test saves: the tests here expect its overrides unchecked. */
@@ -149,11 +149,9 @@ test.describe('Image Dialog - Override Checkboxes', () => {
 
     // Confirm the dialog
     await confirmImageDialog(page);
-    await page.waitForTimeout(1000);
 
     // Verify the custom alt text is present in the editor HTML
-    const editorHtml = await getEditorHtml(page);
-    expect(editorHtml).toContain(`alt="${customAlt}"`);
+    await expect.poll(() => getEditorHtml(page)).toContain(`alt="${customAlt}"`);
     console.log('Custom alt text was correctly applied to editor HTML');
   });
 
@@ -213,7 +211,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
 
     // Confirm the dialog
     await confirmImageDialog(page);
-    await page.waitForTimeout(1000);
+    await expect.poll(() => getEditorHtml(page)).toContain(`alt="${persistAlt}"`);
 
     // Save the content element
     await saveContentElement(page);
@@ -272,7 +270,7 @@ test.describe('Image Dialog - Override Checkboxes', () => {
 
     // Cancel the dialog — changes should NOT be applied
     await cancelImageDialog(page);
-    await page.waitForTimeout(500);
+    await waitForModalsRemoved(page);
 
     // Re-open the dialog
     await openImageEditDialog(page);

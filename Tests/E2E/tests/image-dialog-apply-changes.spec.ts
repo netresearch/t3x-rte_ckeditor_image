@@ -4,7 +4,7 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, cancelImageDialog, getEditorHtml, getCKEditorData, saveContentElement, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, openImageEditDialog, confirmImageDialog, cancelImageDialog, waitForModalsRemoved, getEditorHtml, getCKEditorData, saveContentElement, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
 
 /** Dedicated CE for this spec to prevent cross-file pollution (parallel execution) */
 const CE_ID = 31;
@@ -94,7 +94,7 @@ test.describe('Image Dialog - Apply Changes', () => {
         const checkboxDisabled = await altCheckbox.isDisabled();
         if (!checkboxDisabled) {
           await altCheckbox.click();
-          await page.waitForTimeout(300);
+          await expect(altInput).toBeEnabled();
           console.log('Clicked alt override checkbox');
         }
       }
@@ -106,14 +106,8 @@ test.describe('Image Dialog - Apply Changes', () => {
       // Confirm dialog
       await confirmImageDialog(page);
 
-      // Wait for changes to apply
-      await page.waitForTimeout(1000);
-
       // Verify alt text was updated
-      const newAttrs = await getImageAttributes(page);
-      console.log(`New alt: "${newAttrs.alt}"`);
-
-      expect(newAttrs.alt).toBe(testAltText);
+      await expect.poll(async () => (await getImageAttributes(page)).alt).toBe(testAltText);
       console.log('SUCCESS: Alt text was updated');
     } else {
       // Take screenshot for debugging
@@ -142,7 +136,7 @@ test.describe('Image Dialog - Apply Changes', () => {
         const checkboxDisabled = await titleCheckbox.isDisabled();
         if (!checkboxDisabled) {
           await titleCheckbox.click();
-          await page.waitForTimeout(300);
+          await expect(titleInput).toBeEnabled();
           console.log('Clicked title override checkbox');
         }
       }
@@ -152,12 +146,8 @@ test.describe('Image Dialog - Apply Changes', () => {
       console.log(`Set title to: "${testTitle}"`);
 
       await confirmImageDialog(page);
-      await page.waitForTimeout(1000);
 
-      const newAttrs = await getImageAttributes(page);
-      console.log(`New title: "${newAttrs.title}"`);
-
-      expect(newAttrs.title).toBe(testTitle);
+      await expect.poll(async () => (await getImageAttributes(page)).title).toBe(testTitle);
       console.log('SUCCESS: Title was updated');
     } else {
       await page.screenshot({ path: 'test-results/dialog-no-title-input.png' });
@@ -176,7 +166,7 @@ test.describe('Image Dialog - Apply Changes', () => {
     const linkRadio = page.locator('#clickBehavior-link');
     if (await linkRadio.count() > 0) {
       await linkRadio.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator('#rteckeditorimage-linkHref')).toBeVisible();
       console.log('Selected Link option');
     }
 
@@ -189,9 +179,9 @@ test.describe('Image Dialog - Apply Changes', () => {
       console.log(`Set link URL to: "${testUrl}"`);
 
       await confirmImageDialog(page);
-      await page.waitForTimeout(1000);
 
       // Check if image has link indicator in editing view
+      await expect.poll(async () => (await getImageAttributes(page)).isLinked).toBe(true);
       const newAttrs = await getImageAttributes(page);
       console.log(`Is linked: ${newAttrs.isLinked}, href: "${newAttrs.linkHref}"`);
 
@@ -224,14 +214,9 @@ test.describe('Image Dialog - Apply Changes', () => {
       console.log('Selected enlarge on click');
 
       await confirmImageDialog(page);
-      await page.waitForTimeout(1000);
 
       // Check for zoom attribute
-      const editorHtml = await getEditorHtml(page);
-      const hasZoomAttr = editorHtml.includes('data-htmlarea-zoom');
-      console.log(`Has zoom attribute: ${hasZoomAttr}`);
-
-      expect(hasZoomAttr).toBe(true);
+      await expect.poll(() => getEditorHtml(page)).toContain('data-htmlarea-zoom');
       console.log('SUCCESS: Zoom attribute was added');
     } else {
       await page.screenshot({ path: 'test-results/dialog-no-enlarge-radio.png' });
@@ -255,13 +240,8 @@ test.describe('Image Dialog - Apply Changes', () => {
       console.log(`Set CSS class to: "${testClass}"`);
 
       await confirmImageDialog(page);
-      await page.waitForTimeout(1000);
 
-      const editorHtml = await getEditorHtml(page);
-      const hasClass = editorHtml.includes(testClass);
-      console.log(`Has custom class: ${hasClass}`);
-
-      expect(hasClass).toBe(true);
+      await expect.poll(() => getEditorHtml(page)).toContain(testClass);
       console.log('SUCCESS: CSS class was added');
     } else {
       // CSS class might be in a different location
@@ -312,7 +292,7 @@ test.describe('Image Dialog - Apply Changes', () => {
     const linkRadio = page.locator('#clickBehavior-link');
     if (await linkRadio.count() > 0) {
       await linkRadio.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator('#rteckeditorimage-linkHref')).toBeVisible();
     }
 
     // Fill link URL
@@ -329,14 +309,9 @@ test.describe('Image Dialog - Apply Changes', () => {
       console.log('Set link target to: _blank');
 
       await confirmImageDialog(page);
-      await page.waitForTimeout(1000);
 
       // Use data output since editing view has no <a> wrapper (#687)
-      const editorData = await getCKEditorData(page);
-      const hasTarget = editorData.includes('target="_blank"');
-      console.log(`Has target="_blank": ${hasTarget}`);
-
-      expect(hasTarget).toBe(true);
+      await expect.poll(() => getCKEditorData(page)).toContain('target="_blank"');
       console.log('SUCCESS: Link target was applied');
     } else {
       await page.screenshot({ path: 'test-results/dialog-no-target-select.png' });
@@ -355,7 +330,7 @@ test.describe('Image Dialog - Apply Changes', () => {
     const linkRadio = page.locator('#clickBehavior-link');
     if (await linkRadio.count() > 0) {
       await linkRadio.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator('#rteckeditorimage-linkHref')).toBeVisible();
     }
 
     // Fill link URL
@@ -373,14 +348,9 @@ test.describe('Image Dialog - Apply Changes', () => {
       console.log(`Set link title to: "${testLinkTitle}"`);
 
       await confirmImageDialog(page);
-      await page.waitForTimeout(1000);
 
       // Use data output since editing view has no <a> wrapper (#687)
-      const editorData = await getCKEditorData(page);
-      const hasLinkTitle = editorData.includes(`title="${testLinkTitle}"`);
-      console.log(`Has link title: ${hasLinkTitle}`);
-
-      expect(hasLinkTitle).toBe(true);
+      await expect.poll(() => getCKEditorData(page)).toContain(`title="${testLinkTitle}"`);
       console.log('SUCCESS: Link title was applied');
     } else {
       await page.screenshot({ path: 'test-results/dialog-no-link-title-input.png' });
@@ -407,7 +377,7 @@ test.describe('Image Dialog - Apply Changes', () => {
 
     // Cancel dialog
     await cancelImageDialog(page);
-    await page.waitForTimeout(500);
+    await waitForModalsRemoved(page);
 
     // Verify alt text was NOT changed
     const newAttrs = await getImageAttributes(page);
@@ -449,7 +419,7 @@ test.describe('Image Dialog - Save Persistence', () => {
     console.log(`Set alt to: "${uniqueAlt}"`);
 
     await confirmImageDialog(page);
-    await page.waitForTimeout(1000);
+    await expect.poll(async () => (await getImageAttributes(page)).alt).toBe(uniqueAlt);
 
     // Save the content element
     await saveContentElement(page);
@@ -458,9 +428,8 @@ test.describe('Image Dialog - Save Persistence', () => {
     // Reload the page
     await page.reload();
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
 
-    // Navigate back to content edit
+    // Navigate back to content edit (waits until CKEditor is rendered)
     await navigateToContentEdit(page, CE_ID);
     await waitForCKEditor(page);
 

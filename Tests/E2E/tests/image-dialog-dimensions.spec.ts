@@ -4,7 +4,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, waitForCKEditor, openImageEditDialog, confirmImageDialog, saveContentElement, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, waitForCKEditor, openImageEditDialog, confirmImageDialog, waitForModalsRemoved, getCKEditorData, saveContentElement, requireCondition, BACKEND_PASSWORD } from './helpers/typo3-backend';
 
 /**
  * E2E tests for image dimension controls in the CKEditor image dialog.
@@ -88,7 +88,7 @@ test.describe('Image Dialog - Dimensions', () => {
 
     // Tab out to trigger the JS event handler that recalculates height
     await widthInput.press('Tab');
-    await page.waitForTimeout(300);
+    await expect(heightInput).not.toHaveValue(String(originalHeight));
 
     const updatedHeight = Number(await heightInput.inputValue());
     console.log(`After setting width to ${newWidth}: height became ${updatedHeight}`);
@@ -128,7 +128,7 @@ test.describe('Image Dialog - Dimensions', () => {
 
     // Tab out to trigger the JS event handler that recalculates width
     await heightInput.press('Tab');
-    await page.waitForTimeout(300);
+    await expect(widthInput).not.toHaveValue(String(originalWidth));
 
     const updatedWidth = Number(await widthInput.inputValue());
     console.log(`After setting height to ${newHeight}: width became ${updatedWidth}`);
@@ -154,13 +154,14 @@ test.describe('Image Dialog - Dimensions', () => {
 
     // Read original width and compute a new value
     const originalWidth = Number(await widthInput.inputValue());
+    const originalHeight = await heightInput.inputValue();
     requireCondition(originalWidth > 0, 'Original width must be positive');
 
     const newWidth = Math.round(originalWidth / 2);
     await widthInput.clear();
     await widthInput.fill(String(newWidth));
     await widthInput.press('Tab');
-    await page.waitForTimeout(300);
+    await expect(heightInput).not.toHaveValue(originalHeight);
 
     // Read the auto-adjusted height before confirming
     const adjustedHeight = await heightInput.inputValue();
@@ -168,7 +169,7 @@ test.describe('Image Dialog - Dimensions', () => {
 
     // Confirm the dialog
     await confirmImageDialog(page);
-    await page.waitForTimeout(1000);
+    await waitForModalsRemoved(page);
 
     // Re-open the dialog on the same image
     await openImageEditDialog(page);
@@ -195,13 +196,14 @@ test.describe('Image Dialog - Dimensions', () => {
 
     // Read original width and compute a new value
     const originalWidth = Number(await widthInput.inputValue());
+    const originalHeight = await heightInput.inputValue();
     requireCondition(originalWidth > 0, 'Original width must be positive');
 
     const newWidth = Math.round(originalWidth / 2);
     await widthInput.clear();
     await widthInput.fill(String(newWidth));
     await widthInput.press('Tab');
-    await page.waitForTimeout(300);
+    await expect(heightInput).not.toHaveValue(originalHeight);
 
     // Read the auto-adjusted height before confirming
     const adjustedHeight = await heightInput.inputValue();
@@ -209,7 +211,7 @@ test.describe('Image Dialog - Dimensions', () => {
 
     // Confirm the dialog
     await confirmImageDialog(page);
-    await page.waitForTimeout(1000);
+    await expect.poll(() => getCKEditorData(page)).toContain(`width="${newWidth}"`);
 
     // Save the content element
     await saveContentElement(page);

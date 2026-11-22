@@ -99,7 +99,7 @@ td.fixable-no { color: #f38ba8; }
 </html>`;
 
         await page.setContent(terminalHtml);
-        await page.waitForTimeout(500);
+        await page.evaluate(async () => { await document.fonts.ready; });
 
         const terminal = page.locator('.terminal');
         await terminal.screenshot({
@@ -400,7 +400,7 @@ body {
 </html>`;
 
         await page.setContent(wizardHtml);
-        await page.waitForTimeout(500);
+        await page.evaluate(async () => { await document.fonts.ready; });
 
         const panel = page.locator('.wizard-panel');
         await panel.screenshot({

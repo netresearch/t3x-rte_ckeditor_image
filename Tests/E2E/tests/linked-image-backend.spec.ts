@@ -4,7 +4,7 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
-import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, requireCondition, BACKEND_PASSWORD, openImageEditDialog, confirmImageDialog, getCKEditorData, saveContentElement, selectImageInEditor, gotoFrontendPage } from './helpers/typo3-backend';
+import { loginToBackend, navigateToContentEdit, getModuleFrame, waitForCKEditor, requireCondition, BACKEND_PASSWORD, openImageEditDialog, confirmImageDialog, getCKEditorData, saveContentElement, selectImageInEditor, gotoFrontendPage, waitForImageSelected } from './helpers/typo3-backend';
 
 /**
  * E2E tests for the actual CKEditor workflow where issue #565 manifests.
@@ -181,7 +181,7 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
       ? linkedImage.first()
       : moduleFrame.locator('.ck-editor__editable figure img').first();
     await clickTarget.click();
-    await page.waitForTimeout(500);
+    await waitForImageSelected(page);
 
     // The image toolbar should be visible (it appears for typo3image widgets)
     // Look for the balloon toolbar with image-related buttons
@@ -191,8 +191,8 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
     // CKEditor's link UI has specific classes for the link actions
     const linkBalloon = moduleFrame.locator('.ck-link-actions:visible, .ck-balloon-panel:visible .ck-link-form');
 
-    // Wait a bit for balloons to appear/disappear
-    await page.waitForTimeout(300);
+    // The image toolbar appears once the selection has been rendered
+    await expect(imageToolbar.first(), 'Image toolbar did not appear for the selected image').toBeVisible();
 
     // Check what's visible
     const imageToolbarVisible = await imageToolbar.count() > 0;
@@ -237,11 +237,11 @@ test.describe('Image Toolbar vs Link Balloon Priority', () => {
 
     // Click on the text link
     await textLink.first().click();
-    await page.waitForTimeout(500);
 
     // For regular text links, the link balloon SHOULD appear
     // This verifies that forceDisabled only affects typo3image, not all links
     const linkBalloon = moduleFrame.locator('.ck-link-actions:visible, .ck-balloon-panel:visible');
+    await expect(linkBalloon.first()).toBeVisible();
 
     const linkBalloonVisible = await linkBalloon.count() > 0;
     console.log(`Link balloon visible for text link: ${linkBalloonVisible}`);
@@ -280,7 +280,7 @@ test.describe('Linked Image Workflow (#565)', () => {
     const linkRadio = page.locator('#clickBehavior-link');
     if (await linkRadio.count() > 0) {
       await linkRadio.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator('#rteckeditorimage-linkHref')).toBeVisible();
     }
 
     // Set link URL via the actual linkHref input

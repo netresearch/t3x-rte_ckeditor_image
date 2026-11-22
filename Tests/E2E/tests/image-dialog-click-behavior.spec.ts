@@ -85,7 +85,6 @@ test.describe('Image Dialog - Click Behavior', () => {
 
     // Click the Link radio button
     await page.locator(RADIO_LINK).click();
-    await page.waitForTimeout(500);
 
     // All link fields should now be visible
     await expect(page.locator(LINK_HREF)).toBeVisible();
@@ -103,14 +102,12 @@ test.describe('Image Dialog - Click Behavior', () => {
 
     // First select Link to make fields visible
     await page.locator(RADIO_LINK).click();
-    await page.waitForTimeout(500);
 
     // Verify fields are visible
     await expect(page.locator(LINK_HREF)).toBeVisible();
 
     // Now select None
     await page.locator(RADIO_NONE).click();
-    await page.waitForTimeout(500);
 
     // All link fields should be hidden
     await expect(page.locator(LINK_HREF)).not.toBeVisible();
@@ -128,14 +125,12 @@ test.describe('Image Dialog - Click Behavior', () => {
 
     // First select Link to make fields visible
     await page.locator(RADIO_LINK).click();
-    await page.waitForTimeout(500);
 
     // Verify fields are visible
     await expect(page.locator(LINK_HREF)).toBeVisible();
 
     // Now select Enlarge
     await page.locator(RADIO_ENLARGE).click();
-    await page.waitForTimeout(500);
 
     // Link URL field should be hidden
     await expect(page.locator(LINK_HREF)).not.toBeVisible();
@@ -150,7 +145,6 @@ test.describe('Image Dialog - Click Behavior', () => {
 
     // Select Link radio
     await page.locator(RADIO_LINK).click();
-    await page.waitForTimeout(500);
 
     // Enter a link URL
     const testUrl = 'https://example.com/click-behavior-test';
@@ -158,12 +152,11 @@ test.describe('Image Dialog - Click Behavior', () => {
 
     // Confirm the dialog
     await confirmImageDialog(page);
-    await page.waitForTimeout(1000);
 
     // Use data output since editing view has no <a> wrapper (#687)
+    await expect.poll(() => getCKEditorData(page)).toContain('example.com/click-behavior-test');
     const editorData = await getCKEditorData(page);
     expect(editorData).toContain('<a ');
-    expect(editorData).toContain('example.com/click-behavior-test');
 
     console.log('Link URL was applied to editor HTML');
   });
@@ -175,15 +168,12 @@ test.describe('Image Dialog - Click Behavior', () => {
 
     // Select Enlarge radio
     await page.locator(RADIO_ENLARGE).click();
-    await page.waitForTimeout(500);
 
     // Confirm the dialog
     await confirmImageDialog(page);
-    await page.waitForTimeout(1000);
 
     // Verify the editor HTML contains the zoom attribute
-    const editorHtml = await getEditorHtml(page);
-    expect(editorHtml).toContain('data-htmlarea-zoom');
+    await expect.poll(() => getEditorHtml(page)).toContain('data-htmlarea-zoom');
 
     console.log('Zoom attribute was applied to editor HTML');
   });
@@ -205,15 +195,12 @@ test.describe('Image Dialog - Click Behavior', () => {
 
     // Switch to None
     await page.locator(RADIO_NONE).click();
-    await page.waitForTimeout(500);
 
     // Confirm the dialog
     await confirmImageDialog(page);
-    await page.waitForTimeout(1000);
 
     // Verify zoom attribute is removed from editor HTML
-    const updatedHtml = await getEditorHtml(page);
-    expect(updatedHtml).not.toContain('data-htmlarea-zoom');
+    await expect.poll(() => getEditorHtml(page)).not.toContain('data-htmlarea-zoom');
 
     console.log('Zoom attribute was removed after switching to None');
   });
