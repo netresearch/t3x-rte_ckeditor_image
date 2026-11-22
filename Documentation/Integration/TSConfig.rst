@@ -25,7 +25,10 @@ Configuration of page TSConfig settings for image handling, upload folders, and 
    Add the lines above to your own page TSconfig.
 
    .. note::
-      **Frontend TypoScript** requires manual inclusion. See :ref:`integration-configuration-frontend-rendering`.
+      **Frontend TypoScript**: the Site Set imports it. Its setup file
+      recommends to also include it in the ``sys_template`` record when it must
+      load after Bootstrap Package. Without the Site Set, include it yourself.
+      See :ref:`integration-configuration-frontend-rendering`.
 
    This section is for **advanced users** who need to customize these defaults or add field-specific configurations.
 
