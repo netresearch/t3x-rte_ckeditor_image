@@ -86,6 +86,23 @@ function urlToRelative(url, storageDriver) {
 
 
 /**
+ * Debounce utility function to delay execution
+ *
+ * @param {Function} func - Function to debounce
+ * @param {number} wait - Delay in milliseconds
+ * @return {Function} Debounced function
+ */
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            func.apply(this, args);
+        }, wait);
+    };
+}
+
+/**
  * Get the image attributes dialog
  *
  * @param {Object} editor
@@ -508,10 +525,10 @@ function getImageDialog(editor, img, attributes) {
         { value: '_self', text: img.lang.linkTargetSelf || 'Same window' },
         { value: '_parent', text: img.lang.linkTargetParent || 'Parent frame' }
     ];
-    for (let di = 0; di < datalistOptions.length; di++) {
+    for (const datalistOption of datalistOptions) {
         const opt = document.createElement('option');
-        opt.value = datalistOptions[di].value;
-        opt.textContent = datalistOptions[di].text;
+        opt.value = datalistOption.value;
+        opt.textContent = datalistOption.text;
         linkTargetDatalist.appendChild(opt);
     }
 
@@ -620,25 +637,6 @@ function getImageDialog(editor, img, attributes) {
         });
     });
 
-
-    /**
-     * Debounce utility function to delay execution
-     *
-     * @param {Function} func - Function to debounce
-     * @param {number} wait - Delay in milliseconds
-     * @return {Function} Debounced function
-     */
-    function debounce(func, wait) {
-        let timeout;
-        return function() {
-            const context = this;
-            const args = arguments;
-            clearTimeout(timeout);
-            timeout = setTimeout(function() {
-                func.apply(context, args);
-            }, wait);
-        };
-    }
 
     // Build a quality indicator message div using safe DOM construction
     // (avoids insertAdjacentHTML with interpolated values — CodeQL js/xss-through-dom)
