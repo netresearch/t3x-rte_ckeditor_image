@@ -31,15 +31,15 @@ For details, see [ADR-003: Security Responsibility Boundaries](Documentation/Arc
 
 Findings of the dependency and code analysis checks that run on pull requests (Composer Audit, Dependency Review, License Check, Opengrep, CodeQL, Betterleaks, zizmor; see [CONTRIBUTING.md](CONTRIBUTING.md#governance-and-policies)) are handled under the organisation policy [Handling of Dependency and Code Analysis Findings](https://github.com/netresearch/.github/blob/main/SECURITY.md#handling-of-dependency-and-code-analysis-findings), which sets the thresholds, the deadlines and how exceptions are recorded.
 
-Exceptions to Composer Audit are recorded in `config.audit.ignore` in `composer.json`, each with its reason. It currently lists `PKSA-y2cr-5h3j-g3ys` (CVE-2025-45769 in `firebase/php-jwt` below 7.0, a dependency of TYPO3 Core).
+Exceptions to Composer Audit are recorded in `config.audit.ignore` in `composer.json`, each with its reason. It currently lists `PKSA-y2cr-5h3j-g3ys` (CVE-2025-45769 in `firebase/php-jwt` below 7.0, a dependency of TYPO3 Core). TYPO3 Core 13.4.21 to 13.4.25 accept only `firebase/php-jwt` 6.x, and this extension still supports them; TYPO3 Core 13.4.26 and 14.3 also accept 7.x.
 
 ## Secrets Management
 
 The project follows these practices for managing secrets and credentials:
 
 - **Storage**: All secrets (API tokens, deployment keys) are stored exclusively in [GitHub Encrypted Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets), never in source code
-- **Access**: Secrets are scoped to specific workflows and environments. Only repository administrators can create or modify secrets
-- **Rotation**: Deployment tokens (CODECOV_TOKEN, TYPO3_TER_ACCESS_TOKEN) are rotated when team membership changes or upon suspected compromise
+- **Access**: The deployment and analysis tokens (`CODECOV_TOKEN`, `SONAR_TOKEN`, `TYPO3_TER_ACCESS_TOKEN`) are organisation secrets, which only organisation owners can create or modify. Workflows receive them explicitly per job, never through `secrets: inherit`
+- **Rotation**: These tokens are rotated when team membership changes or upon suspected compromise
 - **Prevention**: `.gitignore` excludes sensitive files. CI uses `step-security/harden-runner` to monitor for credential exfiltration
 - **Audit**: GitHub's audit log tracks all secret access and modifications
 
@@ -53,8 +53,8 @@ This extension follows the [TYPO3 release lifecycle](https://get.typo3.org/):
 
 | Extension Version | TYPO3 Version | PHP Version | Status |
 |-------------------|---------------|-------------|--------|
-| 13.x | 13.4 LTS, 14.x | >=8.2 | Active support |
-| 12.x | 12.4 LTS | 8.1 – 8.3 | Security fixes only |
+| 13.x | 13.4 LTS, 14.3 LTS | >=8.2 | Active support |
+| 12.x | 12.4 LTS | 8.1 – 8.3 | End of life (since 2026-04-30) |
 | 11.x | 11.5 LTS | 7.4 – 8.1 | End of life |
 
 When a TYPO3 LTS version reaches end of life, the corresponding extension version will no longer receive security updates.
