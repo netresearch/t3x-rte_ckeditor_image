@@ -237,6 +237,18 @@ test.describe('Image Dialog Link Browser', () => {
   });
 
   test('link browser closes without error on cancel', async ({ page }) => {
+    // Collect errors from the start, so errors thrown while the link browser
+    // opens and closes are recorded too.
+    const consoleErrors: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+    page.on('pageerror', error => {
+      consoleErrors.push(error.message);
+    });
+
     await loginToBackend(page);
     await navigateToContentEdit(page);
 
@@ -271,14 +283,6 @@ test.describe('Image Dialog Link Browser', () => {
 
     // Wait for the link browser modal to close
     await expect(page.locator('.modal-dialog iframe, .t3js-modal iframe')).toHaveCount(0);
-
-    // Check no JavaScript errors in console
-    const consoleErrors: string[] = [];
-    page.on('console', msg => {
-      if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
-      }
-    });
 
     // The image edit dialog should still be visible
     const imageDialog = page.locator('.t3js-modal:has(input[name="alt"]), .modal-dialog:has(input[name="alt"])');
