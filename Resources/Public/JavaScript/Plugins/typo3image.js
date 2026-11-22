@@ -2237,11 +2237,11 @@ export default class Typo3Image extends Plugin {
                     if (!item.is('element', 'typo3imageInline') || !item.hasAttribute('imageLinkHref')) {
                         continue;
                     }
-                    for (const [key] of item.getAttributes()) {
-                        if (isLinkPluginAttribute(key)) {
-                            writer.removeAttribute(key, item);
-                            changed = true;
-                        }
+                    // Collect the keys first: removing changes the attributes being read
+                    const linkPluginKeys = Array.from(item.getAttributeKeys()).filter(isLinkPluginAttribute);
+                    for (const key of linkPluginKeys) {
+                        writer.removeAttribute(key, item);
+                        changed = true;
                     }
                 }
             }
