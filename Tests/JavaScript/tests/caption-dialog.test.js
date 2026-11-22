@@ -76,13 +76,13 @@ function figcaptionsOf(html) {
  * new caption into its textarea, press Save and wait until the dialog closed
  * and the model was updated.
  */
-async function editCaptionInDialog(newCaption) {
+async function editCaptionInDialog(newCaption, buttonName = 'editTypo3Image') {
   const root = editor.model.document.getRoot();
   const image = Array.from(root.getChildren()).find((node) => node.is('element', 'typo3image'));
   expect(image, 'typo3image model element').toBeDefined();
   editor.model.change((writer) => writer.setSelection(image, 'on'));
 
-  editor.ui.componentFactory.create('editTypo3Image').fire('execute');
+  editor.ui.componentFactory.create(buttonName).fire('execute');
   await vi.waitFor(() => expect(modalCalls).toHaveLength(1));
 
   const dialog = modalCalls[0];
@@ -137,6 +137,13 @@ describe('Image dialog keeps caption markup', () => {
     await editCaptionInDialog('New caption');
 
     expect(figcaptionsOf(editor.getData())).toEqual(['<figcaption>New caption</figcaption>']);
+  });
+
+  it('keeps the caption when the dialog is opened from the main toolbar button', async () => {
+    const textarea = await editCaptionInDialog(undefined, 'insertimage');
+
+    expect(textarea.value).toBe('Line1Line2 bold by Author');
+    expect(figcaptionsOf(editor.getData())).toEqual([`<figcaption>${CAPTION}</figcaption>`]);
   });
 
   it('removes the caption when it is cleared in the dialog', async () => {

@@ -3388,6 +3388,16 @@ export default class Typo3Image extends Plugin {
                 const selectedElement = editor.model.document.selection.getSelectedElement();
 
                 if (selectedElement?.name === 'typo3image') {
+                    // Pass the caption like the balloon and double-click handlers do,
+                    // so saving without a change keeps a formatted caption
+                    const captionElement = getCaptionFromImageModelElement(selectedElement);
+                    let captionText = '';
+                    for (const child of captionElement?.getChildren() ?? []) {
+                        if (child.is('$text')) {
+                            captionText += child.data;
+                        }
+                    }
+
                     edit(
                         {
                             uid: selectedElement.getAttribute('fileUid'),
@@ -3400,6 +3410,8 @@ export default class Typo3Image extends Plugin {
                             class: selectedElement.getAttribute('class'),
                             alt: selectedElement.getAttribute('alt'),
                             title: selectedElement.getAttribute('title'),
+                            caption: captionText,
+                            captionElement: captionElement,
                             'data-htmlarea-zoom': selectedElement.getAttribute('enableZoom'),
                             'data-noscale': selectedElement.getAttribute('noScale'),
                             'data-quality': selectedElement.getAttribute('quality'),
