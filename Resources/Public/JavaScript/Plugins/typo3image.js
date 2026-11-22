@@ -608,6 +608,12 @@ function getImageDialog(editor, img, attributes) {
                 inputCssClassLink.value = linkData.class || '';
                 inputLinkParams.value = linkData.additionalParams || '';
             }
+        }, function(reason) {
+            // Closing the link browser without a selection rejects without a
+            // reason; failures carry one (openLinkBrowser has logged details).
+            if (reason) {
+                console.warn('Link browser returned no link:', reason);
+            }
         });
     });
 
@@ -970,6 +976,10 @@ function askImageAttributes(editor, img, attributes, table) {
                             });
                             modal.hideModal('hide');
                             resolvePromise(filteredAttr);
+                        })
+                        .catch(function (error) {
+                            // Keep the dialog open so the editor can retry or cancel
+                            console.error('Failed to fetch image info:', error);
                         });
 
                 }
@@ -1391,6 +1401,12 @@ function edit(selectedImage, editor, imageAttributes) {
 
                 editor.model.insertObject(newImage);
             });
+        })
+        .catch(function (error) {
+            // Cancelling the dialog rejects without a reason: nothing to report
+            if (error) {
+                console.error('Failed to edit image:', error);
+            }
         });
 }
 
@@ -3376,7 +3392,7 @@ export default class Typo3Image extends Plugin {
             });
 
             // Fetch and apply translated label
-            getTranslations().then(translations => {
+            void getTranslations().then(translations => {
                 if (translations.insertImage) {
                     button.set({
                         label: translations.insertImage
@@ -3427,7 +3443,7 @@ export default class Typo3Image extends Plugin {
                         }
                     );
                 } else {
-                    selectImage(editor).then(selectedImage => {
+                    void selectImage(editor).then(selectedImage => {
                         edit(selectedImage, editor, {});
                     });
                 }
@@ -3448,7 +3464,7 @@ export default class Typo3Image extends Plugin {
             });
 
             // Fetch and apply translated label
-            getTranslations().then(translations => {
+            void getTranslations().then(translations => {
                 if (translations.editImage) {
                     button.set({
                         label: translations.editImage
@@ -3548,7 +3564,7 @@ export default class Typo3Image extends Plugin {
                 isToggleable: true
             });
 
-            getTranslations().then(translations => {
+            void getTranslations().then(translations => {
                 if (translations.toggleCaption) {
                     button.set({ label: translations.toggleCaption });
                 }
@@ -3579,7 +3595,7 @@ export default class Typo3Image extends Plugin {
                 isToggleable: true
             });
 
-            getTranslations().then(translations => {
+            void getTranslations().then(translations => {
                 if (translations.toggleInlineBlock) {
                     button.set({ label: translations.toggleInlineBlock });
                 }
@@ -3663,7 +3679,7 @@ export default class Typo3Image extends Plugin {
         };
 
         // Apply translated titles to style definitions
-        getTranslations().then(translations => {
+        void getTranslations().then(translations => {
             const titleMap = {
                 'image-left': translations.alignLeft,
                 'image-center': translations.alignCenter,
