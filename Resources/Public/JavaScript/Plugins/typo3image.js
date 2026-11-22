@@ -239,7 +239,7 @@ function getImageDialog(editor, img, attributes) {
                 el.min = min;
 
                 const constrainDimensions = function (currentMin, delta) {
-                    let value = Number.parseInt(el.value.replace(/[^0-9]/g, '') || max, 10);
+                    let value = Number.parseInt(el.value.replace(/\D/g, '') || max, 10);
                     if (delta) {
                         value += delta;
                     }
@@ -254,7 +254,7 @@ function getImageDialog(editor, img, attributes) {
 
                 el.addEventListener('input', function () {
                     // Allow empty input during typing (fixes #140)
-                    const val = el.value.replace(/[^0-9]/g, '');
+                    const val = el.value.replace(/\D/g, '');
                     if (val !== '') {
                         constrainDimensions(1);
                     }
@@ -1744,7 +1744,7 @@ function viewNodeHasText(node, skip = null) {
 function toInlineImageClass(classValue) {
     const classes = (classValue || '')
         .split(' ')
-        .filter(cls => cls !== 'image' && !cls.match(/^image-(left|right|center|block)$/))
+        .filter(cls => cls !== 'image' && !/^image-(left|right|center|block)$/.test(cls))
         .join(' ')
         .trim();
 
