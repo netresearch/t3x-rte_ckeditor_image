@@ -105,7 +105,6 @@ Pre-commit (husky) runs automatically: `composer ci:test:php:lint`, `composer ci
 composer ci:test                # All checks: lint, phpstan, rector, cgl, unit, js-lint, js-unit, functional
 composer ci:test:php:unit       # Unit tests only
 composer ci:test:php:functional # Functional tests (needs typo3DatabaseDriver=pdo_sqlite)
-composer ci:test:js:lint        # ESLint on Resources/Public/JavaScript (config: Tests/JavaScript/eslint.config.js)
 composer ci:test:js:unit        # JavaScript unit tests (Tests/JavaScript/)
 composer ci:test:php:rector     # Rector dry-run check
 E2E_TYPO3_VERSION=13 E2E_VARIANT=fsc ./Build/Scripts/runTests.sh -s e2e -p 8.5   # E2E (=14 for v14; variants: core-only|fsc|bootstrap)
