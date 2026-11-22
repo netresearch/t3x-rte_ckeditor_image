@@ -92,6 +92,8 @@ and an image inside a text link is removed while the link and its text stay.
 A link whose only content is a blocked image stays,
 and typolink fills in its default link text:
 the page title for a page link, otherwise the URL, e-mail address or file path.
+If the extension cannot locate the image markup inside the link reliably,
+it drops the whole link, including its text.
 
 XSS prevention
 ==============

@@ -2773,6 +2773,58 @@ final class ImageRenderingAdapterTest extends TestCase
     }
 
     #[Test]
+    public function renderImagesReturnsEmptyStringWhenSecondCopyOfNonPublicImageIsSpelledDifferently(): void
+    {
+        // The parser normalises both copies to the same originalHtml, but only the
+        // first copy uses that spelling in the source: strtr() would miss the second.
+        $normalised  = '<img src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image-inline" />';
+        $linkContent = 'A ' . $normalised . ' B <img  src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image-inline" /> C';
+        $image       = [
+            'attributes' => [
+                'src'                    => '/protected/secret.jpg',
+                'data-htmlarea-file-uid' => '2',
+                'class'                  => 'image-inline',
+            ],
+            'originalHtml' => $normalised,
+        ];
+
+        $this->adapter->setContentObjectRenderer($this->contentObjectRenderer);
+        $this->contentObjectRenderer->parameters = ['href' => '/page'];
+        $this->contentObjectRenderer->method('getCurrentVal')->willReturn($linkContent);
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn(['link' => ['href' => '/page'], 'images' => [$image, $image]]);
+
+        $this->resolverService->method('resolve')->willThrowException(new NonPublicFileException(2));
+
+        self::assertSame('', $this->adapter->renderImages(null, [], $this->request));
+    }
+
+    #[Test]
+    public function renderLinkReturnsEmptyStringWhenSecondCopyOfNonPublicImageIsSpelledDifferently(): void
+    {
+        $normalised = '<img src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image image-inline" />';
+        $linkHtml   = '<a href="/page">A ' . $normalised . ' B <img  src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image image-inline" /> C</a>';
+        $image      = [
+            'attributes' => [
+                'src'                    => '/protected/secret.jpg',
+                'data-htmlarea-file-uid' => '2',
+                'class'                  => 'image image-inline',
+            ],
+            'originalHtml' => $normalised,
+        ];
+
+        $this->attributeParser
+            ->method('parseLinkWithImages')
+            ->willReturn(['link' => ['href' => '/page'], 'images' => [$image, $image]]);
+
+        $this->resolverService->method('resolve')->willThrowException(new NonPublicFileException(2));
+
+        self::assertSame('', $this->adapter->renderLink($linkHtml, [], $this->request));
+    }
+
+    #[Test]
     public function renderLinkRemovesNonPublicImageButKeepsLinkAndText(): void
     {
         $blockedImg = '<img src="/protected/secret.jpg" data-htmlarea-file-uid="2" class="image image-inline" />';

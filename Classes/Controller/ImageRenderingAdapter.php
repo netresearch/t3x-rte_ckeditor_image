@@ -295,6 +295,7 @@ class ImageRenderingAdapter
 
         // Process each image and build replacement map
         $replacements = [];
+        $occurrences  = $this->countOriginalHtml($parsed['images']);
 
         foreach ($parsed['images'] as $imageData) {
             // Extract attributes and original HTML from parsed data
@@ -322,7 +323,7 @@ class ImageRenderingAdapter
                 // file's public URL - remove it if the file is in a non-public storage
                 if (
                     $this->resolverService->isNonPublicFile($fileUid)
-                    && !$this->removeNonPublicImage($linkContent, $originalHtml, $replacements)
+                    && !$this->removeNonPublicImage($linkContent, $originalHtml, $occurrences, $replacements)
                 ) {
                     return '';
                 }
@@ -345,7 +346,7 @@ class ImageRenderingAdapter
                 $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
             } catch (NonPublicFileException) {
                 // SECURITY: drop the image, keep the link and its other content
-                if (!$this->removeNonPublicImage($linkContent, $originalHtml, $replacements)) {
+                if (!$this->removeNonPublicImage($linkContent, $originalHtml, $occurrences, $replacements)) {
                     return '';
                 }
 
@@ -379,22 +380,48 @@ class ImageRenderingAdapter
     /**
      * Schedule an image of a file in a non-public storage for removal from link content.
      *
+     * The parser serialises each image itself, so two copies of one image that are
+     * spelled differently in the source get the same originalHtml. strtr() then
+     * removes only the copies that use that spelling. The image counts as located
+     * only if the content holds the spelling at least as often as the parser found
+     * images with it.
+     *
      * @param string                $content      Link content the replacements are applied to
      * @param string                $originalHtml Image markup as found by the parser
+     * @param array<string, int>    $occurrences  Number of parsed images per originalHtml
      * @param array<string, string> $replacements Replacement map, extended by reference
      *
      * @return bool False if the image cannot be located in the content; the caller must
      *              then output nothing for the link, as the image cannot be removed reliably
      */
-    private function removeNonPublicImage(string $content, string $originalHtml, array &$replacements): bool
+    private function removeNonPublicImage(string $content, string $originalHtml, array $occurrences, array &$replacements): bool
     {
-        if ($originalHtml === '' || !str_contains($content, $originalHtml)) {
+        if ($originalHtml === '' || substr_count($content, $originalHtml) < ($occurrences[$originalHtml] ?? 1)) {
             return false;
         }
 
         $replacements[$originalHtml] = '';
 
         return true;
+    }
+
+    /**
+     * Count the parsed images per originalHtml.
+     *
+     * @param array<int, array{attributes?: array<string, string>, originalHtml?: string}> $images
+     *
+     * @return array<string, int>
+     */
+    private function countOriginalHtml(array $images): array
+    {
+        $counts = [];
+
+        foreach ($images as $imageData) {
+            $originalHtml          = $imageData['originalHtml'] ?? '';
+            $counts[$originalHtml] = ($counts[$originalHtml] ?? 0) + 1;
+        }
+
+        return $counts;
     }
 
     /**
@@ -600,6 +627,7 @@ class ImageRenderingAdapter
 
         // Process each image and build replacement map
         $replacements = [];
+        $occurrences  = $this->countOriginalHtml($images);
 
         foreach ($images as $imageData) {
             $imageAttributes = $imageData['attributes'] ?? [];
@@ -622,7 +650,7 @@ class ImageRenderingAdapter
                 // file's public URL - remove it if the file is in a non-public storage
                 if (
                     $this->resolverService->isNonPublicFile($fileUid)
-                    && !$this->removeNonPublicImage($innerContent, $originalHtml, $replacements)
+                    && !$this->removeNonPublicImage($innerContent, $originalHtml, $occurrences, $replacements)
                 ) {
                     return '';
                 }
@@ -642,7 +670,7 @@ class ImageRenderingAdapter
                 $dto = $this->resolverService->resolve($imageAttributes, $conf, $request);
             } catch (NonPublicFileException) {
                 // SECURITY: drop the image, keep the link and its other content
-                if (!$this->removeNonPublicImage($innerContent, $originalHtml, $replacements)) {
+                if (!$this->removeNonPublicImage($innerContent, $originalHtml, $occurrences, $replacements)) {
                     return '';
                 }
 
