@@ -16,7 +16,7 @@ Advanced configuration options including custom styles, performance optimization
 
    This section covers advanced customization:
 
-   -  Custom image styles and style groups.
+   -  Custom image styles.
    -  Performance optimization and image processing.
    -  Extension-specific settings.
    -  Best practices for production environments.
@@ -57,26 +57,8 @@ Define custom styles for images:
               element: 'img'
               classes: ['w-100']
 
-Style Groups
-------------
-
-Organize styles in groups:
-
-..  code-block:: yaml
-    :caption: Style group definitions
-
-    editor:
-      config:
-        style:
-          definitions:
-            # ... style definitions ...
-
-          # Group styles in dropdown
-          groupDefinitions:
-            - name: 'Image Alignment'
-              styles: ['Image Left', 'Image Right', 'Image Center']
-            - name: 'Image Size'
-              styles: ['Full Width', 'Half Width']
+The style dropdown groups the definitions automatically into block styles and
+text styles. CKEditor 5 has no option for custom style groups.
 
 .. _integration-configuration-dialog-fields:
 
@@ -98,6 +80,10 @@ an image or inserts a new one:
 
    * - **Quality (Scaling)**
      - Dropdown: No Scaling, Standard (1.0x), Retina (2.0x), Ultra (3.0x), Print (6.0x).
+       Images without a stored quality (new or older content) open with Retina
+       (2.0x) selected; older images with the legacy ``data-noscale``
+       attribute open with No Scaling. SVG images default to Print and the
+       dropdown is disabled for them.
 
    * - **Title**
      - Advisory title attribute. Checkbox toggles override of FAL metadata default.
@@ -202,11 +188,12 @@ The extension supports quality multipliers for high-DPI displays and print outpu
 
     *   - Low
         - 0.9x
-        - Performance optimization.
+        - Not offered in the dialog; still applied to existing content with
+          ``data-quality="low"``.
 
     *   - Standard
         - 1.0x
-        - Default web display.
+        - Standard web display. Also used for images without a stored quality.
 
     *   - Retina
         - 2.0x
@@ -245,7 +232,9 @@ persists with the image and affects frontend processing dimensions.
     }
 
 When quality multipliers are applied, the actual processing dimensions are
-calculated as: :samp:`display dimensions × quality multiplier`, capped by maxWidth/maxHeight.
+calculated as: :samp:`display dimensions × quality multiplier`, capped by the original image size.
+The magic ``maxWidth``/``maxHeight`` options only limit the display dimensions
+the image dialog suggests; they do not cap frontend processing.
 
 noScale Mode
 ------------
@@ -262,12 +251,28 @@ This is useful for:
 -  Images already optimized for web delivery.
 -  Situations where exact original quality is required.
 
+To skip processing for standalone and captioned RTE images, set ``noScale`` inside the
+``preUserFunc`` block. TYPO3 passes only that block to the renderer, so a
+sibling ``tags.img.noScale`` has no effect:
+
+..  code-block:: typoscript
+    :caption: Global noScale
+
+    lib.parseFunc_RTE.tags.img.preUserFunc.noScale = 1
+    # Images with a caption are rendered by the figure handler
+    lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc.noScale = 1
+
+Without ``noScale``, processing is skipped when the requested dimensions
+equal the original. ``noScale.maxFileSizeForAuto`` (bytes, in the same
+``preUserFunc`` blocks) forces processing in that case for larger files.
+It has no effect while ``noScale = 1`` is set.
+
 SVG Support
 -----------
 
 The extension handles SVG files with special processing:
 
--  **Dimension extraction**: Reads dimensions from :html:`viewBox` or :html:`width`/:html:`height` attributes.
+-  **Dimensions**: Taken from the file's FAL metadata (``width``/``height``), as for any other image.
 -  **No rasterization**: SVGs are never processed through ImageMagick/GraphicsMagick.
 -  **Automatic noScale**: SVG files automatically skip image processing.
 

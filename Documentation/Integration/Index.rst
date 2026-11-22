@@ -25,12 +25,19 @@ Complete configuration reference and integration guide for the CKEditor Image Su
 
       composer require netresearch/rte-ckeditor-image
 
-   The extension automatically:
+   The extension:
 
    - ✅ Registers ``rteWithImages`` preset for backend RTE
-   - ✅ Configures toolbar with ``insertimage`` button
+   - ✅ Configures the preset's toolbar with ``insertimage`` button
 
-   **For frontend rendering**, you must include the TypoScript:
+   The preset becomes active only when the Site Set ``netresearch/rte-ckeditor-image``
+   is added to your site. Without the Site Set, set ``RTE.default.preset = rteWithImages``
+   in page TSconfig.
+
+   **For frontend rendering**, the Site Set already imports the TypoScript.
+   The setup file of the Site Set recommends to also include it in the
+   ``sys_template`` record when it must load after Bootstrap Package.
+   Without the Site Set, include the TypoScript yourself:
 
    - **Static Template**: Include "CKEditor Image Support" in your template
    - **Or direct import**: ``@import 'EXT:rte_ckeditor_image/Configuration/TypoScript/ImageRendering/setup.typoscript'``

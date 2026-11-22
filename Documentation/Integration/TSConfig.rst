@@ -12,16 +12,23 @@ Page TSConfig Setup
 Configuration of page TSConfig settings for image handling, upload folders, and permissions.
 
 .. important::
-   **Automatic Page TSConfig**
+   **Page TSConfig from the Site Set**
 
-   The extension automatically loads Page TSConfig via ``ext_tables.php``:
+   The Site Set ``netresearch/rte-ckeditor-image`` ships page TSconfig
+   (``Configuration/Sets/RteCKEditorImage/page.tsconfig``) that sets:
 
-   - ✅ Magic image processing enabled (maxWidth: 1920, maxHeight: 9999)
-   - ✅ RTE preset configured globally
-   - ✅ Processing modes set automatically
+   - ✅ Magic image dimensions (maxWidth: 1920, maxHeight: 9999)
+   - ✅ RTE preset ``RTE.default.preset = rteWithImages``
+   - ✅ Processing mode ``RTE.default.proc.overruleMode := addToList(default)``
+
+   Without the Site Set, none of this page TSconfig is loaded.
+   Add the lines above to your own page TSconfig.
 
    .. note::
-      **Frontend TypoScript** requires manual inclusion. See :ref:`integration-configuration-frontend-rendering`.
+      **Frontend TypoScript**: the Site Set imports it. Its setup file
+      recommends to also include it in the ``sys_template`` record when it must
+      load after Bootstrap Package. Without the Site Set, include it yourself.
+      See :ref:`integration-configuration-frontend-rendering`.
 
    This section is for **advanced users** who need to customize these defaults or add field-specific configurations.
 
@@ -47,26 +54,30 @@ Configure maximum image dimensions for automatic image processing:
 .. confval:: RTE.default.buttons.image.options.magic.maxWidth
 
    :type: integer
-   :Default: 300
+   :Default: 1920
 
    Maximum width in pixels for images inserted through the RTE.
 
-   Images larger than this value will be automatically resized during processing.
-
-   .. warning::
-      The TYPO3 core default of **300px** is very low and causes images to appear
-      unexpectedly small. The extension's Site Set overrides this to **1920px**.
-      If you use sys_template records instead of Site Sets, you must set this
-      value manually.
+   When an editor selects an image, the image dialog suggests display dimensions
+   that fit within this limit, keeping the aspect ratio.
+   If the option is not set, the extension falls back to 1920.
 
 .. confval:: RTE.default.buttons.image.options.magic.maxHeight
 
    :type: integer
-   :Default: 1000
+   :Default: 9999
 
    Maximum height in pixels for images inserted through the RTE.
 
-   Images taller than this value will be automatically resized during processing.
+   When an editor selects an image, the image dialog suggests display dimensions
+   that fit within this limit, keeping the aspect ratio.
+   If the option is not set, the extension falls back to 9999.
+
+.. note::
+   The extension reads these options only from
+   ``RTE.<name>.buttons.image.options.magic``, where ``<name>`` is the
+   field's TCA ``richtextConfiguration`` (``default`` if none is set).
+   Values under ``RTE.config.<table>.<field>`` are not read.
 
 **Example:**
 
@@ -92,34 +103,13 @@ Processing Modes
 Upload Folder Configuration
 ---------------------------
 
-.. confval:: RTE.default.buttons.image.options.defaultUploadFolder
-
-   :type: string
-   :Default: (empty)
-
-   Default upload folder for images inserted through the RTE.
-
-   Format: ``<storage_uid>:<folder_path>``
-
-   Example: ``1:rte_uploads/`` uses storage 1 and uploads to ``rte_uploads/`` directory.
-
-.. confval:: RTE.default.buttons.image.options.createUploadFolderIfNeeded
-
-   :type: boolean
-   :Default: false
-
-   Automatically creates the upload folder if it doesn't exist.
-
-   Recommended to set to ``1`` (true) to avoid upload errors.
-
-**Example:**
-
-.. code-block:: typoscript
-
-   RTE.default.buttons.image.options {
-       defaultUploadFolder = 1:rte_uploads/
-       createUploadFolderIfNeeded = 1
-   }
+The extension has no upload folder option of its own.
+The image browser and the external image import use the TYPO3 core
+default upload folder, which core resolves from the user TSconfig option
+``options.defaultUploadFolder`` (see
+:ref:`integration-configuration-permissions`).
+The extension passes no page ID to the resolver, so
+``options.defaultUploadFolder`` in page TSconfig is not used.
 
 Content Element Configuration
 ==============================
@@ -129,14 +119,15 @@ Enable for Specific Content Types
 
 .. code-block:: typoscript
 
-   # Only enable for tt_content bodytext
+   # Use a specific preset for tt_content bodytext
    RTE.config.tt_content.bodytext {
-       preset = default
-       buttons.image.options.magic {
-           maxWidth = 1200
-           maxHeight = 800
-       }
+       preset = rteWithImages
    }
+
+.. note::
+   ``buttons.image.options.magic`` is not read under ``RTE.config.*``.
+   Set the magic image dimensions under ``RTE.<name>``, where ``<name>`` is the
+   field's ``richtextConfiguration`` (``RTE.default`` if none is set; see above).
 
 Disable for Specific Fields
 ----------------------------
@@ -206,8 +197,8 @@ Verify Configuration Loading
 Check active RTE configuration in backend:
 
 1. Edit content element
-2. Open browser console
-3. Check ``CKEDITOR.config`` object
+2. Open the backend module :guilabel:`Page TSconfig`, select the page and
+   check the active ``RTE.`` tree
 
 Configuration Priority
 ----------------------

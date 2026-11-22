@@ -16,7 +16,7 @@ TypoScript configuration for frontend image rendering, CSS classes, lazy loading
 
    After installing the extension, you must include the TypoScript for frontend image rendering.
 
-   **Option 1: Static Template (Recommended)**
+   **Option 1: Static Template**
 
    #. Go to :guilabel:`WEB > Template` module.
    #. Select your root page.
@@ -41,6 +41,14 @@ TypoScript configuration for frontend image rendering, CSS classes, lazy loading
 
    Using direct import gives you full control over the TypoScript load order,
    allowing you to override settings (like lightbox configuration) after the import.
+
+   .. note::
+      The static template and the direct import cover frontend rendering only.
+      They do not include the image alignment CSS
+      (``EXT:rte_ckeditor_image/Resources/Public/Css/image-alignment.css``),
+      the popup link class override for Bootstrap Package (``linkClass = lightbox``)
+      or the page TSconfig that activates the ``rteWithImages`` preset.
+      The Site Set ``netresearch/rte-ckeditor-image`` includes all of them.
 
 .. contents:: Table of Contents
    :depth: 3
@@ -135,12 +143,12 @@ Lightbox/Popup Integration
    Default popup configuration is now provided by the extension.
 
 .. note::
-   **Optional Site Set Configuration (TYPO3 v13+)**
+   **Site Set Configuration (TYPO3 v13+)**
 
    The extension provides click-to-enlarge functionality once TypoScript is included.
 
-   **However**, for TYPO3 v13+ best practices, you can optionally include the extension's site set
-   to ensure proper loading order with :typoscript:`fluid_styled_content` if you use it:
+   The extension's site set also ensures the loading order with :typoscript:`fluid_styled_content`,
+   includes the image alignment CSS and activates the ``rteWithImages`` preset in the backend:
 
    **Option 1: Via Backend (Recommended for TYPO3 v13+)**
 
@@ -161,9 +169,9 @@ Lightbox/Popup Integration
        dependencies:
          - netresearch/rte-ckeditor-image
 
-   **Option 3: Static Template (Legacy, TYPO3 v12)**
+   **Option 3: Static Template**
 
-   For TYPO3 v12, you can include the static template:
+   Without site sets, you can include the static template (frontend rendering only):
 
    #. Go to :guilabel:`WEB > Template` module.
    #. Select your root page.
@@ -175,7 +183,11 @@ Lightbox/Popup Integration
 
 The extension provides :typoscript:`lib.contentElement.settings.media.popup` configuration
 with sensible defaults for click-to-enlarge functionality. When editors enable
-:guilabel:`Enlarge on Click` in the image dialog, images will open in a JavaScript popup window.
+:guilabel:`Enlarge on Click` in the image dialog, the image is wrapped in a link to the
+original file with ``target="_blank"``, ``data-popup="true"`` and
+``rel="lightbox-group-rte"``. The link class comes from ``linkClass``
+(default ``popup-link``; the Site Set sets ``lightbox``) or from the ``class`` in
+``linkParams.ATagParams``.
 
 **Default Configuration** (included in the static template):
 
@@ -183,7 +195,9 @@ with sensible defaults for click-to-enlarge functionality. When editors enable
     :caption: Default popup configuration
 
     lib.contentElement.settings.media.popup {
-        # Opens in popup window (800x600 max)
+        # Only linkClass and linkParams.ATagParams affect RTE images.
+        # The other keys are fluid_styled_content's popup settings for
+        # content-element images; RTE image links open the file in a new tab.
         bodyTag = <body style="margin:0; background:#fff;">
         wrap = <a href="javascript:close();"> | </a>
         width = 800m
@@ -195,27 +209,19 @@ with sensible defaults for click-to-enlarge functionality. When editors enable
 
 **Using with Lightbox Libraries** (PhotoSwipe, GLightbox, etc.):
 
-Override the default configuration to use direct image links with custom CSS classes:
+Override the default configuration to set the CSS class of the popup link:
 
 ..  code-block:: typoscript
     :caption: Lightbox library configuration
 
     lib.contentElement.settings.media.popup {
-        # Direct link to image for lightbox libraries
-        directImageLink = 1
-
-        # Add lightbox-specific classes and attributes
-        linkParams.ATagParams.dataWrap = class="lightbox" rel="lightbox-gallery"
+        # CSS class of the popup link
+        linkClass = lightbox
     }
 
-**Legacy fluid_styled_content Integration**:
-
-If using :typoscript:`fluid_styled_content` constants, enable lightbox mode:
-
-..  code-block:: typoscript
-    :caption: Template constants for lightbox
-
-    styles.content.textmedia.linkWrap.lightboxEnabled = 1
+Only the link class is configurable. Other attributes in
+``linkParams.ATagParams`` are ignored, and ``rel`` is always
+``lightbox-group-rte``.
 
 Manual TypoScript Inclusion
 ===========================
@@ -242,8 +248,7 @@ and the ability to override settings in your site package.
 
     # Now you can override settings:
     lib.contentElement.settings.media.popup {
-        directImageLink = 1
-        linkParams.ATagParams.dataWrap = class="lightbox"
+        linkClass = lightbox
     }
 
 .. _typoscript-reference:
@@ -341,12 +346,16 @@ Lightbox Configuration
 ~~~~~~~~~~~~~~~~~~~~~~
 
 ..  code-block:: typoscript
-    :caption: Lightbox template constants
+    :caption: Popup link class
 
-    # Template Constants
-    styles.content.textmedia.linkWrap.lightboxEnabled = 1
-    styles.content.textmedia.linkWrap.lightboxCssClass = lightbox
-    styles.content.textmedia.linkWrap.lightboxRelAttribute = lightbox[{field:uid}]
+    lib.contentElement.settings.media.popup {
+        # Simple: class of the popup link (default: popup-link)
+        linkClass = lightbox
+        # Alternative: only the class attribute is read from ATagParams.
+        # It is used only while linkClass is unset or empty; the Site Set
+        # sets linkClass = lightbox, so remove that first.
+        # linkParams.ATagParams = class="lightbox"
+    }
 
 Image Processing
 ~~~~~~~~~~~~~~~~

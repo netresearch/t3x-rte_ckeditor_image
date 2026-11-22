@@ -57,12 +57,13 @@ Available styles
    * - Align Right
      - ``image-right``
      - Float right with text wrap
-   * - Inline
-     - ``image-inline``
-     - Inline with text
    * - Block
      - ``image-block``
      - Full-width block element
+
+The toolbar also has an edit button, a caption toggle and a button that
+switches the image between block and inline type. An inline image gets the
+``image-inline`` class.
 
 How to use
 ----------
@@ -75,32 +76,26 @@ How to use
 .. note::
 
     The balloon toolbar appears directly above the selected image with icons
-    for alignment (left, center, right) and display mode (inline, block).
+    for editing, caption, image type (block or inline) and alignment
+    (left, center, right, block).
 
-Configuration (default)
------------------------
+Toolbar items
+-------------
 
-The balloon toolbar is configured in ``rteWithImages.yaml``:
+The balloon toolbar is defined in the plugin (``typo3image.js``) and is not
+configurable. It contains these items:
 
-.. code-block:: yaml
-    :caption: EXT:rte_ckeditor_image/Configuration/RTE/rteWithImages.yaml
+.. code-block:: text
+    :caption: Balloon toolbar items
 
-    editor:
-      config:
-        # Load CSS for alignment styles
-        contentsCss:
-          - 'EXT:rte_ckeditor_image/Resources/Public/Css/image-alignment.css'
+    editTypo3Image | toggleImageCaption | toggleImageType |
+    imageStyle:image-left, imageStyle:image-center,
+    imageStyle:image-right, imageStyle:image-block
 
-        typo3image:
-          toolbar:
-            - 'editTypo3Image'
-            - '|'
-            - 'imageStyle:image-left'
-            - 'imageStyle:image-center'
-            - 'imageStyle:image-right'
-            - '|'
-            - 'imageStyle:image-inline'
-            - 'imageStyle:image-block'
+.. note::
+
+    ``rteWithImages.yaml`` contains a ``typo3image.toolbar`` list, but the
+    plugin does not read it. Changing it has no effect.
 
 CSS styles
 ----------
@@ -108,26 +103,18 @@ CSS styles
 The extension provides CSS styles in :file:`image-alignment.css`:
 
 .. code-block:: css
-    :caption: Built-in alignment CSS
+    :caption: Built-in alignment CSS (excerpt)
 
-    /* Float left with text wrap */
-    .image-left { float: left; margin: 0 1rem 1rem 0; }
-
-    /* Float right with text wrap */
-    .image-right { float: right; margin: 0 0 1rem 1rem; }
-
-    /* Centered block */
-    .image-center { display: block; margin: 0 auto 1rem; }
-
-    /* Inline with text */
-    .image-inline { display: inline; vertical-align: middle; }
-
-    /* Full-width block */
+    .image-left { float: left; margin: 0 1rem 1rem 0; clear: left; }
+    .image-right { float: right; margin: 0 0 1rem 1rem; clear: right; }
+    .image-center { display: block; margin-left: auto; margin-right: auto; margin-bottom: 1rem; }
+    .image-inline { display: inline-block; vertical-align: middle; margin: 0 0.25rem; }
     .image-block { display: block; width: 100%; margin: 1rem 0; }
 
 .. tip::
 
-    Include the CSS in your frontend:
+    The Site Set includes this CSS in the frontend. Without the Site Set,
+    include it yourself:
 
     .. code-block:: typoscript
 
@@ -242,36 +229,8 @@ How to use
     The style dropdown only shows styles applicable to the selected element.
     Make sure you have the image selected when looking for image styles.
 
-Style groups
-------------
-
-Organize styles into groups for better UX:
-
-.. code-block:: yaml
-    :caption: Grouped style definitions
-
-    editor:
-      config:
-        style:
-          definitions:
-            - name: 'Float Left'
-              element: 'img'
-              classes: ['float-start', 'me-3']
-            - name: 'Float Right'
-              element: 'img'
-              classes: ['float-end', 'ms-3']
-            - name: 'Thumbnail'
-              element: 'img'
-              classes: ['img-thumbnail']
-            - name: 'Rounded'
-              element: 'img'
-              classes: ['rounded']
-
-          groupDefinitions:
-            - name: 'Image Alignment'
-              styles: ['Float Left', 'Float Right']
-            - name: 'Image Style'
-              styles: ['Thumbnail', 'Rounded']
+The style dropdown groups the definitions automatically into block styles
+and text styles. CKEditor 5 has no option for custom style groups.
 
 Troubleshooting
 ===============
@@ -316,8 +275,8 @@ Balloon toolbar not showing
 
 **Symptoms**: No toolbar appears when clicking an image.
 
-**Solution**: Ensure you're using the ``rteWithImages`` preset or have
-configured ``typo3image.toolbar`` in your RTE configuration.
+**Solution**: Ensure you're using the ``rteWithImages`` preset or a preset
+that imports the image plugin.
 
 .. code-block:: yaml
     :caption: Check your preset includes the image plugin
@@ -339,7 +298,7 @@ Choosing the right approach
      - None required
      - YAML configuration needed
    * - Styles available
-     - 5 style options (3 alignment + 2 display)
+     - 4 alignment options (left, center, right, block) plus inline/block toggle
      - Custom (you define them)
    * - Location
      - Balloon above image

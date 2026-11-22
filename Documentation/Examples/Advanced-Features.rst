@@ -117,51 +117,71 @@ PHP Wrapper
 
    namespace MyVendor\MySite\UserFunc;
 
-   use TYPO3\CMS\Core\Resource\FileRepository;
+   use Psr\Http\Message\ServerRequestInterface;
+   use TYPO3\CMS\Core\Attribute\AsAllowedCallable;
+   use TYPO3\CMS\Core\Resource\ResourceFactory;
    use TYPO3\CMS\Core\Utility\GeneralUtility;
    use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
    class LightboxImageRenderer
    {
+       private ?ContentObjectRenderer $cObj = null;
+
+       // Called by TYPO3 before render()
+       public function setContentObjectRenderer(ContentObjectRenderer $cObj): void
+       {
+           $this->cObj = $cObj;
+       }
+
+       // TYPO3 v14 calls only methods marked with #[AsAllowedCallable]
+       #[AsAllowedCallable]
        public function render(
-           string $content,
+           ?string $content,
            array $conf,
-           ContentObjectRenderer $cObj
+           ServerRequestInterface $request
        ): string {
-           // Check if zoom enabled
-           if (strpos($content, 'data-htmlarea-zoom') === false) {
-               return $content;
-           }
+           // <img> is an empty tag: parseFunc passes no content to tags.img,
+           // but puts the tag's attributes into the content object's parameters.
+           $attributes = $this->cObj?->parameters ?? [];
+           $imgTag = '<img ' . trim((string)($attributes['allParams'] ?? '')) . '>';
 
-           // Extract file UID
-           if (!preg_match('/data-htmlarea-file-uid="(\d+)"/', $content, $match)) {
-               return $content;
+           $fileUid = (int)($attributes['data-htmlarea-file-uid'] ?? 0);
+           if (!isset($attributes['data-htmlarea-zoom']) || $fileUid <= 0) {
+               return $imgTag;
            }
-
-           $fileUid = (int)$match[1];
-           $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
 
            try {
-               $file = $fileRepository->findByUid($fileUid);
-           } catch (\Exception $e) {
-               return $content;
+               $file = GeneralUtility::makeInstance(ResourceFactory::class)
+                   ->getFileObject($fileUid);
+           } catch (\Exception) {
+               return $imgTag;
+           }
+
+           // Never expose a file from a non-public storage
+           if (!$file->getStorage()->isPublic()) {
+               return '';
            }
 
            // Remove data attributes for frontend
-           $content = preg_replace('/\s*data-htmlarea-[^=]+="[^"]*"/', '', $content);
+           $imgTag = preg_replace('/\s*data-htmlarea-[^=]+="[^"]*"/', '', $imgTag);
 
            // Wrap in lightbox link
-           $lightboxLink = sprintf(
+           return sprintf(
                '<a href="%s" data-pswp-width="%d" data-pswp-height="%d" target="_blank">%s</a>',
-               $file->getPublicUrl(),
+               htmlspecialchars((string)$file->getPublicUrl()),
                $file->getProperty('width'),
                $file->getProperty('height'),
-               $content
+               $imgTag
            );
-
-           return $lightboxLink;
        }
    }
+
+.. note::
+   This renderer replaces the extension's ``renderImageAttributes()`` for
+   ``tags.img``, so quality scaling and the other processing of the extension
+   no longer run for these images; the example repeats only the non-public
+   storage check. Captioned images are rendered by ``renderFigure()`` through
+   ``externalBlocks.figure`` and never reach this renderer.
 
 JavaScript Initialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~

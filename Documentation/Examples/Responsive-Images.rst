@@ -42,49 +42,57 @@ PHP Implementation
 
    namespace MyVendor\MySite\UserFunc;
 
-   use TYPO3\CMS\Core\Resource\FileRepository;
+   use Psr\Http\Message\ServerRequestInterface;
+   use TYPO3\CMS\Core\Attribute\AsAllowedCallable;
    use TYPO3\CMS\Core\Resource\ProcessedFile;
+   use TYPO3\CMS\Core\Resource\ResourceFactory;
    use TYPO3\CMS\Core\Utility\GeneralUtility;
    use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
    class ResponsiveImageRenderer
    {
+       private ?ContentObjectRenderer $cObj = null;
+
+       // Called by TYPO3 before render()
+       public function setContentObjectRenderer(ContentObjectRenderer $cObj): void
+       {
+           $this->cObj = $cObj;
+       }
+
+       // TYPO3 v14 calls only methods marked with #[AsAllowedCallable]
+       #[AsAllowedCallable]
        public function render(
-           string $content,
+           ?string $content,
            array $conf,
-           ContentObjectRenderer $cObj
+           ServerRequestInterface $request
        ): string {
-           // Parse img tag
-           if (!preg_match('/<img([^>]*)>/i', $content, $imgMatch)) {
-               return $content;
+           // <img> is an empty tag: parseFunc passes no content to tags.img,
+           // but puts the tag's attributes into the content object's parameters.
+           $attributes = $this->cObj?->parameters ?? [];
+           $originalTag = '<img ' . trim((string)($attributes['allParams'] ?? '')) . '>';
+
+           $fileUid = (int)($attributes['data-htmlarea-file-uid'] ?? 0);
+           if ($fileUid <= 0) {
+               return $originalTag;
            }
 
-           // Extract data-htmlarea-file-uid
-           if (!preg_match('/data-htmlarea-file-uid="(\d+)"/', $imgMatch[1], $uidMatch)) {
-               return $content;
-           }
-
-           $fileUid = (int)$uidMatch[1];
-
-           // Get FAL file
-           $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
            try {
-               $file = $fileRepository->findByUid($fileUid);
-           } catch (\Exception $e) {
-               return $content;
+               $file = GeneralUtility::makeInstance(ResourceFactory::class)
+                   ->getFileObject($fileUid);
+           } catch (\Exception) {
+               return $originalTag;
+           }
+
+           // Never expose a file from a non-public storage
+           if (!$file->getStorage()->isPublic()) {
+               return '';
            }
 
            // Generate responsive variants
-           $breakpoints = [
-               'xs' => 480,
-               'sm' => 768,
-               'md' => 992,
-               'lg' => 1200,
-               'xl' => 1920
-           ];
+           $breakpoints = [480, 768, 992, 1200, 1920];
 
            $srcsetParts = [];
-           foreach ($breakpoints as $name => $width) {
+           foreach ($breakpoints as $width) {
                $processedFile = $file->process(
                    ProcessedFile::CONTEXT_IMAGECROPSCALEMASK,
                    ['width' => $width]
@@ -95,16 +103,18 @@ PHP Implementation
            $srcset = implode(', ', $srcsetParts);
            $sizes = '(max-width: 768px) 100vw, (max-width: 992px) 50vw, 33vw';
 
-           // Replace img tag with srcset version
-           $newImg = str_replace(
-               '<img',
-               '<img srcset="' . htmlspecialchars($srcset) . '" sizes="' . $sizes . '"',
-               $imgMatch[0]
-           );
-
-           return str_replace($imgMatch[0], $newImg, $content);
+           return '<img srcset="' . htmlspecialchars($srcset) . '"'
+               . ' sizes="' . $sizes . '" '
+               . trim((string)($attributes['allParams'] ?? '')) . '>';
        }
    }
+
+.. note::
+   This renderer replaces the extension's ``renderImageAttributes()`` for
+   ``tags.img``, so quality scaling and the other processing of the extension
+   no longer run for these images; the example repeats only the non-public
+   storage check. Captioned images are rendered by ``renderFigure()`` through
+   ``externalBlocks.figure`` and never reach this renderer.
 
 Result HTML
 -----------

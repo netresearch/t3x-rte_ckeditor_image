@@ -9,19 +9,19 @@
 Custom Extensions
 ==================
 
-Advanced examples for extending the image plugin with custom fields, external image handling, multi-language support, and backend processing.
+Advanced examples for extending the image plugin with custom attributes, external image handling, multi-language support, and backend processing.
 
 .. contents:: Table of Contents
    :depth: 3
    :local:
 
-Custom Image Dialog
-===================
+Custom Image Attributes
+=======================
 
 Extended Image Properties
 --------------------------
 
-**Objective**: Add custom fields to image dialog
+**Objective**: Add custom attributes to the image model and its HTML
 
 CKEditor Plugin Extension
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,47 +56,30 @@ CKEditor Plugin Extension
                view: 'data-custom-caption'
            });
 
-           // Modify image dialog
-           editor.on('typo3image:dialog', (evt, { dialog, modelElement }) => {
-               // Add custom fields to dialog using native DOM
-               const group1 = document.createElement('div');
-               group1.className = 'form-group';
-               const label1 = document.createElement('label');
-               label1.textContent = 'Custom Caption';
-               group1.appendChild(label1);
-               const captionInput = document.createElement('input');
-               captionInput.type = 'text';
-               captionInput.className = 'form-control';
-               captionInput.name = 'customCaption';
-               captionInput.value = modelElement.getAttribute('customCaption') || '';
-               group1.appendChild(captionInput);
-
-               const group2 = document.createElement('div');
-               group2.className = 'form-group';
-               const label2 = document.createElement('label');
-               label2.textContent = 'Copyright';
-               group2.appendChild(label2);
-               const copyrightInput = document.createElement('input');
-               copyrightInput.type = 'text';
-               copyrightInput.className = 'form-control';
-               copyrightInput.name = 'customCopyright';
-               copyrightInput.value = modelElement.getAttribute('customCopyright') || '';
-               group2.appendChild(copyrightInput);
-
-               dialog.el.appendChild(group1);
-               dialog.el.appendChild(group2);
-
-               // Override dialog.get() to include custom fields
-               const originalGet = dialog.get;
-               dialog.get = function() {
-                   const attrs = originalGet.call(this);
-                   attrs.customCaption = captionInput.value;
-                   attrs.customCopyright = copyrightInput.value;
-                   return attrs;
-               };
+           // Same pair for the second attribute
+           editor.conversion.for('upcast').attributeToAttribute({
+               view: 'data-custom-copyright',
+               model: 'customCopyright'
            });
+           editor.conversion.for('downcast').attributeToAttribute({
+               model: 'customCopyright',
+               view: 'data-custom-copyright'
+           });
+
        }
    }
+
+.. note::
+   The image dialog has no extension point for extra fields.
+   The plugin fires no dialog event; the only custom event it fires is
+   ``dblclick:typo3image``, which opens the built-in dialog.
+   Saving the dialog creates the image model element again from the dialog
+   fields, so attributes added this way are lost once an editor edits the
+   image in the dialog.
+   Inline images use the separate ``typo3imageInline`` model, which needs
+   its own ``schema.extend()`` and converters.
+   Switching an image between block and inline also creates a new element
+   from a fixed attribute list, so the custom attributes are lost there too.
 
 Register Plugin
 ~~~~~~~~~~~~~~~
@@ -113,7 +96,7 @@ TYPO3's RTE also accepts the module as a plain string, but integrations that
 read the preset themselves, such as the Visual Editor of FriendsOfTYPO3, expect
 the ``{ module, exports }`` form.
 
-**Result**: Custom image metadata fields ✅
+**Result**: Custom attributes survive loading and saving the content, but not editing the image in the dialog.
 
 External Image Handling
 =======================
@@ -139,50 +122,6 @@ Custom Upload Folder
 
    options.defaultUploadFolder = 1:user_upload/rte_images/
 
-Custom Fetch Handler
-~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: php
-   :caption: EXT:my_site/Classes/Hooks/CustomImageFetchHook.php
-
-   namespace MyVendor\MySite\Hooks;
-
-   use TYPO3\CMS\Core\Resource\File;
-   use TYPO3\CMS\Core\Resource\Folder;
-
-   class CustomImageFetchHook
-   {
-       public function postProcessExternalImage(
-           string $externalUrl,
-           File $uploadedFile,
-           Folder $targetFolder
-       ): void {
-           // Add custom metadata
-           $uploadedFile->updateProperties([
-               'title' => 'Imported from ' . parse_url($externalUrl, PHP_URL_HOST),
-               'description' => 'Automatically fetched external image',
-           ]);
-
-           // Trigger image optimization
-           $this->optimizeImage($uploadedFile);
-       }
-
-       protected function optimizeImage(File $file): void
-       {
-           // Custom optimization logic
-           // e.g., compress, resize, convert format
-       }
-   }
-
-Register Hook
-~~~~~~~~~~~~~
-
-.. code-block:: php
-   :caption: ext_localconf.php
-
-   $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['rte_ckeditor_image']['postProcessExternalImage'][]
-       = \MyVendor\MySite\Hooks\CustomImageFetchHook::class . '->postProcessExternalImage';
-
 **Result**: Automatic external image import ✅
 
 Multi-Language Setup
@@ -204,13 +143,11 @@ Page TSConfig
    [siteLanguage("languageId") == 1]
        # German
        RTE.default.preset = german
-       RTE.default.buttons.image.options.defaultUploadFolder = 1:user_upload/de/
    [END]
 
    [siteLanguage("languageId") == 2]
        # French
        RTE.default.preset = french
-       RTE.default.buttons.image.options.defaultUploadFolder = 1:user_upload/fr/
    [END]
 
 RTE Configuration
