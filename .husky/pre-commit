@@ -20,6 +20,13 @@ composer ci:test:php:lint || exit 1
 echo "🎨 Running PHP-CS-Fixer..."
 composer ci:test:php:cgl || exit 1
 
+# Run ESLint on the CKEditor plugin when plugin JavaScript is staged. It needs
+# the dependencies in Tests/JavaScript (composer ci:test:js:lint installs them).
+if git diff --cached --name-only | grep -q '^Resources/Public/JavaScript/.*\.js$'; then
+    echo "🧹 Running ESLint..."
+    composer ci:test:js:lint || exit 1
+fi
+
 # Run PHPStan (medium speed)
 echo "📊 Running PHPStan..."
 composer ci:test:php:phpstan || exit 1

@@ -1,5 +1,4 @@
 /*jslint browser: true, this: true, multivar: true, white: true, devel: true*/
-/*global window, document, CKEDITOR*/
 
 /**
  * This file is part of the TYPO3 CMS project.
@@ -904,8 +903,8 @@ function getImageDialog(editor, img, attributes) {
         // Calculate expected quality (ratio of image pixels to display pixels)
         // Quality = Image / Display (higher = better quality)
         const qualityRatio = Math.min(intrinsicWidth / displayWidth, intrinsicHeight / displayHeight);
-        let expectedQualityName = '';
-        let expectedQualityColor = '';
+        let expectedQualityName;
+        let expectedQualityColor;
 
         // Determine quality level based on ratio
         if (qualityRatio >= 6.0) {
@@ -1076,7 +1075,7 @@ function askImageAttributes(editor, img, attributes, table) {
 
                     let filteredAttr = Object.keys(attributesNew)
                         .filter(function (key) {
-                            return allowedAttributes.has(key)
+                            return allowedAttributes.has(key);
                         })
                         .reduce(function (obj, key) {
                             obj[key] = attributesNew[key];
@@ -2702,7 +2701,7 @@ export default class Typo3Image extends Plugin {
                         if (linkUI?.actionsView && contextualBalloon.hasView(linkUI.actionsView)) {
                             contextualBalloon.remove(linkUI.actionsView);
                         }
-                    } catch (e) {
+                    } catch {
                         // Ignore errors when trying to hide link balloon
                     }
                 }
@@ -2740,7 +2739,7 @@ export default class Typo3Image extends Plugin {
 
         const styleUtils = editor.plugins.get('StyleUtils');
         // Add listener to allow style sets for `img` element, when a `typo3image` element is selected
-        this.listenTo(styleUtils, 'isStyleEnabledForBlock', (event, [style, element]) => {
+        this.listenTo(styleUtils, 'isStyleEnabledForBlock', (event, [style]) => {
             if (style.element === 'img') {
                 for (const item of editor.model.document.selection.getFirstRange().getItems()) {
                     if (item.name === 'typo3image') {
@@ -2748,10 +2747,10 @@ export default class Typo3Image extends Plugin {
                     }
                 }
             }
-        })
+        });
 
         // Add listener to check if style is active for `img` element, when a `typo3image` element is selected
-        this.listenTo(styleUtils, 'isStyleActiveForBlock', (event, [style, element]) => {
+        this.listenTo(styleUtils, 'isStyleActiveForBlock', (event, [style]) => {
             if (style.element !== 'img') {
                 return;
             }
@@ -2761,42 +2760,42 @@ export default class Typo3Image extends Plugin {
                     break;
                 }
             }
-        })
+        });
 
         // Add listener to return the correct `typo3image` model element for `img` style
-        this.listenTo(styleUtils, 'getAffectedBlocks', (event, [style, element]) => {
+        this.listenTo(styleUtils, 'getAffectedBlocks', (event, [style]) => {
             if (style.element === 'img') {
                 for (const item of editor.model.document.selection.getFirstRange().getItems()) {
                     if (item.name === 'typo3image') {
-                        event.return = [item]
-                        break
+                        event.return = [item];
+                        break;
                     }
                 }
             }
-        })
+        });
 
         const ghs = editor.plugins.get('GeneralHtmlSupport');
         // Convert `addModelHtmlClass` to an event
-        ghs.decorate('addModelHtmlClass')
+        ghs.decorate('addModelHtmlClass');
         // Add listener to update the `class` attribute of the `typo3image` element
-        this.listenTo(ghs, 'addModelHtmlClass', (event, [viewElement, className, selectable]) => {
+        this.listenTo(ghs, 'addModelHtmlClass', (event, [, className, selectable]) => {
             if (selectable?.name === 'typo3image') {
                 editor.model.change(writer => {
                     writer.setAttribute('class', className.join(' '), selectable);
-                })
+                });
             }
-        })
+        });
 
         // Convert `removeModelHtmlClass` to an event
-        ghs.decorate('removeModelHtmlClass')
+        ghs.decorate('removeModelHtmlClass');
         // Add listener to remove the `class` attribute of the `typo3image` element
-        this.listenTo(ghs, 'removeModelHtmlClass', (event, [viewElement, className, selectable]) => {
+        this.listenTo(ghs, 'removeModelHtmlClass', (event, [, , selectable]) => {
             if (selectable?.name === 'typo3image') {
                 editor.model.change(writer => {
                     writer.removeAttribute('class', selectable);
-                })
+                });
             }
-        })
+        });
 
         editor.editing.view.addObserver(Typo3ImageDoubleClickObserver);
 
@@ -3831,7 +3830,7 @@ export default class Typo3Image extends Plugin {
                     writer.setSelection(modelElement, 'on');
                 });
             }
-        }, { priority: 'highest' })
+        }, { priority: 'highest' });
 
         // Define image style options with SVG icons
         // Titles are set with English defaults, then updated asynchronously with translations

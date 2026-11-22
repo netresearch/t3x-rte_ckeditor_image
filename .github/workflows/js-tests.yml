@@ -3,8 +3,9 @@
 
 name: JavaScript Tests
 
-# Runs the Vitest suite in Tests/JavaScript (`composer ci:test:js:unit` runs
-# the same commands locally). The CKEditor plugin modules in
+# Lints the CKEditor plugin modules with ESLint and runs the Vitest suite in
+# Tests/JavaScript (`composer ci:test:js:lint` and `composer ci:test:js:unit`
+# run the same commands locally). The CKEditor plugin modules in
 # Resources/Public/JavaScript have unit tests, but no workflow ran them: the
 # shared typo3-ci-workflows ci.yml has no JavaScript job. Thin caller of the
 # shared node-test reusable, so the action pins and harden-runner stay
@@ -35,4 +36,4 @@ jobs:
       package-manager: npm
       node-version: '24'
       install-cmd: cd Tests/JavaScript && npm ci --no-audit --no-fund
-      test-cmd: cd Tests/JavaScript && npm test
+      test-cmd: cd Tests/JavaScript && npm run lint && npm test
