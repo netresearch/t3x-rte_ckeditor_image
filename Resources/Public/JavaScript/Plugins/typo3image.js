@@ -103,6 +103,269 @@ function debounce(func, wait) {
 }
 
 /**
+ * Create a DOM element with an optional class and append it to a parent.
+ *
+ * @param {string} tag - The tag name
+ * @param {string} [className] - The class attribute value
+ * @param {HTMLElement} [parent] - The element to append to
+ * @return {HTMLElement} The new element
+ */
+function h(tag, className, parent) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (parent) parent.appendChild(el);
+    return el;
+}
+
+/**
+ * Create the form control of a dialog field.
+ *
+ * @param {string} key - The field key
+ * @param {Object} config - The field configuration (type, rows)
+ * @param {string} id - The element id
+ * @return {HTMLElement} A select, textarea or input
+ */
+function createDialogInput(key, config, id) {
+    let el;
+    if (config.type === 'select') {
+        el = document.createElement('select');
+        el.id = id;
+        el.name = key;
+        el.className = 'form-select';
+    } else if (config.type === 'textarea') {
+        el = document.createElement('textarea');
+        el.id = id;
+        el.name = key;
+        el.className = 'form-control';
+        el.rows = config.rows || 3;
+    } else {
+        el = document.createElement('input');
+        el.type = config.type;
+        el.id = id;
+        el.name = key;
+        el.className = 'form-control';
+    }
+    return el;
+}
+
+/**
+ * Create one field of the image dialog in a row and register its control in
+ * elements.
+ *
+ * @param {HTMLElement} row - The row element
+ * @param {string} key - The field key: width, height, quality, title, alt or caption
+ * @param {Object} config - The field configuration (label, type, rows)
+ * @param {Object} context - img (image info), attributes (current values), isSvg, elements
+ */
+function createDialogField(row, key, config, { img, attributes, isSvg, elements }) {
+    // Use full width for title, alt, and caption fields, otherwise use col-sm-4
+    const colClass = (key === 'title' || key === 'alt' || key === 'caption') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
+    const col = h('div', colClass, row);
+    const group = h('div', 'form-group', col);
+    const id = `rteckeditorimage-${key}`;
+    const label = h('label', 'form-label', group);
+    label.htmlFor = id;
+    label.textContent = config.label;
+
+    const el = createDialogInput(key, config, id);
+
+    const placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
+    const value = ((attributes[key] || '') + '').trim();
+
+    if (config.type !== 'select') {
+        el.placeholder = placeholder;
+        el.value = value;
+    }
+
+    if (config.type === 'text' || config.type === 'textarea') {
+        setupOverrideCheckbox(el, key, value, group, { img, attributes });
+    } else if (config.type === 'number') {
+        setupDimensionInput(el, key, img, elements);
+    } else if (config.type === 'select' && key === 'quality') {
+        setupQualitySelect(el, img, attributes, isSvg);
+    }
+
+    group.appendChild(el);
+    elements[key] = el;
+}
+
+/**
+ * Add the override checkbox of a text field (title, alt, caption): the field
+ * is editable only when it overrides the file metadata.
+ *
+ * @param {HTMLElement} el - The text control
+ * @param {string} key - The field key
+ * @param {string} value - The current value
+ * @param {HTMLElement} group - The form group of the field
+ * @param {Object} context - img (image info) and attributes (current values, changed in place)
+ */
+function setupOverrideCheckbox(el, key, value, group, { img, attributes }) {
+    let startVal = value;
+    const hasDefault = img[key]?.trim();
+
+    const cbox = document.createElement('input');
+    cbox.type = 'checkbox';
+    cbox.className = 'form-check-input';
+    cbox.id = `checkbox-${key}`;
+    cbox.checked = !!value || !hasDefault;
+    cbox.disabled = !hasDefault;
+
+    const cboxLabel = document.createElement('label');
+    cboxLabel.className = 'form-check-label';
+    cboxLabel.htmlFor = `checkbox-${key}`;
+    cboxLabel.textContent = hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault;
+
+    // Add tooltip when checkbox is disabled (no default value from file)
+    if (!hasDefault) {
+        const noDefaultMsg = img.lang.noDefaultMetadata.replace('%s', key);
+        cbox.title = noDefaultMsg;
+        cboxLabel.style.cursor = 'not-allowed';
+        cboxLabel.title = noDefaultMsg;
+    }
+
+    el.disabled = hasDefault && !value;
+
+    const checkboxContainer = h('div', 'form-check form-check-type-toggle', group);
+    checkboxContainer.style.cssText = 'margin: 0 0 6px;';
+    checkboxContainer.appendChild(cbox);
+    checkboxContainer.appendChild(cboxLabel);
+
+    cboxLabel.addEventListener('click', function () {
+        el.disabled = !cbox.checked;
+        startVal = el.value || startVal;
+
+        // Clear value or set to startvalue when clicking checkbox
+        if (!cbox.checked) {
+            el.value = '';
+        } else {
+            el.value = startVal;
+            el.focus();
+        }
+    });
+
+    // Initally read/set title/alt attributes and check if override is enabled
+    if (key === 'title' || key === 'alt') {
+        if (attributes[`data-${key}-override`] === 'false') {
+            cbox.checked = false;
+            el.disabled = true;
+            el.value = '';
+            attributes[`data-${key}-override`] = false;
+            delete attributes[key];
+        } else {
+            cbox.checked = true;
+            el.disabled = false;
+        }
+    }
+}
+
+/**
+ * Keep the width and height inputs within the image size and in its aspect
+ * ratio, on typing, change and mouse wheel.
+ *
+ * @param {HTMLInputElement} el - The width or height input
+ * @param {string} key - width or height
+ * @param {Object} img - The image info
+ * @param {Object} elements - The dialog controls by key, to find the opposite input
+ */
+function setupDimensionInput(el, key, img, elements) {
+    let ratio = img.width / img.height;
+    if (key === 'height') {
+        ratio = 1 / ratio;
+    }
+    const opposite = 1;
+    const max = img[key];
+    const min = Math.ceil(opposite * ratio);
+    el.max = max;
+    el.min = min;
+
+    const constrainDimensions = function (currentMin, delta) {
+        let value = Number.parseInt(el.value.replace(/\D/g, '') || max, 10);
+        if (delta) {
+            value += delta;
+        }
+        value = Math.max(currentMin, Math.min(value, max));
+        const oppositeEl = elements[key === 'width' ? 'height' : 'width'],
+            oppositeMax = Number.parseInt(oppositeEl.max, 10),
+            ratio = oppositeMax / max;
+
+        oppositeEl.value = value === max ? oppositeMax : Math.ceil(value * ratio);
+        el.value = value;
+    };
+
+    el.addEventListener('input', function () {
+        // Allow empty input during typing (fixes #140)
+        const val = el.value.replace(/\D/g, '');
+        if (val !== '') {
+            constrainDimensions(1);
+        }
+    });
+    el.addEventListener('change', function () {
+        constrainDimensions(min);
+    });
+    el.addEventListener('wheel', function (e) {
+        constrainDimensions(min, e.deltaY < 0 ? 1 : -1);
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+    }, { passive: false });
+}
+
+/**
+ * Get the quality the dialog preselects.
+ * Priority: 1) data-quality 2) data-noscale→'none' 3) SVG→'print' 4) default→'retina'
+ *
+ * @param {Object} attributes - The current values
+ * @param {boolean} isSvg - The image is an SVG
+ * @return {string} The quality value
+ */
+function getDefaultQuality(attributes, isSvg) {
+    if (attributes['data-quality']) {
+        return attributes['data-quality'];
+    }
+    if (attributes['data-noscale']) {
+        // Backward compatibility: data-noscale should map to 'none' quality
+        return 'none';
+    }
+    return isSvg ? 'print' : 'retina';
+}
+
+/**
+ * Fill the quality dropdown (sorted by quality ascending) and preselect the
+ * current quality. SVG images need no quality processing: the dropdown is
+ * disabled for them.
+ *
+ * @param {HTMLSelectElement} el - The quality dropdown
+ * @param {Object} img - The image info
+ * @param {Object} attributes - The current values
+ * @param {boolean} isSvg - The image is an SVG
+ */
+function setupQualitySelect(el, img, attributes, isSvg) {
+    const qualityOptions = [
+        { value: 'none', label: img.lang.qualityNone || 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
+        { value: 'standard', label: img.lang.qualityStandard || 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
+        { value: 'retina', label: img.lang.qualityRetina || 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
+        { value: 'ultra', label: img.lang.qualityUltra || 'Ultra (3.0x)', multiplier: 3.0, color: '#17a2b8', marker: '●' },
+        { value: 'print', label: img.lang.qualityPrint || 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
+    ];
+
+    for (const option of qualityOptions) {
+        const optEl = document.createElement('option');
+        optEl.value = option.value;
+        optEl.textContent = `${option.marker} ${option.label}`;
+        optEl.dataset.multiplier = option.multiplier;
+        optEl.dataset.color = option.color;
+        optEl.style.color = option.color;
+        el.appendChild(optEl);
+    }
+
+    el.value = getDefaultQuality(attributes, isSvg);
+
+    if (isSvg) {
+        el.disabled = true;
+    }
+}
+
+/**
  * Reduce a CSS class input to valid CSS class characters.
  *
  * @param {string} value - The input value
@@ -245,14 +508,6 @@ function getImageDialog(editor, img, attributes) {
         rows = [],
         elements = {};
 
-    // Helper: create element with optional class, append to parent
-    function h(tag, className, parent) {
-        const el = document.createElement(tag);
-        if (className) el.className = className;
-        if (parent) parent.appendChild(el);
-        return el;
-    }
-
     const fields = [
         {
             width: { label: img.lang.displayWidth || 'Display width in px', type: 'number' },
@@ -280,184 +535,7 @@ function getImageDialog(editor, img, attributes) {
 
         rows.push(row);
         for (const [key, config] of Object.entries(fieldGroup)) {
-            // Use full width for title, alt, and caption fields, otherwise use col-sm-4
-            const colClass = (key === 'title' || key === 'alt' || key === 'caption') ? 'col-xs-12' : 'col-xs-12 col-sm-4';
-            const col = h('div', colClass, row);
-            const group = h('div', 'form-group', col);
-            const id = `rteckeditorimage-${key}`;
-            const label = h('label', 'form-label', group);
-            label.htmlFor = id;
-            label.textContent = config.label;
-
-            let el;
-            if (config.type === 'select') {
-                el = document.createElement('select');
-                el.id = id;
-                el.name = key;
-                el.className = 'form-select';
-            } else if (config.type === 'textarea') {
-                el = document.createElement('textarea');
-                el.id = id;
-                el.name = key;
-                el.className = 'form-control';
-                el.rows = config.rows || 3;
-            } else {
-                el = document.createElement('input');
-                el.type = config.type;
-                el.id = id;
-                el.name = key;
-                el.className = 'form-control';
-            }
-
-            const placeholder = (config.type === 'text' ? (img[key] || '') : img.processed[key]) + '';
-            const value = ((attributes[key] || '') + '').trim();
-
-            if (config.type !== 'select') {
-                el.placeholder = placeholder;
-                el.value = value;
-            }
-
-            if (config.type === 'text' || config.type === 'textarea') {
-                let startVal = value;
-                const hasDefault = img[key]?.trim();
-
-                const cbox = document.createElement('input');
-                cbox.type = 'checkbox';
-                cbox.className = 'form-check-input';
-                cbox.id = `checkbox-${key}`;
-                cbox.checked = !!value || !hasDefault;
-                cbox.disabled = !hasDefault;
-
-                const cboxLabel = document.createElement('label');
-                cboxLabel.className = 'form-check-label';
-                cboxLabel.htmlFor = `checkbox-${key}`;
-                cboxLabel.textContent = hasDefault ? img.lang.override.replace('%s', img[key]) : img.lang.overrideNoDefault;
-
-                // Add tooltip when checkbox is disabled (no default value from file)
-                if (!hasDefault) {
-                    const noDefaultMsg = img.lang.noDefaultMetadata.replace('%s', key);
-                    cbox.title = noDefaultMsg;
-                    cboxLabel.style.cursor = 'not-allowed';
-                    cboxLabel.title = noDefaultMsg;
-                }
-
-                el.disabled = hasDefault && !value;
-
-                const checkboxContainer = h('div', 'form-check form-check-type-toggle', group);
-                checkboxContainer.style.cssText = 'margin: 0 0 6px;';
-                checkboxContainer.appendChild(cbox);
-                checkboxContainer.appendChild(cboxLabel);
-
-                cboxLabel.addEventListener('click', function () {
-                    el.disabled = !cbox.checked;
-                    startVal = el.value || startVal;
-
-                    // Clear value or set to startvalue when clicking checkbox
-                    if (!cbox.checked) {
-                        el.value = '';
-                    } else {
-                        el.value = startVal;
-                        el.focus();
-                    }
-                });
-
-                // Initally read/set title/alt attributes and check if override is enabled
-                if (key === 'title' || key === 'alt') {
-                    if (attributes[`data-${key}-override`] === 'false') {
-                        cbox.checked = false;
-                        el.disabled = true;
-                        el.value = '';
-                        attributes[`data-${key}-override`] = false;
-                        delete attributes[key];
-                    } else {
-                        cbox.checked = true;
-                        el.disabled = false;
-                    }
-                }
-            } else if (config.type === 'number') {
-                let ratio = img.width / img.height;
-                if (key === 'height') {
-                    ratio = 1 / ratio;
-                }
-                const opposite = 1;
-                const max = img[key];
-                const min = Math.ceil(opposite * ratio);
-                el.max = max;
-                el.min = min;
-
-                const constrainDimensions = function (currentMin, delta) {
-                    let value = Number.parseInt(el.value.replace(/\D/g, '') || max, 10);
-                    if (delta) {
-                        value += delta;
-                    }
-                    value = Math.max(currentMin, Math.min(value, max));
-                    const oppositeEl = elements[key === 'width' ? 'height' : 'width'],
-                        oppositeMax = Number.parseInt(oppositeEl.max, 10),
-                        ratio = oppositeMax / max;
-
-                    oppositeEl.value = value === max ? oppositeMax : Math.ceil(value * ratio);
-                    el.value = value;
-                };
-
-                el.addEventListener('input', function () {
-                    // Allow empty input during typing (fixes #140)
-                    const val = el.value.replace(/\D/g, '');
-                    if (val !== '') {
-                        constrainDimensions(1);
-                    }
-                });
-                el.addEventListener('change', function () {
-                    constrainDimensions(min);
-                });
-                el.addEventListener('wheel', function (e) {
-                    constrainDimensions(min, e.deltaY < 0 ? 1 : -1);
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                }, { passive: false });
-            } else if (config.type === 'select' && key === 'quality') {
-                // Image Processing quality dropdown - sorted by quality ascending
-                const qualityOptions = [
-                    { value: 'none', label: img.lang.qualityNone || 'No Scaling', multiplier: 1.0, color: '#6c757d', marker: '●' },
-                    { value: 'standard', label: img.lang.qualityStandard || 'Standard (1.0x)', multiplier: 1.0, color: '#ffc107', marker: '●' },
-                    { value: 'retina', label: img.lang.qualityRetina || 'Retina (2.0x)', multiplier: 2.0, color: '#28a745', marker: '●' },
-                    { value: 'ultra', label: img.lang.qualityUltra || 'Ultra (3.0x)', multiplier: 3.0, color: '#17a2b8', marker: '●' },
-                    { value: 'print', label: img.lang.qualityPrint || 'Print (6.0x)', multiplier: 6.0, color: '#007bff', marker: '●' }
-                ];
-
-                for (const option of qualityOptions) {
-                    const optEl = document.createElement('option');
-                    optEl.value = option.value;
-                    optEl.textContent = `${option.marker} ${option.label}`;
-                    optEl.dataset.multiplier = option.multiplier;
-                    optEl.dataset.color = option.color;
-                    optEl.style.color = option.color;
-                    el.appendChild(optEl);
-                }
-
-                // Determine default quality based on image type and existing attributes
-                // Priority: 1) data-quality 2) data-noscale→'none' 3) SVG→'print' 4) default→'retina'
-                let defaultQuality;
-                if (attributes['data-quality']) {
-                    defaultQuality = attributes['data-quality'];
-                } else if (attributes['data-noscale']) {
-                    // Backward compatibility: data-noscale should map to 'none' quality
-                    defaultQuality = 'none';
-                } else if (isSvg) {
-                    defaultQuality = 'print';
-                } else {
-                    defaultQuality = 'retina';
-                }
-                el.value = defaultQuality;
-
-                // Disable for SVG (vector images don't need quality processing)
-                if (isSvg) {
-                    el.disabled = true;
-                }
-            }
-
-            group.appendChild(el);
-            elements[key] = el;
+            createDialogField(row, key, config, { img, attributes, isSvg, elements });
         }
     }
 
