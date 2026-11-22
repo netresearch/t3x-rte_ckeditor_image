@@ -49,7 +49,6 @@ export function buildSelectImageBparams(allowedExtensions) {
         // Surface admin misconfiguration without aborting the editor: e.g. a
         // YAML preset that yields an array (`allowedExtensions: [jpg, png]`)
         // would otherwise silently fall back to GFX.imagefile_ext.
-        // eslint-disable-next-line no-console
         console.warn(
             'rte_ckeditor_image: typo3image.allowedExtensions ignored — expected string, got '
             + (typeof allowedExtensions)
