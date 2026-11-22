@@ -34,6 +34,12 @@ export { parseTypoLink, parseTypoLinkParts, encodeTypoLink } from './typolink-pa
 // Module-level translations cache for functions outside the plugin class scope
 let moduleTranslationsCache = null;
 
+/**
+ * Alignment classes of an image. The balloon toolbar sets them; they belong to
+ * the image and never to the CSS class fields or to the class of its link.
+ */
+const ALIGNMENT_CLASSES = new Set(['image-left', 'image-center', 'image-right', 'image-block', 'image-inline']);
+
 class Typo3ImageDoubleClickObserver extends DomEventObserver {
     constructor(view) {
         super(view);
@@ -347,10 +353,9 @@ function getImageDialog(editor, img, attributes) {
 
     // Extract non-alignment CSS classes for the CSS class input fields
     // Alignment classes (image-left, image-center, etc.) are controlled via bubble toolbar
-    const alignmentClassList = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
     const allClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
     const nonAlignmentClasses = allClasses.filter(function(c) {
-        return !alignmentClassList.includes(c);
+        return !ALIGNMENT_CLASSES.has(c);
     }).join(' ');
 
     // Determine initial selection based on existing attributes
@@ -787,10 +792,9 @@ function getImageDialog(editor, img, attributes) {
 
         // Extract and preserve alignment classes from original class attribute
         // These are set via the bubble toolbar and must be preserved when saving
-        const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
         const originalClasses = (attributes.class || '').split(' ').filter(function(c) { return c.trim() !== ''; });
         const preservedAlignmentClasses = originalClasses.filter(function(c) {
-            return alignmentClasses.includes(c);
+            return ALIGNMENT_CLASSES.has(c);
         });
 
         // Handle Click Behavior radio button selection
@@ -945,15 +949,15 @@ function askImageAttributes(editor, img, attributes, table) {
                 trigger: function () {
 
                     const dialogInfo = dialog.get();
-                    const allowedAttributes = [
+                    const allowedAttributes = new Set([
                             '!src', 'alt', 'title', 'class', 'rel', 'width', 'height', 'data-htmlarea-zoom', 'data-noscale', 'data-quality', 'data-title-override', 'data-alt-override', 'caption',
                             'linkHref', 'linkTarget', 'linkTitle', 'linkClass', 'linkParams'
-                        ];
+                        ]);
                     const attributesNew = { ...img, ...dialogInfo };
 
                     let filteredAttr = Object.keys(attributesNew)
                         .filter(function (key) {
-                            return allowedAttributes.includes(key)
+                            return allowedAttributes.has(key)
                         })
                         .reduce(function (obj, key) {
                             obj[key] = attributesNew[key];
@@ -1631,10 +1635,9 @@ class ToggleImageTypeCommand extends Command {
             // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/655
             const linkClassValue = imageElement.getAttribute('imageLinkClass') || '';
             if (linkClassValue) {
-                const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
                 const cleanedLinkClass = linkClassValue
                     .split(' ')
-                    .filter(cls => !alignmentClasses.includes(cls))
+                    .filter(cls => !ALIGNMENT_CLASSES.has(cls))
                     .join(' ')
                     .trim();
                 if (cleanedLinkClass) {
@@ -1760,10 +1763,9 @@ function toInlineImageClass(classValue) {
  * @return {string} The class attribute value without alignment classes
  */
 function withoutAlignmentClasses(classValue) {
-    const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
     return (classValue || '')
         .split(/\s+/)
-        .filter(cls => cls !== '' && !alignmentClasses.includes(cls))
+        .filter(cls => cls !== '' && !ALIGNMENT_CLASSES.has(cls))
         .join(' ');
 }
 
@@ -1789,7 +1791,7 @@ function linkHoldsMoreThan(linkElement, imgElement) {
 /**
  * Inline wrappers an image can sit in inside a paragraph
  */
-const INLINE_WRAPPER_ELEMENTS = ['span', 'strong', 'b', 'em', 'i', 'u', 's', 'sub', 'sup', 'small', 'mark', 'code'];
+const INLINE_WRAPPER_ELEMENTS = new Set(['span', 'strong', 'b', 'em', 'i', 'u', 's', 'sub', 'sup', 'small', 'mark', 'code']);
 
 /**
  * Check if a class-less <img> sits between text in a paragraph.
@@ -1808,7 +1810,7 @@ function isClasslessImageInText(imgElement, node) {
     }
     // Climb through inline wrappers such as <span> or <strong> to the paragraph
     let paragraph = node.parent;
-    while (paragraph?.is('element') && INLINE_WRAPPER_ELEMENTS.includes(paragraph.name)) {
+    while (paragraph?.is('element') && INLINE_WRAPPER_ELEMENTS.has(paragraph.name)) {
         paragraph = paragraph.parent;
     }
     if (!paragraph || !paragraph.is('element', 'p')) {
@@ -1827,7 +1829,7 @@ function isClasslessImageInText(imgElement, node) {
  * their own, but are kept in imageLinkAttributes (#935): rel, which TYPO3's
  * link editing sets, and download. Other attributes are left out, as before.
  */
-const IMAGE_LINK_EXTRA_ATTRIBUTES = ['rel', 'download'];
+const IMAGE_LINK_EXTRA_ATTRIBUTES = new Set(['rel', 'download']);
 
 /**
  * Upcast a <figcaption> into a typo3imageCaption child of the given image.
@@ -1866,7 +1868,7 @@ function getExtraLinkAttributes(...linkElements) {
         }
         for (const [key, value] of linkElement.getAttributes()) {
             const name = key.toLowerCase();
-            if (!IMAGE_LINK_EXTRA_ATTRIBUTES.includes(name)) {
+            if (!IMAGE_LINK_EXTRA_ATTRIBUTES.has(name)) {
                 continue;
             }
             if (!(name in extra)) {
@@ -1889,7 +1891,7 @@ function addExtraLinkAttributes(linkAttributes, modelElement) {
         return;
     }
     for (const [name, value] of Object.entries(extra)) {
-        if (IMAGE_LINK_EXTRA_ATTRIBUTES.includes(name) && !(name in linkAttributes)) {
+        if (IMAGE_LINK_EXTRA_ATTRIBUTES.has(name) && !(name in linkAttributes)) {
             linkAttributes[name] = value;
         }
     }
@@ -2077,8 +2079,8 @@ export default class Typo3Image extends Plugin {
                     if (item.name === 'typo3image') {
                         const classAttribute = item.getAttribute('class');
                         if (classAttribute && typeof classAttribute === 'string') {
-                            const classlist = classAttribute.split(' ');
-                            if (style.classes.filter(value => !classlist.includes(value)).length === 0) {
+                            const classlist = new Set(classAttribute.split(' '));
+                            if (style.classes.filter(value => !classlist.has(value)).length === 0) {
                                 event.return = true;
                                 break
                             }
@@ -2315,9 +2317,8 @@ export default class Typo3Image extends Plugin {
                             imageAttributes.imageLinkTitle = linkTitle;
                         }
                         // Filter out alignment classes
-                        const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
                         const linkClassParts = (linkClass || '').split(' ').filter(c => c.trim() !== '');
-                        const actualLinkClass = linkClassParts.filter(c => !alignmentClasses.includes(c)).join(' ');
+                        const actualLinkClass = linkClassParts.filter(c => !ALIGNMENT_CLASSES.has(c)).join(' ');
                         if (actualLinkClass) {
                             imageAttributes.imageLinkClass = actualLinkClass;
                         }
@@ -2446,10 +2447,9 @@ export default class Typo3Image extends Plugin {
                             imageAttributes.imageLinkTitle = linkTitle;
                         }
                         // Filter out alignment classes from linkClass
-                        const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
                         const linkClassParts = (linkClass || '').split(' ').filter(c => c.trim() !== '');
-                        const actualLinkClass = linkClassParts.filter(c => !alignmentClasses.includes(c)).join(' ');
-                        const alignmentFromLink = linkClassParts.filter(c => alignmentClasses.includes(c)).join(' ');
+                        const actualLinkClass = linkClassParts.filter(c => !ALIGNMENT_CLASSES.has(c)).join(' ');
+                        const alignmentFromLink = linkClassParts.filter(c => ALIGNMENT_CLASSES.has(c)).join(' ');
 
                         if (actualLinkClass) {
                             imageAttributes.imageLinkClass = actualLinkClass;
@@ -2457,7 +2457,7 @@ export default class Typo3Image extends Plugin {
                         // Add alignment classes to figure class if they were on the link
                         if (alignmentFromLink) {
                             const existingClass = imageAttributes.class || '';
-                            const existingParts = existingClass.split(' ').filter(c => c.trim() !== '' && !alignmentClasses.includes(c));
+                            const existingParts = existingClass.split(' ').filter(c => c.trim() !== '' && !ALIGNMENT_CLASSES.has(c));
                             imageAttributes.class = [...existingParts, alignmentFromLink].join(' ');
                         }
                         if (linkParams?.trim()) {
@@ -2835,9 +2835,8 @@ export default class Typo3Image extends Plugin {
                         }
                         // Filter out alignment classes from link class
                         // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/655
-                        const alignmentClasses = ['image-left', 'image-center', 'image-right', 'image-block', 'image-inline'];
                         const linkClassParts = (linkClass || '').split(' ').filter(c => c.trim() !== '');
-                        const actualLinkClass = linkClassParts.filter(c => !alignmentClasses.includes(c)).join(' ');
+                        const actualLinkClass = linkClassParts.filter(c => !ALIGNMENT_CLASSES.has(c)).join(' ');
                         if (actualLinkClass) {
                             imageAttributes.imageLinkClass = actualLinkClass;
                         }
