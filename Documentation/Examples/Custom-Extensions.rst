@@ -78,6 +78,8 @@ CKEditor Plugin Extension
    image in the dialog.
    Inline images use the separate ``typo3imageInline`` model, which needs
    its own ``schema.extend()`` and converters.
+   Switching an image between block and inline also creates a new element
+   from a fixed attribute list, so the custom attributes are lost there too.
 
 Register Plugin
 ~~~~~~~~~~~~~~~

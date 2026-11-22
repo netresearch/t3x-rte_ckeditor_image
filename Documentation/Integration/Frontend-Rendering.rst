@@ -349,7 +349,9 @@ Lightbox Configuration
     lib.contentElement.settings.media.popup {
         # Simple: class of the popup link (default: popup-link)
         linkClass = lightbox
-        # Alternative: only the class attribute is read from ATagParams
+        # Alternative: only the class attribute is read from ATagParams.
+        # It is used only while linkClass is unset or empty; the Site Set
+        # sets linkClass = lightbox, so remove that first.
         # linkParams.ATagParams = class="lightbox"
     }
 

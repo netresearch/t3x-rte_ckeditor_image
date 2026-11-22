@@ -287,6 +287,8 @@ lib.parseFunc_RTE.externalBlocks.figure.stdWrap.preUserFunc.noScale = 1
 
 Without `noScale`, processing is still skipped when the requested dimensions equal the original. `maxFileSizeForAuto` (bytes) forces processing in that case for files above the limit. It has no effect while `noScale = 1` is set:
 
+A per-image setting wins over the global one: an image with `data-quality="none"` is never processed, and an image with `data-noscale="false"` or `data-noscale="0"` is processed even while `noScale = 1` is set.
+
 ```typoscript
 # 2 MB
 lib.parseFunc_RTE.tags.img.preUserFunc.noScale.maxFileSizeForAuto = 2000000
@@ -379,6 +381,8 @@ The DDEV environment is preconfigured for testing image insertion in the RTE, cl
 
 ### Local development (no DDEV)
 
+The JavaScript unit tests in `composer ci:test` and `composer ci:test:js:unit` need Node.js and npm.
+
 ```bash
 composer install
 composer ci:test                  # All checks: lint, phpstan, rector, cgl, unit, JS unit, functional
@@ -411,7 +415,7 @@ Release tags are **signed with an SSH key** and ship with **SLSA Level 3** prove
 
 ### Verify tag signature
 
-GitHub shows a **Verified** badge on each signed tag. To verify locally, git needs an allowed-signers file that maps the signer's e-mail address to the signer's public SSH signing key, listed at `https://api.github.com/users/<signer>/ssh_signing_keys`:
+GitHub shows a **Verified** badge on each signed tag. A valid signature only proves that the tag was signed with that key, so first check that the signer is a maintainer of this repository (for example in the repository's contributors and its earlier verified release tags). To verify locally, git needs an allowed-signers file that maps the signer's e-mail address to the signer's public SSH signing key, listed at `https://api.github.com/users/<signer>/ssh_signing_keys`:
 
 ```bash
 # allowed_signers holds one line per key: <signer-email> <public-ssh-key>

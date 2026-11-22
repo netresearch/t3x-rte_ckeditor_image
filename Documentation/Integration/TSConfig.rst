@@ -123,7 +123,8 @@ Enable for Specific Content Types
 
 .. note::
    ``buttons.image.options.magic`` is not read under ``RTE.config.*``.
-   Set the magic image dimensions under ``RTE.default`` (see above).
+   Set the magic image dimensions under ``RTE.<name>``, where ``<name>`` is the
+   field's ``richtextConfiguration`` (``RTE.default`` if none is set; see above).
 
 Disable for Specific Fields
 ----------------------------
