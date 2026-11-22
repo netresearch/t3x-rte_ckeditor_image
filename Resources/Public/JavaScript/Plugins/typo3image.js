@@ -1737,6 +1737,72 @@ class SetImageStyleCommand extends Command {
 
 
 /**
+ * Attributes a toggled image keeps from the image it replaces
+ */
+const TOGGLED_IMAGE_ATTRIBUTES = [
+    'src', 'fileUid', 'fileTable', 'alt', 'altOverride',
+    'title', 'titleOverride', 'width', 'height',
+    'enableZoom', 'noScale', 'quality',
+    'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle', 'imageLinkClass', 'imageLinkParams',
+    'imageLinkAttributes'
+];
+
+/**
+ * Copy the attributes a toggled image keeps, without empty values.
+ *
+ * The alignment classes are removed from imageLinkClass: they belong to the
+ * image, and image-inline must not stay on the <a> after inline→block (#655).
+ *
+ * @param {Element} imageElement - The typo3image or typo3imageInline element
+ * @return {Object} The attributes, without class
+ */
+function getToggledImageAttributes(imageElement) {
+    const attributes = {};
+    for (const attr of TOGGLED_IMAGE_ATTRIBUTES) {
+        const value = imageElement.getAttribute(attr);
+        if (value !== undefined && value !== null && value !== '') {
+            attributes[attr] = value;
+        }
+    }
+
+    const linkClassValue = imageElement.getAttribute('imageLinkClass') || '';
+    if (linkClassValue) {
+        const cleanedLinkClass = linkClassValue
+            .split(' ')
+            .filter(cls => !ALIGNMENT_CLASSES.has(cls))
+            .join(' ')
+            .trim();
+        if (cleanedLinkClass) {
+            attributes['imageLinkClass'] = cleanedLinkClass;
+        } else {
+            delete attributes['imageLinkClass'];
+        }
+    }
+    return attributes;
+}
+
+/**
+ * Turn the class of an inline image into the class of a block image: remove
+ * image-inline and add image-block if no alignment class remains.
+ *
+ * @param {string} classValue - The class attribute value
+ * @return {string} The class attribute value for a block image
+ */
+function toBlockImageClass(classValue) {
+    const classes = classValue
+        .split(' ')
+        .filter(cls => cls !== 'image-inline')
+        .join(' ')
+        .trim();
+
+    // If no style class remains, default to image-block
+    if (/image-(left|right|center|block)/.test(classes)) {
+        return classes;
+    }
+    return classes ? classes + ' image-block' : 'image-block';
+}
+
+/**
  * Command to toggle between block (typo3image) and inline (typo3imageInline) image types
  * Block→Inline: Removes caption (inline images cannot have captions)
  * Inline→Block: Wraps image in figure
@@ -1772,60 +1838,15 @@ class ToggleImageTypeCommand extends Command {
 
         model.change(writer => {
             // Copy common attributes
-            const commonAttributes = [
-                'src', 'fileUid', 'fileTable', 'alt', 'altOverride',
-                'title', 'titleOverride', 'width', 'height',
-                'enableZoom', 'noScale', 'quality',
-                'imageLinkHref', 'imageLinkTarget', 'imageLinkTitle', 'imageLinkClass', 'imageLinkParams',
-                'imageLinkAttributes'
-            ];
-
-            const attributes = {};
-            for (const attr of commonAttributes) {
-                const value = imageElement.getAttribute(attr);
-                if (value !== undefined && value !== null && value !== '') {
-                    attributes[attr] = value;
-                }
-            }
+            const attributes = getToggledImageAttributes(imageElement);
 
             // Handle class attribute - remove/add image-inline as needed
-            let classValue = imageElement.getAttribute('class') || '';
-
-            if (isCurrentlyInline) {
+            const classValue = imageElement.getAttribute('class') || '';
+            attributes['class'] = isCurrentlyInline
                 // Inline → Block: remove image-inline class, add image-block if no other style class
-                classValue = classValue
-                    .split(' ')
-                    .filter(cls => cls !== 'image-inline')
-                    .join(' ')
-                    .trim();
-
-                // If no style class remains, default to image-block
-                if (!classValue.match(/image-(left|right|center|block)/)) {
-                    classValue = classValue ? classValue + ' image-block' : 'image-block';
-                }
-            } else {
+                ? toBlockImageClass(classValue)
                 // Block → Inline: remove block style classes, add image-inline
-                classValue = toInlineImageClass(classValue);
-            }
-
-            attributes['class'] = classValue;
-
-            // Clean alignment classes from imageLinkClass during toggle
-            // Prevents 'image-inline' from persisting on <a> tag after inline→block
-            // See: https://github.com/netresearch/t3x-rte_ckeditor_image/issues/655
-            const linkClassValue = imageElement.getAttribute('imageLinkClass') || '';
-            if (linkClassValue) {
-                const cleanedLinkClass = linkClassValue
-                    .split(' ')
-                    .filter(cls => !ALIGNMENT_CLASSES.has(cls))
-                    .join(' ')
-                    .trim();
-                if (cleanedLinkClass) {
-                    attributes['imageLinkClass'] = cleanedLinkClass;
-                } else {
-                    delete attributes['imageLinkClass'];
-                }
-            }
+                : toInlineImageClass(classValue);
 
             // A block image cannot carry the link plugin's text attributes.
             // Keep such a link as the image's own link (#935).
