@@ -12,6 +12,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.11.0] - 2026-11-23
+
+### Added
+
+- **Captions keep line breaks and inline markup** ([#978](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/978)) — `<br>`, `<strong>`, `<em>` and links inside `<figcaption>` now survive loading into the editor, saving the image dialog without a caption change, and frontend rendering. The frontend passes the caption through a strict allowlist sanitizer.
+
+### Security
+
+- **No images from non-public storages in the frontend** ([#977](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/977)) — for an image whose file lies in a non-public storage, the extension now outputs nothing (standalone or figure) and removes the image from link content. Before, it fell back to the original `<img>` tag, which carried the file's public URL.
+
+### Fixed
+
+- **The image reference validator repairs what it reports** ([#976](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/976)) — `--fix` removes the stale `data-htmlarea-file-uid` from images whose file was deleted (`orphaned_file_uid`), `--fix --dry-run` reports without writing, and `--fix` and the upgrade wizard fail when a re-scan still finds fixable issues.
+- **Backend preview keeps text with libxml2 2.14+** ([#962](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/962)) — text outside an element is no longer dropped from the page module preview on servers with libxml2 2.14 or newer.
+- **Cancelled image dialogs no longer leave unhandled promise rejections** ([#986](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/986), [#987](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/987)) — cancelling the image dialog, closing the link browser or a failed image info request no longer ends as an unhandled rejection in the browser console.
+
+### Changed
+
+- **Unused `typo3image.toolbar` removed from `rteWithImages.yaml`** ([#974](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/974)) — the plugin never read this key; the commented `noScale` examples in `ImageRendering/setup.typoscript` now show the form that reaches `ImageResolverService`.
+- **Code quality** ([#984](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/984), [#986](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/986), [#988](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/988)) — SonarQube findings in `Classes/` and the CKEditor plugin resolved without changes to public signatures; the plugin JavaScript is linted with ESLint in CI and the pre-commit hook.
+- **PHP 8.6** ([#966](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/966)) — added to the CI test matrix.
+
+### Documentation
+
+- **Corrected manual and README** ([#970](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/970), [#971](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/971), [#972](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/972)) — removed options, hooks and events that do not exist and fixed wrong defaults, TypoScript paths and commands.
+- **Supported versions** ([#981](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/981), [#983](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/983)) — `SECURITY.md` and the README mark the 12.x line as end of life since 2026-04-30.
+
 ## [13.10.5] - 2026-11-05
 
 ### Fixed
@@ -1086,7 +1113,14 @@ _See [GitHub release](https://github.com/netresearch/t3x-rte_ckeditor_image/rele
 - Update image reference index ([#45](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/45), [#62](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/62))
 - Compatibility with TYPO3 CMS 9.x
 
-[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.10.3...HEAD
+[Unreleased]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.11.0...HEAD
+[13.11.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.10.5...v13.11.0
+[13.10.5]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.10.4...v13.10.5
+[13.10.4]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.10.3...v13.10.4
+[13.10.3]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.10.2...v13.10.3
+[13.10.2]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.10.1...v13.10.2
+[13.10.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.10.0...v13.10.1
+[13.10.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.9.1...v13.10.0
 [13.9.1]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.9.0...v13.9.1
 [13.9.0]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.3...v13.9.0
 [13.8.3]: https://github.com/netresearch/t3x-rte_ckeditor_image/compare/v13.8.2...v13.8.3
