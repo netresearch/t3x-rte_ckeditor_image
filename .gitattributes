@@ -56,3 +56,4 @@
 /renovate.json      export-ignore
 /sonar-project.properties export-ignore
 /vex.json           export-ignore
+/changelog.d/        export-ignore

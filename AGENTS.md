@@ -89,7 +89,7 @@ The Makefile defines DDEV/docs conveniences (`setup`, `start`, `stop`, `up`, `dd
 ## Development Workflow
 
 1. Create feature branch from `main`
-2. Make changes with tests. **Changelog:** feature and fix PRs leave [`CHANGELOG.md`](CHANGELOG.md) alone; the release PR `chore(release): X.Y.Z` writes the version's section (Keep a Changelog: `## [X.Y.Z] - YYYY-MM-DD` with `### Added`, `### Changed`, `### Fixed`, `### Security`, `### Documentation` as needed, newest first, below `## [Unreleased]`)
+2. Make changes with tests. **Changelog:** feature and fix PRs leave [`CHANGELOG.md`](CHANGELOG.md) alone and write their entry as a fragment `changelog.d/<branch-slug>.<section>.md` ([format](changelog.d/README.md); `composer ci:test:changelog` checks it); the release PR `chore(release): X.Y.Z` runs `composer changelog:collect`, which moves the fragments into `## [Unreleased]`, and writes the version's section (Keep a Changelog: `## [X.Y.Z] - YYYY-MM-DD` with `### Added`, `### Changed`, `### Fixed`, `### Security`, `### Documentation` as needed, newest first, below `## [Unreleased]`)
 3. Pre-commit hooks run automatically: phplint -> php-cs-fixer -> phpstan
 4. Commit with conventional format (commitlint validates)
 5. Push and create PR

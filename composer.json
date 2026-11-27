@@ -40,7 +40,7 @@
     },
     "require-dev": {
         "bk2k/bootstrap-package": "^15.0 || ^16.0",
-        "netresearch/typo3-ci-workflows": "^2.0.4"
+        "netresearch/typo3-ci-workflows": "^2.3.1"
     },
     "autoload": {
         "psr-4": {
@@ -94,6 +94,7 @@
             "composer audit"
         ],
         "ci:test:php:cgl": [
+            "@ci:test:changelog",
             "@ci:cgl --dry-run"
         ],
         "ci:test:php:functional": [
@@ -155,6 +156,8 @@
         ],
         "ci:test:js:unit": [
             "cd Tests/JavaScript && npm ci --silent && npm test"
-        ]
+        ],
+        "changelog:collect": "changelog-fragments collect",
+        "ci:test:changelog": "changelog-fragments check @no_additional_args"
     }
 }
